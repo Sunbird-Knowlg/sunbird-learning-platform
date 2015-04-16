@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="playerApp">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="shortcut icon" href="images/favicon.png">
+    <title>Ilimi </title>
+
+    <% include ../includes/player-styles %>
+    <% include ../includes/header-scripts %>
+</head>
+<body id="courseBrowserBody" ng-controller="PlayerController" ng-cloak class="ng-cloak">
+    <header class="nav-down">
+        <% include ../includes/header %>
+    </header>
+    <section class="mid-container-full">
+        <div class="text-center" ng-show="loadingPlayer" style="margin-top: 50px">
+            Loading <img src="/img/loading.gif"/>
+        </div>
+        <div class="mid-container" ng-show="!loadingPlayer">
+            <div class="col-sm-1 NavContentz leftbarshadow" style="position: fixed; top: 65px;">
+                <% include ../includes/left-sidebar %>
+            </div>
+            <div class="middleContainer">
+                <div class="mid-area scrollstyle" ng-cloak>
+                    <div ui-view="contentSection" class="mid_content" data-spy="scroll" data-target="#sidebarScrollSpy"></div>
+                    <% include ../includes/logged-footer %>
+                </div>
+            </div>
+            <div class="RightSideBar" style="position: fixed; top: 65px; overflow-y: auto;">
+                <% include ../includes/right-sidebar %>
+            </div>
+        </div>
+    </section>
+
+    <% include ../includes/player-scripts %>
+</body>
+</html>

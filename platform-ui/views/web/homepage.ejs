@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="homePageApp">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-touch-fullscreen" content="yes">
+    <meta id="extViewportMeta" name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+    <link rel="shortcut icon" href="images/favicon.png">
+    <title>Ilimi</title>
+    <% include ../includes/common-styles %>
+    <% include ../includes/header-scripts %>
+</head>
+
+<body class="home-body" id="home-body" ng-controller="HomePageCtrl">
+    <div class="wrapper">
+        <header class="nav-down">
+            <% include ../includes/header %>
+        </header>
+        <section class="banner-container container-section sectionNextToHeader">
+            <div class="container">
+                <div id="carousel-example-generic" class="carousel slide" data-ride="carousel">
+                    <!-- Wrapper for slides -->
+                    <div class="carousel-inner">
+                        <div class="item active">
+                            <div class="carousel-caption">
+                                <h1 class="bannerTitle">Build your career</h1>
+                                <p class="banDescription">Meet your career objectives with goal oriented courses designed by top practitioners. Enjoy a new paradigm of personalised learning!</p>
+                                <a onclick="scrollToCourses()" class="btn btn-lg btn-primary">
+                                        EXPERIENCE Ilimi <i class="icon-roundarrow-right"></i>
+                                    </a>
+                            </div>
+                            <div class="image-cont">
+                                <img src="/img/webimages/slider2.png" alt="...">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="feature-container">
+            <div class="container">
+                <div class="martop clearfix chromefix">
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="topfaculty-icon"></i></div>
+                        <div class="pull-left feaContent">
+                            <h2 class="tf">Top Faculty</h2>
+                            <span class="feaDescription">Learn from the experience of the best practitioners.</span>
+                        </div>
+                    </div>
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="tutoring-icon"></i></div>
+                        <div class="pull-left feaContent">
+                            <h2 class="tu">Individual Attention</h2>
+                            <span class="feaDescription">An expert tutor is always on hand to help you learn.</span>
+                        </div>
+                    </div>
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="showcase-icon"></i></div>
+                        <div class="pull-left feaContent">
+                            <h2 class="sh">Showcase</h2>
+                            <span class="feaDescription">Demonstrate what you have learnt with real-world projects.</span>
+                        </div>
+                    </div>
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="personalization-icon"></i></div>
+                        <div class="pull-left feaContent">
+                            <h2 class="pe">Mastery</h2>
+                            <span class="feaDescription">Learn at your own pace with individual attention. </span>
+                        </div>
+                    </div>
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="explore-icon"></i></div>
+                        <div class="explore-dexcription pull-left feaContent">
+                            <h2 class="ex">Explore</h2>
+                            <span class="feaDescription">Discover thousands of concepts using content from our repository.</span>
+                        </div>
+                    </div>
+                    <div class="widget widgetChg">
+                        <div class="pull-left"><i class="social-learning-icon"></i></div>
+                        <div class="pull-left feaContent">
+                            <h2 class="tu">Social Learning</h2>
+                            <span class="feaDescription">Make friends, share, post, follow. Learn from your peers.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <section class="margin30 feature-container" ng-show="courses.featured">
+            <div class="container">
+                <div class="feature-heading clearfix">
+                    <h2 style="color:#000;">About Us</h2>
+                </div>
+                <p class="feature-content text-justify">
+                    Our vision is to help every working professional advance their careers. We have developed Ilimi as a path breaking learning platform which enables working professionals to take charge of their destiny. Ilimi delivers outcomes like no other platform does. </p>
+                <p class="feature-content text-justify"> We are launching a set of signature courses for learners and corporates to experience Ilimi's pedagogic model. These are advanced courses in the areas of Cloud Computing, Advanced Java, Data Science, Software Architecture and Web-scale Applications. </p>
+                <p class="feature-content text-justify"> <a href="/people">The Ilimi platform </a> is also available as a white-labelled, cloud based platform for large organizations and education providers. One of the largest education providers in India is using the platform to transform over 1500 fresh graduates into industry ready programmers.
+                </p>
+                <p class="feature-content text-justify">
+                    Our team has a rich blend of expertise, experience and passion for excellence, coupled with a healthy disdain for status quo. We are a team of top technologists, architects, data scientists and academicians. We have worked together for over 15 years and have designed many high-performance applications. We have several patents and publications to our credit.</p>
+                <a href="/people" class="knowLink pull-right">Meet the team...</a>
+            </div>
+        </section>
+    </div>
+</body>
+<% include ../includes/web-scripts %>
+<% include ../includes/footer %>
+
+</html>

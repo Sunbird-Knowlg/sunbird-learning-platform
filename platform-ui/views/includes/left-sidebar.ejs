@@ -1,0 +1,27 @@
+<div id="mainNavMenu" class="NavLeftContainer">
+<ul>
+	<li class="dropdown coachingTab active common_box">
+		<div class="dropdown dropdown-toggle">
+			<i class="coachingImg"></i>
+			<span class="lefttab"> Learning Map</span>
+		</div>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
+				<a href="javascript:void(0);">{{taxonomy.name}}</a>
+			</li>
+		</ul>
+	</li>
+
+	<li class="dropdown forumsTab common_box">
+		<div class="dropdown dropdown-toggle" id="dropdownMenu1" data-toggle="dropdown">
+			<i class="forumsImg"></i>
+			<span class="lefttab">games</span>
+		</div>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
+				<a href="javascript:void(0);">{{taxonomy.name}}</a>
+			</li>
+		</ul>
+	</li>
+</ul>
+</div>

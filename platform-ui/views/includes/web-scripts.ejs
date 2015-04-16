@@ -1,0 +1,37 @@
+<script src="/js/thirdparty/underscore.js"></script>
+<script src="/js/thirdparty/angular-d3-min.js"></script>
+<script src="/js/thirdparty/d3.min.js"></script>
+<script src="/js/app/controllers/homePageController.js"></script>
+<script src="/js/app/controllers/loginController.js"></script>
+<script src="/js/thirdparty/sunburst-services.js"></script>
+<script src="/js/thirdparty/sunburst-directives.js"></script>
+<script src="/js/thirdparty/sunburst-min.js"></script>
+<script>
+    var is_chrome = navigator.userAgent.toLowerCase().indexOf('chrome') > -1;
+    if(is_chrome)
+        $('.chromefix').css({ 'width' : '101%'});
+
+    $(".carousel").carousel({
+        interval: 5000,
+        pause: "hover",
+        wrap: true
+    });
+
+    function scrollToCourses() {
+        $('html, body').animate({
+            scrollTop: $("#feature-section").offset().top - 20
+        }, 1000);
+    }
+
+	function scrollToContact() {
+        $('html, body').animate({
+            scrollTop: $("#contact").offset().top - 20
+        }, 1000);
+    }
+
+	function scrollTocontentrepository() {
+        $('html, body').animate({
+            scrollTop: $("#contentrepository").offset().top - 20
+        }, 1000);
+    }
+</script>

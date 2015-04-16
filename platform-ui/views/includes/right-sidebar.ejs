@@ -1,0 +1,31 @@
+<div class="sidebarContainerz">
+	<div class="RightsideContainer scrollstyle">
+		<div class="il-rt-container recentContent marginBottom20">
+			<div class="il-rt-header pad0">
+				<h3>Learning Maps</h3>
+			</div>
+			<div class="il-rt-notn">
+				<ul>
+					<li ng-repeat="taxonomy in allTaxonomies">
+						<span ng-if="selectedTaxonomyId == taxonomy.identifier">{{taxonomy.name}}</span>
+						<a href="javascript:void(0)" ng-if="selectedTaxonomyId != taxonomy.identifier" ng-click="switchTaxonomy(id)">{{taxonomy.name}}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="il-rt-container recentContent marginBottom20">
+			<div class="il-sc-header il-dd-header pad0">
+				<h3>Concept</h3>
+			</div>
+			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
+				<nav class="affix il-rt-notn">
+					<ul class="nav">
+						<li ng-repeat="cat in categories">
+							<a href="#{{cat.id}}">{{cat.label}}</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+	</div>
+</div>
