@@ -120,7 +120,7 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
 
                     // Add the mouseleave handler to the bounding circle.
                     d3.select("#container").on("mouseleave", mouseleave);
-
+                    $rootScope.sunburstLoaded = true;
 
                     function sunburst_click(d) {
                         var nNode;
@@ -143,7 +143,6 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                         path.transition()
                             .duration(500)
                             .attrTween("d", arcTween(nNode));
-
                     }
 
                     function center_click() {
@@ -166,9 +165,7 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                             .attrTween("d", arcTween(nNode));
                     }
 
-
                     // Interpolate the scales!
-
                     function arcTween(d) {
                         var xd = d3.interpolate(x.domain(), [d.x, d.x + d.dx]),
                             yd = d3.interpolate(y.domain(), [d.y, 1]),
@@ -196,7 +193,6 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                     }
 
                     // Fade all but the current sequence, and show it in the breadcrumb trail.
-
                     function mouseover(d) {
                         showWords(d);
                         // Fade all the segments.

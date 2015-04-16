@@ -1943,3 +1943,15 @@ li.sortMenuItem a {
 .selectVisualization label {
     font-size: 13px;
 }
+
+.selectVisualization .btn-default {
+    background-color: #fafafa;
+    border-radius: 0 !important;
+    box-shadow: none;
+}
+
+.selectVisualization .btn-default.active {
+    background-color: #fafafa;
+    border-color: #ccc;
+    color: #428bca;
+}

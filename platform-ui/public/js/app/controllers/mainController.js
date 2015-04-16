@@ -345,7 +345,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.selectConcept = function(conceptObj) {
-
+        $scope.sbConcept = conceptObj;
+        $scope.hoveredConcept = conceptObj;
+        $scope.getConcept();
     }
 
 }]);

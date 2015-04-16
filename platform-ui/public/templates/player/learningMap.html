@@ -34,16 +34,16 @@
             		<button class="btn btn-primary pull-right">Create</button>
             	</div>
             </div>
-            <div class="col-md-12 selectVisualization pull-right padTop">
-				<label class="radio-inline pull-right marginLeft10">
-				  <input type="radio" name="inlineRadioOptions" value="option2" ng-click="selectVisualization('tree')"> Tree
-				</label>
-				<label class="radio-inline pull-right">
-				  <input type="radio" name="inlineRadioOptions" value="option1" checked ng-click="selectVisualization('sunburst')"> Sunburst
-				</label>
+            <div class="col-md-12 noPad padTop">
+            	<div class="btn-group btn-group-xs pull-right selectVisualization" role="group" style="position: absolute; top: 10px; right: 0px; z-index: 1000">
+				  	<button type="button" class="btn btn-default {{showSunburst ? 'active' : ''}}" ng-click="selectVisualization('sunburst')"><i class="fa fa-bullseye"></i></button>
+				  	<button type="button" class="btn btn-default {{showSunburst ? '' : 'active'}}" ng-click="selectVisualization('tree')"><i class="fa fa-sitemap fa-rotate-270"></i></button>
+				</div>
             </div>
             <div class="col-md-12 feature-soft-cont feature-soft" ng-if="showSunburst">
-		        <div id="sunburst" class="sunburst-pad" sunburst data="data" sunburstId="sunburst" style="width: 500px;margin: auto"></div>
+		        <div id="sunburst" class="sunburst-pad" sunburst data="data" sunburstId="sunburst" style="width: 500px;margin: auto">
+		        	<span class="text-center" ng-hide="sunburstLoaded">Loading <i class="fa fa-spinner fa-spin"/></span>
+		        </div>
 		    </div>
 		    <div class="col-md-12 feature-soft-cont feature-soft treeContainer" ng-if="showTree">
 		    	<div id="treeLayout" class="treeLayout"></div>
