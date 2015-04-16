@@ -130,16 +130,16 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.getTaxonomyGraph = function(taxonomyId) {
-        service.getTaxonomyGraph(taxonomyId).then(function(graph) {
-            $scope.conceptGraph = angular.copy(graph);
-            $scope.selectedTaxonomy.graph = graph;
-            $scope.sbConcept = graph;
+        service.getTaxonomyGraph(taxonomyId).then(function(data) {
+            $scope.conceptGraph = data.paginatedGraph;
+            $scope.selectedTaxonomy.graph = data.graph;
+            $scope.sbConcept = data.graph;
             $scope.getConcept();
             $timeout(function() {
                 loadSunburst($scope);
                 registerLeftMenu();
             }, 1000);
-            $scope.setTaxonomyGroups(graph);
+            $scope.setTaxonomyGroups(data.graph);
         }).catch(function(err) {
             console.log('Error fetching taxnomy graph - ', err);
         });

@@ -25,5 +25,48 @@ exports.getTaxonomyDefinitions = function(id, cb) {
 }
 
 exports.getTaxonomyGraph = function(id, cb) {
-	util.sendJSONResponse('taxonomy_graph.json', cb);
+
+	async.waterfall([
+		function(next) {
+			util.sendJSONResponse('taxonomy_graph.json', next);
+		},
+		function(graph, next) {
+			var clonedGraph = JSON.parse(JSON.stringify(graph));
+			paginateConcept(clonedGraph, 10);
+			next(null, graph, clonedGraph)
+		}
+	], function(err, graph, clonedGraph) {
+		var data = {
+			graph: graph,
+			paginatedGraph: clonedGraph
+		}
+		cb(null, data);
+	});
+}
+
+function paginateConcept(concept, paginationSize) {
+	if(concept.children && concept.children.length > 0) {
+		paginateConceptList(concept.children, paginationSize);
+	}
+	if(concept.children && concept.children.length > paginationSize) {
+		var children = concept.children;
+		var page1 = children.slice(0, paginationSize);
+		var length = page1.length;
+		var pageIndex = 1;
+		concept.children = page1;
+		concept.children[length] = {name: 'more', pages: [], pageIndex: pageIndex};
+		while(children.length > paginationSize) {
+			concept.children[length].pages.push({page: pageIndex++, nodes: children.splice(0, paginationSize)});
+		}
+
+		if(children.length > 0) {
+			concept.children[length].pages.push({page: pageIndex++, nodes: children.splice(0, paginationSize)});
+		}
+	}
+}
+
+function paginateConceptList(concepts, paginationSize) {
+	concepts.forEach(function(concept) {
+		paginateConcept(concept, paginationSize);
+	});
 }
