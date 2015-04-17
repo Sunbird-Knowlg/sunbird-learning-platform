@@ -13,15 +13,15 @@
 				</ul>
 			</div>
 		</div>
-		<div class="il-rt-container recentContent marginBottom20">
+		<div class="il-rt-container recentContent marginBottom20" bs-scrollspy-list ng-if="showConceptCategories">
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Concept</h3>
 			</div>
 			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
-				<nav class="affix il-rt-notn">
+				<nav class="il-rt-notn">
 					<ul class="nav">
-						<li ng-repeat="cat in categories">
-							<a href="#{{cat.id}}">{{cat.label}}</a>
+						<li data-target="#{{cat.id}}" bs-scrollspy ng-repeat="cat in categories">
+							<a href="javascript:void(0)" ng-click="scrolltoHref(cat.id)">{{cat.label}}</a>
 						</li>
 					</ul>
 				</nav>

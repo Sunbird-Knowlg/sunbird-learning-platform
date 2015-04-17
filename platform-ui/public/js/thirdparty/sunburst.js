@@ -18,7 +18,8 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
         return {
             restrict: 'A',
             scope: {
-                data: "="
+                data: "=",
+                cid: "="
             },
             link: function(scope) {
                 var currentRoot;
@@ -30,8 +31,28 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                         return;
                 }, false);
 
-                // Renders the sunburst with current dataset
+                scope.$watch('cid', function(newVals) {
+                    if (newVals)
+                        return selectConcept(newVals);
+                    else
+                        return;
+                }, false);
 
+                // Auto select the concept id
+                function selectConcept(cid) {
+                    var nodes = d3.select("#sunburst").selectAll("#sunburst-path")[0];
+                    for(var i=0; i< nodes.length; i++) {
+                        var node = nodes[i];
+                        var nodeCid = $(node).attr('cid');
+                        if(nodeCid == cid) {
+                            var event = document.createEvent("SVGEvents");
+                            event.initEvent("click",true,true);
+                            node.dispatchEvent(event);
+                        }
+                    }
+                }
+
+                // Renders the sunburst with current dataset
                 function render(data) {
                     // Dimensions of sunburst.
                     var margin = 100;
@@ -87,6 +108,9 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                         .data(partition.nodes(root))
                         .enter().append("svg:path")
                         .attr("id", "sunburst-path")
+                        .attr("cid", function(d) {
+                            return d.conceptId;
+                        })
                         .style("z-index", 1)
                         .attr("d", arc)
                         .attr("fill-rule", "evenodd")

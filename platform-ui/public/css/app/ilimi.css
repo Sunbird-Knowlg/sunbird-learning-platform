@@ -1913,6 +1913,14 @@ li.sortMenuItem a {
     border-left: 1px solid #563d7c;
 }
 
+.bs-docs-sidebar .nav>.active>a {
+    padding-left: 8px;
+    font-weight: 700;
+    color: #563d7c;
+    background-color: transparent !important;
+    border-left: 2px solid #563d7c;
+}
+
 .padRight10 {
     padding-right: 10px;
 }
@@ -1921,8 +1929,8 @@ li.sortMenuItem a {
     padding-right: 20px;
 }
 
-.ng-dirty > .panel {
-    border-color: red;
+.ng-dirty > .panel > .panel-heading {
+    background-color: #fcf8e3;
 }
 
 .label.tag {

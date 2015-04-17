@@ -176,25 +176,22 @@ function update(source) {
         .attr('class', 'nodeText')
         .style('font-size', options.textFontSize)
         .attr("text-anchor", "start")
-        /*.text(function(d) {
-            if(d.name == 'more') {
-                return "page " + d.pageIndex + '/' + d.pages.length;
-            }
-            return d.name;
-        })*/
         .style("fill-opacity", 1)
         .on("click", function(d) {
-            $('.nodeText').attr('font-weight', '');
-            $('.nodeText').css({'font-size': options.textFontSize});
-            $(this).attr('font-weight', 'bold');
-            $(this).css({'font-size': options.textSelectedFontSize});
-            ngScope.selectConcept(d);
+            if(d.name == 'more') {
+                click(d);
+            } else {
+                $('.nodeText').attr('font-weight', '');
+                $('.nodeText').css({'font-size': options.textFontSize});
+                $(this).attr('font-weight', 'bold');
+                $(this).css({'font-size': options.textSelectedFontSize});
+                ngScope.selectConcept(d);
+            }
         })
         .attr("data-title", function(d) {
             return d.name;
         })
         .attr("data-content", function(d) {
-            //var html = "<p>The first module is an introduction to software architecture. It establishes the foundation for software architecture thinking. We introduce you to the essential terms and definitions commonly used in software architecture and the role of Quality attributes. We also introduce styles, patterns and tactics that form the basis of designing software architectures.</p>";
             var html = d.description;
             return html;
         })
@@ -218,7 +215,7 @@ function update(source) {
             }
         })
         .text(function(d) {
-            if(d.name == 'more') { return '+'; } else { return (d.concepts || d.subConcepts || d.microConcepts); }
+            if(d.name == 'more') { return '+'; } else { return d.sum; }
         })
         .on('click', click);
 
@@ -250,7 +247,7 @@ function update(source) {
         if(d.name == 'more') {
             return '+';
         } else {
-            return (d.concepts || d.subConcepts || d.microConcepts);
+            return d.sum;
         }
     });
 
@@ -435,7 +432,6 @@ function showDNDTree(data, divId, config, $scope, selectedId) {
     ngScope = $scope;
     treeLayoutData = JSON.parse(JSON.stringify(data));
     options = mergeOptions(divId, config);
-    console.log('options', options);
     // define a d3 diagonal projection for use by the node paths later on.
     var diagonal = d3.svg.diagonal()
         .projection(function(d) {
@@ -499,7 +495,7 @@ var selectedNode;
 var isInMore;
 
 function expandANode(conceptId, conceptTitle) {
-    console.log('Expanding node - ', conceptId, conceptTitle);
+    //console.log('Expanding node - ', conceptId, conceptTitle);
     if(selectedId && selectedId == conceptId) {
         if(conceptTitle) {
             selectTextNode(conceptTitle);

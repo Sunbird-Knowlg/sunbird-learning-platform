@@ -55,7 +55,7 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
 
 }]);
 
-app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll) {
 
     // Structure of taxonomy is
     // taxonomyId: {
@@ -99,6 +99,11 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         {id: 'subConcept', label: "Sub Concept"},
         {id: 'microConcept', label: "Micro Concept"}
     ]
+
+    $scope.scrolltoHref = function (id) {
+        $location.hash(id);
+        $anchorScroll();
+    }
 
 }]);
 
@@ -153,6 +158,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                return [item.propertyName, item]
             }));
             $scope.setAllCustomProperties();
+            $timeout(function() {
+                $rootScope.showConceptCategories = true;
+            }, 1000);
         });
     }
 
@@ -160,7 +168,6 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.getTaxonomyGraph($stateParams.id);
 
     $rootScope.$on('selectConcept', function(event, args) {
-        console.log('args', args);
         $scope.sbConcept = args.concept;
         $scope.getConcept();
     });
@@ -335,7 +342,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.showSunburst = false;
             $scope.showTree = true;
             setTimeout(function() {
-                showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, null);
+                var cid = $scope.sbConcept ? $scope.sbConcept.conceptId : null;
+                showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, cid);
             }, 1000);
         } else {
             $scope.showSunburst = true;
@@ -383,6 +391,9 @@ function loadSunburst($scope) {
         var root = $scope.selectedTaxonomy.graph;
         $scope.assignColors(root);
         $scope.data = [$scope.selectedTaxonomy.graph];
+        if($scope.sbConcept) {
+            $scope.conceptId = $scope.sbConcept.conceptId;
+        }
     }
 }
 

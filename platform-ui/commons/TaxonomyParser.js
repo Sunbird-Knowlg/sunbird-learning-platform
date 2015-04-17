@@ -68,6 +68,7 @@ function outputAsJson(csvArray, outputJsonFile) {
 	json.concepts = _.uniq(_.pluck(csvArray, 'concept')).length;
 	json.subConcepts = _.uniq(_.pluck(csvArray, 'subconcept')).length;
 	json.microConcepts = _.uniq(_.pluck(csvArray, 'microconcept')).length;
+	json.sum = json.concepts + json.subConcepts + json.microConcepts;
 	_.each(csvArray, function(obj) {
 		if(!concepts[obj.concept]) {
 			concepts[obj.concept] = {
@@ -83,6 +84,7 @@ function outputAsJson(csvArray, outputJsonFile) {
 			}
 			concepts[obj.concept].subConcepts = _.uniq(_.pluck(_.where(csvArray, {concept: obj.concept}), 'subconcept')).length;
 			concepts[obj.concept].microConcepts = _.uniq(_.pluck(_.where(csvArray, {concept: obj.concept}), 'microconcept')).length;
+			concepts[obj.concept].sum = concepts[obj.concept].subConcepts + concepts[obj.concept].microConcepts;
 			json.children.push(concepts[obj.concept]);
 		}
 		var concept = concepts[obj.concept];
@@ -99,6 +101,7 @@ function outputAsJson(csvArray, outputJsonFile) {
 			    microConcepts: 0
 			}
 			subconcepts[obj.subconcept].microConcepts = _.uniq(_.pluck(_.where(csvArray, {subconcept: obj.subconcept}), 'microconcept')).length;
+			subconcepts[obj.subconcept].sum = subconcepts[obj.subconcept].microConcepts;
 			concept.children.push(subconcepts[obj.subconcept]);
 		}
 		var subconcept = subconcepts[obj.subconcept];
@@ -109,6 +112,7 @@ function outputAsJson(csvArray, outputJsonFile) {
 		    description: "",
 		    level: 3,
 		    size: 1,
+		    sum: 0
 		});
 	});
 	fs.writeFileSync(outputJsonFile, JSON.stringify(json))
