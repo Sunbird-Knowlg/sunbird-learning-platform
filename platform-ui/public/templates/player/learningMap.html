@@ -31,7 +31,7 @@
 	            	</div>
             	</div>
             	<div class="col-md-12 padBottom">
-            		<button class="btn btn-primary pull-right">Create</button>
+            		<button class="btn btn-primary pull-right" ng-click="createConcept()">Create</button>
             	</div>
             </div>
             <div class="col-md-12 noPad padTop">
@@ -83,13 +83,10 @@
 					<div class="panel-collapse collapse in" role="tabpanel" ng-switch on="cat.id">
 						<div class="panel-body" ng-switch-when="tags">
 							<div class="col-md-12">
-								<span class="label label-default tag" ng-repeat="tag in selectedConcept.systemTags">
-									{{tag.name}}&nbsp;<a href="javascript:void(0)" ng-click="deleteTag(selectedConcept.systemTags, $index, tagForm)" ng-if="cat.editMode"><i class="fa fa-close"></i></a>
+								<span class="label label-default tag" ng-repeat="tag in selectedConcept.tags">
+									{{tag}}&nbsp;<a href="javascript:void(0)" ng-click="deleteTag(selectedConcept.tags, $index, tagForm)" ng-if="cat.editMode"><i class="fa fa-close"></i></a>
 								</span>
-								<span class="label label-default tag" ng-repeat="tag in selectedConcept.userTags">
-									{{tag.name}}&nbsp;<a href="javascript:void(0)" ng-click="deleteTag(selectedConcept.userTags, $index, tagForm)" ng-if="cat.editMode"><i class="fa fa-close"></i></a>
-								</span>
-								<div class="alert alert-info" ng-if="selectedConcept.userTags.length == 0 && selectedConcept.systemTags.length == 0">No tags found</div>
+								<div class="alert alert-info" ng-if="selectedConcept.tags.length == 0 && selectedConcept.systemTags.length == 0">No tags found</div>
 							</div>
 							<div class="col-md-12 marginTop20" ng-show="cat.editMode">
 	                        	<div class="row form-group marginTop20" ng-show="cat.addNew">

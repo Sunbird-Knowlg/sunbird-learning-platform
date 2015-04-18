@@ -1,5 +1,6 @@
 {
     "objectType": "Concept",
+    "identifier": "C22",
     "properties": [{
         "propertyName": "name",
         "title": "Name",
@@ -165,26 +166,14 @@
         "endNodeName": "Division"
     }],
     "inRelations": [],
-    "systemTags": [{
-        "name": "Concept",
-        "description": "Type of object"
-    }, {
-        "name": "Class 3",
-        "description": "Study level"
-    }, {
-        "name": "Intermediate",
-        "description": "Learner level"
-    }, {
-        "name": "Skilled",
-        "description": "Learner level"
-    }, {
-        "name": "Critical",
-        "description": "Is this concept/micro-concept critical to the root concept"
-    }],
-    "userTags": [{
-        "name": "K+3",
-        "description": ""
-    }],
+    "tags": [
+        "Concept",
+        "Class 3",
+        "Intermediate",
+        "Skilled",
+        "Critical",
+        "K+3"
+    ],
     "auditHistory": [{
         "versionNo": "1",
         "versionCreatedBy": "Santhosh",

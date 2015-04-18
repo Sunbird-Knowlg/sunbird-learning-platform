@@ -19,3 +19,11 @@ var async = require('async')
 exports.getConcept = function(req, res) {
 	service.getConcept(req.params.id, util.responseCB(res));
 }
+
+exports.createConcept = function(req, res) {
+	service.createConcept(req.body, util.responseCB(res));
+}
+
+exports.updateConcept = function(req, res) {
+	service.updateConcept(req.body, util.responseCB(res));
+}

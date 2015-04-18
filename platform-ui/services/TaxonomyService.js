@@ -14,7 +14,9 @@
  */
 var async = require('async')
 	, mwService = require('../commons/MWServiceProvider')
-	, util = require('../commons/Util');
+	, util = require('../commons/Util')
+	, urlConstants = require('../commons/URLConstants')
+	, _ = require('underscore');
 
 exports.getAllTaxonomies = function(cb) {
 	util.sendJSONResponse('all_taxonomies.json', cb);
@@ -22,6 +24,11 @@ exports.getAllTaxonomies = function(cb) {
 
 exports.getTaxonomyDefinitions = function(id, cb) {
 	util.sendJSONResponse('taxonomy_definitions.json', cb);
+	// mwService.getCall(urlConstants.GET_TAXONOMY_DEFS, data, next)
+}
+
+function getDefinitions(response, cb) {
+	cb(null, response.result.definition_node);
 }
 
 exports.getTaxonomyGraph = function(id, cb) {
@@ -29,10 +36,11 @@ exports.getTaxonomyGraph = function(id, cb) {
 	async.waterfall([
 		function(next) {
 			util.sendJSONResponse('taxonomy_graph.json', next);
+			// mwService.getCall(urlConstants.GET_TAXONOMY, data, next)
 		},
 		function(graph, next) {
 			var clonedGraph = JSON.parse(JSON.stringify(graph));
-			paginateConcept(clonedGraph, 10);
+			paginateConcepts(clonedGraph, 10);
 			next(null, graph, clonedGraph)
 		}
 	], function(err, graph, clonedGraph) {
@@ -44,7 +52,62 @@ exports.getTaxonomyGraph = function(id, cb) {
 	});
 }
 
-function paginateConcept(concept, paginationSize) {
+function getConceptGraph(response, cb) {
+	var subGraph = response.result.subGraph;
+	var nodes = {}, rootNode = undefined;
+	_.each(subGraph.nodes, function(node) {
+		nodes[node.identifier] = node;
+		if(node.objectType == 'taxonomy') {
+			rootNode = node;
+		}
+	});
+
+	var graph = getNode(nodes, rootNode, 0);
+	cb(null, graph);
+}
+
+function getNode(nodes, graphNode, level) {
+	var node = {
+		name: rootNode.metadata.name,
+	    conceptId: rootNode.identifier,
+	    gamesCount: rootNode.metadata.gamesCount,
+	    children: [],
+	    level: level,
+	    size: 1,
+	    sum: 0,
+	    concepts: 0,
+	    subConcepts: 0,
+	    microConcepts: 0
+	}
+	var children = _.filter(graphNode.outRelations, {relationType: 'parentOf'});
+	if(children && children.length > 0) {
+		_.each(children, function(relation) {
+			var childNode = nodes[relation.endNodeId];
+			node.children.push(getNode(childNode), (level + 1));
+		});
+	}
+	node.sum = node.children.length;
+	switch(level) {
+		case 0:
+			node.concepts = node.sum;
+			break;
+		case 1:
+			node.subConcepts = node.sum;
+			break;
+		case 2:
+			node.microConcepts = node.sum;
+			break;
+	}
+	node.children.forEach(function(childNode) {
+		node.sum += childNode.sum;
+		node.concepts += childNode.concepts;
+		node.subConcepts += childNode.subConcepts;
+		node.microConcepts += childNode.microConcepts;
+	});
+	return node;
+}
+
+function paginateConcepts(concept, paginationSize) {
 	if(concept.children && concept.children.length > 0) {
 		paginateConceptList(concept.children, paginationSize);
 	}
@@ -67,6 +130,6 @@ function paginateConcept(concept, paginationSize) {
 
 function paginateConceptList(concepts, paginationSize) {
 	concepts.forEach(function(concept) {
-		paginateConcept(concept, paginationSize);
+		paginateConcepts(concept, paginationSize);
 	});
 }

@@ -153,6 +153,8 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.get('/private/v1/player/taxonomy/:id/definitions', taxonomyHelper.getTaxonomyDefinitions);
     app.get('/private/v1/player/taxonomy/:id/graph', taxonomyHelper.getTaxonomyGraph);
     app.get('/private/v1/player/concept/:id', conceptHelper.getConcept);
+    app.post('/private/v1/player/concept/create', conceptHelper.createConcept);
+    app.post('/private/v1/player/concept/update', conceptHelper.updateConcept);
 
 };
 

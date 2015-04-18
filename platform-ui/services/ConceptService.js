@@ -19,3 +19,15 @@ var async = require('async')
 exports.getConcept = function(id, cb) {
 	util.sendJSONResponse('concept.json', cb);
 }
+
+function getConcept(response, cb) {
+	cb(null, response.result.concept);
+}
+
+exports.updateConcept = function(data, cb) {
+
+}
+
+exports.createConcept = function(data, cb) {
+	
+}

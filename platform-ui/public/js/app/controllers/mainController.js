@@ -53,6 +53,14 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.getFromService('/private/v1/player/concept/' + conceptId);
     }
 
+    this.updateConcept = function(data) {
+        return this.postToService('/private/v1/player/concept/update', data);
+    }
+
+    this.createConcept = function(data) {
+        return this.postToService('/private/v1/player/concept/create', data);
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll) {
@@ -111,6 +119,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.sbConcept = undefined, $scope.selectedConcept = undefined, $scope.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
     $scope.newConcept = {
+        taxonomyId: $scope.selectedTaxonomyId,
         name: undefined,
         description: undefined,
         objectType: $scope.taxonomyObjects[0],
@@ -221,29 +230,21 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.getSystemTags = function() {
-        if(!$scope.selectedConcept.systemTags || $scope.selectedConcept.systemTags.length == 0) {
+        if(!$scope.selectedConcept.tags || $scope.selectedConcept.tags.length == 0) {
             return $scope.selectedTaxonomy.definitions.systemTags;
         }
 
-        var existingTags = _.pluck($scope.selectedConcept.systemTags, 'name');
         var stags = _.filter($scope.selectedTaxonomy.definitions.systemTags, function(tag) {
-            return (existingTags.indexOf(tag.name) == -1);
+            return ($scope.selectedConcept.tags.indexOf(tag.name) == -1);
         });
         return stags;
     }
 
     $scope.addNewTag = function(cat) {
-        if(cat.newTagType == 'system') {
-            if(!$scope.selectedConcept.systemTags) $scope.selectedConcept.systemTags = [];
-            $scope.selectedConcept.systemTags.push({
-                "name": cat.newTagValue.name
-            });
-        } else {
-            if(!$scope.selectedConcept.userTags) $scope.selectedConcept.userTags = [];
-            $scope.selectedConcept.userTags.push({
-                "name": cat.newTagValue
-            });
-        }
+        if(!$scope.selectedConcept.tags) $scope.selectedConcept.tags = [];
+        $scope.selectedConcept.tags.push(
+            cat.newTagValue.name
+        );
         cat.addNew = false;
     }
 
@@ -272,15 +273,22 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.setCustomProperties(cat);
     }
 
+    $scope.conceptToBeUpdated = undefined;
     $scope.confirmChanges = function() {
+        //TODO: Do validation
+
+        $scope.conceptToBeUpdated = {
+            taxonomyId: $scope.selectedTaxonomyId,
+            identifier: $scope.selectedConcept.identifier,
+            tags: $scope.selectedConcept.tags,
+            properties: []
+        }
         var index = 1;
         $scope.commitMessage = "Following are the changes made:\n";
 
         // Check for tag changes
-        var modifiedTags = _.union(_.pluck($scope.selectedConcept.systemTags, 'name'), _.pluck($scope.selectedConcept.userTags, 'name'));
-        var unmodifiedTags = _.union(_.pluck($scope.unmodifiedConcept.systemTags, 'name'), _.pluck($scope.unmodifiedConcept.userTags, 'name'));
-        var deletedTags = _.difference(unmodifiedTags, modifiedTags);
-        var addedTags = _.difference(modifiedTags, unmodifiedTags);
+        var deletedTags = _.difference($scope.unmodifiedConcept.tags, $scope.selectedConcept.tags);
+        var addedTags = _.difference($scope.selectedConcept.tags, $scope.unmodifiedConcept.tags);
         if(deletedTags && deletedTags.length > 0) {
             _.each(deletedTags, function(tag) {
                 $scope.commitMessage += index++ + '. "' + tag + '" tag is removed\n';
@@ -299,6 +307,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             _.each(addedProps, function(propName) {
                 var prop = _.where($scope.selectedConcept.properties, {'propertyName': propName})[0];
                 $scope.commitMessage += index++ + '. New metadata "' + prop.title + '" is added\n';
+                $scope.conceptToBeUpdated.properties.push(prop);
             })
         }
         _.each($scope.unmodifiedConcept.properties, function(prop) {
@@ -306,14 +315,32 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             if(prop.value instanceof Array) {
                 if(_.difference(prop.value, modProp.value).length > 0 || _.difference(modProp.value, prop.value).length > 0) {
                     $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + prop.value + '" to "' + modProp.value + '"\n';
+                    $scope.conceptToBeUpdated.properties.push(modProp);
                 }
             } else {
                 if(prop.value != modProp.value) {
                     $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + prop.value + '" to "' + modProp.value + '"\n';
+                    $scope.conceptToBeUpdated.properties.push(modProp);
                 }
             }
         });
         $('#saveChangesModal').modal('show');
+    }
+
+    $scope.saveChanges = function() {
+        service.updateConcept($scope.conceptToBeUpdated).then(function(data) {
+            // Handle exceptions or show messages
+        }).catch(function(err) {
+            // Handle exceptions or show messages
+        });
+    }
+
+    $scope.createConcept = function() {
+        service.createConcept($scope.newConcept).then(function(data) {
+            // Handle exceptions or show messages
+        }).catch(function(err) {
+            // Handle exceptions or show messages
+        });
     }
 
     $scope.allConcepts = [];
