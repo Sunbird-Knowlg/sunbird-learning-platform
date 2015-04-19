@@ -19,47 +19,18 @@ var async = require('async')
 	, _ = require('underscore');
 
 exports.getAllTaxonomies = function(cb) {
-	var url = urlConstants.GET_TAXONOMIES.replace(':id', id);
-	var params = {
-		tfields: 'identifier,name,conceptsCount',
-		subGraph: false
-	}
-	mwService.getCall(url, params, function(err, data) {
-		cb(null, data.result.taxonomies);
-	});
+	util.sendJSONResponse('all_taxonomies.json', cb);
 }
 
 exports.getTaxonomyDefinitions = function(id, cb) {
-	var url = urlConstants.GET_TAXONOMY_DEFS.replace(':id', id);
-	mwService.getCall(url, {}, function(err, data) {
-		cb(null, data.result.definition_node);
-	});
+	util.sendJSONResponse('taxonomy_definitions.json', cb);
 }
 
 exports.getTaxonomyGraph = function(id, cb) {
 
 	async.waterfall([
 		function(next) {
-			var url = urlConstants.GET_TAXONOMY.replace(':id', id);
-			var params = {
-				tfields: 'identifier,name,conceptsCount',
-				cfields: 'identifier,name,gamesCount,description',
-				subGraph: true
-			}
-			mwService.getCall(urlConstants.GET_TAXONOMY, params, next)
-		},
-		function(response, next) {
-			var subGraph = response.result.subGraph;
-			var nodes = {}, rootNode = undefined;
-			_.each(subGraph.nodes, function(node) {
-				nodes[node.identifier] = node;
-				if(node.objectType == 'taxonomy') {
-					rootNode = node;
-				}
-			});
-
-			var graph = getNode(nodes, rootNode, 0);
-			next(null, graph);
+			util.sendJSONResponse('taxonomy_graph.json', next);
 		},
 		function(graph, next) {
 			var clonedGraph = JSON.parse(JSON.stringify(graph));
@@ -73,47 +44,6 @@ exports.getTaxonomyGraph = function(id, cb) {
 		}
 		cb(null, data);
 	});
-}
-
-function getNode(nodes, graphNode, level) {
-	var node = {
-		name: rootNode.metadata.name,
-	    conceptId: rootNode.identifier,
-	    gamesCount: rootNode.metadata.gamesCount,
-	    children: [],
-	    level: level,
-	    size: 1,
-	    sum: 0,
-	    concepts: 0,
-	    subConcepts: 0,
-	    microConcepts: 0
-	}
-	var children = _.filter(graphNode.outRelations, {relationType: 'parentOf'});
-	if(children && children.length > 0) {
-		_.each(children, function(relation) {
-			var childNode = nodes[relation.endNodeId];
-			node.children.push(getNode(childNode), (level + 1));
-		});
-	}
-	node.sum = node.children.length;
-	switch(level) {
-		case 0:
-			node.concepts = node.sum;
-			break;
-		case 1:
-			node.subConcepts = node.sum;
-			break;
-		case 2:
-			node.microConcepts = node.sum;
-			break;
-	}
-	node.children.forEach(function(childNode) {
-		node.sum += childNode.sum;
-		node.concepts += childNode.concepts;
-		node.subConcepts += childNode.subConcepts;
-		node.microConcepts += childNode.microConcepts;
-	});
-	return node;
 }
 
 function paginateConcepts(concept, paginationSize) {

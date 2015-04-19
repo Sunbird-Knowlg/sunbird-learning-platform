@@ -13,7 +13,7 @@
  * @author Santhosh
  */
 var async = require('async')
-	, service = require('../services/TaxonomyService')
+	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/TaxonomyServiceFixtures') : require('../services/TaxonomyService'))
 	, util = require('../commons/Util');
 
 exports.getAllTaxonomies = function(req, res) {

@@ -17,17 +17,26 @@ var async = require('async')
 	, util = require('../commons/Util');
 
 exports.getConcept = function(id, cb) {
-	util.sendJSONResponse('concept.json', cb);
-}
-
-function getConcept(response, cb) {
-	cb(null, response.result.concept);
+	var url = urlConstants.GET_CONCEPT.replace(':id', id);
+	mwService.getCall(url, {}, function(err, data) {
+		cb(null, data.result.concept);
+	});
 }
 
 exports.updateConcept = function(data, cb) {
-
+	var args = {
+		//TODO: Transform the data appropriately
+	}
+	mwService.getCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
+		cb(null, data);
+	});
 }
 
 exports.createConcept = function(data, cb) {
-	
+	var args = {
+		//TODO: Transform the data appropriately
+	}
+	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
+		cb(null, data);
+	});
 }
