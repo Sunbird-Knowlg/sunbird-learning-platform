@@ -1,9 +1,9 @@
 [{
-    "name": "Numeracy",
+    "metadata": {"name": "Numeracy"},
     "identifier": "NUMERACY",
     "conceptsCount": "30"
 }, {
-    "name": "Literacy",
+    "metadata":  {"name": "Literacy"},
     "identifier": "LITERACY",
     "conceptsCount": "40"
 }]
