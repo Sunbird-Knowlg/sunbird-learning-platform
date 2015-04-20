@@ -91,20 +91,21 @@ public abstract class BaseManager {
         }
     }
 
-    protected Request getRequest(String graphId, String manager, String operation) {
-        Request request = new Request();
+    protected Request setContext(Request request, String graphId, String manager, String operation) {
         request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
         request.setManagerName(manager);
         request.setOperation(operation);
         return request;
     }
 
-    protected Request getRequest(String graphId, String manager, String operation, String paramName, BaseValueObject vo) {
+    protected Request getRequest(String graphId, String manager, String operation) {
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+        return setContext(request, graphId, manager, operation);
+    }
+
+    protected Request getRequest(String graphId, String manager, String operation, String paramName, BaseValueObject vo) {
+        Request request = getRequest(graphId, manager, operation);
         request.put(paramName, vo);
-        request.setManagerName(manager);
-        request.setOperation(operation);
         return request;
     }
 

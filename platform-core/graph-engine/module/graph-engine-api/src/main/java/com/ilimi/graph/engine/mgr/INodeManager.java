@@ -21,6 +21,16 @@ public interface INodeManager {
     void saveDefinitionNode(Request request);
 
     /**
+     * Adds new draft metadata definitions to a definition node.
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - OBJECT_TYPE definition node object type
+     * @request - METADATA_DEFINITIONS list of metadata definitions
+     * @response - STATUS: API call status
+     */
+    void updateDefinition(Request request);
+
+    /**
      * Creates a data node in the graph. Validates the data node against the
      * definition node in the graph.
      * 

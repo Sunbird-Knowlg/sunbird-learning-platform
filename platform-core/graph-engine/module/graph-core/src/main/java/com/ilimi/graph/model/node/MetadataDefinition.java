@@ -22,16 +22,17 @@ public class MetadataDefinition extends BaseValueObject {
     private static final long serialVersionUID = -6210344089409649758L;
     private boolean required;
     // Text, Number, Boolean, Select, Multi-Select, List
-    private String dataType;
+    private String dataType = "Text";
     private String propertyName;
     private String title;
     private String description;
     private String category;
-    private String displayProperty;
+    private String displayProperty = "Editable";
     private List<Object> range;
     private Object defaultValue;
     private String renderingHints;
     private boolean indexed;
+    private boolean draft;
 
     public boolean isRequired() {
         return required;
@@ -119,5 +120,13 @@ public class MetadataDefinition extends BaseValueObject {
 
     public void setIndexed(boolean indexed) {
         this.indexed = indexed;
+    }
+
+    public boolean isDraft() {
+        return draft;
+    }
+
+    public void setDraft(boolean draft) {
+        this.draft = draft;
     }
 }

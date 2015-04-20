@@ -1,7 +1,12 @@
 package com.ilimi.taxonomy.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -14,6 +19,10 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
+import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IConceptManager;
 
 @Controller
@@ -57,7 +66,8 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestBody Request request) {
+            @RequestBody Map<String, Object> map) {
+        Request request = getRequestObject(map);
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
             Response response = conceptManager.create(taxonomyId, request);
@@ -72,7 +82,8 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Request request) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map) {
+        Request request = getRequestObject(map);
         LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
         try {
             Response response = conceptManager.update(id, taxonomyId, request);
@@ -82,6 +93,41 @@ public class ConceptController extends BaseController {
             LOGGER.error("Update | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Request getRequestObject(Map<String, Object> requestMap) {
+        Request request = new Request();
+        if (null != requestMap && !requestMap.isEmpty()) {
+            Object requestObj = requestMap.get("request");
+            if (null != requestObj) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+                    Object objConcept = map.get(TaxonomyAPIParams.CONCEPT.name());
+                    if (null != objConcept) {
+                        Node concept = (Node) mapper.convertValue(objConcept, Node.class);
+                        request.put(TaxonomyAPIParams.CONCEPT.name(), concept);
+                    }
+                    Object objDefinitions = map.get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+                    if (null != objDefinitions) {
+                        String strObjDefinitions = mapper.writeValueAsString(objDefinitions);
+                        List<Map<String, Object>> listMap = (List<Map<String, Object>>) mapper.readValue(strObjDefinitions.toString(),
+                                List.class);
+                        List<MetadataDefinition> definitions = new ArrayList<MetadataDefinition>();
+                        for (Map<String, Object> metaMap : listMap) {
+                            MetadataDefinition def = (MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class);
+                            definitions.add(def);
+                        }
+                        request.put(TaxonomyAPIParams.METADATA_DEFINITIONS.name(), new BaseValueObjectList<MetadataDefinition>(definitions));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return request;
     }
 
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)

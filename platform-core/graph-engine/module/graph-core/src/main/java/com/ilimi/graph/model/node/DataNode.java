@@ -162,7 +162,7 @@ public class DataNode extends AbstractNode {
                         if (valid) {
                             Response res = (Response) arg1;
                             Node dbNode = (Node) res.get(GraphDACParams.NODE.name());
-                            if (null == dbNode || StringUtils.isNotBlank(dbNode.getNodeType())
+                            if (null == dbNode || StringUtils.isBlank(dbNode.getNodeType())
                                     || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
                                 manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Failed to get data node",
                                         ResponseCode.RESOURCE_NOT_FOUND, getParent());
@@ -173,6 +173,8 @@ public class DataNode extends AbstractNode {
                                 if (null != dbMetadata && !dbMetadata.isEmpty()) {
                                     metadata.putAll(dbMetadata);
                                 }
+                                setInRelations(dbNode.getInRelations());
+                                setOutRelations(dbNode.getOutRelations());
                                 Future<Map<String, List<String>>> aggregate = validateNode(req);
                                 aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
                                     @Override
