@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,7 +108,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             Response response = copyResponse(createRes);
             OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.OUTPUT_STREAM.name());
             if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
-                String csv = os.getOutputStream().toString();
+                ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
+                String csv = new String(bos.toByteArray());
                 response.put(TaxonomyAPIParams.TAXONOMY.name(), new StringValue(csv));
             }
             return response;
