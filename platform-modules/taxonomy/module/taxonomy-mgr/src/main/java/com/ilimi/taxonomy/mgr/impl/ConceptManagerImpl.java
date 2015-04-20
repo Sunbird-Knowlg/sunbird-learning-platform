@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
@@ -33,6 +34,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         LOGGER.info("Find All Concepts : " + taxonomyId);
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
                 GraphDACParams.OBJECT_TYPE.name(), new StringValue("Concept"));
+        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
         Response findRes = getResponse(request, LOGGER);
         Response response = copyResponse(findRes);
         if (checkError(response))
@@ -52,6 +54,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT_ID.name(), "Concept Id is blank");
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(),
                 new StringValue(id));
+        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
         Response getNodeRes = getResponse(request, LOGGER);
         Response response = copyResponse(getNodeRes);
         if (checkError(response)) {
