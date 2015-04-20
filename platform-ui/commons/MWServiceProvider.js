@@ -16,12 +16,13 @@ var Client = require('node-rest-client').Client;
 var client = new Client();
 var baseUrl = appConfig.ORCHESTRATOR_URL;
 
-exports.postCall = function(url, requestData, callback) {
+exports.postCall = function(url, arguments, callback) {
     var args = {
+        path: arguments.path,
         headers: {
             "Content-Type": "application/json"
         },
-        data: requestData
+        data: arguments.data
     };
     client.post(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
@@ -30,12 +31,13 @@ exports.postCall = function(url, requestData, callback) {
     });
 }
 
-exports.patchCall = function(url, requestData, callback) {
+exports.patchCall = function(url, arguments, callback) {
     var args = {
+        path: arguments.path,
         headers: {
             "Content-Type": "application/json"
         },
-        data: requestData
+        data: arguments.data
     };
     client.patchCall(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
@@ -58,13 +60,14 @@ function parseResponse(data, callback) {
     }
 }
 
-exports.getCall = function(url, requestData, callback) {
+exports.getCall = function(url, arguments, callback) {
 
     var args = {
+        path: arguments.path,
         headers: {
             "accept": "application/json"
         },
-        parameters: requestData
+        parameters: arguments.parameters
     };
     client.get(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
@@ -73,12 +76,13 @@ exports.getCall = function(url, requestData, callback) {
     });
 }
 
-exports.putCall = function(url, requestData, callback) {
+exports.putCall = function(url, arguments, callback) {
     var args = {
+        path: arguments.path,
         headers: {
             "Content-Type": "application/json"
         },
-        data: requestData
+        parameters: arguments.data
     };
     client.put(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
@@ -87,13 +91,14 @@ exports.putCall = function(url, requestData, callback) {
     });
 }
 
-exports.deleteCall = function(url, requestData, callback) {
+exports.deleteCall = function(url, arguments, callback) {
 
     var args = {
+        path: arguments.path,
         headers: {
             "accept": "application/json"
         },
-        data: requestData
+        data: arguments.data
     };
     client.delete(baseUrl + url, args, function(data, response) {
         callback(null, data);

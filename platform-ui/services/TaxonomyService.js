@@ -19,11 +19,13 @@ var async = require('async')
 	, _ = require('underscore');
 
 exports.getAllTaxonomies = function(cb) {
-	var params = {
-		tfields: 'identifier,name,conceptsCount',
-		subgraph: false
+	var args = {
+		parameters: {
+			tfields: 'identifier,name,conceptsCount',
+			subgraph: false
+		}
 	}
-	mwService.getCall(urlConstants.GET_TAXONOMIES, params, function(err, data) {
+	mwService.getCall(urlConstants.GET_TAXONOMIES, args, function(err, data) {
 		if(err) {
 			cb(err);
 		} else {
@@ -33,8 +35,12 @@ exports.getAllTaxonomies = function(cb) {
 }
 
 exports.getTaxonomyDefinitions = function(id, cb) {
-	var url = urlConstants.GET_CONCEPT_TAXONOMY_DEFS.replace(':id', id);
-	mwService.getCall(url, {}, function(err, data) {
+	var args = {
+		path: {
+			id: id
+		}
+	}
+	mwService.getCall(urlConstants.GET_CONCEPT_TAXONOMY_DEFS, args, function(err, data) {
 		if(err) {
 			cb(err);
 		} else {
@@ -47,13 +53,17 @@ exports.getTaxonomyGraph = function(id, cb) {
 
 	async.waterfall([
 		function(next) {
-			var url = urlConstants.GET_TAXONOMY.replace(':id', id);
-			var params = {
-				tfields: 'identifier,name,conceptsCount',
-				cfields: 'identifier,name,gamesCount,description',
-				subgraph: true
+			var args = {
+				path: {
+					id: id
+				},
+				parameters: {
+					tfields: 'identifier,name,conceptsCount',
+					cfields: 'identifier,name,gamesCount,description',
+					subgraph: true
+				}
 			}
-			mwService.getCall(url, params, next)
+			mwService.getCall(urlConstants.GET_TAXONOMY, args, next)
 		},
 		function(response, next) {
 			var subGraph = response.result.SUBGRAPH;

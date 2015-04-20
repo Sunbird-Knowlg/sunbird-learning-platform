@@ -21,8 +21,11 @@ var async = require('async')
 exports.getConcept = function(id, tid, cb) {
 	async.parallel({
 		concept: function(callback) {
-			var url = urlConstants.GET_CONCEPT.replace(':id', id);
-			mwService.getCall(url, {taxonomyId: tid}, callback);
+			var args = {
+				path: {id: id},
+				parameters: {taxonomyId: tid}
+			}
+			mwService.getCall(urlConstants.GET_CONCEPT, args, callback);
 		},
 		auditHistory: function(callback) {
 			callback(null, []);
@@ -44,20 +47,22 @@ exports.getConcept = function(id, tid, cb) {
 
 exports.updateConcept = function(data, cb) {
 	var args = {
-		request: {
-			CONCEPT: {
-        		objectType: "Concept",
-        		metadata: data.properties,
-        		tags: data.tags
-			},
-			METADATADEFINITIONS: {
-				valueObjectList: data.newMetadata
+		path: {id: data.conceptId, tid: data.taxonomyId},
+		data: {
+			request: {
+				CONCEPT: {
+	        		objectType: "Concept",
+	        		metadata: data.properties,
+	        		tags: data.tags
+				},
+				METADATADEFINITIONS: {
+					valueObjectList: data.newMetadata
+				}
 			}
 		}
 	}
 	console.log('ConceptService:updateConcept() - args ', args);
-	var url = urlConstants.UPDATE_CONCEPT.replace(':tid', data.taxonomyId).replace(':id', data.conceptId);
-	mwService.getCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
+	mwService.patchCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
 		if(err) {
 			cb(err);
 		} else {
@@ -68,21 +73,24 @@ exports.updateConcept = function(data, cb) {
 
 exports.createConcept = function(data, cb) {
 	var args = {
-		request: {
-			CONCEPT: {
-        		objectType: "Concept",
-        		metadata: {
- 					"name": data.name,
- 					"description": data.description
-				},
-        		inRelations: [{
-        			startNodeId: data.parent.conceptId,
-        			relationType: 'isParentOf'
-        		}]
+		path: {tid: data.taxonomyId},
+		data: {
+			request: {
+				CONCEPT: {
+	        		objectType: "Concept",
+	        		metadata: {
+	 					"name": data.name,
+	 					"description": data.description
+					},
+	        		inRelations: [{
+	        			startNodeId: data.parent.conceptId,
+	        			relationType: 'isParentOf'
+	        		}]
+				}
 			}
 		}
 	}
-	var url = urlConstants.SAVE_CONCEPT.replace(':tid', data.taxonomyId);
+
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
 		if(err) {
 			cb(err);
