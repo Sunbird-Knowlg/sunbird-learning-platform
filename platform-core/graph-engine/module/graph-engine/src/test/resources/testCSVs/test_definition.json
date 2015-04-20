@@ -1,0 +1,150 @@
+{
+	"definitionNodes": 
+	[
+		{
+			"objectType": "Concept",
+			"indexedMetadata": 
+			[
+				{
+					"propertyName": "name",
+					"title": "Name",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": true,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 1}" 
+				},
+				{
+					"propertyName": "code",
+					"title": "Code",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": true,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 2}"
+				},
+
+				{
+					"propertyName": "identifier",
+					"title": "Identifier",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": true,
+					"displayProperty": "Hidden",
+					"defaultValue": "",
+					"renderingHints": "{'order': 3}"
+				},
+
+				{
+					"propertyName": "language",
+					"title": "Language",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 5}"
+				}
+			],
+
+			"nonIndexedMetadata": 
+			[
+				{
+					"propertyName": "description",
+					"title": "Description",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'textarea', 'order': 4}"
+				}
+			],
+
+			"inRelations": 
+			[
+				{
+					"relationName": "isParentOf",
+					"title": "Parent",
+					"description": "Connected to other nodes with Parent-Child relation",
+					"required": false,
+					"objectTypes": 
+					[
+						"Concept"
+					],
+					"renderingHints": "{'order': 26}"
+				}
+			],
+			"outRelations": 
+			[
+				{
+					"relationName": "isParentOf",
+					"title": "Children",
+					"description": "Connected to other nodes with Parent-Child relation",
+					"required": false,
+					"objectTypes": 
+					[
+						"Concept"
+					],
+					"renderingHints": "{'order': 27}"
+				},
+				{
+					"relationName": "co-occurrence",
+					"title": "Co-occurrence",
+					"description": "Connected to other nodes with Co-occurence relation",
+					"required": false,
+					"objectTypes": 
+					[
+						"Concept"
+					],
+					"renderingHints": "{'order': 28}"
+				},
+				{
+					"relationName": "pre-requisite",
+					"title": "Pre-requisite",
+					"description": "Pre-requiste relation is created",
+					"required": false,
+					"objectTypes": 
+					[
+						"Concept"
+					],
+					"renderingHints": "{'order': 29}"
+				}
+			],
+			"systemTags": 
+			[
+				{
+					"name": "Concept",
+					"description": "Type of object"
+				},
+
+				{
+					"name": "Subconcept",
+					"description": "Type of object"
+				},
+
+				{
+					"name": "Micro-concept",
+					"description": "Type of object"
+				},
+
+				{
+					"name": "Class 1",
+					"description": "Study level"
+				},
+
+				{
+					"name": "Critical",
+					"description": "Is this concept/micro-concept critical to the root concept"
+				}
+			]
+		}
+	]
+}
