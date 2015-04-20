@@ -214,7 +214,8 @@ public class DataNode extends AbstractNode {
                 if (valid) {
                     validateRelations(node.getInRelations(), request);
                     validateRelations(node.getOutRelations(), request);
-                    manager.OK(getParent());
+                    Response res = (Response) arg1;
+                    manager.OK(GraphDACParams.NODE_ID.name(), res.get(GraphDACParams.NODE_ID.name()), getParent());
                 }
             }
         }, manager.getContext().dispatcher());

@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,7 @@ import com.ilimi.graph.dac.model.SearchDTO;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
+import com.ilimi.graph.importer.OutputStreamValue;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
@@ -99,7 +101,19 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
         request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
         request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(stream));
-        return getResponse(request, LOGGER);
+        Response createRes = getResponse(request, LOGGER);
+        if (checkError(createRes)) {
+            return createRes;
+        } else {
+            Response response = copyResponse(createRes);
+            OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.OUTPUT_STREAM.name());
+            if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
+                ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
+                String csv = new String(bos.toByteArray());
+                response.put(TaxonomyAPIParams.TAXONOMY.name(), new StringValue(csv));
+            }
+            return response;
+        }
     }
 
     @Override
@@ -112,7 +126,18 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
         request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
         request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(stream));
-        return getResponse(request, LOGGER);
+        Response createRes = getResponse(request, LOGGER);
+        if (checkError(createRes)) {
+            return createRes;
+        } else {
+            Response response = copyResponse(createRes);
+            OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.OUTPUT_STREAM.name());
+            if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
+                String csv = os.getOutputStream().toString();
+                response.put(TaxonomyAPIParams.TAXONOMY.name(), new StringValue(csv));
+            }
+            return response;
+        }
     }
 
     @Override
