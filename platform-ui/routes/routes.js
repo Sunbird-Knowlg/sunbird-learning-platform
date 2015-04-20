@@ -106,7 +106,7 @@ module.exports = function(app, dirname, passport, connectroles) {
         res.render('player/player.ejs');
     });
 
-    app.get('/user/google/login/request', passport.authenticate('google', {scope: appConfig.USER_LOGIN.GOOGLE_AUTH_SCOPES, accessType: 'offline'}));
+    app.get('/user/google/login/request', passport.authenticate('google', {scope: appConfig.USER_LOGIN.GOOGLE_AUTH_SCOPES, accessType: 'offline', hd: appConfig.USER_LOGIN.HOSTED_DOMAIN}));
     app.get('/user/google/login/response', function(req, res, next) {
         passport.authenticate('google', {failureRedirect: '/home'}, function(err, user, info) {
             if (err) {

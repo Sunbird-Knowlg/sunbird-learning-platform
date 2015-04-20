@@ -88,6 +88,7 @@ function getUserObject(profile, accessToken, cb) {
 				var identifier = generateIdentifier(user.name.givenName, undefined, user.name.familyName);
 				if(identifier == '' || identifier.length == 0) {
 					identifier = user.email.match(/^([^@]*)@/)[1];
+					user.name.givenName = identifier;
 					identifier = S(identifier).strip(' ', '_', '-', '.').s;
 				}
 			    MongoHelper.find('UserModel', {identifier: { $regex: new RegExp(identifier) }}, {identifier: 1}).toArray(function(err, users) {

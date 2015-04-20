@@ -47,22 +47,22 @@ exports.getConcept = function(id, tid, cb) {
 
 exports.updateConcept = function(data, cb) {
 	var args = {
-		path: {id: data.conceptId, tid: data.taxonomyId},
+		path: {id: data.identifier, tid: data.taxonomyId},
 		data: {
 			request: {
 				CONCEPT: {
+					identifier: data.identifier,
 	        		objectType: "Concept",
 	        		metadata: data.properties,
 	        		tags: data.tags
 				},
-				METADATADEFINITIONS: {
-					valueObjectList: data.newMetadata
-				}
+				METADATA_DEFINITIONS: data.newMetadata
 			}
 		}
 	}
-	console.log('ConceptService:updateConcept() - args ', args);
+	console.log('ConceptService:updateConcept() - args ', JSON.stringify(args));
 	mwService.patchCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
+		console.log('err', err, 'data', data);
 		if(err) {
 			cb(err);
 		} else {

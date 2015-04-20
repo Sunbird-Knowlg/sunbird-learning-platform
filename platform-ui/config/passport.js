@@ -95,8 +95,7 @@ module.exports = function(passport) {
         new GoogleStrategy({
             clientID: appConfig.USER_LOGIN.GOOGLE_CLIENT_ID,
             clientSecret: appConfig.USER_LOGIN.GOOGLE_CLIENT_SECRET,
-            callbackURL: appConfig.USER_LOGIN.GOOGLE_REDIRECT_URI,
-            hostedDomain: appConfig.USER_LOGIN.HOSTED_DOMAIN
+            callbackURL: appConfig.USER_LOGIN.GOOGLE_REDIRECT_URI
         }, authResponse)
     );
 

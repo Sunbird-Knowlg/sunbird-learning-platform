@@ -39,7 +39,7 @@ exports.patchCall = function(url, arguments, callback) {
         },
         data: arguments.data
     };
-    client.patchCall(baseUrl + url, args, function(data, response) {
+    client.patch(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
     }).on('error', function(err) {
         callback(err);
