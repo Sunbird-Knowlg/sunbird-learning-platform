@@ -50,6 +50,19 @@ public class JsonGraphReader implements GraphReader {
         createRelations((List<Map<String, Object>>) inputMap.get("relations"));
     }
 
+    @SuppressWarnings("unchecked")
+    public JsonGraphReader(BaseGraphManager manager, ObjectMapper mapper, String graphId, String json) throws JsonParseException,
+            JsonMappingException, IOException {
+        this.manager = manager;
+        this.mapper = mapper;
+        validations = new ArrayList<String>();
+        tagMembersMap = new HashMap<String, List<StringValue>>();
+        Map<String, Object> inputMap = mapper.readValue(json, Map.class);
+        createDefinitionNodes(graphId, (List<Map<String, Object>>) inputMap.get("definitionNodes"));
+        createDataNodes(graphId, (List<Map<String, Object>>) inputMap.get("nodes"));
+        createRelations((List<Map<String, Object>>) inputMap.get("relations"));
+    }
+
     public JsonGraphReader(BaseGraphManager manager) {
         this.manager = manager;
         mapper = new ObjectMapper();

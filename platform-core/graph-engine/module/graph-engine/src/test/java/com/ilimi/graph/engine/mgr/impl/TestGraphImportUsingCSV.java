@@ -1,6 +1,7 @@
 package com.ilimi.graph.engine.mgr.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
@@ -88,8 +89,10 @@ public class TestGraphImportUsingCSV {
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("importDefinitions");
         InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/test_definition.json");
-
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+        DataInputStream dis = new DataInputStream(inputStream);
+        byte[] b = new byte[dis.available()];
+        dis.readFully(b);
+        request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(new String(b)));
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
@@ -305,8 +308,10 @@ public class TestGraphImportUsingCSV {
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("importDefinitions");
         InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/test_definition.json");
-
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+        DataInputStream dis = new DataInputStream(inputStream);
+        byte[] b = new byte[dis.available()];
+        dis.readFully(b);
+        request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(new String(b)));
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
@@ -332,8 +337,10 @@ public class TestGraphImportUsingCSV {
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("importDefinitions");
         inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/test_definition_updated.json");
-
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+        dis = new DataInputStream(inputStream);
+        b = new byte[dis.available()];
+        dis.readFully(b);
+        request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(new String(b)));
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;

@@ -13,15 +13,11 @@ public interface ITaxonomyManager {
 
     Response create(String id, InputStream stream);
 
-    Response update(String id, InputStream stream);
-
     Response delete(String id);
 
     Response search(String id, Request request);
 
-    Response createDefinition(String id, Request request);
-
-    Response updateDefinition(String id, String objectType, Request request);
+    Response updateDefinition(String id, String json);
 
     Response findAllDefinitions(String id);
 
