@@ -7,13 +7,13 @@
 			<div class="il-rt-notn">
 				<ul>
 					<li ng-repeat="taxonomy in allTaxonomies">
-						<span ng-if="selectedTaxonomyId == taxonomy.identifier">{{taxonomy.name}}</span>
-						<a href="javascript:void(0)" ng-if="selectedTaxonomyId != taxonomy.identifier" ng-click="switchTaxonomy(id)">{{taxonomy.name}}</a>
+						<span ng-if="selectedTaxonomyId == taxonomy.id">{{taxonomy.name}}</span>
+						<a href="javascript:void(0)" ng-if="selectedTaxonomyId != taxonomy.id" ng-click="selectTaxonomy(taxonomy.id)">{{taxonomy.name}}</a>
 					</li>
 				</ul>
 			</div>
 		</div>
-		<div class="il-rt-container recentContent marginBottom20" bs-scrollspy-list ng-if="showConceptCategories">
+		<div class="il-rt-container recentContent marginBottom20" bs-scrollspy-list>
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Concept</h3>
 			</div>

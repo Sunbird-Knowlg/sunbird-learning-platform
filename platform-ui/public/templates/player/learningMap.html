@@ -2,7 +2,7 @@
     <div class=" wallActivityHeader">
         <div class="editContent">
             <div class="headerAsk" id="activityStream">
-                <h2>Explore Numeracy
+                <h2>Explore {{taxonomies[selectedTaxonomyId].metadata.name}}
                 <a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Add new concept"  data-original-title="Add new concept">
 					<i class="writeBlackOne fa fa-edit" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i></a>
                 </h2>
@@ -37,7 +37,7 @@
 							<li ng-repeat="error in newConcept.errorMessages">{{error}}</li>
 						</ul>
 					</div>
-            		<button class="btn btn-primary pull-right" ng-click="createConcept()">Create</button>
+            		<button class="btn btn-primary pull-right" ng-click="createConcept($event)" data-loading-text="Creating concept...">Create</button>
             	</div>
             </div>
             <div class="col-md-12 noPad padTop">
@@ -92,7 +92,7 @@
 								<span class="label label-default tag" ng-repeat="tag in selectedConcept.tags">
 									{{tag}}&nbsp;<a href="javascript:void(0)" ng-click="deleteTag(selectedConcept.tags, $index, tagForm)" ng-if="cat.editMode"><i class="fa fa-close"></i></a>
 								</span>
-								<div class="alert alert-info" ng-if="selectedConcept.tags.length == 0 && selectedConcept.systemTags.length == 0">No tags found</div>
+								<div class="alert alert-info" ng-if="!selectedConcept.tags || selectedConcept.tags.length == 0">No tags found</div>
 							</div>
 							<div class="col-md-12 marginTop20" ng-show="cat.editMode">
 	                        	<div class="row form-group marginTop20" ng-show="cat.addNew">
@@ -145,14 +145,14 @@
 	                        		<thead><tr><th>Relation</th><th>Object</th><th ng-if="cat.editMode"></th></tr></thead>
 	                        		<tbody>
 	                        			<tr ng-repeat="rel in selectedConcept.outRelations">
-	                        				<td>{{rel.relationName}}</td>
+	                        				<td>{{rel.relationType}}</td>
 	                        				<td>{{rel.endNodeName}}</td>
 	                        				<td ng-if="cat.editMode">
 	                        					<a href="#"><i class="fa fa-close"></i></a>
 	                        				</td>
 	                        			</tr>
 	                        			<tr ng-repeat="rel in selectedConcept.inRelations">
-	                        				<td>{{rel.relationName}}</td>
+	                        				<td>{{rel.relationType}}</td>
 	                        				<td>{{rel.endNodeName}}</td>
 	                        				<td ng-if="cat.editMode">
 	                        					<a href="#"><i class="fa fa-close"></i></a>
@@ -248,7 +248,7 @@
             	<textarea class="form-control" rows="4" ng-model="commitMessage"></textarea>
             </div>
             <div class="modal-footer">
-            	<button class="btn btn-primary" ng-click="saveChanges()">Confirm</button>
+            	<button class="btn btn-primary" ng-click="saveChanges($event)" data-loading-text="Updating Concept...">Confirm</button>
             </div>
         </div>
     </div>

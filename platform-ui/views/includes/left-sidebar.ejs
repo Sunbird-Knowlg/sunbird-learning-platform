@@ -7,7 +7,7 @@
 		</div>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
-				<a href="javascript:void(0);">{{taxonomy.name}}</a>
+				<a href="javascript:void(0);" ng-click="selectTaxonomy(taxonomy.id)">{{taxonomy.name}}</a>
 			</li>
 		</ul>
 	</li>

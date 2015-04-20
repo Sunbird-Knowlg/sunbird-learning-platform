@@ -16,7 +16,7 @@ var Client = require('node-rest-client').Client;
 var client = new Client();
 var baseUrl = appConfig.ORCHESTRATOR_URL;
 
-function postCall(url, requestData, callback) {
+exports.postCall = function(url, requestData, callback) {
     var args = {
         headers: {
             "Content-Type": "application/json"
@@ -30,7 +30,7 @@ function postCall(url, requestData, callback) {
     });
 }
 
-function patchCall(url, requestData, callback) {
+exports.patchCall = function(url, requestData, callback) {
     var args = {
         headers: {
             "Content-Type": "application/json"
@@ -58,13 +58,13 @@ function parseResponse(data, callback) {
     }
 }
 
-function getCall(url, requestData, callback) {
+exports.getCall = function(url, requestData, callback) {
 
     var args = {
         headers: {
             "accept": "application/json"
         },
-        data: requestData
+        parameters: requestData
     };
     client.get(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
@@ -73,7 +73,7 @@ function getCall(url, requestData, callback) {
     });
 }
 
-function putCall(url, requestData, callback) {
+exports.putCall = function(url, requestData, callback) {
     var args = {
         headers: {
             "Content-Type": "application/json"
@@ -87,7 +87,7 @@ function putCall(url, requestData, callback) {
     });
 }
 
-function deleteCall(url, requestData, callback) {
+exports.deleteCall = function(url, requestData, callback) {
 
     var args = {
         headers: {

@@ -73,34 +73,45 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     //   definitions: {}
     // }
     $scope.taxonomies = {};
-    $scope.allTaxonomies = undefined;
+    $scope.allTaxonomies = [];
     $scope.selectedTaxonomyId = undefined;
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
-            $scope.allTaxonomies = data;
-            if(data.length > 0) {
+            if(data && data.length > 0) {
                 _.forEach(data, function(taxonomy) {
+                    $scope.allTaxonomies.push({
+                        id: taxonomy.identifier,
+                        name: taxonomy.metadata.name
+                    })
                     $scope.taxonomies[taxonomy.identifier] = taxonomy;
                 })
-                $scope.selectedTaxonomyId = data[0].identifier;
                 $state.go('learningMap', {id: data[0].identifier});
             }
         }).catch(function(err) {
             console.log('Error fetching taxonomies - ', err);
         });
     }
-    $scope.getAllTaxonomies();
+
+    $scope.selectTaxonomy = function(taxonomyId) {
+        $state.go('learningMap', {id: taxonomyId});
+    }
 
     $scope.categories = [
         {id: 'general', label: "General", editable: true, editMode: false},
         {id: 'tags', label: "Tags", editable: true, editMode: false},
-        {id: 'relations', label: "Relations", editable: true, editMode: false},
+        {id: 'relations', label: "Relations", editable: false, editMode: false},
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
         {id: 'audit', label: "Audit", editable: false, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: false}
     ]
+
+    $scope.resetCategories = function() {
+        _.each($scope.categories, function(cat) {
+            cat.editMode = false;
+        })
+    }
 
     $scope.taxonomyObjects = [
         {id: 'concept', label: "Broad Concept"},
@@ -113,10 +124,21 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $anchorScroll();
     }
 
+    $scope.buttonLoading = function($event) {
+        $($event.target).button('loading');
+    }
+
+    $scope.buttonReset = function($event) {
+        $($event.target).button('reset');
+    }
+
+    $scope.getAllTaxonomies();
+
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
+    $scope.$parent.selectedTaxonomyId = $stateParams.id;
     $scope.sbConcept = undefined, $scope.selectedConcept = undefined, $scope.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
     $scope.newConcept = {
         taxonomyId: $scope.selectedTaxonomyId,
@@ -162,17 +184,14 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.getConcept = function() {
-        service.getConcept($scope.sbConcept.conceptId, $scope.selectedTaxonomyId).then(function(data) {
-            $scope.selectedConcept = data;
-            $scope.selectedConcept.metadata = _.object(_.map(data.properties, function(item) {
-               return [item.propertyName, item.value]
-            }));
-            $scope.selectedConcept.newMetadata = [];
-            $scope.unmodifiedConcept = angular.copy($scope.selectedConcept);
-            $timeout(function() {
-                $rootScope.showConceptCategories = true;
-            }, 1000);
-        });
+        service.getConcept($scope.sbConcept.conceptId, $scope.selectedTaxonomyId).then($scope.setConceptResponse);
+    }
+
+    $scope.setConceptResponse = function(data) {
+        $scope.selectedConcept = data;
+        $scope.selectedConcept.newMetadata = [];
+        $scope.unmodifiedConcept = angular.copy($scope.selectedConcept);
+        $scope.resetCategories();
     }
 
     $scope.getTaxonomyDefinitions($stateParams.id);
@@ -308,17 +327,21 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                 $scope.conceptToBeUpdated.properties[prop.propertyName] = $scope.selectedConcept.metadata[prop.propertyName];
             })
         }
-        for(k in $scope.unmodifiedConcept.metadata) {
+        for(k in $scope.selectedConcept.metadata) {
+            console.log('k', k);
             var prop = _.where($scope.selectedTaxonomy.properties, {'propertyName': k})[0];
+            console.log('prop', prop);
             var oldValue = $scope.unmodifiedConcept.metadata[k];
             var newValue = $scope.selectedConcept.metadata[k];
             if(_.isArray(newValue)) {
+                oldValue = oldValue || [];
                 if(_.difference(oldValue, newValue).length > 0 || _.difference(newValue, oldValue).length > 0) {
                     $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + oldValue + '" to "' + newValue + '"\n';
                     $scope.conceptToBeUpdated.properties[k] = newValue;
                 }
             } else {
                 if(!_.isEqual(oldValue, newValue)) {
+                    oldValue = oldValue || '';
                     $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + oldValue + '" to "' + newValue + '"\n';
                     $scope.conceptToBeUpdated.properties[k] = newValue;
                 }
@@ -327,11 +350,16 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $('#saveChangesModal').modal('show');
     }
 
-    $scope.saveChanges = function() {
+    $scope.saveChanges = function($event) {
+        $scope.buttonLoading($event);
         service.updateConcept($scope.conceptToBeUpdated).then(function(data) {
-            // Handle exceptions or show messages
+            $scope.setConceptResponse(data);
         }).catch(function(err) {
-            // Handle exceptions or show messages
+            $scope.validationMessages = [];
+            $scope.validationMessages.push(err.errorMsg);
+            console.log('saveChanges() - err', err);
+        }).done(function() {
+            $scope.buttonReset($event);
         });
     }
 
@@ -340,7 +368,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.newConcept.parent = undefined;
     }
 
-    $scope.createConcept = function() {
+    $scope.createConcept = function($event) {
 
         var objType = $scope.newConcept.objectType.id;
         $scope.newConcept.errorMessages = [];
@@ -358,10 +386,31 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         if(!valid) {
             return;
         }
+        $scope.buttonLoading($event);
         service.createConcept($scope.newConcept).then(function(data) {
-            // Handle exceptions or show messages
+            $scope.sbConcept = {conceptId: data.identifier};
+            $scope.setConceptResponse(data);
+            service.getTaxonomyGraph($scope.selectedTaxonomyId).then(function(data) {
+                $scope.conceptGraph = data.paginatedGraph;
+                $scope.selectedTaxonomy.graph = data.graph;
+                $scope.setTaxonomyGroups(data.graph);
+                if($scope.showSunburst) {
+                    $scope.selectVisualization('sunburst');
+                } else {
+                    $scope.selectVisualization('tree');
+                }
+            }).catch(function(err) {
+                console.log('Error fetching taxnomy graph - ', err);
+                $scope.errorMessages = [];
+                $scope.errorMessages.push(err.errorMsg);
+            }).done(function() {
+                $scope.buttonReset($event);
+            });
         }).catch(function(err) {
-            // Handle exceptions or show messages
+            $scope.errorMessages = [];
+            $scope.errorMessages.push(err.errorMsg);
+            $scope.buttonReset($event);
+            console.log('Error saving concept - ', err);
         });
     }
 

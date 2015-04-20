@@ -15,10 +15,11 @@
 var async = require('async')
 	, mwService = require('../commons/MWServiceProvider')
 	, util = require('../commons/Util')
+	, urlConstants = require('../commons/URLConstants')
 	, _ = require('underscore');
 
 exports.getConcept = function(id, tid, cb) {
-	async.parallel([{
+	async.parallel({
 		concept: function(callback) {
 			var url = urlConstants.GET_CONCEPT.replace(':id', id);
 			mwService.getCall(url, {taxonomyId: tid}, callback);
@@ -29,7 +30,7 @@ exports.getConcept = function(id, tid, cb) {
 		comments: function(callback) {
 			callback(null, []);
 		}
-	}], function(err, results) {
+	}, function(err, results) {
 		if(err) {
 			cb(err);
 		} else {
@@ -47,15 +48,21 @@ exports.updateConcept = function(data, cb) {
 			CONCEPT: {
         		objectType: "Concept",
         		metadata: data.properties,
-        		newMetadataDefs: data.newMetadata,
         		tags: data.tags
+			},
+			METADATADEFINITIONS: {
+				valueObjectList: data.newMetadata
 			}
 		}
 	}
 	console.log('ConceptService:updateConcept() - args ', args);
 	var url = urlConstants.UPDATE_CONCEPT.replace(':tid', data.taxonomyId).replace(':id', data.conceptId);
 	mwService.getCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
-		cb(err, data);
+		if(err) {
+			cb(err);
+		} else {
+			cb(null, data.results.CONCEPT);
+		}
 	});
 }
 
@@ -77,6 +84,10 @@ exports.createConcept = function(data, cb) {
 	}
 	var url = urlConstants.SAVE_CONCEPT.replace(':tid', data.taxonomyId);
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
-		cb(err, data);
+		if(err) {
+			cb(err);
+		} else {
+			cb(null, data.results.CONCEPT);
+		}
 	});
 }

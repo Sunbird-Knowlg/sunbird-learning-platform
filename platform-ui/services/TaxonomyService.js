@@ -19,16 +19,15 @@ var async = require('async')
 	, _ = require('underscore');
 
 exports.getAllTaxonomies = function(cb) {
-	var url = urlConstants.GET_TAXONOMIES.replace(':id', id);
 	var params = {
 		tfields: 'identifier,name,conceptsCount',
-		subGraph: false
+		subgraph: false
 	}
-	mwService.getCall(url, params, function(err, data) {
+	mwService.getCall(urlConstants.GET_TAXONOMIES, params, function(err, data) {
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.result.TAXONOMY_LIST);
+			cb(null, data.result.TAXONOMY_LIST.valueObjectList);
 		}
 	});
 }
@@ -52,7 +51,7 @@ exports.getTaxonomyGraph = function(id, cb) {
 			var params = {
 				tfields: 'identifier,name,conceptsCount',
 				cfields: 'identifier,name,gamesCount,description',
-				subGraph: true
+				subgraph: true
 			}
 			mwService.getCall(url, params, next)
 		},
@@ -61,11 +60,10 @@ exports.getTaxonomyGraph = function(id, cb) {
 			var nodes = {}, rootNode = undefined;
 			_.each(subGraph.nodes, function(node) {
 				nodes[node.identifier] = node;
-				if(node.objectType == 'taxonomy') {
+				if(_.isEqual(node.objectType, 'Taxonomy')) {
 					rootNode = node;
 				}
 			});
-
 			var graph = getNode(nodes, rootNode, 0);
 			next(null, graph);
 		},
@@ -89,9 +87,9 @@ exports.getTaxonomyGraph = function(id, cb) {
 
 function getNode(nodes, graphNode, level) {
 	var node = {
-		name: rootNode.metadata.name,
-	    conceptId: rootNode.identifier,
-	    gamesCount: rootNode.metadata.gamesCount,
+		name: graphNode.metadata.name,
+	    conceptId: graphNode.identifier,
+	    gamesCount: graphNode.metadata.gamesCount,
 	    children: [],
 	    level: level,
 	    size: 1,
@@ -100,11 +98,13 @@ function getNode(nodes, graphNode, level) {
 	    subConcepts: 0,
 	    microConcepts: 0
 	}
-	var children = _.filter(graphNode.outRelations, {relationType: 'parentOf'});
+	var children = _.filter(graphNode.outRelations, {relationType: 'isParentOf'});
 	if(children && children.length > 0) {
 		_.each(children, function(relation) {
+			//console.log('relation', relation);
 			var childNode = nodes[relation.endNodeId];
-			node.children.push(getNode(childNode), (level + 1));
+			//console.log('childNode', childNode);
+			node.children.push(getNode(nodes, childNode, (level + 1)));
 		});
 	}
 	node.sum = node.children.length;
