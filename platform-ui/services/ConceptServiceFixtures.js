@@ -8,22 +8,22 @@
  */
 
 /**
- * View Helper for Concept UX.
+ * Concept Service - Invoke MW API's, transform data for UI and viceversa
  *
  * @author Santhosh
  */
 var async = require('async')
-	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/ConceptServiceFixtures') : require('../services/ConceptService'))
+	, mwService = require('../commons/MWServiceProvider')
 	, util = require('../commons/Util');
 
-exports.getConcept = function(req, res) {
-	service.getConcept(req.params.id, util.responseCB(res));
+exports.getConcept = function(id, cb) {
+	util.sendJSONResponse('concept.json', cb);
 }
 
-exports.createConcept = function(req, res) {
-	service.createConcept(req.body, util.responseCB(res));
+exports.updateConcept = function(data, cb) {
+
 }
 
-exports.updateConcept = function(req, res) {
-	service.updateConcept(req.body, util.responseCB(res));
+exports.createConcept = function(data, cb) {
+
 }

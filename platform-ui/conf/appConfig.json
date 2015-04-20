@@ -17,6 +17,7 @@
     "AWS_SECRETACCESSKEY": "92YKBRKeFNEXiNu4Q5fR9ZxDmXR/sX6mAvZsy8/F",
     "USE_TEST_MAIL": false,
     "ORCHESTRATOR_URL": "http://localhost:9090",
+    "APP_STATUS": "DEMO",
     "USER_LOGIN": {
         "GOOGLE_CLIENT_ID": "562974388006-1agi51jjnlvskvoiaig2ko8ghghrrvbq.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "OIz_6r8joEUlhcrcuzWrTftl",
