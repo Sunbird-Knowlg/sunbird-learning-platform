@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -81,6 +84,19 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (checkError(createRes)) {
             return createRes;
         } else {
+            StringValue nodeId = (StringValue) createRes.get(GraphDACParams.NODE_ID.name());
+            if (null != concept.getTags() && !concept.getTags().isEmpty()) {
+                Request tagRequest = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addTags");
+                tagRequest.put(GraphDACParams.NODE_ID.name(), nodeId);
+                List<StringValue> tags = new ArrayList<StringValue>();
+                for (String tag : concept.getTags()) {
+                    tags.add(new StringValue(tag));
+                }
+                tagRequest.put(GraphDACParams.TAGS.name(), new BaseValueObjectList<StringValue>(tags));
+                Response tagResponse = getResponse(tagRequest, LOGGER);
+                if (checkError(tagResponse))
+                    return tagResponse;
+            }
             BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
                     .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
             if (validateRequired(newDefinitions)) {
@@ -113,6 +129,18 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (checkError(updateRes)) {
             return updateRes;
         } else {
+            if (null != concept.getTags() && !concept.getTags().isEmpty()) {
+                Request tagRequest = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addTags");
+                tagRequest.put(GraphDACParams.NODE_ID.name(), new StringValue(concept.getIdentifier()));
+                List<StringValue> tags = new ArrayList<StringValue>();
+                for (String tag : concept.getTags()) {
+                    tags.add(new StringValue(tag));
+                }
+                tagRequest.put(GraphDACParams.TAGS.name(), new BaseValueObjectList<StringValue>(tags));
+                Response tagResponse = getResponse(tagRequest, LOGGER);
+                if (checkError(tagResponse))
+                    return tagResponse;
+            }
             BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
                     .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
             if (validateRequired(newDefinitions)) {

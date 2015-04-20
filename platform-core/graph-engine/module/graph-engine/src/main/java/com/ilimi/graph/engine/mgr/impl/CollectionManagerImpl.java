@@ -22,6 +22,7 @@ import com.ilimi.graph.model.collection.Sequence;
 import com.ilimi.graph.model.collection.Set;
 import com.ilimi.graph.model.collection.SetCriteria;
 import com.ilimi.graph.model.collection.Tag;
+import com.ilimi.graph.model.node.DataNode;
 
 public class CollectionManagerImpl extends BaseGraphManager implements ICollectionManager {
 
@@ -171,6 +172,23 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             tag.addMember(request);
         } catch (Exception e) {
             handleException(e, getSender());
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addTags(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
+        BaseValueObjectList<StringValue> tags = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.TAGS.name());
+        if (!validateRequired(nodeId, tags)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Required parameters are missing...");
+        } else {
+            try {
+                DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
+                node.addTags(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
         }
     }
 

@@ -104,9 +104,18 @@ public interface ICollectionManager {
      * @request - TAG_NAME name of the tag to be created
      * @request - NODE_ID id of the node to be tagged
      * @request - PROPERTY name of the property to be tagged
-     * @response - MEMBERS: List of members
      * @response - STATUS: API call status
      */
     void addTag(Request request);
+
+    /**
+     * API to add multiple tags to a node.
+     * 
+     * @request - GRAPH_ID as request context variable.
+     * @request - TAGS list of tags to be added
+     * @request - NODE_ID id of the node to be tagged
+     * @response - STATUS: API call status
+     */
+    void addTags(Request request);
 
 }

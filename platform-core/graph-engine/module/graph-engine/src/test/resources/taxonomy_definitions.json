@@ -34,7 +34,7 @@
 					"description": "",
 					"category": "general",
 					"dataType": "Text",
-					"required": true,
+					"required": false,
 					"displayProperty": "Hidden",
 					"defaultValue": "",
 					"renderingHints": "{'order': 3}"
@@ -226,7 +226,7 @@
 					"description": "",
 					"category": "general",
 					"dataType": "List",
-					"required": true,
+					"required": false,
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{'inputType': 'table', 'order': 6}"
@@ -458,10 +458,33 @@
 					"displayProperty": "Editable",
 					"defaultValue": "",
 					"renderingHints": "{'inputType': 'text', 'order': 1}" 
+				},
+				{
+					"propertyName": "code",
+					"title": "Code",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": true,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'text', 'order': 2}"
 				}
 			],
 
-			"nonIndexedMetadata": [],
+			"nonIndexedMetadata": [
+				{
+					"propertyName": "description",
+					"title": "Description",
+					"description": "",
+					"category": "general",
+					"dataType": "Text",
+					"required": false,
+					"displayProperty": "Editable",
+					"defaultValue": "",
+					"renderingHints": "{'inputType': 'textarea', 'order': 4}"
+				}
+			],
 			"inRelations": [],
 			"outRelations": [
 				{

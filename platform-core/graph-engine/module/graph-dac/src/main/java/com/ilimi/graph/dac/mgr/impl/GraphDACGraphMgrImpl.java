@@ -111,6 +111,78 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     }
 
     @SuppressWarnings("unchecked")
+    public void addOutgoingRelations(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
+        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
+        BaseValueObjectList<StringValue> endNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.END_NODE_ID.name());
+        if (!validateRequired(startNodeId, relationType, endNodeIds)) {
+            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+        } else {
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                tx = graphDb.beginTx();
+                Node startNode = getNodeByUniqueId(graphDb, startNodeId.getId());
+                RelationType relType = new RelationType(relationType.getId());
+                for (StringValue endNodeId : endNodeIds.getValueObjectList()) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
+                            endNodeId.getId());
+                    if (null == relation) {
+                        Node endNode = getNodeByUniqueId(graphDb, endNodeId.getId());
+                        startNode.createRelationshipTo(endNode, relType);
+                    }
+                }
+                tx.success();
+                tx.close();
+                OK(getSender());
+            } catch (Exception e) {
+                if (null != tx) {
+                    tx.failure();
+                    tx.close();
+                }
+                ERROR(e, getSender());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addIncomingRelations(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        BaseValueObjectList<StringValue> startNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.START_NODE_ID.name());
+        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
+        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        if (!validateRequired(startNodeIds, relationType, endNodeId)) {
+            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+        } else {
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                tx = graphDb.beginTx();
+                Node endNode = getNodeByUniqueId(graphDb, endNodeId.getId());
+                RelationType relType = new RelationType(relationType.getId());
+                for (StringValue startNodeId : startNodeIds.getValueObjectList()) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
+                            endNodeId.getId());
+                    if (null == relation) {
+                        Node startNode = getNodeByUniqueId(graphDb, startNodeId.getId());
+                        startNode.createRelationshipTo(endNode, relType);
+                    }
+                }
+                tx.success();
+                tx.close();
+                OK(getSender());
+            } catch (Exception e) {
+                if (null != tx) {
+                    tx.failure();
+                    tx.close();
+                }
+                ERROR(e, getSender());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     @Override
     public void addRelation(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
@@ -119,7 +191,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         BaseValueObjectMap<Object> metadata = (BaseValueObjectMap<Object>) request.get(GraphDACParams.METADATA.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -148,18 +220,19 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         }
                     }
                     tx.success();
+                    tx.close();
                     OK(GraphDACParams.GRAPH_ID.name(), new StringValue(graphId), getSender());
                 } else {
                     tx.failure();
+                    tx.close();
                     throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Relation already exists");
                 }
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -182,14 +255,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     rel.delete();
                 }
                 tx.success();
+                tx.close();
                 OK(getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
