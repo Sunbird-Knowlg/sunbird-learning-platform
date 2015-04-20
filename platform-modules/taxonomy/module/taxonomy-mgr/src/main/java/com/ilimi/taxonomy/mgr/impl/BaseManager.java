@@ -1,11 +1,15 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.pattern.Patterns;
 
 import com.ilimi.graph.common.Request;
@@ -39,6 +43,51 @@ public abstract class BaseManager {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
+
+    protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
+        if (null != requests && !requests.isEmpty()) {
+            ActorRef router = RequestRouterPool.getRequestRouter();
+            try {
+                List<Future<Object>> futures = new ArrayList<Future<Object>>();
+                for (Request request : requests) {
+                    Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+                    futures.add(future);
+                }
+                Future<Iterable<Object>> objects = Futures.sequence(futures, RequestRouterPool.getActorSystem().dispatcher());
+                Iterable<Object> responses = Await.result(objects, RequestRouterPool.WAIT_TIMEOUT.duration());
+                if (null != responses) {
+                    BaseValueObjectList<BaseValueObject> list = new BaseValueObjectList<BaseValueObject>();
+                    list.setValueObjectList(new ArrayList<BaseValueObject>());
+                    Response response = new Response();
+                    for (Object obj : responses) {
+                        if (obj instanceof Response) {
+                            Response res = (Response) obj;
+                            if (!checkError(res)) {
+                                BaseValueObject vo = res.get(paramName);
+                                response = copyResponse(response, res);
+                                if (null != vo) {
+                                    list.getValueObjectList().add(vo);
+                                }
+                            } else {
+                                return res;
+                            }
+                        } else {
+                            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+                        }
+                    }
+                    response.put(returnParam, list);
+                    return response;
+                } else {
+                    return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+            }
+        } else {
+            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
         }
     }
 

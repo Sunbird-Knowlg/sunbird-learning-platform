@@ -1,6 +1,8 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.exception.ClientException;
@@ -34,9 +37,20 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 
     private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
 
+    private String[] taxonomyIds = { "NUMERACY", "LITERACY" };
+
     @Override
     public Response findAll() {
-        return null;
+        LOGGER.info("Find All Taxonomy");
+        List<Request> requests = new ArrayList<Request>();
+        for (String id : taxonomyIds) {
+            Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(),
+                    new StringValue(id));
+            request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+            requests.add(request);
+        }
+        Response response = getResponse(requests, LOGGER, GraphDACParams.NODE.name(), TaxonomyAPIParams.TAXONOMY_LIST.name());
+        return response;
     }
 
     @Override
