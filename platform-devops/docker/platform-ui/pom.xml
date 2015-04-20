@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.ekstep.lp</groupId>
+	<artifactId>platform-ui-docker</artifactId>
+	<version>1.0</version>
+	<packaging>pom</packaging>
+	<name>Learning Platform Docker Builder</name>
+
+	<inceptionYear>2014 - 2015</inceptionYear>
+	<organization>
+		<name>ekStep.org</name>
+		<url>http://www.ekstep.org</url>
+	</organization>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<build>
+		<plugins>
+			<plugin>
+			  <groupId>com.spotify</groupId>
+			  <artifactId>docker-maven-plugin</artifactId>
+			  <version>0.1.1</version>
+			  <configuration>
+				<imageName>ekstep/lpf-ui:${imgVersion}</imageName>
+				<dockerDirectory>src/docker</dockerDirectory>
+				<resources>
+				   <resource>
+					 <targetPath>.</targetPath>
+					 <directory>../../../platform-ui</directory>
+				   </resource>
+				</resources>
+			  </configuration>
+			  <executions>
+					<execution>
+						<goals>
+							<goal>build</goal>
+						</goals>
+						<phase>package</phase>
+					</execution>
+				</executions>			  
+			</plugin>
+			<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-enforcer-plugin</artifactId>
+        <version>1.3.1</version>
+        <executions>
+          <execution>
+            <id>enforce-property</id>
+            <goals>
+              <goal>enforce</goal>
+            </goals>
+            <configuration>
+              <rules>
+                <requireProperty>
+                  <property>imgVersion</property>
+                  <message>You must specify the docker image version!</message>
+                </requireProperty>
+              </rules>
+              <fail>true</fail>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+		</plugins>
+	</build>
+</project>
