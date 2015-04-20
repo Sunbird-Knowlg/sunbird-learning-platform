@@ -24,6 +24,10 @@ public class Relation extends BaseValueObject {
     private String startNodeName;
     private String endNodeName;
     private Map<String, Object> metadata;
+    
+    public Relation() {
+        
+    }
 
     public Relation(String startNodeId, String relationType, String endNodeId) {
         this.startNodeId = startNodeId;
