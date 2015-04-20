@@ -429,7 +429,7 @@ public class Graph extends AbstractDomainObject {
                             if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
                                 List<Node> nodeList = new ArrayList<Node>();
                                 for (Node node : nodes.getValueObjectList()) {
-                                    if (null != node && StringUtils.isBlank(node.getNodeType())
+                                    if (null != node && StringUtils.isNotBlank(node.getNodeType())
                                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                                         nodeList.add(node);
                                     }
@@ -501,7 +501,7 @@ public class Graph extends AbstractDomainObject {
                         if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
                             List<Node> nodeList = new ArrayList<Node>();
                             for (Node node : nodes.getValueObjectList()) {
-                                if (null != node && StringUtils.isBlank(node.getNodeType())
+                                if (null != node && StringUtils.isNotBlank(node.getNodeType())
                                         && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                                     nodeList.add(node);
                                 }
