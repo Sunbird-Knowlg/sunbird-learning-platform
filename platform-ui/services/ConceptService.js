@@ -34,6 +34,7 @@ exports.getConcept = function(id, tid, cb) {
 			callback(null, []);
 		}
 	}, function(err, results) {
+		console.log('err', err, 'results', results);
 		if(err) {
 			cb(err);
 		} else {
@@ -56,9 +57,14 @@ exports.updateConcept = function(data, cb) {
 	        		metadata: data.properties,
 	        		tags: data.tags
 				},
-				METADATA_DEFINITIONS: data.newMetadata
+				METADATA_DEFINITIONS: []
 			}
 		}
+	}
+	if(data.newMetadata && data.newMetadata.length > 0) {
+		_.each(data.newMetadata, function(prop) {
+			args.data.request.METADATA_DEFINITIONS.push(_.omit(prop, 'error'));
+		});
 	}
 	console.log('ConceptService:updateConcept() - args ', JSON.stringify(args));
 	mwService.patchCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
@@ -66,7 +72,7 @@ exports.updateConcept = function(data, cb) {
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.results.CONCEPT);
+			cb(null, 'OK');
 		}
 	});
 }
@@ -80,22 +86,24 @@ exports.createConcept = function(data, cb) {
 	        		objectType: "Concept",
 	        		metadata: {
 	 					"name": data.name,
+	 					"code": data.code,
 	 					"description": data.description
 					},
 	        		inRelations: [{
-	        			startNodeId: data.parent.conceptId,
+	        			startNodeId: data.parent ? data.parent.id : data.taxonomyId,
 	        			relationType: 'isParentOf'
 	        		}]
 				}
 			}
 		}
 	}
-
+	console.log('ConceptService:createConcept() - args ', JSON.stringify(args));
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
+		console.log('err', err, 'data', JSON.stringify(data));
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.results.CONCEPT);
+			cb(null, data.result.NODE_ID);
 		}
 	});
 }

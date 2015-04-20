@@ -110,7 +110,8 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.resetCategories = function() {
         _.each($scope.categories, function(cat) {
             cat.editMode = false;
-        })
+        });
+        $('form').removeClass('ng-dirty').addClass('ng-pristine');
     }
 
     $scope.taxonomyObjects = [
@@ -328,9 +329,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             })
         }
         for(k in $scope.selectedConcept.metadata) {
-            console.log('k', k);
             var prop = _.where($scope.selectedTaxonomy.properties, {'propertyName': k})[0];
-            console.log('prop', prop);
             var oldValue = $scope.unmodifiedConcept.metadata[k];
             var newValue = $scope.selectedConcept.metadata[k];
             if(_.isArray(newValue)) {
@@ -354,17 +353,19 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.buttonLoading($event);
         service.updateConcept($scope.conceptToBeUpdated).then(function(data) {
             $scope.setConceptResponse(data);
+            $scope.buttonReset($event);
+            $scope.getConcept();
+            $('#saveChangesModal').modal('hide');
         }).catch(function(err) {
             $scope.validationMessages = [];
             $scope.validationMessages.push(err.errorMsg);
             console.log('saveChanges() - err', err);
-        }).done(function() {
             $scope.buttonReset($event);
+            $('#saveChangesModal').modal('hide');
         });
     }
 
     $scope.onObjectTypeChange = function() {
-        console.log('newConcept.parent', $scope.newConcept.parent);
         $scope.newConcept.parent = undefined;
     }
 
@@ -383,13 +384,16 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.newConcept.errorMessages.push('Name is required');
             valid = false;
         }
+        if(_.isEmpty($scope.newConcept.code)) {
+            $scope.newConcept.errorMessages.push('Code is required');
+            valid = false;
+        }
         if(!valid) {
             return;
         }
         $scope.buttonLoading($event);
         service.createConcept($scope.newConcept).then(function(data) {
-            $scope.sbConcept = {conceptId: data.identifier};
-            $scope.setConceptResponse(data);
+            $scope.sbConcept = {conceptId: data.id, name: $scope.newConcept.name};
             service.getTaxonomyGraph($scope.selectedTaxonomyId).then(function(data) {
                 $scope.conceptGraph = data.paginatedGraph;
                 $scope.selectedTaxonomy.graph = data.graph;
@@ -399,11 +403,12 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                 } else {
                     $scope.selectVisualization('tree');
                 }
+                $scope.buttonReset($event);
+                $("#il-Txt-Editor").slideToggle('slow');
             }).catch(function(err) {
                 console.log('Error fetching taxnomy graph - ', err);
                 $scope.errorMessages = [];
                 $scope.errorMessages.push(err.errorMsg);
-            }).done(function() {
                 $scope.buttonReset($event);
             });
         }).catch(function(err) {
@@ -437,16 +442,24 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.selectVisualization = function(type) {
         if(type == 'tree') {
-            $scope.showSunburst = false;
-            $scope.showTree = true;
-            setTimeout(function() {
-                var cid = $scope.sbConcept ? $scope.sbConcept.conceptId : null;
-                showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, cid);
-            }, 1000);
+            if($scope.showTree) {
+                expandANode($scope.sbConcept.conceptId, $scope.sbConcept.name);
+            } else {
+                $scope.showSunburst = false;
+                $scope.showTree = true;
+                setTimeout(function() {
+                    var cid = $scope.sbConcept ? $scope.sbConcept.conceptId : null;
+                    showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, cid);
+                }, 1000);
+            }
         } else {
-            $scope.showSunburst = true;
-            $scope.showTree = false;
-            loadSunburst($scope);
+            if($scope.showSunburst) {
+                selectSunburstConcept($scope.sbConcept.conceptId);
+            } else {
+                $scope.showSunburst = true;
+                $scope.showTree = false;
+                loadSunburst($scope);
+            }
         }
     }
 
@@ -491,6 +504,20 @@ function loadSunburst($scope) {
         $scope.data = [$scope.selectedTaxonomy.graph];
         if($scope.sbConcept) {
             $scope.conceptId = $scope.sbConcept.conceptId;
+        }
+    }
+}
+
+// Auto select the concept id
+function selectSunburstConcept(cid) {
+    var nodes = d3.select("#sunburst").selectAll("#sunburst-path")[0];
+    for(var i=0; i< nodes.length; i++) {
+        var node = nodes[i];
+        var nodeCid = $(node).attr('cid');
+        if(nodeCid == cid) {
+            var event = document.createEvent("SVGEvents");
+            event.initEvent("click",true,true);
+            node.dispatchEvent(event);
         }
     }
 }
