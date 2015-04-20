@@ -1,44 +1,45 @@
 {
-    "name": "platform-ui",
-    "version": "0.0.1",
-    "private": true,
-    "scripts": {
-        "start": "node app.js"
-    },
-    "dependencies": {
-        "express": "3.2.6",
-        "ejs": "*",
-        "mongoose": "4.0.0",
-        "node-rest-client": "^0.8.3",
-        "shortid": "*",
-        "http-auth": "^2.1.8",
-        "passport": "^0.2.0",
-        "passport-local": "^1.0.0",
-        "bcrypt-nodejs": "0.0.3",
-        "connect-mongo": "^0.4.1",
-        "connect-redis": "^2.0.0",
-        "date-format-lite": "^0.5.0",
-        "fluent-logger": "^0.2.6",
-        "json-csv": "^0.0.7",
-        "log4js": "^0.6.16",
-        "mongodb": "^1.4.8",
-        "aws-sdk": "*",
-        "googleapis": "*",
-        "node-uuid": "*",
-        "connect-roles": "3.0.3",
-        "validator": "^3.22.1",
-        "string": "^2.2.0",
-        "csv": "^0.3.7",
-        "node-cache": "*",
-        "clusterhub": "*",
-        "passport-google-oauth": "*",
-        "passport-facebook": "*",
-        "async": "*",
-        "http-static-gzip-regexp": "*",
-        "underscore": "*"
-    },
-    "devDependencies": {
-        "grunt": "^0.4.4",
-        "grunt-cli": "*"
-    }
+  "name": "platform-ui",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "async": "*",
+    "aws-sdk": "*",
+    "bcrypt-nodejs": "0.0.3",
+    "clusterhub": "*",
+    "connect-mongo": "^0.4.1",
+    "connect-redis": "^2.0.0",
+    "connect-roles": "3.0.3",
+    "csv": "^0.3.7",
+    "date-format-lite": "^0.5.0",
+    "ejs": "*",
+    "express": "3.2.6",
+    "fluent-logger": "^0.2.6",
+    "googleapis": "*",
+    "http-auth": "^2.1.8",
+    "http-static-gzip-regexp": "*",
+    "json-csv": "^0.0.7",
+    "log4js": "^0.6.16",
+    "mongodb": "^1.4.8",
+    "mongoose": "4.0.0",
+    "node-cache": "*",
+    "node-rest-client": ">=1.0.0",
+    "node-uuid": "*",
+    "passport": "^0.2.0",
+    "passport-facebook": "*",
+    "passport-google-oauth": "*",
+    "passport-local": "^1.0.0",
+    "shortid": "*",
+    "string": "^2.2.0",
+    "underscore": "*",
+    "validator": "^3.22.1",
+    "xml2js": "^0.4.8"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-cli": "*"
+  }
 }
