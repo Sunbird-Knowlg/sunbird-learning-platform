@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -241,7 +242,10 @@ public class DataNode extends AbstractNode {
                                     metadata = new HashMap<String, Object>();
                                 Map<String, Object> dbMetadata = dbNode.getMetadata();
                                 if (null != dbMetadata && !dbMetadata.isEmpty()) {
-                                    metadata.putAll(dbMetadata);
+                                    for (Entry<String, Object> entry : dbMetadata.entrySet()) {
+                                        if (!metadata.containsKey(entry.getKey()))
+                                            metadata.put(entry.getKey(), entry.getValue());
+                                    }
                                 }
                                 setInRelations(dbNode.getInRelations());
                                 setOutRelations(dbNode.getOutRelations());
