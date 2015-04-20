@@ -39,6 +39,8 @@
     },
     "devDependencies": {
         "grunt": "^0.4.4",
-        "grunt-cli": "*"
+        "grunt-cli": "*",
+        "grunt-contrib-copy": "*",
+        "grunt-string-replace": "*"
     }
 }
