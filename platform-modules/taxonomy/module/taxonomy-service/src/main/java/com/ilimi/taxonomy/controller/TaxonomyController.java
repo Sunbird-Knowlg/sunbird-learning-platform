@@ -57,7 +57,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file) {
         LOGGER.info("Create | Id: " + id + " | File: " + file);
