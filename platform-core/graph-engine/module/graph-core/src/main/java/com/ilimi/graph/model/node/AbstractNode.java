@@ -42,7 +42,6 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         if (null == manager || StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Node");
         }
-        checkMetadata(metadata);
         this.nodeId = nodeId;
         this.metadata = metadata;
     }
@@ -188,17 +187,57 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         }
     }
 
+    @SuppressWarnings("rawtypes")
     protected void checkMetadata(String key, Object value) {
         if (SystemProperties.isSystemProperty(key)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), key + " is a reserved system property");
         }
         if (null != value) {
-            if (!(value instanceof String) && !(value instanceof String[]) && !(value instanceof Double) && !(value instanceof double[])
+            if (value instanceof List) {
+                List list = (List) value;
+                Object[] array = getArray(key, list);
+                if (null == array) {
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: "
+                            + key);
+                } else {
+                    value = array;
+                    if (null != metadata)
+                        metadata.put(key, array);
+                }
+            } else if (!(value instanceof String) && !(value instanceof String[]) && !(value instanceof Double) && !(value instanceof double[])
                     && !(value instanceof Float) && !(value instanceof float[]) && !(value instanceof Long) && !(value instanceof long[])
-                    && !(value instanceof Integer) && !(value instanceof int[]) && !(value instanceof Boolean) && !(value instanceof boolean[])) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: " + key);
+                    && !(value instanceof Integer) && !(value instanceof int[]) && !(value instanceof Boolean)
+                    && !(value instanceof boolean[])) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: "
+                        + key);
             }
         }
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Object[] getArray(String key, List list) {
+        Object[] array = null;
+        try {
+            if (null != list && !list.isEmpty()) {
+                Object obj = list.get(0);
+                if (obj instanceof String) {
+                    array = list.toArray(new String[list.size()]);
+                } else if (obj instanceof Double) {
+                    array = list.toArray(new Double[list.size()]);
+                } else if (obj instanceof Float) {
+                    array = list.toArray(new Float[list.size()]);
+                } else if (obj instanceof Long) {
+                    array = list.toArray(new Long[list.size()]);
+                } else if (obj instanceof Integer) {
+                    array = list.toArray(new Integer[list.size()]);
+                } else if (obj instanceof Boolean) {
+                    array = list.toArray(new Boolean[list.size()]);
+                }
+            }
+        } catch (Exception e) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: " + key);
+        }
+        return array;
     }
 
     protected String[] convertListToArray(List<String> list) {
