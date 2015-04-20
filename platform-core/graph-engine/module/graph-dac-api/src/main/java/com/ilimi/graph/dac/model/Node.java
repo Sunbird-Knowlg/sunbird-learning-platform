@@ -25,6 +25,10 @@ public class Node extends BaseValueObject {
     private List<Relation> outRelations;
     private List<Relation> inRelations;
     private List<String> tags;
+    
+    public Node() {
+        
+    }
 
     public Node(String identifier, String nodeType, String objectType) {
         this.identifier = identifier;

@@ -17,6 +17,7 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.mgr.IConceptManager;
@@ -66,6 +67,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         return response;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Response create(String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
@@ -73,11 +75,28 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         Node concept = (Node) request.get(TaxonomyAPIParams.CONCEPT.name());
         if (null == concept)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT.name(), "Concept Object is blank");
-        request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-        request.setOperation("createDataNode");
-        return getResponse(request, LOGGER);
+        Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+        createReq.put(GraphDACParams.NODE.name(), concept);
+        Response createRes = getResponse(createReq, LOGGER);
+        if (checkError(createRes)) {
+            return createRes;
+        } else {
+            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
+                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            if (validateRequired(newDefinitions)) {
+                Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
+                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(concept.getObjectType()));
+                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                Response defResponse = getResponse(defRequest, LOGGER);
+                if (checkError(defResponse)) {
+                    return defResponse;
+                }
+            }
+        }
+        return createRes;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Response update(String id, String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
@@ -87,9 +106,26 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         Node concept = (Node) request.get(TaxonomyAPIParams.CONCEPT.name());
         if (null == concept)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT.name(), "Concept Object is blank");
-        request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-        request.setOperation("updateDataNode");
-        return getResponse(request, LOGGER);
+        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+        updateReq.put(GraphDACParams.NODE.name(), concept);
+        updateReq.put(GraphDACParams.NODE_ID.name(), new StringValue(concept.getIdentifier()));
+        Response updateRes = getResponse(updateReq, LOGGER);
+        if (checkError(updateRes)) {
+            return updateRes;
+        } else {
+            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
+                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            if (validateRequired(newDefinitions)) {
+                Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
+                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(concept.getObjectType()));
+                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                Response defResponse = getResponse(defRequest, LOGGER);
+                if (checkError(defResponse)) {
+                    return defResponse;
+                }
+            }
+        }
+        return updateRes;
     }
 
     @Override

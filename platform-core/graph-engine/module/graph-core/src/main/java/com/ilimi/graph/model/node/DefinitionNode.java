@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -11,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
@@ -20,6 +22,7 @@ import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -27,6 +30,8 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchConditions;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
@@ -60,10 +65,14 @@ public class DefinitionNode extends AbstractNode {
         this.systemTags = systemTags;
     }
 
-    @SuppressWarnings("unchecked")
     public DefinitionNode(BaseGraphManager manager, Node defNode) {
         super(manager, defNode.getGraphId(), defNode.getIdentifier(), null);
         this.objectType = defNode.getObjectType();
+        fromNode(defNode);
+    }
+
+    @SuppressWarnings("unchecked")
+    private void fromNode(Node defNode) {
         Map<String, Object> metadata = defNode.getMetadata();
         if (null != metadata && !metadata.isEmpty()) {
             String indexableMetadata = (String) metadata.get(INDEXABLE_METADATA_KEY);
@@ -121,7 +130,6 @@ public class DefinitionNode extends AbstractNode {
                 } catch (Exception e) {
                 }
             }
-
         }
     }
 
@@ -192,36 +200,124 @@ public class DefinitionNode extends AbstractNode {
 
     @Override
     public void create(final Request req) {
-        try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-            final Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-            request.setOperation("upsertNode");
-            request.put(GraphDACParams.NODE.name(), toNode());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-            manager.onFailureResponse(response, getParent());
-            response.onSuccess(new OnSuccess<Object>() {
-                @Override
-                public void onSuccess(Object arg0) throws Throwable {
-                    if (arg0 instanceof Response) {
-                        Response res = (Response) arg0;
-                        if (manager.checkError(res)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), manager.getErrorMessage(res),
-                                    res.getResponseCode(), getParent());
+        List<String> messages = validateDefinitionNode();
+        if (null != messages && !messages.isEmpty()) {
+            List<StringValue> voList = new ArrayList<StringValue>();
+            for (String msg : messages) {
+                voList.add(new StringValue(msg));
+            }
+            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Invalid Definition", ResponseCode.CLIENT_ERROR,
+                    GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(voList), getParent());
+        } else {
+            try {
+                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                final Request request = new Request(req);
+                request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+                request.setOperation("upsertNode");
+                request.put(GraphDACParams.NODE.name(), toNode());
+                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+                manager.onFailureResponse(response, getParent());
+                response.onSuccess(new OnSuccess<Object>() {
+                    @Override
+                    public void onSuccess(Object arg0) throws Throwable {
+                        if (arg0 instanceof Response) {
+                            Response res = (Response) arg0;
+                            if (manager.checkError(res)) {
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), manager.getErrorMessage(res),
+                                        res.getResponseCode(), getParent());
+                            } else {
+                                ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+                                loadToCache(cacheRouter, req);
+                                manager.OK(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()), getParent());
+                            }
                         } else {
-                            ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-                            loadToCache(cacheRouter, req);
-                            manager.OK(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()), getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Failed to create definition node",
+                                    ResponseCode.SERVER_ERROR, getParent());
                         }
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Failed to create definition node",
-                                ResponseCode.SERVER_ERROR, getParent());
                     }
-                }
-            }, manager.getContext().dispatcher());
+                }, manager.getContext().dispatcher());
 
-        } catch (Exception e) {
-            manager.ERROR(e, getParent());
+            } catch (Exception e) {
+                manager.ERROR(e, getParent());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void update(final Request req) {
+        final BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) req
+                .get(GraphDACParams.METADATA_DEFINITIONS.name());
+        if (!manager.validateRequired(definitions)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Required parameters are missing");
+        } else {
+            try {
+                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                Request request = new Request(req);
+                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                request.setOperation("searchNodes");
+                SearchCriteria sc = new SearchCriteria();
+                sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name())).add(
+                        SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
+                sc.limit(1);
+                request.put(GraphDACParams.SEARCH_CRITERIA.name(), sc);
+                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+                response.onComplete(new OnComplete<Object>() {
+                    @Override
+                    public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                                GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Failed to get definition node for "
+                                        + objectType);
+                        if (valid) {
+                            Response res = (Response) arg1;
+                            BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
+                            if (null == nodes || null == nodes.getValueObjectList() || nodes.getValueObjectList().isEmpty()) {
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(),
+                                        "Failed to get definition node for " + objectType, ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                            } else {
+                                Node dbNode = nodes.getValueObjectList().get(0);
+                                fromNode(dbNode);
+                                List<MetadataDefinition> defs = definitions.getValueObjectList();
+                                Map<String, MetadataDefinition> map = new HashMap<String, MetadataDefinition>();
+                                for (MetadataDefinition def : defs) {
+                                    map.put(def.getPropertyName(), def);
+                                }
+                                if (null != indexedMetadata && !indexedMetadata.isEmpty()) {
+                                    for (MetadataDefinition def : indexedMetadata) {
+                                        if (map.containsKey(def.getPropertyName()))
+                                            map.remove(def.getPropertyName());
+                                    }
+                                }
+                                if (null != nonIndexedMetadata && !nonIndexedMetadata.isEmpty()) {
+                                    for (MetadataDefinition def : nonIndexedMetadata) {
+                                        if (map.containsKey(def.getPropertyName()))
+                                            map.remove(def.getPropertyName());
+                                    }
+                                }
+                                if (!map.isEmpty()) {
+                                    for (Entry<String, MetadataDefinition> entry : map.entrySet()) {
+                                        MetadataDefinition newDef = entry.getValue();
+                                        if (StringUtils.isBlank(newDef.getDataType()))
+                                            newDef.setDataType("Text");
+                                        if (StringUtils.isBlank(newDef.getDisplayProperty()))
+                                            newDef.setDisplayProperty("Editable");
+                                        if (StringUtils.isBlank(newDef.getCategory()))
+                                            newDef.setCategory("general");
+                                        if (StringUtils.isBlank(newDef.getTitle()))
+                                            newDef.setTitle(newDef.getPropertyName());
+                                        newDef.setDraft(true);
+                                        nonIndexedMetadata.add(newDef);
+                                    }
+                                    create(req);
+                                } else {
+                                    manager.OK(getParent());
+                                }
+                            }
+                        }
+                    }
+                }, manager.getContext().dispatcher());
+            } catch (Exception e) {
+                manager.ERROR(e, getParent());
+            }
         }
     }
 

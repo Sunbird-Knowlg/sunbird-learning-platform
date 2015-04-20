@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import akka.actor.ActorRef;
 
 import com.ilimi.graph.common.Request;
+import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
@@ -63,6 +64,24 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 DefinitionNode node = new DefinitionNode(this, graphId, definition.getObjectType(), indexedMetadata, nonIndexedMetadata,
                         definition.getInRelations(), definition.getOutRelations(), definition.getSystemTags());
                 node.create(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void updateDefinition(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
+        BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) request
+                .get(GraphDACParams.METADATA_DEFINITIONS.name());
+        if (!validateRequired(objectType, definitions)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Required parameters are missing...");
+        } else {
+            try {
+                DefinitionNode defNode = new DefinitionNode(this, graphId, objectType.getId(), null, null, null, null, null);
+                defNode.update(request);
             } catch (Exception e) {
                 handleException(e, getSender());
             }
