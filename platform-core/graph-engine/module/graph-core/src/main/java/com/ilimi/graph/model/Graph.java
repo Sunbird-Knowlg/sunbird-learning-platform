@@ -429,7 +429,7 @@ public class Graph extends AbstractDomainObject {
                             if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
                                 List<Node> nodeList = new ArrayList<Node>();
                                 for (Node node : nodes.getValueObjectList()) {
-                                    if (null != node && StringUtils.isNotBlank(node.getNodeType())
+                                    if (null != node && StringUtils.isBlank(node.getNodeType())
                                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                                         nodeList.add(node);
                                     }
@@ -465,7 +465,7 @@ public class Graph extends AbstractDomainObject {
                     if (valid) {
                         Response res = (Response) arg1;
                         Node node = (Node) res.get(GraphDACParams.NODE.name());
-                        if (null == node || StringUtils.isNotBlank(node.getNodeType())
+                        if (null == node || StringUtils.isBlank(node.getNodeType())
                                 || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                             manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data node",
                                     ResponseCode.RESOURCE_NOT_FOUND, getParent());
@@ -501,7 +501,7 @@ public class Graph extends AbstractDomainObject {
                         if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
                             List<Node> nodeList = new ArrayList<Node>();
                             for (Node node : nodes.getValueObjectList()) {
-                                if (null != node && StringUtils.isNotBlank(node.getNodeType())
+                                if (null != node && StringUtils.isBlank(node.getNodeType())
                                         && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                                     nodeList.add(node);
                                 }
