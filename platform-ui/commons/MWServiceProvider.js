@@ -30,6 +30,20 @@ function postCall(url, requestData, callback) {
     });
 }
 
+function patchCall(url, requestData, callback) {
+    var args = {
+        headers: {
+            "Content-Type": "application/json"
+        },
+        data: requestData
+    };
+    client.patchCall(baseUrl + url, args, function(data, response) {
+        parseResponse(data, callback);
+    }).on('error', function(err) {
+        callback(err);
+    });
+}
+
 function parseResponse(data, callback) {
     if(typeof data == 'string') {
         try {

@@ -25,14 +25,22 @@ exports.getAllTaxonomies = function(cb) {
 		subGraph: false
 	}
 	mwService.getCall(url, params, function(err, data) {
-		cb(null, data.result.taxonomies);
+		if(err) {
+			cb(err);
+		} else {
+			cb(null, data.result.TAXONOMY_LIST);
+		}
 	});
 }
 
 exports.getTaxonomyDefinitions = function(id, cb) {
-	var url = urlConstants.GET_TAXONOMY_DEFS.replace(':id', id);
+	var url = urlConstants.GET_CONCEPT_TAXONOMY_DEFS.replace(':id', id);
 	mwService.getCall(url, {}, function(err, data) {
-		cb(null, data.result.definition_node);
+		if(err) {
+			cb(err);
+		} else {
+			cb(null, data.result.DEFINITION_NODE);
+		}
 	});
 }
 
@@ -46,10 +54,10 @@ exports.getTaxonomyGraph = function(id, cb) {
 				cfields: 'identifier,name,gamesCount,description',
 				subGraph: true
 			}
-			mwService.getCall(urlConstants.GET_TAXONOMY, params, next)
+			mwService.getCall(url, params, next)
 		},
 		function(response, next) {
-			var subGraph = response.result.subGraph;
+			var subGraph = response.result.SUBGRAPH;
 			var nodes = {}, rootNode = undefined;
 			_.each(subGraph.nodes, function(node) {
 				nodes[node.identifier] = node;
@@ -67,11 +75,15 @@ exports.getTaxonomyGraph = function(id, cb) {
 			next(null, graph, clonedGraph)
 		}
 	], function(err, graph, clonedGraph) {
-		var data = {
-			graph: graph,
-			paginatedGraph: clonedGraph
+		if(err) {
+			cb(err);
+		} else {
+			var data = {
+				graph: graph,
+				paginatedGraph: clonedGraph
+			}
+			cb(null, data);
 		}
-		cb(null, data);
 	});
 }
 

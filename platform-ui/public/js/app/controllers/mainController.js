@@ -49,8 +49,8 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.getFromService('/private/v1/player/taxonomy/' + taxonomyId + '/graph');
     }
 
-    this.getConcept = function(conceptId) {
-        return this.getFromService('/private/v1/player/concept/' + conceptId);
+    this.getConcept = function(conceptId, taxonomyId) {
+        return this.getFromService('/private/v1/player/concept/' + conceptId + '/' + taxonomyId);
     }
 
     this.updateConcept = function(data) {
@@ -135,7 +135,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             }
             _.each(categories, function(category) {
                 definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
-            })
+            });
+            $scope.selectedTaxonomy.properties = taxonomyDefs.properties;
             $scope.selectedTaxonomy.definitions = definitions;
             $scope.selectedTaxonomy.definitions.relations = taxonomyDefs.relations;
             $scope.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
@@ -161,13 +162,13 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.getConcept = function() {
-        service.getConcept($scope.sbConcept.conceptId).then(function(data) {
-            $scope.unmodifiedConcept = angular.copy(data);
+        service.getConcept($scope.sbConcept.conceptId, $scope.selectedTaxonomyId).then(function(data) {
             $scope.selectedConcept = data;
             $scope.selectedConcept.metadata = _.object(_.map(data.properties, function(item) {
-               return [item.propertyName, item]
+               return [item.propertyName, item.value]
             }));
-            $scope.setAllCustomProperties();
+            $scope.selectedConcept.newMetadata = [];
+            $scope.unmodifiedConcept = angular.copy($scope.selectedConcept);
             $timeout(function() {
                 $rootScope.showConceptCategories = true;
             }, 1000);
@@ -183,43 +184,13 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     });
 
     $scope.deleteListValue = function(pname, index, formName) {
-        $scope.selectedConcept.metadata[pname].value.splice(index, 1);
+        $scope.selectedConcept.metadata[pname].splice(index, 1);
         $('form[name="'+formName+'"]').removeClass('ng-pristine').addClass('ng-dirty');
     }
 
     $scope.addListValue = function(pname) {
-        if(!$scope.selectedConcept.metadata[pname].value) $scope.selectedConcept.metadata[pname].value = [];
-        $scope.selectedConcept.metadata[pname].value.push("");
-    }
-
-    $scope.setAllCustomProperties = function() {
-        _.each($scope.categories, function(cat) {
-            $scope.setCustomProperties(cat);
-        });
-    }
-
-    $scope.setCustomProperties = function(cat) {
-        var props = $scope.selectedTaxonomy.definitions[cat.id];
-        var propNames = _.pluck(props, 'propertyName');
-        var conceptMetadata = _.where($scope.selectedConcept.properties, {'category': cat.id});
-        var concptPropNames = _.pluck(conceptMetadata, 'propertyName');
-        var diff = _.difference(concptPropNames, propNames);
-        _.each(diff, function(propName) {
-            var prop = _.where($scope.selectedConcept.properties, {'propertyName': propName})[0];
-            props.push({
-                propertyName: propName,
-                title: prop.title,
-                category: prop.category,
-                dataType: 'Text',
-                range:[],
-                required: false,
-                displayProperty: 'Editable',
-                defaultValue: '',
-                renderingHints: {
-                    inputType: 'text'
-                }
-            });
-        });
+        if(!$scope.selectedConcept.metadata[pname]) $scope.selectedConcept.metadata[pname] = [];
+        $scope.selectedConcept.metadata[pname].push("");
     }
 
     $scope.addNew = function(cat) {
@@ -256,22 +227,18 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.addNewMetadata = function(cat) {
         var metadataName = S(cat.newMetadataName.toLowerCase()).camelize().s;
-        $scope.selectedConcept.properties.push({
+        var newProp = {
             "propertyName": metadataName,
             "title": cat.newMetadataName,
-            "description": "",
             "category": cat.id,
-            "value": cat.newMetadataValue
-        });
-        $scope.selectedConcept.metadata[metadataName] = {
-            "propertyName": metadataName,
-            "title": cat.newMetadataName,
-            "description": "",
-            "category": cat.id,
-            "value": cat.newMetadataValue
+            "dataType": "Text",
+            "displayProperty": "Editable"
         }
+        $scope.selectedConcept.newMetadata.push(newProp);
+        $scope.selectedTaxonomy.properties.push(newProp);
+        $scope.selectedTaxonomy.definitions[cat.id].push(newProp);
+        $scope.selectedConcept.metadata[metadataName] = cat.newMetadataValue;
         cat.addNew = false;
-        $scope.setCustomProperties(cat);
     }
 
     $scope.validateConcept = function() {
@@ -279,12 +246,12 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         var errors = [], valid = true;
         _.each($scope.categories, function(cat) {
             _.each($scope.selectedTaxonomy.definitions[cat.id], function(prop) {
-                var metadataProp = $scope.selectedConcept.metadata[prop.propertyName];
+                var currValue = $scope.selectedConcept.metadata[prop.propertyName];
                 var valueExists = false;
                 prop.error = false;
                 if(prop.required) { // Required Validations
                     var valueExists = true;
-                    if(!metadataProp || _.isEmpty(metadataProp.value)) {
+                    if(_.isEmpty(currValue)) {
                         valueExists = false;
                         prop.error = true;
                         errors.push(prop.title + ' is required.');
@@ -292,7 +259,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                         cat.editMode = true;
                     }
                 }
-                if(valueExists && prop.dataType == 'Number' && metadataProp && !_.isFinite(metadataProp.value)) {
+                if(valueExists && prop.dataType == 'Number' && !_.isFinite(currValue)) {
                     prop.error = true;
                     errors.push(prop.title + ' is Number and should contain only numeric value.');
                     valid = false;
@@ -315,7 +282,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             taxonomyId: $scope.selectedTaxonomyId,
             identifier: $scope.selectedConcept.identifier,
             tags: $scope.selectedConcept.tags,
-            properties: []
+            properties: {},
+            newMetadata: $scope.selectedConcept.newMetadata
         }
         var index = 1;
         $scope.commitMessage = "Following are the changes made:\n";
@@ -334,30 +302,28 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             })
         }
         // Check for property changes
-        var modifiedProps = _.pluck($scope.selectedConcept.properties, 'propertyName');
-        var unmodifiedProps = _.pluck($scope.unmodifiedConcept.properties, 'propertyName');
-        var addedProps = _.difference(modifiedProps, unmodifiedProps);
-        if(addedProps && addedProps.length > 0) {
-            _.each(addedProps, function(propName) {
-                var prop = _.where($scope.selectedConcept.properties, {'propertyName': propName})[0];
+        if($scope.selectedConcept.newMetadata && $scope.selectedConcept.newMetadata.length > 0) {
+            _.each($scope.selectedConcept.newMetadata, function(prop) {
                 $scope.commitMessage += index++ + '. New metadata "' + prop.title + '" is added\n';
-                $scope.conceptToBeUpdated.properties.push(prop);
+                $scope.conceptToBeUpdated.properties[prop.propertyName] = $scope.selectedConcept.metadata[prop.propertyName];
             })
         }
-        _.each($scope.unmodifiedConcept.properties, function(prop) {
-            var modProp = $scope.selectedConcept.metadata[prop.propertyName];
-            if(_.isArray(prop.value)) {
-                if(_.difference(prop.value, modProp.value).length > 0 || _.difference(modProp.value, prop.value).length > 0) {
-                    $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + prop.value + '" to "' + modProp.value + '"\n';
-                    $scope.conceptToBeUpdated.properties.push(modProp);
+        for(k in $scope.unmodifiedConcept.metadata) {
+            var prop = _.where($scope.selectedTaxonomy.properties, {'propertyName': k})[0];
+            var oldValue = $scope.unmodifiedConcept.metadata[k];
+            var newValue = $scope.selectedConcept.metadata[k];
+            if(_.isArray(newValue)) {
+                if(_.difference(oldValue, newValue).length > 0 || _.difference(newValue, oldValue).length > 0) {
+                    $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + oldValue + '" to "' + newValue + '"\n';
+                    $scope.conceptToBeUpdated.properties[k] = newValue;
                 }
             } else {
-                if(prop.value != modProp.value) {
-                    $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + prop.value + '" to "' + modProp.value + '"\n';
-                    $scope.conceptToBeUpdated.properties.push(modProp);
+                if(!_.isEqual(oldValue, newValue)) {
+                    $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + oldValue + '" to "' + newValue + '"\n';
+                    $scope.conceptToBeUpdated.properties[k] = newValue;
                 }
             }
-        });
+        }
         $('#saveChangesModal').modal('show');
     }
 

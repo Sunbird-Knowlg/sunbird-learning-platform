@@ -16,7 +16,7 @@ var async = require('async')
 	, mwService = require('../commons/MWServiceProvider')
 	, util = require('../commons/Util');
 
-exports.getConcept = function(id, cb) {
+exports.getConcept = function(id, tid, cb) {
 	util.sendJSONResponse('concept.json', cb);
 }
 

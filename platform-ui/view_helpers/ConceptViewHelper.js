@@ -17,7 +17,7 @@ var async = require('async')
 	, util = require('../commons/Util');
 
 exports.getConcept = function(req, res) {
-	service.getConcept(req.params.id, util.responseCB(res));
+	service.getConcept(req.params.id, req.params.tid, util.responseCB(res));
 }
 
 exports.createConcept = function(req, res) {

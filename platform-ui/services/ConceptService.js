@@ -14,29 +14,69 @@
  */
 var async = require('async')
 	, mwService = require('../commons/MWServiceProvider')
-	, util = require('../commons/Util');
+	, util = require('../commons/Util')
+	, _ = require('underscore');
 
-exports.getConcept = function(id, cb) {
-	var url = urlConstants.GET_CONCEPT.replace(':id', id);
-	mwService.getCall(url, {}, function(err, data) {
-		cb(null, data.result.concept);
+exports.getConcept = function(id, tid, cb) {
+	async.parallel([{
+		concept: function(callback) {
+			var url = urlConstants.GET_CONCEPT.replace(':id', id);
+			mwService.getCall(url, {taxonomyId: tid}, callback);
+		},
+		auditHistory: function(callback) {
+			callback(null, []);
+		},
+		comments: function(callback) {
+			callback(null, []);
+		}
+	}], function(err, results) {
+		if(err) {
+			cb(err);
+		} else {
+			var concept = results.concept.result.CONCEPT;
+			concept.auditHistory = results.auditHistory;
+			concept.comments = results.comments;
+			cb(null, concept);
+		}
 	});
 }
 
 exports.updateConcept = function(data, cb) {
 	var args = {
-		//TODO: Transform the data appropriately
+		request: {
+			CONCEPT: {
+        		objectType: "Concept",
+        		metadata: data.properties,
+        		newMetadataDefs: data.newMetadata,
+        		tags: data.tags
+			}
+		}
 	}
+	console.log('ConceptService:updateConcept() - args ', args);
+	var url = urlConstants.UPDATE_CONCEPT.replace(':tid', data.taxonomyId).replace(':id', data.conceptId);
 	mwService.getCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
-		cb(null, data);
+		cb(err, data);
 	});
 }
 
 exports.createConcept = function(data, cb) {
 	var args = {
-		//TODO: Transform the data appropriately
+		request: {
+			CONCEPT: {
+        		objectType: "Concept",
+        		metadata: {
+ 					"name": data.name,
+ 					"description": data.description
+				},
+        		inRelations: [{
+        			startNodeId: data.parent.conceptId,
+        			relationType: 'isParentOf'
+        		}]
+			}
+		}
 	}
+	var url = urlConstants.SAVE_CONCEPT.replace(':tid', data.taxonomyId);
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
-		cb(null, data);
+		cb(err, data);
 	});
 }

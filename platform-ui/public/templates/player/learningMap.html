@@ -257,15 +257,15 @@
 
 <div ng-switch on="prop.dataType">
 	<table class="table table-striped table-condensed" ng-switch-when="List">
-		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName].value"><td>{{val}}</td></tr>
-		<tr ng-if="!selectedConcept.metadata[prop.propertyName].value || selectedConcept.metadata[prop.propertyName].value.length == 0"><td>None</td></tr>
+		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName]"><td>{{val}}</td></tr>
+		<tr ng-if="!selectedConcept.metadata[prop.propertyName] || selectedConcept.metadata[prop.propertyName].length == 0"><td>None</td></tr>
 	</table>
 	<table class="table table-striped table-condensed" ng-switch-when="Multi-Select">
-		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName].value"><td>{{val}}</td></tr>
-		<tr ng-if="!selectedConcept.metadata[prop.propertyName].value || selectedConcept.metadata[prop.propertyName].value.length == 0"><td>None</td></tr>
+		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName]"><td>{{val}}</td></tr>
+		<tr ng-if="!selectedConcept.metadata[prop.propertyName] || selectedConcept.metadata[prop.propertyName].length == 0"><td>None</td></tr>
 	</table>
-	<span ng-switch-when="Date">{{selectedConcept.metadata[prop.propertyName].value | date:'yyyy-MM-dd HH:mm'}}</span>
-	<span ng-switch-default>{{selectedConcept.metadata[prop.propertyName].value || 'NA'}}</span>
+	<span ng-switch-when="Date">{{selectedConcept.metadata[prop.propertyName] | date:'yyyy-MM-dd HH:mm'}}</span>
+	<span ng-switch-default>{{selectedConcept.metadata[prop.propertyName] || 'NA'}}</span>
 </div>
 
 </script>
@@ -274,16 +274,16 @@
 
 <div ng-switch on="prop.dataType">
 	<table class="table table-striped table-condensed" ng-switch-when="List">
-		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName].value track by $index">
-			<td><input type="text" ng-model="selectedConcept.metadata[prop.propertyName].value[$index]" class="form-control"/></td>
+		<tr ng-repeat="val in selectedConcept.metadata[prop.propertyName] track by $index">
+			<td><input type="text" ng-model="selectedConcept.metadata[prop.propertyName][$index]" class="form-control"/></td>
 			<td><a href="javascript:void(0)" ng-click="deleteListValue(prop.propertyName, $index,cat.id + 'Form')"><i class="fa fa-close"></i></a></td>
 		</tr>
 		<tfoot><tr><td><a href="javascript:void(0)" ng-click="addListValue(prop.propertyName)">Add <i class="fa fa-plus"></i></a></td></tr></tfoot>
 	</table>
-	<select ng-switch-when="Multi-Select" ng-model="selectedConcept.metadata[prop.propertyName].value" ng-options="val for val in prop.range" class="form-control" multiple="true"></select>
-	<select ng-switch-when="Select" ng-model="selectedConcept.metadata[prop.propertyName].value" ng-options="val for val in prop.range" class="form-control"></select>
-	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
-	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
+	<select ng-switch-when="Multi-Select" ng-model="selectedConcept.metadata[prop.propertyName]" ng-options="val for val in prop.range" class="form-control" multiple="true"></select>
+	<select ng-switch-when="Select" ng-model="selectedConcept.metadata[prop.propertyName]" ng-options="val for val in prop.range" class="form-control"></select>
+	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
+	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
 </div>
 
 </script>
