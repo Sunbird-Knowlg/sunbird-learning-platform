@@ -1,0 +1,896 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:ili="http://www.ilimi.in#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#">
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_COURSE">
+      <ili:id>DEFINITION_NODE_COURSE</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>COURSE</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"offeredBy"},{"editable":true,"required":false,"dataType":"Text","propertyName":"popularity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"rating"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"tutoringMode"},{"editable":true,"required":false,"dataType":"Text","propertyName":"tutorType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"tutorLearnerRatio"},{"editable":true,"required":false,"dataType":"Text","propertyName":"categorizeByLP"},{"editable":true,"required":false,"dataType":"Text","propertyName":"tutorHoursByProfile"},{"editable":true,"required":false,"dataType":"Text","propertyName":"tutorLanguage"},{"editable":true,"required":false,"dataType":"Text","propertyName":"tutorLRTypes"},{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"purpose"},{"editable":true,"required":false,"dataType":"Text","propertyName":"studyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learnerLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"context"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learningTime"},{"editable":true,"required":false,"dataType":"Text","propertyName":"semanticDensity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"currentStatus"},{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"codeName"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"},{"editable":true,"required":false,"dataType":"Text","propertyName":"completionResult"},{"editable":true,"required":false,"dataType":"Boolean","propertyName":"mandatory"},{"editable":true,"required":false,"dataType":"Text","propertyName":"structure"},{"editable":true,"required":false,"dataType":"Text","propertyName":"aggregationLevel"}]</ili:nonIndexedMetadata>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_MODULE">
+      <ili:id>DEFINITION_NODE_MODULE</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>MODULE</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"offeredBy"},{"editable":true,"required":false,"dataType":"Text","propertyName":"popularity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"rating"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"purpose"},{"editable":true,"required":false,"dataType":"Text","propertyName":"studyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learnerLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"context"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learningTime"},{"editable":true,"required":false,"dataType":"Text","propertyName":"semanticDensity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"intendedEndUserRole"},{"editable":true,"required":false,"dataType":"Text","propertyName":"difficultyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"currentStatus"},{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"},{"editable":true,"required":false,"dataType":"Boolean","propertyName":"mandatory"},{"editable":true,"required":false,"dataType":"Text","propertyName":"structure"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"isParentOf","objectType":"COURSE"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"isParentOf","objectType":"COURSE"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_LESSON">
+      <ili:id>DEFINITION_NODE_LESSON</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>LESSON</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"learningStyle"},{"editable":true,"required":false,"dataType":"Text","propertyName":"placeInContainer"},{"editable":true,"required":false,"dataType":"Text","propertyName":"lessonType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"difficultyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"offeredBy"},{"editable":true,"required":false,"dataType":"Text","propertyName":"popularity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"rating"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"purpose"},{"editable":true,"required":false,"dataType":"Text","propertyName":"studyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learnerLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"context"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learningTime"},{"editable":true,"required":false,"dataType":"Text","propertyName":"semanticDensity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"intendedEndUserRole"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"currentStatus"},{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"},{"editable":true,"required":false,"dataType":"Boolean","propertyName":"mandatory"},{"editable":true,"required":false,"dataType":"Text","propertyName":"structure"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_LEARNING_RESOURCE">
+      <ili:id>DEFINITION_NODE_LEARNING_RESOURCE</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_RESOURCE</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"lrType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"knowledgeDimension"},{"editable":true,"required":false,"dataType":"Text","propertyName":"bloomsTaxonomyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"instructionUsage"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"lessonType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"difficultyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"offeredBy"},{"editable":true,"required":false,"dataType":"Text","propertyName":"popularity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"rating"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"},{"editable":true,"required":false,"dataType":"Boolean","propertyName":"mandatory"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"purpose"},{"editable":true,"required":false,"dataType":"Text","propertyName":"context"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learningTime"},{"editable":true,"required":false,"dataType":"Text","propertyName":"semanticDensity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"intendedEndUserRole"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"currentStatus"},{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"},{"editable":true,"required":false,"dataType":"Text","propertyName":"structure"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"},{"relationType":"isParentOf","objectType":"LESSON"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"},{"relationType":"isParentOf","objectType":"LESSON"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_LEARNING_ACTIVITY">
+      <ili:id>DEFINITION_NODE_LEARNING_ACTIVITY</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_ACTIVITY</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"laType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"knowledgeDimension"},{"editable":true,"required":false,"dataType":"Text","propertyName":"bloomsTaxonomyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"instructionUsage"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interactivityLocation"},{"editable":true,"required":false,"dataType":"Text","propertyName":"intervention"},{"editable":true,"required":false,"dataType":"Text","propertyName":"interventionRole"},{"editable":true,"required":false,"dataType":"Text","propertyName":"collaboration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"evaluationType"},{"editable":true,"required":false,"dataType":"Text","propertyName":"difficultyLevel"},{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"offeredBy"},{"editable":true,"required":false,"dataType":"Text","propertyName":"popularity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"rating"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"},{"editable":true,"required":false,"dataType":"Boolean","propertyName":"mandatory"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"purpose"},{"editable":true,"required":false,"dataType":"Text","propertyName":"context"},{"editable":true,"required":false,"dataType":"Text","propertyName":"learningTime"},{"editable":true,"required":false,"dataType":"Text","propertyName":"semanticDensity"},{"editable":true,"required":false,"dataType":"Text","propertyName":"intendedEndUserRole"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"currentStatus"},{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"},{"editable":true,"required":false,"dataType":"Text","propertyName":"structure"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"},{"relationType":"isParentOf","objectType":"LESSON"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"isParentOf","objectType":"COURSE"},{"relationType":"isParentOf","objectType":"MODULE"},{"relationType":"isParentOf","objectType":"LESSON"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_CONTENT">
+      <ili:id>DEFINITION_NODE_CONTENT</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"format"},{"editable":true,"required":false,"dataType":"Text","propertyName":"size"},{"editable":true,"required":false,"dataType":"Text","propertyName":"location"},{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationSubject"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"isParentOf","objectType":"LEARNING_RESOURCE"},{"relationType":"isParentOf","objectType":"LEARNING_ACTIVITY"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"isParentOf","objectType":"LEARNING_RESOURCE"},{"relationType":"isParentOf","objectType":"LEARNING_ACTIVITY"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_MEDIA">
+      <ili:id>DEFINITION_NODE_MEDIA</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"format"},{"editable":true,"required":false,"dataType":"Text","propertyName":"size"},{"editable":true,"required":false,"dataType":"Text","propertyName":"location"},{"editable":true,"required":false,"dataType":"Text","propertyName":"duration"},{"editable":true,"required":false,"dataType":"Text","propertyName":"owner"},{"editable":true,"required":false,"dataType":"Text","propertyName":"copyRight"},{"editable":true,"required":false,"dataType":"Text","propertyName":"cost"},{"editable":true,"required":false,"dataType":"Text","propertyName":"contributors"},{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"},{"editable":true,"required":false,"dataType":"Text","propertyName":"classificationStream"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":false,"required":false,"dataType":"Text","propertyName":"currentVersion"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionDate"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionNumber"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionRole"},{"editable":false,"required":false,"dataType":"Text","propertyName":"versionPerson"},{"editable":true,"required":false,"dataType":"Text","propertyName":"versionStatus"},{"editable":true,"required":false,"dataType":"Text","propertyName":"description"},{"editable":true,"required":false,"dataType":"Text","propertyName":"language"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"associatedTo","objectType":"CONTENT"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"associatedTo","objectType":"CONTENT"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DEFINITION_NODE_CONCEPT">
+      <ili:id>DEFINITION_NODE_CONCEPT</ili:id>
+      <ili:nodeType>DEFINITION_NODE</ili:nodeType>
+      <ili:objectType>CONCEPT</ili:objectType>
+      <ili:indexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"name"},{"editable":true,"required":false,"dataType":"Text","propertyName":"identifier"},{"editable":true,"required":false,"dataType":"Text","propertyName":"keyword"}]</ili:indexedMetadata>
+      <ili:nonIndexedMetadata>[{"editable":true,"required":false,"dataType":"Text","propertyName":"description"}]</ili:nonIndexedMetadata>
+      <ili:inRelations>[{"relationType":"associatedTo","objectType":"COURSE"},{"relationType":"associatedTo","objectType":"MODULE"},{"relationType":"associatedTo","objectType":"LESSON"},{"relationType":"associatedTo","objectType":"LEARNING_RESOURCE"},{"relationType":"associatedTo","objectType":"LEARNING_ACTIVITY"},{"relationType":"associatedTo","objectType":"CONTENT"},{"relationType":"associatedTo","objectType":"MEDIA"}]</ili:inRelations>
+      <ili:outRelations>[{"relationType":"associatedTo","objectType":"COURSE"},{"relationType":"associatedTo","objectType":"MODULE"},{"relationType":"associatedTo","objectType":"LESSON"},{"relationType":"associatedTo","objectType":"LEARNING_RESOURCE"},{"relationType":"associatedTo","objectType":"LEARNING_ACTIVITY"},{"relationType":"associatedTo","objectType":"CONTENT"},{"relationType":"associatedTo","objectType":"MEDIA"}]</ili:outRelations>
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:1">
+      <ili:id>WF101:1</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>COURSE</ili:objectType>
+      <ili:authorImage />
+      <ili:studyLevel />
+      <ili:organizationImage>http://wadhwani-foundation.org/wp-content/uploads/2014/10/Wadhwani-Foundation-Logo1.png</ili:organizationImage>
+      <ili:location>https://www.youtube.com/watch?v=0H78dZJ4P4M</ili:location>
+      <ili:homeDescription>Sandbox to develop vocational education skills. At the end of this course you should be able to demonstrate hospitality skills.</ili:homeDescription>
+      <ili:tutorType />
+      <ili:categorizeByLP />
+      <ili:interactivityType>active</ili:interactivityType>
+      <ili:codeName>WF101</ili:codeName>
+      <ili:extendedMaterial />
+      <ili:nodeId>WF101:1</ili:nodeId>
+      <ili:versionPerson />
+      <ili:description>&lt;p&gt;This is a sandbox course for Wadhwani Foundation to test vocational education&#xD;&lt;/p&gt;</ili:description>
+      <ili:lessonType />
+      <ili:placeInContainer />
+      <ili:interventionRole />
+      <ili:organizationURL>http://wadhwani-foundation.org/</ili:organizationURL>
+      <ili:evaluationType />
+      <ili:tutorLearnerRatio />
+      <ili:tutoringMode />
+      <ili:knowledgeDimension />
+      <ili:tutors>[]</ili:tutors>
+      <ili:organizationType>company</ili:organizationType>
+      <ili:classificationStream>vocational education</ili:classificationStream>
+      <ili:structure />
+      <ili:contributors />
+      <ili:setType>course</ili:setType>
+      <ili:instructionUsage />
+      <ili:image>http://23.21.68.91:3000/uploads/image/architecture2.jpg</ili:image>
+      <ili:format>video/youtube</ili:format>
+      <ili:currentStatus>draft</ili:currentStatus>
+      <ili:cost />
+      <ili:difficultyLevel>medium</ili:difficultyLevel>
+      <ili:tutorLRTypes />
+      <ili:elementType />
+      <ili:size />
+      <ili:completionResult />
+      <ili:learningTime />
+      <ili:bloomsTaxonomyLevel />
+      <ili:interactivityLevel />
+      <ili:hoursPerWeek>7</ili:hoursPerWeek>
+      <ili:shortDescription>Sandbox to develop vocational education skills. At the end of this course you should be able to demonstrate hospitality skills.</ili:shortDescription>
+      <ili:authorProfileURL />
+      <ili:weeksDuration>6</ili:weeksDuration>
+      <ili:projectDescription>&lt;p&gt;Sandbox to develop vocational education skills. &#xD;&lt;/p&gt;&#xD;&lt;p&gt;At the end of this course you should be able to:&lt;/p&gt;&#xD;&lt;ul&gt;&#xD;&lt;li&gt;demonstrate hospitality skills&lt;/li&gt;&#xD;&lt;/ul&gt;</ili:projectDescription>
+      <ili:owner />
+      <ili:language>EN</ili:language>
+      <ili:annotationRecord />
+      <ili:offeredBy>Wadhwani Foundation</ili:offeredBy>
+      <ili:faculty>{"image":"http://faculty.iiit.ac.in/~vv/Home_files/DSC_0320.jpg","description":"&lt;p&gt;I am an expert in the hospitality segment&lt;p&gt;","identifier":"info:fedora/learning:74353","name":"Shiv Kumar"}</ili:faculty>
+      <ili:versionNumber />
+      <ili:minProficiency />
+      <ili:hoursOfVideo>26</ili:hoursOfVideo>
+      <ili:aggregationLevel />
+      <ili:projectImage>/uploads/image/architecture.png</ili:projectImage>
+      <ili:offeredByType />
+      <ili:ownerProfileURL />
+      <ili:tutorHoursByProfile />
+      <ili:collaboration />
+      <ili:organizationName>Wadhwani Foundation</ili:organizationName>
+      <ili:proficiencyWeightage />
+      <ili:intendedEndUserRole>learner</ili:intendedEndUserRole>
+      <ili:purpose />
+      <ili:versionStatus />
+      <ili:author />
+      <ili:tutorLanguage />
+      <ili:copyRight />
+      <ili:learnerLevel>graduate</ili:learnerLevel>
+      <ili:intervention />
+      <ili:synopsis>Sandbox to develop vocational education skills. At the end of this course you should be able to demonstrate hospitality skills.</ili:synopsis>
+      <ili:interactivityLocation />
+      <ili:popularity />
+      <ili:versionRole />
+      <ili:versionDate />
+      <ili:ownerType />
+      <ili:keyword>cloud computing</ili:keyword>
+      <ili:learningStyle />
+      <ili:offeredByImage />
+      <ili:outcome>default</ili:outcome>
+      <ili:programAnswer />
+      <ili:semanticDensity />
+      <ili:duration>7 weeks</ili:duration>
+      <ili:objectives>&lt;p&gt;Sandbox to develop vocational education skills. &#xD;&lt;/p&gt;&#xD;&lt;p&gt;At the end of this course you should be able to:&lt;/p&gt;&#xD;&lt;ul&gt;&#xD;&lt;li&gt;demonstrate hospitality skills&lt;/li&gt;&#xD;&lt;/ul&gt;</ili:objectives>
+      <ili:programTemplate />
+      <ili:ownerImage />
+      <ili:isMandatory />
+      <ili:entryCriteriaExpr>state.profile.outcome == 'default' &amp;&amp; state.profile.learnerLevel == 'graduate'</ili:entryCriteriaExpr>
+      <ili:offeredByProfileURL />
+      <ili:currentVersion />
+      <ili:context />
+      <ili:contentSource />
+      <ili:classificationSubject />
+      <ili:rating />
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:1_SEQ">
+      <ili:id>WF101:1_SEQ</ili:id>
+      <ili:nodeType>SEQUENCE</ili:nodeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:2">
+      <ili:id>WF101:2</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MODULE</ili:objectType>
+      <ili:authorImage />
+      <ili:studyLevel />
+      <ili:organizationImage />
+      <ili:location />
+      <ili:homeDescription />
+      <ili:tutorType />
+      <ili:categorizeByLP />
+      <ili:interactivityType />
+      <ili:codeName />
+      <ili:extendedMaterial />
+      <ili:nodeId>WF101:2</ili:nodeId>
+      <ili:versionPerson />
+      <ili:description>&lt;p&gt;This is the first module in vocational education&lt;/p&gt;</ili:description>
+      <ili:lessonType />
+      <ili:placeInContainer />
+      <ili:interventionRole />
+      <ili:organizationURL />
+      <ili:evaluationType />
+      <ili:tutorLearnerRatio />
+      <ili:tutoringMode />
+      <ili:knowledgeDimension />
+      <ili:organizationType />
+      <ili:classificationStream />
+      <ili:structure />
+      <ili:contributors />
+      <ili:setType>module</ili:setType>
+      <ili:instructionUsage />
+      <ili:image />
+      <ili:format />
+      <ili:currentStatus />
+      <ili:cost />
+      <ili:difficultyLevel />
+      <ili:tutorLRTypes />
+      <ili:elementType />
+      <ili:size />
+      <ili:completionResult />
+      <ili:learningTime />
+      <ili:bloomsTaxonomyLevel />
+      <ili:interactivityLevel />
+      <ili:hoursPerWeek />
+      <ili:shortDescription />
+      <ili:authorProfileURL />
+      <ili:weeksDuration />
+      <ili:projectDescription />
+      <ili:owner />
+      <ili:language />
+      <ili:annotationRecord />
+      <ili:offeredBy />
+      <ili:versionNumber />
+      <ili:minProficiency />
+      <ili:hoursOfVideo />
+      <ili:aggregationLevel />
+      <ili:projectImage />
+      <ili:offeredByType />
+      <ili:ownerProfileURL />
+      <ili:tutorHoursByProfile />
+      <ili:collaboration />
+      <ili:organizationName />
+      <ili:proficiencyWeightage />
+      <ili:intendedEndUserRole />
+      <ili:purpose />
+      <ili:versionStatus />
+      <ili:author />
+      <ili:tutorLanguage />
+      <ili:copyRight />
+      <ili:learnerLevel />
+      <ili:intervention />
+      <ili:synopsis />
+      <ili:interactivityLocation />
+      <ili:popularity />
+      <ili:versionRole />
+      <ili:versionDate />
+      <ili:ownerType />
+      <ili:keyword />
+      <ili:learningStyle />
+      <ili:offeredByImage />
+      <ili:concepts />
+      <ili:outcome />
+      <ili:programAnswer />
+      <ili:semanticDensity />
+      <ili:duration />
+      <ili:objectives />
+      <ili:programTemplate />
+      <ili:ownerImage />
+      <ili:isMandatory />
+      <ili:offeredByProfileURL />
+      <ili:currentVersion />
+      <ili:context />
+      <ili:contentSource />
+      <ili:classificationSubject />
+      <ili:rating />
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:2_SEQ">
+      <ili:id>WF101:2_SEQ</ili:id>
+      <ili:nodeType>SEQUENCE</ili:nodeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:2.1">
+      <ili:id>WF101:2.1</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LESSON</ili:objectType>
+      <ili:authorImage />
+      <ili:studyLevel />
+      <ili:organizationImage />
+      <ili:location />
+      <ili:homeDescription />
+      <ili:tutorType />
+      <ili:categorizeByLP />
+      <ili:interactivityType />
+      <ili:codeName />
+      <ili:extendedMaterial />
+      <ili:nodeId>WF101:2.1</ili:nodeId>
+      <ili:versionPerson />
+      <ili:description>Lessons in vocational education</ili:description>
+      <ili:lessonType />
+      <ili:placeInContainer />
+      <ili:interventionRole />
+      <ili:organizationURL />
+      <ili:evaluationType />
+      <ili:tutorLearnerRatio />
+      <ili:tutoringMode />
+      <ili:knowledgeDimension />
+      <ili:organizationType />
+      <ili:classificationStream />
+      <ili:structure />
+      <ili:contributors />
+      <ili:setType>lesson</ili:setType>
+      <ili:instructionUsage />
+      <ili:image />
+      <ili:format />
+      <ili:currentStatus />
+      <ili:cost />
+      <ili:difficultyLevel />
+      <ili:tutorLRTypes />
+      <ili:elementType />
+      <ili:size />
+      <ili:completionResult />
+      <ili:learningTime />
+      <ili:bloomsTaxonomyLevel />
+      <ili:interactivityLevel />
+      <ili:hoursPerWeek />
+      <ili:shortDescription />
+      <ili:authorProfileURL />
+      <ili:weeksDuration />
+      <ili:projectDescription />
+      <ili:owner />
+      <ili:language />
+      <ili:annotationRecord />
+      <ili:offeredBy />
+      <ili:versionNumber />
+      <ili:minProficiency />
+      <ili:hoursOfVideo />
+      <ili:aggregationLevel />
+      <ili:projectImage />
+      <ili:offeredByType />
+      <ili:ownerProfileURL />
+      <ili:tutorHoursByProfile />
+      <ili:collaboration />
+      <ili:organizationName />
+      <ili:proficiencyWeightage />
+      <ili:intendedEndUserRole />
+      <ili:purpose />
+      <ili:versionStatus />
+      <ili:author />
+      <ili:tutorLanguage />
+      <ili:copyRight />
+      <ili:learnerLevel />
+      <ili:intervention />
+      <ili:synopsis />
+      <ili:interactivityLocation />
+      <ili:popularity />
+      <ili:versionRole />
+      <ili:versionDate />
+      <ili:ownerType />
+      <ili:keyword />
+      <ili:learningStyle />
+      <ili:offeredByImage />
+      <ili:outcome />
+      <ili:programAnswer />
+      <ili:semanticDensity />
+      <ili:duration />
+      <ili:objectives />
+      <ili:programTemplate />
+      <ili:ownerImage />
+      <ili:isMandatory />
+      <ili:offeredByProfileURL />
+      <ili:currentVersion />
+      <ili:context />
+      <ili:contentSource />
+      <ili:classificationSubject />
+      <ili:rating />
+   </rdf:Description>
+   <rdf:Description rdf:about="WF101:2.1_SEQ">
+      <ili:id>WF101:2.1_SEQ</ili:id>
+      <ili:nodeType>SEQUENCE</ili:nodeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="dGk5P:CxLl">
+      <ili:id>dGk5P:CxLl</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_RESOURCE</ili:objectType>
+      <ili:bloomsTaxonomyLevel>Remember</ili:bloomsTaxonomyLevel>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:nodeId>dGk5P:CxLl</ili:nodeId>
+      <ili:location />
+      <ili:description>&lt;p&gt;This lecture explains the concepts of Guest Laundry Service&lt;/p&gt;</ili:description>
+      <ili:setType>learningresource</ili:setType>
+      <ili:proficiencyWeightage>1</ili:proficiencyWeightage>
+      <ili:instructionUsage>lecture</ili:instructionUsage>
+      <ili:isMandatory>true</ili:isMandatory>
+      <ili:keyword />
+      <ili:synopsis />
+      <ili:purpose>Knowledge</ili:purpose>
+      <ili:concepts />
+      <ili:minProficiency>100</ili:minProficiency>
+   </rdf:Description>
+   <rdf:Description rdf:about="mXHG:w7tgB">
+      <ili:id>mXHG:w7tgB</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:category />
+      <ili:extendedMaterial>false</ili:extendedMaterial>
+      <ili:nodeId>mXHG:w7tgB</ili:nodeId>
+      <ili:location />
+      <ili:setType>content</ili:setType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#DHLDpg2zlS">
+      <ili:id>DHLDpg2zlS</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:packageFolder>/uploads/learning_74349/1422868525949</ili:packageFolder>
+      <ili:mediaUrl>http://www.ilimi.in:3000/uploads/learning_74349/1422868525949/story.html</ili:mediaUrl>
+      <ili:location>http://www.ilimi.in:3000/uploads/learning_74349/1422868525949/story.html</ili:location>
+      <ili:setType>media</ili:setType>
+      <ili:width>800</ili:width>
+      <ili:format>ilimi/package</ili:format>
+      <ili:mediaType>package</ili:mediaType>
+      <ili:contentId>mXHG:w7tgB</ili:contentId>
+      <ili:nodeId>DHLDpg2zlS</ili:nodeId>
+      <ili:title>Guest Laundry Service</ili:title>
+      <ili:height>700</ili:height>
+      <ili:startFile>story.html</ili:startFile>
+      <ili:isMain>true</ili:isMain>
+      <ili:mimeType>ilimi/package</ili:mimeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#twPSgvR5bY">
+      <ili:id>twPSgvR5bY</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_RESOURCE</ili:objectType>
+      <ili:bloomsTaxonomyLevel>Remember</ili:bloomsTaxonomyLevel>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:nodeId>twPSgvR5bY</ili:nodeId>
+      <ili:location />
+      <ili:description>&lt;p&gt;Lecture on Handling Lost and Found Items&lt;/p&gt;</ili:description>
+      <ili:setType>learningresource</ili:setType>
+      <ili:proficiencyWeightage>1</ili:proficiencyWeightage>
+      <ili:instructionUsage>lecture</ili:instructionUsage>
+      <ili:isMandatory>true</ili:isMandatory>
+      <ili:keyword />
+      <ili:synopsis />
+      <ili:purpose>Knowledge</ili:purpose>
+      <ili:concepts />
+      <ili:minProficiency>100</ili:minProficiency>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#pf47utygJY">
+      <ili:id>pf47utygJY</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:category />
+      <ili:extendedMaterial>false</ili:extendedMaterial>
+      <ili:nodeId>pf47utygJY</ili:nodeId>
+      <ili:location />
+      <ili:setType>content</ili:setType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#7gCUfsKdL6">
+      <ili:id>7gCUfsKdL6</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:packageFolder>/uploads/learning_74349/1422868800087</ili:packageFolder>
+      <ili:mediaUrl>http://www.ilimi.in:3000/uploads/learning_74349/1422868800087/story.html</ili:mediaUrl>
+      <ili:location>http://www.ilimi.in:3000/uploads/learning_74349/1422868800087/story.html</ili:location>
+      <ili:setType>media</ili:setType>
+      <ili:width>800</ili:width>
+      <ili:format>ilimi/package</ili:format>
+      <ili:mediaType>package</ili:mediaType>
+      <ili:contentId>pf47utygJY</ili:contentId>
+      <ili:nodeId>7gCUfsKdL6</ili:nodeId>
+      <ili:title>Handling Lost and Found Items</ili:title>
+      <ili:height>700</ili:height>
+      <ili:startFile>story.html</ili:startFile>
+      <ili:isMain>true</ili:isMain>
+      <ili:mimeType>ilimi/package</ili:mimeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#NC1iSssyO0">
+      <ili:id>NC1iSssyO0</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_ACTIVITY</ili:objectType>
+      <ili:authorImage>http://beta.ilimi.in/uploads/image/feroz.png</ili:authorImage>
+      <ili:studyLevel />
+      <ili:offeredByType>Organization</ili:offeredByType>
+      <ili:ownerProfileURL>http://www.canopusconsulting.com/</ili:ownerProfileURL>
+      <ili:location />
+      <ili:proficiencyWeightage>1</ili:proficiencyWeightage>
+      <ili:questionPaperId>QUESTIONPAPERILQA1i137</ili:questionPaperId>
+      <ili:usageId>ASMNTILQA1i237</ili:usageId>
+      <ili:author>Feroz Sheikh</ili:author>
+      <ili:extendedMaterial>FALSE</ili:extendedMaterial>
+      <ili:copyRight>Canopus Consulting</ili:copyRight>
+      <ili:nodeId>NC1iSssyO0</ili:nodeId>
+      <ili:learnerLevel />
+      <ili:laType>coaching</ili:laType>
+      <ili:description>A test exam</ili:description>
+      <ili:synopsis />
+      <ili:mediaId>info:fedora/learning:74481</ili:mediaId>
+      <ili:setType>learningactivity</ili:setType>
+      <ili:instructionUsage>coaching</ili:instructionUsage>
+      <ili:ownerType>Organization</ili:ownerType>
+      <ili:offeredByImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:offeredByImage>
+      <ili:deleteStatus />
+      <ili:concepts>[ ]</ili:concepts>
+      <ili:currentStatus>draft</ili:currentStatus>
+      <ili:difficultyLevel>Easy</ili:difficultyLevel>
+      <ili:elementType>Exam</ili:elementType>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:duration />
+      <ili:createdBy>shivk73</ili:createdBy>
+      <ili:shortDescription />
+      <ili:authorProfileURL>http://www.canopusconsulting.com/index.php/feroz/</ili:authorProfileURL>
+      <ili:isMandatory>true</ili:isMandatory>
+      <ili:ownerImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:ownerImage>
+      <ili:offeredByProfileURL>http://www.canopusconsulting.com/</ili:offeredByProfileURL>
+      <ili:owner>Canopus Consulting</ili:owner>
+      <ili:language>EN</ili:language>
+      <ili:offeredBy>Canopus Consulting</ili:offeredBy>
+      <ili:minProficiency>100</ili:minProficiency>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#wa1Fax52Jr">
+      <ili:id>wa1Fax52Jr</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:location />
+      <ili:setType>content</ili:setType>
+      <ili:contentType>lecture</ili:contentType>
+      <ili:deleteStatus />
+      <ili:learningTime>1200</ili:learningTime>
+      <ili:nodeId>wa1Fax52Jr</ili:nodeId>
+      <ili:duration />
+      <ili:extendedMaterial>false</ili:extendedMaterial>
+      <ili:category />
+      <ili:shortDescription />
+      <ili:description>A test exam</ili:description>
+      <ili:isMandatory />
+      <ili:contentSubType>lecture</ili:contentSubType>
+      <ili:synopsis />
+      <ili:language>EN</ili:language>
+      <ili:media>{ "nodeSet" : "media" , "pedagogyId" : "info:fedora/learning:64240" , "isNew" : false , "descriptionVerified" : false , "nodeType" : "media" , "nodeClass" : "media" , "contentId" : "wa1Fax52Jr" , "contentGroup" : "main" , "location" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i137\",\"usageId\":\"ASMNTILQA1i237\",\"numAttempts\":10}" , "format" : "ilimi/test" , "name" : "Exam 1" , "parentNodeId" : "wa1Fax52Jr" , "nodeId" : "WYibfpYgtX" , "identifier" : "info:fedora/learning:74481" , "isMain" : true , "description" : "A test exam" , "mediaId" : "" , "mediaType" : "test" , "mimeType" : "ilimi/test" , "mediaUrl" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i137\",\"usageId\":\"ASMNTILQA1i237\",\"numAttempts\":10}" , "title" : "Exam 1"}</ili:media>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WYibfpYgtX">
+      <ili:id>WYibfpYgtX</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:mediaId />
+      <ili:title>Exam 1</ili:title>
+      <ili:nodeId>WYibfpYgtX</ili:nodeId>
+      <ili:mediaUrl>{"questionPaperId":"QUESTIONPAPERILQA1i137","usageId":"ASMNTILQA1i237","numAttempts":10}</ili:mediaUrl>
+      <ili:location>{"questionPaperId":"QUESTIONPAPERILQA1i137","usageId":"ASMNTILQA1i237","numAttempts":10}</ili:location>
+      <ili:description>A test exam</ili:description>
+      <ili:setType>media</ili:setType>
+      <ili:format>ilimi/test</ili:format>
+      <ili:isMain>true</ili:isMain>
+      <ili:mediaType>test</ili:mediaType>
+      <ili:mimeType>ilimi/test</ili:mimeType>
+      <ili:contentId>wa1Fax52Jr</ili:contentId>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#0JcuE0ZNXk">
+      <ili:id>0JcuE0ZNXk</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_ACTIVITY</ili:objectType>
+      <ili:authorImage>http://beta.ilimi.in/uploads/image/feroz.png</ili:authorImage>
+      <ili:studyLevel />
+      <ili:offeredByType>Organization</ili:offeredByType>
+      <ili:ownerProfileURL>http://www.canopusconsulting.com/</ili:ownerProfileURL>
+      <ili:location />
+      <ili:proficiencyWeightage>1</ili:proficiencyWeightage>
+      <ili:questionPaperId>QUESTIONPAPERILQA1i133</ili:questionPaperId>
+      <ili:usageId>ASMNTILQA1i235</ili:usageId>
+      <ili:author>Feroz Sheikh</ili:author>
+      <ili:extendedMaterial>FALSE</ili:extendedMaterial>
+      <ili:copyRight>Canopus Consulting</ili:copyRight>
+      <ili:nodeId>0JcuE0ZNXk</ili:nodeId>
+      <ili:learnerLevel />
+      <ili:laType>coaching</ili:laType>
+      <ili:description />
+      <ili:synopsis />
+      <ili:mediaId>info:fedora/learning:74452</ili:mediaId>
+      <ili:setType>learningactivity</ili:setType>
+      <ili:instructionUsage>coaching</ili:instructionUsage>
+      <ili:ownerType>Organization</ili:ownerType>
+      <ili:offeredByImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:offeredByImage>
+      <ili:deleteStatus />
+      <ili:concepts>[ ]</ili:concepts>
+      <ili:currentStatus>draft</ili:currentStatus>
+      <ili:difficultyLevel>Easy</ili:difficultyLevel>
+      <ili:elementType>Exam</ili:elementType>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:duration />
+      <ili:createdBy>shivk73</ili:createdBy>
+      <ili:shortDescription />
+      <ili:authorProfileURL>http://www.canopusconsulting.com/index.php/feroz/</ili:authorProfileURL>
+      <ili:isMandatory>true</ili:isMandatory>
+      <ili:ownerImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:ownerImage>
+      <ili:offeredByProfileURL>http://www.canopusconsulting.com/</ili:offeredByProfileURL>
+      <ili:owner>Canopus Consulting</ili:owner>
+      <ili:language>EN</ili:language>
+      <ili:offeredBy>Canopus Consulting</ili:offeredBy>
+      <ili:minProficiency>100</ili:minProficiency>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#nQtIBT7qyj">
+      <ili:id>nQtIBT7qyj</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:location />
+      <ili:setType>content</ili:setType>
+      <ili:contentType>lecture</ili:contentType>
+      <ili:deleteStatus />
+      <ili:learningTime>1200</ili:learningTime>
+      <ili:nodeId>nQtIBT7qyj</ili:nodeId>
+      <ili:duration />
+      <ili:extendedMaterial>false</ili:extendedMaterial>
+      <ili:category />
+      <ili:shortDescription />
+      <ili:description />
+      <ili:isMandatory />
+      <ili:contentSubType>lecture</ili:contentSubType>
+      <ili:synopsis />
+      <ili:language>EN</ili:language>
+      <ili:media>{ "nodeSet" : "media" , "pedagogyId" : "info:fedora/learning:64240" , "isNew" : false , "descriptionVerified" : false , "nodeType" : "media" , "nodeClass" : "media" , "contentId" : "nQtIBT7qyj" , "contentGroup" : "main" , "location" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i133\",\"usageId\":\"ASMNTILQA1i235\",\"numAttempts\":10}" , "format" : "ilimi/test" , "name" : "Java Questions" , "parentNodeId" : "nQtIBT7qyj" , "nodeId" : "So8kMeIfmG" , "identifier" : "info:fedora/learning:74452" , "isMain" : true , "description" : "" , "mediaId" : "" , "mediaType" : "test" , "mimeType" : "ilimi/test" , "mediaUrl" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i133\",\"usageId\":\"ASMNTILQA1i235\",\"numAttempts\":10}" , "title" : "Java Questions"}</ili:media>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#So8kMeIfmG">
+      <ili:id>So8kMeIfmG</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:mediaId />
+      <ili:title>Java Questions</ili:title>
+      <ili:nodeId>So8kMeIfmG</ili:nodeId>
+      <ili:mediaUrl>{"questionPaperId":"QUESTIONPAPERILQA1i133","usageId":"ASMNTILQA1i235","numAttempts":10}</ili:mediaUrl>
+      <ili:location>{"questionPaperId":"QUESTIONPAPERILQA1i133","usageId":"ASMNTILQA1i235","numAttempts":10}</ili:location>
+      <ili:description />
+      <ili:setType>media</ili:setType>
+      <ili:format>ilimi/test</ili:format>
+      <ili:isMain>true</ili:isMain>
+      <ili:mediaType>test</ili:mediaType>
+      <ili:mimeType>ilimi/test</ili:mimeType>
+      <ili:contentId>nQtIBT7qyj</ili:contentId>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#4qg26QbylG">
+      <ili:id>4qg26QbylG</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>LEARNING_ACTIVITY</ili:objectType>
+      <ili:authorImage>http://beta.ilimi.in/uploads/image/feroz.png</ili:authorImage>
+      <ili:studyLevel />
+      <ili:offeredByType>Organization</ili:offeredByType>
+      <ili:ownerProfileURL>http://www.canopusconsulting.com/</ili:ownerProfileURL>
+      <ili:location />
+      <ili:proficiencyWeightage>1</ili:proficiencyWeightage>
+      <ili:questionPaperId>QUESTIONPAPERILQA1i136</ili:questionPaperId>
+      <ili:usageId>ASMNTILQA1i236</ili:usageId>
+      <ili:author>Feroz Sheikh</ili:author>
+      <ili:extendedMaterial>FALSE</ili:extendedMaterial>
+      <ili:copyRight>Canopus Consulting</ili:copyRight>
+      <ili:nodeId>4qg26QbylG</ili:nodeId>
+      <ili:learnerLevel />
+      <ili:laType>coaching</ili:laType>
+      <ili:description />
+      <ili:synopsis />
+      <ili:mediaId>info:fedora/learning:74467</ili:mediaId>
+      <ili:setType>learningactivity</ili:setType>
+      <ili:instructionUsage>coaching</ili:instructionUsage>
+      <ili:ownerType>Organization</ili:ownerType>
+      <ili:offeredByImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:offeredByImage>
+      <ili:deleteStatus />
+      <ili:concepts>[ ]</ili:concepts>
+      <ili:currentStatus>draft</ili:currentStatus>
+      <ili:difficultyLevel>Easy</ili:difficultyLevel>
+      <ili:elementType>Exam</ili:elementType>
+      <ili:learningTime>0</ili:learningTime>
+      <ili:duration />
+      <ili:createdBy>shivk73</ili:createdBy>
+      <ili:shortDescription />
+      <ili:authorProfileURL>http://www.canopusconsulting.com/index.php/feroz/</ili:authorProfileURL>
+      <ili:isMandatory>true</ili:isMandatory>
+      <ili:ownerImage>http://beta.ilimi.in/uploads/image/canopuslogo.png</ili:ownerImage>
+      <ili:offeredByProfileURL>http://www.canopusconsulting.com/</ili:offeredByProfileURL>
+      <ili:owner>Canopus Consulting</ili:owner>
+      <ili:language>EN</ili:language>
+      <ili:offeredBy>Canopus Consulting</ili:offeredBy>
+      <ili:minProficiency>100</ili:minProficiency>
+   </rdf:Description>
+   <rdf:Description rdf:about="YJ:1KP7AVc">
+      <ili:id>YJ:1KP7AVc</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>CONTENT</ili:objectType>
+      <ili:location />
+      <ili:setType>content</ili:setType>
+      <ili:contentType>lecture</ili:contentType>
+      <ili:deleteStatus />
+      <ili:learningTime>1200</ili:learningTime>
+      <ili:nodeId>YJ:1KP7AVc</ili:nodeId>
+      <ili:duration />
+      <ili:extendedMaterial>false</ili:extendedMaterial>
+      <ili:category />
+      <ili:shortDescription />
+      <ili:description />
+      <ili:isMandatory />
+      <ili:contentSubType>lecture</ili:contentSubType>
+      <ili:synopsis />
+      <ili:language>EN</ili:language>
+      <ili:media>{ "nodeSet" : "media" , "pedagogyId" : "info:fedora/learning:64240" , "isNew" : false , "descriptionVerified" : false , "nodeType" : "media" , "nodeClass" : "media" , "contentId" : "YJ:1KP7AVc" , "contentGroup" : "main" , "location" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i136\",\"usageId\":\"ASMNTILQA1i236\",\"numAttempts\":10}" , "format" : "ilimi/test" , "name" : "Java Development" , "parentNodeId" : "YJ:1KP7AVc" , "nodeId" : "6PpbRwDWyU" , "identifier" : "info:fedora/learning:74467" , "isMain" : true , "description" : "" , "mediaId" : "" , "mediaType" : "test" , "mimeType" : "ilimi/test" , "mediaUrl" : "{\"questionPaperId\":\"QUESTIONPAPERILQA1i136\",\"usageId\":\"ASMNTILQA1i236\",\"numAttempts\":10}" , "title" : "Java Development"}</ili:media>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#6PpbRwDWyU">
+      <ili:id>6PpbRwDWyU</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MEDIA</ili:objectType>
+      <ili:mediaId />
+      <ili:title>Java Development</ili:title>
+      <ili:nodeId>6PpbRwDWyU</ili:nodeId>
+      <ili:mediaUrl>{"questionPaperId":"QUESTIONPAPERILQA1i136","usageId":"ASMNTILQA1i236","numAttempts":10}</ili:mediaUrl>
+      <ili:location>{"questionPaperId":"QUESTIONPAPERILQA1i136","usageId":"ASMNTILQA1i236","numAttempts":10}</ili:location>
+      <ili:description />
+      <ili:setType>media</ili:setType>
+      <ili:format>ilimi/test</ili:format>
+      <ili:isMain>true</ili:isMain>
+      <ili:mediaType>test</ili:mediaType>
+      <ili:mimeType>ilimi/test</ili:mimeType>
+      <ili:contentId>YJ:1KP7AVc</ili:contentId>
+   </rdf:Description>
+   <rdf:Description rdf:about="RM:Q4ShkzH">
+      <ili:id>RM:Q4ShkzH</ili:id>
+      <ili:nodeType>DATA_NODE</ili:nodeType>
+      <ili:objectType>MODULE</ili:objectType>
+      <ili:bloomsTaxonomyLevel>Remember</ili:bloomsTaxonomyLevel>
+      <ili:nodeId>RM:Q4ShkzH</ili:nodeId>
+      <ili:location />
+      <ili:description>&lt;p&gt;a new module&lt;/p&gt;</ili:description>
+      <ili:setType>module</ili:setType>
+      <ili:keyword />
+      <ili:synopsis />
+      <ili:purpose>Knowledge</ili:purpose>
+      <ili:concepts />
+      <ili:outcome />
+   </rdf:Description>
+   <rdf:Description rdf:about="RM:Q4ShkzH_SEQ">
+      <ili:id>RM:Q4ShkzH_SEQ</ili:id>
+      <ili:nodeType>SEQUENCE</ili:nodeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#VEC_CS_ROOT_NODE">
+      <ili:id>VEC_CS_ROOT_NODE</ili:id>
+      <ili:nodeType>ROOT_NODE</ili:nodeType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:1/relation0">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:1_SEQ" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:1_SEQ/relation1">
+      <ili:INDEX>1</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:1_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:1/relation2">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2/relation3">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2_SEQ" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2_SEQ/relation4">
+      <ili:INDEX>1</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2/relation5">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1/relation6">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WF101:2.1_SEQ" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1_SEQ/relation7">
+      <ili:INDEX>1</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#dGk5P:CxLl" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1/relation8">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#dGk5P:CxLl" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#dGk5P:CxLl/relation9">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#mXHG:w7tgB" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#dGk5P:CxLl" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#mXHG:w7tgB/relation10">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#DHLDpg2zlS" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#mXHG:w7tgB" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1_SEQ/relation11">
+      <ili:INDEX>2</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#twPSgvR5bY" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1/relation12">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#twPSgvR5bY" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#twPSgvR5bY/relation13">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#pf47utygJY" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#twPSgvR5bY" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#pf47utygJY/relation14">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#7gCUfsKdL6" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#pf47utygJY" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1_SEQ/relation15">
+      <ili:INDEX>3</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#NC1iSssyO0" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2.1/relation16">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#NC1iSssyO0" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2.1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#NC1iSssyO0/relation17">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#wa1Fax52Jr" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#NC1iSssyO0" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#wa1Fax52Jr/relation18">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#WYibfpYgtX" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#wa1Fax52Jr" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2_SEQ/relation19">
+      <ili:INDEX>2</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#0JcuE0ZNXk" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2/relation20">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#0JcuE0ZNXk" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#0JcuE0ZNXk/relation21">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#nQtIBT7qyj" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#0JcuE0ZNXk" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#nQtIBT7qyj/relation22">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#So8kMeIfmG" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#nQtIBT7qyj" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2_SEQ/relation23">
+      <ili:INDEX>3</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#4qg26QbylG" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:2/relation24">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#4qg26QbylG" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:2" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#4qg26QbylG/relation25">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#YJ:1KP7AVc" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#4qg26QbylG" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#YJ:1KP7AVc/relation26">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#6PpbRwDWyU" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#YJ:1KP7AVc" />
+      <ili:relationType>associatedTo</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:1_SEQ/relation27">
+      <ili:INDEX>2</ili:INDEX>
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#RM:Q4ShkzH" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:1_SEQ" />
+      <ili:relationType>hasSequenceMember</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#WF101:1/relation28">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#RM:Q4ShkzH" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#WF101:1" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+   <rdf:Description rdf:about="http://www.ilimi.in#RM:Q4ShkzH/relation29">
+      <ili:relationEnd rdf:resource="http://www.ilimi.in#RM:Q4ShkzH_SEQ" />
+      <ili:relationStart rdf:resource="http://www.ilimi.in#RM:Q4ShkzH" />
+      <ili:relationType>isParentOf</ili:relationType>
+   </rdf:Description>
+</rdf:RDF>
