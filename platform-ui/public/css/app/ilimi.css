@@ -1963,3 +1963,7 @@ li.sortMenuItem a {
     border-color: #ccc;
     color: #428bca;
 }
+
+input.validation-error {
+    border: 1px solid red;
+}

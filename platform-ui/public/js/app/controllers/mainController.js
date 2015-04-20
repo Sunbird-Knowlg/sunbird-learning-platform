@@ -123,7 +123,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         name: undefined,
         description: undefined,
         objectType: $scope.taxonomyObjects[0],
-        parent: undefined
+        parent: undefined,
+        errorMessages: []
     }
     $scope.selectedTaxonomy = $scope.$parent.taxonomies[$stateParams.id];
     $scope.getTaxonomyDefinitions = function(taxonomyId) {
@@ -273,9 +274,42 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.setCustomProperties(cat);
     }
 
+    $scope.validateConcept = function() {
+
+        var errors = [], valid = true;
+        _.each($scope.categories, function(cat) {
+            _.each($scope.selectedTaxonomy.definitions[cat.id], function(prop) {
+                var metadataProp = $scope.selectedConcept.metadata[prop.propertyName];
+                var valueExists = false;
+                prop.error = false;
+                if(prop.required) { // Required Validations
+                    var valueExists = true;
+                    if(!metadataProp || _.isEmpty(metadataProp.value)) {
+                        valueExists = false;
+                        prop.error = true;
+                        errors.push(prop.title + ' is required.');
+                        valid = false;
+                        cat.editMode = true;
+                    }
+                }
+                if(valueExists && prop.dataType == 'Number' && metadataProp && !_.isFinite(metadataProp.value)) {
+                    prop.error = true;
+                    errors.push(prop.title + ' is Number and should contain only numeric value.');
+                    valid = false;
+                    cat.editMode = true;
+                }
+            });
+        });
+        $scope.validationMessages = errors;
+        return valid;
+    }
+
     $scope.conceptToBeUpdated = undefined;
     $scope.confirmChanges = function() {
-        //TODO: Do validation
+
+        if(!$scope.validateConcept()) {
+            return;
+        }
 
         $scope.conceptToBeUpdated = {
             taxonomyId: $scope.selectedTaxonomyId,
@@ -312,7 +346,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         }
         _.each($scope.unmodifiedConcept.properties, function(prop) {
             var modProp = $scope.selectedConcept.metadata[prop.propertyName];
-            if(prop.value instanceof Array) {
+            if(_.isArray(prop.value)) {
                 if(_.difference(prop.value, modProp.value).length > 0 || _.difference(modProp.value, prop.value).length > 0) {
                     $scope.commitMessage += index++ + '. Metadata "' + prop.title + '" value is updated from "' + prop.value + '" to "' + modProp.value + '"\n';
                     $scope.conceptToBeUpdated.properties.push(modProp);
@@ -335,7 +369,29 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         });
     }
 
+    $scope.onObjectTypeChange = function() {
+        console.log('newConcept.parent', $scope.newConcept.parent);
+        $scope.newConcept.parent = undefined;
+    }
+
     $scope.createConcept = function() {
+
+        var objType = $scope.newConcept.objectType.id;
+        $scope.newConcept.errorMessages = [];
+        var valid = true;
+        if(objType != 'concept') {
+            if(_.isEmpty($scope.newConcept.parent)) {
+                $scope.newConcept.errorMessages.push((objType == 'subConcept' ? 'Broad Concept' : 'Sub Concept') + ' is required');
+                valid = false;
+            }
+        }
+        if(_.isEmpty($scope.newConcept.name)) {
+            $scope.newConcept.errorMessages.push('Name is required');
+            valid = false;
+        }
+        if(!valid) {
+            return;
+        }
         service.createConcept($scope.newConcept).then(function(data) {
             // Handle exceptions or show messages
         }).catch(function(err) {

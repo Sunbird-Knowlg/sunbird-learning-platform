@@ -11,7 +11,7 @@
             	<div class="col-md-12 noPad">
 	            	<div class="form-group col-md-6 required">
 	            		<label class="control-label">Type</label>
-	            		<select ng-model="newConcept.objectType" class="form-control" ng-options="obj.label for obj in taxonomyObjects">
+	            		<select ng-model="newConcept.objectType" class="form-control" ng-options="obj.label for obj in taxonomyObjects" ng-change="newConcept.parent = undefined">
 	                    </select>
 	            	</div>
 	            	<div class="form-group col-md-6 required" ng-if="newConcept.objectType.id != 'concept'">
@@ -31,6 +31,12 @@
 	            	</div>
             	</div>
             	<div class="col-md-12 padBottom">
+            		<div class="alert alert-danger" ng-show="newConcept.errorMessages.length > 0">
+						Error creating concept. Following are the failed validations
+						<ul style="padding-left: 25px;list-style:disc outside none">
+							<li ng-repeat="error in newConcept.errorMessages">{{error}}</li>
+						</ul>
+					</div>
             		<button class="btn btn-primary pull-right" ng-click="createConcept()">Create</button>
             	</div>
             </div>
@@ -217,6 +223,12 @@
 				</form>
 			</div>
 			<div class="col-md-12 padTop">
+				<div class="alert alert-danger" ng-show="validationMessages.length > 0">
+					Error saving the concept. Following are the failed validations
+					<ul style="padding-left: 25px;list-style:disc outside none">
+						<li ng-repeat="error in validationMessages">{{error}}</li>
+					</ul>
+				</div>
 				<button class="btn btn-primary pull-right" ng-click="confirmChanges()">Save Changes</button>
 			</div>
         </div>
@@ -270,8 +282,8 @@
 	</table>
 	<select ng-switch-when="Multi-Select" ng-model="selectedConcept.metadata[prop.propertyName].value" ng-options="val for val in prop.range" class="form-control" multiple="true"></select>
 	<select ng-switch-when="Select" ng-model="selectedConcept.metadata[prop.propertyName].value" ng-options="val for val in prop.range" class="form-control"></select>
-	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control" placeholder="{{prop.description}}"/>
-	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control"  placeholder="{{prop.description}}"/>
+	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
+	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName].value" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
 </div>
 
 </script>
