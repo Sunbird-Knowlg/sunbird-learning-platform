@@ -541,7 +541,11 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 Map<String, Object> metadata = node.getMetadata();
                 if (null != metadata && metadata.size() > 0) {
                     for (Entry<String, Object> entry : metadata.entrySet()) {
-                        neo4jNode.setProperty(entry.getKey(), entry.getValue());
+                        if (null == entry.getValue() && neo4jNode.hasProperty(entry.getKey())) {
+                            neo4jNode.removeProperty(entry.getKey());
+                        } else if (null != entry.getValue()) {
+                            neo4jNode.setProperty(entry.getKey(), entry.getValue());
+                        }
                     }
                 }
                 existingNodes.put(node.getIdentifier(), neo4jNode);

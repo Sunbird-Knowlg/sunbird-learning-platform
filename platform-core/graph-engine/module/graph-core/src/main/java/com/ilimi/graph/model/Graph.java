@@ -261,11 +261,11 @@ public class Graph extends AbstractDomainObject {
                 Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
 
                 // Create Definition Nodes Property Map from Future.
-                Future<Map<String, Map<String, String>>> propDataMapFuture = defNodesResponse.map(
-                        new Mapper<Object, Map<String, Map<String, String>>>() {
+                Future<Map<String, Map<String, MetadataDefinition>>> propDataMapFuture = defNodesResponse.map(
+                        new Mapper<Object, Map<String, Map<String, MetadataDefinition>>>() {
                             @Override
-                            public Map<String, Map<String, String>> apply(Object parameter) {
-                                Map<String, Map<String, String>> propertyDataMap = new HashMap<String, Map<String, String>>();
+                            public Map<String, Map<String, MetadataDefinition>> apply(Object parameter) {
+                                Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
                                 if (parameter instanceof Response) {
                                     Response res = (Response) parameter;
                                     BaseValueObjectList<Node> defNodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST
@@ -280,21 +280,21 @@ public class Graph extends AbstractDomainObject {
                                 return propertyDataMap;
                             }
 
-                            private Map<String, Map<String, String>> getPropertyDataMap(List<DefinitionNode> defNodesList) {
-                                Map<String, Map<String, String>> propertyDataMap = new HashMap<String, Map<String, String>>();
+                            private Map<String, Map<String, MetadataDefinition>> getPropertyDataMap(List<DefinitionNode> defNodesList) {
+                                Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
                                 for (DefinitionNode node : defNodesList) {
                                     String objectType = node.getFunctionalObjectType();
-                                    Map<String, String> propMap = new HashMap<String, String>();
+                                    Map<String, MetadataDefinition> propMap = new HashMap<String, MetadataDefinition>();
                                     List<MetadataDefinition> indexedMeta = node.getIndexedMetadata();
                                     if (indexedMeta != null) {
                                         for (MetadataDefinition propDef : indexedMeta) {
-                                            propMap.put(propDef.getTitle(), propDef.getPropertyName());
+                                            propMap.put(propDef.getTitle(), propDef);
                                         }
                                     }
                                     List<MetadataDefinition> nonIndexedMeta = node.getNonIndexedMetadata();
                                     if (nonIndexedMeta != null) {
                                         for (MetadataDefinition propDef : nonIndexedMeta) {
-                                            propMap.put(propDef.getTitle(), propDef.getPropertyName());
+                                            propMap.put(propDef.getTitle(), propDef);
                                         }
                                     }
                                     propertyDataMap.put(objectType, propMap);
@@ -305,10 +305,10 @@ public class Graph extends AbstractDomainObject {
                         }, ec);
 
                 // Import inputStream and get outputStream with Validations.
-                propDataMapFuture.onComplete(new OnComplete<Map<String, Map<String, String>>>() {
+                propDataMapFuture.onComplete(new OnComplete<Map<String, Map<String, MetadataDefinition>>>() {
 
                     @Override
-                    public void onComplete(Throwable arg0, Map<String, Map<String, String>> propertyDataMap) {
+                    public void onComplete(Throwable arg0, Map<String, Map<String, MetadataDefinition>> propertyDataMap) {
                         if (null != arg0) {
                             manager.ERROR(arg0, getParent());
                         } else {
