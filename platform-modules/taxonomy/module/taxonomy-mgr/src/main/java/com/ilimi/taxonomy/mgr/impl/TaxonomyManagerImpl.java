@@ -29,7 +29,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
-import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
@@ -117,30 +116,6 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     }
 
     @Override
-    public Response update(String id, InputStream stream) {
-        if (StringUtils.isBlank(id))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        if (null == stream)
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INPUT_STREAM.name(), "Taxonomy object is emtpy");
-        LOGGER.info("Update Taxonomy : " + stream);
-        Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
-        request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(stream));
-        Response createRes = getResponse(request, LOGGER);
-        if (checkError(createRes)) {
-            return createRes;
-        } else {
-            Response response = copyResponse(createRes);
-            OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.OUTPUT_STREAM.name());
-            if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
-                String csv = os.getOutputStream().toString();
-                response.put(TaxonomyAPIParams.TAXONOMY.name(), new StringValue(csv));
-            }
-            return response;
-        }
-    }
-
-    @Override
     public Response delete(String id) {
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -174,31 +149,14 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     }
 
     @Override
-    public Response createDefinition(String id, Request request) {
-        DefinitionDTO dto = (DefinitionDTO) request.get(TaxonomyAPIParams.DEFINITION_NODE.name());
+    public Response updateDefinition(String id, String json) {
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        if (null == dto || StringUtils.isBlank(dto.getObjectType()))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Input Definition dto is null");
-        LOGGER.info("Create Definition : " + dto);
-        request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-        request.setOperation("saveDefinitionNode");
-        return getResponse(request, LOGGER);
-    }
-
-    @Override
-    public Response updateDefinition(String id, String objectType, Request request) {
-        DefinitionDTO dto = (DefinitionDTO) request.get(TaxonomyAPIParams.DEFINITION_NODE.name());
-        if (StringUtils.isBlank(id))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
-        if (null == dto)
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Input Definition dto is null");
-        LOGGER.info("Update Definition : " + dto);
-        dto.setObjectType(objectType);
-        request.setManagerName(GraphEngineManagers.NODE_MANAGER);
-        request.setOperation("saveDefinitionNode");
+        if (StringUtils.isBlank(json))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Definition nodes JSON is empty");
+        LOGGER.info("Update Definition : " + id);
+        Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
+        request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(json));
         return getResponse(request, LOGGER);
     }
 

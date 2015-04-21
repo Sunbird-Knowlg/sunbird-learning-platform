@@ -1,6 +1,7 @@
 package com.ilimi.graph.engine.importtest;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -59,8 +60,10 @@ public class LiteracyCSVImport {
             request.setOperation("importDefinitions");
             // Change the file path.
             InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("taxonomy_definitions.json");
-
-            request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+            DataInputStream dis = new DataInputStream(inputStream);
+            byte[] b = new byte[dis.available()];
+            dis.readFully(b);
+            request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(new String(b)));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
             handleFutureBlock(req, "importDefinitions", GraphDACParams.GRAPH_ID.name());

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -17,6 +18,8 @@ import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
+import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
+import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
@@ -36,6 +39,7 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.IRelation;
+import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 public class DataNode extends AbstractNode {
@@ -73,6 +77,73 @@ public class DataNode extends AbstractNode {
     @Override
     public String getFunctionalObjectType() {
         return this.objectType;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void addTags(final Request req) {
+        BaseValueObjectList<StringValue> tags = (BaseValueObjectList<StringValue>) req.get(GraphDACParams.TAGS.name());
+        try {
+            final ExecutionContext ec = manager.getContext().dispatcher();
+            List<Future<String>> tagFutures = new ArrayList<Future<String>>();
+            final List<StringValue> tagIds = new ArrayList<StringValue>();
+            for (StringValue tagName : tags.getValueObjectList()) {
+                Tag tag = new Tag(manager, graphId, tagName.getId(), null, null);
+                tagIds.add(new StringValue(tag.getNodeId()));
+                Future<String> tagFuture = tag.upsert(req);
+                tagFutures.add(tagFuture);
+            }
+            Future<Iterable<String>> tagSequence = Futures.sequence(tagFutures, ec);
+            tagSequence.onSuccess(new OnSuccess<Iterable<String>>() {
+                @Override
+                public void onSuccess(Iterable<String> arg0) throws Throwable {
+                    List<String> messages = new ArrayList<String>();
+                    if (null != arg0) {
+                        for (String msg : arg0) {
+                            if (StringUtils.isNotBlank(msg)) {
+                                messages.add(msg);
+                            }
+                        }
+                    }
+                    if (messages.isEmpty()) {
+                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                        Request request = new Request(req);
+                        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+                        request.setOperation("addIncomingRelations");
+                        request.put(GraphDACParams.START_NODE_ID.name(), new BaseValueObjectList<StringValue>(tagIds));
+                        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
+                        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getNodeId()));
+                        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+                        response.onComplete(new OnComplete<Object>() {
+                            @Override
+                            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                                        GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Error adding tags");
+                                if (valid) {
+                                    for (StringValue tagId : tagIds)
+                                        updateTagCache(req, tagId, getNodeId());
+                                    manager.OK(getParent());
+                                }
+                            }
+                        }, ec);
+                    } else {
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Tag creation failed", ResponseCode.SERVER_ERROR,
+                                getParent());
+                    }
+                }
+            }, ec);
+        } catch (Exception e) {
+            manager.ERROR(e, getParent());
+        }
+    }
+
+    private void updateTagCache(Request req, StringValue tagId, String memberId) {
+        ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+        request.setOperation("addTagMember");
+        request.put(GraphDACParams.TAG_ID.name(), tagId);
+        request.put(GraphDACParams.MEMBER_ID.name(), new StringValue(memberId));
+        cacheRouter.tell(request, getParent());
     }
 
     @Override
@@ -171,7 +242,10 @@ public class DataNode extends AbstractNode {
                                     metadata = new HashMap<String, Object>();
                                 Map<String, Object> dbMetadata = dbNode.getMetadata();
                                 if (null != dbMetadata && !dbMetadata.isEmpty()) {
-                                    metadata.putAll(dbMetadata);
+                                    for (Entry<String, Object> entry : dbMetadata.entrySet()) {
+                                        if (!metadata.containsKey(entry.getKey()))
+                                            metadata.put(entry.getKey(), entry.getValue());
+                                    }
                                 }
                                 setInRelations(dbNode.getInRelations());
                                 setOutRelations(dbNode.getOutRelations());

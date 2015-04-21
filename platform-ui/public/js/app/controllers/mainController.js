@@ -133,6 +133,18 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $($event.target).button('reset');
     }
 
+    $scope.showConformationMessage = function(className, message){
+        var closeBtm = '<button type="button" class="close" id="conformMsgCloseBtn">&times;</button>';
+        $('#conformMessage').removeClass('alert-success alert-danger');
+        $('#conformMessage').html(closeBtm + message).removeClass('hide').addClass(className);
+        window.setTimeout(function(){
+            $('#conformMessage').html('').addClass('hide').removeClass(className);
+        },5000);
+        $('#conformMsgCloseBtn').click(function(){
+           $('#conformMessage').html('').addClass('hide').removeClass(className);
+        });
+    }
+
     $scope.getAllTaxonomies();
 
 }]);
@@ -356,12 +368,14 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.buttonReset($event);
             $scope.getConcept();
             $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-success','Concept updated successfully.');
         }).catch(function(err) {
             $scope.validationMessages = [];
             $scope.validationMessages.push(err.errorMsg);
             console.log('saveChanges() - err', err);
             $scope.buttonReset($event);
             $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-danger','Error while updating concept.');
         });
     }
 
@@ -405,19 +419,22 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                 }
                 $scope.buttonReset($event);
                 $("#il-Txt-Editor").slideToggle('slow');
+                $scope.showConformationMessage('alert-success','Concept created successfully.');
             }).catch(function(err) {
                 console.log('Error fetching taxnomy graph - ', err);
                 $scope.errorMessages = [];
                 $scope.errorMessages.push(err.errorMsg);
                 $scope.buttonReset($event);
+                $scope.showConformationMessage('alert-danger','Error while fetching taxnomy graph.');
             });
         }).catch(function(err) {
             $scope.errorMessages = [];
             $scope.errorMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             console.log('Error saving concept - ', err);
+            $scope.showConformationMessage('alert-danger','Error saving concept.');
         });
-    }
+    }    
 
     $scope.allConcepts = [];
     $scope.allSubConcepts = [];

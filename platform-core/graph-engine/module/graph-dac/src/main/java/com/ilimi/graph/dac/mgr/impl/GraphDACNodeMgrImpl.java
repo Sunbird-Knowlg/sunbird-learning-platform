@@ -76,14 +76,14 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 }
                 setNodeData(graphDb, node, neo4jNode);
                 tx.success();
+                tx.close();
                 OK(GraphDACParams.NODE_ID.name(), new StringValue(node.getIdentifier()), getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -108,14 +108,14 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                 setNodeData(graphDb, node, neo4jNode);
                 tx.success();
+                tx.close();
                 OK(GraphDACParams.NODE_ID.name(), new StringValue(node.getIdentifier()), getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -134,14 +134,14 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
                 setNodeData(graphDb, node, neo4jNode);
                 tx.success();
+                tx.close();
                 OK(GraphDACParams.NODE_ID.name(), new StringValue(node.getIdentifier()), getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }

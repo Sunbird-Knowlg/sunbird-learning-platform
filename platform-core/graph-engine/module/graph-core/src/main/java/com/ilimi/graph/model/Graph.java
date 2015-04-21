@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import scala.Tuple2;
 import scala.concurrent.ExecutionContext;
@@ -45,7 +46,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
-import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.importer.ImportData;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -57,7 +57,9 @@ import com.ilimi.graph.model.node.DefinitionNode;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.relation.RelationHandler;
 import com.ilimi.graph.reader.CSVImportMessageHandler;
+import com.ilimi.graph.reader.GraphReader;
 import com.ilimi.graph.reader.GraphReaderFactory;
+import com.ilimi.graph.reader.JsonGraphReader;
 import com.ilimi.graph.writer.GraphWriterFactory;
 
 public class Graph extends AbstractDomainObject {
@@ -402,12 +404,13 @@ public class Graph extends AbstractDomainObject {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     public void getNodesByObjectType(Request req) {
         StringValue objectType = (StringValue) req.get(GraphDACParams.OBJECT_TYPE.name());
         if (!manager.validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), "Object Type is required for GetNodesByObjectType API");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(),
+                    "Object Type is required for GetNodesByObjectType API");
         } else {
             try {
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -621,7 +624,7 @@ public class Graph extends AbstractDomainObject {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), e.getMessage(), e);
         }
     }
-    
+
     public void getSubGraph(Request req) {
         try {
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -638,14 +641,20 @@ public class Graph extends AbstractDomainObject {
 
     public void importDefinitions(final Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        InputStreamValue inputStream = (InputStreamValue) request.get(GraphEngineParams.INPUT_STREAM.name());
-        if (!manager.validateRequired(inputStream)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Import stream is missing");
+        StringValue json = (StringValue) request.get(GraphEngineParams.INPUT_STREAM.name());
+        if (!manager.validateRequired(json)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Input JSON is blank");
         } else {
             try {
-                ImportData importData = GraphReaderFactory.getObject(manager, ImportType.JSON.name(), graphId,
-                        inputStream.getInputStream(), null);
-                final List<Node> nodes = importData.getDefinitionNodes();
+                ObjectMapper mapper = new ObjectMapper();
+                GraphReader graphReader = new JsonGraphReader(manager, mapper, graphId, json.getId());
+                if (graphReader.getValidations().size() > 0) {
+                    String validations = mapper.writeValueAsString(graphReader.getValidations());
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), validations);
+                }
+                ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(),
+                        graphReader.getRelations(), graphReader.getTagMembersMap());
+                final List<Node> nodes = inputData.getDefinitionNodes();
                 if (null == nodes || nodes.isEmpty()) {
                     manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Definition nodes list is empty",
                             ResponseCode.CLIENT_ERROR, getParent());

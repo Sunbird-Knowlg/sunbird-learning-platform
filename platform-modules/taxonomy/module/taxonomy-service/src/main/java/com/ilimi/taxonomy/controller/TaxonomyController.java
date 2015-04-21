@@ -74,23 +74,6 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.PATCH)
-    @ResponseBody
-    public ResponseEntity<Response> update(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file) {
-        LOGGER.info("Update | Id: " + id + " | File: " + file);
-        try {
-            InputStream stream = null;
-            if (null != file)
-                stream = file.getInputStream();
-            Response response = taxonomyManager.update(id, stream);
-            LOGGER.info("Update | Response: " + response);
-            return getResponseEntity(response);
-        } catch (Exception e) {
-            LOGGER.error("Update | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
-        }
-    }
-
     @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id) {
@@ -121,29 +104,14 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id}/definition", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody Request request) {
-        LOGGER.info("Create Definition | Id: " + id + " | Request: " + request);
+    public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
+        LOGGER.info("Create Definition | Id: " + id);
         try {
-            Response response = taxonomyManager.createDefinition(id, request);
+            Response response = taxonomyManager.updateDefinition(id, json);
             LOGGER.info("Create Definition | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
             LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
-        }
-    }
-
-    @RequestMapping(value = "/{id}/definition/{defId}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> updateDefinition(@PathVariable(value = "id") String id,
-            @PathVariable(value = "defId") String objectType, @RequestBody Request request) {
-        LOGGER.info("Update Definition | Id: " + id + " | Object Type: " + objectType + " | Request: " + request);
-        try {
-            Response response = taxonomyManager.updateDefinition(id, objectType, request);
-            LOGGER.info("Update Definition | Response: " + response);
-            return getResponseEntity(response);
-        } catch (Exception e) {
-            LOGGER.error("Update Definition | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e);
         }
     }

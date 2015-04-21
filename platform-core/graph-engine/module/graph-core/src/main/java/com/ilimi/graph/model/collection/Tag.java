@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
@@ -57,6 +58,46 @@ public class Tag extends AbstractCollection {
         }
         setNodeId(id);
         this.memberIds = memberIds;
+    }
+
+    public Future<String> upsert(final Request req) {
+        final Promise<String> promise = Futures.promise();
+        Future<String> future = promise.future();
+        final ExecutionContext ec = manager.getContext().dispatcher();
+        Future<Node> setFuture = getNodeObject(req, ec, new StringValue(getNodeId()));
+        OnComplete<Node> getTagObject = new OnComplete<Node>() {
+            @Override
+            public void onComplete(Throwable arg0, Node set) throws Throwable {
+                if (null != arg0 || null == set) {
+                    ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                    Request dacRequest = new Request(req);
+                    dacRequest.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+                    dacRequest.setOperation("addNode");
+                    dacRequest.put(GraphDACParams.NODE.name(), toNode());
+                    dacRouter.tell(dacRequest, manager.getSelf());
+                    Future<Object> response = Patterns.ask(dacRouter, dacRequest, timeout);
+                    response.onComplete(new OnComplete<Object>() {
+                        @Override
+                        public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                            if (null != arg0 || !(arg1 instanceof Response)) {
+                                promise.success("Failed to create Tag: " + tagName);
+                            } else {
+                                Response res = (Response) arg1;
+                                if (manager.checkError(res)) {
+                                    promise.success("Failed to create Tag: " + tagName + " - " + manager.getErrorMessage(res));
+                                } else {
+                                    promise.success(null);
+                                }
+                            }
+                        }
+                    }, ec);
+                } else {
+                    promise.success(null);
+                }
+            }
+        };
+        setFuture.onComplete(getTagObject, ec);
+        return future;
     }
 
     @Override

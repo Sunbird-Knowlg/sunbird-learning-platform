@@ -50,6 +50,19 @@ public class JsonGraphReader implements GraphReader {
         createRelations((List<Map<String, Object>>) inputMap.get("relations"));
     }
 
+    @SuppressWarnings("unchecked")
+    public JsonGraphReader(BaseGraphManager manager, ObjectMapper mapper, String graphId, String json) throws JsonParseException,
+            JsonMappingException, IOException {
+        this.manager = manager;
+        this.mapper = mapper;
+        validations = new ArrayList<String>();
+        tagMembersMap = new HashMap<String, List<StringValue>>();
+        Map<String, Object> inputMap = mapper.readValue(json, Map.class);
+        createDefinitionNodes(graphId, (List<Map<String, Object>>) inputMap.get("definitionNodes"));
+        createDataNodes(graphId, (List<Map<String, Object>>) inputMap.get("nodes"));
+        createRelations((List<Map<String, Object>>) inputMap.get("relations"));
+    }
+
     public JsonGraphReader(BaseGraphManager manager) {
         this.manager = manager;
         mapper = new ObjectMapper();
@@ -104,11 +117,20 @@ public class JsonGraphReader implements GraphReader {
             for (Map<String, Object> inputNode : inputNodeList) {
                 String objectType = (String) inputNode.get("objectType");
 
-                List<Map<String, Object>> indexedMetaMapList = (List<Map<String, Object>>) inputNode.get("indexedMetadata");
-                List<MetadataDefinition> indexedMetadata = getMetadataDefinitions(indexedMetaMapList);
+                List<Map<String, Object>> propertiesMapList = (List<Map<String, Object>>) inputNode.get("properties");
+                List<MetadataDefinition> properties = getMetadataDefinitions(propertiesMapList);
 
-                List<Map<String, Object>> nonIndexedMetaMapList = (List<Map<String, Object>>) inputNode.get("nonIndexedMetadata");
-                List<MetadataDefinition> nonIndexedMetadata = getMetadataDefinitions(nonIndexedMetaMapList);
+                List<MetadataDefinition> indexedMetadata = new ArrayList<MetadataDefinition>();
+                List<MetadataDefinition> nonIndexedMetadata = new ArrayList<MetadataDefinition>();
+                if (null != properties && !properties.isEmpty()) {
+                    for (MetadataDefinition def : properties) {
+                        if (def.isIndexed()) {
+                            indexedMetadata.add(def);
+                        } else {
+                            nonIndexedMetadata.add(def);
+                        }
+                    }
+                }
 
                 List<Map<String, Object>> inRelationMapList = (List<Map<String, Object>>) inputNode.get("inRelations");
                 List<RelationDefinition> inRelations = new ArrayList<RelationDefinition>();
@@ -224,7 +246,8 @@ public class JsonGraphReader implements GraphReader {
     }
 
     /**
-     * @param tagMembersMap the tagMembersMap to set
+     * @param tagMembersMap
+     *            the tagMembersMap to set
      */
     public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
