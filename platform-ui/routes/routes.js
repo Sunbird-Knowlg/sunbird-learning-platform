@@ -106,9 +106,18 @@ module.exports = function(app, dirname, passport, connectroles) {
         res.render('player/player.ejs');
     });
 
-    app.get('/user/google/login/request', passport.authenticate('google', {scope: appConfig.USER_LOGIN.GOOGLE_AUTH_SCOPES, accessType: 'offline', hd: appConfig.USER_LOGIN.HOSTED_DOMAIN}));
+    app.get('/loginError', connectroles.can('public'), function(req, res) {
+        res.render('web/loginError.ejs');
+    });
+
+    app.get('/user/google/login/request', passport.authenticate('google', {scope: appConfig.USER_LOGIN.GOOGLE_AUTH_SCOPES, accessType: 'offline'}));
     app.get('/user/google/login/response', function(req, res, next) {
         passport.authenticate('google', {failureRedirect: '/home'}, function(err, user, info) {
+
+            if(err && err == 'INVALID_DOMAIN') {
+                req.params.error = err;
+                return next();
+            }
             if (err) {
                 return next(err);
             }
@@ -124,7 +133,11 @@ module.exports = function(app, dirname, passport, connectroles) {
             });
         })(req, res, next);
     }, function(req, res) {
-        res.redirect("/private/player");
+        if(req.params.error) {
+            res.redirect("/loginError");
+        } else {
+            res.redirect("/private/player");
+        }
     });
 
     app.get('/user/facebook/login/request', passport.authenticate('facebook', {scope: appConfig.USER_LOGIN.FACEBOOK_AUTH_SCOPES}));

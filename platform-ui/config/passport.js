@@ -62,21 +62,25 @@ module.exports = function(passport) {
     }
 
     var authResponse = function(accessToken, refreshToken, profile, done) {
-
-        MongoHelper.findOne('UserModel', {googleId: profile.id}, function(err, user) {
-            // if there are any errors, return the error before anything else
-            if (err || !user || null == user) {
-                userRegHelper.createUser(profile, accessToken, refreshToken, function(err, user) {
-                    return done(err, user);
-                });
-            } else {
-                // if no user is found, return the message
-                if (user.is_deleted)
-                    return done(null, false, req.flash('loginMessage', 'User is not active.')); // req.flash is the way to set flashdata using connect-flash
-                // all is well, return successful user
-                return done(null, user);
-            }
-        });
+        var domain = profile.emails[0].value.split('@')[1];
+        if(appConfig.USER_LOGIN.ACCEPTED_DOMAINS.indexOf(domain) == -1) {
+            return done('INVALID_DOMAIN');
+        } else {
+            MongoHelper.findOne('UserModel', {googleId: profile.id}, function(err, user) {
+                // if there are any errors, return the error before anything else
+                if (err || !user || null == user) {
+                    userRegHelper.createUser(profile, accessToken, refreshToken, function(err, user) {
+                        return done(err, user);
+                    });
+                } else {
+                    // if no user is found, return the message
+                    if (user.is_deleted)
+                        return done(null, false, req.flash('loginMessage', 'User is not active.')); // req.flash is the way to set flashdata using connect-flash
+                    // all is well, return successful user
+                    return done(null, user);
+                }
+            });
+        }
     }
 
     /** Local strategy - Login using email/password */
