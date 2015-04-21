@@ -34,7 +34,6 @@ exports.getConcept = function(id, tid, cb) {
 			callback(null, []);
 		}
 	}, function(err, results) {
-		console.log('err', err, 'results', results);
 		if(err) {
 			cb(err);
 		} else {
@@ -92,7 +91,8 @@ exports.createConcept = function(data, cb) {
 	        		inRelations: [{
 	        			startNodeId: data.parent ? data.parent.id : data.taxonomyId,
 	        			relationType: 'isParentOf'
-	        		}]
+	        		}],
+	        		tags: [data.objectType.id == 'concept' ? 'Broad Concept' : (data.objectType.id == 'subConcept' ? 'Sub Concept' : 'Micro Concept')]
 				}
 			}
 		}

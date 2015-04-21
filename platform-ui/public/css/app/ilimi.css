@@ -1467,11 +1467,12 @@ div.media-entry {
 }
 
 .treeLayout {
-    width: 100%;
+    width: 730px;
     height: 586px;
     float: left;
     overflow: hidden;
     font-family: 'FrutigerSerifLTW01-Medi 722257' !important;
+    display: inline-block;
 }
 
 .concept-tree-btns {

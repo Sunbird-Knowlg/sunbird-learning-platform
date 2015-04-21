@@ -247,7 +247,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.addNewTag = function(cat) {
         if(!$scope.selectedConcept.tags) $scope.selectedConcept.tags = [];
         $scope.selectedConcept.tags.push(
-            cat.newTagValue.name
+            cat.newTagType == 'system' ? cat.newTagValue.name : cat.newTagValue
         );
         cat.addNew = false;
     }
@@ -407,21 +407,24 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         }
         $scope.buttonLoading($event);
         service.createConcept($scope.newConcept).then(function(data) {
+            $scope.showConformationMessage('alert-success','Concept created successfully. Refreshing the visualization...');
             $scope.sbConcept = {conceptId: data.id, name: $scope.newConcept.name};
             service.getTaxonomyGraph($scope.selectedTaxonomyId).then(function(data) {
                 $scope.conceptGraph = data.paginatedGraph;
                 $scope.selectedTaxonomy.graph = data.graph;
                 $scope.setTaxonomyGroups(data.graph);
                 if($scope.showSunburst) {
-                    $scope.selectVisualization('sunburst');
+                    $scope.showSunburst = false;
+                    $timeout(function() {
+                        $scope.selectVisualization('sunburst');
+                    }, 1000);
                 } else {
+                    $scope.showTree = false;
                     $scope.selectVisualization('tree');
                 }
                 $scope.buttonReset($event);
-                $("#il-Txt-Editor").slideToggle('slow');
-                $scope.showConformationMessage('alert-success','Concept created successfully.');
+                $("#writeIcon").trigger('click');
             }).catch(function(err) {
-                console.log('Error fetching taxnomy graph - ', err);
                 $scope.errorMessages = [];
                 $scope.errorMessages.push(err.errorMsg);
                 $scope.buttonReset($event);
@@ -434,7 +437,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             console.log('Error saving concept - ', err);
             $scope.showConformationMessage('alert-danger','Error saving concept.');
         });
-    }    
+    }
 
     $scope.allConcepts = [];
     $scope.allSubConcepts = [];
@@ -459,24 +462,18 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.selectVisualization = function(type) {
         if(type == 'tree') {
-            if($scope.showTree) {
+            $scope.showSunburst = false;
+            $scope.showTree = true;
+            if($scope.treeLoaded) {
                 expandANode($scope.sbConcept.conceptId, $scope.sbConcept.name);
             } else {
-                $scope.showSunburst = false;
-                $scope.showTree = true;
-                setTimeout(function() {
-                    var cid = $scope.sbConcept ? $scope.sbConcept.conceptId : null;
-                    showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, cid);
-                }, 1000);
+                loadTree($scope);
             }
+            $scope.treeLoaded = true;
         } else {
-            if($scope.showSunburst) {
-                selectSunburstConcept($scope.sbConcept.conceptId);
-            } else {
-                $scope.showSunburst = true;
-                $scope.showTree = false;
-                loadSunburst($scope);
-            }
+            $scope.showSunburst = true;
+            $scope.showTree = false;
+            loadSunburst($scope);
         }
     }
 
@@ -488,11 +485,16 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
 }]);
 
+
+function loadTree($scope) {
+    var cid = $scope.sbConcept ? $scope.sbConcept.conceptId : null;
+    showDNDTree($scope.conceptGraph, 'treeLayout', {}, $scope, cid);
+}
+
 function loadSunburst($scope) {
     // Sunburst Code
     $scope.data;
     $scope.displayVis = false;
-    $scope.currentnode;
     $scope.color;
     $scope.contentList = [];
     // Browser onresize event
