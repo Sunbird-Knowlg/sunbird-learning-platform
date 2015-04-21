@@ -150,7 +150,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
-
+    $rootScope.sunburstLoaded = false;
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
     $scope.sbConcept = undefined, $scope.selectedConcept = undefined, $scope.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
     $scope.newConcept = {
