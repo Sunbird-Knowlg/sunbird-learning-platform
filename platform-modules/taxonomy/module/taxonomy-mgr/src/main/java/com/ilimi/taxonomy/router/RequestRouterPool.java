@@ -3,16 +3,16 @@ package com.ilimi.taxonomy.router;
 import java.util.concurrent.TimeUnit;
 
 import scala.concurrent.duration.Duration;
-
-import com.ilimi.graph.common.exception.ServerException;
-import com.ilimi.graph.engine.router.RequestRouter;
-import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
-
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
+
+import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.graph.engine.router.ActorBootstrap;
+import com.ilimi.graph.engine.router.RequestRouter;
+import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public class RequestRouterPool {
 
@@ -24,7 +24,7 @@ public class RequestRouterPool {
     public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
     static {
-        system = ActorSystem.create("Taxonomy");
+        system = ActorBootstrap.getActorSystem();
         Props actorProps = Props.create(RequestRouter.class);
         actor = system.actorOf(new SmallestMailboxPool(count).props(actorProps));
     }

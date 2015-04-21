@@ -33,6 +33,8 @@ import com.ilimi.graph.engine.mgr.impl.CollectionManagerImpl;
 import com.ilimi.graph.engine.mgr.impl.GraphMgrImpl;
 import com.ilimi.graph.engine.mgr.impl.NodeManagerImpl;
 import com.ilimi.graph.engine.mgr.impl.SearchManagerImpl;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 
 public class ActorBootstrap {
 
@@ -47,6 +49,7 @@ public class ActorBootstrap {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             document = dBuilder.parse(inputStream);
             document.getDocumentElement().normalize();
+            loadConfiguration();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -58,6 +61,7 @@ public class ActorBootstrap {
 
     public static void loadConfiguration() {
         try {
+            Config config = ConfigFactory.load();
             if (null != document) {
                 // init actor configuration
                 NodeList configList = document.getElementsByTagName("init");
@@ -69,7 +73,7 @@ public class ActorBootstrap {
                         if (StringUtils.isBlank(systemName))
                             systemName = DEFAULT_SYSTEM_NAME;
                         try {
-                            system = ActorSystem.create(systemName);
+                            system = ActorSystem.create(systemName, config.getConfig(DEFAULT_SYSTEM_NAME));
                             registerShutdownHook();
                         } catch (Exception e) {
                         }
@@ -81,7 +85,7 @@ public class ActorBootstrap {
                 createManagersPool("cache-managers");
                 createRoutersPool();
             } else {
-                system = ActorSystem.create(DEFAULT_SYSTEM_NAME);
+                system = ActorSystem.create(DEFAULT_SYSTEM_NAME, config.getConfig(DEFAULT_SYSTEM_NAME));
                 createLocatConfig();
             }
             initMethodMap();
