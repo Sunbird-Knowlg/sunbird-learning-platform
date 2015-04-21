@@ -7,8 +7,6 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.taxonomy.router.RequestRouterPool;
 
 public class InitServlet extends HttpServlet {
@@ -22,8 +20,7 @@ public class InitServlet extends HttpServlet {
         super.init(config);
         // Initialising Request Router Pool
         LOGGER.info("Initialising Request Router Pool");
-        ActorRef actor = RequestRouterPool.getRequestRouter();
-        actor.tell("init", actor);
+        RequestRouterPool.getActorSystem();
     }
 
 }
