@@ -32,7 +32,7 @@ public class CSVGraphReader implements GraphReader {
     private List<String> validations;
     private BaseGraphManager manager;
     private ObjectMapper mapper;
-    Map<String, Map<String, String>> propertyDataMap;
+    Map<String, Map<String, MetadataDefinition>> propertyDataMap;
 
     private static final String PROPERTY_ID = "identifier";
     private static final String PROPERTY_NODE_TYPE = "nodeType";
@@ -45,13 +45,13 @@ public class CSVGraphReader implements GraphReader {
 
     @SuppressWarnings("resource")
     public CSVGraphReader(BaseGraphManager manager, ObjectMapper mapper, String graphId, InputStream inputStream,
-            Map<String, Map<String, String>> propertyDataMap) throws Exception {
+            Map<String, Map<String, MetadataDefinition>> propertyDataMap) throws Exception {
         this.manager = manager;
         this.mapper = mapper;
         this.propertyDataMap = propertyDataMap;
         definitionNodes = new ArrayList<Node>();
         dataNodes = new ArrayList<Node>();
-        tagMembersMap = new HashMap<String, List<StringValue>>(); 
+        tagMembersMap = new HashMap<String, List<StringValue>>();
         relations = new ArrayList<Relation>();
         validations = new ArrayList<String>();
         InputStreamReader isReader = new InputStreamReader(inputStream);
@@ -59,7 +59,6 @@ public class CSVGraphReader implements GraphReader {
         List<CSVRecord> recordsList = csvReader.getRecords();
         CSVRecord headerRecord = recordsList.get(0);
         List<String> allHeaders = new ArrayList<String>();
-        List<String> listValueHeaders = Arrays.asList("internalValidation", "externalValidation", "assessmentMethod");
         Map<String, Integer> relHeaders = new HashMap<String, Integer>();
         for (int i = 0; i < headerRecord.size(); i++) {
             allHeaders.add(headerRecord.get(i));
@@ -81,22 +80,23 @@ public class CSVGraphReader implements GraphReader {
             String uniqueId = record.get(uniqueIdIndex);
             String nodeType = SystemNodeTypes.DATA_NODE.name();
             String objectType = record.get(objectTypeIndex);
-            if(StringUtils.isBlank(uniqueId) || StringUtils.isBlank(objectType)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), "Required data(uniqueId, objectType) is missing for the row["+(i+1)+"]: " +record);
-            }            
+            if (StringUtils.isBlank(uniqueId) || StringUtils.isBlank(objectType)) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(),
+                        "Required data(uniqueId, objectType) is missing for the row[" + (i + 1) + "]: " + record);
+            }
             Map<String, Object> metadata = new HashMap<String, Object>();
             for (int j = 0; j < allHeaders.size(); j++) {
                 if (!skipIndexes.contains(j) && !relHeaders.values().contains(j)) {
-                    if (StringUtils.isNotBlank(record.get(j))) {
-                        String metadataKey = getMetadataKey(objectType, allHeaders.get(j));
-                        if(listValueHeaders.contains(metadataKey)) {
-                            
-                            String[] valList = getListFromString(record.get(j));
-                            metadata.put(metadataKey, valList);
-                        } else {
-                            metadata.put(metadataKey, record.get(j));
-                        }
-                        
+                    String metadataKey = getMetadataKey(objectType, allHeaders.get(j));
+                    String val = record.get(j);
+                    if (isListProperty(objectType, allHeaders.get(j))) {
+                        String[] valList = getListFromString(val);
+                        metadata.put(metadataKey, valList);
+                    } else {
+                        if (StringUtils.isNotBlank(val))
+                            metadata.put(metadataKey, val);
+                        else
+                            metadata.put(metadataKey, null);
                     }
                 }
             }
@@ -118,13 +118,13 @@ public class CSVGraphReader implements GraphReader {
             }
             node.setOutRelations(relations);
             dataNodes.add(node);
-            if(tagsIndex != -1) {
+            if (tagsIndex != -1) {
                 String tagsData = record.get(tagsIndex);
-                if(StringUtils.isNotBlank(tagsData)) {
+                if (StringUtils.isNotBlank(tagsData)) {
                     String[] recordTags = tagsData.split(LIST_STR_DELIMITER);
-                    for(String tagName : recordTags) {
+                    for (String tagName : recordTags) {
                         tagName = tagName.trim();
-                        if(tagMembersMap.containsKey(tagName)) {
+                        if (tagMembersMap.containsKey(tagName)) {
                             tagMembersMap.get(tagName).add(new StringValue(uniqueId));
                         } else {
                             List<StringValue> members = new ArrayList<StringValue>();
@@ -140,21 +140,22 @@ public class CSVGraphReader implements GraphReader {
     }
 
     private String[] getListFromString(String valStr) {
-        String[] valList = new String[]{};
-        if(StringUtils.isNotBlank(valStr)) {
+        if (StringUtils.isNotBlank(valStr)) {
             String[] vals = valStr.split(LIST_STR_DELIMITER);
-            return vals;
+            if (null != vals && vals.length > 0)
+                return vals;
         }
-        return valList;
+        return null;
     }
 
     private String getMetadataKey(String objectType, String title) {
         if (propertyDataMap != null) {
-            Map<String, String> objectPropMap = propertyDataMap.get(objectType);
+            Map<String, MetadataDefinition> objectPropMap = propertyDataMap.get(objectType);
             if (objectPropMap != null) {
-                String propertyName = objectPropMap.get(title);
-                if (StringUtils.isNotBlank(propertyName))
-                    return propertyName;
+                MetadataDefinition def = objectPropMap.get(title);
+                if (null != def && StringUtils.isNotBlank(def.getPropertyName())) {
+                    return def.getPropertyName();
+                }
             }
             return title;
         } else {
@@ -162,10 +163,27 @@ public class CSVGraphReader implements GraphReader {
         }
     }
 
-//    private void validateProperty(CSVRecord record, int index, String propertyName) {
-//        if (StringUtils.isBlank(record.get(index)))
-//            validations.add(propertyName + " is invalid or empty on record:" + record);
-//    }
+    private boolean isListProperty(String objectType, String title) {
+        if (propertyDataMap != null) {
+            Map<String, MetadataDefinition> objectPropMap = propertyDataMap.get(objectType);
+            if (objectPropMap != null) {
+                MetadataDefinition def = objectPropMap.get(title);
+                if (null != def && StringUtils.isNotBlank(def.getDataType())) {
+                    if (StringUtils.equalsIgnoreCase(def.getDataType(), "list")
+                            || StringUtils.equalsIgnoreCase(def.getDataType(), "multi-select"))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    // private void validateProperty(CSVRecord record, int index, String
+    // propertyName) {
+    // if (StringUtils.isBlank(record.get(index)))
+    // validations.add(propertyName + " is invalid or empty on record:" +
+    // record);
+    // }
 
     private boolean hasValidIndexes(int... indexes) {
         boolean isValid = true;
@@ -259,10 +277,11 @@ public class CSVGraphReader implements GraphReader {
     }
 
     /**
-     * @param tagMembersMap the tagMembersMap to set
+     * @param tagMembersMap
+     *            the tagMembersMap to set
      */
     public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
     }
-    
+
 }

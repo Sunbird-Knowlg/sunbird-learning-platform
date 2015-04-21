@@ -10,6 +10,7 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.importer.ImportData;
+import com.ilimi.graph.model.node.MetadataDefinition;
 
 /**
  * 
@@ -21,7 +22,7 @@ public class GraphReaderFactory {
     private static ObjectMapper mapper = new ObjectMapper();
 
     public static ImportData getObject(BaseGraphManager manager, String format, String graphId, InputStream inputStream,
-            Map<String, Map<String, String>> propertyDataMap) throws Exception {
+            Map<String, Map<String, MetadataDefinition>> propertyDataMap) throws Exception {
         GraphReader graphReader = null;
         if (ImportType.JSON.name().equals(format.toUpperCase())) {
             graphReader = new JsonGraphReader(manager, mapper, graphId, inputStream);
@@ -36,7 +37,8 @@ public class GraphReaderFactory {
             String validations = mapper.writeValueAsString(graphReader.getValidations());
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), validations);
         }
-        ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(), graphReader.getRelations(), graphReader.getTagMembersMap());
+        ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(), graphReader.getRelations(),
+                graphReader.getTagMembersMap());
         return inputData;
     }
 }
