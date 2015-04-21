@@ -383,8 +383,23 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.newConcept.parent = undefined;
     }
 
-    $scope.createConcept = function($event) {
+    $scope.isNameExist = function(conceptName) {
+        var allConcepts = _.union($scope.allConcepts, $scope.allSubConcepts, $scope.allMicroConcepts);
+        var concept = _.findWhere(allConcepts, {name: conceptName});
+        if(concept) return true;
+        else return false;
+    }
 
+    $scope.isCodeExist = function(code) {
+        var allConcepts = _.union($scope.allConcepts, $scope.allSubConcepts, $scope.allMicroConcepts);
+        var concept = _.findWhere(allConcepts, {id: code});
+        console.log('code:', code);
+        console.log('concept:', concept);
+        if(concept) return true;
+        else return false;
+    }
+
+    $scope.createConcept = function($event) {
         var objType = $scope.newConcept.objectType.id;
         $scope.newConcept.errorMessages = [];
         var valid = true;
@@ -405,6 +420,15 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         if(!valid) {
             return;
         }
+        if($scope.isNameExist($scope.newConcept.name)) {
+            $scope.newConcept.errorMessages.push('Name already in use. Try another.');
+            return;
+        }
+        if($scope.isCodeExist($scope.newConcept.code)) {
+            $scope.newConcept.errorMessages.push('Code already in use.  Try another.');
+            return;
+        }
+
         $scope.buttonLoading($event);
         service.createConcept($scope.newConcept).then(function(data) {
             $scope.showConformationMessage('alert-success','Concept created successfully. Refreshing the visualization...');
