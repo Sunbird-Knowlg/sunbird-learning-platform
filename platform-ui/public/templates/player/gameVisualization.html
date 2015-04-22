@@ -1,0 +1,95 @@
+<style>
+svg *::selection {
+    background: transparent;
+}
+
+svg *::-moz-selection {
+    background: transparent;
+}
+
+svg *::-webkit-selection {
+    background: transparent;
+}
+
+rect.selection {
+    stroke: #333;
+    stroke-dasharray: 4px;
+    stroke-opacity: 0.5;
+    fill: transparent;
+}
+
+rect.cell-border {
+    stroke: #eee;
+    stroke-width: 0.3px;
+}
+
+rect.cell-selected {
+    stroke: rgb(51, 102, 153);
+    stroke-width: 0.5px;
+}
+
+rect.cell-hover {
+    stroke: #F00;
+    stroke-width: 0.3px;
+}
+
+text.mono {
+    font-size: 9pt;
+    font-family: Consolas, courier;
+    fill: #333;
+}
+
+text.text-selected {
+    fill: #000;
+}
+
+text.text-highlight {
+    fill: #c00;
+}
+
+text.text-hover {
+    fill: #00C;
+}
+
+#tooltip {
+    position: absolute;
+    width: 200px;
+    height: auto;
+    padding: 10px;
+    background-color: white;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-radius: 10px;
+    -webkit-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    -moz-box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.4);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+#tooltip.hidden {
+    display: none;
+}
+
+#tooltip p {
+    margin: 0;
+    font-family: sans-serif;
+    font-size: 12px;
+    line-height: 20px;
+}
+</style>
+<div class="MywallActivity">
+    <div class=" wallActivityHeader">
+        <div class="editContent">
+            <div class="headerAsk" id="activityStream">
+                <h2>Heat Map</h2>
+            </div>
+            <div id="tooltip" class="hidden">
+        		<p><span id="value"></p>
+			</div>
+            <div class="col-md-12 feature-soft-cont feature-soft" style="padding: 0 !important">
+                <div id="chart" style='overflow:auto; width:100%px; height:480px;'></div>
+            </div>
+        </div>
+    </div>
+</div>

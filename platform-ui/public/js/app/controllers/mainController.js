@@ -11,6 +11,25 @@ app.config(function($stateProvider) {
             },
         }
     })
+    .state('gameVisualization', {
+            url: "/games/visualization",
+            views: {
+                "contentSection": {
+                    templateUrl: "/templates/player/gameVisualization.html",
+                    controller: 'GameVisualizationController'
+                }
+            },
+            onEnter: function() {
+                $(".sideicon3").addClass("hide");
+                $(".RightSideBar").addClass('Effectsidebar').css('display','none');
+                $(".mid-area").addClass('Effectside');
+            },
+            onExit: function() {
+                $(".sideicon3").removeClass("hide");
+                $(".RightSideBar").removeClass('Effectsidebar').css('display','inline');
+                $(".mid-area").removeClass('Effectside');
+            }
+        })
 });
 
 app.service('PlayerService', ['$http', '$q', function($http, $q) {
@@ -61,6 +80,9 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/concept/create', data);
     }
 
+    this.getGameCoverage = function(taxonomyId) {
+        return this.getFromService('/private/v1/player/gameVis/' + taxonomyId);
+    }
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll) {
@@ -94,6 +116,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 
     $scope.selectTaxonomy = function(taxonomyId) {
         $state.go('learningMap', {id: taxonomyId});
+    }
+
+    $scope.showHeatMap = function(taxonomyId) {
+        $state.go('gameVisualization');
     }
 
     $scope.categories = [
@@ -146,7 +172,6 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     }
 
     $scope.getAllTaxonomies();
-
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -506,7 +531,6 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.hoveredConcept = conceptObj;
         $scope.getConcept();
     }
-
 }]);
 
 

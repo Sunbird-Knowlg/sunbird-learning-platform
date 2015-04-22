@@ -16,7 +16,8 @@
  */
 var userHelper = require('../view_helpers/UserViewHelper')
     , taxonomyHelper = require('../view_helpers/TaxonomyViewHelper')
-    , conceptHelper = require('../view_helpers/ConceptViewHelper');
+    , conceptHelper = require('../view_helpers/ConceptViewHelper')
+    , gameHelper = require('../view_helpers/GameViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -168,6 +169,8 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.get('/private/v1/player/concept/:id/:tid', conceptHelper.getConcept);
     app.post('/private/v1/player/concept/create', conceptHelper.createConcept);
     app.post('/private/v1/player/concept/update', conceptHelper.updateConcept);
+
+    app.get('/private/v1/player/gameVis/:tid', gameHelper.getGameCoverage);
 
 };
 
