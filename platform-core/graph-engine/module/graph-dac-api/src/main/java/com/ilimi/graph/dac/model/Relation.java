@@ -9,7 +9,6 @@ import org.neo4j.graphdb.Relationship;
 
 import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.common.exception.ServerException;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
@@ -24,9 +23,9 @@ public class Relation extends BaseValueObject {
     private String startNodeName;
     private String endNodeName;
     private Map<String, Object> metadata;
-    
+
     public Relation() {
-        
+
     }
 
     public Relation(String startNodeId, String relationType, String endNodeId) {
@@ -45,19 +44,8 @@ public class Relation extends BaseValueObject {
         Node endNode = neo4jRel.getEndNode();
         this.startNodeId = (String) startNode.getProperty(SystemProperties.IL_UNIQUE_ID.name());
         this.endNodeId = (String) endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name());
-
-        String startNodeType = (String) startNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name());
-        String endNodeType = (String) endNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name());
-        if (StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), startNodeType)) {
-            String name = (String) startNode.getProperty("name", null);
-            if (StringUtils.isNotBlank(name))
-                this.startNodeName = name;
-        }
-        if (StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), endNodeType)) {
-            String name = (String) endNode.getProperty("name", null);
-            if (StringUtils.isNotBlank(name))
-                this.endNodeName = name;
-        }
+        this.startNodeName = getName(startNode);
+        this.endNodeName = getName(endNode);
         this.relationType = neo4jRel.getType().name();
         this.metadata = new HashMap<String, Object>();
         Iterable<String> keys = neo4jRel.getPropertyKeys();
@@ -66,6 +54,17 @@ public class Relation extends BaseValueObject {
                 this.metadata.put(key, neo4jRel.getProperty(key));
             }
         }
+    }
+
+    private String getName(Node node) {
+        String name = (String) node.getProperty("name", null);
+        if (StringUtils.isBlank(name)) {
+            name = (String) node.getProperty(SystemProperties.IL_TAG_NAME.name(), null);
+            if (StringUtils.isBlank(name)) {
+                name = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
+            }
+        }
+        return name;
     }
 
     public String getRelationType() {
