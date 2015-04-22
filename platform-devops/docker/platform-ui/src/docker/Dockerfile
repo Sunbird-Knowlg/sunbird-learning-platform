@@ -4,11 +4,10 @@
 #
 
 # pull base image.
-FROM node:onbuild
+FROM node:0.12
 
 # maintainer details
 MAINTAINER Feroz Sheikh "feroz@ilimi.in"
-
 
 # Setup the MongoDB varification key
 RUN apt-key adv --keyserver keyserver.ubuntu.com --recv 7F0CEB10
@@ -20,13 +19,23 @@ RUN echo "deb http://repo.mongodb.org/apt/debian wheezy/mongodb-org/3.0 main" | 
 RUN \
   apt-get update && \
   apt-get install -y \
-  mongodb-org-server
+  mongodb-org-server \
+  mongodb-org-shell
 
 # cleanup some unwanted packages
 RUN apt-get -y autoremove
 
-# Copy the prod config
-RUN rm conf/appConfig.json; cp conf/appConfig_prod.json conf/appConfig.json
+# Copy the config and rename routes
+RUN npm install -g grunt-cli
 
-COPY startServices.sh /usr/local/ilimi/startServices.sh
+# Copy the app to the container
+RUN mkdir -p /usr/src/app
+WORKDIR /usr/src/app
+
+# Build the dependencies for the app
+ADD . /usr/src/app
+RUN npm install
+RUN grunt
+
+ADD startServices.sh /usr/local/ilimi/startServices.sh
 CMD ["/bin/bash", "/usr/local/ilimi/startServices.sh"]
