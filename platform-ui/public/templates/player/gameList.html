@@ -1,0 +1,28 @@
+<div class="MywallActivity">
+	<div class=" wallActivityHeader">
+		<div class="editContent">
+			<div class="headerAsk" id="activityStream">
+                <h2>{{taxonomies[selectedTaxonomyId].metadata.name}} Games</h2>
+            </div>
+            <div class="col-md-12 noPad padTop">
+            	<div class="metro">
+            		<div class="tile gameTile" ng-repeat="game in games" ng-click="viewGame(game.identifier)">
+	    				<div class="tile-content image">
+	        				<img ng-src="{{game.appIcon}}" ng-if="game.appIcon">
+	        				<img src="/img/not_available.jpg" ng-if="!game.appIcon">
+	    				</div>
+	    				<div class="brand bg-cyan">
+        					<span class="label fg-white" style="text-align: left">
+        						{{game.name}}
+        						<div class="gameOwner" ng-if="game.description">{{game.description}}</div>
+        					</span>
+    					</div>
+					</div>
+            	</div>
+            	<div class="col-md-12" ng-if="seeMoreGames">
+            		<button class="btn btn-sm btn-primary pull-right" ng-click="nextPage()">See More</button>
+            	</div>
+        	</div>    	
+		</div>		
+	</div>
+</div>

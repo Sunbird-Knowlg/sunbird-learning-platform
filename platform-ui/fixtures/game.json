@@ -1,0 +1,110 @@
+{
+    "objectType": "Game",
+    "identifier": "G2",
+    "metadata": {
+        "name": "Kids Math",
+        "code": "ek.num.mth",
+        "identifier": "G2",
+        "description": "Kids Math",
+        "appIcon": "https://lh3.ggpht.com/JODFff8D0387be51EKCxFsalLBd2nSPjAPg9G83WaKrEF7Sz5rr8ChnoLbO2kT1fGg=w300",
+        "appIconLabel": "Kids Math",
+        "posterImage": "https://lh3.ggpht.com/JODFff8D0387be51EKCxFsalLBd2nSPjAPg9G83WaKrEF7Sz5rr8ChnoLbO2kT1fGg=w300",
+        "status": "Mock",
+        "currentVersion": "0.1",
+        "developer": "Play Store",
+        "owner": "Google & its Developers",
+        "copyright": "Google & its Developers",
+        "cost": 0,
+        "license": "Google Terms of Service",
+        "genieVersion": "1.0RC1",
+        "os": "Android",
+        "osVersionCompatibility": "4.0 Ice Cream Sandwich or Later",
+        "size": "34MB",
+        "resources": ["Touch"],
+        "idealScreenSize": "Tablet (7)",
+        "minResolution": "1024x768",
+        "purpose": "Screener",
+        "learnerLevel": "Intermediate",
+        "interactivityLevel": "Medium"
+    },
+    "outRelations": [{
+        "startNodeId": "G2",
+        "startNodeName": "Kids Math",
+        "relationType": "associatedTo",
+        "endNodeId": "C1",
+        "endNodeName": "Addition/subtraction"
+    }, {
+        "startNodeId": "G2",
+        "startNodeName": "Kids Math",
+        "relationType": "associatedTo",
+        "endNodeId": "C2",
+        "endNodeName": "Multiplication"
+    }, {
+        "startNodeId": "G2",
+        "startNodeName": "Kids Math",
+        "relationType": "associatedTo",
+        "endNodeId": "C3",
+        "endNodeName": "Division"
+    }],
+    "inRelations": [],
+    "tags": [
+        "Screener",
+        "Numeracy",
+        "Mandatory",
+        "Offline Game",
+        "Touch Interaction",
+        "No Intervention",
+        "Single-Player"
+    ],
+    "auditHistory": [{
+        "versionNo": "1",
+        "versionCreatedBy": "Santhosh",
+        "versionDate": 1429116688902
+    }],
+    "comments": [],
+    "screenshots": [{
+            "title": "Kids Math Games Free ",
+            "identifier": "G2:M1",
+            "mediaUrl": "https://www.youtube.com/embed/Kbpsp6cS308",
+            "mediaType": "video",
+            "mimeType": "video/youtube",
+            "posterImage": "http://img.youtube.com/vi/Kbpsp6cS308/0.jpg"
+        },
+        {
+            "identifier": "G2:M2",
+            "mediaUrl": "https://lh4.ggpht.com/6YzOj4gF-bBisoO-8Tk-T9pDXwlTdwyEToUiHm0H8lZiNMP3uxBmmdJEKWZbJ0HVHg=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        },
+        {
+            "identifier": "G2:M3",
+            "mediaUrl": "https://lh3.ggpht.com/c8JiO3hFeaiTnB09yqom1toIEOWpX3H4tBnsbnYIuQHuYX2FGt2tXJL_MRdz49FarGg=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        },
+        {
+            "identifier": "G2:M4",
+            "mediaUrl": "https://lh6.ggpht.com/ZolUcBNIWCmDKbKd9b5kGCJd8o_sV8IybGEN9V5GQb6cpFkVNEc36frwEKtmOSjtS2Wo=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        },
+        {
+            "identifier": "G2:M5",
+            "mediaUrl": "https://lh4.ggpht.com/PDVFyCQkIXijWaHFiYOsME6HtJpoIr3sZROwC80PNh2MrMsS44zAyQE96tCRw7Yvy28=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        },
+        {
+            "identifier": "G2:M6",
+            "mediaUrl": "https://lh4.ggpht.com/a5UPweHL22BprwBYcMSdf19_V59WLtzwhBCh0VhrVwrKGwrauOr0IyVK7h-x0HhKlQ=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        },
+        {
+            "identifier": "G2:M7",
+            "mediaUrl": "https://lh3.ggpht.com/RkDejR8KUFD2jB82qvx4BWJh7em5PQ9IgGzet3Zb8OnPc7Tis3EfA2A_CMK3zmuHCw=h900",
+            "mediaType": "image",
+            "mimeType": "image/png"
+        }
+    ]
+}

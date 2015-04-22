@@ -171,6 +171,11 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.post('/private/v1/player/concept/update', conceptHelper.updateConcept);
 
     app.get('/private/v1/player/gameVis/:tid', gameHelper.getGameCoverage);
+    app.get('/private/v1/player/gamedefinition/:tid', gameHelper.getGameDefinition);
+    app.get('/private/v1/player/games/:tid/:offset/:limit', gameHelper.getGames);
+    app.get('/private/v1/player/game/:tid/:gid', gameHelper.getGame);
+    app.post('/private/v1/player/game/create', gameHelper.createGame);
+    app.post('/private/v1/player/game/update', gameHelper.updateGame);
 
 };
 

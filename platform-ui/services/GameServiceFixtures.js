@@ -61,3 +61,56 @@ exports.getGameCoverage = function(tid, cb) {
 		cb(null, data);
 	});
 }
+
+exports.getGameDefinition = function(cb, taxonomyId) {
+	fs.readFile('fixtures/game_definitions.json', 'utf8', function (err, data) {
+  		if (err) {
+  			cb(err);
+  		} else {
+  			var obj = JSON.parse(data);
+  			var defs = obj.definitionNodes;
+  			var def = null;
+  			for (var i=0; i<defs.length; i++) {
+  				if (defs[i].objectType == 'Game') {
+  					def = defs[i];
+  				}
+  			}
+  			if (def != null) {
+  				cb(null, def);	
+  			} else {
+  				cb('Game definition not found');
+  			}
+  		}
+	});
+}
+
+exports.getGames = function(cb, taxonomyId, offset, limit) {
+	if (!offset) {
+		offset = 0;
+	}
+	if (!limit) {
+		limit = 10;
+	}
+	fs.readFile('fixtures/games.json', 'utf8', function (err, data) {
+  		if (err) {
+  			cb(err);
+  		} else {
+  			var obj = JSON.parse(data);
+  			obj.offset = offset;
+  			obj.limit = limit;
+  			cb(null, obj);
+  		}
+	});
+}
+
+exports.getGame = function(cb, taxonomyId, gameId) {
+	util.sendJSONResponse('game.json', cb);
+}
+
+exports.updateGame = function(data, cb) {
+  	util.sendJSONResponse('game.json', cb);
+}
+
+exports.createGame = function(data, cb) {
+  	util.sendJSONResponse('game.json', cb);
+}

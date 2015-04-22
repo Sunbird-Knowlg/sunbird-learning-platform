@@ -1,0 +1,75 @@
+<div class="MywallActivity">
+	<div class=" wallActivityHeader">
+		<div class="editContent">
+			<div class="headerAsk" >
+                <h2>
+                	<a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Back to Games list"  data-original-title="Back to Games list" ng-click="viewGameList()">
+						<i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
+					</a>
+                	{{selectedConcept.metadata.name}}
+                </h2>
+            </div>
+            <div class="col-md-12 noPad padTop marginBottom15 borderBottomSolid">
+            	<div class="col-md-3 noPad">
+            		<img ng-src="{{selectedConcept.metadata.posterImage}}" style="width: 100%; height: 100%" ng-if="selectedConcept.metadata.posterImage"/>
+            		<img src="/img/not_available.jpg" style="width: 100%; height: 100%" ng-if="!selectedConcept.metadata.posterImage"/>
+            	</div>
+            	<div class="col-md-9">
+            		<div class="des_container">
+                    <span class="des_content">
+                    	{{selectedConcept.metadata.description}}
+                    </span>
+                	</div>
+                	<div>
+                		<span class="pull-left marRight50 marginTop10" ng-if="selectedConcept.metadata.developer">
+                			<span>Developed by: </span><a href="javascript: void(0)"><h3 class="margin0">{{selectedConcept.metadata.developer}}</h3></a>
+                		</span>
+                		<span class="pull-left marRight50 marginTop10" ng-if="selectedConcept.metadata.owner">
+                			Owned by: <a href="javascript: void(0)"><h3 class="margin0">{{selectedConcept.metadata.owner}}</h3></a>
+                		</span>
+                	</div>
+            	</div>
+            </div>
+            <div class="col-md-12 noPad padTop marginBottom15">
+            	<ul class="bxslider" ng-if="selectedConcept.screenshots && selectedConcept.screenshots.length > 0">
+  					<li ng-repeat="screenshot in selectedConcept.screenshots">
+  						<a href="javascript:void(0)" data-toggle="modal" data-target=".image-view-modal" ng-if="screenshot.mediaType == 'image'" ng-click="viewScreenShot(screenshot)">
+  							<img ng-src="{{screenshot.mediaUrl}}" class="carouselImg" ng-if="screenshot.mediaUrl"/>
+  							<img src="/img/not_available.jpg" class="carouselImg" ng-if="!screenshot.mediaUrl"/>
+  						</a>
+  						<a href="javascript:void(0)" data-toggle="modal" data-target=".image-view-modal" ng-if="screenshot.mediaType == 'video'" ng-click="viewScreenShot(screenshot)">
+  							<img ng-src="{{screenshot.posterImage}}" class="carouselImg" ng-if="screenshot.posterImage"/>
+  							<img src="/img/not_available.jpg" class="carouselImg" ng-if="!screenshot.posterImage"/>
+  							<div id="playImg">
+  								<i class="fa fa-play"></i>
+  							</div>
+  						</a>  						
+  					</li>
+				</ul>
+				<div class="modal fade image-view-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+					<div class="modal-dialog modal-lg">
+				    	<div class="modal-content">
+				    		<button type="button" class="pull-right marRight30 close" data-dismiss="modal" aria-label="Close">
+				    			<i class="writeBlackOne fa fa-times"></i>
+				    		</button>
+				    		<div class="pad20">
+				    			<div ng-if="selectedScreenshot.mediaType == 'image'">
+				    				<img ng-src="{{selectedScreenshot.mediaUrl}}" class="screenshotImg" ng-if="selectedScreenshot.mediaUrl"/>
+				    				<img src="/img/not_available.jpg" ng-if="!selectedScreenshot.mediaUrl"/>
+				    			</div>
+				    			<div ng-if="selectedScreenshot.mediaType == 'video'">
+				    				<iframe id="selectedScreenshotIframe" width="800" height="450" frameborder="0" allowfullscreen></iframe>
+				    			</div>
+				    		</div>
+				    	</div>
+  					</div>
+				</div>
+        	</div> 
+        	<div class="col-md-12 noPad padBottom">
+        		<div ng-include="'metadata_categories_template.html'"></div>
+        	</div>   	
+		</div>		
+	</div>
+</div>
+
+<div ng-include="'save_confirmation_template.html'"></div>

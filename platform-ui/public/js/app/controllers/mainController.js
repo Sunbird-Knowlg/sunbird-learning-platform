@@ -9,27 +9,62 @@ app.config(function($stateProvider) {
                 templateUrl: "/templates/player/learningMap.html",
                 controller: 'LearningMapController'
             },
+        },
+        onEnter: function() {
+            $('.rightBarConceptMenu').removeClass('hide');
+        },
+        onExit: function() {
+            $('.rightBarConceptMenu').addClass('hide');  
+        }
+    }).state('gameList', {
+        url: "/gameList/:id",
+        views: {
+            "contentSection": {
+                templateUrl: "/templates/player/gameList.html",
+                controller: 'GameListController'
+            },
+        },
+        onEnter: function() {
+            $(".RightSideBar").addClass('Effectsidebar').css('display','none');
+            $(".mid-area").addClass('Effectside');
+        },
+        onExit: function() {
+            $(".RightSideBar").removeClass('Effectsidebar').css('display','inline');;
+            $(".mid-area").removeClass('Effectside');
+        }
+    }).state('gamePage', {
+        url: "/gamePage/:id",
+        views: {
+            "contentSection": {
+                templateUrl: "/templates/player/game.html",
+                controller: 'GameController'
+            },
+        },
+        onEnter: function() {
+            $('.rightBarGameMenu').removeClass('hide');
+        },
+        onExit: function() {
+            $('.rightBarGameMenu').addClass('hide');  
+        }
+    }).state('gameVisualization', {
+        url: "/games/visualization",
+        views: {
+            "contentSection": {
+                templateUrl: "/templates/player/gameVisualization.html",
+                controller: 'GameVisualizationController'
+            }
+        },
+        onEnter: function() {
+            $(".sideicon3").addClass("hide");
+            $(".RightSideBar").addClass('Effectsidebar').css('display','none');
+            $(".mid-area").addClass('Effectside');
+        },
+        onExit: function() {
+            $(".sideicon3").removeClass("hide");
+            $(".RightSideBar").removeClass('Effectsidebar').css('display','inline');
+            $(".mid-area").removeClass('Effectside');
         }
     })
-    .state('gameVisualization', {
-            url: "/games/visualization",
-            views: {
-                "contentSection": {
-                    templateUrl: "/templates/player/gameVisualization.html",
-                    controller: 'GameVisualizationController'
-                }
-            },
-            onEnter: function() {
-                $(".sideicon3").addClass("hide");
-                $(".RightSideBar").addClass('Effectsidebar').css('display','none');
-                $(".mid-area").addClass('Effectside');
-            },
-            onExit: function() {
-                $(".sideicon3").removeClass("hide");
-                $(".RightSideBar").removeClass('Effectsidebar').css('display','inline');
-                $(".mid-area").removeClass('Effectside');
-            }
-        })
 });
 
 app.service('PlayerService', ['$http', '$q', function($http, $q) {
@@ -80,9 +115,30 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/concept/create', data);
     }
 
+    this.getGames = function(taxonomyId, offset, limit) {
+        return this.getFromService('/private/v1/player/games/' + taxonomyId + '/' + offset + '/' + limit);
+    }
+
+    this.getGameDefinition = function(taxonomyId) {
+        return this.getFromService('/private/v1/player/gamedefinition/' + taxonomyId);
+    }
+
+    this.getGame = function(taxonomyId, gameId) {
+        return this.getFromService('/private/v1/player/game/' + taxonomyId + '/' + gameId);
+    }
+
+    this.updateGame = function(data) {
+        return this.postToService('/private/v1/player/game/update', data);
+    }
+
+    this.createGame = function(data) {
+        return this.postToService('/private/v1/player/game/create', data);
+    }
+
     this.getGameCoverage = function(taxonomyId) {
         return this.getFromService('/private/v1/player/gameVis/' + taxonomyId);
     }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll) {
@@ -97,6 +153,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.taxonomies = {};
     $scope.allTaxonomies = [];
     $scope.selectedTaxonomyId = undefined;
+    $scope.selectedConcept = undefined;
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
             if(data && data.length > 0) {
@@ -116,6 +173,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 
     $scope.selectTaxonomy = function(taxonomyId) {
         $state.go('learningMap', {id: taxonomyId});
+    }
+
+    $scope.viewGameList = function(taxonomyId) {
+        $state.go('gameList', {id: taxonomyId});
     }
 
     $scope.showHeatMap = function(taxonomyId) {
@@ -172,73 +233,6 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     }
 
     $scope.getAllTaxonomies();
-}]);
-
-app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
-    $rootScope.sunburstLoaded = false;
-    $scope.$parent.selectedTaxonomyId = $stateParams.id;
-    $scope.sbConcept = undefined, $scope.selectedConcept = undefined, $scope.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
-    $scope.newConcept = {
-        taxonomyId: $scope.selectedTaxonomyId,
-        name: undefined,
-        description: undefined,
-        objectType: $scope.taxonomyObjects[0],
-        parent: undefined,
-        errorMessages: []
-    }
-    $scope.selectedTaxonomy = $scope.$parent.taxonomies[$stateParams.id];
-    $scope.getTaxonomyDefinitions = function(taxonomyId) {
-        service.getTaxonomyDefinitions(taxonomyId).then(function(taxonomyDefs) {
-            var categories = _.uniq(_.pluck(taxonomyDefs.properties, 'category'));
-            var definitions = {
-
-            }
-            _.each(categories, function(category) {
-                definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
-            });
-            $scope.selectedTaxonomy.properties = taxonomyDefs.properties;
-            $scope.selectedTaxonomy.definitions = definitions;
-            $scope.selectedTaxonomy.definitions.relations = taxonomyDefs.relations;
-            $scope.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
-        }).catch(function(err) {
-            console.log('Error fetching taxonomy definitions - ', err);
-        });
-    }
-
-    $scope.getTaxonomyGraph = function(taxonomyId) {
-        service.getTaxonomyGraph(taxonomyId).then(function(data) {
-            $scope.conceptGraph = data.paginatedGraph;
-            $scope.selectedTaxonomy.graph = data.graph;
-            $scope.sbConcept = data.graph;
-            $scope.getConcept();
-            $timeout(function() {
-                loadSunburst($scope);
-                registerLeftMenu();
-            }, 1000);
-            $scope.setTaxonomyGroups(data.graph);
-        }).catch(function(err) {
-            console.log('Error fetching taxnomy graph - ', err);
-        });
-    }
-
-    $scope.getConcept = function() {
-        service.getConcept($scope.sbConcept.conceptId, $scope.selectedTaxonomyId).then($scope.setConceptResponse);
-    }
-
-    $scope.setConceptResponse = function(data) {
-        $scope.selectedConcept = data;
-        $scope.selectedConcept.newMetadata = [];
-        $scope.unmodifiedConcept = angular.copy($scope.selectedConcept);
-        $scope.resetCategories();
-    }
-
-    $scope.getTaxonomyDefinitions($stateParams.id);
-    $scope.getTaxonomyGraph($stateParams.id);
-
-    $rootScope.$on('selectConcept', function(event, args) {
-        $scope.sbConcept = args.concept;
-        $scope.getConcept();
-    });
 
     $scope.deleteListValue = function(pname, index, formName) {
         $scope.selectedConcept.metadata[pname].splice(index, 1);
@@ -386,17 +380,97 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $('#saveChangesModal').modal('show');
     }
 
+}]);
+
+app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+    $rootScope.sunburstLoaded = false;
+    $scope.$parent.selectedTaxonomyId = $stateParams.id;
+    $scope.sbConcept = undefined, $scope.$parent.selectedConcept = undefined, $scope.$parent.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
+    $scope.newConcept = {
+        taxonomyId: $scope.$parent.selectedTaxonomyId,
+        name: undefined,
+        description: undefined,
+        objectType: $scope.taxonomyObjects[0],
+        parent: undefined,
+        errorMessages: []
+    }
+
+    $scope.$parent.categories = [
+        {id: 'general', label: "General", editable: true, editMode: false},
+        {id: 'tags', label: "Tags", editable: true, editMode: false},
+        {id: 'relations', label: "Relations", editable: false, editMode: false},
+        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
+        {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
+        {id: 'analytics', label: "Analytics", editable: false, editMode: false},
+        {id: 'audit', label: "Audit", editable: false, editMode: false},
+        {id: 'comments', label: "Comments", editable: false, editMode: false}
+    ]
+
+    $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$stateParams.id];
+    $scope.getTaxonomyDefinitions = function(taxonomyId) {
+        service.getTaxonomyDefinitions(taxonomyId).then(function(taxonomyDefs) {
+            var categories = _.uniq(_.pluck(taxonomyDefs.properties, 'category'));
+            var definitions = {
+
+            }
+            _.each(categories, function(category) {
+                definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
+            });
+            $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
+            $scope.$parent.selectedTaxonomy.definitions = definitions;
+            $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.relations;
+            $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
+        }).catch(function(err) {
+            console.log('Error fetching taxonomy definitions - ', err);
+        });
+    }
+
+    $scope.getTaxonomyGraph = function(taxonomyId) {
+        service.getTaxonomyGraph(taxonomyId).then(function(data) {
+            $scope.conceptGraph = data.paginatedGraph;
+            $scope.$parent.selectedTaxonomy.graph = data.graph;
+            $scope.sbConcept = data.graph;
+            $scope.getConcept();
+            $timeout(function() {
+                loadSunburst($scope);
+                registerLeftMenu();
+            }, 1000);
+            $scope.setTaxonomyGroups(data.graph);
+        }).catch(function(err) {
+            console.log('Error fetching taxnomy graph - ', err);
+        });
+    }
+
+    $scope.getConcept = function() {
+        service.getConcept($scope.sbConcept.conceptId, $scope.$parent.selectedTaxonomyId).then($scope.setConceptResponse);
+    }
+
+    $scope.setConceptResponse = function(data) {
+        $scope.$parent.selectedConcept = data;
+        $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
+        $scope.resetCategories();
+    }
+
+    $scope.getTaxonomyDefinitions($stateParams.id);
+    $scope.getTaxonomyGraph($stateParams.id);
+
+    $rootScope.$on('selectConcept', function(event, args) {
+        $scope.sbConcept = args.concept;
+        $scope.getConcept();
+    });
+
     $scope.saveChanges = function($event) {
         $scope.buttonLoading($event);
-        service.updateConcept($scope.conceptToBeUpdated).then(function(data) {
+        service.updateConcept($scope.$parent.conceptToBeUpdated).then(function(data) {
             $scope.setConceptResponse(data);
             $scope.buttonReset($event);
             $scope.getConcept();
             $('#saveChangesModal').modal('hide');
             $scope.showConformationMessage('alert-success','Concept updated successfully.');
         }).catch(function(err) {
-            $scope.validationMessages = [];
-            $scope.validationMessages.push(err.errorMsg);
+            $scope.$parent.validationMessages = [];
+            $scope.$parent.validationMessages.push(err.errorMsg);
             console.log('saveChanges() - err', err);
             $scope.buttonReset($event);
             $('#saveChangesModal').modal('hide');
@@ -458,9 +532,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         service.createConcept($scope.newConcept).then(function(data) {
             $scope.showConformationMessage('alert-success','Concept created successfully. Refreshing the visualization...');
             $scope.sbConcept = {conceptId: data.id, name: $scope.newConcept.name};
-            service.getTaxonomyGraph($scope.selectedTaxonomyId).then(function(data) {
+            service.getTaxonomyGraph($scope.$parent.selectedTaxonomyId).then(function(data) {
                 $scope.conceptGraph = data.paginatedGraph;
-                $scope.selectedTaxonomy.graph = data.graph;
+                $scope.$parent.selectedTaxonomy.graph = data.graph;
                 $scope.setTaxonomyGroups(data.graph);
                 if($scope.showSunburst) {
                     $scope.showSunburst = false;
@@ -531,6 +605,148 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.hoveredConcept = conceptObj;
         $scope.getConcept();
     }
+
+}]);
+
+app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+
+    $scope.$parent.selectedTaxonomyId = $stateParams.id;
+    $scope.offset = 0;
+    $scope.limit = 10;
+    $scope.games = [];
+    $scope.seeMoreGames = false;
+
+    $scope.getGames = function() {
+        var taxonomyId = $scope.$parent.selectedTaxonomyId;
+        service.getGames(taxonomyId, $scope.offset, $scope.limit).then(function(data) {
+            if (data.games && data.games.length > 0) {
+                $scope.games.push.apply($scope.games, data.games);
+                var count = data.count;
+                if (count > ($scope.offset + $scope.limit)) {
+                    $scope.seeMoreGames = true;
+                } else {
+                    $scope.seeMoreGames = false;
+                }    
+            } else {
+                $scope.seeMoreGames = false;
+            }
+        }).catch(function(err) {
+            console.log('Error fetching games list - ', err);
+        });
+    }
+
+    $scope.nextPage = function() {
+        $scope.offset = $scope.offset + $scope.limit;
+        $scope.getGames();
+    }
+
+    $scope.viewGame = function(gameId) {
+        $state.go('gamePage', {id: gameId});
+    }
+
+    $scope.getGames();
+
+}]);
+
+app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+
+    $scope.viewGameList = function() {
+        $state.go('gameList', {id: $scope.$parent.selectedTaxonomyId});
+    }
+
+    $scope.$parent.categories = [
+        {id: 'general', label: "General", editable: true, editMode: false},
+        {id: 'tags', label: "Tags", editable: true, editMode: false},
+        {id: 'relations', label: "Relations", editable: false, editMode: false},
+        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
+        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
+        {id: 'technical', label: "Technical", editable: true, editMode: false},
+        {id: 'pedagogy', label: "Pedagogy", editable: true, editMode: false},
+        {id: 'gameExperience', label: "Game Experience", editable: true, editMode: false},
+        {id: 'analytics', label: "Analytics", editable: false, editMode: false},
+        {id: 'audit', label: "Audit", editable: false, editMode: false},
+        {id: 'comments', label: "Comments", editable: false, editMode: false}
+    ]
+
+    $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$scope.$parent.selectedTaxonomyId];
+    $scope.selectedGameId = $stateParams.id;
+
+    $scope.getGameDefinition = function(taxonomyId) {
+        service.getGameDefinition(taxonomyId).then(function(taxonomyDefs) {
+            var categories = _.uniq(_.pluck(taxonomyDefs.properties, 'category'));
+            var definitions = {
+
+            }
+            _.each(categories, function(category) {
+                definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
+            });
+            $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
+            $scope.$parent.selectedTaxonomy.definitions = definitions;
+            $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
+            $scope.getGame($scope.$parent.selectedTaxonomyId);
+        }).catch(function(err) {
+            console.log('Error fetching taxonomy definitions - ', err);
+        });
+    }
+
+    $scope.getGame = function(taxonomyId) {
+        service.getGame(taxonomyId, $scope.selectedGameId).then($scope.setGameResponse);
+    }
+
+    $scope.viewScreenShot = function(screenshot) {
+        $scope.selectedScreenshot = screenshot;
+        if (screenshot.mediaType == 'video') {
+            if (screenshot.mimeType == 'video/youtube') {
+                setTimeout(function() {
+                    document.getElementById('selectedScreenshotIframe').src = screenshot.mediaUrl;
+                }, 500);
+            }
+        }
+    }
+
+    $scope.setGameResponse = function(data) {
+        $scope.$parent.selectedConcept = data;
+        $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
+        $scope.resetCategories();
+        setTimeout(function() {
+            $('.tool-tip').tooltip();
+            if ($scope.$parent.selectedConcept.screenshots && $scope.$parent.selectedConcept.screenshots.length > 0) {
+                if ($scope.slider && $scope.slider != null) {
+                    $scope.slider.destroySlider();
+                } 
+                $scope.slider = $('.bxslider').bxSlider({
+                    minSlides: 2,
+                    maxSlides: 5,
+                    slideWidth: 240,
+                    slideMargin: 20,
+                    pager: false,
+                    infiniteLoop: false,
+                    hideControlOnEnd: true
+                });
+            }
+        }, 500);
+    }
+
+    $scope.saveChanges = function($event) {
+        $scope.buttonLoading($event);
+        service.updateGame($scope.$parent.conceptToBeUpdated).then(function(data) {
+            $scope.buttonReset($event);
+            $scope.getGame($scope.$parent.selectedTaxonomyId);
+            $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-success','Game updated successfully.');
+        }).catch(function(err) {
+            $scope.$parent.validationMessages = [];
+            $scope.$parent.validationMessages.push(err.errorMsg);
+            $scope.buttonReset($event);
+            $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-danger','Error while updating game.');
+        });
+    }
+
+    $scope.getGameDefinition($scope.$parent.selectedTaxonomyId);
+
 }]);
 
 
@@ -565,10 +781,10 @@ function loadSunburst($scope) {
     //$scope.color = ["#87CEEB", "#007FFF", "#72A0C1", "#318CE7", "#0000FF", "#0073CF"];
     $scope.color = d3.scale.ordinal().range(["#33a02c", "#1f78b4", "#b2df8a", "#a6cee3", "#fb9a99", "#e31a1c", "#fdbf6f", "#ff7f00", "#6a3d9a", "#cab2d6", "#ffff99"]);
 
-    if ($scope.selectedTaxonomy.graph) {
-        var root = $scope.selectedTaxonomy.graph;
+    if ($scope.$parent.selectedTaxonomy.graph) {
+        var root = $scope.$parent.selectedTaxonomy.graph;
         $scope.assignColors(root);
-        $scope.data = [$scope.selectedTaxonomy.graph];
+        $scope.data = [$scope.$parent.selectedTaxonomy.graph];
         if($scope.sbConcept) {
             $scope.conceptId = $scope.sbConcept.conceptId;
         }

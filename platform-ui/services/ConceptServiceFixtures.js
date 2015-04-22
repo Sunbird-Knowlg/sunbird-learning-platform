@@ -21,7 +21,7 @@ exports.getConcept = function(id, tid, cb) {
 }
 
 exports.updateConcept = function(data, cb) {
-
+	
 }
 
 exports.createConcept = function(data, cb) {

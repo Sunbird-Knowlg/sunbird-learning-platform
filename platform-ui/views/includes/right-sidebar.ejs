@@ -13,9 +13,23 @@
 				</ul>
 			</div>
 		</div>
-		<div class="il-rt-container recentContent marginBottom20" bs-scrollspy-list>
+		<div class="il-rt-container recentContent marginBottom20 rightBarConceptMenu hide" bs-scrollspy-list>
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Concept</h3>
+			</div>
+			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
+				<nav class="il-rt-notn">
+					<ul class="nav">
+						<li data-target="#{{cat.id}}" bs-scrollspy ng-repeat="cat in categories">
+							<a href="javascript:void(0)" ng-click="scrolltoHref(cat.id)">{{cat.label}}</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+		<div class="il-rt-container recentContent marginBottom20 rightBarGameMenu hide" bs-scrollspy-list>
+			<div class="il-sc-header il-dd-header pad0">
+				<h3>Game</h3>
 			</div>
 			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
 				<nav class="il-rt-notn">
