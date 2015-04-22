@@ -16,7 +16,7 @@
     "AWS_ACCESSKEYID": "AKIAJEJTE3D2LHWDSHPQ",
     "AWS_SECRETACCESSKEY": "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",
     "USE_TEST_MAIL": false,
-    "ORCHESTRATOR_URL": "http://localhost:9090",
+    "ORCHESTRATOR_URL": "http://taxonomy-service:8080",
     "APP_STATUS": "LIVE",
     "USER_LOGIN": {
         "GOOGLE_CLIENT_ID": "149422338782-gp602lvp42iig3cvovi7i6i4rp3dr9o5.apps.googleusercontent.com",
