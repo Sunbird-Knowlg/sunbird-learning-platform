@@ -104,7 +104,19 @@ text.text-hover {
                     </li>
                 </ul>
             </div>
-            <div class="col-md-12 feature-soft-cont feature-soft marginTop20" style="padding: 0 !important">
+            <div class="col-md-12 noPad form-inline marginTop20">
+                <div class="form-group col-md-4 noPad">
+                    <label>Order:</label>
+                    <select id="order" class="form-control">
+                        <option value="none" selected>-- Select Order --</option>
+                        <option value="clc">Concepts with least coverage</option>
+                        <option value="chc">Concepts with highest coverage</option>
+                        <option value="glc">Games with least coverage</option>
+                        <option value="ghc">Games with highest coverage</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-12 feature-soft-cont feature-soft" style="padding: 0 !important">
                 <div id="tooltip" class="hidden">
                     <p><span id="value"></p>
                 </div>

@@ -27,7 +27,9 @@ function showHeatMap(data) {
     	hcrow = [], // change to gene name or probe id
         hccol = [], // change to gene name or probe id
         rowLabel = data.rowLabel,
-        colLabel = data.colLabel;
+        colLabel = data.colLabel,
+        concepts = data.concepts,
+        games = data.games;
 
     _.each(data.rowLabel, function(label, idx) {
     	hcrow.push(idx+1);
@@ -78,6 +80,7 @@ function showHeatMap(data) {
         .on("click", function(d, i) {
             rowSortOrder = !rowSortOrder;
             sortbylabel("r", i, rowSortOrder);
+            d3.select("#order").property("selectedIndex", 0).node().focus();
         });
 
     var colLabels = svg.append("g")
@@ -110,6 +113,7 @@ function showHeatMap(data) {
         .on("click", function(d, i) {
             colSortOrder = !colSortOrder;
             sortbylabel("c", i, colSortOrder);
+            d3.select("#order").property("selectedIndex", 0).node().focus();
         });
 
     var heatMap = svg.append("g").attr("class", "g3")
@@ -330,4 +334,67 @@ function showHeatMap(data) {
                 d3.selectAll(".colLabel").classed("text-selected", false);
             }
         });
+
+    d3.select("#order").on("change",function(){
+        order(this.value);
+    });
+    /**
+     * Function to order the heat map
+     */
+    function order(value) {
+        if (value == "clc") {
+            var hrows = _.pluck(_.sortBy(concepts, 'gameCount'), 'id');
+            var hrowLabels = _.pluck(_.sortBy(concepts, 'gameCount'), 'name');
+            var t = svg.transition().duration(1000);
+            t.selectAll(".cell")
+                .attr("y", function(d) {
+                    return (hrows.indexOf(d.rowId)) * cellSize;
+                });
+
+            t.selectAll(".rowLabel")
+                .attr("y", function(d, i) {
+                    return (hrowLabels.indexOf(d)) * cellSize;
+                });
+        } else if (value == "chc") {
+            var hrows = _.pluck(_.sortBy(concepts, 'gameCount'), 'id').reverse();
+            var hrowLabels = _.pluck(_.sortBy(concepts, 'gameCount'), 'name').reverse();
+            var t = svg.transition().duration(1000);
+            t.selectAll(".cell")
+                .attr("y", function(d) {
+                    return (hrows.indexOf(d.rowId)) * cellSize;
+                });
+
+            t.selectAll(".rowLabel")
+                .attr("y", function(d, i) {
+                    return (hrowLabels.indexOf(d)) * cellSize;
+                });
+        } else if (value == "glc") {
+            var hcols = _.pluck(_.sortBy(games, 'conceptCount'), 'identifier');
+            var hcolLabels = _.pluck(_.sortBy(games, 'conceptCount'), 'name');
+            var t = svg.transition().duration(1000);
+            t.selectAll(".cell")
+                .attr("x", function(d) {
+                    return (hcols.indexOf(d.colId)) * cellSize;
+                });
+
+            t.selectAll(".colLabel")
+                .attr("y", function(d, i) {
+                    return (hcolLabels.indexOf(d)) * cellSize;
+                });
+        } else if (value == "ghc") {
+            var hcols = _.pluck(_.sortBy(games, 'conceptCount'), 'identifier').reverse();
+            var hcolLabels = _.pluck(_.sortBy(games, 'conceptCount'), 'name').reverse();
+            var t = svg.transition().duration(1000);
+            t.selectAll(".cell")
+                .attr("x", function(d) {
+                    return (hcols.indexOf(d.colId)) * cellSize;
+                });
+
+            t.selectAll(".colLabel")
+                .attr("y", function(d, i) {
+                    return (hcolLabels.indexOf(d)) * cellSize;
+                });
+        }
+    }
+
 }

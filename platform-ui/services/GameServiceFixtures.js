@@ -40,19 +40,30 @@ exports.getGameCoverage = function(tid, cb) {
 				conceptsWithNoScreener: 0
 			}
 		}
+		var gameMap = {};
+		_.each(results.games, function(game) {
+			game.conceptCount = 0;
+			gameMap[game.identifier] = game;
+		});
 		_.each(results.concepts, function(concept) {
 			var conceptGames = _.pluck(concept.games, 'identifier');
 			var gameCount = _.where(concept.games, {purpose: 'Game'}).length;
 			var screenerCount = _.where(concept.games, {purpose: 'Screener'}).length;
+			concept.gameCount = concept.games ? concept.games.length : 0;
 			if(gameCount == 0) {
 				data.stats.conceptsWithNoGame++;
 			}
 			if(screenerCount == 0) {
 				data.stats.conceptsWithNoScreener++;
 			}
+			_.each(concept.games, function(game) {
+				gameMap[game.identifier].conceptCount++;
+			});
 			_.each(results.games, function(game) {
 				data.matrix.push({
 					row: data.rowLabel.indexOf(concept.name) + 1,
+					rowId: concept.id,
+					colId: game.identifier,
 					col: data.colLabel.indexOf(game.name) + 1,
 					value: (conceptGames.indexOf(game.identifier) == -1 ? 0 : (game.purpose == 'Game' ? 1 : 2))
 				});
