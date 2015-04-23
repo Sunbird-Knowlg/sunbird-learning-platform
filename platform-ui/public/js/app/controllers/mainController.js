@@ -44,10 +44,10 @@ app.config(function($stateProvider) {
             $('.rightBarGameMenu').removeClass('hide');
         },
         onExit: function() {
-            $('.rightBarGameMenu').addClass('hide');  
+            $('.rightBarGameMenu').addClass('hide');
         }
     }).state('gameVisualization', {
-        url: "/games/visualization",
+        url: "/games/coverage/:tid",
         views: {
             "contentSection": {
                 templateUrl: "/templates/player/gameVisualization.html",
@@ -180,7 +180,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     }
 
     $scope.showHeatMap = function(taxonomyId) {
-        $state.go('gameVisualization');
+        $state.go('gameVisualization', {tid: taxonomyId});
     }
 
     $scope.categories = [

@@ -1,18 +1,20 @@
 app.controller('GameVisualizationController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+
+    $scope.stats = undefined;
     $timeout(function() {
     	selectLeftMenuTab('forumsTab');
-        //showHeatMap();
     }, 1000);
-    service.getGameCoverage($scope.selectedTaxonomyId).then(function(data) {
+    service.getGameCoverage($stateParams.tid).then(function(data) {
+        $scope.stats = data.stats;
     	showHeatMap(data);
     });
 }]);
 
 function showHeatMap(data) {
     var margin = {
-            top: 100,
+            top: 150,
             right: 10,
-            bottom: 50,
+            bottom: 70,
             left: 280
         },
         col_number = data.colLabel.length,
@@ -20,7 +22,7 @@ function showHeatMap(data) {
         cellSize = Math.min(parseInt(680/data.colLabel.length),20),
         width = cellSize * col_number, // - margin.left - margin.right,
         height = cellSize * row_number, // - margin.top - margin.bottom,
-        legendElementWidth = cellSize * 2.5,
+        legendElementWidth = 150,
         colors = ['#ffffff', '#9ec2b3', '#c684a4'],
     	hcrow = [], // change to gene name or probe id
         hccol = [], // change to gene name or probe id
@@ -33,11 +35,7 @@ function showHeatMap(data) {
     _.each(data.colLabel, function(label, idx) {
     	hccol.push(idx+1);
     });
-    console.log('hcrow length', hcrow.length);
-    console.log('hccol length', hccol.length);
-    console.log('rowLabel length', rowLabel.length);
-    console.log('colLabel length', colLabel.length);
-    console.log('matrix length', data.matrix.length);
+
     var colorScale = d3.scale.quantile()
         .domain([-10, 0, 10])
         .range(colors);
@@ -88,7 +86,11 @@ function showHeatMap(data) {
         .enter()
         .append("text")
         .text(function(d) {
-            return d;
+            if(d.length > 20) {
+                return (d.substr(0, 17) + '...');
+            } else {
+                return d;
+            }
         })
         .attr("x", 0)
         .attr("y", function(d, i) {
@@ -131,14 +133,6 @@ function showHeatMap(data) {
         .style("fill", function(d) {
             return colors[d.value];
         })
-        /* .on("click", function(d) {
-               var rowtext=d3.select(".r"+(d.row-1));
-               if(rowtext.classed("text-selected")==false){
-                   rowtext.classed("text-selected",true);
-               }else{
-                   rowtext.classed("text-selected",false);
-               }
-        })*/
         .on("mouseover", function(d) {
             //highlight text
             d3.select(this).classed("cell-hover", true);
@@ -151,11 +145,10 @@ function showHeatMap(data) {
 
             //Update the tooltip position and value
             d3.select("#tooltip")
-                .style("left", (d3.event.pageX + 10 - 200) + "px")
-                .style("top", (d3.event.pageY - 10 - 70) + "px")
+                .style("left", (d3.event.pageX + 10 - 220) + "px")
+                .style("top", (d3.event.pageY - 10 - 210) + "px")
                 .select("#value")
                 .html("<b>Concept</b>:" + rowLabel[d.row - 1] + "<br/><b>Game</b>:" + colLabel[d.col - 1] + "<br/><b>" + (d.value == 0 ? 'Concept not covered' : 'Concept Covered') + '</b>');
-            //Show the tooltip
             d3.select("#tooltip").classed("hidden", false);
         })
         .on("mouseout", function() {
@@ -184,7 +177,14 @@ function showHeatMap(data) {
     legend.append("text")
         .attr("class", "mono")
         .text(function(d) {
-            return d;
+            var val = 'No Game/Screener';
+            if(d == 1) {
+                val = 'Game';
+            }
+            if(d == 2) {
+                val = 'Screener';
+            }
+            return val;
         })
         .attr("width", legendElementWidth)
         .attr("x", function(d, i) {
@@ -195,7 +195,7 @@ function showHeatMap(data) {
     // Change ordering of cells
 
     function sortbylabel(rORc, i, sortOrder) {
-        var t = svg.transition().duration(3000);
+        var t = svg.transition().duration(500);
         var log2r = [];
         var sorted; // sorted is zero-based index
         d3.selectAll(".c" + rORc + i)
@@ -321,7 +321,7 @@ function showHeatMap(data) {
             d3.selectAll(".text-selection").classed("text-selection", false);
         })
         .on("mouseout", function() {
-            if (d3.event.relatedTarget.tagName == 'html') {
+            if (d3.event.relatedTarget && d3.event.relatedTarget.tagName == 'html') {
                 // remove selection frame
                 sa.selectAll("rect.selection").remove();
                 // remove temporary selection marker class

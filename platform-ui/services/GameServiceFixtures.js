@@ -21,24 +21,10 @@ var async = require('async')
 exports.getGameCoverage = function(tid, cb) {
 	async.parallel({
 		games: function(callback) {
-			fs.readFile('fixtures/all_games.json', 'utf8', function (err, data) {
-		  		if (err) {
-		  			callback(err);
-		  		} else {
-		  			var obj = JSON.parse(data);
-		  			callback(null, obj);
-		  		}
-			});
+			util.sendJSONResponse('game_mock_data.json', callback);
 		},
 		concepts: function(callback) {
-			fs.readFile('fixtures/concept_game_coverage.json', 'utf8', function (err, data) {
-		  		if (err) {
-		  			callback(err);
-		  		} else {
-		  			var obj = JSON.parse(data);
-		  			callback(null, obj);
-		  		}
-			});
+			util.sendJSONResponse('concept_game_coverage.json', callback);
 		}
 	}, function(err, results) {
 		var data = {
@@ -46,15 +32,29 @@ exports.getGameCoverage = function(tid, cb) {
 			concepts: results.concepts,
 			rowLabel: _.pluck(results.concepts, 'name'),
 			colLabel: _.pluck(results.games, 'name'),
-			matrix: []
+			matrix: [],
+			stats: {
+				noOfGames: results.games.length,
+				noOfConcepts: results.concepts.length,
+				conceptsWithNoGame: 0,
+				conceptsWithNoScreener: 0
+			}
 		}
 		_.each(results.concepts, function(concept) {
-			var conceptGames = _.pluck(concept.games, 'id');
+			var conceptGames = _.pluck(concept.games, 'identifier');
+			var gameCount = _.where(concept.games, {purpose: 'Game'}).length;
+			var screenerCount = _.where(concept.games, {purpose: 'Screener'}).length;
+			if(gameCount == 0) {
+				data.stats.conceptsWithNoGame++;
+			}
+			if(screenerCount == 0) {
+				data.stats.conceptsWithNoScreener++;
+			}
 			_.each(results.games, function(game) {
 				data.matrix.push({
 					row: data.rowLabel.indexOf(concept.name) + 1,
 					col: data.colLabel.indexOf(game.name) + 1,
-					value: (conceptGames.indexOf(game.id) == -1 ? 0 : (game.type == 'game' ? 1 : 2))
+					value: (conceptGames.indexOf(game.identifier) == -1 ? 0 : (game.purpose == 'Game' ? 1 : 2))
 				});
 			});
 		});
@@ -76,7 +76,7 @@ exports.getGameDefinition = function(cb, taxonomyId) {
   				}
   			}
   			if (def != null) {
-  				cb(null, def);	
+  				cb(null, def);
   			} else {
   				cb('Game definition not found');
   			}
