@@ -658,12 +658,12 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         {id: 'general', label: "General", editable: true, editMode: false},
         {id: 'tags', label: "Tags", editable: true, editMode: false},
         {id: 'relations', label: "Relations", editable: false, editMode: false},
-        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
-        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
-        {id: 'technical', label: "Technical", editable: true, editMode: false},
         {id: 'pedagogy', label: "Pedagogy", editable: true, editMode: false},
         {id: 'gameExperience', label: "Game Experience", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
+        {id: 'technical', label: "Technical", editable: true, editMode: false},
+        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
+        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'audit', label: "Audit", editable: false, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: false}
     ]
