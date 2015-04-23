@@ -141,7 +141,7 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
 
 }]);
 
-app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll) {
+app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
 
     // Structure of taxonomy is
     // taxonomyId: {
@@ -182,6 +182,25 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.showHeatMap = function(taxonomyId) {
         $state.go('gameVisualization');
     }
+
+    $scope.renderHtml = function(htmlCode, append) {
+        if (append) {
+            htmlCode = append + htmlCode;
+        }
+        return $sce.trustAsHtml(htmlCode);
+    };
+
+    $scope.renderHtmlTrim = function(htmlCode, length) {
+        if (htmlCode) {
+            var subtxt = htmlCode.substring(0, length);
+            if (htmlCode.length > length) {
+                subtxt = subtxt;
+            }
+            var txt = $sce.trustAsHtml(subtxt);
+            return txt;
+        }
+        return $sce.trustAsHtml(htmlCode);
+    };
 
     $scope.categories = [
         {id: 'general', label: "General", editable: true, editMode: false},
@@ -612,7 +631,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
 
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
     $scope.offset = 0;
-    $scope.limit = 10;
+    $scope.limit = 6;
     $scope.games = [];
     $scope.seeMoreGames = false;
 
@@ -622,7 +641,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             if (data.games && data.games.length > 0) {
                 $scope.games.push.apply($scope.games, data.games);
                 var count = data.count;
-                if (count > ($scope.offset + $scope.limit)) {
+                if (count > (data.offset + data.limit)) {
                     $scope.seeMoreGames = true;
                 } else {
                     $scope.seeMoreGames = false;
@@ -650,6 +669,16 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
 
 app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
+    $scope.showFullDesc = false;
+
+    $scope.moreDescription = function() {
+        $scope.showFullDesc = true;        
+    }
+
+    $scope.lessDescription = function() {
+        $scope.showFullDesc = false;        
+    }
+
     $scope.viewGameList = function() {
         $state.go('gameList', {id: $scope.$parent.selectedTaxonomyId});
     }
@@ -658,12 +687,12 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         {id: 'general', label: "General", editable: true, editMode: false},
         {id: 'tags', label: "Tags", editable: true, editMode: false},
         {id: 'relations', label: "Relations", editable: false, editMode: false},
-        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
-        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
-        {id: 'technical', label: "Technical", editable: true, editMode: false},
         {id: 'pedagogy', label: "Pedagogy", editable: true, editMode: false},
         {id: 'gameExperience', label: "Game Experience", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
+        {id: 'technical', label: "Technical", editable: true, editMode: false},
+        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
+        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'audit', label: "Audit", editable: false, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: false}
     ]
@@ -719,11 +748,15 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
                 $scope.slider = $('.bxslider').bxSlider({
                     minSlides: 2,
                     maxSlides: 5,
-                    slideWidth: 240,
+                    slideWidth: 320,
                     slideMargin: 20,
                     pager: false,
                     infiniteLoop: false,
-                    hideControlOnEnd: true
+                    hideControlOnEnd: true,
+                    responsive: false,
+                    onSliderLoad: function() {
+                        $('ul.bxslider li').width('auto');
+                    }
                 });
             }
         }, 500);

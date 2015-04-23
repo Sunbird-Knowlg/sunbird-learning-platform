@@ -89,22 +89,39 @@ exports.getGames = function(cb, taxonomyId, offset, limit) {
 		offset = 0;
 	}
 	if (!limit) {
-		limit = 10;
+		limit = 6;
+	}
+	if (offset > 0) {
+		limit = 13;
 	}
 	fs.readFile('fixtures/games.json', 'utf8', function (err, data) {
   		if (err) {
   			cb(err);
   		} else {
   			var obj = JSON.parse(data);
-  			obj.offset = offset;
-  			obj.limit = limit;
-  			cb(null, obj);
+  			var games = {};
+  			games.games = obj.games.slice(offset, offset + limit);
+  			games.count = obj.count;
+  			games.offset = offset;
+  			games.limit = limit;
+  			cb(null, games);
   		}
 	});
 }
 
 exports.getGame = function(cb, taxonomyId, gameId) {
-	util.sendJSONResponse('game.json', cb);
+	fs.readFile('fixtures/game.json', 'utf8', function (err, data) {
+  		if (err) {
+  			cb(err);
+  		} else {
+  			var obj = JSON.parse(data);
+  			var game = obj[gameId];
+  			if (!game) {
+  				game = obj['G1'];
+  			}
+  			cb(null, game);
+  		}
+	});
 }
 
 exports.updateGame = function(data, cb) {
