@@ -2035,5 +2035,11 @@ input.validation-error {
     margin: 0 0 5px !important;
     text-align: right;
 }
+
+.game-dev {
+    color: #999; 
+    font-weight:bold; 
+    font-size:12px;
+}
 /** End Game Page Styles **/
 
