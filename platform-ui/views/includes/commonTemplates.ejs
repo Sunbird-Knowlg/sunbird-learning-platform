@@ -192,6 +192,7 @@
 		<tr ng-if="!selectedConcept.metadata[prop.propertyName] || selectedConcept.metadata[prop.propertyName].length == 0"><td>None</td></tr>
 	</table>
 	<span ng-switch-when="Date">{{selectedConcept.metadata[prop.propertyName] | date:'yyyy-MM-dd HH:mm'}}</span>
+    <a ng-switch-when="URL" href="{{selectedConcept.metadata[prop.propertyName]}}" target="_blank">Open</a>
 	<span ng-switch-default>{{selectedConcept.metadata[prop.propertyName] || 'NA'}}</span>
 </div>
 
@@ -211,6 +212,7 @@
 	<select ng-switch-when="Select" ng-model="selectedConcept.metadata[prop.propertyName]" ng-options="val for val in prop.range" class="form-control"></select>
 	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
 	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
+    <input ng-switch-when="URL" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
 </div>
 
 </script>
