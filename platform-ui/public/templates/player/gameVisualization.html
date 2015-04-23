@@ -82,12 +82,44 @@ text.text-hover {
     <div class=" wallActivityHeader">
         <div class="editContent">
             <div class="headerAsk" id="activityStream">
-                <h2>Heat Map</h2>
+                <h2>Game Coverage - Numeracy</h2>
             </div>
-            <div id="tooltip" class="hidden">
-        		<p><span id="value"></p>
-			</div>
+            <div class="col-md-12 noPad marginTop20">
+                <ul class="feature-list-glanceitems col-md-12">
+                    <li>
+                        <h3 class="ng-binding">{{stats.noOfGames}}</h3>
+                        <span># of Games</span>
+                    </li>
+                    <li>
+                        <h3 class="ng-binding">{{stats.noOfConcepts}}</h3>
+                        <span># of Micro Concepts</span>
+                    </li>
+                    <li>
+                        <h3 class="ng-binding">{{stats.conceptsWithNoGame}}</h3>
+                        <span>Concepts without a game</span>
+                    </li>
+                    <li>
+                        <h3 class="ng-binding">{{stats.conceptsWithNoScreener}}</h3>
+                        <span>Concepts without a screener</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-12 noPad form-inline marginTop20">
+                <div class="form-group col-md-4 noPad">
+                    <label>Order:</label>
+                    <select id="order" class="form-control">
+                        <option value="none" selected>-- Select Order --</option>
+                        <option value="clc">Concepts with least coverage</option>
+                        <option value="chc">Concepts with highest coverage</option>
+                        <option value="glc">Games with least coverage</option>
+                        <option value="ghc">Games with highest coverage</option>
+                    </select>
+                </div>
+            </div>
             <div class="col-md-12 feature-soft-cont feature-soft" style="padding: 0 !important">
+                <div id="tooltip" class="hidden">
+                    <p><span id="value"></p>
+                </div>
                 <div id="chart" style='overflow:auto; width:100%px; height:480px;'></div>
             </div>
         </div>

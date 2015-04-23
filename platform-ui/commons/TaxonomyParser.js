@@ -15,14 +15,14 @@
 var csv = require('csv');
 var fs = require('fs');
 var _ = require('underscore');
-
-var headerFields = {
-    "broad concept": "concept",
-    "sub concepts": "subconcept",
-    "microconcept": "microconcept"
-}
+var async = require('async');
 
 function parseTaxonomyFile(fileName, outputJsonFile) {
+	var headerFields = {
+	    "broad concept": "concept",
+	    "sub concepts": "subconcept",
+	    "microconcept": "microconcept"
+	}
 	var header = {};
 	var csvArray = [];
 	csv()
@@ -119,7 +119,7 @@ function outputAsJson(csvArray, outputJsonFile) {
 	console.log('Output written to json file - ', outputJsonFile);
 }
 
-function generateConceptGameCoverage(fileName, outputJsonFile, gamesJsonFile) {
+function getCSVData(fileName, headerFields, cb) {
 	var header = {};
 	var csvArray = [];
 	csv()
@@ -138,10 +138,42 @@ function generateConceptGameCoverage(fileName, outputJsonFile, gamesJsonFile) {
 		}
 	})
 	.on('end', function(count) {
-		outputGameCoverage(csvArray, outputJsonFile, gamesJsonFile);
+		cb(null, csvArray);
 	})
 	.on('error', function(error){
 	  	console.log(error);
+	});
+}
+
+function getGameData(fileName, cb) {
+	var headerFields = {
+	    "name": "name",
+	    "identifier": "identifier",
+	    "purpose": "purpose"
+	}
+	getCSVData(fileName, headerFields, cb);
+}
+
+function getConceptData(fileName, cb) {
+	var headerFields = {
+	    "broad concept": "concept",
+	    "sub concepts": "subconcept",
+	    "microconcept": "microconcept"
+	}
+	getCSVData(fileName, headerFields, cb);
+}
+
+function generateConceptGameCoverage(gameCSV, conceptCSV, outputJsonFile, gamesJsonFile) {
+
+	async.parallel({
+		gameData: function(cb) {
+			getGameData(gameCSV, cb);
+		},
+		conceptData: function(cb) {
+			getConceptData(conceptCSV, cb);
+		}
+	}, function(err, results) {
+		outputGameCoverage(results, outputJsonFile, gamesJsonFile);
 	});
 }
 
@@ -150,14 +182,15 @@ function getRandomInt(min, max) {
 }
 
 function getRandomGames(games) {
+	var gamesSize = games.length - 1;
 	var ramdomGameCount = [0, 1, 2, 3, 4, 5];
 	var noOfGames = ramdomGameCount[getRandomInt(0, 5)];
 	var randomGames = [];
 	var added = [];
 	while(randomGames.length < noOfGames) {
-		var index = getRandomInt(0, 49);
+		var index = getRandomInt(0, gamesSize);
 		while(added.indexOf(index) != -1) {
-			index = getRandomInt(0, 49);
+			index = getRandomInt(0, gamesSize);
 		}
 		added.push(index);
 		randomGames.push(games[index]);
@@ -165,14 +198,11 @@ function getRandomGames(games) {
 	return randomGames;
 }
 
-function outputGameCoverage(csvArray, outputJsonFile, gamesJsonFile) {
+function outputGameCoverage(results, outputJsonFile, gamesJsonFile) {
 
 	// Create 50 games
-	var gamesArray = [];
-	for(var i=1; i <= 50; i++) {
-		gamesArray.push({id: 'g:'+i, name: 'Game ' + i, type: (i < 30 ? 'game':'screener')});
-	}
-	var microConcepts = _.uniq(_.pluck(csvArray, 'microconcept'));
+	var gamesArray = results.gameData;
+	var microConcepts = _.uniq(_.pluck(results.conceptData, 'microconcept'));
 	var concepts = [];
 	_.each(microConcepts, function(concept, index) {
 		concepts.push({
@@ -187,4 +217,9 @@ function outputGameCoverage(csvArray, outputJsonFile, gamesJsonFile) {
 }
 
 //parseTaxonomyFile('/Users/santhosh/Downloads/Numeracy_learning_map.csv', 'fixtures/taxonomy_graph.json');
-generateConceptGameCoverage('/Users/santhosh/Downloads/Numeracy_learning_map.csv', 'fixtures/concept_game_coverage.json', 'fixtures/all_games.json');
+generateConceptGameCoverage(
+	'/Users/santhosh/Downloads/Game-Mock-Data.csv',
+	'/Users/santhosh/Downloads/Numeracy_learning_map.csv',
+	'fixtures/concept_game_coverage.json',
+	'fixtures/game_mock_data.json'
+);

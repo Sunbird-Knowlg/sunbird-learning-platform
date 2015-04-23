@@ -21,8 +21,8 @@
 			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
 				<a href="javascript:void(0);" ng-click="viewGameList(taxonomy.id)">{{taxonomy.name}}</a>
 			</li>
-			<li role="presentation">
-				<a href="javascript:void(0);" ng-click="showHeatMap();">Heat Map</a>
+			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
+				<a href="javascript:void(0);" ng-click="showHeatMap(taxonomy.id)">{{taxonomy.name}} Game Coverage</a>
 			</li>
 		</ul>
 	</li>
