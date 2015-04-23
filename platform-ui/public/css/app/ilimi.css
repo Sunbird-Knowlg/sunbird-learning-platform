@@ -2027,5 +2027,13 @@ input.validation-error {
 .metro .tile:hover {
     outline: none !important;
 }
+
+.game-status {
+    color: green !important;
+    font-weight: bold !important;
+    font-size: 10px !important;
+    margin: 0 0 5px !important;
+    text-align: right;
+}
 /** End Game Page Styles **/
 
