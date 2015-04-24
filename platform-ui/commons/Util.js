@@ -13,7 +13,8 @@
  * @author Santhosh
  */
 
-var fs = require('fs');
+var fs = require('fs')
+	, _ = require('underscore');
 
 exports.responseCB = function(res) {
 	return function(err, data) {
@@ -34,4 +35,18 @@ exports.sendJSONResponse = function(fileName, cb) {
   			cb(null, obj);
   		}
 	});
+}
+
+exports.validateMWResponse = function(response, cb) {
+	var statusObj = response.status, errors = [], valid = true;
+	if(statusObj.status == 'ERROR') {
+		valid = false;
+		if(!_.isEmpty(response.result.MESSAGES) && !_.isEmpty(response.result.MESSAGES.valueObjectList)) {
+			errors = _.pluck(response.result.MESSAGES.valueObjectList,  'id');
+		} else {
+			errors.push(statusObj.message);
+		}
+		cb(errors);
+	}
+	return valid;
 }

@@ -489,11 +489,13 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.showConformationMessage('alert-success','Concept updated successfully.');
         }).catch(function(err) {
             $scope.$parent.validationMessages = [];
-            $scope.$parent.validationMessages.push(err.errorMsg);
-            console.log('saveChanges() - err', err);
+            if(_.isArray(err.errorMsg)) {
+                $scope.$parent.validationMessages.push.apply($scope.$parent.validationMessages, err.errorMsg);
+            } else {
+                $scope.$parent.validationMessages.push(err.errorMsg);
+            }
             $scope.buttonReset($event);
             $('#saveChangesModal').modal('hide');
-            $scope.showConformationMessage('alert-danger','Error while updating concept.');
         });
     }
 
@@ -567,17 +569,23 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                 $scope.buttonReset($event);
                 $("#writeIcon").trigger('click');
             }).catch(function(err) {
-                $scope.errorMessages = [];
-                $scope.errorMessages.push(err.errorMsg);
+                $scope.newConcept.errorMessages = [];
+                if(_.isArray(err.errorMsg)) {
+                    $scope.newConcept.errorMessages.push.apply($scope.errorMessages, err.errorMsg);
+                } else {
+                    $scope.newConcept.errorMessages.push(err.errorMsg);
+                }
                 $scope.buttonReset($event);
                 $scope.showConformationMessage('alert-danger','Error while fetching taxnomy graph.');
             });
         }).catch(function(err) {
-            $scope.errorMessages = [];
-            $scope.errorMessages.push(err.errorMsg);
+            $scope.newConcept.errorMessages = [];
+            if(_.isArray(err.errorMsg)) {
+                $scope.newConcept.errorMessages.push.apply($scope.newConcept.errorMessages, err.errorMsg);
+            } else {
+                $scope.newConcept.errorMessages.push(err.errorMsg);
+            }
             $scope.buttonReset($event);
-            console.log('Error saving concept - ', err);
-            $scope.showConformationMessage('alert-danger','Error saving concept.');
         });
     }
 

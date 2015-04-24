@@ -92,7 +92,7 @@ function registerMiddlewaresAndListen(app, sessionStore) {
                 process.domain.logObject.status = 'Error';
                 process.domain._error = er.toString();
                 if(!res.headersSent) {
-                    res.send('Error - ' + process.domain._error);
+                    res.json({error:true, errorMsg: 'Error - ' + process.domain._error});
                 } else {
                     res.end('Error - ' + process.domain._error);
                 }

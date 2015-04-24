@@ -65,12 +65,10 @@ exports.updateConcept = function(data, cb) {
 			args.data.request.METADATA_DEFINITIONS.push(_.omit(prop, 'error'));
 		});
 	}
-	console.log('ConceptService:updateConcept() - args ', JSON.stringify(args));
 	mwService.patchCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
-		console.log('err', err, 'data', data);
 		if(err) {
 			cb(err);
-		} else {
+		} else if(util.validateMWResponse(data, cb)) {
 			cb(null, 'OK');
 		}
 	});
@@ -85,7 +83,7 @@ exports.createConcept = function(data, cb) {
 	        		objectType: "Concept",
 	        		metadata: {
 	 					"name": data.name,
-	 					"code": data.code,
+	 					//"code": data.code,
 	 					"description": data.description
 					},
 	        		inRelations: [{
@@ -97,12 +95,10 @@ exports.createConcept = function(data, cb) {
 			}
 		}
 	}
-	console.log('ConceptService:createConcept() - args ', JSON.stringify(args));
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {
-		console.log('err', err, 'data', JSON.stringify(data));
 		if(err) {
 			cb(err);
-		} else {
+		} else if(util.validateMWResponse(data, cb)) {
 			cb(null, data.result.NODE_ID);
 		}
 	});
