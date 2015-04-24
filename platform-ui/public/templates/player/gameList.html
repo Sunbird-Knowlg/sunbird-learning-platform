@@ -2,7 +2,39 @@
 	<div class=" wallActivityHeader">
 		<div class="editContent">
 			<div class="headerAsk" id="activityStream">
-                <h2>{{taxonomies[selectedTaxonomyId].metadata.name}} Games</h2>
+                <h2>{{taxonomies[selectedTaxonomyId].metadata.name}} Games
+                <a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Add new game"  data-original-title="Add new game">
+                    <i class="writeBlackOne fa fa-edit" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i></a>
+                </h2>
+            </div>
+            <div class="col-md-12 noPad borderBottom textEditor marginTop20 form-group" id="il-Txt-Editor" style="display:none;">
+                <div class="col-md-12 noPad">
+                    <div class="form-group col-md-6 required">
+                        <label class="control-label">Name</label>
+                        <input type="text" ng-model="newGame.name" class="form-control"/>
+                    </div>
+                    <div class="form-group col-md-6 required">
+                        <label class="control-label">Code</label>
+                        <input type="text" ng-model="newGame.code" class="form-control"/>
+                    </div>
+                    <div class="form-group col-md-6 required">
+                        <label class="control-label">Logo</label>
+                        <input type="text" ng-model="newGame.appIcon" class="form-control"/>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Description</label>
+                        <textarea class="form-control" rows="4" ng-model="newGame.description"></textarea>
+                    </div>
+                </div>
+                <div class="col-md-12 padBottom">
+                    <div class="alert alert-danger" ng-show="newGame.errorMessages.length > 0">
+                        Error creating game. Following are the failed validations
+                        <ul style="padding-left: 25px;list-style:disc outside none">
+                            <li ng-repeat="error in newGame.errorMessages">{{error}}</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary pull-right" ng-click="createGame($event)" data-loading-text="Creating game...">Create</button>
+                </div>
             </div>
             <div class="col-md-12 noPad padTop">
             	<div class="metro">
