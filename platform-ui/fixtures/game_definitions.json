@@ -26,7 +26,7 @@
           "category": "general",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -42,7 +42,7 @@
           "category": "general",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Hidden",
           "defaultValue": "",
@@ -239,7 +239,7 @@
           "category": "ownership",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -271,7 +271,7 @@
           "category": "ownership",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -464,28 +464,12 @@
           }
         },
         {
-          "propertyName": "studyLevel",
-          "title": "Study Level",
-          "description": "",
-          "category": "pedagogy",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": {
-            "inputType": "text",
-            "order": 14
-          }
-        },
-        {
           "propertyName": "learnerLevel",
           "title": "Learner Level",
           "description": "",
           "category": "pedagogy",
-          "dataType": "Text",
-          "range": [],
+          "dataType": "Select",
+          "range": ["Beginner", "Intermediate", "Advanced"],
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
@@ -652,8 +636,7 @@
           }
         }
       ],
-      "inRelations": [],
-      "outRelations": [
+      "inRelations": [
         {
           "relationName": "associatedTo",
           "title": "Related Games",
@@ -665,6 +648,20 @@
           "renderingHints": {
             "order": 26
           }
+        }
+      ],
+      "outRelations": [
+        {
+          "relationName": "associatedTo",
+          "title": "Related Games",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Game"
+          ],
+          "renderingHints": {
+            "order": 27
+          }
         },
         {
           "relationName": "associatedTo",
@@ -673,7 +670,7 @@
           "required": false,
           "objectTypes": "Concept",
           "renderingHints": {
-            "order": 27
+            "order": 28
           }
         },
         {
@@ -683,7 +680,7 @@
           "required": false,
           "objectTypes": "Media",
           "renderingHints": {
-            "order": 27
+            "order": 29
           }
         }
       ],
@@ -755,6 +752,25 @@
         {
           "name": "Single-Player",
           "description": "Collaboration "
+        },
+        {
+            "name": "Class 1",
+            "description": "Study level"
+        }, {
+            "name": "Class 2",
+            "description": "Study level"
+        }, {
+            "name": "Class 3",
+            "description": "Study level"
+        }, {
+            "name": "Class 4",
+            "description": "Study level"
+        }, {
+            "name": "Class 5",
+            "description": "Study level"
+        }, {
+            "name": "Class 6",
+            "description": "Study level"
         }
       ]
     },
