@@ -67,28 +67,31 @@ exports.getTaxonomyGraph = function(id, cb) {
 		},
 		function(response, next) {
 			var subGraph = response.result.SUBGRAPH;
-			var nodes = {}, rootNode = undefined;
+			var nodes = {}, rootNode = undefined, allNodes = [];
+
 			_.each(subGraph.nodes, function(node) {
 				nodes[node.identifier] = node;
+				allNodes.push({id: node.identifier, name: node.metadata.name, code: node.metadata.code});
 				if(_.isEqual(node.objectType, 'Taxonomy')) {
 					rootNode = node;
 				}
 			});
 			var graph = getNode(nodes, rootNode, 0);
-			next(null, graph);
+			next(null, graph, allNodes);
 		},
-		function(graph, next) {
+		function(graph, allNodes, next) {
 			var clonedGraph = JSON.parse(JSON.stringify(graph));
 			paginateConcepts(clonedGraph, 10);
-			next(null, graph, clonedGraph)
+			next(null, graph, allNodes, clonedGraph)
 		}
-	], function(err, graph, clonedGraph) {
+	], function(err, graph, allNodes, clonedGraph) {
 		if(err) {
 			cb(err);
 		} else {
 			var data = {
 				graph: graph,
-				paginatedGraph: clonedGraph
+				paginatedGraph: clonedGraph,
+				nodes: allNodes
 			}
 			cb(null, data);
 		}

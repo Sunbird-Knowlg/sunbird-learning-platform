@@ -337,6 +337,16 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                 }
             });
         });
+
+        if($rootScope.isNameExist($scope.selectedConcept.metadata.name, $scope.unmodifiedConcept.metadata.name)) {
+            valid = false;
+            errors.push('Name already in use. Try another.')
+        }
+        if($rootScope.isCodeExist($scope.selectedConcept.metadata.code, $scope.unmodifiedConcept.metadata.code)) {
+            valid = false;
+            errors.push('Code already in use. Try another.')
+        }
+    
         $scope.validationMessages = errors;
         return valid;
     }
@@ -454,7 +464,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
                 loadSunburst($scope);
                 registerLeftMenu();
             }, 1000);
-            $scope.setTaxonomyGroups(data.graph);
+            $scope.setTaxonomyGroups(data.graph, data.nodes);
         }).catch(function(err) {
             console.log('Error fetching taxnomy graph - ', err);
         });
@@ -503,18 +513,18 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.newConcept.parent = undefined;
     }
 
-    $scope.isNameExist = function(conceptName) {
-        var allConcepts = _.union($scope.allConcepts, $scope.allSubConcepts, $scope.allMicroConcepts);
+    $rootScope.isNameExist = function(conceptName, oldConceptName) {
+        var allConcepts = $scope.allConcepts;
+        if(oldConceptName) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {name: oldConceptName}));
         var concept = _.findWhere(allConcepts, {name: conceptName});
         if(concept) return true;
         else return false;
     }
 
-    $scope.isCodeExist = function(code) {
-        var allConcepts = _.union($scope.allConcepts, $scope.allSubConcepts, $scope.allMicroConcepts);
+    $rootScope.isCodeExist = function(code, oldCode) {
+        var allConcepts = $scope.allConcepts;
+        if(oldCode) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {id: oldCode}));
         var concept = _.findWhere(allConcepts, {id: code});
-        console.log('code:', code);
-        console.log('concept:', concept);
         if(concept) return true;
         else return false;
     }
@@ -540,11 +550,11 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         if(!valid) {
             return;
         }
-        if($scope.isNameExist($scope.newConcept.name)) {
+        if($rootScope.isNameExist($scope.newConcept.name)) {
             $scope.newConcept.errorMessages.push('Name already in use. Try another.');
             return;
         }
-        if($scope.isCodeExist($scope.newConcept.code)) {
+        if($rootScope.isCodeExist($scope.newConcept.code)) {
             $scope.newConcept.errorMessages.push('Code already in use.  Try another.');
             return;
         }
@@ -556,7 +566,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             service.getTaxonomyGraph($scope.$parent.selectedTaxonomyId).then(function(data) {
                 $scope.conceptGraph = data.paginatedGraph;
                 $scope.$parent.selectedTaxonomy.graph = data.graph;
-                $scope.setTaxonomyGroups(data.graph);
+                $scope.setTaxonomyGroups(data.graph, data.nodes);
                 if($scope.showSunburst) {
                     $scope.showSunburst = false;
                     $timeout(function() {
@@ -590,19 +600,23 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.allConcepts = [];
-    $scope.allSubConcepts = [];
-    $scope.allMicroConcepts = [];
-    $scope.setTaxonomyGroups = function(graph) {
+    $scope.concepts = [];
+    $scope.subConcepts = [];
+    $scope.microConcepts = [];
+    $scope.setTaxonomyGroups = function(graph, allNodes) {
+        if(allNodes && allNodes.length > 0) {
+            $scope.allConcepts = allNodes;
+        }
         if(graph.children && graph.children.length > 0) {
             _.each(graph.children, function(node) {
                 if(node.level == 1) {
-                    $scope.allConcepts.push({name: node.name, id: node.conceptId});
+                    $scope.concepts.push({name: node.name, id: node.conceptId});
                 }
                 if(node.level == 2) {
-                    $scope.allSubConcepts.push({name: node.name, id: node.conceptId});
+                    $scope.subConcepts.push({name: node.name, id: node.conceptId});
                 }
                 if(node.level == 3) {
-                    $scope.allMicroConcepts.push({name: node.name, id: node.conceptId});
+                    $scope.microConcepts.push({name: node.name, id: node.conceptId});
                 } else {
                     $scope.setTaxonomyGroups(node);
                 }
