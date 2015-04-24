@@ -83,7 +83,7 @@ exports.createConcept = function(data, cb) {
 	        		objectType: "Concept",
 	        		metadata: {
 	 					"name": data.name,
-	 					//"code": data.code,
+	 					"code": data.code,
 	 					"description": data.description
 					},
 	        		inRelations: [{
