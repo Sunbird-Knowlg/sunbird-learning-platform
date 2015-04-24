@@ -715,7 +715,9 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             $scope.showConformationMessage('alert-danger','Error saving game.');
         })
     }
-
+    $timeout(function() {
+        selectLeftMenuTab('forumsTab');
+    }, 1000);
 }]);
 
 app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
