@@ -3,13 +3,16 @@ package com.ilimi.graph.engine.mgr.impl;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import scala.concurrent.Future;
 import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.mgr.ICollectionManager;
@@ -185,7 +188,22 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         } else {
             try {
                 DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
-                node.addTags(request);
+                Future<List<StringValue>> tagsFuture = node.addTags(request, tags.getValueObjectList());
+                tagsFuture.onComplete(new OnComplete<List<StringValue>>() {
+                    @Override
+                    public void onComplete(Throwable arg0, List<StringValue> arg1) throws Throwable {
+                        if (null != arg0) {
+                            handleException(arg0, getSender());
+                        } else {
+                            if (null != arg1 && !arg1.isEmpty()) {
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Error adding tags", ResponseCode.CLIENT_ERROR,
+                                        GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(arg1), getSender());
+                            } else {
+                                OK(getSender());
+                            }
+                        }
+                    }
+                }, getContext().dispatcher());
             } catch (Exception e) {
                 handleException(e, getSender());
             }

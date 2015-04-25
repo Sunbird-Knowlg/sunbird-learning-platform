@@ -76,6 +76,33 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         }
     }
 
+    public Future<String> createRelation(final Request req) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+        request.setOperation("addRelation");
+        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(getStartNodeId()));
+        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
+        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getEndNodeId()));
+        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+        Future<String> message = response.map(new Mapper<Object, String>() {
+            @Override
+            public String apply(Object parameter) {
+                if (parameter instanceof Response) {
+                    Response res = (Response) parameter;
+                    if (manager.checkError(res)) {
+                        return manager.getErrorMessage(res);
+                    }
+                } else {
+                    return "Error creating relation: " + getStartNodeId() + " - " + getRelationType() + " - " + getEndNodeId();
+                }
+                return null;
+            }
+        }, manager.getContext().dispatcher());
+        return message;
+    }
+
+    @Override
     public void delete(Request req) {
         try {
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -88,6 +115,33 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_DELETE.name(), e.getMessage(), e);
         }
+    }
+
+    @Override
+    public Future<String> deleteRelation(Request req) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+        request.setOperation("deleteRelation");
+        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(getStartNodeId()));
+        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
+        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getEndNodeId()));
+        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+        Future<String> message = response.map(new Mapper<Object, String>() {
+            @Override
+            public String apply(Object parameter) {
+                if (parameter instanceof Response) {
+                    Response res = (Response) parameter;
+                    if (manager.checkError(res)) {
+                        return manager.getErrorMessage(res);
+                    }
+                } else {
+                    return "Error deleting relation: " + getStartNodeId() + " - " + getRelationType() + " - " + getEndNodeId();
+                }
+                return null;
+            }
+        }, manager.getContext().dispatcher());
+        return message;
     }
 
     @Override
@@ -242,7 +296,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             @Override
             public String apply(Node node) {
                 if (null == node) {
-                    return "Node Id is invalid";
+                    return "Node not found";
                 } else {
                     if (StringUtils.equals(nodeType, node.getNodeType())) {
                         return null;

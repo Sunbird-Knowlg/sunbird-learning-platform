@@ -22,6 +22,10 @@ public class Relation extends BaseValueObject {
     private String endNodeId;
     private String startNodeName;
     private String endNodeName;
+    private String startNodeType;
+    private String endNodeType;
+    private String startNodeObjectType;
+    private String endNodeObjectType;
     private Map<String, Object> metadata;
 
     public Relation() {
@@ -46,6 +50,10 @@ public class Relation extends BaseValueObject {
         this.endNodeId = (String) endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name());
         this.startNodeName = getName(startNode);
         this.endNodeName = getName(endNode);
+        this.startNodeType = getNodeType(startNode);
+        this.endNodeType = getNodeType(endNode);
+        this.startNodeObjectType = getObjectType(startNode);
+        this.endNodeObjectType = getObjectType(endNode);
         this.relationType = neo4jRel.getType().name();
         this.metadata = new HashMap<String, Object>();
         Iterable<String> keys = neo4jRel.getPropertyKeys();
@@ -65,6 +73,16 @@ public class Relation extends BaseValueObject {
             }
         }
         return name;
+    }
+
+    private String getNodeType(Node node) {
+        String nodeType = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
+        return nodeType;
+    }
+
+    private String getObjectType(Node node) {
+        String objectType = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
+        return objectType;
     }
 
     public String getRelationType() {
@@ -129,5 +147,37 @@ public class Relation extends BaseValueObject {
 
     public void setEndNodeName(String endNodeName) {
         this.endNodeName = endNodeName;
+    }
+
+    public String getStartNodeType() {
+        return startNodeType;
+    }
+
+    public void setStartNodeType(String startNodeType) {
+        this.startNodeType = startNodeType;
+    }
+
+    public String getEndNodeType() {
+        return endNodeType;
+    }
+
+    public void setEndNodeType(String endNodeType) {
+        this.endNodeType = endNodeType;
+    }
+
+    public String getStartNodeObjectType() {
+        return startNodeObjectType;
+    }
+
+    public void setStartNodeObjectType(String startNodeObjectType) {
+        this.startNodeObjectType = startNodeObjectType;
+    }
+
+    public String getEndNodeObjectType() {
+        return endNodeObjectType;
+    }
+
+    public void setEndNodeObjectType(String endNodeObjectType) {
+        this.endNodeObjectType = endNodeObjectType;
     }
 }

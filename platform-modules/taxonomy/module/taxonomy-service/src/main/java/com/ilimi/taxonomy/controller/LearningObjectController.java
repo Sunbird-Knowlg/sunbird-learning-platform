@@ -22,24 +22,27 @@ import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
-import com.ilimi.taxonomy.mgr.IConceptManager;
+import com.ilimi.taxonomy.mgr.ILearningObjectManager;
 
 @Controller
-@RequestMapping("/concept")
-public class ConceptController extends BaseController {
+@RequestMapping("/learning-object")
+public class LearningObjectController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(ConceptController.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(LearningObjectController.class.getName());
 
     @Autowired
-    private IConceptManager conceptManager;
+    private ILearningObjectManager lobManager;
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId);
+    public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "objectType", required = false) String objectType,
+            @RequestParam(value = "offset", required = false) Integer offset, @RequestParam(value = "limit", required = false) Integer limit) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType);
         try {
-            Response response = conceptManager.findAll(taxonomyId);
+            Response response = lobManager.findAll(taxonomyId, objectType, offset, limit);
             LOGGER.info("FindAll | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -54,7 +57,7 @@ public class ConceptController extends BaseController {
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id);
         try {
-            Response response = conceptManager.find(id, taxonomyId);
+            Response response = lobManager.find(id, taxonomyId);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -70,7 +73,7 @@ public class ConceptController extends BaseController {
         Request request = getRequestObject(map);
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
         try {
-            Response response = conceptManager.create(taxonomyId, request);
+            Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -86,7 +89,7 @@ public class ConceptController extends BaseController {
         Request request = getRequestObject(map);
         LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
         try {
-            Response response = conceptManager.update(id, taxonomyId, request);
+            Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -105,10 +108,10 @@ public class ConceptController extends BaseController {
                     ObjectMapper mapper = new ObjectMapper();
                     String strRequest = mapper.writeValueAsString(requestObj);
                     Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objConcept = map.get(TaxonomyAPIParams.CONCEPT.name());
+                    Object objConcept = map.get(LearningObjectAPIParams.LEARNING_OBJECT.name());
                     if (null != objConcept) {
                         Node concept = (Node) mapper.convertValue(objConcept, Node.class);
-                        request.put(TaxonomyAPIParams.CONCEPT.name(), concept);
+                        request.put(LearningObjectAPIParams.LEARNING_OBJECT.name(), concept);
                     }
                     Object objDefinitions = map.get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
                     if (null != objDefinitions) {
@@ -136,7 +139,7 @@ public class ConceptController extends BaseController {
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id);
         try {
-            Response response = conceptManager.delete(id, taxonomyId);
+            Response response = lobManager.delete(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -147,33 +150,17 @@ public class ConceptController extends BaseController {
 
     @RequestMapping(value = "/{id1:.+}/{rel}/{id2:.+}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromConcept,
-            @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toConcept,
+    public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromLob,
+            @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toLob,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromConcept + " | Relation: " + relationType
-                + " | EndId: " + toConcept);
+        LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromLob + " | Relation: " + relationType
+                + " | EndId: " + toLob);
         try {
-            Response response = conceptManager.deleteRelation(fromConcept, relationType, toConcept, taxonomyId);
+            Response response = lobManager.deleteRelation(fromLob, relationType, toLob, taxonomyId);
             LOGGER.info("Delete Relation | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
             LOGGER.error("Delete Relation | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
-        }
-    }
-
-    @RequestMapping(value = "/{id:.+}/{rel}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> getConcepts(@PathVariable(value = "id") String id, @PathVariable(value = "rel") String relationType,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "depth", required = false, defaultValue = "0") int depth) {
-        LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth);
-        try {
-            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId);
-            LOGGER.info("Get Concepts | Response: " + response);
-            return getResponseEntity(response);
-        } catch (Exception e) {
-            LOGGER.error("Get Concepts | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e);
         }
     }

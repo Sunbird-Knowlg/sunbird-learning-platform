@@ -484,7 +484,6 @@ public class Graph extends AbstractDomainObject {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void getDataNodes(Request req) {
         try {
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -493,31 +492,7 @@ public class Graph extends AbstractDomainObject {
             request.setOperation("getNodesByUniqueIds");
             request.copyRequestValueObjects(req.getRequest());
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-            response.onComplete(new OnComplete<Object>() {
-                @Override
-                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                    boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data node");
-                    if (valid) {
-                        Response res = (Response) arg1;
-                        BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
-                        if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
-                            List<Node> nodeList = new ArrayList<Node>();
-                            for (Node node : nodes.getValueObjectList()) {
-                                if (null != node && StringUtils.isNotBlank(node.getNodeType())
-                                        && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-                                    nodeList.add(node);
-                                }
-                            }
-                            manager.OK(GraphDACParams.NODE_LIST.name(), new BaseValueObjectList<Node>(nodeList), getParent());
-                        } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data nodes",
-                                    ResponseCode.RESOURCE_NOT_FOUND, getParent());
-                        }
-                    }
-                }
-            }, manager.getContext().dispatcher());
-
+            manager.returnResponse(response, getParent());
         } catch (Exception e) {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
         }
@@ -758,7 +733,7 @@ public class Graph extends AbstractDomainObject {
                     Status status = new Status();
                     status.setCode("0");
                     status.setStatus(StatusType.SUCCESS.name());
-                    status.setMessage("Operation successfull");
+                    status.setMessage("Operation successful");
                     response.setStatus(status);
                     response.put(GraphEngineParams.OUTPUT_STREAM.name(), new OutputStreamValue(outputStream));
                     return response;

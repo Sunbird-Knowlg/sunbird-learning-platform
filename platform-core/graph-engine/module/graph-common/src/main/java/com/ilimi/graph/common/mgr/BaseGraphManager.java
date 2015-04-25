@@ -1,5 +1,7 @@
 package com.ilimi.graph.common.mgr;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -8,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.actor.UntypedActor;
+import akka.dispatch.Mapper;
 import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
 
@@ -212,11 +215,32 @@ public abstract class BaseGraphManager extends UntypedActor {
         return false;
     }
 
+    public Future<List<StringValue>> convertFuture(Future<Map<String, List<String>>> future) {
+        Future<List<StringValue>> listFuture = future.map(new Mapper<Map<String, List<String>>, List<StringValue>>() {
+            @Override
+            public List<StringValue> apply(Map<String, List<String>> parameter) {
+                List<StringValue> messages = new ArrayList<StringValue>();
+                if (null != parameter && !parameter.isEmpty()) {
+                    for (List<String> list : parameter.values()) {
+                        if (null != list && !list.isEmpty()) {
+                            for (String msg : list) {
+                                if (StringUtils.isNotBlank(msg))
+                                    messages.add(new StringValue(msg));
+                            }
+                        }
+                    }
+                }
+                return messages;
+            }
+        }, getContext().dispatcher());
+        return listFuture;
+    }
+
     private Status getSucessStatus() {
         Status status = new Status();
         status.setCode("0");
         status.setStatus(StatusType.SUCCESS.name());
-        status.setMessage("Operation successfull");
+        status.setMessage("Operation successful");
         return status;
     }
 

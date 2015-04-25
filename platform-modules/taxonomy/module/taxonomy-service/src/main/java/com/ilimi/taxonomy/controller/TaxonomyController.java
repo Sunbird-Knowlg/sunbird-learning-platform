@@ -42,7 +42,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph) {
@@ -57,7 +57,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file) {
         LOGGER.info("Create | Id: " + id + " | File: " + file);
@@ -74,7 +74,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id) {
         LOGGER.info("Delete | Id: " + id);
@@ -88,7 +88,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}/concepts", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id:.+}/concepts", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(@PathVariable(value = "id") String id, @RequestBody Request request) {
         LOGGER.info("Search | Id: " + id + " | Request: " + request);
@@ -102,7 +102,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}/definition", method = RequestMethod.POST)
+    @RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> createDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
         LOGGER.info("Create Definition | Id: " + id);
@@ -116,7 +116,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}/definition/{defId}", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id, @PathVariable(value = "defId") String objectType) {
         LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType);
@@ -130,7 +130,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}/definition", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
         LOGGER.info("Find All Definitions | Id: " + id);
@@ -144,7 +144,7 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @RequestMapping(value = "/{id}/definition/{defId}", method = RequestMethod.DELETE)
+    @RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> deleteDefinition(@PathVariable(value = "id") String id, @PathVariable(value = "defId") String objectType) {
         LOGGER.info("Delete Definition | Id: " + id + " | Object Type: " + objectType);

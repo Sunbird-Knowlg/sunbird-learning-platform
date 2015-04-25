@@ -25,4 +25,8 @@ public interface IGraphDACGraphMgr {
     void addOutgoingRelations(Request request);
 
     void addIncomingRelations(Request request);
+    
+    void deleteIncomingRelations(Request request);
+    
+    void deleteOutgoingRelations(Request request);
 }

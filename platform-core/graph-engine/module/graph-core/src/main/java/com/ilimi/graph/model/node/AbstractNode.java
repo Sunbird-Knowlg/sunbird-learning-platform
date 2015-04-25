@@ -143,8 +143,20 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return getMessageMap(metadataValidation, manager.getContext().dispatcher());
     }
 
+    public Map<String, Object> getMetadata() {
+        return this.metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+    }
+
     public String getNodeId() {
         return this.nodeId;
+    }
+
+    protected void setNodeId(String nodeId) {
+        this.nodeId = nodeId;
     }
 
     protected Future<Map<String, List<String>>> getMessageMap(Future<List<String>> aggregate, ExecutionContext ec) {
@@ -197,17 +209,17 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                 List list = (List) value;
                 Object[] array = getArray(key, list);
                 if (null == array) {
-                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: "
-                            + key);
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(),
+                            "Invalid data type for the property: " + key);
                 } else {
                     value = array;
                     if (null != metadata)
                         metadata.put(key, array);
                 }
-            } else if (!(value instanceof String) && !(value instanceof String[]) && !(value instanceof Double) && !(value instanceof double[])
-                    && !(value instanceof Float) && !(value instanceof float[]) && !(value instanceof Long) && !(value instanceof long[])
-                    && !(value instanceof Integer) && !(value instanceof int[]) && !(value instanceof Boolean)
-                    && !(value instanceof boolean[])) {
+            } else if (!(value instanceof String) && !(value instanceof String[]) && !(value instanceof Double)
+                    && !(value instanceof double[]) && !(value instanceof Float) && !(value instanceof float[]) && !(value instanceof Long)
+                    && !(value instanceof long[]) && !(value instanceof Integer) && !(value instanceof int[])
+                    && !(value instanceof Boolean) && !(value instanceof boolean[])) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: "
                         + key);
             }

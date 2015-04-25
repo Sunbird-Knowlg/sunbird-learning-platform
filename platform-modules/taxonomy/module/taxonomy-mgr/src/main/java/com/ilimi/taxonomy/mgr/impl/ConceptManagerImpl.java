@@ -21,6 +21,7 @@ import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.taxonomy.dto.ConceptDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.mgr.IConceptManager;
@@ -45,7 +46,12 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             return response;
         BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) findRes.get(GraphDACParams.NODE_LIST.name());
         if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
-            response.put(TaxonomyAPIParams.CONCEPTS.name(), nodes);
+            List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
+            for (Node node : nodes.getValueObjectList()) {
+                ConceptDTO dto = new ConceptDTO(node);
+                concepts.add(dto);
+            }
+            response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
         }
         return response;
     }
@@ -65,8 +71,10 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             return response;
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
-        if (null != node)
-            response.put(TaxonomyAPIParams.CONCEPT.name(), node);
+        if (null != node) {
+            ConceptDTO dto = new ConceptDTO(node);
+            response.put(TaxonomyAPIParams.CONCEPT.name(), dto);
+        }
         return response;
     }
 
@@ -84,19 +92,6 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (checkError(createRes)) {
             return createRes;
         } else {
-            StringValue nodeId = (StringValue) createRes.get(GraphDACParams.NODE_ID.name());
-            if (null != concept.getTags() && !concept.getTags().isEmpty()) {
-                Request tagRequest = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addTags");
-                tagRequest.put(GraphDACParams.NODE_ID.name(), nodeId);
-                List<StringValue> tags = new ArrayList<StringValue>();
-                for (String tag : concept.getTags()) {
-                    tags.add(new StringValue(tag));
-                }
-                tagRequest.put(GraphDACParams.TAGS.name(), new BaseValueObjectList<StringValue>(tags));
-                Response tagResponse = getResponse(tagRequest, LOGGER);
-                if (checkError(tagResponse))
-                    return tagResponse;
-            }
             BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
                     .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
             if (validateRequired(newDefinitions)) {
@@ -129,18 +124,6 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (checkError(updateRes)) {
             return updateRes;
         } else {
-            if (null != concept.getTags() && !concept.getTags().isEmpty()) {
-                Request tagRequest = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addTags");
-                tagRequest.put(GraphDACParams.NODE_ID.name(), new StringValue(concept.getIdentifier()));
-                List<StringValue> tags = new ArrayList<StringValue>();
-                for (String tag : concept.getTags()) {
-                    tags.add(new StringValue(tag));
-                }
-                tagRequest.put(GraphDACParams.TAGS.name(), new BaseValueObjectList<StringValue>(tags));
-                Response tagResponse = getResponse(tagRequest, LOGGER);
-                if (checkError(tagResponse))
-                    return tagResponse;
-            }
             BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
                     .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
             if (validateRequired(newDefinitions)) {
@@ -200,8 +183,12 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             return response;
         Graph graph = (Graph) findRes.get(GraphDACParams.SUB_GRAPH.name());
         if (null != graph && null != graph.getNodes() && !graph.getNodes().isEmpty()) {
-            BaseValueObjectList<Node> nodes = new BaseValueObjectList<Node>(graph.getNodes());
-            response.put(TaxonomyAPIParams.CONCEPTS.name(), nodes);
+            List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
+            for (Node node : graph.getNodes()) {
+                ConceptDTO dto = new ConceptDTO(node);
+                concepts.add(dto);
+            }
+            response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
         }
         return response;
     }

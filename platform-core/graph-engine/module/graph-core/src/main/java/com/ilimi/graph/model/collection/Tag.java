@@ -74,7 +74,6 @@ public class Tag extends AbstractCollection {
                     dacRequest.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                     dacRequest.setOperation("addNode");
                     dacRequest.put(GraphDACParams.NODE.name(), toNode());
-                    dacRouter.tell(dacRequest, manager.getSelf());
                     Future<Object> response = Patterns.ask(dacRouter, dacRequest, timeout);
                     response.onComplete(new OnComplete<Object>() {
                         @Override

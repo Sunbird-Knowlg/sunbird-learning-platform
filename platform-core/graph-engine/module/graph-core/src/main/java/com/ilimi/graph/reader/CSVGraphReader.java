@@ -141,7 +141,7 @@ public class CSVGraphReader implements GraphReader {
 
     private String[] getListFromString(String valStr) {
         if (StringUtils.isNotBlank(valStr)) {
-            String[] vals = valStr.split(LIST_STR_DELIMITER);
+            String[] vals = valStr.trim().split("\\s*"+LIST_STR_DELIMITER+"\\s*");
             if (null != vals && vals.length > 0)
                 return vals;
         }

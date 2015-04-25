@@ -17,6 +17,7 @@ public class MetadataDefinition extends BaseValueObject {
         VALID_DATA_TYPES.add("multi-select");
         VALID_DATA_TYPES.add("list");
         VALID_DATA_TYPES.add("date");
+        VALID_DATA_TYPES.add("url");
     }
 
     private static final long serialVersionUID = -6210344089409649758L;

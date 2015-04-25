@@ -10,7 +10,6 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import akka.actor.ActorRef;
@@ -28,12 +27,10 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
-import com.ilimi.graph.dac.util.RelationType;
 
 public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
 
@@ -154,26 +151,6 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     neo4jNode.removeProperty(entry.getKey());
                 } else {
                     neo4jNode.setProperty(entry.getKey(), entry.getValue());
-                }
-            }
-        }
-        if (null != node.getInRelations()) {
-            for (Relation rel : node.getInRelations()) {
-                Relationship dbRel = Neo4jGraphUtil.getRelationship(graphDb, rel.getStartNodeId(), rel.getRelationType(),
-                        node.getIdentifier());
-                if (null == dbRel) {
-                    Node startNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, rel.getStartNodeId());
-                    startNode.createRelationshipTo(neo4jNode, new RelationType(rel.getRelationType()));
-                }
-            }
-        }
-        if (null != node.getOutRelations()) {
-            for (Relation rel : node.getOutRelations()) {
-                Relationship dbRel = Neo4jGraphUtil.getRelationship(graphDb, node.getIdentifier(), rel.getRelationType(),
-                        rel.getEndNodeId());
-                if (null == dbRel) {
-                    Node endNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, rel.getEndNodeId());
-                    neo4jNode.createRelationshipTo(endNode, new RelationType(rel.getRelationType()));
                 }
             }
         }

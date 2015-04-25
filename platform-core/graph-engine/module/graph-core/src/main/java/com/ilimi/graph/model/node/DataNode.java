@@ -5,17 +5,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
@@ -23,10 +22,10 @@ import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.Property;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -79,61 +78,144 @@ public class DataNode extends AbstractNode {
         return this.objectType;
     }
 
-    @SuppressWarnings("unchecked")
-    public void addTags(final Request req) {
-        BaseValueObjectList<StringValue> tags = (BaseValueObjectList<StringValue>) req.get(GraphDACParams.TAGS.name());
-        try {
+    public Future<Node> getNodeObject(Request req) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+        request.setOperation("getNodeByUniqueId");
+        request.put(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()));
+        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+        Future<Node> message = response.map(new Mapper<Object, Node>() {
+            @Override
+            public Node apply(Object parameter) {
+                if (null != parameter && parameter instanceof Response) {
+                    Response res = (Response) parameter;
+                    Node node = (Node) res.get(GraphDACParams.NODE.name());
+                    return node;
+                }
+                return null;
+            }
+        }, manager.getContext().dispatcher());
+        return message;
+    }
+
+    public Future<List<StringValue>> addTags(final Request req, List<StringValue> tags) {
+        final Promise<List<StringValue>> promise = Futures.promise();
+        Future<List<StringValue>> tagsFuture = promise.future();
+        if (null != tags && !tags.isEmpty()) {
             final ExecutionContext ec = manager.getContext().dispatcher();
             List<Future<String>> tagFutures = new ArrayList<Future<String>>();
             final List<StringValue> tagIds = new ArrayList<StringValue>();
-            for (StringValue tagName : tags.getValueObjectList()) {
+            for (StringValue tagName : tags) {
                 Tag tag = new Tag(manager, graphId, tagName.getId(), null, null);
                 tagIds.add(new StringValue(tag.getNodeId()));
                 Future<String> tagFuture = tag.upsert(req);
                 tagFutures.add(tagFuture);
             }
             Future<Iterable<String>> tagSequence = Futures.sequence(tagFutures, ec);
-            tagSequence.onSuccess(new OnSuccess<Iterable<String>>() {
+            tagSequence.onComplete(new OnComplete<Iterable<String>>() {
                 @Override
-                public void onSuccess(Iterable<String> arg0) throws Throwable {
-                    List<String> messages = new ArrayList<String>();
-                    if (null != arg0) {
-                        for (String msg : arg0) {
-                            if (StringUtils.isNotBlank(msg)) {
-                                messages.add(msg);
-                            }
-                        }
-                    }
-                    if (messages.isEmpty()) {
-                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-                        Request request = new Request(req);
-                        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-                        request.setOperation("addIncomingRelations");
-                        request.put(GraphDACParams.START_NODE_ID.name(), new BaseValueObjectList<StringValue>(tagIds));
-                        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
-                        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getNodeId()));
-                        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-                        response.onComplete(new OnComplete<Object>() {
-                            @Override
-                            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                        GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Error adding tags");
-                                if (valid) {
-                                    for (StringValue tagId : tagIds)
-                                        updateTagCache(req, tagId, getNodeId());
-                                    manager.OK(getParent());
+                public void onComplete(Throwable e, Iterable<String> arg0) {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != e) {
+                        messages.add(new StringValue(e.getMessage()));
+                        promise.success(messages);
+                    } else {
+                        if (null != arg0) {
+                            for (String msg : arg0) {
+                                if (StringUtils.isNotBlank(msg)) {
+                                    messages.add(new StringValue(msg));
                                 }
                             }
-                        }, ec);
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Tag creation failed", ResponseCode.SERVER_ERROR,
-                                getParent());
+                        }
+                        if (messages.isEmpty()) {
+                            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                            Request request = new Request(req);
+                            request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+                            request.setOperation("addIncomingRelations");
+                            request.put(GraphDACParams.START_NODE_ID.name(), new BaseValueObjectList<StringValue>(tagIds));
+                            request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
+                            request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getNodeId()));
+                            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+                            response.onComplete(new OnComplete<Object>() {
+                                @Override
+                                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                                    List<StringValue> messages = new ArrayList<StringValue>();
+                                    if (null != arg0) {
+                                        messages.add(new StringValue(arg0.getMessage()));
+                                    } else {
+                                        if (arg1 instanceof Response) {
+                                            Response res = (Response) arg1;
+                                            if (manager.checkError(res)) {
+                                                messages.add(new StringValue(manager.getErrorMessage(res)));
+                                            } else {
+                                                for (StringValue tagId : tagIds)
+                                                    updateTagCache(req, tagId, getNodeId());
+                                            }
+                                        } else {
+                                            messages.add(new StringValue("Error adding tags"));
+                                        }
+                                    }
+                                    promise.success(messages);
+                                }
+                            }, ec);
+                        } else {
+                            promise.success(messages);
+                        }
                     }
                 }
             }, ec);
-        } catch (Exception e) {
-            manager.ERROR(e, getParent());
+        } else {
+            promise.success(null);
         }
+        return tagsFuture;
+    }
+
+    public Future<List<StringValue>> removeTags(final Request req, List<StringValue> tags) {
+        final Promise<List<StringValue>> promise = Futures.promise();
+        Future<List<StringValue>> tagsFuture = promise.future();
+        if (null != tags && !tags.isEmpty()) {
+            ExecutionContext ec = manager.getContext().dispatcher();
+            final List<StringValue> tagIds = new ArrayList<StringValue>();
+            for (StringValue tagName : tags) {
+                Tag tag = new Tag(manager, graphId, tagName.getId(), null, null);
+                tagIds.add(new StringValue(tag.getNodeId()));
+            }
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+            request.setOperation("deleteIncomingRelations");
+            request.put(GraphDACParams.START_NODE_ID.name(), new BaseValueObjectList<StringValue>(tagIds));
+            request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
+            request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getNodeId()));
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            response.onComplete(new OnComplete<Object>() {
+                @Override
+                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != arg0) {
+                        messages.add(new StringValue(arg0.getMessage()));
+                    } else {
+                        if (arg1 instanceof Response) {
+                            Response res = (Response) arg1;
+                            if (manager.checkError(res)) {
+                                messages.add(new StringValue(manager.getErrorMessage(res)));
+                            } else {
+                                for (StringValue tagId : tagIds)
+                                    removeTagMember(req, tagId, getNodeId());
+                            }
+                        } else {
+                            messages.add(new StringValue("Error deleting tags"));
+                        }
+                    }
+                    promise.success(messages);
+                }
+            }, ec);
+        } else {
+            promise.success(null);
+        }
+        return tagsFuture;
     }
 
     private void updateTagCache(Request req, StringValue tagId, String memberId) {
@@ -143,7 +225,164 @@ public class DataNode extends AbstractNode {
         request.setOperation("addTagMember");
         request.put(GraphDACParams.TAG_ID.name(), tagId);
         request.put(GraphDACParams.MEMBER_ID.name(), new StringValue(memberId));
-        cacheRouter.tell(request, getParent());
+        cacheRouter.tell(request, manager.getSelf());
+    }
+
+    private void removeTagMember(Request req, StringValue tagId, String memberId) {
+        ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+        request.setOperation("removeTagMember");
+        request.put(GraphDACParams.TAG_ID.name(), tagId);
+        request.put(GraphDACParams.MEMBER_ID.name(), new StringValue(memberId));
+        cacheRouter.tell(request, manager.getSelf());
+    }
+
+    public List<Relation> getNewRelationList() {
+        List<Relation> relations = new ArrayList<Relation>();
+        if (null != getInRelations() && !getInRelations().isEmpty()) {
+            for (Relation inRel : getInRelations()) {
+                inRel.setEndNodeId(getNodeId());
+                relations.add(inRel);
+            }
+        }
+        if (null != getOutRelations() && !getOutRelations().isEmpty()) {
+            for (Relation outRel : getOutRelations()) {
+                outRel.setStartNodeId(getNodeId());
+                relations.add(outRel);
+            }
+        }
+        return relations;
+    }
+
+    public Future<List<StringValue>> deleteRelations(final Request request, final ExecutionContext ec, List<Relation> delRels) {
+        final Promise<List<StringValue>> promise = Futures.promise();
+        Future<List<StringValue>> relFuture = promise.future();
+        List<IRelation> relations = new ArrayList<IRelation>();
+        if (null != delRels && !delRels.isEmpty()) {
+            for (Relation rel : delRels) {
+                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
+                        rel.getEndNodeId());
+                relations.add(relation);
+            }
+        }
+        if (null != relations && !relations.isEmpty()) {
+            List<Future<String>> futures = new ArrayList<Future<String>>();
+            for (IRelation rel : relations) {
+                Future<String> msg = rel.deleteRelation(request);
+                futures.add(msg);
+            }
+            Future<Iterable<String>> deleteFuture = Futures.sequence(futures, ec);
+            deleteFuture.onComplete(new OnComplete<Iterable<String>>() {
+                @Override
+                public void onComplete(Throwable arg0, Iterable<String> arg1) throws Throwable {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != arg0) {
+                        messages.add(new StringValue(arg0.getMessage()));
+                    } else {
+                        if (null != arg1) {
+                            for (String msg : arg1) {
+                                if (StringUtils.isNotBlank(msg)) {
+                                    messages.add(new StringValue(msg));
+                                }
+                            }
+                        }
+                    }
+                    promise.success(messages);
+                }
+            }, ec);
+        } else {
+            promise.success(null);
+        }
+        return relFuture;
+    }
+
+    public Future<List<StringValue>> createRelations(final Request request, final ExecutionContext ec, List<Relation> addRels) {
+        final Promise<List<StringValue>> promise = Futures.promise();
+        Future<List<StringValue>> relFuture = promise.future();
+        final List<IRelation> relations = new ArrayList<IRelation>();
+        if (null != addRels && !addRels.isEmpty()) {
+            for (Relation rel : addRels) {
+                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
+                        rel.getEndNodeId());
+                relations.add(relation);
+            }
+        }
+        if (null != relations && !relations.isEmpty()) {
+            List<Future<List<StringValue>>> futures = new ArrayList<Future<List<StringValue>>>();
+            for (IRelation rel : relations) {
+                Future<Map<String, List<String>>> msgFuture = rel.validateRelation(request);
+                Future<List<StringValue>> listFuture = manager.convertFuture(msgFuture);
+                futures.add(listFuture);
+            }
+            Future<Iterable<List<StringValue>>> sequence = Futures.sequence(futures, ec);
+            Future<List<StringValue>> relValidationFuture = sequence.map(new Mapper<Iterable<List<StringValue>>, List<StringValue>>() {
+                @Override
+                public List<StringValue> apply(Iterable<List<StringValue>> parameter) {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != parameter) {
+                        for (List<StringValue> list : parameter) {
+                            if (null != list && !list.isEmpty()) {
+                                messages.addAll(list);
+                            }
+                        }
+                    }
+                    return messages;
+                }
+            }, ec);
+            relValidationFuture.onComplete(new OnComplete<List<StringValue>>() {
+                @Override
+                public void onComplete(Throwable arg0, List<StringValue> arg1) throws Throwable {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != arg0) {
+                        messages.add(new StringValue(arg0.getMessage()));
+                        promise.success(messages);
+                    } else {
+                        if (null == arg1 || arg1.isEmpty()) {
+                            createRelations(relations, request, ec, promise);
+                        } else {
+                            promise.success(arg1);
+                        }
+                    }
+                }
+            }, ec);
+        } else {
+            promise.success(null);
+        }
+        return relFuture;
+    }
+
+    private void createRelations(List<IRelation> relations, final Request request, ExecutionContext ec,
+            final Promise<List<StringValue>> promise) {
+        if (null != relations && !relations.isEmpty()) {
+            List<Future<String>> futures = new ArrayList<Future<String>>();
+            for (IRelation rel : relations) {
+                Future<String> msg = rel.createRelation(request);
+                futures.add(msg);
+            }
+            Future<Iterable<String>> createFuture = Futures.sequence(futures, ec);
+            createFuture.onComplete(new OnComplete<Iterable<String>>() {
+                @Override
+                public void onComplete(Throwable arg0, Iterable<String> arg1) throws Throwable {
+                    List<StringValue> messages = new ArrayList<StringValue>();
+                    if (null != arg0) {
+                        messages.add(new StringValue(arg0.getMessage()));
+                    } else {
+                        if (null != arg1) {
+                            for (String msg : arg1) {
+                                if (StringUtils.isNotBlank(msg)) {
+                                    messages.add(new StringValue(msg));
+                                }
+                            }
+                        }
+                    }
+                    promise.success(messages);
+                }
+            }, ec);
+
+        } else {
+            promise.success(null);
+        }
     }
 
     @Override
@@ -182,155 +421,69 @@ public class DataNode extends AbstractNode {
         }
     }
 
-    @Override
-    public void create(final Request req) {
-        try {
-            checkMetadata(metadata);
-            Future<Map<String, List<String>>> aggregate = validateNode(req);
-            aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                @Override
-                public void onSuccess(Map<String, List<String>> messages) throws Throwable {
-                    List<StringValue> errMessages = getErrorMessages(messages);
-                    if (null == errMessages || errMessages.isEmpty()) {
-                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-                        Request request = new Request(req);
-                        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                        request.setOperation("addNode");
-                        request.put(GraphDACParams.NODE.name(), toNode());
-                        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-                        validateNodeRelations(toNode(), response, request);
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Node validation failed",
-                                ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
-                                new BaseValueObjectList<StringValue>(errMessages), getParent());
-                    }
-                }
-            }, manager.getContext().dispatcher());
-        } catch (Exception e) {
-            manager.ERROR(e, getParent());
-        }
-    }
-
-    @Override
-    public void updateMetadata(final Request req) {
-        final Node node = (Node) req.get(GraphDACParams.NODE.name());
-        if (!manager.validateRequired(node)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Required parameters are missing...");
-        } else {
-            try {
-                checkMetadata(metadata);
-                final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-                Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-                request.setOperation("getNodeByUniqueId");
-                request.put(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()));
-                Future<Object> nodeFuture = Patterns.ask(dacRouter, request, timeout);
-                nodeFuture.onComplete(new OnComplete<Object>() {
-                    @Override
-                    public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Failed to get data node");
-                        if (valid) {
-                            Response res = (Response) arg1;
-                            Node dbNode = (Node) res.get(GraphDACParams.NODE.name());
-                            if (null == dbNode || StringUtils.isBlank(dbNode.getNodeType())
-                                    || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), dbNode.getNodeType())) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Failed to get data node",
-                                        ResponseCode.RESOURCE_NOT_FOUND, getParent());
-                            } else {
-                                if (null == metadata)
-                                    metadata = new HashMap<String, Object>();
-                                Map<String, Object> dbMetadata = dbNode.getMetadata();
-                                if (null != dbMetadata && !dbMetadata.isEmpty()) {
-                                    for (Entry<String, Object> entry : dbMetadata.entrySet()) {
-                                        if (!metadata.containsKey(entry.getKey()))
-                                            metadata.put(entry.getKey(), entry.getValue());
-                                    }
-                                }
-                                setInRelations(dbNode.getInRelations());
-                                setOutRelations(dbNode.getOutRelations());
-                                Future<Map<String, List<String>>> aggregate = validateNode(req);
-                                aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                                    @Override
-                                    public void onSuccess(Map<String, List<String>> messages) throws Throwable {
-                                        List<StringValue> errMessages = getErrorMessages(messages);
-                                        if (null == errMessages || errMessages.isEmpty()) {
-                                            Request request = new Request(req);
-                                            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
-                                            request.setOperation("updateNode");
-                                            request.put(GraphDACParams.NODE.name(), toNode());
-                                            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-                                            validateNodeRelations(node, response, request);
-                                        } else {
-                                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(),
-                                                    "Metadata validation failed", ResponseCode.CLIENT_ERROR,
-                                                    GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(errMessages),
-                                                    getParent());
-                                        }
-                                    }
-                                }, manager.getContext().dispatcher());
-                            }
-                        }
-                    }
-                }, manager.getContext().dispatcher());
-            } catch (Exception e) {
-                manager.ERROR(e, getParent());
-            }
-        }
-    }
-
-    private void validateNodeRelations(final Node node, final Future<Object> response, final Request request) {
-        response.onComplete(new OnComplete<Object>() {
-            @Override
-            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                        GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Failed to update node");
-                if (valid) {
-                    validateRelations(node.getInRelations(), request);
-                    validateRelations(node.getOutRelations(), request);
-                    Response res = (Response) arg1;
-                    manager.OK(GraphDACParams.NODE_ID.name(), res.get(GraphDACParams.NODE_ID.name()), getParent());
-                }
-            }
-        }, manager.getContext().dispatcher());
-    }
-
-    private void validateRelations(List<Relation> relations, final Request request) {
-        if (null != relations) {
-            for (final Relation rel : relations) {
-                try {
-                    IRelation relation = RelationHandler.getRelation(manager, graphId, rel.getStartNodeId(), rel.getRelationType(),
-                            getNodeId());
-                    Future<Map<String, List<String>>> aggregate = relation.validateRelation(request);
-                    aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
-                        @Override
-                        public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                            List<StringValue> errMessages = getErrorMessages(messageMap);
-                            if (null != errMessages && !errMessages.isEmpty()) {
-                                deleteRelation(rel, request);
-                            }
-                        }
-                    }, manager.getContext().dispatcher());
-                } catch (Exception e) {
-                    deleteRelation(rel, request);
-                }
-            }
-        }
-    }
-
-    private void deleteRelation(Relation rel, final Request req) {
+    public Future<String> createNode(final Request req) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
-        request.setOperation("deleteRelation");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(rel.getStartNodeId()));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(rel.getRelationType()));
-        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(rel.getEndNodeId()));
-        dacRouter.tell(request, getParent());
+        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+        request.setOperation("addNode");
+        request.put(GraphDACParams.NODE.name(), toNode());
+        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+        Future<String> message = response.map(new Mapper<Object, String>() {
+            @Override
+            public String apply(Object parameter) {
+                if (parameter instanceof Response) {
+                    Response res = (Response) parameter;
+                    if (manager.checkError(res)) {
+                        return manager.getErrorMessage(res);
+                    } else {
+                        StringValue identifier = (StringValue) res.get(GraphDACParams.NODE_ID.name());
+                        if (manager.validateRequired(identifier)) {
+                            setNodeId(identifier.getId());
+                        } else {
+                            return "Error creating node in the graph";
+                        }
+                    }
+                } else {
+                    return "Error creating node in the graph";
+                }
+                return null;
+            }
+        }, manager.getContext().dispatcher());
+        return message;
+    }
+
+    public Future<String> updateNode(Request req) {
+        try {
+            checkMetadata(metadata);
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+            request.setOperation("updateNode");
+            request.put(GraphDACParams.NODE.name(), toNode());
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            Future<String> message = response.map(new Mapper<Object, String>() {
+                @Override
+                public String apply(Object parameter) {
+                    if (parameter instanceof Response) {
+                        Response res = (Response) parameter;
+                        if (manager.checkError(res)) {
+                            return manager.getErrorMessage(res);
+                        }
+                    } else {
+                        return "Error updating node";
+                    }
+                    return null;
+                }
+            }, manager.getContext().dispatcher());
+            return message;
+        } catch (Exception e) {
+            return Futures.successful(e.getMessage());
+        }
     }
 
     @Override
     public Future<Map<String, List<String>>> validateNode(Request req) {
+        checkMetadata(metadata);
         try {
             final ExecutionContext ec = manager.context().dispatcher();
             final List<String> messages = new ArrayList<String>();
@@ -449,8 +602,13 @@ public class DataNode extends AbstractNode {
                 String propName = def.getPropertyName();
                 if (StringUtils.isNotBlank(propName)) {
                     Object value = getPropertyValue(propName);
-                    if (def.isRequired() && null == value) {
-                        messages.add("Required Metadata " + propName + " not set");
+                    if (def.isRequired()) {
+                        if (null == value)
+                            messages.add("Required Metadata " + propName + " not set");
+                        else if (value instanceof String) {
+                            if (StringUtils.isBlank((String) value))
+                                messages.add("Required Metadata " + propName + " not set");
+                        }
                     } else {
                         checkDataType(value, def, messages);
                     }
