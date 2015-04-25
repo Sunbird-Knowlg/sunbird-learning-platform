@@ -5,3 +5,7 @@ exports.GET_GAME_TAXONOMY_DEFS = '/taxonomy-service/taxonomy/${id}/definition/Ga
 exports.GET_CONCEPT = '/taxonomy-service/concept/${id}';
 exports.SAVE_CONCEPT = '/taxonomy-service/concept?taxonomyId=${tid}';
 exports.UPDATE_CONCEPT = '/taxonomy-service/concept/${id}?taxonomyId=${tid}';
+exports.GET_GAMES = '/taxonomy-service/learning-object';
+exports.GET_GAME = '/taxonomy-service/learning-object/${id}';
+exports.SAVE_GAME = '/taxonomy-service/learning-object?taxonomyId=${tid}';
+exports.UPDATE_GAME = '/taxonomy-service/learning-object/${id}?taxonomyId=${tid}';

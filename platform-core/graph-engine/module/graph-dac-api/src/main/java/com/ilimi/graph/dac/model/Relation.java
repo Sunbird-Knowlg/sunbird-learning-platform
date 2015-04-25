@@ -67,9 +67,14 @@ public class Relation extends BaseValueObject {
     private String getName(Node node) {
         String name = (String) node.getProperty("name", null);
         if (StringUtils.isBlank(name)) {
-            name = (String) node.getProperty(SystemProperties.IL_TAG_NAME.name(), null);
+            name = (String) node.getProperty("title", null);
             if (StringUtils.isBlank(name)) {
-                name = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
+                name = (String) node.getProperty(SystemProperties.IL_TAG_NAME.name(), null);
+                if (StringUtils.isBlank(name)) {
+                    name = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
+                    if (StringUtils.isBlank(name))
+                        name = (String) node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), null);
+                }
             }
         }
         return name;

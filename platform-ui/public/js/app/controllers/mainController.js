@@ -653,7 +653,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
 
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
     $scope.offset = 0;
-    $scope.limit = 6;
+    $scope.limit = 10;
     $scope.games = [];
     $scope.seeMoreGames = false;
 
@@ -670,7 +670,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             if (data.games && data.games.length > 0) {
                 $scope.games.push.apply($scope.games, data.games);
                 var count = data.count;
-                if (count > (data.offset + data.limit)) {
+                if (count > ($scope.offset + $scope.limit)) {
                     $scope.seeMoreGames = true;
                 } else {
                     $scope.seeMoreGames = false;

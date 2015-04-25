@@ -13,11 +13,12 @@
  * @author Santhosh
  */
 var async = require('async')
-	, service = require('../services/GameServiceFixtures')
+	, demoservice = require('../services/GameServiceFixtures')
+	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/GameServiceFixtures') : require('../services/GameService'))
 	, util = require('../commons/Util');
 
 exports.getGameCoverage = function(req, res) {
-	service.getGameCoverage(req.params.tid, util.responseCB(res));
+	demoservice.getGameCoverage(req.params.tid, util.responseCB(res));
 }
 
 exports.getGameDefinition = function(req, res) {

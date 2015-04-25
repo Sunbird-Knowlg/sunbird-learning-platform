@@ -40,15 +40,15 @@
             	<div class="metro">
             		<div class="tile gameTile" ng-repeat="game in games" ng-click="viewGame(game.identifier)" style="border: 1px solid #eee;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
 	    				<div class="tile-content image" style="padding: 15px;">
-	        				<img ng-src="{{game.appIcon}}" ng-if="game.appIcon">
-	        				<img src="/img/not_available.jpg" ng-if="!game.appIcon">
+	        				<img ng-src="{{game.metadata.appIcon}}" ng-if="game.metadata.appIcon">
+	        				<img src="/img/not_available.jpg" ng-if="!game.metadata.appIcon">
 	    				</div>
 	    				<div class="brand bg-white">
         					<span class="label fg-black" style="text-align: left;">
-        						{{game.name}}
-        						<div class="gameOwner" ng-if="game.description">{{game.description}}</div>
+        						{{game.metadata.name}}
+        						<div class="gameOwner" ng-if="game.metadata.description">{{game.metadata.description}}</div>
         					</span>
-                            <span class="label fg-black game-status" style="color: green !important; font-weight:bold !important;">Mock</span>
+                            <span class="label fg-black game-status" style="color: green !important; font-weight:bold !important;">{{game.metadata.status}}</span>
     					</div>
 					</div>
             	</div>
