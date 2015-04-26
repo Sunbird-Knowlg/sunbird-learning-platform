@@ -1,7 +1,11 @@
 package com.ilimi.taxonomy.dto;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -21,12 +25,28 @@ public class GameDTO extends Node {
     }
 
     public GameDTO(Node node) {
+        this(node, null);
+    }
+
+    public GameDTO(Node node, String[] gfields) {
         if (null != node) {
             setGraphId(node.getGraphId());
             setIdentifier(node.getIdentifier());
             setNodeType(node.getNodeType());
             setObjectType(node.getObjectType());
-            setMetadata(node.getMetadata());
+            if (null != gfields && gfields.length > 0) {
+                if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+                    List<String> fields = Arrays.asList(gfields);
+                    Map<String, Object> metadata = new HashMap<String, Object>();
+                    for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+                        if (fields.contains(entry.getKey()))
+                            metadata.put(entry.getKey(), entry.getValue());
+                    }
+                    setMetadata(metadata);
+                }
+            } else {
+                setMetadata(node.getMetadata());
+            }
             setInRelations(node.getInRelations());
             setOutRelations(node.getOutRelations());
             setTags(node.getTags());

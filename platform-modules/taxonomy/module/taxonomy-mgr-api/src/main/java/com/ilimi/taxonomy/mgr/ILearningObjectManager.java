@@ -5,9 +5,9 @@ import com.ilimi.graph.common.Response;
 
 public interface ILearningObjectManager {
 
-    Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit);
+    Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit, String[] gfields);
 
-    Response find(String id, String taxonomyId);
+    Response find(String id, String taxonomyId, String[] gfields);
 
     Response create(String taxonomyId, Request request);
 

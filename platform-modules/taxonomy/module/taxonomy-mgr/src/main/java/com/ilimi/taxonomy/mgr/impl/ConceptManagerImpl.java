@@ -39,10 +39,10 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response findAll(String taxonomyId) {
+    public Response findAll(String taxonomyId, String[] cfields) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        LOGGER.info("Find All Concepts : " + taxonomyId);
+        LOGGER.info("Find All Concepts : " + taxonomyId + " | cfields: " + cfields);
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
                 GraphDACParams.OBJECT_TYPE.name(), new StringValue("Concept"));
         request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
@@ -54,7 +54,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
             List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
             for (Node node : nodes.getValueObjectList()) {
-                ConceptDTO dto = new ConceptDTO(node);
+                ConceptDTO dto = new ConceptDTO(node, cfields);
                 concepts.add(dto);
             }
             response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
@@ -63,7 +63,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
     }
 
     @Override
-    public Response find(String id, String taxonomyId) {
+    public Response find(String id, String taxonomyId, String[] cfields) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
@@ -78,7 +78,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
         if (null != node) {
-            ConceptDTO dto = new ConceptDTO(node);
+            ConceptDTO dto = new ConceptDTO(node, cfields);
             response.put(TaxonomyAPIParams.CONCEPT.name(), dto);
         }
         return response;
@@ -200,7 +200,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
     }
 
     @SuppressWarnings("unchecked")
-    public Response getConceptsGames(String taxonomyId) {
+    public Response getConceptsGames(String taxonomyId, String[] cfields, String[] gfields) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchRelations");
@@ -217,13 +217,23 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         request.put(GraphDACParams.RELATED_NODE_FILTER.name(), new BaseValueObjectList<FilterDTO>(relFilters));
 
         List<StringValue> nodeFields = new ArrayList<StringValue>();
-        nodeFields.add(new StringValue("name"));
+        if (null != cfields && cfields.length > 0) {
+            for (String field : cfields)
+                nodeFields.add(new StringValue(field));
+        } else {
+            nodeFields.add(new StringValue("name"));
+        }
         request.put(GraphDACParams.START_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(nodeFields));
 
         List<StringValue> relFields = new ArrayList<StringValue>();
-        relFields.add(new StringValue("name"));
-        relFields.add(new StringValue("identifier"));
-        relFields.add(new StringValue("purpose"));
+        if (null != gfields && gfields.length > 0) {
+            for (String field : gfields)
+                relFields.add(new StringValue(field));
+        } else {
+            relFields.add(new StringValue("name"));
+            relFields.add(new StringValue("identifier"));
+            relFields.add(new StringValue("purpose"));
+        }
         request.put(GraphDACParams.RELATED_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(relFields));
 
         Response findRes = getResponse(request, LOGGER);

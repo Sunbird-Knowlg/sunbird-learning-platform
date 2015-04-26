@@ -37,14 +37,16 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "games", defaultValue = "false") boolean games) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games);
+            @RequestParam(value = "games", defaultValue = "false") boolean games,
+            @RequestParam(value = "cfields", required = false) String[] cfields,
+            @RequestParam(value = "gfields", required = false) String[] gfields) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games + " | cfields: " + cfields + " | gfields: " + gfields);
         try {
             Response response = null;
             if (games) {
-                response = conceptManager.getConceptsGames(taxonomyId);
+                response = conceptManager.getConceptsGames(taxonomyId, cfields, gfields);
             } else {
-                response = conceptManager.findAll(taxonomyId);
+                response = conceptManager.findAll(taxonomyId, cfields);
             }
             LOGGER.info("FindAll | Response: " + response);
             return getResponseEntity(response);
@@ -57,10 +59,11 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id);
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "cfields", required = false) String[] cfields) {
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | cfields: " + cfields);
         try {
-            Response response = conceptManager.find(id, taxonomyId);
+            Response response = conceptManager.find(id, taxonomyId, cfields);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {

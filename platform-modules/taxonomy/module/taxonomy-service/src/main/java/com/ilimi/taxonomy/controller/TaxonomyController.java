@@ -30,10 +30,10 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> findAll() {
-        LOGGER.info("FindAll");
+    public ResponseEntity<Response> findAll(@RequestParam(value = "tfields", required = false) String[] tfields) {
+        LOGGER.info("FindAll : tfields: " + tfields);
         try {
-            Response response = taxonomyManager.findAll();
+            Response response = taxonomyManager.findAll(tfields);
             LOGGER.info("FindAll | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -45,10 +45,12 @@ public class TaxonomyController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph) {
-        LOGGER.info("Find | Id: " + id);
+            @RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph,
+            @RequestParam(value = "tfields", required = false) String[] tfields,
+            @RequestParam(value = "cfields", required = false) String[] cfields) {
+        LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: " + cfields);
         try {
-            Response response = taxonomyManager.find(id, subgraph);
+            Response response = taxonomyManager.find(id, subgraph, tfields, cfields);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {

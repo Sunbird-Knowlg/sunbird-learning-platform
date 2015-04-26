@@ -7,9 +7,9 @@ import com.ilimi.graph.common.Response;
 
 public interface ITaxonomyManager {
 
-    Response findAll();
+    Response findAll(String[] tfields);
 
-    Response find(String id, boolean subgraph);
+    Response find(String id, boolean subgraph, String[] tfields, String[] cfields);
 
     Response create(String id, InputStream stream);
 

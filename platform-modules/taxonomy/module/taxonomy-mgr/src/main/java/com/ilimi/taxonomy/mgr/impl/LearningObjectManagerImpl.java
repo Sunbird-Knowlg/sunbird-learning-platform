@@ -41,7 +41,7 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit) {
+    public Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit, String[] gfields) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(objectType))
@@ -65,6 +65,11 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
         else {
             BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) findRes.get(GraphDACParams.NODE_LIST.name());
             if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
+                if (null != gfields && gfields.length > 0) {
+                    for (Node node : nodes.getValueObjectList()) {
+                        setMetadataFields(node, gfields);
+                    }
+                }
                 response.put(LearningObjectAPIParams.LEARNING_OBJECTS.name(), nodes);
             }
             Request countReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesCount", GraphDACParams.SEARCH_CRITERIA.name(),
@@ -82,7 +87,7 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response find(String id, String taxonomyId) {
+    public Response find(String id, String taxonomyId, String[] gfields) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
@@ -98,7 +103,7 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
         Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
         if (null != node) {
             if (StringUtils.equalsIgnoreCase(OBJECT_TYPE, node.getObjectType())) {
-                GameDTO dto = new GameDTO(node);
+                GameDTO dto = new GameDTO(node, gfields);
                 List<StringValue> mediaIds = dto.screenShots();
                 if (null != mediaIds && !mediaIds.isEmpty()) {
                     Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",

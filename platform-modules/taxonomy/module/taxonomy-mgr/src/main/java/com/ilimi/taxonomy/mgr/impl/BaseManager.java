@@ -1,7 +1,11 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
@@ -25,10 +29,26 @@ import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.router.RequestRouterPool;
 
 public abstract class BaseManager {
+    
+    protected void setMetadataFields(Node node, String[] fields) {
+        if (null != fields && fields.length > 0) {
+            if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+                Map<String, Object> metadata = new HashMap<String, Object>();
+                List<String> fieldList = Arrays.asList(fields);
+                for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+                    if (fieldList.contains(entry.getKey())) {
+                        metadata.put(entry.getKey(), entry.getValue());
+                    }
+                }
+                node.setMetadata(metadata);
+            }
+        }
+    }
 
     protected Response getResponse(Request request, Logger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();

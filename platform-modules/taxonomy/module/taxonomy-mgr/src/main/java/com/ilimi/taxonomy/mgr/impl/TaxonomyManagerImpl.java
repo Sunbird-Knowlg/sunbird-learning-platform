@@ -40,8 +40,9 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 
     private String[] taxonomyIds = { "NUMERACY", "LITERACY" };
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Response findAll() {
+    public Response findAll(String[] tfields) {
         LOGGER.info("Find All Taxonomy");
         List<Request> requests = new ArrayList<Request>();
         for (String id : taxonomyIds) {
@@ -51,11 +52,19 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             requests.add(request);
         }
         Response response = getResponse(requests, LOGGER, GraphDACParams.NODE.name(), TaxonomyAPIParams.TAXONOMY_LIST.name());
+        if (null != tfields && tfields.length > 0) {
+            BaseValueObjectList<Node> list = (BaseValueObjectList<Node>) response.get(TaxonomyAPIParams.TAXONOMY_LIST.name());
+            if (validateRequired(list)) {
+                for (Node node : list.getValueObjectList()) {
+                    setMetadataFields(node, tfields);
+                }
+            }
+        }
         return response;
     }
 
     @Override
-    public Response find(String id, boolean subgraph) {
+    public Response find(String id, boolean subgraph, String[] tfields, String[] cfields) {
         if (StringUtils.isBlank(id)) {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         }
@@ -68,8 +77,10 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             return response;
         } else {
             Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
-            if (null != node)
+            if (null != node) {
+                setMetadataFields(node, tfields);
                 response.put(TaxonomyAPIParams.TAXONOMY.name(), node);
+            }
             if (subgraph) {
                 Request req = new Request(request);
                 req.put(GraphDACParams.START_NODE_ID.name(), new StringValue(id));
@@ -82,6 +93,12 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
                 } else {
                     Graph subGraph = (Graph) subGraphRes.get(GraphDACParams.SUB_GRAPH.name());
                     if (null != subGraph) {
+                        if (null != cfields && cfields.length > 0) {
+                            if (null != subGraph.getNodes() && !subGraph.getNodes().isEmpty()) {
+                                for (Node concept : subGraph.getNodes())
+                                    setMetadataFields(concept, cfields);
+                            }
+                        }
                         response.put(TaxonomyAPIParams.SUBGRAPH.name(), subGraph);
                     }
                 }

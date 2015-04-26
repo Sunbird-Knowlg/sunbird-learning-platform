@@ -5,9 +5,9 @@ import com.ilimi.graph.common.Response;
 
 public interface IConceptManager {
 
-    Response findAll(String taxonomyId);
+    Response findAll(String taxonomyId, String[] cfields);
 
-    Response find(String id, String taxonomyId);
+    Response find(String id, String taxonomyId, String[] cfields);
 
     Response create(String taxonomyId, Request request);
 
@@ -19,5 +19,5 @@ public interface IConceptManager {
     
     Response getConcepts(String id, String relationType, int depth, String taxonomyId);
     
-    Response getConceptsGames(String taxonomyId);
+    Response getConceptsGames(String taxonomyId, String[] cfields, String[] gfields);
 }

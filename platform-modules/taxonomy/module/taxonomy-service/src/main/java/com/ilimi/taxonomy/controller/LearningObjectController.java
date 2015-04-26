@@ -39,10 +39,12 @@ public class LearningObjectController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "objectType", required = false) String objectType,
-            @RequestParam(value = "offset", required = false) Integer offset, @RequestParam(value = "limit", required = false) Integer limit) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType);
+            @RequestParam(value = "offset", required = false) Integer offset,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "gfields", required = false) String[] gfields) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType + " | gfields: " + gfields);
         try {
-            Response response = lobManager.findAll(taxonomyId, objectType, offset, limit);
+            Response response = lobManager.findAll(taxonomyId, objectType, offset, limit, gfields);
             LOGGER.info("FindAll | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -54,10 +56,11 @@ public class LearningObjectController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "gfields", required = false) String[] gfields) {
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id);
         try {
-            Response response = lobManager.find(id, taxonomyId);
+            Response response = lobManager.find(id, taxonomyId, gfields);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {
