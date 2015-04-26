@@ -116,6 +116,7 @@ exports.createGame = function(data, cb) {
 	 					"name": data.name,
 	 					"code": data.code,
 	 					"appIcon": data.appIcon,
+	 					"posterImage": data.posterImage,
 	 					"owner": data.owner,
 	 					"developer": data.developer,
 	 					"description": data.description

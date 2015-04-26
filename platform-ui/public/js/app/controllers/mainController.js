@@ -726,6 +726,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         }
 
         $scope.buttonLoading($event);
+        $scope.newGame.posterImage = $scope.newGame.appIcon;
         service.createGame($scope.newGame).then(function(data) {
             $scope.showConformationMessage('alert-success','Game created successfully.');
             $scope.buttonReset($event);
