@@ -658,8 +658,12 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     $scope.seeMoreGames = false;
 
     $scope.newGame = {
+        taxonomyId: $scope.$parent.selectedTaxonomyId,
         name: undefined,
         code: undefined,
+        appIcon: undefined,
+        owner: undefined,
+        developer: undefined,
         description: undefined,
         errorMessages: []
     }
@@ -708,6 +712,15 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             $scope.newGame.errorMessages.push('Logo is required');
             valid = false;
         }
+        if(_.isEmpty($scope.newGame.owner)) {
+            $scope.newGame.errorMessages.push('Owner is required');
+            valid = false;
+        }
+        if(_.isEmpty($scope.newGame.developer)) {
+            $scope.newGame.errorMessages.push('Developer is required');
+            valid = false;
+        }
+
         if(!valid) {
             return;
         }
@@ -717,11 +730,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             $scope.showConformationMessage('alert-success','Game created successfully.');
             $scope.buttonReset($event);
             $("#writeIcon").trigger('click');
-            
-            $scope.newGame.identifier = $scope.newGame.code;
-            $scope.newGame.appIconLabel = $scope.newGame.name;
-            $scope.games.push(_.clone($scope.newGame));
-            // $scope.getGames();
+            $scope.getGames();
         }).catch(function(err) {
             $scope.errorMessages = [];
             $scope.errorMessages.push(err.errorMsg);
