@@ -334,7 +334,10 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                                                 }
                                             }
                                         }
+                                        attrMap.remove(SystemProperties.IL_UNIQUE_ID.name());
                                         if (!relMap.isEmpty()) {
+                                            if (relMap.containsKey(SystemProperties.IL_UNIQUE_ID.name()))
+                                                relMap.remove(SystemProperties.IL_UNIQUE_ID.name());
                                             List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap.get(relationType
                                                     .getId());
                                             relList.add(relMap);
