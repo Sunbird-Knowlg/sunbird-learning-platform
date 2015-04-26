@@ -36,10 +36,16 @@ public class ConceptController extends BaseController {
 
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId);
+    public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "games", defaultValue = "false") boolean games) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games);
         try {
-            Response response = conceptManager.findAll(taxonomyId);
+            Response response = null;
+            if (games) {
+                response = conceptManager.getConceptsGames(taxonomyId);
+            } else {
+                response = conceptManager.findAll(taxonomyId);
+            }
             LOGGER.info("FindAll | Response: " + response);
             return getResponseEntity(response);
         } catch (Exception e) {

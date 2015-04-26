@@ -27,6 +27,7 @@ import akka.actor.ActorRef;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.LongIdentifier;
@@ -444,6 +445,47 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
     }
 
     @Override
+    @SuppressWarnings("unchecked")
+    public void executeQuery(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue query = (StringValue) request.get(GraphDACParams.QUERY.name());
+        BaseValueObjectMap<Object> paramMap = (BaseValueObjectMap<Object>) request.get(GraphDACParams.PARAMS.name());
+        if (!validateRequired(query)) {
+            throw new ClientException(GraphDACErrorCodes.ERR_DAC_SEARCH_NODES.name(), "Required parameters are missing");
+        } else {
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                tx = graphDb.beginTx();
+                Map<String, Object> params = new HashMap<String, Object>();
+                if (validateRequired(paramMap))
+                    params = paramMap.getBaseValueMap();
+                Result result = graphDb.execute(query.getId(), params);
+                List<BaseValueObjectMap<Object>> resultList = new ArrayList<BaseValueObjectMap<Object>>();
+                if (null != result) {
+                    while (result.hasNext()) {
+                        Map<String, Object> map = result.next();
+                        if (null != map && !map.isEmpty()) {
+                            BaseValueObjectMap<Object> rowMap = new BaseValueObjectMap<Object>(map);
+                            resultList.add(rowMap);
+                        }
+                    }
+                    result.close();
+                }
+                tx.success();
+                OK(GraphDACParams.RESULTS.name(), new BaseValueObjectList<BaseValueObjectMap<Object>>(resultList), getSender());
+            } catch (Exception e) {
+                if (null != tx)
+                    tx.failure();
+                ERROR(e, getSender());
+            } finally {
+                if (null != tx)
+                    tx.close();
+            }
+        }
+    }
+
+    @Override
     public void searchNodes(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         SearchCriteria sc = (SearchCriteria) request.get(GraphDACParams.SEARCH_CRITERIA.name());
@@ -497,7 +539,6 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             } catch (Exception e) {
                 if (null != tx)
                     tx.failure();
-                e.printStackTrace();
                 ERROR(e, getSender());
             } finally {
                 if (null != tx)

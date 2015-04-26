@@ -19,6 +19,7 @@ import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.BaseValueObjectMap;
+import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.LongIdentifier;
 import com.ilimi.graph.common.dto.Property;
 import com.ilimi.graph.common.dto.Status;
@@ -166,6 +167,13 @@ public abstract class BaseGraphManager extends UntypedActor {
                 Property property = (Property) baseValueObject;
                 if (StringUtils.isBlank(property.getPropertyName())
                         || (null == property.getPropertyValue() && null == property.getDateValue())) {
+                    valid = false;
+                    break;
+                }
+            }
+            if (baseValueObject instanceof Identifier) {
+                Identifier longVal = (Identifier) baseValueObject;
+                if (null == longVal.getId()) {
                     valid = false;
                     break;
                 }

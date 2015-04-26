@@ -131,7 +131,7 @@ public class GamesCSVImport {
             request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("exportGraph");
-            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
+            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.JSON.name()));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;

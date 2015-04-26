@@ -18,4 +18,6 @@ public interface IConceptManager {
     Response deleteRelation(String startConceptId, String relationType, String endConceptId, String taxonomyId);
     
     Response getConcepts(String id, String relationType, int depth, String taxonomyId);
+    
+    Response getConceptsGames(String taxonomyId);
 }

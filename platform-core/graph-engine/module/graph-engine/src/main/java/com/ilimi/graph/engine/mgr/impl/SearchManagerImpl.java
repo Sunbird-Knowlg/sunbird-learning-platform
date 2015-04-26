@@ -1,11 +1,21 @@
 package com.ilimi.graph.engine.mgr.impl;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
+import scala.concurrent.Future;
 import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -15,6 +25,7 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.FilterDTO;
 import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -238,6 +249,133 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 graph.getSubGraph(request);
             } catch (Exception e) {
                 handleException(e, getSender());
+            }
+        }
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public void searchRelations(Request request) {
+        BaseValueObjectList<FilterDTO> nodeFilter = (BaseValueObjectList<FilterDTO>) request.get(GraphDACParams.START_NODE_FILTER.name());
+        final StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
+        BaseValueObjectList<FilterDTO> relatedNodeFilter = (BaseValueObjectList<FilterDTO>) request.get(GraphDACParams.RELATED_NODE_FILTER
+                .name());
+        BaseValueObjectList<StringValue> nodeFields = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.START_NODE_FIELDS
+                .name());
+        BaseValueObjectList<StringValue> relatedNodeFields = (BaseValueObjectList<StringValue>) request
+                .get(GraphDACParams.RELATED_NODE_FIELDS.name());
+        Identifier direction = (Identifier) request.get(GraphDACParams.DIRECTION.name());
+        if (!validateRequired(nodeFilter, relationType)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), "Required parameters are missing...");
+        } else {
+            String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+            try {
+                int dir = RelationTraversal.DIRECTION_OUT;
+                if (validateRequired(direction)) {
+                    if (direction.getId().intValue() == RelationTraversal.DIRECTION_IN)
+                        dir = RelationTraversal.DIRECTION_IN;
+                }
+                StringBuilder sb = new StringBuilder();
+                Map<String, Object> params = new HashMap<String, Object>();
+                int pIndex = 1;
+                sb.append("MATCH (n:NODE) WHERE ( ");
+                pIndex = getFilterQuery(nodeFilter, sb, params, "n", pIndex);
+                sb.append(" ) WITH n OPTIONAL MATCH (n)");
+                if (dir == RelationTraversal.DIRECTION_IN) {
+                    sb.append("<-[:").append(relationType.getId()).append("]-(r) ");
+                } else {
+                    sb.append("-[:").append(relationType.getId()).append("]->(r) ");
+                }
+                if (validateRequired(relatedNodeFilter)) {
+                    sb.append("WHERE ( ");
+                    pIndex = getFilterQuery(relatedNodeFilter, sb, params, "r", pIndex);
+                    sb.append(" ) ");
+                }
+                sb.append(" RETURN n.").append(SystemProperties.IL_UNIQUE_ID.name()).append(", r.")
+                        .append(SystemProperties.IL_UNIQUE_ID.name());
+                if (validateRequired(nodeFields)) {
+                    sb.append(", ");
+                    getReturnFieldsQuery(nodeFields, sb, "n");
+                }
+                if (validateRequired(relatedNodeFields)) {
+                    sb.append(", ");
+                    getReturnFieldsQuery(relatedNodeFields, sb, "r");
+                }
+                Graph graph = new Graph(this, graphId);
+                final ActorRef parent = getSender();
+                Future<List<Map<String, Object>>> future = graph.executeQuery(request, sb.toString(), params);
+                future.onComplete(new OnComplete<List<Map<String, Object>>>() {
+                    @Override
+                    public void onComplete(Throwable arg0, List<Map<String, Object>> arg1) throws Throwable {
+                        if (null != arg0) {
+                            ERROR(arg0, parent);
+                        } else {
+                            List<BaseValueObjectMap<Object>> resultList = new ArrayList<BaseValueObjectMap<Object>>();
+                            if (null != arg1 && !arg1.isEmpty()) {
+                                Map<String, Map<String, Object>> nodeMap = new HashMap<String, Map<String, Object>>();
+                                for (Map<String, Object> map : arg1) {
+                                    if (null != map && !map.isEmpty()) {
+                                        String nodeId = (String) map.get("n." + SystemProperties.IL_UNIQUE_ID.name());
+                                        Map<String, Object> attrMap = nodeMap.get(nodeId);
+                                        if (null == attrMap) {
+                                            attrMap = new HashMap<String, Object>();
+                                            attrMap.put("id", nodeId);
+                                            List<Map<String, Object>> relList = new ArrayList<Map<String, Object>>();
+                                            attrMap.put(relationType.getId(), relList);
+                                            nodeMap.put(nodeId, attrMap);
+                                        }
+                                        Map<String, Object> relMap = new HashMap<String, Object>();
+                                        for (Entry<String, Object> entry : map.entrySet()) {
+                                            if (StringUtils.startsWith(entry.getKey(), "n.")) {
+                                                attrMap.put(entry.getKey().substring(2), entry.getValue());
+                                            } else if (StringUtils.startsWith(entry.getKey(), "r.")) {
+                                                if (null != entry.getValue()) {
+                                                    relMap.put(entry.getKey().substring(2), entry.getValue());
+                                                }
+                                            }
+                                        }
+                                        if (!relMap.isEmpty()) {
+                                            List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap.get(relationType
+                                                    .getId());
+                                            relList.add(relMap);
+                                        }
+                                    }
+                                }
+                                for (Map<String, Object> val : nodeMap.values()) {
+                                    resultList.add(new BaseValueObjectMap<Object>(val));
+                                }
+                            }
+                            OK(GraphDACParams.RESULTS.name(), new BaseValueObjectList<BaseValueObjectMap<Object>>(resultList), parent);
+                        }
+                    }
+                }, getContext().dispatcher());
+
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
+
+    private int getFilterQuery(BaseValueObjectList<FilterDTO> filters, StringBuilder sb, Map<String, Object> params, String index,
+            int pIndex) {
+        for (int i = 0; i < filters.getValueObjectList().size(); i++) {
+            FilterDTO filter = filters.getValueObjectList().get(i);
+            sb.append(" ").append(index).append(".").append(filter.getProperty()).append(" = {").append(pIndex).append("} ");
+            params.put("" + pIndex, filter.getValue());
+            pIndex += 1;
+            if (i < filters.getValueObjectList().size() - 1) {
+                sb.append("AND ");
+            }
+        }
+        return pIndex;
+    }
+
+    private void getReturnFieldsQuery(BaseValueObjectList<StringValue> fields, StringBuilder sb, String index) {
+        for (int i = 0; i < fields.getValueObjectList().size(); i++) {
+            String field = fields.getValueObjectList().get(i).getId();
+            sb.append(index).append(".").append(field);
+            if (i < fields.getValueObjectList().size() - 1) {
+                sb.append(", ");
             }
         }
     }

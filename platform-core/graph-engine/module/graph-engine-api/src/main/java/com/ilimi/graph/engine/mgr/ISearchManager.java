@@ -128,5 +128,7 @@ public interface ISearchManager {
      * @response - STATUS: API call status
      */
     void getSubGraph(Request request);
+    
+    void searchRelations(Request request);
 
 }

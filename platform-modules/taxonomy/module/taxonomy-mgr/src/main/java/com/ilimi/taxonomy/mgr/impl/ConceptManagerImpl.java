@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -11,14 +12,19 @@ import org.springframework.stereotype.Component;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
+import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.FilterDTO;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.dto.ConceptDTO;
@@ -190,6 +196,55 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             }
             response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
         }
+        return response;
+    }
+
+    @SuppressWarnings("unchecked")
+    public Response getConceptsGames(String taxonomyId) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchRelations");
+        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.ASSOCIATED_TO.relationName()));
+        request.put(GraphDACParams.DIRECTION.name(), new Identifier(RelationTraversal.DIRECTION_IN));
+        List<FilterDTO> nodeFilters = new ArrayList<FilterDTO>();
+        nodeFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+        nodeFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
+        request.put(GraphDACParams.START_NODE_FILTER.name(), new BaseValueObjectList<FilterDTO>(nodeFilters));
+
+        List<FilterDTO> relFilters = new ArrayList<FilterDTO>();
+        relFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+        relFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Game"));
+        request.put(GraphDACParams.RELATED_NODE_FILTER.name(), new BaseValueObjectList<FilterDTO>(relFilters));
+
+        List<StringValue> nodeFields = new ArrayList<StringValue>();
+        nodeFields.add(new StringValue("name"));
+        request.put(GraphDACParams.START_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(nodeFields));
+
+        List<StringValue> relFields = new ArrayList<StringValue>();
+        relFields.add(new StringValue("name"));
+        relFields.add(new StringValue("identifier"));
+        relFields.add(new StringValue("purpose"));
+        request.put(GraphDACParams.RELATED_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(relFields));
+
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return findRes;
+        Response response = copyResponse(findRes);
+        BaseValueObjectList<BaseValueObjectMap<Object>> result = (BaseValueObjectList<BaseValueObjectMap<Object>>) findRes
+                .get(GraphDACParams.RESULTS.name());
+        if (validateRequired(result)) {
+            for (BaseValueObjectMap<Object> resultMap : result.getValueObjectList()) {
+                if (validateRequired(resultMap)) {
+                    Map<String, Object> map = resultMap.getBaseValueMap();
+                    if (null != map && !map.isEmpty()) {
+                        List<Map<String, Object>> relList = (List<Map<String, Object>>) map.get(RelationTypes.ASSOCIATED_TO.relationName());
+                        map.put("games", relList);
+                        map.remove(RelationTypes.ASSOCIATED_TO.relationName());
+                    }
+                }
+            }
+        }
+        response.put(GraphDACParams.RESULTS.name(), result);
         return response;
     }
 

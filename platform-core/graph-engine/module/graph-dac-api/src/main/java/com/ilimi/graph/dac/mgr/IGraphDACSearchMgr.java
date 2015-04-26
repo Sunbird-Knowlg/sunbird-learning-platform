@@ -23,6 +23,8 @@ public interface IGraphDACSearchMgr {
     void getRelationProperty(Request request);
 
     void checkCyclicLoop(Request request);
+    
+    void executeQuery(Request request);
 
     void searchNodes(Request request);
 

@@ -106,8 +106,6 @@ public class SearchCriteria extends BaseValueObject {
         }
         if (!countQuery) {
             if (null == fields || fields.isEmpty()) {
-                /*sb.append("RETURN n.").append(SystemProperties.IL_UNIQUE_ID.name()).append(" as ")
-                        .append(SystemProperties.IL_UNIQUE_ID.name()).append(" ");*/
                 sb.append("RETURN n ");
             } else {
                 sb.append("RETURN ");

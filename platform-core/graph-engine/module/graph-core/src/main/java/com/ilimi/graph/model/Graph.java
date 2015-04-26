@@ -406,6 +406,44 @@ public class Graph extends AbstractDomainObject {
     }
 
     @SuppressWarnings("unchecked")
+    public Future<List<Map<String, Object>>> executeQuery(Request req, String query, Map<String, Object> params) {
+        try {
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+            request.setOperation("executeQuery");
+            request.put(GraphDACParams.QUERY.name(), new StringValue(query));
+            if (null != params && !params.isEmpty())
+                request.put(GraphDACParams.PARAMS.name(), new BaseValueObjectMap<Object>(params));
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            Future<List<Map<String, Object>>> future = response.map(new Mapper<Object, List<Map<String, Object>>>() {
+                @Override
+                public List<Map<String, Object>> apply(Object parameter) {
+                    if (null != parameter && parameter instanceof Response) {
+                        Response res = (Response) parameter;
+                        BaseValueObjectList<BaseValueObjectMap<Object>> resultMap = (BaseValueObjectList<BaseValueObjectMap<Object>>) res
+                                .get(GraphDACParams.RESULTS.name());
+                        if (null != resultMap && null != resultMap.getValueObjectList() && !resultMap.getValueObjectList().isEmpty()) {
+                            List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
+                            for (BaseValueObjectMap<Object> map : resultMap.getValueObjectList()) {
+                                if (null != map && null != map.getBaseValueMap() && !map.getBaseValueMap().isEmpty()) {
+                                    Map<String, Object> row = map.getBaseValueMap();
+                                    result.add(row);
+                                }
+                            }
+                            return result;
+                        }
+                    }
+                    return null;
+                }
+            }, manager.getContext().dispatcher());
+            return future;
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public void getNodesByObjectType(Request req) {
         StringValue objectType = (StringValue) req.get(GraphDACParams.OBJECT_TYPE.name());
         if (!manager.validateRequired(objectType)) {
