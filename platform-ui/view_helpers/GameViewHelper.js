@@ -18,7 +18,7 @@ var async = require('async')
 	, util = require('../commons/Util');
 
 exports.getGameCoverage = function(req, res) {
-	demoservice.getGameCoverage(req.params.tid, util.responseCB(res));
+	service.getGameCoverage(req.params.tid, util.responseCB(res));
 }
 
 exports.getGameDefinition = function(req, res) {

@@ -10,6 +10,80 @@ var async = require('async')
 	, urlConstants = require('../commons/URLConstants')
 	, _ = require('underscore');
 
+exports.getGameCoverage = function(tid, cb) {
+	async.parallel({
+		games: function(callback) {
+			var args = {
+				parameters: {
+					taxonomyId: tid,
+					objectType: 'Game',
+					offset: offset,
+					limit: limit
+				}
+			}
+			mwService.getCall(urlConstants.GET_GAMES, args, callback);
+		},
+		concepts: function(callback) {
+			var args = {
+				parameters: {
+					taxonomyId: tid,
+					games: true
+				}
+			}
+			mwService.getCall(urlConstants.GET_CONCEPTS, args, callback);
+		}
+	}, function(err, results) {
+		if(!util.validateMWResponse(results.games, cb)) {
+			return;
+		}
+		if(!util.validateMWResponse(results.concepts, cb)) {
+			return;
+		}
+		var data = {
+			concepts: _.pluck(results.concepts.result.RESULTS.valueObjectList, 'baseValueMap'),
+			games: results.games.result.LEARNING_OBJECTS.valueObjectList,
+			rowLabel: _.pluck(data.concepts, 'name'),
+			colLabel: _.pluck(data.games, 'name'),
+			matrix: [],
+			stats: {
+				noOfGames: results.games.length,
+				noOfConcepts: results.concepts.length,
+				conceptsWithNoGame: 0,
+				conceptsWithNoScreener: 0
+			}
+		}
+		var gameMap = {};
+		_.each(results.games, function(game) {
+			game.conceptCount = 0;
+			gameMap[game.identifier] = game;
+		});
+		_.each(results.concepts, function(concept) {
+			var conceptGames = _.pluck(concept.games, 'identifier');
+			var gameCount = _.where(concept.games, {purpose: 'Game'}).length;
+			var screenerCount = _.where(concept.games, {purpose: 'Screener'}).length;
+			concept.gameCount = concept.games ? concept.games.length : 0;
+			if(gameCount == 0) {
+				data.stats.conceptsWithNoGame++;
+			}
+			if(screenerCount == 0) {
+				data.stats.conceptsWithNoScreener++;
+			}
+			_.each(concept.games, function(game) {
+				gameMap[game.identifier].conceptCount++;
+			});
+			_.each(results.games, function(game) {
+				data.matrix.push({
+					row: data.rowLabel.indexOf(concept.name) + 1,
+					rowId: concept.id,
+					colId: game.identifier,
+					col: data.colLabel.indexOf(game.name) + 1,
+					value: (conceptGames.indexOf(game.identifier) == -1 ? 0 : (game.purpose == 'Game' ? 1 : 2))
+				});
+			});
+		});
+		cb(null, data);
+	});
+}
 
 exports.getGameDefinition = function(cb, taxonomyId) {
 	var args = {
