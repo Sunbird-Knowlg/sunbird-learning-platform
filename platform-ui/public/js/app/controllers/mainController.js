@@ -139,6 +139,10 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.getFromService('/private/v1/player/gameVis/' + taxonomyId);
     }
 
+    this.getDashboardLinks = function() {
+        return this.getFromService('/private/v1/player/dashboard/links');
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
@@ -151,6 +155,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     //   definitions: {}
     // }
     $scope.taxonomies = {};
+    $scope.dashboardLinks = {};
     $scope.allTaxonomies = [];
     $scope.selectedTaxonomyId = undefined;
     $scope.selectedConcept = undefined;
@@ -165,6 +170,16 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                     $scope.taxonomies[taxonomy.identifier] = taxonomy;
                 })
                 $state.go('learningMap', {id: data[0].identifier});
+            }
+        }).catch(function(err) {
+            console.log('Error fetching taxonomies - ', err);
+        });
+    }
+
+    $scope.getDashboardLinks = function() {
+        service.getDashboardLinks().then(function(data) {
+            if(data) {
+                $scope.dashboardLinks = data;
             }
         }).catch(function(err) {
             console.log('Error fetching taxonomies - ', err);
@@ -252,6 +267,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     }
 
     $scope.getAllTaxonomies();
+    $scope.getDashboardLinks();
 
     $scope.deleteListValue = function(pname, index, formName) {
         $scope.selectedConcept.metadata[pname].splice(index, 1);

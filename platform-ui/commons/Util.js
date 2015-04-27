@@ -27,7 +27,11 @@ exports.responseCB = function(res) {
 }
 
 exports.sendJSONResponse = function(fileName, cb) {
-	fs.readFile('fixtures/' + fileName, 'utf8', function (err, data) {
+	exports.sendJSONFileResponse('fixtures/' + fileName, cb);
+}
+
+exports.sendJSONFileResponse = function(fileName, cb) {
+	fs.readFile(fileName, 'utf8', function (err, data) {
   		if (err) {
   			cb(err);
   		} else {

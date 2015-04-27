@@ -15,7 +15,8 @@
 var async = require('async')
 	, S = require('string')
 	, path = require('path')
-	, mongoose = require('mongoose');
+	, mongoose = require('mongoose')
+	, util = require('../commons/Util');
 
 UserModel = mongoose.model('UserModel');
 
@@ -49,6 +50,10 @@ exports.createUser = function(profile, accessToken, refreshToken, cb) {
 			upsertUser(user, next);
       	}
   	], cb);
+}
+
+exports.getDashboardLinks = function (req, res) {
+	util.sendJSONFileResponse('config/dashboard_links.json', util.responseCB(res));
 }
 
 function getUserObject(profile, accessToken, cb) {

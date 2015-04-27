@@ -162,6 +162,9 @@ module.exports = function(app, dirname, passport, connectroles) {
         res.redirect("/private/player");
     });
 
+    /** Dashboard Links Route */
+    app.get('/private/v1/player/dashboard/links', userHelper.getDashboardLinks);
+
     /** Learning Map Routes */
     app.get('/private/v1/player/taxonomy', taxonomyHelper.getAllTaxonomies);
     app.get('/private/v1/player/taxonomy/:id/definitions', taxonomyHelper.getTaxonomyDefinitions);
