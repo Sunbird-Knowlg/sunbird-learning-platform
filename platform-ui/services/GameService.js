@@ -53,6 +53,7 @@ exports.getGameCoverage = function(tid, cb) {
 			data.games.push({identifier: game.identifier, name: game.metadata.name, purpose: game.metadata.purpose});
 		});
 		data.rowLabel = _.pluck(data.concepts, 'name');
+		data.rowUniqueIds = _.pluck(data.concepts, 'id');
 		data.colLabel = _.pluck(data.games, 'name');
 		var gameMap = {};
 		_.each(data.games, function(game) {
@@ -75,7 +76,7 @@ exports.getGameCoverage = function(tid, cb) {
 			});
 			_.each(data.games, function(game) {
 				data.matrix.push({
-					row: data.rowLabel.indexOf(concept.name) + 1,
+					row: data.rowUniqueIds.indexOf(concept.id) + 1,
 					rowId: concept.id,
 					colId: game.identifier,
 					col: data.colLabel.indexOf(game.name) + 1,
