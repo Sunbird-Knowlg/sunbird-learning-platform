@@ -35,7 +35,9 @@ public class GamesCSVImport {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "NUMERACY";
+    String graphId = "LITERACY";
+//    String csvFileName = "NumeracyGames-GraphEngine.csv";
+    String csvFileName = "LiteracyGames-GraphEngine.csv";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -87,7 +89,7 @@ public class GamesCSVImport {
             request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
 
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Games-GraphEngine.csv");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream(csvFileName);
 
             request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);

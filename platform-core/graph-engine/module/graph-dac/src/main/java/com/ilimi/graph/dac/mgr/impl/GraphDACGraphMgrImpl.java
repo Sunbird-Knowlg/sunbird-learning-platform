@@ -535,7 +535,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 List<com.ilimi.graph.dac.model.Node> importedNodes = new ArrayList<com.ilimi.graph.dac.model.Node>(input.getDataNodes());
 
                 int nodesCount = createNodes(request, graphDb, existingNodes, importedNodes);
-                int relationsCount = createRelations(request, graphDb, existingRelations, existingNodes, importedNodes);
+                int relationsCount = createRelations(request, graphDb, existingRelations, existingNodes, importedNodes, messages);
 
                 upsertRootNode(graphDb, graphId, existingNodes, nodesCount, relationsCount);
 
@@ -626,7 +626,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     private int createRelations(Request request, GraphDatabaseService graphDb,
             Map<String, Map<String, List<Relationship>>> existingRelations, Map<String, Node> existingNodes,
-            List<com.ilimi.graph.dac.model.Node> nodes) {
+            List<com.ilimi.graph.dac.model.Node> nodes, Map<String, List<String>> messages) {
         int relationsCount = 0;
         for (com.ilimi.graph.dac.model.Node node : nodes) {
             List<Relation> nodeRelations = node.getOutRelations();
@@ -669,9 +669,21 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                             }
                             for (String endNodeId : relEndNodeIds) {
                                 Node otherNode = existingNodes.get(endNodeId);
-                                RelationType relation = new RelationType(relType);
-                                neo4jNode.createRelationshipTo(otherNode, relation);
-                                relationsCount++;
+                                if(otherNode != null) {
+                                    RelationType relation = new RelationType(relType);
+                                    neo4jNode.createRelationshipTo(otherNode, relation);
+                                    relationsCount++;
+                                } else {
+                                    List<String> rowMsgs = messages.get(uniqueId);
+                                    if(rowMsgs == null) {
+                                        rowMsgs = new ArrayList<String>();
+                                        rowMsgs.add("Node with id:"+endNodeId+ " not exist to create relation:"+relType);
+                                        messages.put(uniqueId, rowMsgs);
+                                    } else {
+                                        rowMsgs.add("Node with id:"+endNodeId+ " not exist to create relation:"+relType);
+                                    }
+                                }
+                                
                             }
                         } else {
                             for (Relationship rel : relationMap.get(relType)) {
