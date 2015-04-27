@@ -11,6 +11,21 @@ public class CommentDTO extends BaseValueObject {
     private String comment;
     private String commentedBy;
     private String commentedOn;
+    
+    
+
+    public CommentDTO() {
+        super();
+    }
+
+    public CommentDTO(String graphId, String objectId, String comment, String commentedBy, String commentedOn) {
+        super();
+        this.graphId = graphId;
+        this.objectId = objectId;
+        this.comment = comment;
+        this.commentedBy = commentedBy;
+        this.commentedOn = commentedOn;
+    }
 
     public String getComment() {
         return comment;

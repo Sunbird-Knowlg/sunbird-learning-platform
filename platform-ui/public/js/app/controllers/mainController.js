@@ -437,7 +437,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         description: undefined,
         objectType: $scope.taxonomyObjects[0],
         parent: undefined,
-        errorMessages: []
+        errorMessages: [],
+        comment: undefined
     }
 
     $scope.$parent.categories = [
@@ -507,6 +508,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.saveChanges = function($event) {
         $scope.buttonLoading($event);
+        $scope.$parent.conceptToBeUpdated.comment = $scope.commitMessage;
         service.updateConcept($scope.$parent.conceptToBeUpdated).then(function(data) {
             $scope.setConceptResponse(data);
             $scope.buttonReset($event);
@@ -681,7 +683,8 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         owner: undefined,
         developer: undefined,
         description: undefined,
-        errorMessages: []
+        errorMessages: [],
+        comment: undefined
     }
 
     $scope.getGames = function() {
@@ -857,6 +860,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
 
     $scope.saveChanges = function($event) {
         $scope.buttonLoading($event);
+        $scope.$parent.conceptToBeUpdated.comment = $scope.commitMessage;
         service.updateGame($scope.$parent.conceptToBeUpdated).then(function(data) {
             $scope.buttonReset($event);
             $scope.getGame($scope.$parent.selectedTaxonomyId);

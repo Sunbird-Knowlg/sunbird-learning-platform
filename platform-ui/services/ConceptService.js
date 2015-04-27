@@ -57,7 +57,8 @@ exports.updateConcept = function(data, cb) {
 	        		tags: data.tags
 				},
 				METADATA_DEFINITIONS: []
-			}
+			},
+			COMMENT: data.comment
 		}
 	}
 	if(data.newMetadata && data.newMetadata.length > 0) {
@@ -92,7 +93,8 @@ exports.createConcept = function(data, cb) {
 	        		}],
 	        		tags: [data.objectType.id == 'concept' ? 'Broad Concept' : (data.objectType.id == 'subConcept' ? 'Sub Concept' : 'Micro Concept')]
 				}
-			}
+			},
+			COMMENT: data.comment
 		}
 	}
 	mwService.postCall(urlConstants.SAVE_CONCEPT, args, function(err, data) {

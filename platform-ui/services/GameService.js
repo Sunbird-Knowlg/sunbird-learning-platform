@@ -45,8 +45,8 @@ exports.getGameCoverage = function(tid, cb) {
 			colLabel: [],
 			matrix: [],
 			stats: {
-				noOfGames: results.games.length,
-				noOfConcepts: results.concepts.length,
+				noOfGames: 0,
+				noOfConcepts: 0,
 				conceptsWithNoGame: 0,
 				conceptsWithNoScreener: 0
 			}
@@ -55,8 +55,10 @@ exports.getGameCoverage = function(tid, cb) {
 			data.games.push({identifier: game.identifier, name: game.metadata.name, purpose: game.metadata.purpose});
 			data.colLabel.push({id: game.identifier, name: game.metadata.name});
 		});
-		data.rowUniqueIds = _.pluck(data.concepts, 'id');
 		data.colUniqueIds = _.pluck(data.colLabel, 'id');
+		data.rowUniqueIds = _.pluck(data.concepts, 'id');
+		data.stats.noOfGames = data.games.length;
+		data.stats.noOfConcepts = data.concepts.length;
 		var gameMap = {};
 		_.each(data.games, function(game) {
 			game.conceptCount = 0;
@@ -168,7 +170,8 @@ exports.updateGame = function(data, cb) {
 	        		tags: data.tags
 				},
 				METADATA_DEFINITIONS: []
-			}
+			},
+			COMMENT: data.comment
 		}
 	}
 	if(data.newMetadata && data.newMetadata.length > 0) {
@@ -202,7 +205,8 @@ exports.createGame = function(data, cb) {
 	 					"description": data.description
 					}
 				}
-			}
+			},
+			COMMENT: data.comment
 		}
 	}
 	mwService.postCall(urlConstants.SAVE_GAME, args, function(err, data) {

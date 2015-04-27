@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.dto;
 import java.util.List;
 
 import com.ilimi.graph.common.dto.BaseValueObject;
+import com.ilimi.graph.common.dto.Status;
 
 public class AuditRecordDTO extends BaseValueObject {
 
@@ -11,10 +12,31 @@ public class AuditRecordDTO extends BaseValueObject {
     private String graphId;
     private List<String> objectIds;
     private String operation;
+    private Status status;
     private String updatedBy;
     private String updatedOn;
     private String logRecord;
     private CommentDTO comment;
+    
+    
+
+    public AuditRecordDTO() {
+        super();
+    }
+
+    public AuditRecordDTO(String graphId, List<String> objectIds, String operation, Status status, String updatedBy, String logRecord,
+            String comment) {
+        super();
+        this.graphId = graphId;
+        this.objectIds = objectIds;
+        this.operation = operation;
+        this.status = status;
+        this.updatedBy = updatedBy;
+        this.updatedOn = ""+System.currentTimeMillis(); // TODO:
+        this.logRecord = logRecord;
+        this.comment = new CommentDTO(graphId, "", comment, updatedBy, updatedOn); // TODO: objectId.
+        
+    }
 
     public String getGraphId() {
         return graphId;
@@ -71,4 +93,12 @@ public class AuditRecordDTO extends BaseValueObject {
     public void setComment(CommentDTO comment) {
         this.comment = comment;
     }
+
+    
+    public String getLogString() {
+        return "" + graphId + ", " + objectIds + ", " + operation + ", " + status
+                + ", " + updatedBy + ", " + updatedOn + ", " + logRecord + ", " + comment.getComment() + "";
+    }
+    
+    
 }
