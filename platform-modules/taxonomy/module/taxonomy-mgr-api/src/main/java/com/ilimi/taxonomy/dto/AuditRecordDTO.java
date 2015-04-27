@@ -2,6 +2,8 @@ package com.ilimi.taxonomy.dto;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.common.dto.Status;
 
@@ -96,8 +98,8 @@ public class AuditRecordDTO extends BaseValueObject {
 
     
     public String getLogString() {
-        return "" + graphId + ", " + objectIds + ", " + operation + ", " + status
-                + ", " + updatedBy + ", " + updatedOn + ", " + logRecord + ", " + comment.getComment() + "";
+        return StringUtils.chomp("" + graphId + ", " + objectIds + ", " + operation + ", " + status
+                + ", " + updatedBy + ", " + updatedOn + ", " + logRecord + ", " + comment.getComment() + "").replaceAll("\n", "::");
     }
     
     
