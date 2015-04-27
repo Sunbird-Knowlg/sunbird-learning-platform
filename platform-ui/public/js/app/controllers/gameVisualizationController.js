@@ -14,7 +14,7 @@ function showHeatMap(data) {
     var margin = {
             top: 150,
             right: 10,
-            bottom: 70,
+            bottom: 90,
             left: 280
         },
         col_number = data.colLabel.length,
