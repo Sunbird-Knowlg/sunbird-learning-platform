@@ -16,9 +16,7 @@ exports.getGameCoverage = function(tid, cb) {
 			var args = {
 				parameters: {
 					taxonomyId: tid,
-					objectType: 'Game',
-					offset: offset,
-					limit: limit
+					objectType: 'Game'
 				}
 			}
 			mwService.getCall(urlConstants.GET_GAMES, args, callback);
@@ -39,11 +37,10 @@ exports.getGameCoverage = function(tid, cb) {
 		if(!util.validateMWResponse(results.concepts, cb)) {
 			return;
 		}
+		
 		var data = {
 			concepts: _.pluck(results.concepts.result.RESULTS.valueObjectList, 'baseValueMap'),
-			games: results.games.result.LEARNING_OBJECTS.valueObjectList,
-			rowLabel: _.pluck(data.concepts, 'name'),
-			colLabel: _.pluck(data.games, 'name'),
+			games: [],
 			matrix: [],
 			stats: {
 				noOfGames: results.games.length,
@@ -51,13 +48,18 @@ exports.getGameCoverage = function(tid, cb) {
 				conceptsWithNoGame: 0,
 				conceptsWithNoScreener: 0
 			}
-		}
+		};
+		_.each(results.games.result.LEARNING_OBJECTS.valueObjectList, function(game) {
+			data.games.push({identifier: game.identifier, name: game.metadata.name, purpose: game.metadata.purpose});
+		});
+		data.rowLabel = _.pluck(data.concepts, 'name');
+		data.colLabel = _.pluck(data.games, 'name');
 		var gameMap = {};
-		_.each(results.games, function(game) {
+		_.each(data.games, function(game) {
 			game.conceptCount = 0;
 			gameMap[game.identifier] = game;
 		});
-		_.each(results.concepts, function(concept) {
+		_.each(data.concepts, function(concept) {
 			var conceptGames = _.pluck(concept.games, 'identifier');
 			var gameCount = _.where(concept.games, {purpose: 'Game'}).length;
 			var screenerCount = _.where(concept.games, {purpose: 'Screener'}).length;
@@ -71,7 +73,7 @@ exports.getGameCoverage = function(tid, cb) {
 			_.each(concept.games, function(game) {
 				gameMap[game.identifier].conceptCount++;
 			});
-			_.each(results.games, function(game) {
+			_.each(data.games, function(game) {
 				data.matrix.push({
 					row: data.rowLabel.indexOf(concept.name) + 1,
 					rowId: concept.id,
