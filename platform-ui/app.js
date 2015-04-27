@@ -128,6 +128,15 @@ function registerMiddlewaresAndListen(app, sessionStore) {
 
     app.use(passport.initialize());
     app.use(passport.session()); // persistent login sessions
+
+    /** Add User Id to process domain */
+    app.use(function(req, res, next) {
+        if(process.domain && req.user) {
+            process.domain.userId = req.user.identifier;
+        }
+        next();
+    });
+
     app.use(app.router);
 
     // Override Express routes generic try catch block - Catches all synchronous errors

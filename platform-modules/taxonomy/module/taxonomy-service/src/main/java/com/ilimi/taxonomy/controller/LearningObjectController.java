@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -41,8 +42,9 @@ public class LearningObjectController extends BaseController {
             @RequestParam(value = "objectType", required = false) String objectType,
             @RequestParam(value = "offset", required = false) Integer offset,
             @RequestParam(value = "limit", required = false) Integer limit,
-            @RequestParam(value = "gfields", required = false) String[] gfields) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType + " | gfields: " + gfields);
+            @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType + " | gfields: " + gfields + " | user-id: "
+                + userId);
         try {
             Response response = lobManager.findAll(taxonomyId, objectType, offset, limit, gfields);
             LOGGER.info("FindAll | Response: " + response);
@@ -57,8 +59,8 @@ public class LearningObjectController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "gfields", required = false) String[] gfields) {
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id);
+            @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = lobManager.find(id, taxonomyId, gfields);
             LOGGER.info("Find | Response: " + response);
@@ -72,9 +74,9 @@ public class LearningObjectController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestBody Map<String, Object> map) {
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         Request request = getRequestObject(map);
-        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
+        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
@@ -88,9 +90,10 @@ public class LearningObjectController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
         Request request = getRequestObject(map);
-        LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
+        LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
@@ -139,8 +142,8 @@ public class LearningObjectController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id);
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = lobManager.delete(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
@@ -155,7 +158,7 @@ public class LearningObjectController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromLob,
             @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toLob,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
         LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromLob + " | Relation: " + relationType
                 + " | EndId: " + toLob);
         try {

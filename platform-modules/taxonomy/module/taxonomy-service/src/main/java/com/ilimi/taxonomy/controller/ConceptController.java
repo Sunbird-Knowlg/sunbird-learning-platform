@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -39,8 +40,9 @@ public class ConceptController extends BaseController {
     public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "games", defaultValue = "false") boolean games,
             @RequestParam(value = "cfields", required = false) String[] cfields,
-            @RequestParam(value = "gfields", required = false) String[] gfields) {
-        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games + " | cfields: " + cfields + " | gfields: " + gfields);
+            @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games + " | cfields: " + cfields + " | gfields: " + gfields
+                + " | user-id: " + userId);
         try {
             Response response = null;
             if (games) {
@@ -60,8 +62,8 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "cfields", required = false) String[] cfields) {
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | cfields: " + cfields);
+            @RequestParam(value = "cfields", required = false) String[] cfields, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | cfields: " + cfields + " | user-id: " + userId);
         try {
             Response response = conceptManager.find(id, taxonomyId, cfields);
             LOGGER.info("Find | Response: " + response);
@@ -75,9 +77,9 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestBody Map<String, Object> map) {
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         Request request = getRequestObject(map);
-        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request);
+        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = conceptManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
@@ -91,9 +93,10 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
         Request request = getRequestObject(map);
-        LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request);
+        LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = conceptManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
@@ -142,8 +145,8 @@ public class ConceptController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
-        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id);
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = conceptManager.delete(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
@@ -158,9 +161,9 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromConcept,
             @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toConcept,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
         LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromConcept + " | Relation: " + relationType
-                + " | EndId: " + toConcept);
+                + " | EndId: " + toConcept + " | user-id: " + userId);
         try {
             Response response = conceptManager.deleteRelation(fromConcept, relationType, toConcept, taxonomyId);
             LOGGER.info("Delete Relation | Response: " + response);
@@ -175,8 +178,9 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> getConcepts(@PathVariable(value = "id") String id, @PathVariable(value = "rel") String relationType,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "depth", required = false, defaultValue = "0") int depth) {
-        LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth);
+            @RequestParam(value = "depth", required = false, defaultValue = "0") int depth, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth
+                + " | user-id: " + userId);
         try {
             Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId);
             LOGGER.info("Get Concepts | Response: " + response);

@@ -20,7 +20,8 @@ exports.postCall = function(url, arguments, callback) {
     var args = {
         path: arguments.path,
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "user-id": process.domain.userId
         },
         data: arguments.data
     };
@@ -35,7 +36,8 @@ exports.patchCall = function(url, arguments, callback) {
     var args = {
         path: arguments.path,
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "user-id": process.domain.userId
         },
         data: arguments.data
     };
@@ -61,11 +63,11 @@ function parseResponse(data, callback) {
 }
 
 exports.getCall = function(url, arguments, callback) {
-
     var args = {
         path: arguments.path,
         headers: {
-            "accept": "application/json"
+            "accept": "application/json",
+            "user-id": process.domain.userId
         },
         parameters: arguments.parameters
     };
@@ -80,7 +82,8 @@ exports.putCall = function(url, arguments, callback) {
     var args = {
         path: arguments.path,
         headers: {
-            "Content-Type": "application/json"
+            "Content-Type": "application/json",
+            "user-id": process.domain.userId
         },
         parameters: arguments.data
     };
@@ -96,7 +99,8 @@ exports.deleteCall = function(url, arguments, callback) {
     var args = {
         path: arguments.path,
         headers: {
-            "accept": "application/json"
+            "accept": "application/json",
+            "user-id": process.domain.userId
         },
         data: arguments.data
     };
