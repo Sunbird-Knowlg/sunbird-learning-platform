@@ -25,8 +25,8 @@
             		<img ng-src="{{selectedConcept.metadata.posterImage}}" ng-if="selectedConcept.metadata.posterImage"/>
             		<img src="/img/not_available.jpg" ng-if="!selectedConcept.metadata.posterImage"/>
                 <div class="col-md-12 noPad marginTop10 marginBottom15">
-                    <span class="badge greenBadge marginRight15">Screener</span>
-                    <span class="badge greenBadge marginRight15">Mock</span>
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.metadata.purpose">{{selectedConcept.metadata.purpose}}</span>
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.metadata.status">{{selectedConcept.metadata.status}}</span>
                 </div>
             	</div>
             	<div class="col-md-9">
