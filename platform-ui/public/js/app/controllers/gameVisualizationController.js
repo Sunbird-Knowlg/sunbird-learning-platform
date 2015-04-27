@@ -56,10 +56,10 @@ function showHeatMap(data) {
         .enter()
         .append("text")
         .text(function(d) {
-			if(d.length > 40) {
-				return (d.substr(0, 37) + '...');
+			if(d.name.length > 40) {
+				return (d.name.substr(0, 37) + '...');
 			} else {
-            	return d;
+            	return d.name;
 			}
         })
         .attr("x", 0)
@@ -89,10 +89,10 @@ function showHeatMap(data) {
         .enter()
         .append("text")
         .text(function(d) {
-            if(d.length > 20) {
-                return (d.substr(0, 17) + '...');
+            if(d.name.length > 20) {
+                return (d.name.substr(0, 17) + '...');
             } else {
-                return d;
+                return d.name;
             }
         })
         .attr("x", 0)
@@ -152,7 +152,7 @@ function showHeatMap(data) {
                 .style("left", (d3.event.pageX + 10 - 220) + "px")
                 .style("top", (d3.event.pageY - 10 - 210) + "px")
                 .select("#value")
-                .html("<b>Concept</b>:" + rowLabel[d.row - 1] + "<br/><b>Game</b>:" + colLabel[d.col - 1] + "<br/><b>" + (d.value == 0 ? 'Concept not covered' : 'Concept Covered') + '</b>');
+                .html("<b>Concept</b>:" + rowLabel[d.row - 1].name + "<br/><b>Game</b>:" + colLabel[d.col - 1].name + "<br/><b>" + (d.value == 0 ? 'Concept not covered' : 'Concept Covered') + '</b>');
             d3.select("#tooltip").classed("hidden", false);
         })
         .on("mouseout", function() {
@@ -344,7 +344,6 @@ function showHeatMap(data) {
     function order(value) {
         if (value == "clc") {
             var hrows = _.pluck(_.sortBy(concepts, 'gameCount'), 'id');
-            var hrowLabels = _.pluck(_.sortBy(concepts, 'gameCount'), 'name');
             var t = svg.transition().duration(1000);
             t.selectAll(".cell")
                 .attr("y", function(d) {
@@ -353,11 +352,10 @@ function showHeatMap(data) {
 
             t.selectAll(".rowLabel")
                 .attr("y", function(d, i) {
-                    return (hrowLabels.indexOf(d)) * cellSize;
+                    return (hrows.indexOf(d.id)) * cellSize;
                 });
         } else if (value == "chc") {
             var hrows = _.pluck(_.sortBy(concepts, 'gameCount'), 'id').reverse();
-            var hrowLabels = _.pluck(_.sortBy(concepts, 'gameCount'), 'name').reverse();
             var t = svg.transition().duration(1000);
             t.selectAll(".cell")
                 .attr("y", function(d) {
@@ -366,11 +364,10 @@ function showHeatMap(data) {
 
             t.selectAll(".rowLabel")
                 .attr("y", function(d, i) {
-                    return (hrowLabels.indexOf(d)) * cellSize;
+                    return (hrows.indexOf(d.id)) * cellSize;
                 });
         } else if (value == "glc") {
             var hcols = _.pluck(_.sortBy(games, 'conceptCount'), 'identifier');
-            var hcolLabels = _.pluck(_.sortBy(games, 'conceptCount'), 'name');
             var t = svg.transition().duration(1000);
             t.selectAll(".cell")
                 .attr("x", function(d) {
@@ -379,11 +376,10 @@ function showHeatMap(data) {
 
             t.selectAll(".colLabel")
                 .attr("y", function(d, i) {
-                    return (hcolLabels.indexOf(d)) * cellSize;
+                    return (hcols.indexOf(d.id)) * cellSize;
                 });
         } else if (value == "ghc") {
             var hcols = _.pluck(_.sortBy(games, 'conceptCount'), 'identifier').reverse();
-            var hcolLabels = _.pluck(_.sortBy(games, 'conceptCount'), 'name').reverse();
             var t = svg.transition().duration(1000);
             t.selectAll(".cell")
                 .attr("x", function(d) {
@@ -392,7 +388,7 @@ function showHeatMap(data) {
 
             t.selectAll(".colLabel")
                 .attr("y", function(d, i) {
-                    return (hcolLabels.indexOf(d)) * cellSize;
+                    return (hcols.indexOf(d.id)) * cellSize;
                 });
         }
     }

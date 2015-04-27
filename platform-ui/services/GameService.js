@@ -41,6 +41,8 @@ exports.getGameCoverage = function(tid, cb) {
 		var data = {
 			concepts: _.pluck(results.concepts.result.RESULTS.valueObjectList, 'baseValueMap'),
 			games: [],
+			rowLabel: [],
+			colLabel: [],
 			matrix: [],
 			stats: {
 				noOfGames: results.games.length,
@@ -51,16 +53,17 @@ exports.getGameCoverage = function(tid, cb) {
 		};
 		_.each(results.games.result.LEARNING_OBJECTS.valueObjectList, function(game) {
 			data.games.push({identifier: game.identifier, name: game.metadata.name, purpose: game.metadata.purpose});
+			data.colLabel.push({id: game.identifier, name: game.metadata.name});
 		});
-		data.rowLabel = _.pluck(data.concepts, 'name');
 		data.rowUniqueIds = _.pluck(data.concepts, 'id');
-		data.colLabel = _.pluck(data.games, 'name');
+		data.colUniqueIds = _.pluck(data.colLabel, 'id');
 		var gameMap = {};
 		_.each(data.games, function(game) {
 			game.conceptCount = 0;
 			gameMap[game.identifier] = game;
 		});
 		_.each(data.concepts, function(concept) {
+			data.rowLabel.push({id: concept.id, name: concept.name});
 			var conceptGames = _.pluck(concept.games, 'identifier');
 			var gameCount = _.where(concept.games, {purpose: 'Game'}).length;
 			var screenerCount = _.where(concept.games, {purpose: 'Screener'}).length;
@@ -79,7 +82,7 @@ exports.getGameCoverage = function(tid, cb) {
 					row: data.rowUniqueIds.indexOf(concept.id) + 1,
 					rowId: concept.id,
 					colId: game.identifier,
-					col: data.colLabel.indexOf(game.name) + 1,
+					col: data.colUniqueIds.indexOf(game.identifier) + 1,
 					value: (conceptGames.indexOf(game.identifier) == -1 ? 0 : (game.purpose == 'Game' ? 1 : 2))
 				});
 			});
