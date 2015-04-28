@@ -31,6 +31,8 @@ public abstract class BaseRequestRouter extends UntypedActor {
 
     private static final Logger perfLogger = LogManager.getLogger("PerformanceTestLogger");
 
+    private static Logger LOGGER = LogManager.getLogger(BaseRequestRouter.class.getName());
+
     protected abstract void initActorPool();
 
     protected abstract ActorRef getActorFromPool(Request request);
@@ -79,6 +81,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
                 long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.START_TIME.name());
                 Response res = (Response) arg0;
                 Status status = res.getStatus();
+                LOGGER.info(request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + status.toString());
                 perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
                         + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + ",ENDTIME," + endTime);
@@ -97,6 +100,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
+        LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
         Response response = new Response();
         Status status = new Status();
         status.setStatus(StatusType.ERROR.name());

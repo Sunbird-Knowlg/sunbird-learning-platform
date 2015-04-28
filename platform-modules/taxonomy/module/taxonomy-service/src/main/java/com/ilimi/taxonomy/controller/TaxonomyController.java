@@ -2,6 +2,9 @@ package com.ilimi.taxonomy.controller;
 
 import java.io.InputStream;
 
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
+import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller
@@ -50,7 +55,8 @@ public class TaxonomyController extends BaseController {
             @RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph,
             @RequestParam(value = "tfields", required = false) String[] tfields,
             @RequestParam(value = "cfields", required = false) String[] cfields, @RequestHeader(value = "user-id") String userId) {
-        LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: " + cfields + " | user-id: " + userId);
+        LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: " + cfields + " | user-id: "
+                + userId);
         try {
             Response response = taxonomyManager.find(id, subgraph, tfields, cfields);
             LOGGER.info("Find | Response: " + response);
@@ -63,8 +69,8 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> create(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file,
-            @RequestHeader(value = "user-id") String userId) {
+    public void create(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
         LOGGER.info("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
             InputStream stream = null;
@@ -72,10 +78,14 @@ public class TaxonomyController extends BaseController {
                 stream = file.getInputStream();
             Response response = taxonomyManager.create(id, stream);
             LOGGER.info("Create | Response: " + response);
-            return getResponseEntity(response);
+            StringValue val = (StringValue) response.get(TaxonomyAPIParams.TAXONOMY.name());
+            String content = null;
+            if (null != val && StringUtils.isNotBlank(val.getId()))
+                content = val.getId();
+            writeToResponse(response.getStatus(), content, "text/csv;charset=utf-8", resp);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            writeError(e, resp);
         }
     }
 

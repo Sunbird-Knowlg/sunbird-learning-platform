@@ -677,11 +677,9 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                                     List<String> rowMsgs = messages.get(uniqueId);
                                     if(rowMsgs == null) {
                                         rowMsgs = new ArrayList<String>();
-                                        rowMsgs.add("Node with id:"+endNodeId+ " not exist to create relation:"+relType);
                                         messages.put(uniqueId, rowMsgs);
-                                    } else {
-                                        rowMsgs.add("Node with id:"+endNodeId+ " not exist to create relation:"+relType);
                                     }
+                                    rowMsgs.add("Node with id: "+endNodeId+ " not found to create relation:"+relType);
                                 }
                                 
                             }
@@ -697,9 +695,18 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         List<String> relEndNodeIds = nodeRelMap.get(relType);
                         for (String endNodeId : relEndNodeIds) {
                             Node otherNode = existingNodes.get(endNodeId);
-                            RelationType relation = new RelationType(relType);
-                            neo4jNode.createRelationshipTo(otherNode, relation);
-                            relationsCount++;
+                            if (null == otherNode) {
+                                List<String> rowMsgs = messages.get(uniqueId);
+                                if(rowMsgs == null) {
+                                    rowMsgs = new ArrayList<String>();
+                                    messages.put(uniqueId, rowMsgs);
+                                }
+                                rowMsgs.add("Node with id: "+endNodeId+ " not found to create relation:"+relType);
+                            } else {
+                                RelationType relation = new RelationType(relType);
+                                neo4jNode.createRelationshipTo(otherNode, relation);
+                                relationsCount++;
+                            }
                         }
                     }
                 }

@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -33,6 +35,8 @@ import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.exception.ServerException;
 
 public abstract class BaseGraphManager extends UntypedActor {
+
+    private static Logger LOGGER = LogManager.getLogger(BaseGraphManager.class.getName());
 
     @Override
     public void onReceive(Object message) throws Exception {
@@ -74,6 +78,7 @@ public abstract class BaseGraphManager extends UntypedActor {
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, BaseValueObject vo,
             ActorRef parent) {
+        LOGGER.error(errorCode + ", " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setStatus(getErrorStatus(errorCode, errorMessage));
@@ -86,6 +91,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
+        LOGGER.error(errorCode + ", " + errorMessage);
         Response response = new Response();
         response.setStatus(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(code);
@@ -190,6 +196,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public void handleException(Throwable e, ActorRef parent) {
+        LOGGER.error(e.getMessage(), e);
         Response response = new Response();
         Status status = new Status();
         status.setStatus(StatusType.ERROR.name());

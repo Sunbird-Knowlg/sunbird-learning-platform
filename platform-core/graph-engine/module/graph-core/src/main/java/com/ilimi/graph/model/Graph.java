@@ -333,7 +333,7 @@ public class Graph extends AbstractDomainObject {
                                             manager.ERROR(throwable, getParent());
                                         } else {
                                             Status status = (Status) actorResponse.getStatus();
-                                            if (StatusType.ERROR.name().equals(status.getCode())) {
+                                            if (StatusType.ERROR.name().equals(status.getStatus())) {
                                                 getParent().tell(actorResponse, manager.getSelf());
                                             } else {
                                                 BaseValueObjectMap importMsgBVMap = (BaseValueObjectMap) actorResponse
@@ -364,6 +364,10 @@ public class Graph extends AbstractDomainObject {
                                                                     List<String> msgs = new ArrayList<String>(importMsgMap
                                                                             .get(rowIdentifier));
                                                                     msgs.addAll(validateMsgMap.get(rowIdentifier));
+                                                                    validateMsgMap.put(rowIdentifier, msgs);
+                                                                } else {
+                                                                    List<String> msgs = new ArrayList<String>(importMsgMap
+                                                                            .get(rowIdentifier));
                                                                     validateMsgMap.put(rowIdentifier, msgs);
                                                                 }
                                                             }
