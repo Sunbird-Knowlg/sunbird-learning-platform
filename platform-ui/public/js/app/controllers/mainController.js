@@ -541,8 +541,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
 
     $rootScope.isCodeExist = function(code, oldCode) {
         var allConcepts = $scope.allConcepts;
-        if(oldCode) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {id: oldCode}));
-        var concept = _.findWhere(allConcepts, {id: code});
+        if(oldCode) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {code: oldCode}));
+        var concept = _.findWhere(allConcepts, {code: code});
         if(concept) return true;
         else return false;
     }

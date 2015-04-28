@@ -239,6 +239,9 @@ public class Graph extends AbstractDomainObject {
             final String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             final StringValue format = (StringValue) request.get(GraphEngineParams.FORMAT.name());
             final InputStreamValue inputStream = (InputStreamValue) request.get(GraphEngineParams.INPUT_STREAM.name());
+            if(StringUtils.isBlank(graphId)) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), "GraphId is missing");
+            }
             if (!manager.validateRequired(inputStream)) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), "Import stream is missing");
             } else {

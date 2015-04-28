@@ -539,6 +539,45 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{ 'order': 25 }"
+        },
+        {
+          "propertyName": "downloads",
+          "title": "Downloads",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 25 }"
+        },
+        {
+          "propertyName": "totalGamingTime",
+          "title": "Total Gaming Time",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 25 }"
+        },
+        {
+          "propertyName": "avgGamingTime",
+          "title": "Avg Gaming Time",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 25 }"
         }
       ],
       "inRelations": [],
