@@ -7,7 +7,7 @@
 		</div>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
-				<a href="javascript:void(0);" ng-click="selectTaxonomy(taxonomy.id)">{{taxonomy.name}}</a>
+				<a href="javascript:void(0);" ng-click="selectTaxonomy(taxonomy.id)">{{taxonomy.name}} Concepts</a>
 			</li>
 		</ul>
 	</li>
@@ -19,7 +19,7 @@
 		</div>
 		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
 			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
-				<a href="javascript:void(0);" ng-click="viewGameList(taxonomy.id)">{{taxonomy.name}}</a>
+				<a href="javascript:void(0);" ng-click="viewGameList(taxonomy.id)">{{taxonomy.name}} Games</a>
 			</li>
 			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
 				<a href="javascript:void(0);" ng-click="showHeatMap(taxonomy.id)">{{taxonomy.name}} Game Coverage</a>
