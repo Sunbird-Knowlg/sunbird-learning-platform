@@ -59,7 +59,7 @@ exports.getTaxonomyGraph = function(id, cb) {
 				},
 				parameters: {
 					tfields: 'identifier,name,conceptsCount',
-					cfields: 'identifier,name,gamesCount,description',
+					cfields: 'identifier,name,code,gamesCount,description',
 					subgraph: true
 				}
 			}
