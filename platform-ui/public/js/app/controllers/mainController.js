@@ -501,7 +501,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.getTaxonomyDefinitions($stateParams.id);
     $scope.getTaxonomyGraph($stateParams.id);
 
-    $rootScope.$on('selectConcept', function(event, args) {
+    $scope.$on('selectConcept', function(event, args) {
         $scope.sbConcept = args.concept;
         $scope.getConcept();
     });

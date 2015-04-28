@@ -142,7 +142,7 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                             nNode = d;
                         }
                         showWords(nNode);
-                        $rootScope.$emit('selectConcept', {concept : nNode});
+                        scope.$emit('selectConcept', {concept : nNode});
                         var ancestors = nodeService.getAncestors(nNode);
 
                         d3.selectAll("#sunburst-path")
@@ -162,7 +162,7 @@ angular.module('sunburst.directives').directive('sunburst', ['$rootScope', 'word
                             nNode = currentRoot;
                         }
                         showWords(nNode);
-                        $rootScope.$emit('selectConcept', {concept : nNode});
+                        scope.$emit('selectConcept', {concept : nNode});
                         var ancestors = nodeService.getAncestors(nNode);
 
                         d3.selectAll("#sunburst-path")
