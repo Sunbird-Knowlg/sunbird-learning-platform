@@ -82,7 +82,7 @@ text.text-hover {
     <div class=" wallActivityHeader">
         <div class="editContent">
             <div class="headerAsk" id="activityStream">
-                <h2>Game Coverage - Numeracy</h2>
+                <h2>Game Coverage - {{taxonomies[taxonomyId].metadata.name}}</h2>
             </div>
             <div class="col-md-12 noPad marginTop20">
                 <ul class="feature-list-glanceitems col-md-12">
@@ -104,7 +104,7 @@ text.text-hover {
                     </li>
                 </ul>
             </div>
-            <div class="col-md-12 noPad form-inline marginTop20 marginBottom20">
+            <div class="col-md-12 noPad form-inline marginTop20 marginBottom20" ng-show="showHeatMap">
                 <div class="form-group col-md-4 noPad">
                     <label>Order:</label>
                     <select id="order" class="form-control">
@@ -116,11 +116,14 @@ text.text-hover {
                     </select>
                 </div>
             </div>
-            <div class="col-md-12 feature-soft-cont feature-soft" style="padding: 0 !important">
+            <div class="col-md-12 feature-soft-cont feature-soft" style="padding: 0 !important" ng-show="showHeatMap">
                 <div id="tooltip" class="hidden">
                     <p><span id="value"></p>
                 </div>
                 <div id="chart" style='overflow:auto; width:100%px; height:480px;'></div>
+            </div>
+            <div class="col-md-12 noPad form-inline marginTop20 marginBottom20" ng-show="!showHeatMap">
+                <div class="alert alert-info">There is no data available to display game coverage.</div>
             </div>
         </div>
     </div>

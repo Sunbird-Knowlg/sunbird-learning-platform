@@ -674,6 +674,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     $scope.limit = 10;
     $scope.games = [];
     $scope.seeMoreGames = false;
+    $scope.showGames = false;
 
     $scope.newGame = {
         taxonomyId: $scope.$parent.selectedTaxonomyId,
@@ -688,10 +689,12 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     }
 
     $scope.getGames = function() {
+        $scope.showGames = false;
         var taxonomyId = $scope.$parent.selectedTaxonomyId;
         service.getGames(taxonomyId, $scope.offset, $scope.limit).then(function(data) {
             if (data.games && data.games.length > 0) {
                 $scope.games.push.apply($scope.games, data.games);
+                $scope.showGames = true;
                 var count = data.count;
                 if (count > ($scope.offset + $scope.limit)) {
                     $scope.seeMoreGames = true;

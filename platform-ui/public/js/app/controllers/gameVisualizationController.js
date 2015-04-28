@@ -1,12 +1,19 @@
 app.controller('GameVisualizationController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
     $scope.stats = undefined;
+    $scope.showHeatMap = true;
     $timeout(function() {
     	selectLeftMenuTab('forumsTab');
     }, 1000);
+    $scope.taxonomyId = $stateParams.tid;
     service.getGameCoverage($stateParams.tid).then(function(data) {
         $scope.stats = data.stats;
-    	showHeatMap(data);
+        if($scope.stats.noOfGames == 0 || $scope.stats.noOfConcepts == 0) {
+            $scope.showHeatMap = false;
+        }
+        if($scope.showHeatMap) {
+            showHeatMap(data);
+        }
     });
 }]);
 
