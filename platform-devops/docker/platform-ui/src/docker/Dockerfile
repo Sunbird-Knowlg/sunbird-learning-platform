@@ -20,10 +20,16 @@ RUN \
   apt-get update && \
   apt-get install -y \
   mongodb-org-server \
-  mongodb-org-shell
+  mongodb-org-shell \
+  vim
 
 # cleanup some unwanted packages
 RUN apt-get -y autoremove
+
+# Make bash the default shell - otherwise mongo doesn't start
+RUN rm /bin/sh
+RUN ["/bin/bash", "-c", "ln -s /bin/bash /bin/sh"]
+RUN echo "smallfiles=true" >> /etc/mongod.conf
 
 # Copy the config and rename routes
 RUN npm install -g grunt-cli
