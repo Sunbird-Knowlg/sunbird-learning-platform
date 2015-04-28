@@ -44,15 +44,15 @@
                     </span>
                     <a href="javascript:void()" ng-click="lessDescription()" class="pull-right" style="position: relative; bottom: 20px;" ng-show="showFullDesc">less...</a>
                 	</div>
-                  <div class="col-md-12 noPad marginBottom10">
-                    <div class="col-md-4 noPad">
-                        Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">35</h4></a>
+                  <div class="col-md-12 noPad marginBottom10" ng-if="selectedConcept.metadata.downloads || selectedConcept.metadata.totalGamingTime || selectedConcept.metadata.avgGamingTime">
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.downloads">
+                        Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.downloads}}</h4></a>
                     </div>
-                    <div class="col-md-4 noPad">
-                        Total Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">34 Hrs 23 Mins</h4></a>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.totalGamingTime">
+                        Total Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.totalGamingTime}}</h4></a>
                     </div>
-                    <div class="col-md-4 noPad">
-                        Avg. Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">17 Mins</h4></a>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.avgGamingTime">
+                        Avg. Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.avgGamingTime}}</h4></a>
                     </div>
                   </div> 
                 	<div class="col-md-12 noPad padBottom10">
