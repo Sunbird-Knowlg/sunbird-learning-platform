@@ -138,10 +138,10 @@
                     	<button class="btn btn-primary btn-sm" ng-show="!cat.addNew" ng-click="addNew(cat);">Add New</button>
                     </div>
                     <div class="col-md-12" ng-show="cat.id == 'audit'" ng-init="cat.auditHistory = false">
-                    	<a href="javascript:void(0)" ng-click="cat.auditHistory = true" ng-if="!cat.auditHistory" class="btn-link">
+                    	<a href="javascript:void(0)" ng-click="cat.auditHistory = true" ng-if="!cat.auditHistory && selectedConcept.auditHistory.length > 0" class="btn-link">
                     		Show Audit History
                     	</a>
-                    	<a href="javascript:void(0)" ng-click="cat.auditHistory = false" ng-if="cat.auditHistory" class="btn-link">
+                    	<a href="javascript:void(0)" ng-click="cat.auditHistory = false" ng-if="cat.auditHistory && selectedConcept.auditHistory.length > 0" class="btn-link">
                     		Hide Audit History
                     	</a>
                     	<table class="table table-striped table-bordered table-condensed {{cat.auditHistory ? '' : 'hide'}}">
