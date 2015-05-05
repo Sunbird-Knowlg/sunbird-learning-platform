@@ -1,9 +1,9 @@
 package com.ilimi.taxonomy.mgr;
 
-import java.util.List;
 
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.dac.dto.Comment;
+import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 
 
@@ -13,7 +13,7 @@ public interface IAuditLogManager {
 
     Response getAuditHistory(String graphId, String objectId);
 
-    void saveComment(Comment comment);
+    Response saveComment(String graphId, Comment comment);
 
-    List<Comment> getComments(String graphId, String objectId);
+    Response getComments(String graphId, String objectId);
 }

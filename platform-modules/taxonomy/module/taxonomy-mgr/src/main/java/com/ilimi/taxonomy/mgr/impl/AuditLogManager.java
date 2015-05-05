@@ -1,7 +1,5 @@
 package com.ilimi.taxonomy.mgr.impl;
 
-import java.util.List;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -40,15 +38,21 @@ public class AuditLogManager implements IAuditLogManager {
     }
 
     @Override
-    public void saveComment(Comment comment) {
-        // TODO Auto-generated method stub
+    public Response saveComment(String graphId, Comment comment) {
+        Request request = new Request();
+        request.put(CommonsDacParams.COMMENT.name(), comment);
+        Response response = auditLogDataService.saveComment(request);
+        return response;
         
     }
 
     @Override
-    public List<Comment> getComments(String graphId, String objectId) {
-        // TODO Auto-generated method stub
-        return null;
+    public Response getComments(String graphId, String objectId) {
+        String commentObjId = AuditLogUtil.createObjectId(graphId, objectId);
+        Request request = new Request();
+        request.put(CommonsDacParams.OBJECT_ID.name(), new StringValue(commentObjId));
+        Response response = auditLogDataService.getComments(request);
+        return response;
     }
 
 }

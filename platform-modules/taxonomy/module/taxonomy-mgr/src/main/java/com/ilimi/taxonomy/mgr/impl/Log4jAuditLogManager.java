@@ -1,7 +1,5 @@
 package com.ilimi.taxonomy.mgr.impl;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
@@ -27,13 +25,13 @@ public class Log4jAuditLogManager implements IAuditLogManager {
     }
 
     @Override
-    public void saveComment(Comment comment) {
+    public Response saveComment(String graphId, Comment comment) {
         // TODO Auto-generated method stub
-
+        return null;
     }
 
     @Override
-    public List<Comment> getComments(String graphId, String objectId) {
+    public Response getComments(String graphId, String objectId) {
         // TODO Auto-generated method stub
         return null;
     }
