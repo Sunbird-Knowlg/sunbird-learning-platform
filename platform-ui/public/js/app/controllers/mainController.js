@@ -224,8 +224,8 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
-        {id: 'audit', label: "Audit", editable: false, editMode: false},
-        {id: 'comments', label: "Comments", editable: false, editMode: false}
+        {id: 'audit', label: "Audit", editable: true, editMode: false},
+        {id: 'comments', label: "Comments", editable: false, editMode: true}
     ]
 
     $scope.resetCategories = function() {
@@ -449,7 +449,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
         {id: 'audit', label: "Audit", editable: false, editMode: false},
-        {id: 'comments', label: "Comments", editable: false, editMode: false}
+        {id: 'comments', label: "Comments", editable: true, editMode: true}
     ]
 
     $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$stateParams.id];
@@ -792,8 +792,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         {id: 'technical', label: "Technical", editable: true, editMode: false},
         {id: 'ownership', label: "Ownership", editable: true, editMode: false},
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
-        {id: 'audit', label: "Audit", editable: false, editMode: false},
-        {id: 'comments', label: "Comments", editable: false, editMode: false}
+        {id: 'audit', label: "Audit", editable: true, editMode: false},
+        {id: 'comments', label: "Comments", editable: true, editMode: false}
     ]
 
     $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$scope.$parent.selectedTaxonomyId];

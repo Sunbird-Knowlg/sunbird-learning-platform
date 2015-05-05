@@ -71,6 +71,7 @@ exports.getCall = function(url, arguments, callback) {
         },
         parameters: arguments.parameters
     };
+    console.log('URL:', baseUrl + url);
     client.get(baseUrl + url, args, function(data, response) {
         parseResponse(data, callback);
     }).on('error', function(err) {

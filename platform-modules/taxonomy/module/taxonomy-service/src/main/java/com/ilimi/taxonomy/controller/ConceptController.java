@@ -1,7 +1,6 @@
 package com.ilimi.taxonomy.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.taxonomy.dto.AuditRecordDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IConceptManager;
@@ -57,8 +56,6 @@ public class ConceptController extends BaseController {
                 response = conceptManager.findAll(taxonomyId, cfields);
             }
             LOGGER.info("FindAll | Response: " + response);
-            AuditRecordDTO audit = new AuditRecordDTO(taxonomyId, null, "GET", response.getStatus(), userId, "logRecord", "comment");
-            auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
             LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
@@ -91,7 +88,7 @@ public class ConceptController extends BaseController {
         try {
             Response response = conceptManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecordDTO audit = new AuditRecordDTO(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -110,7 +107,7 @@ public class ConceptController extends BaseController {
         try {
             Response response = conceptManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecordDTO audit = new AuditRecordDTO(taxonomyId, Arrays.asList(id), "UPDATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -199,6 +196,21 @@ public class ConceptController extends BaseController {
             return getResponseEntity(response);
         } catch (Exception e) {
             LOGGER.error("Get Concepts | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e);
+        }
+    }
+    
+    @RequestMapping(value = "/audithistory/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> getAuditHistory(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("AuditHistory | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        try {
+            Response response = auditLogManager.getAuditHistory(taxonomyId, id);
+            LOGGER.info("AuditHistory | Response: " + response);
+            return getResponseEntity(response);
+        } catch (Exception e) {
+            LOGGER.error("AuditHistory | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e);
         }
     }

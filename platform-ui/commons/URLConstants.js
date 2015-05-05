@@ -10,3 +10,4 @@ exports.GET_GAMES = '/taxonomy-service/learning-object';
 exports.GET_GAME = '/taxonomy-service/learning-object/${id}';
 exports.SAVE_GAME = '/taxonomy-service/learning-object?taxonomyId=${tid}';
 exports.UPDATE_GAME = '/taxonomy-service/learning-object/${id}?taxonomyId=${tid}';
+exports.AUDIT_HISTORY = '/taxonomy-service/concept/audithistory/${id}';

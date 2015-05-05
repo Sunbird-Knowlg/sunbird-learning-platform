@@ -1,7 +1,6 @@
 package com.ilimi.taxonomy.controller;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -19,12 +18,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.taxonomy.dto.AuditRecordDTO;
 import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
@@ -86,7 +85,7 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecordDTO audit = new AuditRecordDTO(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -105,7 +104,7 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecordDTO audit = new AuditRecordDTO(taxonomyId, Arrays.asList(id), "UPDATE", response.getStatus(), userId, (String) map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getStatus(), userId, (String) map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
