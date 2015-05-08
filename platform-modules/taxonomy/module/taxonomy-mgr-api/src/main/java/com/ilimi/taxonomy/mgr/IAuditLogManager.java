@@ -16,4 +16,6 @@ public interface IAuditLogManager {
     Response saveComment(String graphId, Comment comment);
 
     Response getComments(String graphId, String objectId);
+    
+    Response getCommentThread(String graphId, String objectId, String threadId);
 }

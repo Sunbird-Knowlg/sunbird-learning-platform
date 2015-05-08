@@ -99,4 +99,23 @@ public class CommentController extends BaseController {
             return getExceptionResponseEntity(e);
         }
     }
+    
+    @RequestMapping(value = "/{id:.+}/{threadId:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> findCommentThread(@PathVariable(value = "id") String id, @PathVariable(value = "threadId") String threadId,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestHeader(value = "user-id") String userId) {
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        try {
+            if(StringUtils.isBlank(taxonomyId)) {
+                throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+            }
+            Response response = auditLogManager.getCommentThread(taxonomyId, id, threadId);
+            LOGGER.info("Find | Response: " + response);
+            return getResponseEntity(response);
+        } catch (Exception e) {
+            LOGGER.error("Find | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e);
+        }
+    }
 }

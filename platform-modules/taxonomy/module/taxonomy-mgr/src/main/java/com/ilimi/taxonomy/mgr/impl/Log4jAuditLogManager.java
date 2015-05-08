@@ -36,4 +36,10 @@ public class Log4jAuditLogManager implements IAuditLogManager {
         return null;
     }
 
+    @Override
+    public Response getCommentThread(String graphId, String objectId, String threadId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

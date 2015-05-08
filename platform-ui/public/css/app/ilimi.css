@@ -1030,8 +1030,16 @@ ul.qamoduleslist a:hover {
     font-size: 25px
 }
 
+.mar-rt-10 {
+    margin-right: 10px;
+}
+
 .marginLeft10 {
     margin-left: 10px
+}
+
+.marginLeft20 {
+    margin-left: 20px
 }
 
 .marginLeft5 {
@@ -1041,6 +1049,10 @@ ul.qamoduleslist a:hover {
 .noMarginLeftRight {
     margin-left: 0;
     margin-top: 0
+}
+
+.noMargin {
+    margin: 0px;
 }
 
 .nextBtn {

@@ -200,18 +200,4 @@ public class ConceptController extends BaseController {
         }
     }
     
-    @RequestMapping(value = "/audithistory/{id:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> getAuditHistory(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
-        LOGGER.info("AuditHistory | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
-        try {
-            Response response = auditLogManager.getAuditHistory(taxonomyId, id);
-            LOGGER.info("AuditHistory | Response: " + response);
-            return getResponseEntity(response);
-        } catch (Exception e) {
-            LOGGER.error("AuditHistory | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
-        }
-    }
 }

@@ -35,7 +35,11 @@ exports.getConcept = function(id, tid, cb) {
 			mwService.getCall(urlConstants.AUDIT_HISTORY, args, callback);
 		},
 		comments: function(callback) {
-			callback(null, []);
+			var args = {
+				path: {id: id},
+				parameters: {taxonomyId: tid}
+			}
+			mwService.getCall(urlConstants.GET_COMMENTS, args, callback);
 		}
 	}, function(err, results) {
 		if(err) {
@@ -43,7 +47,7 @@ exports.getConcept = function(id, tid, cb) {
 		} else {
 			var concept = results.concept.result.CONCEPT;
 			concept.auditHistory = results.auditHistory.result.AUDIT_RECORDS.valueObjectList;
-			concept.comments = results.comments;
+			concept.comments = results.comments.result.COMMENTS.valueObjectList;
 			cb(null, concept);
 		}
 	});

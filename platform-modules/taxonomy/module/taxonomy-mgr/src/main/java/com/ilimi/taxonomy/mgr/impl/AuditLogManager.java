@@ -55,4 +55,12 @@ public class AuditLogManager implements IAuditLogManager {
         return response;
     }
 
+    public Response getCommentThread(String graphId, String objectId, String threadId) {
+        String commentObjId = AuditLogUtil.createObjectId(graphId, objectId);
+        Request request = new Request();
+        request.put(CommonsDacParams.OBJECT_ID.name(), new StringValue(commentObjId));
+        request.put(CommonsDacParams.COMMENT_THREAD_ID.name(), new StringValue(threadId));
+        Response response = auditLogDataService.getCommentThread(request);
+        return response;
+    }
 }

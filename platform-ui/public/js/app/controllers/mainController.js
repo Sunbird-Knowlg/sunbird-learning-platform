@@ -143,6 +143,14 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.getFromService('/private/v1/player/dashboard/links');
     }
 
+    this.saveComment = function(comment) {
+        return this.postToService('/private/v1/player/comment', comment);
+    }
+
+    this.getCommentThread = function(taxonomyId, objId, threadId) {
+        return this.getFromService('/private/v1/player/comment/thread/' + taxonomyId + '/' + objId + '/' + threadId);
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
@@ -159,6 +167,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.allTaxonomies = [];
     $scope.selectedTaxonomyId = undefined;
     $scope.selectedConcept = undefined;
+    $scope.newComment = "";
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
             if(data && data.length > 0) {
@@ -425,6 +434,62 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $('#saveChangesModal').modal('show');
     }
 
+    $scope.addComment = function() {
+        $scope.showNewComment = true;
+        $scope.currentComment = undefined;
+        $('#commentModal').modal('show');
+    }
+
+    $scope.showComment = function(comment) {
+        $scope.showNewComment = false;
+        $scope.currentComment = comment;
+        service.getCommentThread($scope.selectedTaxonomyId, $scope.selectedConcept.identifier, $scope.currentComment.id).then(function(data) {
+            $scope.getReplies(data, $scope.currentComment, $scope.currentComment.id);
+        });
+        $('#commentModal').modal('show');
+    }
+
+    $scope.getReplies = function(data, comment, id) {
+        var replies = _.where(data, {replyTo: id+''});
+        comment.replies = replies;
+        if(replies.length > 0) {
+            replies.forEach(function(reply) {
+                $scope.getReplies(data, reply, reply.id+'');
+            });
+        }
+    }
+
+    $scope.replyComment = function(comment) {
+        var reply = $('#commentText'+comment.id).val();
+        if(reply) {
+            var data = {
+                taxonomyId: $scope.selectedTaxonomyId,
+                comment: reply,
+                objectId: $scope.selectedConcept.identifier,
+                threadId: comment.threadId || comment.id,
+                replyTo: comment.id
+            };
+
+            service.saveComment(data).then(function(resp) {
+                $('#commentText'+comment.id).val("");
+            });
+        }
+    }
+
+    $scope.saveComment = function() {
+        var newComment = $('#newCommentTextArea').val();
+        if(newComment) {
+            var data = {
+                taxonomyId: $scope.selectedTaxonomyId,
+                comment: newComment,
+                objectId: $scope.selectedConcept.identifier
+            };
+            service.saveComment(data).then(function(resp) {
+                $('#newCommentTextArea').val("");
+                $('#commentModal').modal('hide');
+            });
+        }
+    }
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -449,7 +514,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
         {id: 'audit', label: "Audit", editable: false, editMode: false},
-        {id: 'comments', label: "Comments", editable: true, editMode: true}
+        {id: 'comments', label: "Comments", editable: false, editMode: true}
     ]
 
     $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$stateParams.id];
@@ -793,7 +858,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         {id: 'ownership', label: "Ownership", editable: true, editMode: false},
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'audit', label: "Audit", editable: true, editMode: false},
-        {id: 'comments', label: "Comments", editable: true, editMode: false}
+        {id: 'comments', label: "Comments", editable: false, editMode: false}
     ]
 
     $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$scope.$parent.selectedTaxonomyId];
