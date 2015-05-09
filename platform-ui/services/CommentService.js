@@ -37,7 +37,7 @@ exports.saveComment = function(data, cb) {
 		if(err) {
 			cb(err);
 		} else if(util.validateMWResponse(data, cb)) {
-			cb(null, data.result.COMMENT_ID);
+			cb(null, data.result.COMMENT);
 		}
 	});
 }

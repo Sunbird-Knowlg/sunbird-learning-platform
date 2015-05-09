@@ -472,6 +472,9 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 
             service.saveComment(data).then(function(resp) {
                 $('#commentText'+comment.id).val("");
+                comment.showForm = false;
+                resp.replies = [];
+                comment.replies.push(resp);
             });
         }
     }
@@ -487,6 +490,8 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             service.saveComment(data).then(function(resp) {
                 $('#newCommentTextArea').val("");
                 $('#commentModal').modal('hide');
+                resp.replies = [];
+                $scope.selectedConcept.comments.push(resp);
             });
         }
     }
