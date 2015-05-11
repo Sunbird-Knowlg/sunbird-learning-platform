@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.dac.dto.Comment;
-import com.ilimi.dac.impl.AuditLogDataService;
+import com.ilimi.dac.impl.IAuditLogDataService;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.StringValue;
@@ -18,7 +18,7 @@ import com.ilimi.util.AuditLogUtil;
 public class AuditLogManager implements IAuditLogManager {
 
     @Autowired
-    AuditLogDataService auditLogDataService;
+    IAuditLogDataService auditLogDataService;
     
     @Override
     @Async
