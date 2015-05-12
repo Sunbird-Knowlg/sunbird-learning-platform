@@ -70,7 +70,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void getNodeDefinition(Request request) {
         StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
         if (!validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
                     "GetNodeDefinition: Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
@@ -92,7 +92,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void getDataNode(Request request) {
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
                     "GetDataNode: Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
@@ -110,7 +110,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void getDataNodes(Request request) {
         BaseValueObjectList<StringValue> nodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.NODE_IDS.name());
         if (!validateRequired(nodeIds)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
                     "GetDataNode: Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
@@ -127,7 +127,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void getNodesByObjectType(Request request) {
         StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
         if (!validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
                     "GetNodesByObjectType: Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
@@ -145,7 +145,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         Identifier depth = (Identifier) request.get(GraphDACParams.DEPTH.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_CHILDREN.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_CHILDREN_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -169,7 +169,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         StringValue relation = (StringValue) request.get(GraphDACParams.RELATION.name());
         Identifier depth = (Identifier) request.get(GraphDACParams.DEPTH.name());
         if (!validateRequired(nodeId, relation)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_DESCENDANTS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_DESCENDANTS_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -192,7 +192,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void searchNodes(Request request) {
         SearchCriteria sc = (SearchCriteria) request.get(GraphDACParams.SEARCH_CRITERIA.name());
         if (!validateRequired(sc)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -208,7 +208,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void getNodesCount(Request request) {
         SearchCriteria sc = (SearchCriteria) request.get(GraphDACParams.SEARCH_CRITERIA.name());
         if (!validateRequired(sc)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -224,7 +224,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     public void traverse(Request request) {
         Traverser traverser = (Traverser) request.get(GraphDACParams.TRAVERSAL_DESCRIPTION.name());
         if (!validateRequired(traverser)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -241,7 +241,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         if (!validateRequired(startNodeId, relationType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {
@@ -266,7 +266,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 .get(GraphDACParams.RELATED_NODE_FIELDS.name());
         Identifier direction = (Identifier) request.get(GraphDACParams.DIRECTION.name());
         if (!validateRequired(nodeFilter, relationType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
             try {

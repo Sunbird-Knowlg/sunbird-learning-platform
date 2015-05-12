@@ -20,7 +20,7 @@ public class GraphWriterFactory {
         } else if (ImportType.RDF.name().equals(format.toUpperCase())) {
             graphWriter = new RDFGraphWriter(nodes, relations);
         } else {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), "Format:" + format + " is invalid.");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_INVALID_FORMAT.name(), "Format:" + format + " is invalid.");
         }
         return graphWriter.getData();
     }

@@ -79,7 +79,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -115,14 +115,14 @@ public class Graph extends AbstractDomainObject {
                                 manager.OK(getParent());
                             }
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_ERROR.name(), "Failed to get definition nodes",
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(), "Failed to get definition nodes",
                                     ResponseCode.SERVER_ERROR, getParent());
                         }
                     }
                 }
             }, ec);
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -216,7 +216,7 @@ public class Graph extends AbstractDomainObject {
 
             return validationMap;
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -229,7 +229,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_DELETE_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_DELETE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -240,10 +240,10 @@ public class Graph extends AbstractDomainObject {
             final StringValue format = (StringValue) request.get(GraphEngineParams.FORMAT.name());
             final InputStreamValue inputStream = (InputStreamValue) request.get(GraphEngineParams.INPUT_STREAM.name());
             if(StringUtils.isBlank(graphId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), "GraphId is missing");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_GRAPH_ID.name(), "GraphId is missing");
             }
             if (!manager.validateRequired(inputStream)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), "Import stream is missing");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_INPUTSTREAM.name(), "Import stream is missing");
             } else {
                 // Get byte array.
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -393,8 +393,7 @@ public class Graph extends AbstractDomainObject {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -408,7 +407,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -446,7 +445,7 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
             return future;
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -454,7 +453,7 @@ public class Graph extends AbstractDomainObject {
     public void getNodesByObjectType(Request req) {
         StringValue objectType = (StringValue) req.get(GraphDACParams.OBJECT_TYPE.name());
         if (!manager.validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_MISSING_REQ_PARAMS.name(),
                     "Object Type is required for GetNodesByObjectType API");
         } else {
             try {
@@ -470,7 +469,7 @@ public class Graph extends AbstractDomainObject {
                     @Override
                     public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                         boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get nodes");
+                                GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get nodes");
                         if (valid) {
                             Response res = (Response) arg1;
                             BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
@@ -484,7 +483,7 @@ public class Graph extends AbstractDomainObject {
                                 }
                                 manager.OK(GraphDACParams.NODE_LIST.name(), new BaseValueObjectList<Node>(nodeList), getParent());
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data nodes",
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get data nodes",
                                         ResponseCode.RESOURCE_NOT_FOUND, getParent());
                             }
                         }
@@ -492,7 +491,7 @@ public class Graph extends AbstractDomainObject {
                 }, manager.getContext().dispatcher());
 
             } catch (Exception e) {
-                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
             }
         }
     }
@@ -509,13 +508,13 @@ public class Graph extends AbstractDomainObject {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data node");
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get data node");
                     if (valid) {
                         Response res = (Response) arg1;
                         Node node = (Node) res.get(GraphDACParams.NODE.name());
                         if (null == node || StringUtils.isBlank(node.getNodeType())
                                 || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get data node",
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get data node",
                                     ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         } else {
                             manager.OK(GraphDACParams.NODE.name(), node, getParent());
@@ -525,7 +524,7 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -539,7 +538,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -556,7 +555,7 @@ public class Graph extends AbstractDomainObject {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get definition node");
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get definition node");
                     if (valid) {
                         Response res = (Response) arg1;
                         BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
@@ -566,7 +565,7 @@ public class Graph extends AbstractDomainObject {
                             DefinitionDTO definition = defNode.getValueObject();
                             manager.OK(GraphDACParams.DEFINITION_NODE.name(), definition, getParent());
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get definition node",
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get definition node",
                                     ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         }
                     }
@@ -574,7 +573,7 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -591,7 +590,7 @@ public class Graph extends AbstractDomainObject {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get definition node");
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get definition node");
                     if (valid) {
                         Response res = (Response) arg1;
                         BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
@@ -605,7 +604,7 @@ public class Graph extends AbstractDomainObject {
                             manager.OK(GraphDACParams.DEFINITION_NODES.name(), new BaseValueObjectList<DefinitionDTO>(definitions),
                                     getParent());
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_ERROR.name(), "Failed to get definition node",
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get definition node",
                                     ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         }
                     }
@@ -613,7 +612,7 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -627,7 +626,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -641,7 +640,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -655,7 +654,7 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -663,20 +662,20 @@ public class Graph extends AbstractDomainObject {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         StringValue json = (StringValue) request.get(GraphEngineParams.INPUT_STREAM.name());
         if (!manager.validateRequired(json)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Input JSON is blank");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Input JSON is blank");
         } else {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 GraphReader graphReader = new JsonGraphReader(manager, mapper, graphId, json.getId());
                 if (graphReader.getValidations().size() > 0) {
                     String validations = mapper.writeValueAsString(graphReader.getValidations());
-                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), validations);
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_VALIDATION_FAILED.name(), validations);
                 }
                 ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(),
                         graphReader.getRelations(), graphReader.getTagMembersMap());
                 final List<Node> nodes = inputData.getDefinitionNodes();
                 if (null == nodes || nodes.isEmpty()) {
-                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Definition nodes list is empty",
+                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Definition nodes list is empty",
                             ResponseCode.CLIENT_ERROR, getParent());
                 } else {
                     final ExecutionContext ec = manager.getContext().dispatcher();
@@ -704,7 +703,7 @@ public class Graph extends AbstractDomainObject {
                             @Override
                             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                                 boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                        GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Definition nodes creation error");
+                                        GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_FAILED_TO_CREATE.name(), "Definition nodes creation error");
                                 if (valid) {
                                     ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                                     for (DefinitionNode defNode : defNodes) {
@@ -715,13 +714,13 @@ public class Graph extends AbstractDomainObject {
                             }
                         }, ec);
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Definition nodes validation error",
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_VALIDATION_FAILED.name(), "Definition nodes validation error",
                                 ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
                                 new BaseValueObjectMap<List<String>>(messageMap), getParent());
                     }
                 }
             } catch (Exception e) {
-                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), e.getMessage(), e);
+                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_UNKNOWN_ERROR.name(), e.getMessage(), e);
             }
         }
     }
@@ -750,7 +749,7 @@ public class Graph extends AbstractDomainObject {
                     if (manager.checkError(nodesResp)) {
                         String msg = manager.getErrorMessage(nodesResp);
                         if (StringUtils.isNotBlank(msg)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), msg, nodesResp.getResponseCode(),
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg, nodesResp.getResponseCode(),
                                     getParent());
                         }
                     }
@@ -758,7 +757,7 @@ public class Graph extends AbstractDomainObject {
                     if (manager.checkError(nodesResp)) {
                         String msg = manager.getErrorMessage(nodesResp);
                         if (StringUtils.isNotBlank(msg)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), msg, relationsResp.getResponseCode(),
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg, relationsResp.getResponseCode(),
                                     getParent());
                         }
                     }
@@ -790,7 +789,7 @@ public class Graph extends AbstractDomainObject {
 
         } catch (Exception e) {
             e.printStackTrace();
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 

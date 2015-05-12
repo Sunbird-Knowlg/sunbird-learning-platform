@@ -206,7 +206,7 @@ public class DefinitionNode extends AbstractNode {
             for (String msg : messages) {
                 voList.add(new StringValue(msg));
             }
-            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Invalid Definition", ResponseCode.CLIENT_ERROR,
+            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_INVALID_DEFINITION_NODE.name(), "Invalid Definition", ResponseCode.CLIENT_ERROR,
                     GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(voList), getParent());
         } else {
             try {
@@ -223,7 +223,7 @@ public class DefinitionNode extends AbstractNode {
                         if (arg0 instanceof Response) {
                             Response res = (Response) arg0;
                             if (manager.checkError(res)) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), manager.getErrorMessage(res),
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), manager.getErrorMessage(res),
                                         res.getResponseCode(), getParent());
                             } else {
                                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -231,7 +231,7 @@ public class DefinitionNode extends AbstractNode {
                                 manager.OK(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()), getParent());
                             }
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Failed to create definition node",
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Failed to create definition node",
                                     ResponseCode.SERVER_ERROR, getParent());
                         }
                     }
@@ -248,7 +248,7 @@ public class DefinitionNode extends AbstractNode {
         final BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) req
                 .get(GraphDACParams.METADATA_DEFINITIONS.name());
         if (!manager.validateRequired(definitions)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Required parameters are missing");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -265,13 +265,13 @@ public class DefinitionNode extends AbstractNode {
                     @Override
                     public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                         boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Failed to get definition node for "
+                                GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Failed to get definition node for "
                                         + objectType);
                         if (valid) {
                             Response res = (Response) arg1;
                             BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
                             if (null == nodes || null == nodes.getValueObjectList() || nodes.getValueObjectList().isEmpty()) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(),
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
                                         "Failed to get definition node for " + objectType, ResponseCode.RESOURCE_NOT_FOUND, getParent());
                             } else {
                                 Node dbNode = nodes.getValueObjectList().get(0);

@@ -58,7 +58,7 @@ public class Sequence extends AbstractCollection {
                             if (arg1) {
                                 createSequenceObject(req, ec);
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE.name(), "Member Ids are invalid",
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_INVALID_MEMBERIDS.name(), "Member Ids are invalid",
                                         ResponseCode.CLIENT_ERROR, getParent());
                             }
                         }
@@ -68,7 +68,7 @@ public class Sequence extends AbstractCollection {
                 createSequenceObject(req, ec);
             }
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(), e.getMessage(), e);
         }
     }
 
@@ -77,7 +77,7 @@ public class Sequence extends AbstractCollection {
         final StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
         final StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
         if (!manager.validateRequired(sequenceId, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -96,7 +96,7 @@ public class Sequence extends AbstractCollection {
                             if (arg1 instanceof Response) {
                                 Response res = (Response) arg1;
                                 if (manager.checkError(res)) {
-                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER.name(), manager.getErrorMessage(res),
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
                                             res.getResponseCode(), getParent());
                                 } else {
                                     LongIdentifier index = (LongIdentifier) res.get(GraphDACParams.INDEX.name());
@@ -115,7 +115,7 @@ public class Sequence extends AbstractCollection {
                                     manager.OK(getParent());
                                 }
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER.name(), "Add Sequence Member failed",
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(), "Add Sequence Member failed",
                                         ResponseCode.SERVER_ERROR, getParent());
                             }
                         }
@@ -133,7 +133,7 @@ public class Sequence extends AbstractCollection {
             StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(sequenceId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SEQUENCE_MEMBER.name(),
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -165,7 +165,7 @@ public class Sequence extends AbstractCollection {
         try {
             StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(sequenceId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SEQUENCE_MEMBERS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SEQUENCE_MEMBERS_INVALID_SEQID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -186,7 +186,7 @@ public class Sequence extends AbstractCollection {
             StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(sequenceId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SEQUENCE_MEMBER.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -207,7 +207,7 @@ public class Sequence extends AbstractCollection {
         try {
             StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(sequenceId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SEQUENCE.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SEQUENCE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -235,7 +235,7 @@ public class Sequence extends AbstractCollection {
         try {
             StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(sequenceId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY.name(),
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -273,7 +273,7 @@ public class Sequence extends AbstractCollection {
                     if (arg1 instanceof Response) {
                         Response res = (Response) arg1;
                         if (manager.checkError(res)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE.name(), manager.getErrorMessage(res),
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
                                     res.getResponseCode(), getParent());
                         } else {
                             StringValue sequenceId = (StringValue) res.get(GraphDACParams.NODE_ID.name());
@@ -299,7 +299,7 @@ public class Sequence extends AbstractCollection {
                             manager.returnResponse(response, getParent());
                         }
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE.name(), "Failed to create Sequence node",
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(), "Failed to create Sequence node",
                                 ResponseCode.SERVER_ERROR, getParent());
                     }
                 }

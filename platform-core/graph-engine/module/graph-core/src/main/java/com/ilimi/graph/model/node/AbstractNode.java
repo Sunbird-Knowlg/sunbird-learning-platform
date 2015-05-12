@@ -64,7 +64,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                         manager.returnResponse(response, getParent());
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Node validation failed",
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Node validation failed",
                                 ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
                                 new BaseValueObjectList<StringValue>(errMessages), getParent());
                     }
@@ -79,7 +79,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
     public void getProperty(Request req) {
         final StringValue key = (StringValue) req.get(GraphDACParams.PROPERTY_KEY.name());
         if (!manager.validateRequired(key)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_NODE_ERROR.name(),
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_NODE_PROPERTY_INVALID_KEY.name(),
                     "Get Property: Required Properties are missing");
         } else {
             try {

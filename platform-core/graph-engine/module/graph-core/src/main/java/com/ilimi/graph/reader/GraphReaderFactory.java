@@ -31,11 +31,11 @@ public class GraphReaderFactory {
         } else if (ImportType.RDF.name().equals(format.toUpperCase())) {
             graphReader = new RDFGraphReader(manager, mapper, graphId, inputStream);
         } else {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), "Format:" + format + " is invalid.");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_FORMAT.name(), "Format:" + format + " is invalid.");
         }
         if (graphReader.getValidations().size() > 0) {
             String validations = mapper.writeValueAsString(graphReader.getValidations());
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_GRAPH_ERROR.name(), validations);
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_VALIDATION_FAILED.name(), validations);
         }
         ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(), graphReader.getRelations(),
                 graphReader.getTagMembersMap());

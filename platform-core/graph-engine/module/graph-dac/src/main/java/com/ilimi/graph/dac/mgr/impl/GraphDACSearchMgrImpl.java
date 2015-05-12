@@ -62,7 +62,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         try {
             Method method = GraphDACActorPoolMgr.getMethod(GraphDACManagers.DAC_SEARCH_MANAGER, methodName);
             if (null == method) {
-                throw new ClientException("ERR_GRAPH_INVALID_OPERATION", "Operation '" + methodName + "' not found");
+                throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_INVALID_OPERATION.name(), "Operation '" + methodName + "' not found");
             } else {
                 method.invoke(this, request);
             }
@@ -77,7 +77,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         LongIdentifier nodeId = (LongIdentifier) request.get(GraphDACParams.NODE_ID.name());
         BooleanValue getTags = (BooleanValue) request.get(GraphDACParams.GET_TAGS.name());
         if (!validateRequired(nodeId))
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_NODE_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         Transaction tx = null;
         try {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
@@ -104,7 +104,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         BooleanValue getTags = (BooleanValue) request.get(GraphDACParams.GET_TAGS.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_NODE_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -153,7 +153,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         BaseValueObjectList<StringValue> nodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.NODE_IDS.name());
         BooleanValue getTags = (BooleanValue) request.get(GraphDACParams.GET_TAGS.name());
         if (!validateRequired(nodeIds)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_NODE_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -203,7 +203,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         Property property = (Property) request.get(GraphDACParams.METADATA.name());
         BooleanValue getTags = (BooleanValue) request.get(GraphDACParams.GET_TAGS.name());
         if (!validateRequired(property)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_NODE_LIST_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_LIST_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -244,7 +244,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         StringValue key = (StringValue) request.get(GraphDACParams.PROPERTY_KEY.name());
         if (!validateRequired(nodeId, key)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_NODE_PROPERTY.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_PROPERTY_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -342,7 +342,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         StringValue key = (StringValue) request.get(GraphDACParams.PROPERTY_KEY.name());
         if (!validateRequired(startNodeId, relationType, endNodeId, key)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_RELATIONS_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -373,7 +373,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GET_RELATIONS_EXCEPTION.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -403,7 +403,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CHECK_LOOP.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_CHECK_LOOP_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -451,7 +451,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue query = (StringValue) request.get(GraphDACParams.QUERY.name());
         BaseValueObjectMap<Object> paramMap = (BaseValueObjectMap<Object>) request.get(GraphDACParams.PARAMS.name());
         if (!validateRequired(query)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_SEARCH_NODES.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -491,7 +491,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         SearchCriteria sc = (SearchCriteria) request.get(GraphDACParams.SEARCH_CRITERIA.name());
         BooleanValue getTags = (BooleanValue) request.get(GraphDACParams.GET_TAGS.name());
         if (!validateRequired(sc)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_SEARCH_NODES.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -552,7 +552,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         SearchCriteria sc = (SearchCriteria) request.get(GraphDACParams.SEARCH_CRITERIA.name());
         if (!validateRequired(sc)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_SEARCH_NODES.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -594,7 +594,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         Traverser traverser = (Traverser) request.get(GraphDACParams.TRAVERSAL_DESCRIPTION.name());
         if (!validateRequired(traverser)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_TRAVERSAL.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -621,7 +621,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         Identifier depth = (Identifier) request.get(GraphDACParams.DEPTH.name());
         if (!validateRequired(startNodeId, relationType)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_TRAVERSAL.name(), "Required parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             Transaction tx = null;
             try {

@@ -104,7 +104,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
         StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
         if (!validateRequired(collectionId, collectionType, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ADD_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ADD_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
@@ -122,7 +122,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
         StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
         if (!validateRequired(collectionId, collectionType, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_REMOVE_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_REMOVE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
@@ -139,7 +139,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
         StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
         if (!validateRequired(collectionId, collectionType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_COLLECTION.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_COLLECTION_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
@@ -156,7 +156,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
         StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
         if (!validateRequired(collectionId, collectionType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_MEMBERS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_MEMBERS_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
@@ -184,7 +184,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         BaseValueObjectList<StringValue> tags = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.TAGS.name());
         if (!validateRequired(nodeId, tags)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
@@ -196,7 +196,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
                             handleException(arg0, getSender());
                         } else {
                             if (null != arg1 && !arg1.isEmpty()) {
-                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS.name(), "Error adding tags", ResponseCode.CLIENT_ERROR,
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_UNKNOWN_ERROR.name(), "Error adding tags", ResponseCode.CLIENT_ERROR,
                                         GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(arg1), getSender());
                             } else {
                                 OK(getSender());

@@ -40,7 +40,7 @@ public class Relation extends BaseValueObject {
 
     public Relation(String graphId, Relationship neo4jRel) {
         if (null == neo4jRel)
-            throw new ServerException(GraphDACErrorCodes.ERR_DAC_NULL_DB_REL_008.name(),
+            throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_REL.name(),
                     "Failed to create relation object. Relation from database is null.");
         this.graphId = graphId;
 

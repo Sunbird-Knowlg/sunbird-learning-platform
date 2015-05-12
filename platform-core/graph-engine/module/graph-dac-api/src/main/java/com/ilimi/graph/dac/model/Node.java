@@ -45,7 +45,7 @@ public class Node extends BaseValueObject {
 
     public Node(String graphId, org.neo4j.graphdb.Node neo4jNode) {
         if (null == neo4jNode)
-            throw new ServerException(GraphDACErrorCodes.ERR_DAC_NULL_DB_NODE_007.name(),
+            throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_NODE.name(),
                     "Failed to create node object. Node from database is null.");
         this.graphId = graphId;
         Iterable<String> keys = neo4jNode.getPropertyKeys();

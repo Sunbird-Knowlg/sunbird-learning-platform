@@ -28,10 +28,10 @@ public abstract class AbstractDomainObject {
 
     public AbstractDomainObject(BaseGraphManager manager, String graphId) {
         if (StringUtils.isBlank(graphId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_GRAPH_ID_002.name(), "GraphId is blank");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_GRAPH_ID.name(), "GraphId is blank");
         }
         if (checkForWhiteSpace(graphId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_GRAPH_ID_002.name(), "GraphId should not have white spaces");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_GRAPH_ID.name(), "GraphId should not have white spaces");
         }
         this.manager = manager;
         this.graphId = graphId;
