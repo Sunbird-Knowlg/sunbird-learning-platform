@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.MiddlewareException;
 import com.ilimi.graph.common.exception.ResourceNotFoundException;
@@ -28,16 +28,16 @@ public abstract class BaseController {
 
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
-        Status resStatus = new Status();
-        resStatus.setMessage(e.getMessage());
+        Params resStatus = new Params();
+        resStatus.setErrmsg(e.getMessage());
         resStatus.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
-            resStatus.setCode(me.getErrCode());
+            resStatus.setErr(me.getErrCode());
         } else {
-            resStatus.setCode(TaxonomyErrorCodes.SYSTEM_ERROR.name());
+            resStatus.setErr(TaxonomyErrorCodes.SYSTEM_ERROR.name());
         }
-        response.setStatus(resStatus);
+        response.setParams(resStatus);
         return response;
     }
 
@@ -67,12 +67,12 @@ public abstract class BaseController {
         return status;
     }
 
-    protected void writeToResponse(Status status, String content, String contentType, HttpServletResponse response) throws Exception {
+    protected void writeToResponse(Params params, String content, String contentType, HttpServletResponse response) throws Exception {
         response.setContentType(contentType);
         OutputStream resOs = response.getOutputStream();
         OutputStream buffOs = new BufferedOutputStream(resOs);
         OutputStreamWriter outputwriter = new OutputStreamWriter(buffOs);
-        outputwriter.write(status.toString() + "\n");
+        outputwriter.write(params.toString() + "\n");
         if (StringUtils.isNotBlank(content)) {
             outputwriter.write(content);
         }
@@ -85,7 +85,7 @@ public abstract class BaseController {
         HttpStatus status = getHttpStatus(e);
         response.setStatus(status.value());
         try {
-            writeToResponse(appResponse.getStatus(), e.getMessage(), "text/csv;charset=utf-8", response);
+            writeToResponse(appResponse.getParams(), e.getMessage(), "text/csv;charset=utf-8", response);
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }

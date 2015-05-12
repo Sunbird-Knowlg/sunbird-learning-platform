@@ -23,8 +23,8 @@ import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.LongIdentifier;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ResponseCode;
@@ -131,15 +131,15 @@ public abstract class BaseManager {
 
     protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
         Response response = new Response();
-        response.setStatus(getErrorStatus(errorCode, errorMessage));
+        response.setParams(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(responseCode);
         return response;
     }
 
     protected boolean checkError(Response response) {
-        Status status = response.getStatus();
-        if (null != status) {
-            if (StringUtils.equals(StatusType.ERROR.name(), status.getStatus())) {
+        Params params = response.getParams();
+        if (null != params) {
+            if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
                 return true;
             }
         }
@@ -149,22 +149,22 @@ public abstract class BaseManager {
     protected Response copyResponse(Response res) {
         Response response = new Response();
         response.setResponseCode(res.getResponseCode());
-        response.setStatus(res.getStatus());
+        response.setParams(res.getParams());
         return response;
     }
 
     protected Response copyResponse(Response to, Response from) {
         to.setResponseCode(from.getResponseCode());
-        to.setStatus(from.getStatus());
+        to.setParams(from.getParams());
         return to;
     }
 
-    private Status getErrorStatus(String errorCode, String errorMessage) {
-        Status status = new Status();
-        status.setCode(errorCode);
-        status.setStatus(StatusType.ERROR.name());
-        status.setMessage(errorMessage);
-        return status;
+    private Params getErrorStatus(String errorCode, String errorMessage) {
+        Params params = new Params();
+        params.setErr(errorCode);
+        params.setStatus(StatusType.ERROR.name());
+        params.setErrmsg(errorMessage);
+        return params;
     }
 
     protected boolean validateRequired(BaseValueObject... objects) {
