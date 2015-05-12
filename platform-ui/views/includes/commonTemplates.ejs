@@ -29,13 +29,13 @@
             <div class="user">
                 <div class="il-Link-clr ac-contents display-inline">{{reply.lastModifiedBy}}</div> 
                 <div>
-                    <span class="timeDur moveTop10" data-livestamp="{{reply.lastModifiedOn/1000}}"></span>
+                    <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{reply.lastModifiedOn/1000}}"></span>
                 </div> 
                 
             </div>
             <div class="wallText" ng-bind-html="reply.comment"></div>
             <a class="pull-right mar-rt-10" ng-click="reply.showForm=true;" ng-show="!reply.showForm"><i class="fa fa-reply"></i></a>
-            <div ng-show="reply.showForm">
+            <div class="marginTop10" ng-show="reply.showForm">
                 <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{reply.id}}"></textarea>
                 <div class="save_text" style="border: 0px;">
                     <div class="save_btn">
@@ -54,7 +54,7 @@
             <div class="user">
                 <div class="il-Link-clr ac-contents display-inline">{{childReply.lastModifiedBy}}</div> 
                 <div>
-                    <span class="timeDur moveTop10" data-livestamp="{{childReply.lastModifiedOn/1000}}"></span>
+                    <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{childReply.lastModifiedOn/1000}}"></span>
                 </div> 
                 
             </div>
@@ -82,13 +82,13 @@
                                 <div class="user">
                                     <div class="il-Link-clr ac-contents display-inline">{{currentComment.lastModifiedBy}}</div> 
                                     <div>
-                                        <span class="timeDur moveTop10" data-livestamp="{{currentComment.lastModifiedOn/1000}}"></span>
+                                        <span class="timeDur moveTop8" style="">commented&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{currentComment.lastModifiedOn/1000}}"></span>
                                     </div> 
                                     
                                 </div>
                                 <div class="wallText" ng-bind-html="currentComment.comment"></div>
                                 <a class="pull-right mar-rt-10" ng-click="currentComment.showForm=true;" ng-show="!currentComment.showForm"><i class="fa fa-reply"></i></a>
-                                <div ng-show="currentComment.showForm">
+                                <div class="marginTop10" ng-show="currentComment.showForm">
                                     <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{currentComment.id}}"></textarea>
                                     <div class="save_text" style="border: 0px;">
                                         <div class="save_btn">
@@ -107,7 +107,7 @@
                         <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="newCommentTextArea"></textarea>
                         <div class="save_text" style="border: 0px;">
                             <div class="save_btn">
-                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">Comment</button>
+                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">comment</button>
                             </div>
                         </div>
                     </div>
@@ -168,7 +168,7 @@
                         No comments found.
                     </div>
                     <div class="community-replies" ng-if="selectedConcept.comments.length > 0">
-                        <div class="community-reply" ng-repeat="comment in selectedConcept.comments" ng-click="showComment(comment)">
+                        <div class="community-reply pointer" ng-repeat="comment in selectedConcept.comments" ng-click="showComment(comment)">
                             <a href="#" class="pull-left">
                                 <img width="32" height="32" class="img-rounded media-object" ng-src="{{comment.author.image.url || '/img/default.png'}}">
                             </a>
@@ -250,8 +250,8 @@
                         <div ng-if="selectedConcept.auditHistory.length == 0" class="col-md-12 text-center {{cat.auditHistory ? '' : 'hide'}}">
                             No audit history found.
                         </div>
-                        <div class="community-replies {{cat.auditHistory ? '' : 'hide'}}" ng-if="selectedConcept.auditHistory.length > 0">
-                            <div class="community-reply" ng-repeat="ah in selectedConcept.auditHistory">
+                        <div class="community-replies {{cat.auditHistory ? '' : 'hide'}}" ng-if="selectedConcept.auditHistory.length > 0" >
+                            <div class="community-reply pointer" ng-repeat="ah in selectedConcept.auditHistory" ng-click="showComment(ah.comment)">
                                 <a href="#" class="pull-left">
                                     <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
                                 </a>

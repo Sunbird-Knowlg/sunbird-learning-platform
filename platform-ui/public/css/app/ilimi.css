@@ -37,6 +37,10 @@
     margin-top: 20px
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .community-replies {
     display: inline-block;
     width: 100%;
@@ -50,7 +54,7 @@
     margin-top: 5px;
     padding: 5px 0 5px 10px;
     display: inline-block;
-    width: 100%
+    width: 100%;
 }
 
 .community-reply>.reply-body {
@@ -1786,6 +1790,11 @@ textarea {
 
 .moveTop5 {
     top: -5px;
+    position: relative;
+}
+
+.moveTop8 {
+    top: -8px;
     position: relative;
 }
 
