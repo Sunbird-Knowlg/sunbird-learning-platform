@@ -49,7 +49,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 method.invoke(this, request);
             }
         } catch (Exception e) {
-            ERROR(e, parent);
+            ERROR(e.getCause(), parent);
         }
     }
 
@@ -414,6 +414,21 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             graph.importDefinitions(request);
         } catch (Exception e) {
             handleException(e, getSender());
+        }
+    }
+    
+    public void exportNode(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
+        if (!validateRequired(nodeId)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+        } else {
+            try {
+               Graph graph = new Graph(this, graphId);
+               graph.exportNode(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
         }
     }
 }

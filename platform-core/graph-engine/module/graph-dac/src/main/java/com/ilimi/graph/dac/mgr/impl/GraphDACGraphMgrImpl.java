@@ -592,7 +592,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         int nodesCount = 0;
         for (com.ilimi.graph.dac.model.Node node : nodes) {
             if (null == node || StringUtils.isBlank(node.getIdentifier()) || StringUtils.isBlank(node.getNodeType())) {
-                // TODO: add to validation messages.
                 // ERROR(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(),
                 // "Invalid input node", request, getSender());
             } else {

@@ -16,7 +16,7 @@ import com.ilimi.graph.common.Response;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 @Controller
-@RequestMapping("/audithistory")
+@RequestMapping("/audit")
 public class AuditController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AuditController.class.getName());

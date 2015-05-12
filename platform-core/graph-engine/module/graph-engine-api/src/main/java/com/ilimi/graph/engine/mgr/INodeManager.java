@@ -83,5 +83,8 @@ public interface INodeManager {
      * @response - MESSAGES: List of validation error messages, if any
      */
     void importDefinitions(final Request request);
+    
+    
+    void exportNode(Request request);
 
 }

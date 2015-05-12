@@ -1,10 +1,9 @@
 package com.ilimi.graph.engine.exporttest;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
+import java.io.ByteArrayInputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 
 import scala.concurrent.Await;
@@ -21,10 +20,10 @@ import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
-import com.ilimi.graph.enums.ImportType;
-import com.ilimi.graph.importer.OutputStreamValue;
+import com.ilimi.graph.importer.InputStreamValue;
 
 public class NodeExportTest {
 
@@ -49,15 +48,15 @@ public class NodeExportTest {
             ActorRef reqRouter = initReqRouter();
             Request request = new Request();
             request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
-            request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
-            request.setOperation("exportGraph");
-            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.RDF.name()));
+            request.put(GraphDACParams.NODE_ID.name(), new StringValue("Lit:C1"));
+            request.setManagerName(GraphEngineManagers.NODE_MANAGER);
+            request.setOperation("exportNode");
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
-            ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-            System.out.println("Result: \n" + new String(os.toByteArray()));
+            InputStreamValue isV = (InputStreamValue) response.get(GraphEngineParams.INPUT_STREAM.name());
+            ByteArrayInputStream is = (ByteArrayInputStream) isV.getInputStream();
+            System.out.println("Result: \n" + new String(IOUtils.toByteArray(is)));
             
         } catch (Exception e) {
             e.printStackTrace();

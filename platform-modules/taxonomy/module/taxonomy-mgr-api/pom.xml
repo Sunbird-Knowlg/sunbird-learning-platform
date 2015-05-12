@@ -22,7 +22,7 @@
 		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>
-			<artifactId>commons-dac</artifactId>
+			<artifactId>platform-dac</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>

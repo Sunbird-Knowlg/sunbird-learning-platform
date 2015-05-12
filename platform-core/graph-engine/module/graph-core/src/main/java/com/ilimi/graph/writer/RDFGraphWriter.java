@@ -1,6 +1,8 @@
 package com.ilimi.graph.writer;
 
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.HashMap;
@@ -66,7 +68,112 @@ public class RDFGraphWriter implements GraphWriter {
         addPropertyNamespace("DataTypeProperty", "owl");
         
     }
+    
+    public RDFGraphWriter() {
+        namespaceMap = new HashMap<String, String>();
+        propertyNamespaceMap = new HashMap<String, String>();
+        addNamespace(defaultNamespacePrefix, defaultNamespaceUri);
+        addNamespace("owl", "http://www.w3.org/2002/07/owl");
+        addNamespace("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns");
+        addNamespace("rdfs", "http://www.w3.org/2000/01/rdf-schema");
+        addPropertyNamespace("type", "rdf");
+        addPropertyNamespace("Class", "owl");
+        addPropertyNamespace("DataTypeProperty", "owl");
+    }
+    
+    public InputStream getRDF(Node node) throws Exception {
+        RDFFormat format = Rio.getWriterFormatForMIMEType(MIME_RDFXML, RDFFormat.RDFXML);
+        StringWriter out = new StringWriter();
+        RDFWriter writer = Rio.createWriter(format, out);
+        Map<Object, URI> uriCache = new HashMap<Object, URI>();
+        
+        // Start writing the RDF content
+        writer.startRDF();
+        // Write all name-spaces to the output
+        for (String prefix : namespaceMap.keySet()) {
+            writer.handleNamespace(prefix, namespaceMap.get(prefix) + "#");
+        }
+        URI subject = getUri(node, uriCache);
+        
+        String idval = node.getIdentifier();
+        URI idPredicate = getUri(PROPERTY_ID, uriCache);
+        Value idObject = new LiteralImpl(idval);
+        Statement st = new StatementImpl(subject, idPredicate, idObject);
+        writer.handleStatement(st);
+        Statement nodeTypeSt = new StatementImpl(subject, getUri(PROPERTY_NODE_TYPE, uriCache), new LiteralImpl(node.getNodeType()));
+        writer.handleStatement(nodeTypeSt);
+        if(StringUtils.isNotBlank(node.getObjectType())) {
+            Statement objTypeSt = new StatementImpl(subject, getUri(PROPERTY_OBJECT_TYPE, uriCache), new LiteralImpl(node.getObjectType()));
+            writer.handleStatement(objTypeSt);
+        }
+        
+        for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+            Object val = entry.getValue();
+            URI predicate = getUri(entry.getKey(), uriCache);
+            Value object = new LiteralImpl(val.toString());
+            Statement stMeta = new StatementImpl(subject, predicate, object);
+            writer.handleStatement(stMeta);
+        }
+        
+        for(Relation relation : node.getInRelations()) {
+            URI relSubject = getUri(relation, uriCache);
+            
+            if (null != relation.getMetadata()) {
+                for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
+                    URI relPredicate = getUri(entry.getKey(), uriCache);
+                    Value relObject = new LiteralImpl(entry.getValue().toString());
+                    writer.handleStatement(new StatementImpl(relSubject, relPredicate, relObject));
+                }
+            }
+            
+            URI relEnd = getUri(relation.getEndNodeId(), uriCache);
+            URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
+            writer.handleStatement(new StatementImpl(relSubject, relPredicate, relEnd));
+            
+            URI relFrom = getUri(relation.getStartNodeId(), uriCache);
+            relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
+            writer.handleStatement(new StatementImpl(relSubject, relPredicate, relFrom));
+            
+            Literal label = new LiteralImpl(relation.getRelationType());
+            relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
+            writer.handleStatement(new StatementImpl(relSubject, relPredicate, label));
+        }
+        
+        for(Relation relation : node.getOutRelations()) {
+            URI outRelSubject = getUri(relation, uriCache);
+            
+            if (null != relation.getMetadata()) {
+                for (Entry<String, Object> entry : relation.getMetadata().entrySet()) {
+                    URI relPredicate = getUri(entry.getKey(), uriCache);
+                    Value relObject = new LiteralImpl(entry.getValue().toString());
+                    writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relObject));
+                }
+            }
 
+            URI relEnd = getUri(relation.getEndNodeId(), uriCache);
+            URI relPredicate = getUri(PROPERTY_RELATION_END, uriCache);
+            writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relEnd));
+            
+            URI relFrom = getUri(relation.getStartNodeId(), uriCache);
+            relPredicate = getUri(PROPERTY_RELATION_START, uriCache);
+            writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, relFrom));
+            
+            Literal label = new LiteralImpl(relation.getRelationType());
+            relPredicate = getUri(PROPERTY_RELATION_TYPE, uriCache);
+            writer.handleStatement(new StatementImpl(outRelSubject, relPredicate, label));
+        }
+        
+        writer.endRDF();
+        System.out.println("out.toString():"+out.toString());
+        InputStream inputStream = new ByteArrayInputStream(out.toString().getBytes());
+        return inputStream;
+    }
+
+    public InputStream getRDF(List<Node> nodes, List<Relation> relations) throws Exception {
+        
+        return null;
+    }
+    
     @Override
     public OutputStream getData() throws Exception {
         RDFFormat format = Rio.getWriterFormatForMIMEType(MIME_RDFXML, RDFFormat.RDFXML);
@@ -131,7 +238,6 @@ public class RDFGraphWriter implements GraphWriter {
                 for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
                     Object val = entry.getValue();
                     URI predicate = getUri(entry.getKey(), uriCache);
-                    // TODO: Getting a set/collection here
                     Value object = new LiteralImpl(val.toString());
                     Statement stMeta = new StatementImpl(subject, predicate, object);
                     writer.handleStatement(stMeta);

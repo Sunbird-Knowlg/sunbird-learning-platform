@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
@@ -11,6 +12,9 @@ import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.CommonsDacParams;
+import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
+import com.ilimi.taxonomy.enums.AuditLogErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.util.AuditLogUtil;
 
@@ -23,9 +27,17 @@ public class AuditLogManager implements IAuditLogManager {
     @Override
     @Async
     public void saveAuditRecord(AuditRecord audit) {
-        Request request = new Request();
-        request.put(CommonsDacParams.AUDIT_RECORD.name(), audit);
-        auditLogDataService.saveAuditLog(request);
+        if(null != audit) {
+            if(StringUtils.isBlank(audit.getObjectId()) || StringUtils.isBlank(audit.getLogRecord())) {
+                throw new ClientException(AuditLogErrorCodes.ERR_SAVE_AUDIT_MISSING_REQ_PARAMS.name(), "Required params missing...");
+            }
+            Request request = new Request();
+            request.put(CommonsDacParams.AUDIT_RECORD.name(), audit);
+            auditLogDataService.saveAuditLog(request);
+        } else {
+           throw new ClientException(AuditLogErrorCodes.ERR_INVALID_AUDIT_RECORD.name(), "audit record is null."); 
+        }
+        
     }
 
     @Override
@@ -39,10 +51,15 @@ public class AuditLogManager implements IAuditLogManager {
 
     @Override
     public Response saveComment(String graphId, Comment comment) {
-        Request request = new Request();
-        request.put(CommonsDacParams.COMMENT.name(), comment);
-        Response response = auditLogDataService.saveComment(request);
-        return response;
+        if(null != comment) {
+            Request request = new Request();
+            request.put(CommonsDacParams.COMMENT.name(), comment);
+            Response response = auditLogDataService.saveComment(request);
+            return response;
+        } else {
+            throw new ClientException(AuditLogErrorCodes.ERR_INVALID_COMMENT.name(), "comment is null.");
+        }
+        
         
     }
 

@@ -190,7 +190,7 @@ public class JsonGraphReader implements GraphReader {
                     Sequence sequence = new Sequence(manager, graphId, uniqueId);
                     dataNodes.add(sequence.toNode());
                 } else {
-                    // TODO: handle error.
+                    
                 }
             }
         }
