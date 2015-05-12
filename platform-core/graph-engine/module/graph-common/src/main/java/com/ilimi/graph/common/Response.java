@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Status;
+import com.ilimi.graph.common.dto.Params;
 import com.ilimi.graph.common.exception.ResponseCode;
 
 /**
@@ -17,9 +17,36 @@ public class Response implements Serializable {
 
     private static final long serialVersionUID = -3773253896160786443L;
 
-    private Map<String, BaseValueObject> result = new HashMap<String, BaseValueObject>();
-    private Status status;
+    private String id;
+    private String version;
+    private String ts;
+    private Params params;
     private ResponseCode responseCode = ResponseCode.OK;
+    private Map<String, BaseValueObject> result = new HashMap<String, BaseValueObject>();
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
+    }
+
+    public String getTs() {
+        return ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
 
     /**
      * @return the responseValueObjects
@@ -36,12 +63,12 @@ public class Response implements Serializable {
         result.put(key, vo);
     }
 
-    public Status getStatus() {
-        return status;
+    public Params getParams() {
+        return params;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
+    public void setParams(Params params) {
+        this.params = params;
     }
 
     public void setResponseCode(ResponseCode code) {

@@ -31,8 +31,8 @@ import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
@@ -334,8 +334,8 @@ public class Graph extends AbstractDomainObject {
                                         if (throwable != null) {
                                             manager.ERROR(throwable, getParent());
                                         } else {
-                                            Status status = (Status) actorResponse.getStatus();
-                                            if (StatusType.ERROR.name().equals(status.getStatus())) {
+                                            Params params = (Params) actorResponse.getParams();
+                                            if (StatusType.ERROR.name().equals(params.getStatus())) {
                                                 getParent().tell(actorResponse, manager.getSelf());
                                             } else {
                                                 BaseValueObjectMap importMsgBVMap = (BaseValueObjectMap) actorResponse
@@ -776,11 +776,11 @@ public class Graph extends AbstractDomainObject {
                     }
 
                     Response response = new Response();
-                    Status status = new Status();
-                    status.setCode("0");
-                    status.setStatus(StatusType.SUCCESS.name());
-                    status.setMessage("Operation successful");
-                    response.setStatus(status);
+                    Params params = new Params();
+                    params.setErr("0");
+                    params.setStatus(StatusType.SUCCESS.name());
+                    params.setErrmsg("Operation successful");
+                    response.setParams(params);
                     response.put(GraphEngineParams.OUTPUT_STREAM.name(), new OutputStreamValue(outputStream));
                     return response;
                 }

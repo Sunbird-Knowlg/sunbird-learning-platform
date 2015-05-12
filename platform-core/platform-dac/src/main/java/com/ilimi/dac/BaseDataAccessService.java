@@ -11,8 +11,8 @@ import com.ilimi.graph.common.Response;
 //import com.canopus.command.Response;
 import com.ilimi.graph.common.dto.BaseValueObject;
 //import com.canopus.command.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 
 
 
@@ -37,7 +37,7 @@ public abstract class BaseDataAccessService {
      */
     public Response OK(String responseIdentifier, BaseValueObject vo) {
         Response response = new Response();
-        response.setStatus(getSucessStatus());
+        response.setParams(getSucessStatus());
         response.put(responseIdentifier, vo);
         return response;
     }
@@ -49,7 +49,7 @@ public abstract class BaseDataAccessService {
      */
     public Response OK() {
         Response response = new Response();
-        response.setStatus(getSucessStatus());
+        response.setParams(getSucessStatus());
         return response;
     }
 
@@ -66,11 +66,11 @@ public abstract class BaseDataAccessService {
         return response;
     }
     
-    private Status getSucessStatus() {
-        Status status = new Status();
-        status.setCode("0");
-        status.setStatus(StatusType.SUCCESS.name());
-        status.setMessage("Operation successful");
-        return status;
+    private Params getSucessStatus() {
+        Params params = new Params();
+        params.setErr("0");
+        params.setStatus(StatusType.SUCCESS.name());
+        params.setErrmsg("Operation successful");
+        return params;
     }
 }
