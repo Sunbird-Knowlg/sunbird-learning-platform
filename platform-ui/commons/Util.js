@@ -42,13 +42,13 @@ exports.sendJSONFileResponse = function(fileName, cb) {
 }
 
 exports.validateMWResponse = function(response, cb) {
-	var statusObj = response.status, errors = [], valid = true;
+	var statusObj = response.params, errors = [], valid = true;
 	if(statusObj.status == 'ERROR') {
 		valid = false;
 		if(!_.isEmpty(response.result.MESSAGES) && !_.isEmpty(response.result.MESSAGES.valueObjectList)) {
 			errors = _.pluck(response.result.MESSAGES.valueObjectList,  'id');
 		} else {
-			errors.push(statusObj.message);
+			errors.push(statusObj.errmsg);
 		}
 		cb(errors);
 	}
