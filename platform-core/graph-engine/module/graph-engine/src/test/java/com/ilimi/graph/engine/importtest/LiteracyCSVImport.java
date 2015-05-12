@@ -116,7 +116,7 @@ public class LiteracyCSVImport {
                 Response ar = (Response) arg1;
                 System.out.println(ar.getResult());
                 System.out.println(ar.get(param));
-                System.out.println(ar.getStatus());
+                System.out.println(ar.getParams());
             }
         } catch (Exception e) {
             e.printStackTrace();

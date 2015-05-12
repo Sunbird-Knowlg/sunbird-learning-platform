@@ -15,8 +15,8 @@ import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -80,14 +80,14 @@ public abstract class BaseRequestRouter extends UntypedActor {
                 long endTime = System.currentTimeMillis();
                 long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.START_TIME.name());
                 Response res = (Response) arg0;
-                Status status = res.getStatus();
-                LOGGER.info(request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + status.toString());
+                Params params = res.getParams();
+                LOGGER.info(request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
                 perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
                         + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + ",ENDTIME," + endTime);
                 perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
                         + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
-                        + request.getOperation() + "," + status.getStatus() + "," + exeTime);
+                        + request.getOperation() + "," + params.getStatus() + "," + exeTime);
             }
         }, getContext().dispatcher());
 
@@ -102,16 +102,16 @@ public abstract class BaseRequestRouter extends UntypedActor {
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
         LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
         Response response = new Response();
-        Status status = new Status();
-        status.setStatus(StatusType.ERROR.name());
+        Params params = new Params();
+        params.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
-            status.setCode(mwException.getErrCode());
+            params.setErr(mwException.getErrCode());
         } else {
-            status.setCode(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
+            params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        status.setMessage(e.getMessage());
-        response.setStatus(status);
+        params.setErrmsg(e.getMessage());
+        response.setParams(params);
         setResponseCode(response, e);
         parent.tell(response, getSelf());
         long exeTime = System.currentTimeMillis() - (Long) request.getContext().get(GraphHeaderParams.START_TIME.name());

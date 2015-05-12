@@ -107,7 +107,7 @@ public class TestUtil {
                     System.out.println(ar.getResult());
                     System.out.println(ar.get(param));
                 }
-                System.out.println(ar.getStatus());
+                System.out.println(ar.getParams());
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -5,7 +5,7 @@ import java.util.Date;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Status;
+import com.ilimi.graph.common.dto.Params;
 import com.ilimi.util.AuditLogUtil;
 
 public class AuditRecord extends BaseValueObject {
@@ -25,14 +25,14 @@ public class AuditRecord extends BaseValueObject {
         super();
     }
 
-    public AuditRecord(String graphId, String objectId, String operationType, Status status, String lastModifiedBy, String logRecord,
+    public AuditRecord(String graphId, String objectId, String operationType, Params params, String lastModifiedBy, String logRecord,
             String comment) {
         super();
         this.objectId = AuditLogUtil.createObjectId(graphId, objectId);
         this.operationType = operationType;
-        this.status = status.toString();
-        this.statusCode = status.getStatus();
-        this.statusMessage = status.getMessage();
+        this.status = params.toString();
+        this.statusCode = params.getStatus();
+        this.statusMessage = params.getErrmsg();
         this.lastModifiedBy = lastModifiedBy;
         this.lastModifiedOn = new Date();
         this.logRecord = logRecord;

@@ -85,7 +85,7 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -104,7 +104,7 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getStatus(), userId, (String) map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, (String) map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {

@@ -24,8 +24,8 @@ import com.ilimi.graph.common.dto.BaseValueObjectMap;
 import com.ilimi.graph.common.dto.Identifier;
 import com.ilimi.graph.common.dto.LongIdentifier;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Status;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -54,14 +54,14 @@ public abstract class BaseGraphManager extends UntypedActor {
 
     public void OK(ActorRef parent) {
         Response response = new Response();
-        response.setStatus(getSucessStatus());
+        response.setParams(getSucessStatus());
         parent.tell(response, getSelf());
     }
 
     public void OK(String responseIdentifier, BaseValueObject vo, ActorRef parent) {
         Response response = new Response();
         response.put(responseIdentifier, vo);
-        response.setStatus(getSucessStatus());
+        response.setParams(getSucessStatus());
         parent.tell(response, getSelf());
     }
 
@@ -72,7 +72,7 @@ public abstract class BaseGraphManager extends UntypedActor {
                 response.put(entry.getKey(), entry.getValue());
             }
         }
-        response.setStatus(getSucessStatus());
+        response.setParams(getSucessStatus());
         parent.tell(response, getSelf());
     }
 
@@ -81,7 +81,7 @@ public abstract class BaseGraphManager extends UntypedActor {
         LOGGER.error(errorCode + ", " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
-        response.setStatus(getErrorStatus(errorCode, errorMessage));
+        response.setParams(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(code);
         parent.tell(response, getSelf());
     }
@@ -93,15 +93,15 @@ public abstract class BaseGraphManager extends UntypedActor {
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
         LOGGER.error(errorCode + ", " + errorMessage);
         Response response = new Response();
-        response.setStatus(getErrorStatus(errorCode, errorMessage));
+        response.setParams(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(code);
         parent.tell(response, getSelf());
     }
 
     public boolean checkError(Response response) {
-        Status status = response.getStatus();
-        if (null != status) {
-            if (StringUtils.equals(StatusType.ERROR.name(), status.getStatus())) {
+        Params params = response.getParams();
+        if (null != params) {
+            if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
                 return true;
             }
         }
@@ -109,12 +109,12 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public String getErrorMessage(Response response) {
-        Status status = response.getStatus();
-        if (null != status) {
-            String msg = status.getMessage();
+        Params params = response.getParams();
+        if (null != params) {
+            String msg = params.getErrmsg();
             if (StringUtils.isNotBlank(msg))
                 return msg;
-            return status.getCode();
+            return params.getErr();
         }
         return null;
     }
@@ -198,16 +198,16 @@ public abstract class BaseGraphManager extends UntypedActor {
     public void handleException(Throwable e, ActorRef parent) {
         LOGGER.error(e.getMessage(), e);
         Response response = new Response();
-        Status status = new Status();
-        status.setStatus(StatusType.ERROR.name());
+        Params params = new Params();
+        params.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
-            status.setCode(mwException.getErrCode());
+            params.setErr(mwException.getErrCode());
         } else {
-            status.setCode(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
+            params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        status.setMessage(e.getMessage());
-        response.setStatus(status);
+        params.setErrmsg(e.getMessage());
+        response.setParams(params);
         setResponseCode(response, e);
         parent.tell(response, getSelf());
     }
@@ -251,20 +251,20 @@ public abstract class BaseGraphManager extends UntypedActor {
         return listFuture;
     }
 
-    private Status getSucessStatus() {
-        Status status = new Status();
-        status.setCode("0");
-        status.setStatus(StatusType.SUCCESS.name());
-        status.setMessage("Operation successful");
-        return status;
+    private Params getSucessStatus() {
+        Params params = new Params();
+        params.setErr("0");
+        params.setStatus(StatusType.SUCCESS.name());
+        params.setErrmsg("Operation successful");
+        return params;
     }
 
-    private Status getErrorStatus(String errorCode, String errorMessage) {
-        Status status = new Status();
-        status.setCode(errorCode);
-        status.setStatus(StatusType.ERROR.name());
-        status.setMessage(errorMessage);
-        return status;
+    private Params getErrorStatus(String errorCode, String errorMessage) {
+        Params params = new Params();
+        params.setErr(errorCode);
+        params.setStatus(StatusType.ERROR.name());
+        params.setErrmsg(errorMessage);
+        return params;
     }
 
     private void setResponseCode(Response res, Throwable e) {

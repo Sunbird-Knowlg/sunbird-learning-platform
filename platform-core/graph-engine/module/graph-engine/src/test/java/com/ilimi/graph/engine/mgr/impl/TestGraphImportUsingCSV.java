@@ -29,9 +29,9 @@ import akka.util.Timeout;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Status;
+import com.ilimi.graph.common.dto.Params;
 import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.dto.Status.StatusType;
+import com.ilimi.graph.common.dto.Params.StatusType;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -79,8 +79,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
     }
     
     private void testImportDefinitionNodes() throws Exception {
@@ -96,8 +96,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
     }
     
@@ -125,9 +125,9 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.ERROR.name(), status.getStatus());
-        assertTrue(status.getMessage().startsWith("Required columns are missing"));
+        Params params = response.getParams();
+        assertEquals(StatusType.ERROR.name(), params.getStatus());
+        assertTrue(params.getErrmsg().startsWith("Required columns are missing"));
         deleteGraph();
     }
     
@@ -140,9 +140,9 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.ERROR.name(), status.getStatus());
-        assertTrue(status.getMessage().startsWith("Required data(uniqueId, objectType) is missing for the row[2]"));
+        Params params = response.getParams();
+        assertEquals(StatusType.ERROR.name(), params.getStatus());
+        assertTrue(params.getErrmsg().startsWith("Required data(uniqueId, objectType) is missing for the row[2]"));
         deleteGraph();
     }
     
@@ -155,8 +155,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
         ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
         String output = new String(os.toByteArray());
@@ -173,8 +173,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -196,8 +196,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         Thread.sleep(15000);
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -225,8 +225,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         String description = getNodeProperty("Num:C1", "description");
         System.out.println("Description:"+description);
@@ -238,8 +238,8 @@ public class TestGraphImportUsingCSV {
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;
-        status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         description = getNodeProperty("Num:C1", "description");
         assertEquals("Desc of Geometry", description);
@@ -256,8 +256,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -282,8 +282,8 @@ public class TestGraphImportUsingCSV {
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;
-        status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         tx = graphDb.beginTx();
         while(relations.hasNext()) {
@@ -315,8 +315,8 @@ public class TestGraphImportUsingCSV {
         Future<Object> req = Patterns.ask(reqRouter, request, t);
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
-        Status status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        Params params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         
         Thread.sleep(10000);
         
@@ -326,8 +326,8 @@ public class TestGraphImportUsingCSV {
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;
-        status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
         ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
         String output = new String(os.toByteArray());
@@ -344,8 +344,8 @@ public class TestGraphImportUsingCSV {
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;
-        status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
 
         request = getRequest();
         inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-NodesAndTags.csv");
@@ -353,8 +353,8 @@ public class TestGraphImportUsingCSV {
         req = Patterns.ask(reqRouter, request, t);
         obj = Await.result(req, t.duration());
         response = (Response) obj;
-        status = response.getStatus();
-        assertEquals(StatusType.SUCCESS.name(), status.getStatus());
+        params = response.getParams();
+        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
         osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
         os = (ByteArrayOutputStream) osV.getOutputStream();
         output = new String(os.toByteArray());

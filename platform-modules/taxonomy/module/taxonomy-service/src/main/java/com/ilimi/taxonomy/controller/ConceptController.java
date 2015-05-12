@@ -88,7 +88,7 @@ public class ConceptController extends BaseController {
         try {
             Response response = conceptManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -107,7 +107,7 @@ public class ConceptController extends BaseController {
         try {
             Response response = conceptManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getStatus(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {

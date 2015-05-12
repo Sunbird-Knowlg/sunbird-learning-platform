@@ -82,7 +82,7 @@ public class TaxonomyController extends BaseController {
             String content = null;
             if (null != val && StringUtils.isNotBlank(val.getId()))
                 content = val.getId();
-            writeToResponse(response.getStatus(), content, "text/csv;charset=utf-8", resp);
+            writeToResponse(response.getParams(), content, "text/csv;charset=utf-8", resp);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
             writeError(e, resp);
