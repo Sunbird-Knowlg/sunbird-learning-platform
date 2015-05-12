@@ -17,7 +17,8 @@
 var userHelper = require('../view_helpers/UserViewHelper')
     , taxonomyHelper = require('../view_helpers/TaxonomyViewHelper')
     , conceptHelper = require('../view_helpers/ConceptViewHelper')
-    , gameHelper = require('../view_helpers/GameViewHelper');
+    , gameHelper = require('../view_helpers/GameViewHelper')
+    , commentHelper = require('../view_helpers/CommentViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -179,6 +180,9 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.get('/private/v1/player/game/:tid/:gid', gameHelper.getGame);
     app.post('/private/v1/player/game/create', gameHelper.createGame);
     app.post('/private/v1/player/game/update', gameHelper.updateGame);
+
+    app.post('/private/v1/player/comment', commentHelper.saveComment);
+    app.get('/private/v1/player/comment/thread/:tid/:id/:threadId',commentHelper.getCommentThread);
 
 };
 

@@ -404,7 +404,7 @@ public class DataNode extends AbstractNode {
     public void setProperty(Request req) {
         Property property = (Property) req.get(GraphDACParams.METADATA.name());
         if (!manager.validateRequired(property)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             checkMetadata(property.getPropertyName(), property.getPropertyValue());
             try {

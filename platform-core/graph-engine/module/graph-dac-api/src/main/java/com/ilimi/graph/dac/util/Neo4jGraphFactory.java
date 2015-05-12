@@ -60,7 +60,7 @@ public class Neo4jGraphFactory {
             if (null != graphDb && graphDb.isAvailable(0))
                 return graphDb;
         }
-        throw new ClientException(GraphDACErrorCodes.ERR_DAC_GRAPH_NOT_FOUND_004.name(), "Graph database: " + graphId + " not found");
+        throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph database: " + graphId + " not found");
     }
 
     public static void createGraph(String graphId) {
@@ -76,7 +76,7 @@ public class Neo4jGraphFactory {
             try {
                 FileUtils.deleteRecursively(f);
             } catch (Exception e) {
-                throw new ServerException(GraphDACErrorCodes.ERR_DAC_DELETE_GRAPH_EXCEPTION.name(), e.getMessage(), e);
+                throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_DELETE_UNKNOWN_ERROR.name(), e.getMessage(), e);
             }
         }
     }

@@ -37,6 +37,10 @@
     margin-top: 20px
 }
 
+.pointer {
+    cursor: pointer;
+}
+
 .community-replies {
     display: inline-block;
     width: 100%;
@@ -50,7 +54,7 @@
     margin-top: 5px;
     padding: 5px 0 5px 10px;
     display: inline-block;
-    width: 100%
+    width: 100%;
 }
 
 .community-reply>.reply-body {
@@ -1030,8 +1034,16 @@ ul.qamoduleslist a:hover {
     font-size: 25px
 }
 
+.mar-rt-10 {
+    margin-right: 10px;
+}
+
 .marginLeft10 {
     margin-left: 10px
+}
+
+.marginLeft20 {
+    margin-left: 20px
 }
 
 .marginLeft5 {
@@ -1041,6 +1053,10 @@ ul.qamoduleslist a:hover {
 .noMarginLeftRight {
     margin-left: 0;
     margin-top: 0
+}
+
+.noMargin {
+    margin: 0px;
 }
 
 .nextBtn {
@@ -1777,6 +1793,11 @@ textarea {
     position: relative;
 }
 
+.moveTop8 {
+    top: -8px;
+    position: relative;
+}
+
 .moveTop10 {
     top: -10px;
     position: relative;
@@ -1995,7 +2016,8 @@ input.validation-error {
 .screenshotImg {
     display: block; 
     margin-left: auto; 
-    margin-right: auto
+    margin-right: auto;
+    max-height: 500px;
 }
 
 .pad20 {

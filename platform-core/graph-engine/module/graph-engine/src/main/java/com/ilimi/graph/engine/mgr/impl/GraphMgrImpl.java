@@ -103,7 +103,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         StringValue format = (StringValue) request.get(GraphEngineParams.FORMAT.name());
         if (!validateRequired(format)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_INVALID_FORMAT.name(), "Required parameters are missing...");
         } else {
             try {
                 Graph graph = new Graph(this, graphId);

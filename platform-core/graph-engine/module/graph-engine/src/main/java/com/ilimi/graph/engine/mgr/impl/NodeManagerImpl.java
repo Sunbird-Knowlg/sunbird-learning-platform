@@ -18,6 +18,7 @@ import akka.dispatch.OnComplete;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ResponseCode;
@@ -48,7 +49,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 method.invoke(this, request);
             }
         } catch (Exception e) {
-            ERROR(e, parent);
+            ERROR(e.getCause(), parent);
         }
     }
 
@@ -57,7 +58,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         DefinitionDTO definition = (DefinitionDTO) request.get(GraphDACParams.DEFINITION_NODE.name());
         if (!validateRequired(definition) || StringUtils.isBlank(definition.getObjectType())) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 List<MetadataDefinition> indexedMetadata = new ArrayList<MetadataDefinition>();
@@ -87,7 +88,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) request
                 .get(GraphDACParams.METADATA_DEFINITIONS.name());
         if (!validateRequired(objectType, definitions)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 DefinitionNode defNode = new DefinitionNode(this, graphId, objectType.getId(), null, null, null, null, null);
@@ -104,7 +105,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         final ActorRef parent = getSender();
         final Node node = (Node) request.get(GraphDACParams.NODE.name());
         if (!validateRequired(node)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 final DataNode datanode = new DataNode(this, graphId, node);
@@ -144,7 +145,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                     } else {
                                         if (StringUtils.isNotBlank(arg1)) {
                                             messages.add(new StringValue(arg1));
-                                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Node Creation Error",
+                                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
                                                     ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
                                                     new BaseValueObjectList<StringValue>(messages), parent);
                                         } else {
@@ -157,7 +158,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                 }
                             }, ec);
                         } else {
-                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_ERROR.name(), "Validation Errors", ResponseCode.CLIENT_ERROR,
+                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors", ResponseCode.CLIENT_ERROR,
                                     GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages), parent);
                         }
                     }
@@ -220,7 +221,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                     if (msgs.isEmpty()) {
                         OK(GraphDACParams.NODE_ID.name(), new StringValue(datanode.getNodeId()), parent);
                     } else {
-                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Failed to update relations and tags",
+                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Failed to update relations and tags",
                                 ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(msgs),
                                 parent);
                     }
@@ -236,7 +237,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         final Node node = (Node) request.get(GraphDACParams.NODE.name());
         if (!validateRequired(nodeId, node)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             final ExecutionContext ec = getContext().dispatcher();
             node.setIdentifier(nodeId.getId());
@@ -299,7 +300,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                             } else {
                                                 if (StringUtils.isNotBlank(arg1)) {
                                                     messages.add(new StringValue(arg1));
-                                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(),
+                                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_UNKNOWN_ERROR.name(),
                                                             "Metadata Creation Error", ResponseCode.CLIENT_ERROR,
                                                             GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages),
                                                             parent);
@@ -315,14 +316,14 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                         }
                                     }, ec);
                                 } else {
-                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Node Metadata validation failed",
+                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Node Metadata validation failed",
                                             ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
                                             new BaseValueObjectList<StringValue>(messages), parent);
                                 }
                             }
                         }, ec);
                     } else {
-                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_ERROR.name(), "Node Not Found", ResponseCode.RESOURCE_NOT_FOUND,
+                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_NOT_FOUND.name(), "Node Not Found", ResponseCode.RESOURCE_NOT_FOUND,
                                 GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages), parent);
                     }
                 }
@@ -378,7 +379,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
@@ -394,7 +395,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
         if (!validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_ERROR.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 DefinitionNode node = new DefinitionNode(this, graphId, objectType.getId(), null, null, null, null, null);
@@ -413,6 +414,21 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             graph.importDefinitions(request);
         } catch (Exception e) {
             handleException(e, getSender());
+        }
+    }
+    
+    public void exportNode(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
+        if (!validateRequired(nodeId)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+        } else {
+            try {
+               Graph graph = new Graph(this, graphId);
+               graph.exportNode(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
         }
     }
 }

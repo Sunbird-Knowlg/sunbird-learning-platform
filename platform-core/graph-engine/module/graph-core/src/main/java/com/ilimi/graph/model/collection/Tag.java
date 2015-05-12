@@ -114,7 +114,7 @@ public class Tag extends AbstractCollection {
                             if (arg1) {
                                 createTagObject(req, ec);
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG.name(), "Member Ids are invalid",
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_INVALID_MEMBER_IDS.name(), "Member Ids are invalid",
                                         ResponseCode.CLIENT_ERROR, getParent());
                             }
                         }
@@ -133,7 +133,7 @@ public class Tag extends AbstractCollection {
         final StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
         final StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
         if (!manager.validateRequired(tagId, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAG_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -183,7 +183,7 @@ public class Tag extends AbstractCollection {
             StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(tagId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_TAG_MEMBER.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -213,7 +213,7 @@ public class Tag extends AbstractCollection {
         try {
             StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(tagId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_TAG_MEMBERS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_TAG_MEMBERS_INVALID_TAG_ID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -234,7 +234,7 @@ public class Tag extends AbstractCollection {
             StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(tagId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_TAG_MEMBER.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -255,7 +255,7 @@ public class Tag extends AbstractCollection {
         try {
             StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(tagId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_TAG.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_TAG_INVALID_TAG_ID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -283,7 +283,7 @@ public class Tag extends AbstractCollection {
         try {
             StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(tagId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY.name(),
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -378,7 +378,7 @@ public class Tag extends AbstractCollection {
                         }
                         manager.returnResponse(response, getParent());
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG.name(), "Failed to create Tag", ResponseCode.SERVER_ERROR,
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_UNKNOWN_ERROR.name(), "Failed to create Tag", ResponseCode.SERVER_ERROR,
                                 getParent());
                     }
                 }

@@ -93,7 +93,7 @@ public class Set extends AbstractCollection {
         final StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
         final StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
         if (!manager.validateRequired(setId, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 final ExecutionContext ec = manager.getContext().dispatcher();
@@ -106,7 +106,7 @@ public class Set extends AbstractCollection {
                         } else {
                             Map<String, Object> metadata = set.getMetadata();
                             if (null != metadata && null != metadata.get(SET_OBJECT_TYPE_KEY)) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER.name(),
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
                                         "Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
                             } else {
                                 Future<Node> nodeFuture = getNodeObject(req, ec, memberId);
@@ -136,7 +136,7 @@ public class Set extends AbstractCollection {
         final StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
         final BaseValueObjectList<StringValue> members = (BaseValueObjectList<StringValue>) req.get(GraphDACParams.MEMBERS.name());
         if (!manager.validateRequired(setId, members)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(), "Required parameters are missing...");
         } else {
             try {
                 final ExecutionContext ec = manager.getContext().dispatcher();
@@ -149,7 +149,7 @@ public class Set extends AbstractCollection {
                         } else {
                             Map<String, Object> metadata = set.getMetadata();
                             if (null != metadata && null != metadata.get(SET_OBJECT_TYPE_KEY)) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER.name(),
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
                                         "Member cannot be added to criteria sets", ResponseCode.CLIENT_ERROR, getParent());
                             } else {
                                 Future<Boolean> nodeFuture = checkMemberNodes(req, members.getValueObjectList(), ec);
@@ -179,7 +179,7 @@ public class Set extends AbstractCollection {
             StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(setId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SET_MEMBER.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SET_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -209,7 +209,7 @@ public class Set extends AbstractCollection {
         try {
             StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(setId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SET_MEMBERS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SET_MEMBERS_INVALID_SET_ID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -230,7 +230,7 @@ public class Set extends AbstractCollection {
             StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
             if (!manager.validateRequired(setId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SET_MEMBER.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SET_MEMBER_INVALID_SET_ID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -251,7 +251,7 @@ public class Set extends AbstractCollection {
         try {
             StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(setId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SET.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SET_INVALID_SET_ID.name(), "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
@@ -279,7 +279,7 @@ public class Set extends AbstractCollection {
         try {
             StringValue setId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
             if (!manager.validateRequired(setId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY.name(),
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
@@ -307,7 +307,7 @@ public class Set extends AbstractCollection {
     public void setCriteria(SetCriteria criteria) {
         if (null != criteria) {
             if (StringUtils.isBlank(criteria.getObjectType())) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SET_CRITERIA.name(), "Object Type is mandatory for Set criteria");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SET_CRITERIA_INVALID_OBJ_TYPE.name(), "Object Type is mandatory for Set criteria");
             }
         }
         this.criteria = criteria;
@@ -328,7 +328,7 @@ public class Set extends AbstractCollection {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean resValid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(), "Object Type not found");
+                            GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_NO_OBJ_TYPE.name(), "Object Type not found");
                     if (resValid) {
                         Response res = (Response) arg1;
                         BaseValueObjectList<StringValue> indexFields = (BaseValueObjectList<StringValue>) res
@@ -336,7 +336,7 @@ public class Set extends AbstractCollection {
                         if (null != criteria.getCriteria() && !criteria.getCriteria().isEmpty()) {
                             if (null == indexFields || null == indexFields.getValueObjectList()
                                     || indexFields.getValueObjectList().isEmpty()) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(),
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_ONLY_INDEX_META.name(),
                                         "Set criteria should contain only indexable metadata fields", res.getResponseCode(), getParent());
                             } else {
                                 setIndexFields(indexFields.getValueObjectList());
@@ -357,7 +357,7 @@ public class Set extends AbstractCollection {
                                     }
                                 }
                                 if (!valid) {
-                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(),
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_ONLY_INDEX_META.name(),
                                             "Set criteria should contain only indexable metadata fields", ResponseCode.CLIENT_ERROR,
                                             getParent());
                                 } else {
@@ -387,7 +387,7 @@ public class Set extends AbstractCollection {
         dacFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(), GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(),
+                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(), GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
                         "Error searching nodes");
                 if (valid) {
                     Response res = (Response) arg1;
@@ -414,7 +414,7 @@ public class Set extends AbstractCollection {
                     @Override
                     public void onComplete(Throwable arg0, Boolean arg1) throws Throwable {
                         boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(), "Member Ids are invalid");
+                                GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid");
                         if (valid) {
                             createSetNode(req, ec);
                         }
@@ -438,7 +438,7 @@ public class Set extends AbstractCollection {
         dacFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(), GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET.name(),
+                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(), GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(),
                         "Failed to create Set node");
                 if (valid) {
                     Response res = (Response) arg1;

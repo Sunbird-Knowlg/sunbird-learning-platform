@@ -72,7 +72,7 @@ public class CSVGraphReader implements GraphReader {
         int tagsIndex = allHeaders.indexOf(PROPERTY_TAGS);
         List<Integer> skipIndexes = Arrays.asList(uniqueIdIndex, nodeTypeIndex, objectTypeIndex, tagsIndex);
         if (!hasValidIndexes(uniqueIdIndex, objectTypeIndex)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(), "Required columns are missing.");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_MISSING_REQ_COLUMNS.name(), "Required columns are missing.");
         }
 
         for (int i = 1; i < recordsList.size(); i++) {
@@ -81,7 +81,7 @@ public class CSVGraphReader implements GraphReader {
             String nodeType = SystemNodeTypes.DATA_NODE.name();
             String objectType = record.get(objectTypeIndex);
             if (StringUtils.isBlank(uniqueId) || StringUtils.isBlank(objectType)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_GRAPH_ERROR.name(),
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_MISSING_REQ_COLUMN_DATA.name(),
                         "Required data(uniqueId, objectType) is missing for the row[" + (i + 1) + "]: " + record);
             }
             Map<String, Object> metadata = new HashMap<String, Object>();

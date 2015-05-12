@@ -50,7 +50,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         try {
             Method method = GraphDACActorPoolMgr.getMethod(GraphDACManagers.DAC_GRAPH_MANAGER, methodName);
             if (null == method) {
-                throw new ClientException("ERR_GRAPH_INVALID_OPERATION", "Operation '" + methodName + "' not found");
+                throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_INVALID_OPERATION.name(), "Operation '" + methodName + "' not found");
             } else {
                 method.invoke(this, request);
             }
@@ -65,7 +65,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         if (StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
         } else if (Neo4jGraphFactory.graphExists(graphId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GRAPH_ALREADY_EXISTS_003.name(), "Graph '" + graphId + "' already exists");
+            throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_ALREADY_EXISTS.name(), "Graph '" + graphId + "' already exists");
         } else {
             Transaction tx = null;
             try {
@@ -95,7 +95,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         if (StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
         } else if (!Neo4jGraphFactory.graphExists(graphId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_GRAPH_ALREADY_EXISTS_003.name(), "Graph '" + graphId + "' already exists");
+            throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph '" + graphId + "' not found to delete.");
         } else {
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
@@ -117,7 +117,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         BaseValueObjectList<StringValue> endNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeId, relationType, endNodeIds)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -153,7 +153,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeIds, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -191,7 +191,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         BaseValueObjectMap<Object> metadata = (BaseValueObjectMap<Object>) request.get(GraphDACParams.METADATA.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -247,7 +247,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeIds, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_DELETE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -281,7 +281,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         BaseValueObjectList<StringValue> endNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeId, relationType, endNodeIds)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_DELETE_RELATION_EXCEPTION.name(), "Required Parameters are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
             Transaction tx = null;
             try {
@@ -314,7 +314,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_DELETE_RELATION_EXCEPTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
             Transaction tx = null;
             try {
@@ -346,7 +346,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         BaseValueObjectMap<Object> metadata = (BaseValueObjectMap<Object>) request.get(GraphDACParams.METADATA.name());
         if (!validateRequired(startNodeId, relationType, endNodeId, metadata)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_UPDATE_RELATION_EXCEPTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else if (null != metadata && null != metadata.getBaseValueMap() && metadata.getBaseValueMap().size() > 0) {
             Transaction tx = null;
             try {
@@ -382,7 +382,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
         StringValue key = (StringValue) request.get(GraphDACParams.PROPERTY_KEY.name());
         if (!validateRequired(startNodeId, relationType, endNodeId, key)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_UPDATE_RELATION_EXCEPTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else if (StringUtils.isNotBlank(key.getId())) {
             Transaction tx = null;
             try {
@@ -416,7 +416,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         BaseValueObjectList<StringValue> members = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.MEMBERS.name());
         StringValue indexProperty = (StringValue) request.get(GraphDACParams.INDEX.name());
         if (!validateRequired(collectionId, members)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_COLLECTION_EXCEPTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_CREATE_COLLECTION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
             Transaction tx = null;
             try {
@@ -444,7 +444,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                             }
                         }
                     } else {
-                        throw new ClientException(GraphDACErrorCodes.ERR_DAC_CREATE_COLLECTION_EXCEPTION.name(),
+                        throw new ClientException(GraphDACErrorCodes.ERR_CREATE_COLLECTION_MISSING_REQ_PARAMS.name(),
                                 "Failed to create Collection node");
                     }
                 }
@@ -486,7 +486,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
         StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
         if (!validateRequired(collectionId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_DELETE_COLLECTION.name(), "Required Variables are missing");
+            throw new ClientException(GraphDACErrorCodes.ERR_DELETE_COLLECTION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
             Transaction tx = null;
             try {
@@ -521,7 +521,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         ImportData input = (ImportData) request.get(GraphDACParams.IMPORT_INPUT_OBJECT.name());
         Transaction tx = null;
         if (StringUtils.isBlank(graphId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DAC_INVALID_GRAPH_ID_002.name(), "Graph Id cannot be blank");
+            throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
         } else {
             try {
                 Map<String, List<String>> messages = new HashMap<String, List<String>>();
@@ -592,8 +592,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         int nodesCount = 0;
         for (com.ilimi.graph.dac.model.Node node : nodes) {
             if (null == node || StringUtils.isBlank(node.getIdentifier()) || StringUtils.isBlank(node.getNodeType())) {
-                // TODO: add to validation messages.
-                // ERROR(GraphDACErrorCodes.ERR_DAC_CREATE_NODE_EXCEPTION.name(),
+                // ERROR(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(),
                 // "Invalid input node", request, getSender());
             } else {
                 Node neo4jNode = null;

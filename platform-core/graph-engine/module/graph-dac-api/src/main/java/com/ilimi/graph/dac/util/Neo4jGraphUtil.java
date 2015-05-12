@@ -27,7 +27,7 @@ public class Neo4jGraphUtil {
             node = startNodes.next();
             startNodes.close();
         } else {
-            throw new ResourceNotFoundException(GraphDACErrorCodes.ERR_DAC_NODE_NOT_FOUND_005.name(), "Node not found: " + nodeId);
+            throw new ResourceNotFoundException(GraphDACErrorCodes.ERR_GRAPH_NODE_NOT_FOUND.name(), "Node not found: " + nodeId);
         }
         tx.close();
         return node;

@@ -1,17 +1,21 @@
 package com.ilimi.taxonomy.mgr;
 
-import java.util.List;
 
-import com.ilimi.taxonomy.dto.AuditRecordDTO;
-import com.ilimi.taxonomy.dto.CommentDTO;
+import com.ilimi.dac.dto.AuditRecord;
+import com.ilimi.dac.dto.Comment;
+import com.ilimi.graph.common.Request;
+import com.ilimi.graph.common.Response;
+
 
 public interface IAuditLogManager {
 
-    void saveAuditRecord(AuditRecordDTO audit);
+    void saveAuditRecord(AuditRecord audit);
 
-    List<AuditRecordDTO> getAuditHistory(String graphId, String objectId);
+    Response getAuditHistory(String graphId, String objectId);
 
-    void saveComment(CommentDTO comment);
+    Response saveComment(String graphId, Comment comment);
 
-    List<CommentDTO> getComments(String graphId, String objectId);
+    Response getComments(String graphId, String objectId);
+    
+    Response getCommentThread(String graphId, String objectId, String threadId);
 }

@@ -10,3 +10,7 @@ exports.GET_GAMES = '/taxonomy-service/learning-object';
 exports.GET_GAME = '/taxonomy-service/learning-object/${id}';
 exports.SAVE_GAME = '/taxonomy-service/learning-object?taxonomyId=${tid}';
 exports.UPDATE_GAME = '/taxonomy-service/learning-object/${id}?taxonomyId=${tid}';
+exports.AUDIT_HISTORY = '/taxonomy-service/audit/${id}';
+exports.GET_COMMENTS = '/taxonomy-service/comment/${id}';
+exports.SAVE_COMMENT = '/taxonomy-service/comment?taxonomyId=${tid}';
+exports.GET_COMMENT_THREAD = '/taxonomy-service/comment/${id}/${threadId}';
