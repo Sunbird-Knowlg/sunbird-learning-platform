@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+	  <property name="ignoreUnresolvablePlaceholders" value="true" />
+			<property name="ignoreResourceNotFound" value="true" /> 		
+			<property name="locations">
+				<list>
+					<value>classpath:database.properties</value>
+          <value>${propertiesUri}</value>
+				</list>
+			</property>
+	</bean>
+
+    <bean id="appProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	  <!-- <property name="ignoreUnresolvablePlaceholders" value="true" /> -->
+			<property name="ignoreResourceNotFound" value="true" /> 		
+			<property name="locations">
+				<list>
+					<value>classpath:app.properties</value>
+          			<value>${appPropertiesUri}</value>
+				</list>
+			</property>
+	</bean>
+
+	<bean id="dataSource" destroy-method="close"
+		class="org.apache.commons.dbcp.BasicDataSource" p:driverClassName="${db.driverClassName}"
+		p:url="${db.url}" p:username="${db.username}" p:password="${db.password}"
+		p:initialSize="${db.initialSize}" p:maxActive="${db.maxActive}"
+		p:validationQuery="${db.validationQuery}" p:testOnBorrow="true"
+		p:testWhileIdle="true" />
+
+    <bean id="sessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean" 
+          p:dataSource-ref="dataSource"
+          p:packagesToScan="${hibernate.packagesToScan}">
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <prop key="hibernate.query.substitutions">${hibernate.query.substitutions}</prop>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+                <prop key="hibernate.temp.use_jdbc_metadata_defaults">false</prop>
+                <prop key="hibernate.default_schema">${hibernate.default_schema}</prop>
+                <prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size:50}</prop>
+                <prop key="hibernate.default_batch_fetch_size">${hibernate.default_batch_fetch_size:100}</prop>
+                 <prop key="hibernate.id.new_generator_mappings">${hibernate.id.new_generator_mappings}</prop>
+            </props>
+        </property>
+<!--  	     <property name="entityInterceptor">
+	        <ref bean="dacHibernateInterceptor"/>
+	    </property>
+ -->     </bean>
+    
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager"
+        p:sessionFactory-ref="sessionFactory" />
+
+    <context:component-scan base-package="com.ilimi.dac.*"/>
+    <context:annotation-config />
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+    
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+    	<property name="dataSource" ref="dataSource" />
+    </bean>
+        
+    <bean id="auditLogDao" class="com.ilimi.dac.impl.entity.dao.AuditLogDao" p:sessionFactory-ref="sessionFactory" />
+    <bean id="commentDao" class="com.ilimi.dac.impl.entity.dao.CommentDao" p:sessionFactory-ref="sessionFactory" />
+    <bean id="versionDao" class="com.ilimi.dac.impl.entity.dao.VersionDao" p:sessionFactory-ref="sessionFactory" />
+</beans>
