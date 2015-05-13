@@ -35,8 +35,8 @@ public class VersionDacServiceTest {
         comment.setTitle("My Comment");
         version.setComment(comment);
         Request request = new Request();
-        request.put(CommonsDacParams.OBJECT_VERSION.name(), version);
+        request.put(CommonsDacParams.object_version.name(), version);
         Response response = versionDataService.createVersion(request);
-        System.out.println("response.get(CommonsDacParams.OBJECT_VERSION_ID.name()):"+response.get(CommonsDacParams.OBJECT_VERSION_ID.name()));
+        System.out.println("response.get(CommonsDacParams.OBJECT_VERSION_ID.name()):"+response.get(CommonsDacParams.object_version_id.name()));
     }
 }

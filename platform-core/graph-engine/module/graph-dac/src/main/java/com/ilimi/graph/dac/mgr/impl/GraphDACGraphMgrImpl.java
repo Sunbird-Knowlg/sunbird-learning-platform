@@ -22,9 +22,6 @@ import org.neo4j.tooling.GlobalGraphOperations;
 import akka.actor.ActorRef;
 
 import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BaseValueObjectMap;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -61,7 +58,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @Override
     public void createGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         if (StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
         } else if (Neo4jGraphFactory.graphExists(graphId)) {
@@ -77,7 +74,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 schema.indexFor(NODE_LABEL).on(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).create();
                 schema.constraintFor(NODE_LABEL).assertPropertyIsUnique(SystemProperties.IL_UNIQUE_ID.name()).create();
                 tx.success();
-                OK(GraphDACParams.GRAPH_ID.name(), new StringValue(graphId), getSender());
+                OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
                 if (null != tx)
                     tx.failure();
@@ -91,7 +88,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @Override
     public void deleteGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         if (StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
         } else if (!Neo4jGraphFactory.graphExists(graphId)) {
@@ -103,7 +100,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     Neo4jGraphFactory.shutdownGraph(graphId);
                 }
                 Neo4jGraphFactory.deleteGraph(graphId);
-                OK(GraphDACParams.GRAPH_ID.name(), new StringValue(graphId), getSender());
+                OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
             }
@@ -112,10 +109,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @SuppressWarnings("unchecked")
     public void addOutgoingRelations(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        BaseValueObjectList<StringValue> endNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        List<String> endNodeIds = (List<String>) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeId, relationType, endNodeIds)) {
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
@@ -123,13 +120,12 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Node startNode = getNodeByUniqueId(graphDb, startNodeId.getId());
-                RelationType relType = new RelationType(relationType.getId());
-                for (StringValue endNodeId : endNodeIds.getValueObjectList()) {
-                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
-                            endNodeId.getId());
+                Node startNode = getNodeByUniqueId(graphDb, startNodeId);
+                RelationType relType = new RelationType(relationType);
+                for (String endNodeId : endNodeIds) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                     if (null == relation) {
-                        Node endNode = getNodeByUniqueId(graphDb, endNodeId.getId());
+                        Node endNode = getNodeByUniqueId(graphDb, endNodeId);
                         startNode.createRelationshipTo(endNode, relType);
                     }
                 }
@@ -148,10 +144,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @SuppressWarnings("unchecked")
     public void addIncomingRelations(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        BaseValueObjectList<StringValue> startNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        List<String> startNodeIds = (List<String>) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeIds, relationType, endNodeId)) {
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
@@ -159,13 +155,12 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Node endNode = getNodeByUniqueId(graphDb, endNodeId.getId());
-                RelationType relType = new RelationType(relationType.getId());
-                for (StringValue startNodeId : startNodeIds.getValueObjectList()) {
-                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
-                            endNodeId.getId());
+                Node endNode = getNodeByUniqueId(graphDb, endNodeId);
+                RelationType relType = new RelationType(relationType);
+                for (String startNodeId : startNodeIds) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                     if (null == relation) {
-                        Node startNode = getNodeByUniqueId(graphDb, startNodeId.getId());
+                        Node startNode = getNodeByUniqueId(graphDb, startNodeId);
                         startNode.createRelationshipTo(endNode, relType);
                     }
                 }
@@ -185,11 +180,11 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @SuppressWarnings("unchecked")
     @Override
     public void addRelation(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
-        BaseValueObjectMap<Object> metadata = (BaseValueObjectMap<Object>) request.get(GraphDACParams.METADATA.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
@@ -197,38 +192,38 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                RelationType relation = new RelationType(relationType.getId());
-                Node startNode = getNodeByUniqueId(graphDb, startNodeId.getId());
+                RelationType relation = new RelationType(relationType);
+                Node startNode = getNodeByUniqueId(graphDb, startNodeId);
                 Relationship dbRel = null;
                 Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
                 if (null != relations) {
                     for (Relationship rel : relations) {
                         Object relEndNodeId = rel.getEndNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
                         String strEndNodeId = (null == relEndNodeId) ? null : relEndNodeId.toString();
-                        if (StringUtils.equals(endNodeId.getId(), strEndNodeId)) {
+                        if (StringUtils.equals(endNodeId, strEndNodeId)) {
                             dbRel = rel;
                             break;
                         }
                     }
                 }
                 if (null == dbRel) {
-                    Node endNode = getNodeByUniqueId(graphDb, endNodeId.getId());
+                    Node endNode = getNodeByUniqueId(graphDb, endNodeId);
                     Relationship rel = startNode.createRelationshipTo(endNode, relation);
-                    if (null != metadata && null != metadata.getBaseValueMap() && metadata.getBaseValueMap().size() > 0) {
-                        for (Entry<String, Object> entry : metadata.getBaseValueMap().entrySet()) {
+                    if (null != metadata && metadata.size() > 0) {
+                        for (Entry<String, Object> entry : metadata.entrySet()) {
                             rel.setProperty(entry.getKey(), entry.getValue());
                         }
                     }
                 } else {
-                    if (null != metadata && null != metadata.getBaseValueMap() && metadata.getBaseValueMap().size() > 0) {
-                        for (Entry<String, Object> entry : metadata.getBaseValueMap().entrySet()) {
+                    if (null != metadata && metadata.size() > 0) {
+                        for (Entry<String, Object> entry : metadata.entrySet()) {
                             dbRel.setProperty(entry.getKey(), entry.getValue());
                         }
                     }
                 }
                 tx.success();
                 tx.close();
-                OK(GraphDACParams.GRAPH_ID.name(), new StringValue(graphId), getSender());
+                OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
                 if (null != tx) {
                     tx.failure();
@@ -242,10 +237,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @SuppressWarnings("unchecked")
     @Override
     public void deleteIncomingRelations(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        BaseValueObjectList<StringValue> startNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        List<String> startNodeIds = (List<String>) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeIds, relationType, endNodeId)) {
             throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
@@ -253,9 +248,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                for (StringValue startNodeId : startNodeIds.getValueObjectList()) {
-                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
-                            endNodeId.getId());
+                for (String startNodeId : startNodeIds) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                     if (null != relation) {
                         relation.delete();
                     }
@@ -276,10 +270,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @SuppressWarnings("unchecked")
     @Override
     public void deleteOutgoingRelations(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        BaseValueObjectList<StringValue> endNodeIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        List<String> endNodeIds = (List<String>) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeId, relationType, endNodeIds)) {
             throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Parameters are missing");
         } else {
@@ -287,9 +281,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                for (StringValue endNodeId : endNodeIds.getValueObjectList()) {
-                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(),
-                            endNodeId.getId());
+                for (String endNodeId : endNodeIds) {
+                    Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                     if (null != relation) {
                         relation.delete();
                     }
@@ -309,10 +302,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @Override
     public void deleteRelation(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphDACErrorCodes.ERR_DELETE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
@@ -320,7 +313,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(), endNodeId.getId());
+                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel) {
                     rel.delete();
                 }
@@ -340,22 +333,22 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @SuppressWarnings("unchecked")
     @Override
     public void updateRelation(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
-        BaseValueObjectMap<Object> metadata = (BaseValueObjectMap<Object>) request.get(GraphDACParams.METADATA.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        Map<String, Object> metadata = (Map<String, Object>) request.get(GraphDACParams.metadata.name());
         if (!validateRequired(startNodeId, relationType, endNodeId, metadata)) {
             throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
-        } else if (null != metadata && null != metadata.getBaseValueMap() && metadata.getBaseValueMap().size() > 0) {
+        } else if (null != metadata && metadata.size() > 0) {
             Transaction tx = null;
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(), endNodeId.getId());
+                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel) {
                     tx.acquireWriteLock(rel);
-                    for (Entry<String, Object> entry : metadata.getBaseValueMap().entrySet()) {
+                    for (Entry<String, Object> entry : metadata.entrySet()) {
                         rel.setProperty(entry.getKey(), entry.getValue());
                     }
                 }
@@ -376,21 +369,21 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @Override
     public void removeRelationMetadata(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
-        StringValue key = (StringValue) request.get(GraphDACParams.PROPERTY_KEY.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        String key = (String) request.get(GraphDACParams.property_key.name());
         if (!validateRequired(startNodeId, relationType, endNodeId, key)) {
             throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_RELATION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
-        } else if (StringUtils.isNotBlank(key.getId())) {
+        } else if (StringUtils.isNotBlank(key)) {
             Transaction tx = null;
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId.getId(), relationType.getId(), endNodeId.getId());
-                if (null != rel && rel.hasProperty(key.getId()))
-                    rel.removeProperty(key.getId());
+                Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
+                if (null != rel && rel.hasProperty(key))
+                    rel.removeProperty(key);
                 tx.success();
                 OK(getSender());
             } catch (Exception e) {
@@ -409,27 +402,23 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @SuppressWarnings("unchecked")
     @Override
     public void createCollection(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
-        com.ilimi.graph.dac.model.Node collection = (com.ilimi.graph.dac.model.Node) request.get(GraphDACParams.NODE.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        BaseValueObjectList<StringValue> members = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.MEMBERS.name());
-        StringValue indexProperty = (StringValue) request.get(GraphDACParams.INDEX.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        com.ilimi.graph.dac.model.Node collection = (com.ilimi.graph.dac.model.Node) request.get(GraphDACParams.node.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        List<String> members = (List<String>) request.get(GraphDACParams.members.name());
+        String indexProperty = (String) request.get(GraphDACParams.index.name());
         if (!validateRequired(collectionId, members)) {
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_COLLECTION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
             Transaction tx = null;
             try {
-                List<String> memberIds = new ArrayList<String>();
-                for (StringValue memberId : members.getValueObjectList()) {
-                    memberIds.add(memberId.getId());
-                }
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                RelationType relation = new RelationType(relationType.getId());
+                RelationType relation = new RelationType(relationType);
                 Node startNode = null;
                 try {
-                    startNode = getNodeByUniqueId(graphDb, collectionId.getId());
+                    startNode = getNodeByUniqueId(graphDb, collectionId);
                 } catch (ResourceNotFoundException e) {
                     if (null != collection && StringUtils.isNotBlank(collection.getIdentifier())) {
                         startNode = graphDb.createNode(NODE_LABEL);
@@ -453,18 +442,18 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     for (Relationship rel : relations) {
                         Object relEndNodeId = rel.getEndNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
                         String strEndNodeId = (null == relEndNodeId) ? null : relEndNodeId.toString();
-                        if (StringUtils.isNotBlank(strEndNodeId) && memberIds.contains(strEndNodeId)) {
-                            memberIds.remove(strEndNodeId);
+                        if (StringUtils.isNotBlank(strEndNodeId) && members.contains(strEndNodeId)) {
+                            members.remove(strEndNodeId);
                         }
                     }
                 }
-                if (!memberIds.isEmpty()) {
+                if (!members.isEmpty()) {
                     int i = 1;
-                    for (String memberId : memberIds) {
+                    for (String memberId : members) {
                         Node endNode = getNodeByUniqueId(graphDb, memberId);
                         Relationship rel = startNode.createRelationshipTo(endNode, relation);
                         if (validateRequired(indexProperty)) {
-                            rel.setProperty(indexProperty.getId(), i);
+                            rel.setProperty(indexProperty, i);
                             i += 1;
                         }
                     }
@@ -483,8 +472,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     }
 
     public void deleteCollection(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
         if (!validateRequired(collectionId)) {
             throw new ClientException(GraphDACErrorCodes.ERR_DELETE_COLLECTION_MISSING_REQ_PARAMS.name(), "Required Variables are missing");
         } else {
@@ -492,7 +481,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
-                Node collection = Neo4jGraphUtil.getNodeByUniqueId(graphDb, collectionId.getId());
+                Node collection = Neo4jGraphUtil.getNodeByUniqueId(graphDb, collectionId);
                 if (null != collection) {
                     Iterable<Relationship> rels = collection.getRelationships();
                     if (null != rels) {
@@ -517,8 +506,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     @Override
     public void importGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        ImportData input = (ImportData) request.get(GraphDACParams.IMPORT_INPUT_OBJECT.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        ImportData input = (ImportData) request.get(GraphDACParams.import_input_object.name());
         Transaction tx = null;
         if (StringUtils.isBlank(graphId)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
@@ -541,7 +530,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
                 tx.success();
                 tx.close();
-                OK(GraphDACParams.MESSAGES.name(), new BaseValueObjectMap<List<String>>(messages), getSender());
+                OK(GraphDACParams.messages.name(), messages, getSender());
             } catch (Exception e) {
                 e.printStackTrace();
                 if (null != tx) {
@@ -668,19 +657,19 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                             }
                             for (String endNodeId : relEndNodeIds) {
                                 Node otherNode = existingNodes.get(endNodeId);
-                                if(otherNode != null) {
+                                if (otherNode != null) {
                                     RelationType relation = new RelationType(relType);
                                     neo4jNode.createRelationshipTo(otherNode, relation);
                                     relationsCount++;
                                 } else {
                                     List<String> rowMsgs = messages.get(uniqueId);
-                                    if(rowMsgs == null) {
+                                    if (rowMsgs == null) {
                                         rowMsgs = new ArrayList<String>();
                                         messages.put(uniqueId, rowMsgs);
                                     }
-                                    rowMsgs.add("Node with id: "+endNodeId+ " not found to create relation:"+relType);
+                                    rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
                                 }
-                                
+
                             }
                         } else {
                             for (Relationship rel : relationMap.get(relType)) {
@@ -696,11 +685,11 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                             Node otherNode = existingNodes.get(endNodeId);
                             if (null == otherNode) {
                                 List<String> rowMsgs = messages.get(uniqueId);
-                                if(rowMsgs == null) {
+                                if (rowMsgs == null) {
                                     rowMsgs = new ArrayList<String>();
                                     messages.put(uniqueId, rowMsgs);
                                 }
-                                rowMsgs.add("Node with id: "+endNodeId+ " not found to create relation:"+relType);
+                                rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
                             } else {
                                 RelationType relation = new RelationType(relType);
                                 neo4jNode.createRelationshipTo(otherNode, relation);

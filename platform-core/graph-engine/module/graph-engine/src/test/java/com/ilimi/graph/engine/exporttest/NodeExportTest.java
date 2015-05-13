@@ -17,7 +17,6 @@ import akka.util.Timeout;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -47,14 +46,14 @@ public class NodeExportTest {
         try {
             ActorRef reqRouter = initReqRouter();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
-            request.put(GraphDACParams.NODE_ID.name(), new StringValue("Lit:C1"));
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+            request.put(GraphDACParams.node_id.name(), "Lit:C1");
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("exportNode");
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-            InputStreamValue isV = (InputStreamValue) response.get(GraphEngineParams.INPUT_STREAM.name());
+            InputStreamValue isV = (InputStreamValue) response.get(GraphEngineParams.input_stream.name());
             ByteArrayInputStream is = (ByteArrayInputStream) isV.getInputStream();
             System.out.println("Result: \n" + new String(IOUtils.toByteArray(is)));
             

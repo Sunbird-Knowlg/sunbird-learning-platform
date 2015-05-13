@@ -1,8 +1,9 @@
 package com.ilimi.graph.dac.model;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
+import java.io.Serializable;
 
-public class FilterDTO extends BaseValueObject {
+
+public class FilterDTO implements Serializable {
 
     private static final long serialVersionUID = 1672074242526098695L;
 

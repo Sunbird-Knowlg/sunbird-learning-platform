@@ -16,17 +16,11 @@ import akka.dispatch.Mapper;
 import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
 
+import com.ilimi.graph.common.ResponseParams;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BaseValueObjectMap;
-import com.ilimi.graph.common.dto.Identifier;
-import com.ilimi.graph.common.dto.LongIdentifier;
+import com.ilimi.graph.common.ResponseParams.StatusType;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.exception.MiddlewareException;
@@ -58,17 +52,17 @@ public abstract class BaseGraphManager extends UntypedActor {
         parent.tell(response, getSelf());
     }
 
-    public void OK(String responseIdentifier, BaseValueObject vo, ActorRef parent) {
+    public void OK(String responseIdentifier, Object vo, ActorRef parent) {
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getSucessStatus());
         parent.tell(response, getSelf());
     }
 
-    public void OK(Map<String, BaseValueObject> responseObjects, ActorRef parent) {
+    public void OK(Map<String, Object> responseObjects, ActorRef parent) {
         Response response = new Response();
         if (null != responseObjects && responseObjects.size() > 0) {
-            for (Entry<String, BaseValueObject> entry : responseObjects.entrySet()) {
+            for (Entry<String, Object> entry : responseObjects.entrySet()) {
                 response.put(entry.getKey(), entry.getValue());
             }
         }
@@ -76,8 +70,7 @@ public abstract class BaseGraphManager extends UntypedActor {
         parent.tell(response, getSelf());
     }
 
-    public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, BaseValueObject vo,
-            ActorRef parent) {
+    public void ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo, ActorRef parent) {
         LOGGER.error(errorCode + ", " + errorMessage);
         Response response = new Response();
         response.put(responseIdentifier, vo);
@@ -99,7 +92,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public boolean checkError(Response response) {
-        Params params = response.getParams();
+        ResponseParams params = response.getParams();
         if (null != params) {
             if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
                 return true;
@@ -109,7 +102,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     }
 
     public String getErrorMessage(Response response) {
-        Params params = response.getParams();
+        ResponseParams params = response.getParams();
         if (null != params) {
             String msg = params.getErrmsg();
             if (StringUtils.isNotBlank(msg))
@@ -142,29 +135,29 @@ public abstract class BaseGraphManager extends UntypedActor {
         }, getContext().dispatcher());
     }
 
-    public boolean validateRequired(BaseValueObject... objects) {
+    public boolean validateRequired(Object... objects) {
         boolean valid = true;
-        for (BaseValueObject baseValueObject : objects) {
+        for (Object baseValueObject : objects) {
             if (null == baseValueObject) {
                 valid = false;
                 break;
             }
-            if (baseValueObject instanceof StringValue) {
-                if (StringUtils.isBlank(((StringValue) baseValueObject).getId())) {
+            if (baseValueObject instanceof String) {
+                if (StringUtils.isBlank((String) baseValueObject)) {
                     valid = false;
                     break;
                 }
             }
-            if (baseValueObject instanceof BaseValueObjectList<?>) {
-                BaseValueObjectList<?> list = (BaseValueObjectList<?>) baseValueObject;
-                if (null == list.getValueObjectList() || list.getValueObjectList().isEmpty()) {
+            if (baseValueObject instanceof List<?>) {
+                List<?> list = (List<?>) baseValueObject;
+                if (null == list || list.isEmpty()) {
                     valid = false;
                     break;
                 }
             }
-            if (baseValueObject instanceof BaseValueObjectMap<?>) {
-                BaseValueObjectMap<?> map = (BaseValueObjectMap<?>) baseValueObject;
-                if (null == map.getBaseValueMap() || map.getBaseValueMap().isEmpty()) {
+            if (baseValueObject instanceof Map<?, ?>) {
+                Map<?, ?> map = (Map<?, ?>) baseValueObject;
+                if (null == map || map.isEmpty()) {
                     valid = false;
                     break;
                 }
@@ -177,20 +170,6 @@ public abstract class BaseGraphManager extends UntypedActor {
                     break;
                 }
             }
-            if (baseValueObject instanceof Identifier) {
-                Identifier longVal = (Identifier) baseValueObject;
-                if (null == longVal.getId()) {
-                    valid = false;
-                    break;
-                }
-            }
-            if (baseValueObject instanceof LongIdentifier) {
-                LongIdentifier longVal = (LongIdentifier) baseValueObject;
-                if (null == longVal.getId()) {
-                    valid = false;
-                    break;
-                }
-            }
         }
         return valid;
     }
@@ -198,7 +177,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     public void handleException(Throwable e, ActorRef parent) {
         LOGGER.error(e.getMessage(), e);
         Response response = new Response();
-        Params params = new Params();
+        ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
@@ -230,17 +209,17 @@ public abstract class BaseGraphManager extends UntypedActor {
         return false;
     }
 
-    public Future<List<StringValue>> convertFuture(Future<Map<String, List<String>>> future) {
-        Future<List<StringValue>> listFuture = future.map(new Mapper<Map<String, List<String>>, List<StringValue>>() {
+    public Future<List<String>> convertFuture(Future<Map<String, List<String>>> future) {
+        Future<List<String>> listFuture = future.map(new Mapper<Map<String, List<String>>, List<String>>() {
             @Override
-            public List<StringValue> apply(Map<String, List<String>> parameter) {
-                List<StringValue> messages = new ArrayList<StringValue>();
+            public List<String> apply(Map<String, List<String>> parameter) {
+                List<String> messages = new ArrayList<String>();
                 if (null != parameter && !parameter.isEmpty()) {
                     for (List<String> list : parameter.values()) {
                         if (null != list && !list.isEmpty()) {
                             for (String msg : list) {
                                 if (StringUtils.isNotBlank(msg))
-                                    messages.add(new StringValue(msg));
+                                    messages.add(new String(msg));
                             }
                         }
                     }
@@ -251,16 +230,16 @@ public abstract class BaseGraphManager extends UntypedActor {
         return listFuture;
     }
 
-    private Params getSucessStatus() {
-        Params params = new Params();
+    private ResponseParams getSucessStatus() {
+        ResponseParams params = new ResponseParams();
         params.setErr("0");
         params.setStatus(StatusType.SUCCESS.name());
         params.setErrmsg("Operation successful");
         return params;
     }
 
-    private Params getErrorStatus(String errorCode, String errorMessage) {
-        Params params = new Params();
+    private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
+        ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
         params.setStatus(StatusType.ERROR.name());
         params.setErrmsg(errorMessage);

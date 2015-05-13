@@ -1,10 +1,8 @@
 package com.ilimi.graph.cache.mgr;
 
+import java.util.List;
+
 import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.LongIdentifier;
-import com.ilimi.graph.common.dto.StringValue;
 
 public interface ITagCacheMgr {
 
@@ -18,9 +16,9 @@ public interface ITagCacheMgr {
 
     void dropTag(Request request);
 
-    BaseValueObjectList<StringValue> getTagMembers(Request request);
+    List<String> getTagMembers(Request request);
 
-    LongIdentifier getCardinality(Request request);
+    Long getCardinality(Request request);
 
-    BooleanValue isTagMember(Request request);
+    Boolean isTagMember(Request request);
 }

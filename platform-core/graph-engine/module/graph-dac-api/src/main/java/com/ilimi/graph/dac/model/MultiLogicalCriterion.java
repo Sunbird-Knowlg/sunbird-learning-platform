@@ -1,14 +1,13 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-class MultiLogicalCriterion extends BaseValueObject implements Criterion {
+class MultiLogicalCriterion implements Criterion, Serializable {
 
     private static final long serialVersionUID = -8008160073593271723L;
 

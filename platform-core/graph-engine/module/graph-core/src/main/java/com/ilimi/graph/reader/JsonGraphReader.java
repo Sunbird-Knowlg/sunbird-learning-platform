@@ -13,7 +13,6 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -32,7 +31,7 @@ public class JsonGraphReader implements GraphReader {
     private ObjectMapper mapper;
     private List<Node> definitionNodes;
     private List<Node> dataNodes;
-    private Map<String, List<StringValue>> tagMembersMap;
+    private Map<String, List<String>> tagMembersMap;
     private List<Relation> relations;
     private List<String> validations;
     private BaseGraphManager manager;
@@ -43,7 +42,7 @@ public class JsonGraphReader implements GraphReader {
         this.manager = manager;
         this.mapper = mapper;
         validations = new ArrayList<String>();
-        tagMembersMap = new HashMap<String, List<StringValue>>();
+        tagMembersMap = new HashMap<String, List<String>>();
         Map<String, Object> inputMap = mapper.readValue(inputStream, Map.class);
         createDefinitionNodes(graphId, (List<Map<String, Object>>) inputMap.get("definitionNodes"));
         createDataNodes(graphId, (List<Map<String, Object>>) inputMap.get("nodes"));
@@ -56,7 +55,7 @@ public class JsonGraphReader implements GraphReader {
         this.manager = manager;
         this.mapper = mapper;
         validations = new ArrayList<String>();
-        tagMembersMap = new HashMap<String, List<StringValue>>();
+        tagMembersMap = new HashMap<String, List<String>>();
         Map<String, Object> inputMap = mapper.readValue(json, Map.class);
         createDefinitionNodes(graphId, (List<Map<String, Object>>) inputMap.get("definitionNodes"));
         createDataNodes(graphId, (List<Map<String, Object>>) inputMap.get("nodes"));
@@ -190,7 +189,7 @@ public class JsonGraphReader implements GraphReader {
                     Sequence sequence = new Sequence(manager, graphId, uniqueId);
                     dataNodes.add(sequence.toNode());
                 } else {
-                    
+
                 }
             }
         }
@@ -241,7 +240,7 @@ public class JsonGraphReader implements GraphReader {
     /**
      * @return the tagMembersMap
      */
-    public Map<String, List<StringValue>> getTagMembersMap() {
+    public Map<String, List<String>> getTagMembersMap() {
         return tagMembersMap;
     }
 
@@ -249,7 +248,7 @@ public class JsonGraphReader implements GraphReader {
      * @param tagMembersMap
      *            the tagMembersMap to set
      */
-    public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
+    public void setTagMembersMap(Map<String, List<String>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
     }
 }

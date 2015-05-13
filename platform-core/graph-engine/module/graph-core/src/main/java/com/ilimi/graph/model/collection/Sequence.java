@@ -14,10 +14,6 @@ import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BaseValueObjectMap;
-import com.ilimi.graph.common.dto.LongIdentifier;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.exception.ServerException;
@@ -31,14 +27,14 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 
 public class Sequence extends AbstractCollection {
 
-    private List<StringValue> memberIds;
+    private List<String> memberIds;
     public static final String INDEX_PROPERTY = "INDEX";
 
     public Sequence(BaseGraphManager manager, String graphId, String id) {
         super(manager, graphId, id);
     }
 
-    public Sequence(BaseGraphManager manager, String graphId, String id, List<StringValue> memberIds) {
+    public Sequence(BaseGraphManager manager, String graphId, String id, List<String> memberIds) {
         super(manager, graphId, id);
         this.memberIds = memberIds;
     }
@@ -58,8 +54,8 @@ public class Sequence extends AbstractCollection {
                             if (arg1) {
                                 createSequenceObject(req, ec);
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_INVALID_MEMBERIDS.name(), "Member Ids are invalid",
-                                        ResponseCode.CLIENT_ERROR, getParent());
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_INVALID_MEMBERIDS.name(),
+                                        "Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
                             }
                         }
                     }
@@ -74,18 +70,19 @@ public class Sequence extends AbstractCollection {
 
     @Override
     public void addMember(final Request req) {
-        final StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-        final StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+        final String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
+        final String memberId = (String) req.get(GraphDACParams.member_id.name());
         if (!manager.validateRequired(sequenceId, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("addSequenceMember");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
-                request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
+                request.put(GraphDACParams.member_id.name(), memberId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 response.onComplete(new OnComplete<Object>() {
                     @Override
@@ -96,27 +93,26 @@ public class Sequence extends AbstractCollection {
                             if (arg1 instanceof Response) {
                                 Response res = (Response) arg1;
                                 if (manager.checkError(res)) {
-                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
-                                            res.getResponseCode(), getParent());
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(),
+                                            manager.getErrorMessage(res), res.getResponseCode(), getParent());
                                 } else {
-                                    LongIdentifier index = (LongIdentifier) res.get(GraphDACParams.INDEX.name());
+                                    Long index = (Long) res.get(GraphDACParams.index.name());
                                     ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                                     Request dacRequest = new Request(req);
                                     dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                                     dacRequest.setOperation("addRelation");
-                                    dacRequest.put(GraphDACParams.START_NODE_ID.name(), sequenceId);
-                                    dacRequest.put(GraphDACParams.RELATION_TYPE.name(),
-                                            new StringValue(RelationTypes.SEQUENCE_MEMBERSHIP.name()));
-                                    dacRequest.put(GraphDACParams.END_NODE_ID.name(), memberId);
+                                    dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
+                                    dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
+                                    dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
                                     Map<String, Object> map = new HashMap<String, Object>();
-                                    map.put(INDEX_PROPERTY, index.getId());
-                                    dacRequest.put(GraphDACParams.METADATA.name(), new BaseValueObjectMap<Object>(map));
+                                    map.put(INDEX_PROPERTY, index);
+                                    dacRequest.put(GraphDACParams.metadata.name(), map);
                                     dacRouter.tell(dacRequest, manager.getSelf());
                                     manager.OK(getParent());
                                 }
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(), "Add Sequence Member failed",
-                                        ResponseCode.SERVER_ERROR, getParent());
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SEQUENCE_MEMBER_UNKNOWN_ERROR.name(),
+                                        "Add Sequence Member failed", ResponseCode.SERVER_ERROR, getParent());
                             }
                         }
                     }
@@ -130,8 +126,8 @@ public class Sequence extends AbstractCollection {
     @Override
     public void removeMember(Request req) {
         try {
-            StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-            StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+            String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
+            String memberId = (String) req.get(GraphDACParams.member_id.name());
             if (!manager.validateRequired(sequenceId, memberId)) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
@@ -140,17 +136,17 @@ public class Sequence extends AbstractCollection {
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("removeSequenceMember");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
-                request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
+                request.put(GraphDACParams.member_id.name(), memberId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteRelation");
-                dacRequest.put(GraphDACParams.START_NODE_ID.name(), sequenceId);
-                dacRequest.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SEQUENCE_MEMBERSHIP.name()));
-                dacRequest.put(GraphDACParams.END_NODE_ID.name(), memberId);
+                dacRequest.put(GraphDACParams.start_node_id.name(), sequenceId);
+                dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
+                dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
                 dacRouter.tell(dacRequest, manager.getSelf());
 
                 manager.returnResponse(response, getParent());
@@ -163,15 +159,16 @@ public class Sequence extends AbstractCollection {
     @Override
     public void getMembers(Request req) {
         try {
-            StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(sequenceId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SEQUENCE_MEMBERS_INVALID_SEQID.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_SEQUENCE_MEMBERS_INVALID_SEQID.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("getSequenceMembers");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -183,17 +180,18 @@ public class Sequence extends AbstractCollection {
     @Override
     public void isMember(Request req) {
         try {
-            StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-            StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+            String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
+            String memberId = (String) req.get(GraphDACParams.member_id.name());
             if (!manager.validateRequired(sequenceId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_SEQUENCE_MEMBER_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("isSequenceMember");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
-                request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
+                request.put(GraphDACParams.member_id.name(), memberId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -205,22 +203,23 @@ public class Sequence extends AbstractCollection {
     @Override
     public void delete(Request req) {
         try {
-            StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(sequenceId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SEQUENCE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_SEQUENCE_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("dropSequence");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteCollection");
-                dacRequest.put(GraphDACParams.COLLECTION_ID.name(), sequenceId);
+                dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
                 dacRouter.tell(dacRequest, manager.getSelf());
 
                 manager.returnResponse(response, getParent());
@@ -233,7 +232,7 @@ public class Sequence extends AbstractCollection {
     @Override
     public void getCardinality(Request req) {
         try {
-            StringValue sequenceId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String sequenceId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(sequenceId)) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
@@ -242,7 +241,7 @@ public class Sequence extends AbstractCollection {
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("getSequenceCardinality");
-                request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
+                request.put(GraphDACParams.sequence_id.name(), sequenceId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -261,7 +260,7 @@ public class Sequence extends AbstractCollection {
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
         request.setOperation("addNode");
-        request.put(GraphDACParams.NODE.name(), toNode());
+        request.put(GraphDACParams.node.name(), toNode());
         Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
 
         dacFuture.onComplete(new OnComplete<Object>() {
@@ -273,34 +272,33 @@ public class Sequence extends AbstractCollection {
                     if (arg1 instanceof Response) {
                         Response res = (Response) arg1;
                         if (manager.checkError(res)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(), manager.getErrorMessage(res),
-                                    res.getResponseCode(), getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
+                                    manager.getErrorMessage(res), res.getResponseCode(), getParent());
                         } else {
-                            StringValue sequenceId = (StringValue) res.get(GraphDACParams.NODE_ID.name());
+                            String sequenceId = (String) res.get(GraphDACParams.node_id.name());
                             ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                             Request request = new Request(req);
                             request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                             request.setOperation("createSequence");
-                            request.put(GraphDACParams.SEQUENCE_ID.name(), sequenceId);
-                            request.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+                            request.put(GraphDACParams.sequence_id.name(), sequenceId);
+                            request.put(GraphDACParams.members.name(), memberIds);
                             Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                             if (null != memberIds && memberIds.size() > 0) {
                                 Request dacRequest = new Request(req);
                                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                                 dacRequest.setOperation("createCollection");
-                                dacRequest.put(GraphDACParams.COLLECTION_ID.name(), sequenceId);
-                                dacRequest.put(GraphDACParams.RELATION_TYPE.name(),
-                                        new StringValue(RelationTypes.SEQUENCE_MEMBERSHIP.name()));
-                                dacRequest.put(GraphDACParams.INDEX.name(), new StringValue(INDEX_PROPERTY));
-                                dacRequest.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+                                dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
+                                dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
+                                dacRequest.put(GraphDACParams.index.name(), INDEX_PROPERTY);
+                                dacRequest.put(GraphDACParams.members.name(), memberIds);
                                 dacRouter.tell(dacRequest, manager.getSelf());
                             }
                             manager.returnResponse(response, getParent());
                         }
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(), "Failed to create Sequence node",
-                                ResponseCode.SERVER_ERROR, getParent());
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SEQUENCE_UNKNOWN_ERROR.name(),
+                                "Failed to create Sequence node", ResponseCode.SERVER_ERROR, getParent());
                     }
                 }
             }

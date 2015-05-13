@@ -1,8 +1,8 @@
 package com.ilimi.taxonomy.dto;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
+import java.io.Serializable;
 
-public class NodeDTO extends BaseValueObject {
+public class NodeDTO implements Serializable {
 
     private static final long serialVersionUID = -3083582629330476187L;
     private String identifier;

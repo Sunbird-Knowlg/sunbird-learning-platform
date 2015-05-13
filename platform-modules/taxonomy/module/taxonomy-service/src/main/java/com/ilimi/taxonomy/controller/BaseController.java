@@ -10,9 +10,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.ilimi.graph.common.ResponseParams;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
+import com.ilimi.graph.common.ResponseParams.StatusType;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.MiddlewareException;
 import com.ilimi.graph.common.exception.ResourceNotFoundException;
@@ -28,7 +28,7 @@ public abstract class BaseController {
 
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
-        Params resStatus = new Params();
+        ResponseParams resStatus = new ResponseParams();
         resStatus.setErrmsg(e.getMessage());
         resStatus.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
@@ -67,7 +67,7 @@ public abstract class BaseController {
         return status;
     }
 
-    protected void writeToResponse(Params params, String content, String contentType, HttpServletResponse response) throws Exception {
+    protected void writeToResponse(ResponseParams params, String content, String contentType, HttpServletResponse response) throws Exception {
         response.setContentType(contentType);
         OutputStream resOs = response.getOutputStream();
         OutputStream buffOs = new BufferedOutputStream(resOs);

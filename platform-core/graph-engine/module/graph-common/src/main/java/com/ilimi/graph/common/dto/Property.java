@@ -1,5 +1,6 @@
 package com.ilimi.graph.common.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -7,7 +8,7 @@ import java.util.Date;
  * @author santhosh
  * 
  */
-public class Property extends BaseValueObject {
+public class Property implements Serializable {
 
     private static final long serialVersionUID = -6502358168521170279L;
 

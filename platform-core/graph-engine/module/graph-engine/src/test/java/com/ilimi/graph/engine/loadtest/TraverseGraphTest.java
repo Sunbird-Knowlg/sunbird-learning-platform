@@ -62,10 +62,10 @@ public class TraverseGraphTest {
         RelationTraversal relationTraversal = new RelationTraversal(RelationTypes.HIERARCHY.relationName(), RelationTraversal.DIRECTION_OUT);
         traverser.traverseRelation(relationTraversal);
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
-        request.getContext().put(GraphHeaderParams.REQUEST_ID.name(), "REQUEST_" + Thread.currentThread().getId());
-        request.getContext().put(GraphHeaderParams.SCENARIO_NAME.name(), SCENARIO_NAME);
-        request.put(GraphDACParams.TRAVERSAL_DESCRIPTION.name(), traverser);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+        request.getContext().put(GraphHeaderParams.request_id.name(), "REQUEST_" + Thread.currentThread().getId());
+        request.getContext().put(GraphHeaderParams.scenario_name.name(), SCENARIO_NAME);
+        request.put(GraphDACParams.traversal_description.name(), traverser);
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
         request.setOperation("traverse");
         Future<Object> resp = Patterns.ask(reqRouter, request, TestUtil.timeout);

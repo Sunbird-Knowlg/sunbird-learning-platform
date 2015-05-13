@@ -20,8 +20,6 @@ import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -202,19 +200,19 @@ public class DefinitionNode extends AbstractNode {
     public void create(final Request req) {
         List<String> messages = validateDefinitionNode();
         if (null != messages && !messages.isEmpty()) {
-            List<StringValue> voList = new ArrayList<StringValue>();
+            List<String> voList = new ArrayList<String>();
             for (String msg : messages) {
-                voList.add(new StringValue(msg));
+                voList.add(msg);
             }
-            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_INVALID_DEFINITION_NODE.name(), "Invalid Definition", ResponseCode.CLIENT_ERROR,
-                    GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(voList), getParent());
+            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_INVALID_DEFINITION_NODE.name(), "Invalid Definition",
+                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), voList, getParent());
         } else {
             try {
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 final Request request = new Request(req);
                 request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                 request.setOperation("upsertNode");
-                request.put(GraphDACParams.NODE.name(), toNode());
+                request.put(GraphDACParams.node.name(), toNode());
                 Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                 manager.onFailureResponse(response, getParent());
                 response.onSuccess(new OnSuccess<Object>() {
@@ -223,16 +221,16 @@ public class DefinitionNode extends AbstractNode {
                         if (arg0 instanceof Response) {
                             Response res = (Response) arg0;
                             if (manager.checkError(res)) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), manager.getErrorMessage(res),
-                                        res.getResponseCode(), getParent());
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(),
+                                        manager.getErrorMessage(res), res.getResponseCode(), getParent());
                             } else {
                                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                                 loadToCache(cacheRouter, req);
-                                manager.OK(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()), getParent());
+                                manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
                             }
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Failed to create definition node",
-                                    ResponseCode.SERVER_ERROR, getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(),
+                                    "Failed to create definition node", ResponseCode.SERVER_ERROR, getParent());
                         }
                     }
                 }, manager.getContext().dispatcher());
@@ -245,10 +243,10 @@ public class DefinitionNode extends AbstractNode {
 
     @SuppressWarnings("unchecked")
     public void update(final Request req) {
-        final BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) req
-                .get(GraphDACParams.METADATA_DEFINITIONS.name());
+        final List<MetadataDefinition> definitions = (List<MetadataDefinition>) req.get(GraphDACParams.metadata_definitions.name());
         if (!manager.validateRequired(definitions)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing");
         } else {
             try {
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -259,26 +257,25 @@ public class DefinitionNode extends AbstractNode {
                 sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name())).add(
                         SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
                 sc.limit(1);
-                request.put(GraphDACParams.SEARCH_CRITERIA.name(), sc);
+                request.put(GraphDACParams.search_criteria.name(), sc);
                 Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                 response.onComplete(new OnComplete<Object>() {
                     @Override
                     public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                         boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Failed to get definition node for "
-                                        + objectType);
+                                GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
+                                "Failed to get definition node for " + objectType);
                         if (valid) {
                             Response res = (Response) arg1;
-                            BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) res.get(GraphDACParams.NODE_LIST.name());
-                            if (null == nodes || null == nodes.getValueObjectList() || nodes.getValueObjectList().isEmpty()) {
+                            List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+                            if (null == nodes || nodes.isEmpty()) {
                                 manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
                                         "Failed to get definition node for " + objectType, ResponseCode.RESOURCE_NOT_FOUND, getParent());
                             } else {
-                                Node dbNode = nodes.getValueObjectList().get(0);
+                                Node dbNode = nodes.get(0);
                                 fromNode(dbNode);
-                                List<MetadataDefinition> defs = definitions.getValueObjectList();
                                 Map<String, MetadataDefinition> map = new HashMap<String, MetadataDefinition>();
-                                for (MetadataDefinition def : defs) {
+                                for (MetadataDefinition def : definitions) {
                                     map.put(def.getPropertyName(), def);
                                 }
                                 if (null != indexedMetadata && !indexedMetadata.isEmpty()) {
@@ -363,19 +360,19 @@ public class DefinitionNode extends AbstractNode {
         Request cacheReq = new Request(req);
         cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
         cacheReq.setOperation("saveDefinitionNode");
-        cacheReq.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(getFunctionalObjectType()));
-        List<StringValue> indexedFields = new ArrayList<StringValue>();
-        List<StringValue> nonIndexedFields = new ArrayList<StringValue>();
-        List<StringValue> requiredFields = new ArrayList<StringValue>();
+        cacheReq.put(GraphDACParams.object_type.name(), new String(getFunctionalObjectType()));
+        List<String> indexedFields = new ArrayList<String>();
+        List<String> nonIndexedFields = new ArrayList<String>();
+        List<String> requiredFields = new ArrayList<String>();
         getMetadataFieldLists(indexedFields, nonIndexedFields, requiredFields);
-        cacheReq.put(GraphDACParams.INDEXABLE_METADATA_KEY.name(), new BaseValueObjectList<StringValue>(indexedFields));
-        cacheReq.put(GraphDACParams.NON_INDEXABLE_METADATA_KEY.name(), new BaseValueObjectList<StringValue>(indexedFields));
-        cacheReq.put(GraphDACParams.REQUIRED_METADATA_KEY.name(), new BaseValueObjectList<StringValue>(indexedFields));
-        List<StringValue> inRelationObjects = new ArrayList<StringValue>();
-        List<StringValue> outRelationObjects = new ArrayList<StringValue>();
+        cacheReq.put(GraphDACParams.indexable_metadata_key.name(), indexedFields);
+        cacheReq.put(GraphDACParams.non_indexable_metadata_key.name(), nonIndexedFields);
+        cacheReq.put(GraphDACParams.required_metadata_key.name(), requiredFields);
+        List<String> inRelationObjects = new ArrayList<String>();
+        List<String> outRelationObjects = new ArrayList<String>();
         getRelationObjects(inRelationObjects, outRelationObjects);
-        cacheReq.put(GraphDACParams.IN_RELATIONS_KEY.name(), new BaseValueObjectList<StringValue>(inRelationObjects));
-        cacheReq.put(GraphDACParams.OUT_RELATIONS_KEY.name(), new BaseValueObjectList<StringValue>(outRelationObjects));
+        cacheReq.put(GraphDACParams.in_relations_key.name(), inRelationObjects);
+        cacheReq.put(GraphDACParams.out_relations_key.name(), outRelationObjects);
         cacheRouter.tell(cacheReq, manager.getSelf());
     }
 
@@ -425,29 +422,29 @@ public class DefinitionNode extends AbstractNode {
         }
     }
 
-    private void getMetadataFieldLists(List<StringValue> indexedFields, List<StringValue> nonIndexedFields, List<StringValue> requiredFields) {
+    private void getMetadataFieldLists(List<String> indexedFields, List<String> nonIndexedFields, List<String> requiredFields) {
         if (null != indexedMetadata && !indexedMetadata.isEmpty()) {
             for (MetadataDefinition def : indexedMetadata) {
-                indexedFields.add(new StringValue(def.getPropertyName()));
+                indexedFields.add(def.getPropertyName());
                 if (def.isRequired())
-                    requiredFields.add(new StringValue(def.getPropertyName()));
+                    requiredFields.add(def.getPropertyName());
             }
         }
         if (null != nonIndexedMetadata && !nonIndexedMetadata.isEmpty()) {
             for (MetadataDefinition def : nonIndexedMetadata) {
-                nonIndexedFields.add(new StringValue(def.getPropertyName()));
+                nonIndexedFields.add(def.getPropertyName());
                 if (def.isRequired())
-                    requiredFields.add(new StringValue(def.getPropertyName()));
+                    requiredFields.add(def.getPropertyName());
             }
         }
     }
 
-    private void getRelationObjects(List<StringValue> inRelationObjects, List<StringValue> outRelationObjects) {
+    private void getRelationObjects(List<String> inRelationObjects, List<String> outRelationObjects) {
         if (null != inRelations && !inRelations.isEmpty()) {
             for (RelationDefinition def : inRelations) {
                 if (null != def.getObjectTypes() && !def.getObjectTypes().isEmpty()) {
                     for (String objType : def.getObjectTypes()) {
-                        inRelationObjects.add(new StringValue(def.getRelationName() + ":" + objType));
+                        inRelationObjects.add(def.getRelationName() + ":" + objType);
                     }
                 }
             }
@@ -456,7 +453,7 @@ public class DefinitionNode extends AbstractNode {
             for (RelationDefinition def : outRelations) {
                 if (null != def.getObjectTypes() && !def.getObjectTypes().isEmpty()) {
                     for (String objType : def.getObjectTypes()) {
-                        outRelationObjects.add(new StringValue(def.getRelationName() + ":" + objType));
+                        outRelationObjects.add(def.getRelationName() + ":" + objType);
                     }
                 }
             }

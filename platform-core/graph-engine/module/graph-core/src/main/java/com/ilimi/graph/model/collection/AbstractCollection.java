@@ -16,8 +16,6 @@ import akka.pattern.Patterns;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -126,23 +124,22 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     }
 
     @SuppressWarnings("unchecked")
-    protected Future<Boolean> checkMemberNodes(Request req, final List<StringValue> memberIds, final ExecutionContext ec) {
+    protected Future<Boolean> checkMemberNodes(Request req, final List<String> memberIds, final ExecutionContext ec) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
         request.setOperation("getNodesByUniqueIds");
-        request.put(GraphDACParams.NODE_LIST.name(), new BaseValueObjectList<StringValue>(memberIds));
+        request.put(GraphDACParams.node_list.name(), memberIds);
         Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
         Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
             @Override
             public Boolean apply(Object parameter) {
                 if (parameter instanceof Response) {
                     Response ar = (Response) parameter;
-                    BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) ar.get(GraphDACParams.NODE_LIST.name());
+                    List<Node> nodes = (List<Node>) ar.get(GraphDACParams.node_list.name());
                     if (manager.validateRequired(nodes)) {
-                        List<Node> nodeList = nodes.getValueObjectList();
-                        if (memberIds.size() == nodeList.size()) {
-                            for (Node node : nodeList) {
+                        if (memberIds.size() == nodes.size()) {
+                            for (Node node : nodes) {
                                 if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()))
                                     return false;
                             }
@@ -156,17 +153,17 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
         return validMembers;
     }
 
-    protected Future<Node> getNodeObject(Request req, ExecutionContext ec, StringValue setId) {
+    protected Future<Node> getNodeObject(Request req, ExecutionContext ec, String setId) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-        Request request = getRequestObject(req, GraphDACManagers.DAC_SEARCH_MANAGER, "getNodeByUniqueId",
-                GraphDACParams.NODE_ID.name(), setId);
+        Request request = getRequestObject(req, GraphDACManagers.DAC_SEARCH_MANAGER, "getNodeByUniqueId", GraphDACParams.node_id.name(),
+                setId);
         Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
         Future<Node> nodeFuture = dacFuture.map(new Mapper<Object, Node>() {
             @Override
             public Node apply(Object parameter) {
                 if (null != parameter && parameter instanceof Response) {
                     Response res = (Response) parameter;
-                    Node node = (Node) res.get(GraphDACParams.NODE.name());
+                    Node node = (Node) res.get(GraphDACParams.node.name());
                     return node;
                 }
                 return null;

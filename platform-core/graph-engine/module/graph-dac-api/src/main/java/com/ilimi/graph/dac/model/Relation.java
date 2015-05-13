@@ -1,5 +1,6 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,12 +8,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
-public class Relation extends BaseValueObject {
+public class Relation implements Serializable {
 
     private static final long serialVersionUID = -7207054262120122453L;
     private long id;

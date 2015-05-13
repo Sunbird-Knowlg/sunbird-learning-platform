@@ -65,7 +65,7 @@ public class CommentController extends BaseController {
                     ObjectMapper mapper = new ObjectMapper();
                     String strRequest = mapper.writeValueAsString(requestObj);
                     Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objComment = map.get(CommonsDacParams.COMMENT.name());
+                    Object objComment = map.get(CommonsDacParams.comment.name());
                     if (null != objComment) {
                         comment = (Comment) mapper.convertValue(objComment, Comment.class);
                         String commentObjId = AuditLogUtil.createObjectId(taxonomyId, comment.getObjectId());

@@ -1,6 +1,6 @@
 package com.ilimi.graph.common.enums;
 
 public enum CommonsDacParams {
-    COMMENT, COMMENTS, COMMENT_ID, COMMENT_THREAD_ID, AUDIT_RECORD, AUDIT_RECORDS, AUDIT_RECORD_ID, OBJECT_ID, 
-    OBJECT_VERSION, OBJECT_VERSION_ID, OBJECT_VERSIONS, OBJECT_VERSION_NUM
+    comment, comments, comment_id, comment_thread_id, audit_record, audit_records, audit_record_id, object_id, 
+    object_version, object_version_id, object_versions, object_version_num
 }

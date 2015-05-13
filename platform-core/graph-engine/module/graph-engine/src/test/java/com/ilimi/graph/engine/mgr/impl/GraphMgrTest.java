@@ -20,7 +20,6 @@ import akka.util.Timeout;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -58,18 +57,18 @@ public class GraphMgrTest {
 
             long t1 = System.currentTimeMillis();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), "TEMP_CS_004");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), "TEMP_CS_004");
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("importGraph");
-            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
+            request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
             // Change the file path.
             InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("A vocational education course.csv");
 
-            request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+            request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
-            handleFutureBlock(req, "importGraph", GraphDACParams.GRAPH_ID.name());
+            handleFutureBlock(req, "importGraph", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
             System.out.println("Import Time: " + (t2 - t1));
             Thread.sleep(15000);
@@ -83,14 +82,14 @@ public class GraphMgrTest {
         try {
             ActorRef reqRouter = initReqRouter();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), "TEMP_CS_007");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), "TEMP_CS_007");
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("exportGraph");
-            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.JSON.name()));
+            request.put(GraphEngineParams.format.name(), ImportType.JSON.name());
             Future<Object> req = Patterns.ask(reqRouter, request, t);
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
+            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
             FileUtils.writeByteArrayToFile(new File("A vocational education course.json"), os.toByteArray());
             System.out.println("Result: \n" + new String(os.toByteArray())); // Prints
@@ -113,7 +112,7 @@ public class GraphMgrTest {
             ActorRef reqRouter = initReqRouter();
             long t1 = System.currentTimeMillis();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), "JAVA_CS");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), "JAVA_CS");
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("loadGraph");
 
@@ -136,7 +135,7 @@ public class GraphMgrTest {
             ActorRef reqRouter = initReqRouter();
             long t1 = System.currentTimeMillis();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), "JAVA_CS");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), "JAVA_CS");
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("validateGraph");
 
@@ -165,16 +164,16 @@ public class GraphMgrTest {
             String graph3 = "Graph3_" + System.currentTimeMillis();
             Future<Object> req3 = createGraph(reqRouter, graph3);
 
-            handleFutureBlock(req1, "createGraph", GraphDACParams.GRAPH_ID.name());
-            handleFutureBlock(req2, "createGraph", GraphDACParams.GRAPH_ID.name());
-            handleFutureBlock(req3, "createGraph", GraphDACParams.GRAPH_ID.name());
+            handleFutureBlock(req1, "createGraph", GraphDACParams.graph_id.name());
+            handleFutureBlock(req2, "createGraph", GraphDACParams.graph_id.name());
+            handleFutureBlock(req3, "createGraph", GraphDACParams.graph_id.name());
 
             Future<Object> del1 = deleteGraph(reqRouter, graph1);
             Future<Object> del2 = deleteGraph(reqRouter, graph2);
             Future<Object> del3 = deleteGraph(reqRouter, graph3);
-            handleFutureBlock(del1, "deleteGraph", GraphDACParams.GRAPH_ID.name());
-            handleFutureBlock(del2, "deleteGraph", GraphDACParams.GRAPH_ID.name());
-            handleFutureBlock(del3, "deleteGraph", GraphDACParams.GRAPH_ID.name());
+            handleFutureBlock(del1, "deleteGraph", GraphDACParams.graph_id.name());
+            handleFutureBlock(del2, "deleteGraph", GraphDACParams.graph_id.name());
+            handleFutureBlock(del3, "deleteGraph", GraphDACParams.graph_id.name());
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,9 +189,9 @@ public class GraphMgrTest {
             Future<Object> nodeReq1 = createDataNode(reqRouter, graph1, objectType);
             Future<Object> nodeReq2 = createDataNode(reqRouter, graph1, objectType);
             Future<Object> nodeReq3 = createDataNode(reqRouter, graph1, objectType);
-            handleFutureBlock(nodeReq1, "createDataNode", GraphDACParams.NODE_ID.name());
-            handleFutureBlock(nodeReq2, "createDataNode", GraphDACParams.NODE_ID.name());
-            handleFutureBlock(nodeReq3, "createDataNode", GraphDACParams.NODE_ID.name());
+            handleFutureBlock(nodeReq1, "createDataNode", GraphDACParams.node_id.name());
+            handleFutureBlock(nodeReq2, "createDataNode", GraphDACParams.node_id.name());
+            handleFutureBlock(nodeReq3, "createDataNode", GraphDACParams.node_id.name());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -207,31 +206,31 @@ public class GraphMgrTest {
             Neo4jGraphFactory.getGraphDb(graphId);
 
             Request req0 = new Request();
-            req0.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            req0.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             req0.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             req0.setOperation("getNodesCount");
             SearchCriteria sc0 = new SearchCriteria();
             sc0.countQuery(true);
-            req0.put(GraphDACParams.SEARCH_CRITERIA.name(), sc0);
+            req0.put(GraphDACParams.search_criteria.name(), sc0);
             Future<Object> res0 = Patterns.ask(reqRouter, req0, timeout);
             Object arg0 = Await.result(res0, t.duration());
             System.out.println("Result:" + mapper.writeValueAsString(arg0));
             Thread.sleep(5000);
 
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             request.setOperation("searchNodes");
             SearchCriteria sc = new SearchCriteria();
             sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name()));
             // sc.returnField("OUT_RELATION_OBJECTS");
-            request.put(GraphDACParams.SEARCH_CRITERIA.name(), sc);
+            request.put(GraphDACParams.search_criteria.name(), sc);
             Future<Object> req = Patterns.ask(reqRouter, request, timeout);
             Object arg1 = Await.result(req, t.duration());
             System.out.println("Result:" + mapper.writeValueAsString(arg1));
 
             Request request2 = new Request();
-            request2.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            request2.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request2.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             request2.setOperation("searchNodes");
             SearchCriteria sc2 = new SearchCriteria();
@@ -240,7 +239,7 @@ public class GraphMgrTest {
             sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
             // sc2.returnField("OUT_RELATION_OBJECTS");
 
-            request2.put(GraphDACParams.SEARCH_CRITERIA.name(), sc2);
+            request2.put(GraphDACParams.search_criteria.name(), sc2);
             Future<Object> req2 = Patterns.ask(reqRouter, request2, timeout);
             Object arg2 = Await.result(req2, t.duration());
             System.out.println("Result:" + mapper.writeValueAsString(arg2));
@@ -255,12 +254,12 @@ public class GraphMgrTest {
             ActorRef reqRouter = initReqRouter();
             String graphId = "JAVA_CS";
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             request.setOperation("getNodesCount");
             SearchCriteria sc = new SearchCriteria();
             sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name()));
-            request.put(GraphDACParams.SEARCH_CRITERIA.name(), sc);
+            request.put(GraphDACParams.search_criteria.name(), sc);
             Future<Object> req = Patterns.ask(reqRouter, request, timeout);
             Object arg1 = Await.result(req, t.duration());
             ObjectMapper mapper = new ObjectMapper();
@@ -272,17 +271,17 @@ public class GraphMgrTest {
 
     private Future<Object> createDataNode(ActorRef reqRouter, String graphId, String objectType) {
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("createDataNode");
-        request.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(objectType));
+        request.put(GraphDACParams.object_type.name(), objectType);
         Future<Object> req = Patterns.ask(reqRouter, request, timeout);
         return req;
     }
 
     private Future<Object> createGraph(ActorRef reqRouter, String graphId) {
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
         request.setOperation("createGraph");
         Future<Object> req = Patterns.ask(reqRouter, request, timeout);
@@ -291,7 +290,7 @@ public class GraphMgrTest {
 
     private Future<Object> deleteGraph(ActorRef reqRouter, String graphId) {
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
         request.setOperation("deleteGraph");
         Future<Object> req = Patterns.ask(reqRouter, request, timeout);

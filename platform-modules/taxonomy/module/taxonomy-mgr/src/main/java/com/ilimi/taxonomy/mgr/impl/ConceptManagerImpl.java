@@ -11,11 +11,6 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BaseValueObjectMap;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.Identifier;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -44,20 +39,20 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         LOGGER.info("Find All Concepts : " + taxonomyId + " | cfields: " + cfields);
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByObjectType",
-                GraphDACParams.OBJECT_TYPE.name(), new StringValue("Concept"));
-        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+                GraphDACParams.object_type.name(), "Concept");
+        request.put(GraphDACParams.get_tags.name(), true);
         Response findRes = getResponse(request, LOGGER);
         Response response = copyResponse(findRes);
         if (checkError(response))
             return response;
-        BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) findRes.get(GraphDACParams.NODE_LIST.name());
-        if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
+        List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+        if (null != nodes && !nodes.isEmpty()) {
             List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
-            for (Node node : nodes.getValueObjectList()) {
+            for (Node node : nodes) {
                 ConceptDTO dto = new ConceptDTO(node, cfields);
                 concepts.add(dto);
             }
-            response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
+            response.put(TaxonomyAPIParams.concepts.name(), concepts);
         }
         return response;
     }
@@ -68,18 +63,17 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT_ID.name(), "Concept Id is blank");
-        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(),
-                new StringValue(id));
-        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        request.put(GraphDACParams.get_tags.name(), true);
         Response getNodeRes = getResponse(request, LOGGER);
         Response response = copyResponse(getNodeRes);
         if (checkError(response)) {
             return response;
         }
-        Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         if (null != node) {
             ConceptDTO dto = new ConceptDTO(node, cfields);
-            response.put(TaxonomyAPIParams.CONCEPT.name(), dto);
+            response.put(TaxonomyAPIParams.concept.name(), dto);
         }
         return response;
     }
@@ -89,21 +83,20 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
     public Response create(String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        Node concept = (Node) request.get(TaxonomyAPIParams.CONCEPT.name());
+        Node concept = (Node) request.get(TaxonomyAPIParams.concept.name());
         if (null == concept)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT.name(), "Concept Object is blank");
         Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-        createReq.put(GraphDACParams.NODE.name(), concept);
+        createReq.put(GraphDACParams.node.name(), concept);
         Response createRes = getResponse(createReq, LOGGER);
         if (checkError(createRes)) {
             return createRes;
         } else {
-            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
-                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request.get(TaxonomyAPIParams.metadata_definitions.name());
             if (validateRequired(newDefinitions)) {
                 Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
-                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(concept.getObjectType()));
-                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                defRequest.put(GraphDACParams.object_type.name(), concept.getObjectType());
+                defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
                 Response defResponse = getResponse(defRequest, LOGGER);
                 if (checkError(defResponse)) {
                     return defResponse;
@@ -120,22 +113,21 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT_ID.name(), "Concept Id is blank");
-        Node concept = (Node) request.get(TaxonomyAPIParams.CONCEPT.name());
+        Node concept = (Node) request.get(TaxonomyAPIParams.concept.name());
         if (null == concept)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT.name(), "Concept Object is blank");
         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-        updateReq.put(GraphDACParams.NODE.name(), concept);
-        updateReq.put(GraphDACParams.NODE_ID.name(), new StringValue(concept.getIdentifier()));
+        updateReq.put(GraphDACParams.node.name(), concept);
+        updateReq.put(GraphDACParams.node_id.name(), concept.getIdentifier());
         Response updateRes = getResponse(updateReq, LOGGER);
         if (checkError(updateRes)) {
             return updateRes;
         } else {
-            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
-                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request.get(TaxonomyAPIParams.metadata_definitions.name());
             if (validateRequired(newDefinitions)) {
                 Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
-                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(concept.getObjectType()));
-                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                defRequest.put(GraphDACParams.object_type.name(), concept.getObjectType());
+                defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
                 Response defResponse = getResponse(defRequest, LOGGER);
                 if (checkError(defResponse)) {
                     return defResponse;
@@ -151,8 +143,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_CONCEPT_ID.name(), "Concept Id is blank");
-        Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.NODE_ID.name(),
-                new StringValue(id));
+        Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.node_id.name(), id);
         return getResponse(request, LOGGER);
     }
 
@@ -164,9 +155,9 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_UPDATE_CONCEPT.name(),
                     "Start Concept Id, Relation Type and End Concept Id are required to delete relation");
         Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "removeRelation");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(startConceptId));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(relationType));
-        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(endConceptId));
+        request.put(GraphDACParams.start_node_id.name(), startConceptId);
+        request.put(GraphDACParams.relation_type.name(), relationType);
+        request.put(GraphDACParams.end_node_id.name(), endConceptId);
         return getResponse(request, LOGGER);
     }
 
@@ -179,22 +170,22 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (StringUtils.isBlank(relationType))
             relationType = RelationTypes.HIERARCHY.relationName();
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getSubGraph");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(id));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(relationType));
+        request.put(GraphDACParams.start_node_id.name(), id);
+        request.put(GraphDACParams.relation_type.name(), relationType);
         if (depth > 0)
-            request.put(GraphDACParams.DEPTH.name(), new Identifier(depth));
+            request.put(GraphDACParams.depth.name(), depth);
         Response findRes = getResponse(request, LOGGER);
         Response response = copyResponse(findRes);
         if (checkError(response))
             return response;
-        Graph graph = (Graph) findRes.get(GraphDACParams.SUB_GRAPH.name());
+        Graph graph = (Graph) findRes.get(GraphDACParams.sub_graph.name());
         if (null != graph && null != graph.getNodes() && !graph.getNodes().isEmpty()) {
             List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
             for (Node node : graph.getNodes()) {
                 ConceptDTO dto = new ConceptDTO(node);
                 concepts.add(dto);
             }
-            response.put(TaxonomyAPIParams.CONCEPTS.name(), new BaseValueObjectList<ConceptDTO>(concepts));
+            response.put(TaxonomyAPIParams.concepts.name(), concepts);
         }
         return response;
     }
@@ -204,48 +195,47 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchRelations");
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.ASSOCIATED_TO.relationName()));
-        request.put(GraphDACParams.DIRECTION.name(), new Identifier(RelationTraversal.DIRECTION_IN));
+        request.put(GraphDACParams.relation_type.name(), RelationTypes.ASSOCIATED_TO.relationName());
+        request.put(GraphDACParams.direction.name(), RelationTraversal.DIRECTION_IN);
         List<FilterDTO> nodeFilters = new ArrayList<FilterDTO>();
         nodeFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
         nodeFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
-        request.put(GraphDACParams.START_NODE_FILTER.name(), new BaseValueObjectList<FilterDTO>(nodeFilters));
+        request.put(GraphDACParams.start_node_filter.name(), nodeFilters);
 
         List<FilterDTO> relFilters = new ArrayList<FilterDTO>();
         relFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
         relFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Game"));
-        request.put(GraphDACParams.RELATED_NODE_FILTER.name(), new BaseValueObjectList<FilterDTO>(relFilters));
+        request.put(GraphDACParams.related_node_filter.name(), relFilters);
 
-        List<StringValue> nodeFields = new ArrayList<StringValue>();
+        List<String> nodeFields = new ArrayList<String>();
         if (null != cfields && cfields.length > 0) {
             for (String field : cfields)
-                nodeFields.add(new StringValue(field));
+                nodeFields.add(field);
         } else {
-            nodeFields.add(new StringValue("name"));
+            nodeFields.add("name");
         }
-        request.put(GraphDACParams.START_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(nodeFields));
+        request.put(GraphDACParams.start_node_fields.name(), nodeFields);
 
-        List<StringValue> relFields = new ArrayList<StringValue>();
+        List<String> relFields = new ArrayList<String>();
         if (null != gfields && gfields.length > 0) {
             for (String field : gfields)
-                relFields.add(new StringValue(field));
+                relFields.add(field);
         } else {
-            relFields.add(new StringValue("name"));
-            relFields.add(new StringValue("identifier"));
-            relFields.add(new StringValue("purpose"));
+            relFields.add("name");
+            relFields.add("identifier");
+            relFields.add("purpose");
         }
-        request.put(GraphDACParams.RELATED_NODE_FIELDS.name(), new BaseValueObjectList<StringValue>(relFields));
+        request.put(GraphDACParams.related_node_fields.name(), relFields);
 
         Response findRes = getResponse(request, LOGGER);
         if (checkError(findRes))
             return findRes;
         Response response = copyResponse(findRes);
-        BaseValueObjectList<BaseValueObjectMap<Object>> result = (BaseValueObjectList<BaseValueObjectMap<Object>>) findRes
-                .get(GraphDACParams.RESULTS.name());
+        List<Map<String, Object>> result = (List<Map<String, Object>>) findRes.get(GraphDACParams.results.name());
         if (validateRequired(result)) {
-            for (BaseValueObjectMap<Object> resultMap : result.getValueObjectList()) {
+            for (Map<String, Object> resultMap : result) {
                 if (validateRequired(resultMap)) {
-                    Map<String, Object> map = resultMap.getBaseValueMap();
+                    Map<String, Object> map = resultMap;
                     if (null != map && !map.isEmpty()) {
                         List<Map<String, Object>> relList = (List<Map<String, Object>>) map.get(RelationTypes.ASSOCIATED_TO.relationName());
                         map.put("games", relList);
@@ -254,7 +244,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
                 }
             }
         }
-        response.put(GraphDACParams.RESULTS.name(), result);
+        response.put(GraphDACParams.results.name(), result);
         return response;
     }
 

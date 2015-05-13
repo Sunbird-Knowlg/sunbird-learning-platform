@@ -14,7 +14,6 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -27,7 +26,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 public class CSVGraphReader implements GraphReader {
     private List<Node> definitionNodes;
     private List<Node> dataNodes;
-    private Map<String, List<StringValue>> tagMembersMap;
+    private Map<String, List<String>> tagMembersMap;
     private List<Relation> relations;
     private List<String> validations;
     private BaseGraphManager manager;
@@ -51,7 +50,7 @@ public class CSVGraphReader implements GraphReader {
         this.propertyDataMap = propertyDataMap;
         definitionNodes = new ArrayList<Node>();
         dataNodes = new ArrayList<Node>();
-        tagMembersMap = new HashMap<String, List<StringValue>>();
+        tagMembersMap = new HashMap<String, List<String>>();
         relations = new ArrayList<Relation>();
         validations = new ArrayList<String>();
         InputStreamReader isReader = new InputStreamReader(inputStream);
@@ -125,10 +124,10 @@ public class CSVGraphReader implements GraphReader {
                     for (String tagName : recordTags) {
                         tagName = tagName.trim();
                         if (tagMembersMap.containsKey(tagName)) {
-                            tagMembersMap.get(tagName).add(new StringValue(uniqueId));
+                            tagMembersMap.get(tagName).add(uniqueId);
                         } else {
-                            List<StringValue> members = new ArrayList<StringValue>();
-                            members.add(new StringValue(uniqueId));
+                            List<String> members = new ArrayList<String>();
+                            members.add(uniqueId);
                             tagMembersMap.put(tagName, members);
                         }
                     }
@@ -141,7 +140,7 @@ public class CSVGraphReader implements GraphReader {
 
     private String[] getListFromString(String valStr) {
         if (StringUtils.isNotBlank(valStr)) {
-            String[] vals = valStr.trim().split("\\s*"+LIST_STR_DELIMITER+"\\s*");
+            String[] vals = valStr.trim().split("\\s*" + LIST_STR_DELIMITER + "\\s*");
             if (null != vals && vals.length > 0)
                 return vals;
         }
@@ -272,7 +271,7 @@ public class CSVGraphReader implements GraphReader {
     /**
      * @return the tagMembersMap
      */
-    public Map<String, List<StringValue>> getTagMembersMap() {
+    public Map<String, List<String>> getTagMembersMap() {
         return tagMembersMap;
     }
 
@@ -280,7 +279,7 @@ public class CSVGraphReader implements GraphReader {
      * @param tagMembersMap
      *            the tagMembersMap to set
      */
-    public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
+    public void setTagMembersMap(Map<String, List<String>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
     }
 

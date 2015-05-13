@@ -8,8 +8,6 @@ import akka.actor.ActorRef;
 import akka.dispatch.OnComplete;
 
 import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ResponseCode;
@@ -45,7 +43,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void createSequence(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             ICollection sequence = new Sequence(this, graphId, null);
             sequence.create(request);
@@ -57,12 +55,12 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     @SuppressWarnings("unchecked")
     @Override
     public void createSet(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        SetCriteria criteria = (SetCriteria) request.get(GraphDACParams.CRITERIA.name());
-        BaseValueObjectList<StringValue> memberIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.MEMBERS.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        SetCriteria criteria = (SetCriteria) request.get(GraphDACParams.criteria.name());
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         try {
             if (validateRequired(memberIds)) {
-                ICollection set = new Set(this, graphId, null, memberIds.getValueObjectList());
+                ICollection set = new Set(this, graphId, null, memberIds);
                 set.create(request);
             } else {
                 ICollection set = new Set(this, graphId, null, criteria);
@@ -76,21 +74,12 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     @SuppressWarnings("unchecked")
     @Override
     public void createTag(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue tagName = (StringValue) request.get(GraphDACParams.TAG_NAME.name());
-        StringValue attributeName = (StringValue) request.get(GraphDACParams.ATTRIBUTE_NAME.name());
-        BaseValueObjectList<StringValue> memberIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.MEMBERS.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String tagName = (String) request.get(GraphDACParams.tag_name.name());
+        String attributeName = (String) request.get(GraphDACParams.attribute_name.name());
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         try {
-            String tag = null;
-            if (validateRequired(tagName))
-                tag = tagName.getId();
-            String attribute = null;
-            if (validateRequired(attributeName))
-                attribute = attributeName.getId();
-            List<StringValue> members = null;
-            if (validateRequired(memberIds))
-                members = memberIds.getValueObjectList();
-            ICollection tagNode = new Tag(this, graphId, tag, attribute, members);
+            ICollection tagNode = new Tag(this, graphId, tagName, attributeName, memberIds);
             tagNode.create(request);
         } catch (Exception e) {
             handleException(e, getSender());
@@ -99,15 +88,16 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void addMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
-        StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
-        StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
+        String memberId = (String) request.get(GraphDACParams.member_id.name());
         if (!validateRequired(collectionId, collectionType, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ADD_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ADD_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
                 coll.addMember(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -117,15 +107,16 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void removeMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
-        StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
-        StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
+        String memberId = (String) request.get(GraphDACParams.member_id.name());
         if (!validateRequired(collectionId, collectionType, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_REMOVE_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_REMOVE_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
                 coll.removeMember(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -135,14 +126,15 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void dropCollection(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
-        StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
         if (!validateRequired(collectionId, collectionType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_COLLECTION_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_COLLECTION_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
                 coll.delete(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -152,14 +144,15 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void getCollectionMembers(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue collectionId = (StringValue) request.get(GraphDACParams.COLLECTION_ID.name());
-        StringValue collectionType = (StringValue) request.get(GraphDACParams.COLLECTION_TYPE.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
         if (!validateRequired(collectionId, collectionType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_MEMBERS_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_MEMBERS_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId.getId(), collectionType.getId());
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
                 coll.getMembers(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -169,7 +162,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @Override
     public void addTag(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             ICollection tag = new Tag(this, graphId, null);
             tag.addMember(request);
@@ -180,24 +173,25 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
 
     @SuppressWarnings("unchecked")
     public void addTags(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
-        BaseValueObjectList<StringValue> tags = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.TAGS.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String nodeId = (String) request.get(GraphDACParams.node_id.name());
+        List<String> tags = (List<String>) request.get(GraphDACParams.tags.name());
         if (!validateRequired(nodeId, tags)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
-                Future<List<StringValue>> tagsFuture = node.addTags(request, tags.getValueObjectList());
-                tagsFuture.onComplete(new OnComplete<List<StringValue>>() {
+                DataNode node = new DataNode(this, graphId, nodeId, null, null);
+                Future<List<String>> tagsFuture = node.addTags(request, tags);
+                tagsFuture.onComplete(new OnComplete<List<String>>() {
                     @Override
-                    public void onComplete(Throwable arg0, List<StringValue> arg1) throws Throwable {
+                    public void onComplete(Throwable arg0, List<String> arg1) throws Throwable {
                         if (null != arg0) {
                             handleException(arg0, getSender());
                         } else {
                             if (null != arg1 && !arg1.isEmpty()) {
-                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_UNKNOWN_ERROR.name(), "Error adding tags", ResponseCode.CLIENT_ERROR,
-                                        GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(arg1), getSender());
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAGS_UNKNOWN_ERROR.name(), "Error adding tags",
+                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), arg1, getSender());
                             } else {
                                 OK(getSender());
                             }

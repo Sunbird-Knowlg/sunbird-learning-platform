@@ -1,11 +1,10 @@
 package com.ilimi.graph.model.node;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class MetadataDefinition extends BaseValueObject {
+public class MetadataDefinition implements Serializable {
 
     public static List<String> VALID_DATA_TYPES = new ArrayList<String>();
 

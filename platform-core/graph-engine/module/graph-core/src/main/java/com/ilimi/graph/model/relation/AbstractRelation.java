@@ -20,9 +20,6 @@ import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -55,19 +52,19 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
                 @Override
                 public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                    List<StringValue> errMessages = getErrorMessages(messageMap);
+                    List<String> errMessages = getErrorMessages(messageMap);
                     if (null == errMessages || errMessages.isEmpty()) {
                         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                         Request request = new Request(req);
                         request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                         request.setOperation("addRelation");
-                        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(getStartNodeId()));
-                        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
-                        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getEndNodeId()));
+                        request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
+                        request.put(GraphDACParams.relation_type.name(), getRelationType());
+                        request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
                         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                         manager.returnResponse(response, getParent());
                     } else {
-                        manager.OK(GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(errMessages), getParent());
+                        manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
                     }
                 }
             }, manager.getContext().dispatcher());
@@ -81,9 +78,9 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         request.setOperation("addRelation");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(getStartNodeId()));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
-        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getEndNodeId()));
+        request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
+        request.put(GraphDACParams.relation_type.name(), getRelationType());
+        request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
@@ -123,9 +120,9 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         request.setOperation("deleteRelation");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(getStartNodeId()));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
-        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(getEndNodeId()));
+        request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
+        request.put(GraphDACParams.relation_type.name(), getRelationType());
+        request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
@@ -151,11 +148,11 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
                 @Override
                 public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
-                    List<StringValue> errMessages = getErrorMessages(messageMap);
+                    List<String> errMessages = getErrorMessages(messageMap);
                     if (null == errMessages || errMessages.isEmpty()) {
                         manager.OK(getParent());
                     } else {
-                        manager.OK(GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(errMessages), getParent());
+                        manager.OK(GraphDACParams.messages.name(), errMessages, getParent());
                     }
                 }
             }, manager.getContext().dispatcher());
@@ -183,15 +180,15 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     public void getProperty(Request req) {
         try {
-            StringValue key = (StringValue) req.get(GraphDACParams.PROPERTY_KEY.name());
+            String key = (String) req.get(GraphDACParams.property_key.name());
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
             request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             request.setOperation("getRelationProperty");
-            request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(this.startNodeId));
-            request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
-            request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(this.endNodeId));
-            request.put(GraphDACParams.PROPERTY_KEY.name(), key);
+            request.put(GraphDACParams.start_node_id.name(), this.startNodeId);
+            request.put(GraphDACParams.relation_type.name(), getRelationType());
+            request.put(GraphDACParams.end_node_id.name(), this.endNodeId);
+            request.put(GraphDACParams.property_key.name(), key);
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
@@ -234,14 +231,14 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Request newReq = new Request(request);
             newReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             newReq.setOperation("getNodeByUniqueId");
-            newReq.put(GraphDACParams.NODE_ID.name(), new StringValue(nodeId));
+            newReq.put(GraphDACParams.node_id.name(), nodeId);
             Future<Object> response = Patterns.ask(dacRouter, newReq, timeout);
             Future<Node> node = response.map(new Mapper<Object, Node>() {
                 @Override
                 public Node apply(Object parameter) {
                     if (parameter instanceof Response) {
                         Response res = (Response) parameter;
-                        Node node = (Node) res.get(GraphDACParams.NODE.name());
+                        Node node = (Node) res.get(GraphDACParams.node.name());
                         return node;
                     } else {
                         return null;
@@ -260,9 +257,9 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
             Request request = new Request(req);
             request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             request.setOperation("checkCyclicLoop");
-            request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(this.endNodeId));
-            request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(getRelationType()));
-            request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(this.startNodeId));
+            request.put(GraphDACParams.start_node_id.name(), this.endNodeId);
+            request.put(GraphDACParams.relation_type.name(), getRelationType());
+            request.put(GraphDACParams.end_node_id.name(), this.startNodeId);
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             Future<String> message = response.map(new Mapper<Object, String>() {
                 @Override
@@ -272,10 +269,10 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         if (manager.checkError(res)) {
                             return manager.getErrorMessage(res);
                         } else {
-                            BooleanValue loop = (BooleanValue) res.get(GraphDACParams.LOOP.name());
-                            if (null != loop && loop.getValue()) {
-                                StringValue msg = (StringValue) res.get(GraphDACParams.MESSAGE.name());
-                                return msg.getId();
+                            Boolean loop = (Boolean) res.get(GraphDACParams.loop.name());
+                            if (null != loop && loop.booleanValue()) {
+                                String msg = (String) res.get(GraphDACParams.message.name());
+                                return msg;
                             } else {
                                 return null;
                             }
@@ -337,7 +334,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                                 Request cacheReq = new Request(request);
                                 cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                                 cacheReq.setOperation("getOutRelationObjectTypes");
-                                cacheReq.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(type));
+                                cacheReq.put(GraphDACParams.object_type.name(), type);
                                 Future<Object> response = Patterns.ask(cacheRouter, cacheReq, timeout);
                                 response.onComplete(new OnComplete<Object>() {
                                     @Override
@@ -347,13 +344,11 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                                         } else {
                                             if (arg1 instanceof Response) {
                                                 Response res = (Response) arg1;
-                                                BaseValueObjectList<StringValue> outRelations = (BaseValueObjectList<StringValue>) res
-                                                        .get(GraphDACParams.METADATA.name());
+                                                List<String> outRelations = (List<String>) res.get(GraphDACParams.metadata.name());
                                                 boolean found = false;
-                                                if (null != outRelations && null != outRelations.getValueObjectList()
-                                                        && !outRelations.getValueObjectList().isEmpty()) {
-                                                    for (StringValue outRel : outRelations.getValueObjectList()) {
-                                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType, outRel.getId())) {
+                                                if (null != outRelations && !outRelations.isEmpty()) {
+                                                    for (String outRel : outRelations) {
+                                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType, outRel)) {
                                                             found = true;
                                                             break;
                                                         }

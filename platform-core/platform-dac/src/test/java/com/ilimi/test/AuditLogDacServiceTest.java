@@ -1,5 +1,7 @@
 package com.ilimi.test;
 
+import java.util.List;
+
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,9 +13,6 @@ import com.ilimi.dac.dto.Comment;
 import com.ilimi.dac.impl.IAuditLogDataService;
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.Identifier;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.CommonsDacParams;
 
 @RunWith(SpringJUnit4ClassRunner.class)
@@ -39,9 +38,9 @@ public class AuditLogDacServiceTest {
         auditRecord.setComment(comment);
         
         Request request = new Request();
-        request.put(CommonsDacParams.AUDIT_RECORD.name(), auditRecord);
+        request.put(CommonsDacParams.audit_record.name(), auditRecord);
         Response response = auditLogDataService.saveAuditLog(request);
-        Identifier iden = (Identifier) response.get(CommonsDacParams.AUDIT_RECORD_ID.name());
+        Integer iden = (Integer) response.get(CommonsDacParams.audit_record_id.name());
         Assert.assertNotNull(iden);
         System.out.println("Identifier: "+iden);
     }
@@ -50,10 +49,10 @@ public class AuditLogDacServiceTest {
 //    @org.junit.Test
     public void testGetHistory() {
         Request request = new Request();
-        request.put(CommonsDacParams.OBJECT_ID.name(), new StringValue("g-NUMERACY"));
+        request.put(CommonsDacParams.object_id.name(), "g-NUMERACY");
         Response response = auditLogDataService.getAuditHistory(request);
-        BaseValueObjectList<AuditRecord> records = (BaseValueObjectList<AuditRecord>) response.get(CommonsDacParams.AUDIT_RECORDS.name());
+        List<AuditRecord> records = (List<AuditRecord>) response.get(CommonsDacParams.audit_records.name());
         Assert.assertNotNull(records);
-        System.out.println("Response:"+records.getValueObjectList().size());
+        System.out.println("Response:"+records.size());
     }
 }

@@ -18,14 +18,9 @@ import akka.pattern.Patterns;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BaseValueObjectMap;
-import com.ilimi.graph.common.dto.LongIdentifier;
+import com.ilimi.graph.common.ResponseParams;
+import com.ilimi.graph.common.ResponseParams.StatusType;
 import com.ilimi.graph.common.dto.Property;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.exception.ServerException;
@@ -34,7 +29,7 @@ import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.router.RequestRouterPool;
 
 public abstract class BaseManager {
-    
+
     protected void setMetadataFields(Node node, String[] fields) {
         if (null != fields && fields.length > 0) {
             if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -78,17 +73,16 @@ public abstract class BaseManager {
                 Future<Iterable<Object>> objects = Futures.sequence(futures, RequestRouterPool.getActorSystem().dispatcher());
                 Iterable<Object> responses = Await.result(objects, RequestRouterPool.WAIT_TIMEOUT.duration());
                 if (null != responses) {
-                    BaseValueObjectList<BaseValueObject> list = new BaseValueObjectList<BaseValueObject>();
-                    list.setValueObjectList(new ArrayList<BaseValueObject>());
+                    List<Object> list = new ArrayList<Object>();
                     Response response = new Response();
                     for (Object obj : responses) {
                         if (obj instanceof Response) {
                             Response res = (Response) obj;
                             if (!checkError(res)) {
-                                BaseValueObject vo = res.get(paramName);
+                                Object vo = res.get(paramName);
                                 response = copyResponse(response, res);
                                 if (null != vo) {
-                                    list.getValueObjectList().add(vo);
+                                    list.add(vo);
                                 }
                             } else {
                                 return res;
@@ -112,7 +106,7 @@ public abstract class BaseManager {
     }
 
     protected Request setContext(Request request, String graphId, String manager, String operation) {
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.setManagerName(manager);
         request.setOperation(operation);
         return request;
@@ -123,7 +117,7 @@ public abstract class BaseManager {
         return setContext(request, graphId, manager, operation);
     }
 
-    protected Request getRequest(String graphId, String manager, String operation, String paramName, BaseValueObject vo) {
+    protected Request getRequest(String graphId, String manager, String operation, String paramName, Object vo) {
         Request request = getRequest(graphId, manager, operation);
         request.put(paramName, vo);
         return request;
@@ -137,7 +131,7 @@ public abstract class BaseManager {
     }
 
     protected boolean checkError(Response response) {
-        Params params = response.getParams();
+        ResponseParams params = response.getParams();
         if (null != params) {
             if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
                 return true;
@@ -159,37 +153,37 @@ public abstract class BaseManager {
         return to;
     }
 
-    private Params getErrorStatus(String errorCode, String errorMessage) {
-        Params params = new Params();
+    private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
+        ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
         params.setStatus(StatusType.ERROR.name());
         params.setErrmsg(errorMessage);
         return params;
     }
 
-    protected boolean validateRequired(BaseValueObject... objects) {
+    protected boolean validateRequired(Object... objects) {
         boolean valid = true;
-        for (BaseValueObject baseValueObject : objects) {
+        for (Object baseValueObject : objects) {
             if (null == baseValueObject) {
                 valid = false;
                 break;
             }
-            if (baseValueObject instanceof StringValue) {
-                if (StringUtils.isBlank(((StringValue) baseValueObject).getId())) {
+            if (baseValueObject instanceof String) {
+                if (StringUtils.isBlank(((String) baseValueObject))) {
                     valid = false;
                     break;
                 }
             }
-            if (baseValueObject instanceof BaseValueObjectList<?>) {
-                BaseValueObjectList<?> list = (BaseValueObjectList<?>) baseValueObject;
-                if (null == list.getValueObjectList() || list.getValueObjectList().isEmpty()) {
+            if (baseValueObject instanceof List<?>) {
+                List<?> list = (List<?>) baseValueObject;
+                if (null == list || list.isEmpty()) {
                     valid = false;
                     break;
                 }
             }
-            if (baseValueObject instanceof BaseValueObjectMap<?>) {
-                BaseValueObjectMap<?> map = (BaseValueObjectMap<?>) baseValueObject;
-                if (null == map.getBaseValueMap() || map.getBaseValueMap().isEmpty()) {
+            if (baseValueObject instanceof Map<?, ?>) {
+                Map<?, ?> map = (Map<?, ?>) baseValueObject;
+                if (null == map || map.isEmpty()) {
                     valid = false;
                     break;
                 }
@@ -198,13 +192,6 @@ public abstract class BaseManager {
                 Property property = (Property) baseValueObject;
                 if (StringUtils.isBlank(property.getPropertyName())
                         || (null == property.getPropertyValue() && null == property.getDateValue())) {
-                    valid = false;
-                    break;
-                }
-            }
-            if (baseValueObject instanceof LongIdentifier) {
-                LongIdentifier longVal = (LongIdentifier) baseValueObject;
-                if (null == longVal.getId()) {
                     valid = false;
                     break;
                 }

@@ -15,8 +15,7 @@ import akka.dispatch.OnFailure;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
+import com.ilimi.graph.common.ResponseParams.StatusType;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -53,9 +52,9 @@ public abstract class BaseRequestRouter extends UntypedActor {
             // the configured timeout.
             Request request = (Request) message;
             long startTime = System.currentTimeMillis();
-            request.getContext().put(GraphHeaderParams.START_TIME.name(), startTime);
-            perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
-                    + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
+            request.getContext().put(GraphHeaderParams.start_time.name(), startTime);
+            perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+                    + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                     + request.getOperation() + ",STARTTIME," + startTime);
             ActorRef parent = getSender();
             try {
@@ -78,15 +77,15 @@ public abstract class BaseRequestRouter extends UntypedActor {
             public void onSuccess(Object arg0) throws Throwable {
                 parent.tell(arg0, getSelf());
                 long endTime = System.currentTimeMillis();
-                long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.START_TIME.name());
+                long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
                 Response res = (Response) arg0;
-                Params params = res.getParams();
+                ResponseParams params = res.getParams();
                 LOGGER.info(request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
-                perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
-                        + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
+                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+                        + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + ",ENDTIME," + endTime);
-                perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
-                        + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
+                perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+                        + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + "," + params.getStatus() + "," + exeTime);
             }
         }, getContext().dispatcher());
@@ -102,7 +101,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
         LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
         Response response = new Response();
-        Params params = new Params();
+        ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
@@ -114,9 +113,9 @@ public abstract class BaseRequestRouter extends UntypedActor {
         response.setParams(params);
         setResponseCode(response, e);
         parent.tell(response, getSelf());
-        long exeTime = System.currentTimeMillis() - (Long) request.getContext().get(GraphHeaderParams.START_TIME.name());
-        perfLogger.info(request.getContext().get(GraphHeaderParams.SCENARIO_NAME.name()) + ","
-                + request.getContext().get(GraphHeaderParams.REQUEST_ID.name()) + "," + request.getManagerName() + ","
+        long exeTime = System.currentTimeMillis() - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
+        perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
+                + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                 + request.getOperation() + ",ERROR," + exeTime);
     }
 
@@ -130,7 +129,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
                     Class<?> returnType = method.getReturnType();
                     if (returnType.getCanonicalName() == "void") {
                         if (null != parameters && parameters.length == 1) {
-                            if (StringUtils.equals("com.ilimi.graph.common.Request", parameters[0].getCanonicalName()))
+                            if (StringUtils.equals(Request.class.getName(), parameters[0].getCanonicalName()))
                                 map.put(method.getName(), method);
                         }
                     }
