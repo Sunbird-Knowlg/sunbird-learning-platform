@@ -16,6 +16,7 @@ import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.BooleanValue;
 import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphEngineParams;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -153,7 +154,9 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         SearchCriteria sc = dto.searchCriteria();
         sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
+        request.put(TaxonomyAPIParams.SEARCH_CRITERIA.name(), sc);
         request.setOperation("searchNodes");
+        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), id);
         Response searchRes = getResponse(request, LOGGER);
         Response response = copyResponse(searchRes);
         if (!checkError(response)) {

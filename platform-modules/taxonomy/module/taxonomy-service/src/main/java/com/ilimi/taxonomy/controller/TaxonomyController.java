@@ -1,12 +1,16 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,7 +25,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.graph.common.Request;
 import com.ilimi.graph.common.Response;
+import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchDTO;
+import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
@@ -105,8 +114,9 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id:.+}/concepts", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> search(@PathVariable(value = "id") String id, @RequestBody Request request,
+    public ResponseEntity<Response> search(@PathVariable(value = "id") String id, @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
+        Request request = getRequestObject(map);
         LOGGER.info("Search | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = taxonomyManager.search(id, request);
@@ -116,6 +126,29 @@ public class TaxonomyController extends BaseController {
             LOGGER.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e);
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Request getRequestObject(Map<String, Object> requestMap) {
+        Request request = new Request();
+        if (null != requestMap && !requestMap.isEmpty()) {
+            Object requestObj = requestMap.get("request");
+            if (null != requestObj) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+                    Object objConcept = map.get(TaxonomyAPIParams.SEARCH_CRITERIA.name());
+                    if (null != objConcept) {
+                        SearchDTO searchDTO = (SearchDTO) mapper.convertValue(objConcept, SearchDTO.class);
+                        request.put(TaxonomyAPIParams.SEARCH_CRITERIA.name(), searchDTO);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return request;
     }
 
     @RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.POST)
