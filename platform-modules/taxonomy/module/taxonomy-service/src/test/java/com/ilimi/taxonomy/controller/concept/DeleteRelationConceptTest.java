@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.learningobjectcontroller.test;
+package com.ilimi.taxonomy.controller.concept;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,7 +24,7 @@ import com.ilimi.graph.common.Response;
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteGameTest {
+public class DeleteRelationConceptTest {
 	@Autowired 
     private WebApplicationContext context;
     
@@ -34,44 +34,55 @@ public class DeleteGameTest {
     public void setup() throws IOException {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
-	
+    
     @org.junit.Test
-    public void deleteConcept() throws Exception {
-        ResultActions actions = mockMvc.perform(delete("/learning-object/G1").param("taxonomyId", "NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
+    public void deleteRelationConcept() throws Exception {
+        ResultActions actions = mockMvc.perform(delete("/concept/Num:C1/isParentOf/Num:C1:SC1").param("taxonomyId", "NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().isOk());
+        System.out.println(actions.andReturn().getResponse().getContentAsString());
+        System.out.println("Status:"+actions.andReturn().getResponse().getStatus());
     }
     
     @org.junit.Test
     public void emptyTaxonomyId() throws Exception {
-        ResultActions actions = mockMvc.perform(delete("/learning-object/G1").param("taxonomyId", "").header("Content-Type", "application/json").header("user-id", "jeetu"));
+        ResultActions actions = mockMvc.perform(delete("/concept/Num:C1/isParentOf/Num:C1:SC1").param("taxonomyId", "").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().is(400));        
         String content = (String) actions.andReturn().getResponse().getContentAsString();
-        System.out.println(content);
         ObjectMapper objectMapper = new ObjectMapper();
         Response resp = objectMapper.readValue(content, Response.class);
-        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().get("errmsg"));
+//        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().get("errmsg"));
+        
     }
     
     @org.junit.Test
-    public void withoutTaxonomyId() throws Exception {
-        ResultActions actions = mockMvc.perform(delete("/learning-object/G1").header("Content-Type", "application/json").header("user-id", "jeetu"));
+    public void withOutTaxonomyId() throws Exception {
+        ResultActions actions = mockMvc.perform(delete("/concept/Num:C1/isParentOf/Num:C1:SC1").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().is(400));
         Assert.assertEquals("Required String parameter 'taxonomyId' is not present", actions.andReturn().getResponse().getErrorMessage());
     }
-    
+      
     @org.junit.Test
-    public void gameNotFound() throws Exception {
-        ResultActions actions = mockMvc.perform(delete("/learning-object/dsd").param("taxonomyId", "NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
+    public void conceptIdNotFound() throws Exception {
+        ResultActions actions = mockMvc.perform(delete("/concept/sdsdf/isParentOf/Num:C1:SC1").param("taxonomyId", "NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().is(404));        
         String content = (String) actions.andReturn().getResponse().getContentAsString();
         ObjectMapper objectMapper = new ObjectMapper();
         Response resp = objectMapper.readValue(content, Response.class);
-        Assert.assertEquals("Node not found: dsd", resp.getParams().get("errmsg"));
-        System.out.println(resp.getParams().get("errmsg"));
+//        Assert.assertEquals("Node not found: sdsdf", resp.getParams().get("errmsg"));
     }
-
+    
+    @org.junit.Test
+    public void unsupportedRealation() throws Exception {
+        ResultActions actions = mockMvc.perform(delete("/concept/Num:C1/isParen/Num:C1:SC1").param("taxonomyId", "NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
+        actions.andDo(MockMvcResultHandlers.print());
+        actions.andExpect(status().is(400));        
+        String content = (String) actions.andReturn().getResponse().getContentAsString();
+        ObjectMapper objectMapper = new ObjectMapper();
+        Response resp = objectMapper.readValue(content, Response.class);
+//        Assert.assertEquals("UnSupported Relation: isParen", resp.getParams().get("errmsg"));
+    }
 }

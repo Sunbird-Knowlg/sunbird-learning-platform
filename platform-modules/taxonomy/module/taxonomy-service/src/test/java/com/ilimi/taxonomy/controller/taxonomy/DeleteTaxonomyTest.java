@@ -1,4 +1,4 @@
-package com.ilimi.taxonomycontroller.test;
+package com.ilimi.taxonomy.controller.taxonomy;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,7 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetTaxonomyTest {
+public class DeleteTaxonomyTest {
 	@Autowired 
     private WebApplicationContext context;
     
@@ -31,18 +31,11 @@ public class GetTaxonomyTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
     
-   @org.junit.Test
-    public void getDefination() throws Exception {
-        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").param("subgraph", "true").param("cfields", "name").param("tfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
+    @org.junit.Test
+    public void deleteTaxonomy() throws Exception {
+        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().isOk());
    }
-   
-   @org.junit.Test
-   public void falseNumeracy() throws Exception {
-       ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").param("subgraph", "false").param("cfields", "name").param("tfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
-       actions.andDo(MockMvcResultHandlers.print());
-       actions.andExpect(status().isOk());
-  }
 
 }

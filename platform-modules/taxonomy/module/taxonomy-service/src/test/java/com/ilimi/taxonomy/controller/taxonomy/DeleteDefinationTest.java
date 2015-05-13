@@ -1,4 +1,4 @@
-package com.ilimi.taxonomycontroller.test;
+package com.ilimi.taxonomy.controller.taxonomy;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,7 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetAllTaxonomyTest {
+public class DeleteDefinationTest {
 	@Autowired 
     private WebApplicationContext context;
     
@@ -31,10 +31,17 @@ public class GetAllTaxonomyTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
     
-   @org.junit.Test
-    public void getAllTaxonomy() throws Exception {
-        ResultActions actions = mockMvc.perform(get("/taxonomy").param("tfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
+    @org.junit.Test
+    public void deleteDefination() throws Exception {
+        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY/defination/Game").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().isOk());
+   }
+    
+    @org.junit.Test
+    public void taxonomyIdNotFound() throws Exception {
+        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERAC/defination/Game").header("Content-Type", "application/json").header("user-id", "jeetu"));
+        actions.andDo(MockMvcResultHandlers.print());
+        actions.andExpect(status().is(404));
    }
 }

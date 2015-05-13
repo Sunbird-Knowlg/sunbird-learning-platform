@@ -1,4 +1,4 @@
-package com.ilimi.taxonomycontroller.test;
+package com.ilimi.taxonomy.controller.taxonomy;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -20,7 +20,7 @@ import org.springframework.web.context.WebApplicationContext;
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteTaxonomyTest {
+public class GetAllDefinationTest {
 	@Autowired 
     private WebApplicationContext context;
     
@@ -31,11 +31,10 @@ public class DeleteTaxonomyTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
     
-    @org.junit.Test
-    public void deleteTaxonomy() throws Exception {
-        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").header("Content-Type", "application/json").header("user-id", "jeetu"));
+   @org.junit.Test
+    public void getAllDefination() throws Exception {
+        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY/definition").header("Content-Type", "application/json").header("user-id", "jeetu"));
         actions.andDo(MockMvcResultHandlers.print());
         actions.andExpect(status().isOk());
    }
-
 }
