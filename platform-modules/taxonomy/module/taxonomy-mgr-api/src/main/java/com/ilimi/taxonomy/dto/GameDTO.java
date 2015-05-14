@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -81,14 +80,14 @@ public class GameDTO extends Node {
         this.concepts = concepts;
     }
 
-    public List<StringValue> screenShots() {
+    public List<String> screenShots() {
         if (null != getOutRelations() && !getOutRelations().isEmpty()) {
-            List<StringValue> mediaIds = new ArrayList<StringValue>();
+            List<String> mediaIds = new ArrayList<String>();
             for (Relation rel : getOutRelations()) {
                 if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
                         && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
                     if (StringUtils.equalsIgnoreCase("Media", rel.getEndNodeObjectType())) {
-                        mediaIds.add(new StringValue(rel.getEndNodeId()));
+                        mediaIds.add(rel.getEndNodeId());
                     }
                 }
             }

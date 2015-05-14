@@ -8,8 +8,8 @@ import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import akka.dispatch.Futures;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;

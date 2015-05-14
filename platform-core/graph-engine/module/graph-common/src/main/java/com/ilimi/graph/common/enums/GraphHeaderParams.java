@@ -2,5 +2,5 @@ package com.ilimi.graph.common.enums;
 
 public enum GraphHeaderParams {
 
-    GRAPH_ID, REQUEST_ID, START_TIME, SCENARIO_NAME;
+    graph_id, request_id, start_time, scenario_name;
 }

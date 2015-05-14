@@ -1,5 +1,6 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,8 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-
-import com.ilimi.graph.common.dto.BaseValueObject;
 
 /**
  * SearchCriteria provides a simple way for specifying criteria to search using
@@ -25,7 +24,7 @@ import com.ilimi.graph.common.dto.BaseValueObject;
  * @author rayulu
  * 
  */
-public class SearchCriteria extends BaseValueObject {
+public class SearchCriteria implements Serializable {
 
     private static final long serialVersionUID = -1686174755480352761L;
 

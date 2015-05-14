@@ -1,6 +1,6 @@
 package com.ilimi.graph.dac.mgr;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
 
 public interface IGraphDACSearchMgr {
 

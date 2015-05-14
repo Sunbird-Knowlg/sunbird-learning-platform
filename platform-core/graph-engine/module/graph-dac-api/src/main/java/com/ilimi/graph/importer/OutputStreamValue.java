@@ -1,10 +1,9 @@
 package com.ilimi.graph.importer;
 
 import java.io.OutputStream;
+import java.io.Serializable;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class OutputStreamValue extends BaseValueObject {
+public class OutputStreamValue implements Serializable {
 
     /**
      * 

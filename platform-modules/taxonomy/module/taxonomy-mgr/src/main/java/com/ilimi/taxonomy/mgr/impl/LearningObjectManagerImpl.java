@@ -8,13 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.LongIdentifier;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -55,31 +51,31 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             sc.offset(offset);
         if (null != limit && limit.intValue() > 0)
             sc.limit(limit);
-        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.SEARCH_CRITERIA.name(),
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(),
                 sc);
-        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+        request.put(GraphDACParams.get_tags.name(), true);
         Response findRes = getResponse(request, LOGGER);
         Response response = copyResponse(findRes);
         if (checkError(response))
             return response;
         else {
-            BaseValueObjectList<Node> nodes = (BaseValueObjectList<Node>) findRes.get(GraphDACParams.NODE_LIST.name());
-            if (null != nodes && null != nodes.getValueObjectList() && !nodes.getValueObjectList().isEmpty()) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && !nodes.isEmpty()) {
                 if (null != gfields && gfields.length > 0) {
-                    for (Node node : nodes.getValueObjectList()) {
+                    for (Node node : nodes) {
                         setMetadataFields(node, gfields);
                     }
                 }
-                response.put(LearningObjectAPIParams.LEARNING_OBJECTS.name(), nodes);
+                response.put(LearningObjectAPIParams.learning_objects.name(), nodes);
             }
-            Request countReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesCount", GraphDACParams.SEARCH_CRITERIA.name(),
-                    sc);
+            Request countReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodesCount",
+                    GraphDACParams.search_criteria.name(), sc);
             Response countRes = getResponse(countReq, LOGGER);
             if (checkError(countRes)) {
                 return countRes;
             } else {
-                LongIdentifier count = (LongIdentifier) countRes.get(GraphDACParams.COUNT.name());
-                response.put(GraphDACParams.COUNT.name(), count);
+                Long count = (Long) countRes.get(GraphDACParams.count.name());
+                response.put(GraphDACParams.count.name(), count);
             }
         }
         return response;
@@ -92,36 +88,35 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_LEARNING_OBJECT_ID.name(), "Learning Object Id is blank");
-        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(),
-                new StringValue(id));
-        request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        request.put(GraphDACParams.get_tags.name(), true);
         Response getNodeRes = getResponse(request, LOGGER);
         Response response = copyResponse(getNodeRes);
         if (checkError(response)) {
             return response;
         }
-        Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         if (null != node) {
             if (StringUtils.equalsIgnoreCase(OBJECT_TYPE, node.getObjectType())) {
                 GameDTO dto = new GameDTO(node, gfields);
-                List<StringValue> mediaIds = dto.screenShots();
+                List<String> mediaIds = dto.screenShots();
                 if (null != mediaIds && !mediaIds.isEmpty()) {
                     Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
-                            GraphDACParams.NODE_IDS.name(), new BaseValueObjectList<StringValue>(mediaIds));
+                            GraphDACParams.node_ids.name(), mediaIds);
                     Response mediaRes = getResponse(mediaReq, LOGGER);
-                    BaseValueObjectList<Node> mediaNodes = (BaseValueObjectList<Node>) mediaRes.get(GraphDACParams.NODE_LIST.name());
+                    List<Node> mediaNodes = (List<Node>) mediaRes.get(GraphDACParams.node_list.name());
                     if (validateRequired(mediaNodes)) {
                         List<MediaDTO> screenshots = new ArrayList<MediaDTO>();
-                        for (Node mediaNode : mediaNodes.getValueObjectList()) {
+                        for (Node mediaNode : mediaNodes) {
                             MediaDTO media = new MediaDTO(mediaNode);
                             screenshots.add(media);
                         }
                         dto.setScreenshots(screenshots);
                     }
                 }
-                response.put(LearningObjectAPIParams.LEARNING_OBJECT.name(), dto);
+                response.put(LearningObjectAPIParams.learning_object.name(), dto);
             } else {
-                response.put(LearningObjectAPIParams.LEARNING_OBJECT.name(), node);
+                response.put(LearningObjectAPIParams.learning_object.name(), node);
             }
         }
         return response;
@@ -132,21 +127,20 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
     public Response create(String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        Node lob = (Node) request.get(LearningObjectAPIParams.LEARNING_OBJECT.name());
+        Node lob = (Node) request.get(LearningObjectAPIParams.learning_object.name());
         if (null == lob)
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_LEARNING_OBJECT.name(), "Learning Object is blank");
         Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-        createReq.put(GraphDACParams.NODE.name(), lob);
+        createReq.put(GraphDACParams.node.name(), lob);
         Response createRes = getResponse(createReq, LOGGER);
         if (checkError(createRes)) {
             return createRes;
         } else {
-            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
-                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request.get(TaxonomyAPIParams.metadata_definitions.name());
             if (validateRequired(newDefinitions)) {
                 Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
-                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(lob.getObjectType()));
-                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                defRequest.put(GraphDACParams.object_type.name(), lob.getObjectType());
+                defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
                 Response defResponse = getResponse(defRequest, LOGGER);
                 if (checkError(defResponse)) {
                     return defResponse;
@@ -163,22 +157,21 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_LEARNING_OBJECT_ID.name(), "Learning Object Id is blank");
-        Node lob = (Node) request.get(LearningObjectAPIParams.LEARNING_OBJECT.name());
+        Node lob = (Node) request.get(LearningObjectAPIParams.learning_object.name());
         if (null == lob)
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_LEARNING_OBJECT.name(), "Learning Object is blank");
         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-        updateReq.put(GraphDACParams.NODE.name(), lob);
-        updateReq.put(GraphDACParams.NODE_ID.name(), new StringValue(lob.getIdentifier()));
+        updateReq.put(GraphDACParams.node.name(), lob);
+        updateReq.put(GraphDACParams.node_id.name(), lob.getIdentifier());
         Response updateRes = getResponse(updateReq, LOGGER);
         if (checkError(updateRes)) {
             return updateRes;
         } else {
-            BaseValueObjectList<MetadataDefinition> newDefinitions = (BaseValueObjectList<MetadataDefinition>) request
-                    .get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+            List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request.get(TaxonomyAPIParams.metadata_definitions.name());
             if (validateRequired(newDefinitions)) {
                 Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
-                defRequest.put(GraphDACParams.OBJECT_TYPE.name(), new StringValue(lob.getObjectType()));
-                defRequest.put(GraphDACParams.METADATA_DEFINITIONS.name(), newDefinitions);
+                defRequest.put(GraphDACParams.object_type.name(), lob.getObjectType());
+                defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
                 Response defResponse = getResponse(defRequest, LOGGER);
                 if (checkError(defResponse)) {
                     return defResponse;
@@ -194,8 +187,7 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_LEARNING_OBJECT_ID.name(), "Learning Object Id is blank");
-        Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.NODE_ID.name(),
-                new StringValue(id));
+        Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.node_id.name(), id);
         return getResponse(request, LOGGER);
     }
 
@@ -207,9 +199,9 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             throw new ClientException(LearningObjectErrorCodes.ERR_LOB_UPDATE_OBJECT.name(),
                     "Start Lob Id, Relation Type and End Lob Id are required to delete relation");
         Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "removeRelation");
-        request.put(GraphDACParams.START_NODE_ID.name(), new StringValue(startLobId));
-        request.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(relationType));
-        request.put(GraphDACParams.END_NODE_ID.name(), new StringValue(endLobId));
+        request.put(GraphDACParams.start_node_id.name(), startLobId);
+        request.put(GraphDACParams.relation_type.name(), relationType);
+        request.put(GraphDACParams.end_node_id.name(), endLobId);
         return getResponse(request, LOGGER);
     }
 

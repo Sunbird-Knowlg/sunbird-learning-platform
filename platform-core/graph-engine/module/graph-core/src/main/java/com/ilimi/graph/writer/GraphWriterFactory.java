@@ -3,7 +3,7 @@ package com.ilimi.graph.writer;
 import java.io.OutputStream;
 import java.util.List;
 
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.enums.ImportType;

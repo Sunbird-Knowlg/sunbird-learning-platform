@@ -1,6 +1,6 @@
 package com.ilimi.graph.engine.mgr;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
 
 /**
  * Graph Engine Manager with API for operations on all types of collections -

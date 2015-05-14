@@ -18,10 +18,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.dac.dto.AuditRecord;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
@@ -40,7 +39,7 @@ public class LearningObjectController extends BaseController {
 
     @Autowired
     IAuditLogManager auditLogManager;
-    
+
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
@@ -85,7 +84,8 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.create(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
+                    (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -104,7 +104,8 @@ public class LearningObjectController extends BaseController {
         try {
             Response response = lobManager.update(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, (String) map.get("request").toString(), (String) map.get("COMMENT"));
+            AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, (String) map.get("request")
+                    .toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
             return getResponseEntity(response);
         } catch (Exception e) {
@@ -123,12 +124,12 @@ public class LearningObjectController extends BaseController {
                     ObjectMapper mapper = new ObjectMapper();
                     String strRequest = mapper.writeValueAsString(requestObj);
                     Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objConcept = map.get(LearningObjectAPIParams.LEARNING_OBJECT.name());
+                    Object objConcept = map.get(LearningObjectAPIParams.learning_object.name());
                     if (null != objConcept) {
                         Node concept = (Node) mapper.convertValue(objConcept, Node.class);
-                        request.put(LearningObjectAPIParams.LEARNING_OBJECT.name(), concept);
+                        request.put(LearningObjectAPIParams.learning_object.name(), concept);
                     }
-                    Object objDefinitions = map.get(TaxonomyAPIParams.METADATA_DEFINITIONS.name());
+                    Object objDefinitions = map.get(TaxonomyAPIParams.metadata_definitions.name());
                     if (null != objDefinitions) {
                         String strObjDefinitions = mapper.writeValueAsString(objDefinitions);
                         List<Map<String, Object>> listMap = (List<Map<String, Object>>) mapper.readValue(strObjDefinitions.toString(),
@@ -138,7 +139,7 @@ public class LearningObjectController extends BaseController {
                             MetadataDefinition def = (MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class);
                             definitions.add(def);
                         }
-                        request.put(TaxonomyAPIParams.METADATA_DEFINITIONS.name(), new BaseValueObjectList<MetadataDefinition>(definitions));
+                        request.put(TaxonomyAPIParams.metadata_definitions.name(), definitions);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

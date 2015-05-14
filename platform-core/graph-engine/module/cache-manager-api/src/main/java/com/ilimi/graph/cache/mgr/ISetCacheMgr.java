@@ -1,26 +1,24 @@
 package com.ilimi.graph.cache.mgr;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.LongIdentifier;
-import com.ilimi.graph.common.dto.StringValue;
+import java.util.List;
+
+import com.ilimi.common.dto.Request;
 
 public interface ISetCacheMgr {
 
     void createSet(Request request);
 
     void addSetMember(Request request);
-    
+
     void addSetMembers(Request request);
 
     void removeSetMember(Request request);
 
     void dropSet(Request request);
 
-    BaseValueObjectList<StringValue> getSetMembers(Request request);
+    List<String> getSetMembers(Request request);
 
-    LongIdentifier getSetCardinality(Request request);
+    Long getSetCardinality(Request request);
 
-    BooleanValue isSetMember(Request request);
+    Boolean isSetMember(Request request);
 }

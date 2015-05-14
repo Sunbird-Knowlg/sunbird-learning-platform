@@ -14,8 +14,8 @@ import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 

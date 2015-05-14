@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.dac.dto.Comment;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.enums.CommonsDacParams;
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.util.AuditLogUtil;
@@ -31,15 +31,15 @@ import com.ilimi.util.AuditLogUtil;
 public class CommentController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(CommentController.class.getName());
-    
+
     @Autowired
     IAuditLogManager auditLogManager;
-    
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-        
+
         try {
             Comment comment = getCommentObject(taxonomyId, userId, map);
             LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Comment: " + comment + " | user-id: " + userId);
@@ -51,21 +51,21 @@ public class CommentController extends BaseController {
             return getExceptionResponseEntity(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private Comment getCommentObject(String taxonomyId, String userId, Map<String, Object> requestMap) throws Exception {
-        if(StringUtils.isBlank(taxonomyId)) {
+        if (StringUtils.isBlank(taxonomyId)) {
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         }
         Comment comment = null;
-        if(null != requestMap && !requestMap.isEmpty()) {
+        if (null != requestMap && !requestMap.isEmpty()) {
             Object requestObj = requestMap.get("request");
             if (null != requestObj) {
                 try {
                     ObjectMapper mapper = new ObjectMapper();
                     String strRequest = mapper.writeValueAsString(requestObj);
                     Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objComment = map.get(CommonsDacParams.COMMENT.name());
+                    Object objComment = map.get(CommonDACParams.comment.name());
                     if (null != objComment) {
                         comment = (Comment) mapper.convertValue(objComment, Comment.class);
                         String commentObjId = AuditLogUtil.createObjectId(taxonomyId, comment.getObjectId());
@@ -84,11 +84,10 @@ public class CommentController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
-            if(StringUtils.isBlank(taxonomyId)) {
+            if (StringUtils.isBlank(taxonomyId)) {
                 throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
             }
             Response response = auditLogManager.getComments(taxonomyId, id);
@@ -99,15 +98,15 @@ public class CommentController extends BaseController {
             return getExceptionResponseEntity(e);
         }
     }
-    
+
     @RequestMapping(value = "/{id:.+}/{threadId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> findCommentThread(@PathVariable(value = "id") String id, @PathVariable(value = "threadId") String threadId,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    public ResponseEntity<Response> findCommentThread(@PathVariable(value = "id") String id,
+            @PathVariable(value = "threadId") String threadId, @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestHeader(value = "user-id") String userId) {
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
-            if(StringUtils.isBlank(taxonomyId)) {
+            if (StringUtils.isBlank(taxonomyId)) {
                 throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
             }
             Response response = auditLogManager.getCommentThread(taxonomyId, id, threadId);

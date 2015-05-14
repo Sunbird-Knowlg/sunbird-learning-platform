@@ -1,6 +1,6 @@
 package com.ilimi.util;
 
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 
 

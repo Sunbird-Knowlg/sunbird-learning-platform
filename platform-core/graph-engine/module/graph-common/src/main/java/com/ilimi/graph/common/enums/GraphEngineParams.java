@@ -1,5 +1,5 @@
 package com.ilimi.graph.common.enums;
 
 public enum GraphEngineParams {
-    FORMAT, INPUT_STREAM, OUTPUT_STREAM;
+    format, input_stream, output_stream;
 }

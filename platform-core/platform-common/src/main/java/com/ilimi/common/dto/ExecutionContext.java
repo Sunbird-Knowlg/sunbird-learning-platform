@@ -1,4 +1,4 @@
-package com.ilimi.graph.common;
+package com.ilimi.common.dto;
 
 import java.util.HashMap;
 import java.util.Map;

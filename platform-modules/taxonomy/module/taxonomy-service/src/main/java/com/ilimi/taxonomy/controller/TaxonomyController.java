@@ -1,13 +1,10 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -23,14 +20,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.model.Node;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.SearchDTO;
-import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
@@ -87,10 +79,7 @@ public class TaxonomyController extends BaseController {
                 stream = file.getInputStream();
             Response response = taxonomyManager.create(id, stream);
             LOGGER.info("Create | Response: " + response);
-            StringValue val = (StringValue) response.get(TaxonomyAPIParams.TAXONOMY.name());
-            String content = null;
-            if (null != val && StringUtils.isNotBlank(val.getId()))
-                content = val.getId();
+            String content = (String) response.get(TaxonomyAPIParams.taxonomy.name());
             writeToResponse(response.getParams(), content, "text/csv;charset=utf-8", resp);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
@@ -127,7 +116,7 @@ public class TaxonomyController extends BaseController {
             return getExceptionResponseEntity(e);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private Request getRequestObject(Map<String, Object> requestMap) {
         Request request = new Request();
@@ -138,10 +127,10 @@ public class TaxonomyController extends BaseController {
                     ObjectMapper mapper = new ObjectMapper();
                     String strRequest = mapper.writeValueAsString(requestObj);
                     Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objConcept = map.get(TaxonomyAPIParams.SEARCH_CRITERIA.name());
+                    Object objConcept = map.get(TaxonomyAPIParams.search_criteria.name());
                     if (null != objConcept) {
                         SearchDTO searchDTO = (SearchDTO) mapper.convertValue(objConcept, SearchDTO.class);
-                        request.put(TaxonomyAPIParams.SEARCH_CRITERIA.name(), searchDTO);
+                        request.put(TaxonomyAPIParams.search_criteria.name(), searchDTO);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();

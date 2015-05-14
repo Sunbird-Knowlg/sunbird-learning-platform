@@ -1,4 +1,4 @@
 /target
 /bin
-.project
-.classpath
+/test-output
+/logs
