@@ -11,6 +11,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Type;
+
 import com.ilimi.dac.BaseDataAccessEntity;
 
 @Entity
@@ -35,6 +37,7 @@ public class AuditLogEntity extends BaseDataAccessEntity {
     private String operationType;
 
     @Column(name = "LOG_RECORD")
+    @Type(type="text")
     private String logRecord;
 
     @ManyToOne(cascade = CascadeType.ALL)
