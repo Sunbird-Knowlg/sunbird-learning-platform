@@ -47,15 +47,16 @@ public class LearningObjectController extends BaseController {
             @RequestParam(value = "offset", required = false) Integer offset,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.list";
         LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Object Type: " + objectType + " | gfields: " + gfields + " | user-id: "
                 + userId);
         try {
             Response response = lobManager.findAll(taxonomyId, objectType, offset, limit, gfields);
             LOGGER.info("FindAll | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -64,14 +65,15 @@ public class LearningObjectController extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = lobManager.find(id, taxonomyId, gfields);
             LOGGER.info("Find | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Find | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -79,6 +81,7 @@ public class LearningObjectController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.create";
         Request request = getRequestObject(map);
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -87,10 +90,10 @@ public class LearningObjectController extends BaseController {
             AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
                     (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 
@@ -99,6 +102,7 @@ public class LearningObjectController extends BaseController {
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.update";
         Request request = getRequestObject(map);
         LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -107,10 +111,10 @@ public class LearningObjectController extends BaseController {
             AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, (String) map.get("request")
                     .toString(), (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Update | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 
@@ -153,14 +157,15 @@ public class LearningObjectController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.delete";
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = lobManager.delete(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Delete | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -169,15 +174,16 @@ public class LearningObjectController extends BaseController {
     public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromLob,
             @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toLob,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "learning-object.delete.relation";
         LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromLob + " | Relation: " + relationType
                 + " | EndId: " + toLob);
         try {
             Response response = lobManager.deleteRelation(fromLob, relationType, toLob, taxonomyId);
             LOGGER.info("Delete Relation | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Delete Relation | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 }

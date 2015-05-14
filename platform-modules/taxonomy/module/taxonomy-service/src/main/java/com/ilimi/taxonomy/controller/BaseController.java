@@ -3,6 +3,9 @@ package com.ilimi.taxonomy.controller;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -20,9 +23,13 @@ import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
 
-    protected ResponseEntity<Response> getResponseEntity(Response response) {
+    private static final String API_ID_PREFIX = "ekstep.lp";
+    private static final String API_VERSION = "1.0";
+    
+    protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
+        setResponseEnvelope(response, apiId, msgId);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -51,9 +58,10 @@ public abstract class BaseController {
         return status;
     }
 
-    protected ResponseEntity<Response> getExceptionResponseEntity(Exception e) {
+    protected ResponseEntity<Response> getExceptionResponseEntity(Exception e, String apiId, String msgId) {
         HttpStatus status = getHttpStatus(e);
         Response response = getErrorResponse(e);
+        setResponseEnvelope(response, apiId, msgId);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -89,6 +97,35 @@ public abstract class BaseController {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    private void setResponseEnvelope(Response response, String apiId, String msgId) {
+        if (null != response) {
+            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setVer(API_VERSION);
+            response.setTs(getResponseTimestamp());
+            ResponseParams params = response.getParams();
+            if (null == params)
+                params = new ResponseParams();
+            if (StringUtils.isNotBlank(msgId))
+                params.setMsgid(msgId);
+            params.setResmsgid(getUUID());
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.SUCCESS.name(), params.getStatus())) {
+                params.setErr(null);
+                params.setErrmsg(null);
+            }
+            response.setParams(params);
+        }
+    }
+    
+    private String getResponseTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
+        return sdf.format(new Date());
+    }
+    
+    private String getUUID() {
+        UUID uid = UUID.randomUUID();
+        return uid.toString();
     }
 
 }

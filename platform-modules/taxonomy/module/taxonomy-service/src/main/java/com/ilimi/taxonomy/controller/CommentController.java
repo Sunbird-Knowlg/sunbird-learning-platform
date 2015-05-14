@@ -39,16 +39,16 @@ public class CommentController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-
+        String apiId = "comment.create";
         try {
             Comment comment = getCommentObject(taxonomyId, userId, map);
             LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Comment: " + comment + " | user-id: " + userId);
             Response response = auditLogManager.saveComment(taxonomyId, comment);
             LOGGER.info("Create | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -85,6 +85,7 @@ public class CommentController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "comment.list";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             if (StringUtils.isBlank(taxonomyId)) {
@@ -92,10 +93,10 @@ public class CommentController extends BaseController {
             }
             Response response = auditLogManager.getComments(taxonomyId, id);
             LOGGER.info("Find | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Find | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -104,6 +105,7 @@ public class CommentController extends BaseController {
     public ResponseEntity<Response> findCommentThread(@PathVariable(value = "id") String id,
             @PathVariable(value = "threadId") String threadId, @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestHeader(value = "user-id") String userId) {
+        String apiId = "comment.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             if (StringUtils.isBlank(taxonomyId)) {
@@ -111,10 +113,10 @@ public class CommentController extends BaseController {
             }
             Response response = auditLogManager.getCommentThread(taxonomyId, id, threadId);
             LOGGER.info("Find | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Find | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 }
