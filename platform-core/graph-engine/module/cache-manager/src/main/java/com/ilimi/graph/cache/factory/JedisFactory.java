@@ -9,8 +9,8 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
-import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.Configuration;
 
 public class JedisFactory {

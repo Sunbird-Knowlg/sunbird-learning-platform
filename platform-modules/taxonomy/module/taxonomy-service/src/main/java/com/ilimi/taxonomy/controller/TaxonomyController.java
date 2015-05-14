@@ -20,8 +20,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.SearchDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;

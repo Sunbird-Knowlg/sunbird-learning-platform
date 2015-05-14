@@ -4,10 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import akka.actor.ActorRef;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.BaseRequestRouter;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.exception.RequestRouterErrorCodes;
 

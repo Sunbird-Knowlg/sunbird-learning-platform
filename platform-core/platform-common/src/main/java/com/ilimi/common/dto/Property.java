@@ -1,4 +1,4 @@
-package com.ilimi.graph.common.dto;
+package com.ilimi.common.dto;
 
 import java.io.Serializable;
 import java.util.Date;

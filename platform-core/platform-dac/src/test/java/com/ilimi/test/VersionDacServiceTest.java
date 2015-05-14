@@ -7,12 +7,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.dac.dto.Comment;
 import com.ilimi.dac.dto.Version;
+import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IVersionDataService;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.enums.CommonsDacParams;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:mw-spring/commons-dac-context.xml" })
@@ -35,8 +35,8 @@ public class VersionDacServiceTest {
         comment.setTitle("My Comment");
         version.setComment(comment);
         Request request = new Request();
-        request.put(CommonsDacParams.object_version.name(), version);
+        request.put(CommonDACParams.object_version.name(), version);
         Response response = versionDataService.createVersion(request);
-        System.out.println("response.get(CommonsDacParams.OBJECT_VERSION_ID.name()):"+response.get(CommonsDacParams.object_version_id.name()));
+        System.out.println("response.get(CommonDACParams.OBJECT_VERSION_ID.name()):"+response.get(CommonDACParams.object_version_id.name()));
     }
 }

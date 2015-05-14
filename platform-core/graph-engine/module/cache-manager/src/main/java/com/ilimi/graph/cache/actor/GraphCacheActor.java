@@ -5,6 +5,8 @@ import java.util.List;
 
 import akka.actor.ActorRef;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.cache.mgr.IDefinitionNodeCacheMgr;
 import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
 import com.ilimi.graph.cache.mgr.ISetCacheMgr;
@@ -13,8 +15,6 @@ import com.ilimi.graph.cache.mgr.impl.DefinitionNodeCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 

@@ -1,12 +1,14 @@
 package com.ilimi.graph.engine.mgr.impl;
 
+import static junit.framework.Assert.assertEquals;
+import static junit.framework.Assert.assertFalse;
+import static junit.framework.Assert.assertTrue;
+
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
-import static junit.framework.Assert.*;
 
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -26,11 +28,11 @@ import akka.actor.Props;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 
-import com.ilimi.graph.common.ResponseParams;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.ResponseParams.StatusType;
-import com.ilimi.graph.common.dto.Property;
+import com.ilimi.common.dto.Property;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;

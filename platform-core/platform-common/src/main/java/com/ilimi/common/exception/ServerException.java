@@ -1,4 +1,4 @@
-package com.ilimi.graph.common.exception;
+package com.ilimi.common.exception;
 
 public class ServerException extends MiddlewareException {
 

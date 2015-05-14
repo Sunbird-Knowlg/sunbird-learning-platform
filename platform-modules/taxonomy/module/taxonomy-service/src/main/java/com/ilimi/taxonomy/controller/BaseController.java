@@ -10,12 +10,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.ilimi.graph.common.ResponseParams;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.ResponseParams.StatusType;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.MiddlewareException;
-import com.ilimi.graph.common.exception.ResourceNotFoundException;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {

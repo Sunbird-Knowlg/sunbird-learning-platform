@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;

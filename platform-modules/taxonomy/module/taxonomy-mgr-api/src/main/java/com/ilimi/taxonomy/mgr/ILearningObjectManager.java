@@ -1,7 +1,7 @@
 package com.ilimi.taxonomy.mgr;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 
 public interface ILearningObjectManager {
 

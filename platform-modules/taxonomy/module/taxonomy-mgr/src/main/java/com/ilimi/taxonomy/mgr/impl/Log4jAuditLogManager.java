@@ -4,9 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.scheduling.annotation.Async;
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.dac.dto.Comment;
-import com.ilimi.graph.common.Response;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 public class Log4jAuditLogManager implements IAuditLogManager {

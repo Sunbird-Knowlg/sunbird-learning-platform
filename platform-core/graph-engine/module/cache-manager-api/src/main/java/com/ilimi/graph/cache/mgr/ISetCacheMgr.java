@@ -2,7 +2,7 @@ package com.ilimi.graph.cache.mgr;
 
 import java.util.List;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
 
 public interface ISetCacheMgr {
 

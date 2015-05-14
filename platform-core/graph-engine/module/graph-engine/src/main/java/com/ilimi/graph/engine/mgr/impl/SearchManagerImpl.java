@@ -13,9 +13,9 @@ import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.dispatch.OnComplete;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;

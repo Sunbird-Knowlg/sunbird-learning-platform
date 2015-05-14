@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 @Controller

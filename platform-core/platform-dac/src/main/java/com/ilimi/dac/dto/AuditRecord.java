@@ -5,7 +5,7 @@ import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.ResponseParams;
+import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.util.AuditLogUtil;
 
 public class AuditRecord implements Serializable {

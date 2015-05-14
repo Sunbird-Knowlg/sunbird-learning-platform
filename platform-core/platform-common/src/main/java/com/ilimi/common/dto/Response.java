@@ -1,10 +1,10 @@
-package com.ilimi.graph.common;
+package com.ilimi.common.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ilimi.graph.common.exception.ResponseCode;
+import com.ilimi.common.exception.ResponseCode;
 
 /**
  * 

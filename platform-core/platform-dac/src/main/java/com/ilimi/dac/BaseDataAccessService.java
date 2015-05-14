@@ -7,9 +7,9 @@
  */
 package com.ilimi.dac;
 
-import com.ilimi.graph.common.ResponseParams;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.ResponseParams.StatusType;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 
 /**
  * Base class for DAC services. Provides the implementation of commonly used

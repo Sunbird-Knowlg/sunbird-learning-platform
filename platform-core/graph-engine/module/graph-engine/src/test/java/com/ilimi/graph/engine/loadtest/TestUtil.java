@@ -16,7 +16,7 @@ import akka.pattern.Patterns;
 import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
 
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Response;
 import com.ilimi.graph.engine.router.RequestRouter;
 
 public class TestUtil {
