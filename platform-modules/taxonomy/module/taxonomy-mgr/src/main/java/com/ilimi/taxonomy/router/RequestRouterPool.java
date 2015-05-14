@@ -9,7 +9,7 @@ import akka.actor.Props;
 import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
 
-import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.engine.router.ActorBootstrap;
 import com.ilimi.graph.engine.router.RequestRouter;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;

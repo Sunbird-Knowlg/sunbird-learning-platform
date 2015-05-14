@@ -45,9 +45,9 @@ exports.getConcept = function(id, tid, cb) {
 		if(err) {
 			cb(err);
 		} else {
-			var concept = results.concept.result.CONCEPT;
-			concept.auditHistory = results.auditHistory.result.AUDIT_RECORDS.valueObjectList;
-			concept.comments = results.comments.result.COMMENTS.valueObjectList;
+			var concept = results.concept.result.concept;
+			concept.auditHistory = results.auditHistory.result.audit_records;
+			concept.comments = results.comments.result.comments;
 			cb(null, concept);
 		}
 	});
@@ -58,20 +58,20 @@ exports.updateConcept = function(data, cb) {
 		path: {id: data.identifier, tid: data.taxonomyId},
 		data: {
 			request: {
-				CONCEPT: {
+				concept: {
 					identifier: data.identifier,
 	        		objectType: "Concept",
 	        		metadata: data.properties,
 	        		tags: data.tags
 				},
-				METADATA_DEFINITIONS: []
+				metadata_definitions: []
 			},
 			COMMENT: data.comment
 		}
 	}
 	if(data.newMetadata && data.newMetadata.length > 0) {
 		_.each(data.newMetadata, function(prop) {
-			args.data.request.METADATA_DEFINITIONS.push(_.omit(prop, 'error'));
+			args.data.request.metadata_definitions.push(_.omit(prop, 'error'));
 		});
 	}
 	mwService.patchCall(urlConstants.UPDATE_CONCEPT, args, function(err, data) {
@@ -88,7 +88,7 @@ exports.createConcept = function(data, cb) {
 		path: {tid: data.taxonomyId},
 		data: {
 			request: {
-				CONCEPT: {
+				concept: {
 	        		objectType: "Concept",
 	        		metadata: {
 	 					"name": data.name,
@@ -109,7 +109,7 @@ exports.createConcept = function(data, cb) {
 		if(err) {
 			cb(err);
 		} else if(util.validateMWResponse(data, cb)) {
-			cb(null, data.result.NODE_ID);
+			cb(null, data.result.node_id);
 		}
 	});
 }

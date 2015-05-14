@@ -15,13 +15,10 @@ import akka.actor.ActorRef;
 import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.enums.GraphEngineParams;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -55,10 +52,11 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @Override
     public void saveDefinitionNode(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        DefinitionDTO definition = (DefinitionDTO) request.get(GraphDACParams.DEFINITION_NODE.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        DefinitionDTO definition = (DefinitionDTO) request.get(GraphDACParams.definition_node.name());
         if (!validateRequired(definition) || StringUtils.isBlank(definition.getObjectType())) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
                 List<MetadataDefinition> indexedMetadata = new ArrayList<MetadataDefinition>();
@@ -83,15 +81,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @SuppressWarnings("unchecked")
     public void updateDefinition(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
-        BaseValueObjectList<MetadataDefinition> definitions = (BaseValueObjectList<MetadataDefinition>) request
-                .get(GraphDACParams.METADATA_DEFINITIONS.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String objectType = (String) request.get(GraphDACParams.object_type.name());
+        List<MetadataDefinition> definitions = (List<MetadataDefinition>) request.get(GraphDACParams.metadata_definitions.name());
         if (!validateRequired(objectType, definitions)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                DefinitionNode defNode = new DefinitionNode(this, graphId, objectType.getId(), null, null, null, null, null);
+                DefinitionNode defNode = new DefinitionNode(this, graphId, objectType, null, null, null, null, null);
                 defNode.update(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -101,29 +99,30 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @Override
     public void createDataNode(final Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         final ActorRef parent = getSender();
-        final Node node = (Node) request.get(GraphDACParams.NODE.name());
+        final Node node = (Node) request.get(GraphDACParams.node.name());
         if (!validateRequired(node)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
                 final DataNode datanode = new DataNode(this, graphId, node);
                 final ExecutionContext ec = getContext().dispatcher();
-                final List<StringValue> messages = new ArrayList<StringValue>();
+                final List<String> messages = new ArrayList<String>();
                 // validate the node
                 Future<Map<String, List<String>>> nodeValidationFuture = datanode.validateNode(request);
                 nodeValidationFuture.andThen(new OnComplete<Map<String, List<String>>>() {
                     @Override
                     public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
                         if (null != arg0) {
-                            messages.add(new StringValue(arg0.getMessage()));
+                            messages.add(arg0.getMessage());
                         } else {
                             if (null != arg1 && !arg1.isEmpty()) {
                                 for (List<String> list : arg1.values()) {
                                     if (null != list && !list.isEmpty()) {
                                         for (String msg : list) {
-                                            messages.add(new StringValue(msg));
+                                            messages.add(msg);
                                         }
                                     }
                                 }
@@ -144,10 +143,9 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                         ERROR(arg0, getSender());
                                     } else {
                                         if (StringUtils.isNotBlank(arg1)) {
-                                            messages.add(new StringValue(arg1));
+                                            messages.add(arg1);
                                             ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
-                                                    ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
-                                                    new BaseValueObjectList<StringValue>(messages), parent);
+                                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
                                         } else {
                                             // if node is created successfully,
                                             // create relations and tags
@@ -158,8 +156,8 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                 }
                             }, ec);
                         } else {
-                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors", ResponseCode.CLIENT_ERROR,
-                                    GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages), parent);
+                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
                         }
                     }
                 }, ec);
@@ -171,59 +169,58 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, Request request, ExecutionContext ec,
             List<Relation> addRels, List<Relation> delRels, List<String> addTags, List<String> delTags) {
-        List<StringValue> messages = new ArrayList<StringValue>();
-        List<Future<List<StringValue>>> validationFutures = new ArrayList<Future<List<StringValue>>>();
+        List<String> messages = new ArrayList<String>();
+        List<Future<List<String>>> validationFutures = new ArrayList<Future<List<String>>>();
         try {
-            Future<List<StringValue>> relsFuture = datanode.createRelations(request, ec, addRels);
+            Future<List<String>> relsFuture = datanode.createRelations(request, ec, addRels);
             validationFutures.add(relsFuture);
         } catch (Exception e) {
-            messages.add(new StringValue(e.getMessage()));
+            messages.add(e.getMessage());
             validationFutures.add(Futures.successful(messages));
         }
         try {
-            Future<List<StringValue>> relsFuture = datanode.deleteRelations(request, ec, delRels);
+            Future<List<String>> relsFuture = datanode.deleteRelations(request, ec, delRels);
             validationFutures.add(relsFuture);
         } catch (Exception e) {
-            messages.add(new StringValue(e.getMessage()));
+            messages.add(e.getMessage());
             validationFutures.add(Futures.successful(messages));
         }
         if (null != addTags && !addTags.isEmpty()) {
-            List<StringValue> tags = new ArrayList<StringValue>();
+            List<String> tags = new ArrayList<String>();
             for (String strTag : addTags) {
                 if (StringUtils.isNotBlank(strTag))
-                    tags.add(new StringValue(strTag));
+                    tags.add(strTag);
             }
-            Future<List<StringValue>> tagsFuture = datanode.addTags(request, tags);
+            Future<List<String>> tagsFuture = datanode.addTags(request, tags);
             validationFutures.add(tagsFuture);
         }
         if (null != delTags && !delTags.isEmpty()) {
-            List<StringValue> tags = new ArrayList<StringValue>();
+            List<String> tags = new ArrayList<String>();
             for (String strTag : delTags) {
                 if (StringUtils.isNotBlank(strTag))
-                    tags.add(new StringValue(strTag));
+                    tags.add(strTag);
             }
-            Future<List<StringValue>> tagsFuture = datanode.removeTags(request, tags);
+            Future<List<String>> tagsFuture = datanode.removeTags(request, tags);
             validationFutures.add(tagsFuture);
         }
-        Futures.sequence(validationFutures, ec).onComplete(new OnComplete<Iterable<List<StringValue>>>() {
+        Futures.sequence(validationFutures, ec).onComplete(new OnComplete<Iterable<List<String>>>() {
             @Override
-            public void onComplete(Throwable arg0, Iterable<List<StringValue>> arg1) throws Throwable {
+            public void onComplete(Throwable arg0, Iterable<List<String>> arg1) throws Throwable {
                 if (null != arg0) {
                     ERROR(arg0, getSender());
                 } else {
-                    List<StringValue> msgs = new ArrayList<StringValue>();
+                    List<String> msgs = new ArrayList<String>();
                     if (null != arg1) {
-                        for (List<StringValue> list : arg1) {
+                        for (List<String> list : arg1) {
                             if (null != list && !list.isEmpty())
                                 msgs.addAll(list);
                         }
                     }
                     if (msgs.isEmpty()) {
-                        OK(GraphDACParams.NODE_ID.name(), new StringValue(datanode.getNodeId()), parent);
+                        OK(GraphDACParams.node_id.name(), datanode.getNodeId(), parent);
                     } else {
                         ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Failed to update relations and tags",
-                                ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(msgs),
-                                parent);
+                                ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), msgs, parent);
                     }
                 }
             }
@@ -233,16 +230,17 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
     @Override
     public void updateDataNode(final Request request) {
         final ActorRef parent = getSender();
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
-        final Node node = (Node) request.get(GraphDACParams.NODE.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String nodeId = (String) request.get(GraphDACParams.node_id.name());
+        final Node node = (Node) request.get(GraphDACParams.node.name());
         if (!validateRequired(nodeId, node)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             final ExecutionContext ec = getContext().dispatcher();
-            node.setIdentifier(nodeId.getId());
+            node.setIdentifier(nodeId);
             final DataNode datanode = new DataNode(this, graphId, node);
-            final List<StringValue> messages = new ArrayList<StringValue>();
+            final List<String> messages = new ArrayList<String>();
             final List<Relation> addRels = new ArrayList<Relation>();
             final List<Relation> delRels = new ArrayList<Relation>();
             final List<String> addTags = new ArrayList<String>();
@@ -265,7 +263,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         getRelationsDelta(addRels, delRels, dbNode, datanode);
                         getTagsDelta(addTags, delTags, dbNode, node.getTags());
                     } else {
-                        messages.add(new StringValue("Node not found"));
+                        messages.add("Node not found");
                     }
                 }
             }, ec).andThen(new OnComplete<Node>() {
@@ -278,13 +276,13 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                             @Override
                             public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
                                 if (null != arg0) {
-                                    messages.add(new StringValue(arg0.getMessage()));
+                                    messages.add(arg0.getMessage());
                                 } else {
                                     if (null != arg1 && !arg1.isEmpty()) {
                                         for (List<String> list : arg1.values()) {
                                             if (null != list && !list.isEmpty()) {
                                                 for (String msg : list) {
-                                                    messages.add(new StringValue(msg));
+                                                    messages.add(msg);
                                                 }
                                             }
                                         }
@@ -299,11 +297,10 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                                 ERROR(arg0, getSender());
                                             } else {
                                                 if (StringUtils.isNotBlank(arg1)) {
-                                                    messages.add(new StringValue(arg1));
+                                                    messages.add(arg1);
                                                     ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_UNKNOWN_ERROR.name(),
                                                             "Metadata Creation Error", ResponseCode.CLIENT_ERROR,
-                                                            GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages),
-                                                            parent);
+                                                            GraphDACParams.messages.name(), messages, parent);
                                                 } else {
                                                     // if node metadata is
                                                     // updated
@@ -316,15 +313,15 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                         }
                                     }, ec);
                                 } else {
-                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Node Metadata validation failed",
-                                            ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
-                                            new BaseValueObjectList<StringValue>(messages), parent);
+                                    ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(),
+                                            "Node Metadata validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
+                                            messages, parent);
                                 }
                             }
                         }, ec);
                     } else {
-                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_NOT_FOUND.name(), "Node Not Found", ResponseCode.RESOURCE_NOT_FOUND,
-                                GraphDACParams.MESSAGES.name(), new BaseValueObjectList<StringValue>(messages), parent);
+                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_NOT_FOUND.name(), "Node Not Found",
+                                ResponseCode.RESOURCE_NOT_FOUND, GraphDACParams.messages.name(), messages, parent);
                     }
                 }
             }, ec);
@@ -376,13 +373,14 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @Override
     public void deleteDataNode(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String nodeId = (String) request.get(GraphDACParams.node_id.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                DataNode node = new DataNode(this, graphId, nodeId.getId(), null, null);
+                DataNode node = new DataNode(this, graphId, nodeId, null, null);
                 node.delete(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -392,13 +390,14 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @Override
     public void deleteDefinition(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue objectType = (StringValue) request.get(GraphDACParams.OBJECT_TYPE.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String objectType = (String) request.get(GraphDACParams.object_type.name());
         if (!validateRequired(objectType)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-                DefinitionNode node = new DefinitionNode(this, graphId, objectType.getId(), null, null, null, null, null);
+                DefinitionNode node = new DefinitionNode(this, graphId, objectType, null, null, null, null, null);
                 node.delete(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -408,7 +407,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
     @Override
     public void importDefinitions(final Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             Graph graph = new Graph(this, graphId);
             graph.importDefinitions(request);
@@ -416,16 +415,17 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             handleException(e, getSender());
         }
     }
-    
+
     public void exportNode(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue nodeId = (StringValue) request.get(GraphDACParams.NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String nodeId = (String) request.get(GraphDACParams.node_id.name());
         if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
-               Graph graph = new Graph(this, graphId);
-               graph.exportNode(request);
+                Graph graph = new Graph(this, graphId);
+                graph.exportNode(request);
             } catch (Exception e) {
                 handleException(e, getSender());
             }

@@ -29,7 +29,7 @@ exports.getAllTaxonomies = function(cb) {
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.result.TAXONOMY_LIST.valueObjectList);
+			cb(null, data.result.taxonomy_list);
 		}
 	});
 }
@@ -44,7 +44,7 @@ exports.getTaxonomyDefinitions = function(id, cb) {
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.result.DEFINITION_NODE);
+			cb(null, data.result.definition_node);
 		}
 	});
 }
@@ -66,7 +66,7 @@ exports.getTaxonomyGraph = function(id, cb) {
 			mwService.getCall(urlConstants.GET_TAXONOMY, args, next)
 		},
 		function(response, next) {
-			var subGraph = response.result.SUBGRAPH;
+			var subGraph = response.result.subgraph;
 			var nodes = {}, rootNode = undefined, allNodes = [];
 
 			_.each(subGraph.nodes, function(node) {

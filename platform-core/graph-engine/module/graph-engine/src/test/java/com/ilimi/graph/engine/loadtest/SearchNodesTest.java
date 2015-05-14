@@ -2,14 +2,12 @@ package com.ilimi.graph.engine.loadtest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -38,7 +36,7 @@ public class SearchNodesTest {
     private void searchAllNodes() {
         try {
             Future<Object> searchRes = searchNodes(reqRouter, graphId, -1);
-            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.NODE_ID.name());
+            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -50,7 +48,7 @@ public class SearchNodesTest {
             Neo4jGraphFactory.getGraphDb(graphId);
             int value = (int) Thread.currentThread().getId() % 10;
             Future<Object> searchRes = searchNodes(reqRouter, graphId, value);
-            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.NODE_ID.name());
+            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -83,7 +81,7 @@ public class SearchNodesTest {
             Neo4jGraphFactory.getGraphDb(graphId);
             int value = (int) Thread.currentThread().getId() % 10;
             Future<Object> searchRes = searchNodes(reqRouter, graphId, value);
-            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.NODE_ID.name());
+            TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -91,10 +89,10 @@ public class SearchNodesTest {
 
     private Future<Object> searchNodes(ActorRef reqRouter2, String graphId, int value) throws Exception {
         Request request = new Request();
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
-        request.put(GraphDACParams.SEARCH_CRITERIA.name(), getSearchCriteria(value));
-        request.getContext().put(GraphHeaderParams.REQUEST_ID.name(), "REQUEST_" + Thread.currentThread().getId());
-        request.getContext().put(GraphHeaderParams.SCENARIO_NAME.name(), "SEARCH_NODES");
+        request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+        request.put(GraphDACParams.search_criteria.name(), getSearchCriteria(value));
+        request.getContext().put(GraphHeaderParams.request_id.name(), "REQUEST_" + Thread.currentThread().getId());
+        request.getContext().put(GraphHeaderParams.scenario_name.name(), "SEARCH_NODES");
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
         request.setOperation("searchNodes");
         Future<Object> resp = Patterns.ask(reqRouter, request, TestUtil.timeout);

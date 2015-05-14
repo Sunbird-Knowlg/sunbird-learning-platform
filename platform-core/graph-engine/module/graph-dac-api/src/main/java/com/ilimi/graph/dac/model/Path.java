@@ -1,13 +1,12 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.neo4j.graphdb.Relationship;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class Path extends BaseValueObject {
+public class Path implements Serializable {
 
     private static final long serialVersionUID = 2484883859842926325L;
     private Node startNode;

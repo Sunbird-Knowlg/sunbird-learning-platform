@@ -1,10 +1,9 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.List;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class Graph extends BaseValueObject {
+public class Graph implements Serializable {
 
     private static final long serialVersionUID = -5174004735080378302L;
     private List<Node> nodes;

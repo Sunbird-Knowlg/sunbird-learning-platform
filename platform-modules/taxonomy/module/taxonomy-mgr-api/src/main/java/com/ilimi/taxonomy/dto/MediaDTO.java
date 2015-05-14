@@ -1,15 +1,15 @@
 package com.ilimi.taxonomy.dto;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.dac.model.Node;
 
-public class MediaDTO extends BaseValueObject {
+public class MediaDTO implements Serializable {
 
     private static final long serialVersionUID = 6270427667834578523L;
     private String identifier;

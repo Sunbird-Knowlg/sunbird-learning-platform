@@ -1,13 +1,12 @@
 package com.ilimi.dac.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class Version extends BaseValueObject {
+public class Version implements Serializable {
 
     private static final long serialVersionUID = 8611068326678835084L;
-    
+
     private Integer id;
     private String objectId;
     private String version;

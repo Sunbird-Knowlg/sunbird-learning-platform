@@ -14,14 +14,12 @@ import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -39,13 +37,13 @@ public class Tag extends AbstractCollection {
 
     private String tagName;
     private String attributeName;
-    private List<StringValue> memberIds;
+    private List<String> memberIds;
 
     public Tag(BaseGraphManager manager, String graphId, String id) {
         super(manager, graphId, id);
     }
 
-    public Tag(BaseGraphManager manager, String graphId, String tagName, String attributeName, List<StringValue> memberIds) {
+    public Tag(BaseGraphManager manager, String graphId, String tagName, String attributeName, List<String> memberIds) {
         super(manager, graphId, null);
         if (StringUtils.isBlank(tagName)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_EMPTY_TAG_NAME.name(), "Tag name cannot be empty");
@@ -64,7 +62,7 @@ public class Tag extends AbstractCollection {
         final Promise<String> promise = Futures.promise();
         Future<String> future = promise.future();
         final ExecutionContext ec = manager.getContext().dispatcher();
-        Future<Node> setFuture = getNodeObject(req, ec, new StringValue(getNodeId()));
+        Future<Node> setFuture = getNodeObject(req, ec, getNodeId());
         OnComplete<Node> getTagObject = new OnComplete<Node>() {
             @Override
             public void onComplete(Throwable arg0, Node set) throws Throwable {
@@ -73,7 +71,7 @@ public class Tag extends AbstractCollection {
                     Request dacRequest = new Request(req);
                     dacRequest.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                     dacRequest.setOperation("addNode");
-                    dacRequest.put(GraphDACParams.NODE.name(), toNode());
+                    dacRequest.put(GraphDACParams.node.name(), toNode());
                     Future<Object> response = Patterns.ask(dacRouter, dacRequest, timeout);
                     response.onComplete(new OnComplete<Object>() {
                         @Override
@@ -114,8 +112,8 @@ public class Tag extends AbstractCollection {
                             if (arg1) {
                                 createTagObject(req, ec);
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_INVALID_MEMBER_IDS.name(), "Member Ids are invalid",
-                                        ResponseCode.CLIENT_ERROR, getParent());
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_INVALID_MEMBER_IDS.name(),
+                                        "Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
                             }
                         }
                     }
@@ -130,10 +128,11 @@ public class Tag extends AbstractCollection {
 
     @Override
     public void addMember(final Request req) {
-        final StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-        final StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+        final String tagId = (String) req.get(GraphDACParams.collection_id.name());
+        final String memberId = (String) req.get(GraphDACParams.member_id.name());
         if (!manager.validateRequired(tagId, memberId)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_TAG_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
         } else {
             try {
                 final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -147,7 +146,7 @@ public class Tag extends AbstractCollection {
                             Request dacRequest = new Request(req);
                             dacRequest.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                             dacRequest.setOperation("addNode");
-                            dacRequest.put(GraphDACParams.NODE.name(), toNode());
+                            dacRequest.put(GraphDACParams.node.name(), toNode());
                             dacRouter.tell(dacRequest, manager.getSelf());
                             response = Patterns.ask(dacRouter, dacRequest, timeout);
                         } else {
@@ -180,26 +179,27 @@ public class Tag extends AbstractCollection {
     @Override
     public void removeMember(Request req) {
         try {
-            StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-            StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+            String tagId = (String) req.get(GraphDACParams.collection_id.name());
+            String memberId = (String) req.get(GraphDACParams.member_id.name());
             if (!manager.validateRequired(tagId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_TAG_MEMBER_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("removeTagMember");
-                request.put(GraphDACParams.TAG_ID.name(), tagId);
-                request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+                request.put(GraphDACParams.tag_id.name(), tagId);
+                request.put(GraphDACParams.member_id.name(), memberId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteRelation");
-                dacRequest.put(GraphDACParams.START_NODE_ID.name(), tagId);
-                dacRequest.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.name()));
-                dacRequest.put(GraphDACParams.END_NODE_ID.name(), memberId);
+                dacRequest.put(GraphDACParams.start_node_id.name(), tagId);
+                dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+                dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
                 dacRouter.tell(dacRequest, manager.getSelf());
                 manager.returnResponse(response, getParent());
             }
@@ -211,15 +211,16 @@ public class Tag extends AbstractCollection {
     @Override
     public void getMembers(Request req) {
         try {
-            StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String tagId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(tagId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_TAG_MEMBERS_INVALID_TAG_ID.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_TAG_MEMBERS_INVALID_TAG_ID.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("getTagMembers");
-                request.put(GraphDACParams.TAG_ID.name(), tagId);
+                request.put(GraphDACParams.tag_id.name(), tagId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -231,17 +232,18 @@ public class Tag extends AbstractCollection {
     @Override
     public void isMember(Request req) {
         try {
-            StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
-            StringValue memberId = (StringValue) req.get(GraphDACParams.MEMBER_ID.name());
+            String tagId = (String) req.get(GraphDACParams.collection_id.name());
+            String memberId = (String) req.get(GraphDACParams.member_id.name());
             if (!manager.validateRequired(tagId, memberId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_TAG_MEMBER_MISSING_REQ_PARAMS.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IS_TAG_MEMBER_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("isTagMember");
-                request.put(GraphDACParams.TAG_ID.name(), tagId);
-                request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+                request.put(GraphDACParams.tag_id.name(), tagId);
+                request.put(GraphDACParams.member_id.name(), memberId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -253,22 +255,23 @@ public class Tag extends AbstractCollection {
     @Override
     public void delete(Request req) {
         try {
-            StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String tagId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(tagId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_TAG_INVALID_TAG_ID.name(), "Required parameters are missing...");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_DROP_TAG_INVALID_TAG_ID.name(),
+                        "Required parameters are missing...");
             } else {
                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("dropTag");
-                request.put(GraphDACParams.TAG_ID.name(), tagId);
+                request.put(GraphDACParams.tag_id.name(), tagId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request dacRequest = new Request(req);
                 dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                 dacRequest.setOperation("deleteCollection");
-                dacRequest.put(GraphDACParams.COLLECTION_ID.name(), tagId);
+                dacRequest.put(GraphDACParams.collection_id.name(), tagId);
                 dacRouter.tell(dacRequest, manager.getSelf());
 
                 manager.returnResponse(response, getParent());
@@ -281,7 +284,7 @@ public class Tag extends AbstractCollection {
     @Override
     public void getCardinality(Request req) {
         try {
-            StringValue tagId = (StringValue) req.get(GraphDACParams.COLLECTION_ID.name());
+            String tagId = (String) req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(tagId)) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
@@ -290,7 +293,7 @@ public class Tag extends AbstractCollection {
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("getTagCardinality");
-                request.put(GraphDACParams.TAG_ID.name(), tagId);
+                request.put(GraphDACParams.tag_id.name(), tagId);
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -322,22 +325,22 @@ public class Tag extends AbstractCollection {
 
     public void createTag(final Request req) {
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-        StringValue tagId = new StringValue(getNodeId());
+        String tagId = getNodeId();
         Request dacRequest = new Request(req);
         dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         dacRequest.setOperation("createCollection");
-        dacRequest.put(GraphDACParams.COLLECTION_ID.name(), tagId);
-        dacRequest.put(GraphDACParams.NODE.name(), toNode());
-        dacRequest.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
-        dacRequest.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+        dacRequest.put(GraphDACParams.collection_id.name(), tagId);
+        dacRequest.put(GraphDACParams.node.name(), toNode());
+        dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+        dacRequest.put(GraphDACParams.members.name(), memberIds);
         dacRouter.tell(dacRequest, manager.getSelf());
 
         ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
         Request request = new Request(req);
         request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
         request.setOperation("createTag");
-        request.put(GraphDACParams.TAG_ID.name(), tagId);
-        request.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+        request.put(GraphDACParams.tag_id.name(), tagId);
+        request.put(GraphDACParams.members.name(), memberIds);
         cacheRouter.tell(request, manager.getSelf());
     }
 
@@ -346,7 +349,7 @@ public class Tag extends AbstractCollection {
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
         request.setOperation("addNode");
-        request.put(GraphDACParams.NODE.name(), toNode());
+        request.put(GraphDACParams.node.name(), toNode());
         Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
 
         dacFuture.onComplete(new OnComplete<Object>() {
@@ -356,52 +359,51 @@ public class Tag extends AbstractCollection {
                     manager.ERROR(arg0, getParent());
                 } else {
                     if (arg1 instanceof Response) {
-                        StringValue tagId = new StringValue(getNodeId());
+                        String tagId = getNodeId();
                         ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                         Request request = new Request(req);
                         request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                         request.setOperation("createTag");
-                        request.put(GraphDACParams.TAG_ID.name(), tagId);
-                        request.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+                        request.put(GraphDACParams.tag_id.name(), tagId);
+                        request.put(GraphDACParams.members.name(), memberIds);
                         Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
                         if (null != memberIds && memberIds.size() > 0) {
                             Request dacRequest = new Request(req);
                             dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                             dacRequest.setOperation("createCollection");
-                            dacRequest.put(GraphDACParams.COLLECTION_ID.name(), tagId);
-                            dacRequest.put(GraphDACParams.NODE.name(), toNode());
-                            dacRequest.put(GraphDACParams.RELATION_TYPE.name(),
-                                    new StringValue(RelationTypes.SET_MEMBERSHIP.relationName()));
-                            dacRequest.put(GraphDACParams.MEMBERS.name(), new BaseValueObjectList<StringValue>(memberIds));
+                            dacRequest.put(GraphDACParams.collection_id.name(), tagId);
+                            dacRequest.put(GraphDACParams.node.name(), toNode());
+                            dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+                            dacRequest.put(GraphDACParams.members.name(), memberIds);
                             dacRouter.tell(dacRequest, manager.getSelf());
                         }
                         manager.returnResponse(response, getParent());
                     } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_UNKNOWN_ERROR.name(), "Failed to create Tag", ResponseCode.SERVER_ERROR,
-                                getParent());
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_TAG_UNKNOWN_ERROR.name(), "Failed to create Tag",
+                                ResponseCode.SERVER_ERROR, getParent());
                     }
                 }
             }
         }, ec);
     }
 
-    private void addMemberToTag(Request req, StringValue tagId, StringValue memberId) {
+    private void addMemberToTag(Request req, String tagId, String memberId) {
         ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
         Request request = new Request(req);
         request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
         request.setOperation("addTagMember");
-        request.put(GraphDACParams.TAG_ID.name(), tagId);
-        request.put(GraphDACParams.MEMBER_ID.name(), memberId);
+        request.put(GraphDACParams.tag_id.name(), tagId);
+        request.put(GraphDACParams.member_id.name(), memberId);
         Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
 
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request dacRequest = new Request(req);
         dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         dacRequest.setOperation("addRelation");
-        dacRequest.put(GraphDACParams.START_NODE_ID.name(), tagId);
-        dacRequest.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.SET_MEMBERSHIP.name()));
-        dacRequest.put(GraphDACParams.END_NODE_ID.name(), memberId);
+        dacRequest.put(GraphDACParams.start_node_id.name(), tagId);
+        dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+        dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
         dacRouter.tell(dacRequest, manager.getSelf());
         manager.returnResponse(response, getParent());
     }

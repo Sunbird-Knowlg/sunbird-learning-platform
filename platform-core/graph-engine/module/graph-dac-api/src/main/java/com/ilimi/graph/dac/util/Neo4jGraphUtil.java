@@ -10,7 +10,7 @@ import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 
-import com.ilimi.graph.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 

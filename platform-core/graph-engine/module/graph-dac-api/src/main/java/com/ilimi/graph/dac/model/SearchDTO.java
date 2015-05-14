@@ -1,12 +1,11 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class SearchDTO extends BaseValueObject {
+public class SearchDTO implements Serializable {
 
     private static final long serialVersionUID = -2675794987433037619L;
     private List<SearchDTO> criteria;

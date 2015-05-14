@@ -22,7 +22,6 @@ import org.openrdf.rio.RDFParser;
 import org.openrdf.rio.Rio;
 import org.openrdf.rio.helpers.RDFHandlerBase;
 
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
@@ -36,7 +35,7 @@ public class RDFGraphReader implements GraphReader {
     private ObjectMapper mapper;
     private List<Node> definitionNodes;
     private List<Node> dataNodes;
-    private Map<String, List<StringValue>> tagMembersMap;
+    private Map<String, List<String>> tagMembersMap;
     private List<Relation> relations;
     private List<String> validations;
     private BaseGraphManager manager;
@@ -61,7 +60,7 @@ public class RDFGraphReader implements GraphReader {
         this.manager = manager;
         this.mapper = mapper;
         validations = new ArrayList<String>();
-        tagMembersMap = new HashMap<String, List<StringValue>>();
+        tagMembersMap = new HashMap<String, List<String>>();
         RDFFormat format = Rio.getParserFormatForMIMEType(MIME_RDFXML, RDFFormat.RDFXML);
         RDFParser parser = Rio.createParser(format);
         ParserHandler handler = new ParserHandler();
@@ -312,14 +311,15 @@ public class RDFGraphReader implements GraphReader {
     /**
      * @return the tagMembersMap
      */
-    public Map<String, List<StringValue>> getTagMembersMap() {
+    public Map<String, List<String>> getTagMembersMap() {
         return tagMembersMap;
     }
 
     /**
-     * @param tagMembersMap the tagMembersMap to set
+     * @param tagMembersMap
+     *            the tagMembersMap to set
      */
-    public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
+    public void setTagMembersMap(Map<String, List<String>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
     }
 }

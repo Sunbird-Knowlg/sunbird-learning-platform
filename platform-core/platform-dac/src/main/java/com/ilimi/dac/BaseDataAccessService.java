@@ -7,14 +7,9 @@
  */
 package com.ilimi.dac;
 
-import com.ilimi.graph.common.Response;
-//import com.canopus.command.Response;
-import com.ilimi.graph.common.dto.BaseValueObject;
-//import com.canopus.command.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
-
-
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 
 /**
  * Base class for DAC services. Provides the implementation of commonly used
@@ -35,7 +30,7 @@ public abstract class BaseDataAccessService {
      *            the vo
      * @return the response
      */
-    public Response OK(String responseIdentifier, BaseValueObject vo) {
+    public Response OK(String responseIdentifier, Object vo) {
         Response response = new Response();
         response.setParams(getSucessStatus());
         response.put(responseIdentifier, vo);
@@ -66,8 +61,8 @@ public abstract class BaseDataAccessService {
         return response;
     }
     
-    private Params getSucessStatus() {
-        Params params = new Params();
+    private ResponseParams getSucessStatus() {
+        ResponseParams params = new ResponseParams();
         params.setErr("0");
         params.setStatus(StatusType.SUCCESS.name());
         params.setErrmsg("Operation successful");

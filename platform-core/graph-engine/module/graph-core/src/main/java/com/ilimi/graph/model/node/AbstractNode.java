@@ -16,12 +16,10 @@ import akka.dispatch.Mapper;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ResponseCode;
-import com.ilimi.graph.common.exception.ServerException;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -54,19 +52,19 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
             aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
                 @Override
                 public void onSuccess(Map<String, List<String>> messages) throws Throwable {
-                    List<StringValue> errMessages = getErrorMessages(messages);
+                    List<String> errMessages = getErrorMessages(messages);
                     if (null == errMessages || errMessages.isEmpty()) {
                         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                         Request request = new Request(req);
                         request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                         request.setOperation("addNode");
-                        request.put(GraphDACParams.NODE.name(), toNode());
+                        request.put(GraphDACParams.node.name(), toNode());
                         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                         manager.returnResponse(response, getParent());
                     } else {
                         manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Node validation failed",
-                                ResponseCode.CLIENT_ERROR, GraphDACParams.MESSAGES.name(),
-                                new BaseValueObjectList<StringValue>(errMessages), getParent());
+                                ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
+                                errMessages, getParent());
                     }
                 }
             }, manager.getContext().dispatcher());
@@ -77,7 +75,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
 
     @Override
     public void getProperty(Request req) {
-        final StringValue key = (StringValue) req.get(GraphDACParams.PROPERTY_KEY.name());
+        final String key = (String) req.get(GraphDACParams.property_key.name());
         if (!manager.validateRequired(key)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_NODE_PROPERTY_INVALID_KEY.name(),
                     "Get Property: Required Properties are missing");
@@ -87,8 +85,8 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                 Request request = new Request(req);
                 request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
                 request.setOperation("getNodeProperty");
-                request.put(GraphDACParams.NODE_ID.name(), new StringValue(this.nodeId));
-                request.put(GraphDACParams.PROPERTY_KEY.name(), key);
+                request.put(GraphDACParams.node_id.name(), this.nodeId);
+                request.put(GraphDACParams.property_key.name(), key);
                 Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             } catch (Exception e) {
@@ -122,7 +120,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
             Request request = new Request(req);
             request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
             request.setOperation("deleteNode");
-            request.put(GraphDACParams.NODE_ID.name(), new StringValue(getNodeId()));
+            request.put(GraphDACParams.node_id.name(), getNodeId());
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
@@ -175,16 +173,12 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
         return messageMap;
     }
 
-    protected List<StringValue> getErrorMessages(Iterable<List<String>> messages) {
-        List<StringValue> errMessages = new ArrayList<StringValue>();
+    protected List<String> getErrorMessages(Iterable<List<String>> messages) {
+        List<String> errMessages = new ArrayList<String>();
         if (null != messages) {
             for (List<String> list : messages) {
                 if (null != list && !list.isEmpty()) {
-                    for (String msg : list) {
-                        if (StringUtils.isNotBlank(msg)) {
-                            errMessages.add(new StringValue(msg));
-                        }
-                    }
+                    errMessages.addAll(list);
                 }
             }
         }

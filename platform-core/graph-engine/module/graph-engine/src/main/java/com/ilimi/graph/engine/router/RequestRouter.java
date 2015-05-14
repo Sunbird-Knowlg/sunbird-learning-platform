@@ -4,10 +4,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import akka.actor.ActorRef;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.BaseRequestRouter;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.exception.RequestRouterErrorCodes;
 
 /**
@@ -29,7 +29,7 @@ public class RequestRouter extends BaseRequestRouter {
     }
 
     protected ActorRef getActorFromPool(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         if (StringUtils.isBlank(graphId))
             throw new ClientException(RequestRouterErrorCodes.ERR_ROUTER_INVALID_GRAPH_ID.name(), "GraphId cannot be empty");
         String manager = request.getManagerName();

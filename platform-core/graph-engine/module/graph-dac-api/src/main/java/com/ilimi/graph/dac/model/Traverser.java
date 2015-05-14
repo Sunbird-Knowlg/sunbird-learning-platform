@@ -1,5 +1,6 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,12 +13,11 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
 
-public class Traverser extends BaseValueObject {
+public class Traverser implements Serializable {
 
     private static final long serialVersionUID = -8621143933941005381L;
     public static final int BREADTH_FIRST_TRAVERSAL = 0;

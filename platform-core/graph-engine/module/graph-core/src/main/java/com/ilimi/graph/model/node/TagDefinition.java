@@ -1,8 +1,8 @@
 package com.ilimi.graph.model.node;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
+import java.io.Serializable;
 
-public class TagDefinition extends BaseValueObject {
+public class TagDefinition implements Serializable {
 
     private static final long serialVersionUID = 7143268173918292647L;
 

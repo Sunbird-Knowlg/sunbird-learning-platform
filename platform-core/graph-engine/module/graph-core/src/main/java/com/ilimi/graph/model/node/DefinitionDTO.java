@@ -1,13 +1,13 @@
 package com.ilimi.graph.model.node;
 
+import java.io.Serializable;
 import java.util.List;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.graph.model.node.TagDefinition;
 
-public class DefinitionDTO extends BaseValueObject {
+public class DefinitionDTO implements Serializable {
 
     private static final long serialVersionUID = -228044920246692592L;
     private String identifier;

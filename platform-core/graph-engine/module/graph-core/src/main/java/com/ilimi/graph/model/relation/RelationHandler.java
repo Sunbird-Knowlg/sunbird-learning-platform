@@ -2,7 +2,7 @@ package com.ilimi.graph.model.relation;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;

@@ -10,14 +10,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -47,16 +44,15 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         LOGGER.info("Find All Taxonomy");
         List<Request> requests = new ArrayList<Request>();
         for (String id : taxonomyIds) {
-            Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(),
-                    new StringValue(id));
-            request.put(GraphDACParams.GET_TAGS.name(), new BooleanValue(true));
+            Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+            request.put(GraphDACParams.get_tags.name(), true);
             requests.add(request);
         }
-        Response response = getResponse(requests, LOGGER, GraphDACParams.NODE.name(), TaxonomyAPIParams.TAXONOMY_LIST.name());
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node.name(), TaxonomyAPIParams.taxonomy_list.name());
         if (null != tfields && tfields.length > 0) {
-            BaseValueObjectList<Node> list = (BaseValueObjectList<Node>) response.get(TaxonomyAPIParams.TAXONOMY_LIST.name());
+            List<Node> list = (List<Node>) response.get(TaxonomyAPIParams.taxonomy_list.name());
             if (validateRequired(list)) {
-                for (Node node : list.getValueObjectList()) {
+                for (Node node : list) {
                     setMetadataFields(node, tfields);
                 }
             }
@@ -70,29 +66,28 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         }
         LOGGER.info("Find Taxonomy : " + id);
-        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.NODE_ID.name(), new StringValue(
-                id));
+        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
         Response getNodeRes = getResponse(request, LOGGER);
         Response response = copyResponse(getNodeRes);
         if (checkError(response)) {
             return response;
         } else {
-            Node node = (Node) getNodeRes.get(GraphDACParams.NODE.name());
+            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
             if (null != node) {
                 setMetadataFields(node, tfields);
-                response.put(TaxonomyAPIParams.TAXONOMY.name(), node);
+                response.put(TaxonomyAPIParams.taxonomy.name(), node);
             }
             if (subgraph) {
                 Request req = new Request(request);
-                req.put(GraphDACParams.START_NODE_ID.name(), new StringValue(id));
-                req.put(GraphDACParams.RELATION_TYPE.name(), new StringValue(RelationTypes.HIERARCHY.relationName()));
+                req.put(GraphDACParams.start_node_id.name(), id);
+                req.put(GraphDACParams.relation_type.name(), RelationTypes.HIERARCHY.relationName());
                 req.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
                 req.setOperation("getSubGraph");
                 Response subGraphRes = getResponse(req, LOGGER);
                 if (checkError(subGraphRes)) {
                     response = copyResponse(response, subGraphRes);
                 } else {
-                    Graph subGraph = (Graph) subGraphRes.get(GraphDACParams.SUB_GRAPH.name());
+                    Graph subGraph = (Graph) subGraphRes.get(GraphDACParams.sub_graph.name());
                     if (null != subGraph) {
                         if (null != cfields && cfields.length > 0) {
                             if (null != subGraph.getNodes() && !subGraph.getNodes().isEmpty()) {
@@ -100,7 +95,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
                                     setMetadataFields(concept, cfields);
                             }
                         }
-                        response.put(TaxonomyAPIParams.SUBGRAPH.name(), subGraph);
+                        response.put(TaxonomyAPIParams.subgraph.name(), subGraph);
                     }
                 }
             }
@@ -116,18 +111,18 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INPUT_STREAM.name(), "Taxonomy object is emtpy");
         LOGGER.info("Create Taxonomy : " + stream);
         Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
-        request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(stream));
+        request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+        request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
         Response createRes = getResponse(request, LOGGER);
         if (checkError(createRes)) {
             return createRes;
         } else {
             Response response = copyResponse(createRes);
-            OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.OUTPUT_STREAM.name());
+            OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.output_stream.name());
             if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
                 ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
                 String csv = new String(bos.toByteArray());
-                response.put(TaxonomyAPIParams.TAXONOMY.name(), new StringValue(csv));
+                response.put(TaxonomyAPIParams.taxonomy.name(), csv);
             }
             return response;
         }
@@ -145,7 +140,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     @SuppressWarnings("unchecked")
     @Override
     public Response search(String id, Request request) {
-        SearchDTO dto = (SearchDTO) request.get(TaxonomyAPIParams.SEARCH_CRITERIA.name());
+        SearchDTO dto = (SearchDTO) request.get(TaxonomyAPIParams.search_criteria.name());
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (null == dto)
@@ -154,15 +149,15 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         SearchCriteria sc = dto.searchCriteria();
         sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-        request.put(TaxonomyAPIParams.SEARCH_CRITERIA.name(), sc);
+        request.put(TaxonomyAPIParams.search_criteria.name(), sc);
         request.setOperation("searchNodes");
-        request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), id);
+        request.getContext().put(GraphHeaderParams.graph_id.name(), id);
         Response searchRes = getResponse(request, LOGGER);
         Response response = copyResponse(searchRes);
         if (!checkError(response)) {
-            BaseValueObjectList<Node> nodeList = (BaseValueObjectList<Node>) searchRes.get(GraphDACParams.NODE_LIST.name());
-            if (null != nodeList && null != nodeList.getValueObjectList() && !nodeList.getValueObjectList().isEmpty()) {
-                response.put(TaxonomyAPIParams.CONCEPTS.name(), nodeList);
+            List<Node> nodeList = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+            if (null != nodeList && !nodeList.isEmpty()) {
+                response.put(TaxonomyAPIParams.concepts.name(), nodeList);
             }
         }
         return response;
@@ -176,7 +171,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Definition nodes JSON is empty");
         LOGGER.info("Update Definition : " + id);
         Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
-        request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(json));
+        request.put(GraphEngineParams.input_stream.name(), json);
         return getResponse(request, LOGGER);
     }
 
@@ -196,8 +191,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(objectType))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
         LOGGER.info("Get Definition : " + id + " : Object Type : " + objectType);
-        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.OBJECT_TYPE.name(),
-                new StringValue(objectType));
+        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name(),
+                objectType);
         return getResponse(request, LOGGER);
     }
 
@@ -208,8 +203,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(objectType))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
         LOGGER.info("Delete Definition : " + id + " : Object Type : " + objectType);
-        Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition", GraphDACParams.OBJECT_TYPE.name(),
-                new StringValue(objectType));
+        Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition", GraphDACParams.object_type.name(),
+                objectType);
         return getResponse(request, LOGGER);
     }
 

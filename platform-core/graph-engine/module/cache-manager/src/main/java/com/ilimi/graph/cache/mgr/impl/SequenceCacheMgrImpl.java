@@ -11,17 +11,13 @@ import java.util.Set;
 
 import redis.clients.jedis.Jedis;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.mgr.ISequenceCacheMgr;
 import com.ilimi.graph.cache.util.RedisKeyGenerator;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.BooleanValue;
-import com.ilimi.graph.common.dto.LongIdentifier;
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
@@ -36,19 +32,19 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
     @SuppressWarnings("unchecked")
     @Override
     public void createSequence(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
-        BaseValueObjectList<StringValue> memberIds = (BaseValueObjectList<StringValue>) request.get(GraphDACParams.MEMBERS.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SEQ_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Map<String, Double> sortedMap = new HashMap<String, Double>();
             double i = 1;
-            for (StringValue memberId : memberIds.getValueObjectList()) {
-                sortedMap.put(memberId.getId(), i);
+            for (String memberId : memberIds) {
+                sortedMap.put(memberId, i);
                 i += 1;
             }
             jedis.zadd(key, sortedMap);
@@ -60,21 +56,21 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
     }
 
     @Override
-    public LongIdentifier addSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
-        LongIdentifier index = (LongIdentifier) request.get(GraphDACParams.INDEX.name());
-        StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
+    public Long addSequenceMember(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+        Long index = (Long) request.get(GraphDACParams.index.name());
+        String memberId = (String) request.get(GraphDACParams.member_id.name());
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_ADD_MEMBER_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
-            if (null == index || null == index.getId() || index.getId().longValue() <= 0) {
-                index = new LongIdentifier(jedis.zcard(key) + 1);
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            if (null == index || index.longValue() <= 0) {
+                index = jedis.zcard(key) + 1;
             }
-            jedis.zadd(key, index.getId(), memberId.getId());
+            jedis.zadd(key, index, memberId);
             return index;
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_ADD_MEMBER_ERROR.name(), e.getMessage());
@@ -85,16 +81,16 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
 
     @Override
     public void removeSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
-        StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+        String memberId = (String) request.get(GraphDACParams.member_id.name());
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_REMOVE_MEMBER_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
-            jedis.zrem(key, memberId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            jedis.zrem(key, memberId);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_REMOVE_MEMBER_ERROR.name(), e.getMessage());
         } finally {
@@ -104,14 +100,14 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
 
     @Override
     public void dropSequence(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_DROP_SEQ_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             jedis.del(key);
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_DROP_SEQ_ERROR.name(), e.getMessage());
@@ -121,23 +117,23 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
     }
 
     @Override
-    public BaseValueObjectList<StringValue> getSequenceMembers(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
+    public List<String> getSequenceMembers(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Set<String> members = jedis.zrange(key, 0, -1);
-            List<StringValue> memberIds = new LinkedList<StringValue>();
+            List<String> memberIds = new LinkedList<String>();
             if (null != members && !members.isEmpty()) {
                 for (String memberId : members) {
-                    memberIds.add(new StringValue(memberId));
+                    memberIds.add(memberId);
                 }
             }
-            return new BaseValueObjectList<StringValue>(memberIds);
+            return memberIds;
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), e.getMessage(), e);
         } finally {
@@ -146,17 +142,17 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
     }
 
     @Override
-    public LongIdentifier getSequenceCardinality(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
+    public Long getSequenceCardinality(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
         if (!manager.validateRequired(sequenceId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
             Long cardinality = jedis.zcard(key);
-            return new LongIdentifier(cardinality);
+            return cardinality;
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), e.getMessage(), e);
         } finally {
@@ -164,22 +160,22 @@ public class SequenceCacheMgrImpl implements ISequenceCacheMgr {
         }
     }
 
-    public BooleanValue isSequenceMember(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue sequenceId = (StringValue) request.get(GraphDACParams.SEQUENCE_ID.name());
-        StringValue memberId = (StringValue) request.get(GraphDACParams.MEMBER_ID.name());
+    public Boolean isSequenceMember(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String sequenceId = (String) request.get(GraphDACParams.sequence_id.name());
+        String memberId = (String) request.get(GraphDACParams.member_id.name());
         if (!manager.validateRequired(sequenceId, memberId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(),
                     "IsSequenceMember: Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId.getId());
-            Double score = jedis.zscore(key, memberId.getId());
+            String key = RedisKeyGenerator.getSequenceMembersKey(graphId, sequenceId);
+            Double score = jedis.zscore(key, memberId);
             if (null == score || score.doubleValue() <= 0) {
-                return new BooleanValue(false);
+                return false;
             } else {
-                return new BooleanValue(true);
+                return true;
             }
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_SEQ_GET_MEMBERS_ERROR.name(), e.getMessage(), e);

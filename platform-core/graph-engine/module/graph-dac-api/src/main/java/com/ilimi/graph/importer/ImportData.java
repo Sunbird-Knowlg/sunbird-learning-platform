@@ -1,24 +1,23 @@
 package com.ilimi.graph.importer;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
-public class ImportData extends BaseValueObject {
+public class ImportData implements Serializable {
 
     private static final long serialVersionUID = 4500122507402085192L;
 
     private List<Node> definitionNodes;
     private List<Node> dataNodes;
-    private Map<String, List<StringValue>> tagMembersMap;
+    private Map<String, List<String>> tagMembersMap;
     private List<Relation> relations;
 
     public ImportData(List<Node> definitionNodes, List<Node> dataNodes, List<Relation> relations,
-            Map<String, List<StringValue>> tagMembersMap) {
+            Map<String, List<String>> tagMembersMap) {
         this.definitionNodes = definitionNodes;
         this.dataNodes = dataNodes;
         this.tagMembersMap = tagMembersMap;
@@ -73,7 +72,7 @@ public class ImportData extends BaseValueObject {
     /**
      * @return the tagMembersMap
      */
-    public Map<String, List<StringValue>> getTagMembersMap() {
+    public Map<String, List<String>> getTagMembersMap() {
         return tagMembersMap;
     }
 
@@ -81,7 +80,7 @@ public class ImportData extends BaseValueObject {
      * @param tagMembersMap
      *            the tagMembersMap to set
      */
-    public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap) {
+    public void setTagMembersMap(Map<String, List<String>> tagMembersMap) {
         this.tagMembersMap = tagMembersMap;
     }
 

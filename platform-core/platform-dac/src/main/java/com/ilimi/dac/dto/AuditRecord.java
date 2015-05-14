@@ -1,15 +1,17 @@
 package com.ilimi.dac.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Params;
+import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.util.AuditLogUtil;
 
-public class AuditRecord extends BaseValueObject {
+public class AuditRecord implements Serializable {
 
+    private static final long serialVersionUID = -5771216312853220439L;
+    
     private Integer id;
     private String objectId;
     private String operationType;
@@ -25,7 +27,7 @@ public class AuditRecord extends BaseValueObject {
         super();
     }
 
-    public AuditRecord(String graphId, String objectId, String operationType, Params params, String lastModifiedBy, String logRecord,
+    public AuditRecord(String graphId, String objectId, String operationType, ResponseParams params, String lastModifiedBy, String logRecord,
             String comment) {
         super();
         this.objectId = AuditLogUtil.createObjectId(graphId, objectId);

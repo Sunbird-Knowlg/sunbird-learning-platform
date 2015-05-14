@@ -1,20 +1,20 @@
 package com.ilimi.graph.cache.mgr;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObjectList;
-import com.ilimi.graph.common.dto.StringValue;
+import java.util.List;
+
+import com.ilimi.common.dto.Request;
 
 public interface IDefinitionNodeCacheMgr {
 
     void saveDefinitionNode(Request request);
 
-    BaseValueObjectList<StringValue> getRequiredMetadataFields(Request request);
+    List<String> getRequiredMetadataFields(Request request);
 
-    BaseValueObjectList<StringValue> getIndexedMetadataFields(Request request);
+    List<String> getIndexedMetadataFields(Request request);
 
-    BaseValueObjectList<StringValue> getNonIndexedMetadataFields(Request request);
+    List<String> getNonIndexedMetadataFields(Request request);
 
-    BaseValueObjectList<StringValue> getOutRelationObjectTypes(Request request);
+    List<String> getOutRelationObjectTypes(Request request);
 
-    BaseValueObjectList<StringValue> getInRelationObjectTypes(Request request);
+    List<String> getInRelationObjectTypes(Request request);
 }

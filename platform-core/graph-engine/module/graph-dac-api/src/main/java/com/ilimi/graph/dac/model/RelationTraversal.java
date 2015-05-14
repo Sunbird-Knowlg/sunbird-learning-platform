@@ -1,12 +1,13 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
+
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.dac.util.RelationType;
 
-public class RelationTraversal extends BaseValueObject {
+public class RelationTraversal implements Serializable {
 
     private static final long serialVersionUID = 4380858539752652736L;
     public static final int DIRECTION_IN = 1;

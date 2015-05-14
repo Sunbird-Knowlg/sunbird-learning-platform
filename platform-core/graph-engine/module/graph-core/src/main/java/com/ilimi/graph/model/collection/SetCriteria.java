@@ -1,11 +1,11 @@
 package com.ilimi.graph.model.collection;
 
+import java.io.Serializable;
 import java.util.Map;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
 import com.ilimi.graph.model.ICriteria;
 
-public class SetCriteria extends BaseValueObject implements ICriteria {
+public class SetCriteria implements ICriteria, Serializable {
 
     private static final long serialVersionUID = -351057911022938583L;
     private String objectType;

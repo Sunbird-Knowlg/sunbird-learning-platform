@@ -3,6 +3,9 @@ package com.ilimi.taxonomy.controller;
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -10,25 +13,29 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.dto.Params.StatusType;
-import com.ilimi.graph.common.exception.ClientException;
-import com.ilimi.graph.common.exception.MiddlewareException;
-import com.ilimi.graph.common.exception.ResourceNotFoundException;
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
 
-    protected ResponseEntity<Response> getResponseEntity(Response response) {
+    private static final String API_ID_PREFIX = "ekstep.lp";
+    private static final String API_VERSION = "1.0";
+    
+    protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
+        setResponseEnvelope(response, apiId, msgId);
         return new ResponseEntity<Response>(response, status);
     }
 
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
-        Params resStatus = new Params();
+        ResponseParams resStatus = new ResponseParams();
         resStatus.setErrmsg(e.getMessage());
         resStatus.setStatus(StatusType.ERROR.name());
         if (e instanceof MiddlewareException) {
@@ -51,9 +58,10 @@ public abstract class BaseController {
         return status;
     }
 
-    protected ResponseEntity<Response> getExceptionResponseEntity(Exception e) {
+    protected ResponseEntity<Response> getExceptionResponseEntity(Exception e, String apiId, String msgId) {
         HttpStatus status = getHttpStatus(e);
         Response response = getErrorResponse(e);
+        setResponseEnvelope(response, apiId, msgId);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -67,7 +75,7 @@ public abstract class BaseController {
         return status;
     }
 
-    protected void writeToResponse(Params params, String content, String contentType, HttpServletResponse response) throws Exception {
+    protected void writeToResponse(ResponseParams params, String content, String contentType, HttpServletResponse response) throws Exception {
         response.setContentType(contentType);
         OutputStream resOs = response.getOutputStream();
         OutputStream buffOs = new BufferedOutputStream(resOs);
@@ -89,6 +97,35 @@ public abstract class BaseController {
         } catch (Exception ex) {
             throw new RuntimeException(ex);
         }
+    }
+    
+    private void setResponseEnvelope(Response response, String apiId, String msgId) {
+        if (null != response) {
+            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setVer(API_VERSION);
+            response.setTs(getResponseTimestamp());
+            ResponseParams params = response.getParams();
+            if (null == params)
+                params = new ResponseParams();
+            if (StringUtils.isNotBlank(msgId))
+                params.setMsgid(msgId);
+            params.setResmsgid(getUUID());
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.SUCCESS.name(), params.getStatus())) {
+                params.setErr(null);
+                params.setErrmsg(null);
+            }
+            response.setParams(params);
+        }
+    }
+    
+    private String getResponseTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
+        return sdf.format(new Date());
+    }
+    
+    private String getUUID() {
+        UUID uid = UUID.randomUUID();
+        return uid.toString();
     }
 
 }

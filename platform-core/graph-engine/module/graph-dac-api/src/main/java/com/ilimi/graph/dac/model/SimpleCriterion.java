@@ -1,10 +1,9 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
 import java.util.Map;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-class SimpleCriterion extends BaseValueObject implements Criterion {
+class SimpleCriterion implements Criterion, Serializable {
 
     private static final long serialVersionUID = 7326586064722915660L;
 

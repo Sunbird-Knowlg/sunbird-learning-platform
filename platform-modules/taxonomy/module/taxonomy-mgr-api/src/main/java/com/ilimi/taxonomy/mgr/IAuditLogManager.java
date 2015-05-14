@@ -1,10 +1,9 @@
 package com.ilimi.taxonomy.mgr;
 
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.dac.dto.Comment;
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
 
 
 public interface IAuditLogManager {
