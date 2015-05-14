@@ -45,6 +45,7 @@ public class ConceptController extends BaseController {
             @RequestParam(value = "games", defaultValue = "false") boolean games,
             @RequestParam(value = "cfields", required = false) String[] cfields,
             @RequestParam(value = "gfields", required = false) String[] gfields, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.list";
         LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | Games: " + games + " | cfields: " + cfields + " | gfields: " + gfields
                 + " | user-id: " + userId);
         try {
@@ -55,10 +56,10 @@ public class ConceptController extends BaseController {
                 response = conceptManager.findAll(taxonomyId, cfields);
             }
             LOGGER.info("FindAll | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -67,14 +68,15 @@ public class ConceptController extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "cfields", required = false) String[] cfields, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | cfields: " + cfields + " | user-id: " + userId);
         try {
             Response response = conceptManager.find(id, taxonomyId, cfields);
             LOGGER.info("Find | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Find | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -82,6 +84,7 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.create";
         Request request = getRequestObject(map);
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -90,10 +93,10 @@ public class ConceptController extends BaseController {
             AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
                     (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 
@@ -102,6 +105,7 @@ public class ConceptController extends BaseController {
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.update";
         Request request = getRequestObject(map);
         LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -110,10 +114,10 @@ public class ConceptController extends BaseController {
             AuditRecord audit = new AuditRecord(taxonomyId, id, "UPDATE", response.getParams(), userId, map.get("request").toString(),
                     (String) map.get("COMMENT"));
             auditLogManager.saveAuditRecord(audit);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Update | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 
@@ -156,14 +160,15 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.delete";
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = conceptManager.delete(id, taxonomyId);
             LOGGER.info("Delete | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Delete | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -172,15 +177,16 @@ public class ConceptController extends BaseController {
     public ResponseEntity<Response> deleteRelation(@PathVariable(value = "id1") String fromConcept,
             @PathVariable(value = "rel") String relationType, @PathVariable(value = "id2") String toConcept,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.delete.relation";
         LOGGER.info("Delete Relation | TaxonomyId: " + taxonomyId + " | StartId: " + fromConcept + " | Relation: " + relationType
                 + " | EndId: " + toConcept + " | user-id: " + userId);
         try {
             Response response = conceptManager.deleteRelation(fromConcept, relationType, toConcept, taxonomyId);
             LOGGER.info("Delete Relation | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Delete Relation | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
@@ -189,15 +195,16 @@ public class ConceptController extends BaseController {
     public ResponseEntity<Response> getConcepts(@PathVariable(value = "id") String id, @PathVariable(value = "rel") String relationType,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "depth", required = false, defaultValue = "0") int depth, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "concept.get.children";
         LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth
                 + " | user-id: " + userId);
         try {
             Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId);
             LOGGER.info("Get Concepts | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Get Concepts | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
