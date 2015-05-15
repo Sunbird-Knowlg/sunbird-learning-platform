@@ -45,7 +45,7 @@ public class SampleCucumber {
     
     @When("^I give Taxonomy (.*) and Concept ID (.*)$")
     public void getConcept(String graphId, String conceptId) throws Exception {
-        actions = mockMvc.perform(get("/concept/Num:C1").param("taxonomyId", "NUMERACY").param("cfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
+        actions = mockMvc.perform(get("/concept/"+conceptId).param("taxonomyId", graphId).param("cfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
     }
     
     @Then("^I should get the concept with name (.*)$")
