@@ -120,34 +120,30 @@ public class LearningObjectController extends BaseController {
 
     @SuppressWarnings("unchecked")
     private Request getRequestObject(Map<String, Object> requestMap) {
-        Request request = new Request();
-        if (null != requestMap && !requestMap.isEmpty()) {
-            Object requestObj = requestMap.get("request");
-            if (null != requestObj) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    String strRequest = mapper.writeValueAsString(requestObj);
-                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objConcept = map.get(LearningObjectAPIParams.learning_object.name());
-                    if (null != objConcept) {
-                        Node concept = (Node) mapper.convertValue(objConcept, Node.class);
-                        request.put(LearningObjectAPIParams.learning_object.name(), concept);
-                    }
-                    Object objDefinitions = map.get(TaxonomyAPIParams.metadata_definitions.name());
-                    if (null != objDefinitions) {
-                        String strObjDefinitions = mapper.writeValueAsString(objDefinitions);
-                        List<Map<String, Object>> listMap = (List<Map<String, Object>>) mapper.readValue(strObjDefinitions.toString(),
-                                List.class);
-                        List<MetadataDefinition> definitions = new ArrayList<MetadataDefinition>();
-                        for (Map<String, Object> metaMap : listMap) {
-                            MetadataDefinition def = (MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class);
-                            definitions.add(def);
-                        }
-                        request.put(TaxonomyAPIParams.metadata_definitions.name(), definitions);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        ObjectMapper mapper = new ObjectMapper();
+        if (null != map && !map.isEmpty()) {
+            try {
+                Object objConcept = map.get(LearningObjectAPIParams.learning_object.name());
+                if (null != objConcept) {
+                    Node concept = (Node) mapper.convertValue(objConcept, Node.class);
+                    request.put(LearningObjectAPIParams.learning_object.name(), concept);
                 }
+                Object objDefinitions = map.get(TaxonomyAPIParams.metadata_definitions.name());
+                if (null != objDefinitions) {
+                    String strObjDefinitions = mapper.writeValueAsString(objDefinitions);
+                    List<Map<String, Object>> listMap = (List<Map<String, Object>>) mapper.readValue(strObjDefinitions.toString(),
+                            List.class);
+                    List<MetadataDefinition> definitions = new ArrayList<MetadataDefinition>();
+                    for (Map<String, Object> metaMap : listMap) {
+                        MetadataDefinition def = (MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class);
+                        definitions.add(def);
+                    }
+                    request.put(TaxonomyAPIParams.metadata_definitions.name(), definitions);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return request;
