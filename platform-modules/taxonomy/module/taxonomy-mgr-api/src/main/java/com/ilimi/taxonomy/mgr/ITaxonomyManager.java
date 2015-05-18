@@ -2,8 +2,8 @@ package com.ilimi.taxonomy.mgr;
 
 import java.io.InputStream;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 
 public interface ITaxonomyManager {
 

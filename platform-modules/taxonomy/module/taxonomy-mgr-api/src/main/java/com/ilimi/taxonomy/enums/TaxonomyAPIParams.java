@@ -2,5 +2,5 @@ package com.ilimi.taxonomy.enums;
 
 public enum TaxonomyAPIParams {
 
-    TAXONOMY_ID, TAXONOMY, TAXONOMY_LIST, SUBGRAPH, SEARCH_CRITERIA, DEFINITION_NODE, CONCEPTS, CONCEPT, METADATA_DEFINITIONS;
+    taxonomy_id, taxonomy, taxonomy_list, subgraph, search_criteria, definition_node, concepts, concept, metadata_definitions;
 }

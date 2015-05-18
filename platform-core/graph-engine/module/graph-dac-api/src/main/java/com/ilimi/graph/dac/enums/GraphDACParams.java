@@ -2,10 +2,10 @@ package com.ilimi.graph.dac.enums;
 
 public enum GraphDACParams {
 
-    GRAPH_ID, START_NODE_ID, END_NODE_ID, RELATION_TYPE, METADATA, PROPERTY_KEY, NODE, NODE_ID, NODE_IDS, PROPERTY_KEYS, COUNT, 
-    NODE_LIST, RELATIONS, RELATION, PROPERTY, LOOP, MESSAGE, MESSAGES, OBJECT_TYPE, REQUIRED_METADATA_KEY, INDEXABLE_METADATA_KEY, 
-    NON_INDEXABLE_METADATA_KEY, IN_RELATIONS_KEY, OUT_RELATIONS_KEY, SYSTEM_TAGS_KEY, SEQUENCE_ID, MEMBERS, COLLECTION_ID, COLLECTION_TYPE, MEMBER_ID, 
-    INDEX, CARDINALITY, IMPORT_INPUT_OBJECT, SEARCH_CRITERIA, TRAVERSAL_DESCRIPTION, SUB_GRAPH, PATH, DEPTH, IS_MEMBER, SET_ID, CRITERIA, 
-    IN_RELATIONS, OUT_RELATIONS, TAGS, TAG_ID, TAG_NAME, ATTRIBUTE_NAME, DEFINITION_NODE, DEFINITION_NODES, GET_TAGS, METADATA_DEFINITIONS, QUERY, 
-    PARAMS, RESULTS, START_NODE_FILTER, RELATED_NODE_FILTER, START_NODE_FIELDS, RELATED_NODE_FIELDS, DIRECTION;
+    graph_id, start_node_id, end_node_id, relation_type, metadata, property_key, node, node_id, node_ids, property_keys, count, 
+    node_list, relations, relation, property, loop, message, messages, object_type, required_metadata_key, indexable_metadata_key, 
+    non_indexable_metadata_key, in_relations_key, out_relations_key, system_tags_key, sequence_id, members, collection_id, collection_type, member_id, 
+    index, cardinality, import_input_object, search_criteria, traversal_description, sub_graph, path, depth, is_member, set_id, criteria, 
+    in_relations, out_relations, tags, tag_id, tag_name, attribute_name, definition_node, definition_nodes, get_tags, metadata_definitions, query, 
+    params, results, start_node_filter, related_node_filter, start_node_fields, related_node_fields, direction;
 }

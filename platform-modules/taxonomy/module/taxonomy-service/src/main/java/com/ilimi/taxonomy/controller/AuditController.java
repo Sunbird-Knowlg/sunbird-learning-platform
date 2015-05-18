@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 @Controller
@@ -28,14 +28,15 @@ public class AuditController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> getAuditHistory(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "audit.list";
         LOGGER.info("AuditHistory | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = auditLogManager.getAuditHistory(taxonomyId, id);
             LOGGER.info("AuditHistory | Response: " + response);
-            return getResponseEntity(response);
+            return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("AuditHistory | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 }

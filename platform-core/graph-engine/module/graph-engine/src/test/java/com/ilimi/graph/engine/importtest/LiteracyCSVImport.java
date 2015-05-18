@@ -18,9 +18,8 @@ import akka.actor.Props;
 import akka.pattern.Patterns;
 import akka.util.Timeout;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.Response;
-import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -55,7 +54,7 @@ public class LiteracyCSVImport {
 
             long t1 = System.currentTimeMillis();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
@@ -63,10 +62,10 @@ public class LiteracyCSVImport {
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
-            request.put(GraphEngineParams.INPUT_STREAM.name(), new StringValue(new String(b)));
+            request.put(GraphEngineParams.input_stream.name(), new String(b));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
-            handleFutureBlock(req, "importDefinitions", GraphDACParams.GRAPH_ID.name());
+            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
             System.out.println("Import Time: " + (t2 - t1));
             Thread.sleep(15000);
@@ -81,20 +80,20 @@ public class LiteracyCSVImport {
             ActorRef reqRouter = initReqRouter();
 
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.GRAPH_ID.name(), graphId);
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("importGraph");
-            request.put(GraphEngineParams.FORMAT.name(), new StringValue(ImportType.CSV.name()));
+            request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
             // Change the file path.
             InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Literacy-GraphEngine.csv");
 
-            request.put(GraphEngineParams.INPUT_STREAM.name(), new InputStreamValue(inputStream));
+            request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.OUTPUT_STREAM.name());
+            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             if(osV == null) {
                 System.out.println(response.getResult());
             } else {

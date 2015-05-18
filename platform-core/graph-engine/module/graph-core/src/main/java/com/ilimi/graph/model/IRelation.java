@@ -5,7 +5,7 @@ import java.util.Map;
 
 import scala.concurrent.Future;
 
-import com.ilimi.graph.common.Request;
+import com.ilimi.common.dto.Request;
 
 /**
  * @author rayulu

@@ -2,5 +2,5 @@ package com.ilimi.taxonomy.enums;
 
 public enum LearningObjectAPIParams {
 
-    LEARNING_OBJECTS, LEARNING_OBJECT;
+    learning_objects, learning_object, games;
 }

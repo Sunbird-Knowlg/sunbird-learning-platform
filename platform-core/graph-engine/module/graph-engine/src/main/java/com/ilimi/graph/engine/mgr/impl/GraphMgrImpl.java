@@ -7,11 +7,10 @@ import org.apache.logging.log4j.Logger;
 
 import akka.actor.ActorRef;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.StringValue;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.mgr.IGraphManager;
@@ -24,7 +23,7 @@ import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.RelationHandler;
 
 public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
-    
+
     private static final Logger logger = LogManager.getLogger(IGraphManager.class.getName());
 
     protected void invokeMethod(Request request, ActorRef parent) {
@@ -43,7 +42,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void createGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             logger.info("Create Graph request: " + graphId);
             Graph graph = new Graph(this, graphId);
@@ -56,7 +55,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void loadGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             Graph graph = new Graph(this, graphId);
             graph.load(request);
@@ -67,7 +66,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void validateGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             Graph graph = new Graph(this, graphId);
             graph.validate(request);
@@ -78,7 +77,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void deleteGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             Graph graph = new Graph(this, graphId);
             graph.delete(request);
@@ -89,7 +88,7 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void importGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
             Graph graph = new Graph(this, graphId);
             graph.importGraph(request);
@@ -100,8 +99,8 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void exportGraph(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue format = (StringValue) request.get(GraphEngineParams.FORMAT.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String format = (String) request.get(GraphEngineParams.format.name());
         if (!validateRequired(format)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_INVALID_FORMAT.name(), "Required parameters are missing...");
         } else {
@@ -116,16 +115,15 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void createRelation(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
         } else {
             try {
-                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId.getId(), relationType.getId(),
-                        endNodeId.getId());
+                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId);
                 relation.create(request);
             } catch (Exception e) {
                 handleException(e, getSender());
@@ -135,16 +133,15 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
 
     @Override
     public void removeRelation(Request request) {
-        String graphId = (String) request.getContext().get(GraphHeaderParams.GRAPH_ID.name());
-        StringValue startNodeId = (StringValue) request.get(GraphDACParams.START_NODE_ID.name());
-        StringValue relationType = (StringValue) request.get(GraphDACParams.RELATION_TYPE.name());
-        StringValue endNodeId = (StringValue) request.get(GraphDACParams.END_NODE_ID.name());
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
         if (!validateRequired(startNodeId, relationType, endNodeId)) {
             throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
         } else {
             try {
-                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId.getId(), relationType.getId(),
-                        endNodeId.getId());
+                IRelation relation = RelationHandler.getRelation(this, graphId, startNodeId, relationType, endNodeId);
                 relation.delete(request);
             } catch (Exception e) {
                 handleException(e, getSender());

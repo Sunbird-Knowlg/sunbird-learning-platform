@@ -1,10 +1,9 @@
 package com.ilimi.graph.model.node;
 
+import java.io.Serializable;
 import java.util.List;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-public class RelationDefinition extends BaseValueObject {
+public class RelationDefinition implements Serializable {
 
     private static final long serialVersionUID = -1396069778690991558L;
     private String relationName;

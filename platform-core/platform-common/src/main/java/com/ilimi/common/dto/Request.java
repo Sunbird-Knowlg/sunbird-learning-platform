@@ -1,10 +1,8 @@
-package com.ilimi.graph.common;
+package com.ilimi.common.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-
-import com.ilimi.graph.common.dto.BaseValueObject;
 
 /**
  * This contains data (value objects) to be passed to middleware command
@@ -17,8 +15,12 @@ public class Request implements Serializable {
     private static final long serialVersionUID = -2362783406031347676L;
 
     protected Map<String, Object> context;
+    private String id;
+    private String ver;
+    private String ts;
+    private RequestParams params;
 
-    private Map<String, BaseValueObject> request = new HashMap<String, BaseValueObject>();
+    private Map<String, Object> request = new HashMap<String, Object>();
 
     private String managerName;
     private String operation;
@@ -51,19 +53,19 @@ public class Request implements Serializable {
     /**
      * @return the requestValueObjects
      */
-    public Map<String, BaseValueObject> getRequest() {
+    public Map<String, Object> getRequest() {
         return request;
     }
 
-    public void setRequest(Map<String, BaseValueObject> request) {
+    public void setRequest(Map<String, Object> request) {
         this.request = request;
     }
 
-    public BaseValueObject get(String key) {
+    public Object get(String key) {
         return request.get(key);
     }
 
-    public void put(String key, BaseValueObject vo) {
+    public void put(String key, Object vo) {
         request.put(key, vo);
     }
 
@@ -83,7 +85,7 @@ public class Request implements Serializable {
         this.operation = operation;
     }
 
-    public void copyRequestValueObjects(Map<String, BaseValueObject> map) {
+    public void copyRequestValueObjects(Map<String, Object> map) {
         if (null != map && map.size() > 0) {
             this.request.putAll(map);
         }
@@ -93,6 +95,38 @@ public class Request implements Serializable {
     public String toString() {
         return "Request [" + (context != null ? "context=" + context + ", " : "")
                 + (request != null ? "requestValueObjects=" + request : "") + "]";
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getVer() {
+        return ver;
+    }
+
+    public void setVer(String ver) {
+        this.ver = ver;
+    }
+
+    public String getTs() {
+        return ts;
+    }
+
+    public void setTs(String ts) {
+        this.ts = ts;
+    }
+
+    public RequestParams getParams() {
+        return params;
+    }
+
+    public void setParams(RequestParams params) {
+        this.params = params;
     }
 
 }

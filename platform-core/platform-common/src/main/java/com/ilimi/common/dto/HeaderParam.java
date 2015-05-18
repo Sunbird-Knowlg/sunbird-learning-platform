@@ -6,7 +6,7 @@
  * by trade secret or copyright law. Any unauthorized use of this code without prior approval 
  * from Canopus Consulting is prohibited.
  */
-package com.ilimi.graph.common;
+package com.ilimi.common.dto;
 
 /**
  * The keys of the Execution Context Values.

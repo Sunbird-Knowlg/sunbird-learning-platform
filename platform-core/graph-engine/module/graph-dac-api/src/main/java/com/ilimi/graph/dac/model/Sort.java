@@ -1,8 +1,8 @@
 package com.ilimi.graph.dac.model;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
+import java.io.Serializable;
 
-public class Sort extends BaseValueObject {
+public class Sort implements Serializable {
 
     private static final long serialVersionUID = -4465970370806149413L;
     public static final String SORT_ASC = "ASC";
@@ -10,7 +10,7 @@ public class Sort extends BaseValueObject {
 
     private String sortField;
     private String sortOrder = SORT_ASC;
-    
+
     public Sort() {
     }
 
@@ -36,9 +36,7 @@ public class Sort extends BaseValueObject {
     }
 
     public void setSortOrder(String sortOrder) {
-        if (null == sortOrder
-                || (!sortOrder.equalsIgnoreCase(SORT_ASC) && !sortOrder
-                        .equalsIgnoreCase(SORT_DESC)))
+        if (null == sortOrder || (!sortOrder.equalsIgnoreCase(SORT_ASC) && !sortOrder.equalsIgnoreCase(SORT_DESC)))
             sortOrder = SORT_ASC;
         this.sortOrder = sortOrder.trim().toUpperCase();
     }

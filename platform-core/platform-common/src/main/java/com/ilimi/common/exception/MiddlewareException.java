@@ -1,4 +1,4 @@
-package com.ilimi.graph.common.exception;
+package com.ilimi.common.exception;
 
 import java.text.MessageFormat;
 

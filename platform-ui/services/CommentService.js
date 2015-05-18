@@ -24,7 +24,7 @@ exports.saveComment = function(data, cb) {
 		path: {tid: data.taxonomyId},
 		data: {
 			request: {
-				COMMENT: {
+				comment: {
 	        		comment: data.comment,
 	        		objectId: data.objectId,
 	        		threadId: data.threadId,
@@ -37,7 +37,7 @@ exports.saveComment = function(data, cb) {
 		if(err) {
 			cb(err);
 		} else if(util.validateMWResponse(data, cb)) {
-			cb(null, data.result.COMMENT);
+			cb(null, data.result.comment);
 		}
 	});
 }
@@ -54,7 +54,7 @@ exports.getCommentThread = function(tid, id, threadId, cb) {
 			cb(err);
 		} else {
 			console.log('Comments:', data);
-			cb(null, data.result.COMMENTS.valueObjectList);
+			cb(null, data.result.comments);
 		}
 	});
 }

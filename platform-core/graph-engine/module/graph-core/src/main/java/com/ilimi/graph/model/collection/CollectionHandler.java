@@ -2,7 +2,7 @@ package com.ilimi.graph.model.collection;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.enums.CollectionTypes;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;

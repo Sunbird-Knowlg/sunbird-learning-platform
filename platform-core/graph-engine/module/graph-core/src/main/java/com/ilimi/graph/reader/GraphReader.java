@@ -3,11 +3,8 @@ package com.ilimi.graph.reader;
 import java.util.List;
 import java.util.Map;
 
-import com.ilimi.graph.common.dto.StringValue;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-
-
 
 /**
  * 
@@ -24,6 +21,6 @@ public interface GraphReader {
     public List<Relation> getRelations();
     public void setRelations(List<Relation> relations);
     public List<String> getValidations();
-    public Map<String, List<StringValue>> getTagMembersMap();
-    public void setTagMembersMap(Map<String, List<StringValue>> tagMembersMap);
+    public Map<String, List<String>> getTagMembersMap();
+    public void setTagMembersMap(Map<String, List<String>> tagMembersMap);
 }

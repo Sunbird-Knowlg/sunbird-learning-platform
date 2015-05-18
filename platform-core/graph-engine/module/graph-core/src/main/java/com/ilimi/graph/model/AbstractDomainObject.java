@@ -11,10 +11,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import akka.actor.ActorRef;
 
-import com.ilimi.graph.common.Request;
-import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.StringValue;
-import com.ilimi.graph.common.exception.ClientException;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
@@ -76,7 +74,7 @@ public abstract class AbstractDomainObject {
         return false;
     }
 
-    protected Request getRequestObject(Request req, String manager, String operation, String key, BaseValueObject value) {
+    protected Request getRequestObject(Request req, String manager, String operation, String key, Object value) {
         Request request = new Request(req);
         request.setManagerName(manager);
         request.setOperation(operation);
@@ -86,26 +84,26 @@ public abstract class AbstractDomainObject {
         return request;
     }
 
-    protected Request getRequestObject(Request req, String manager, String operation, Map<String, BaseValueObject> params) {
+    protected Request getRequestObject(Request req, String manager, String operation, Map<String, Object> params) {
         Request request = new Request(req);
         request.setManagerName(manager);
         request.setOperation(operation);
         if (null != params && !params.isEmpty()) {
-            for (Entry<String, BaseValueObject> param : params.entrySet()) {
+            for (Entry<String, Object> param : params.entrySet()) {
                 request.put(param.getKey(), param.getValue());
             }
         }
         return request;
     }
 
-    protected List<StringValue> getErrorMessages(Map<String, List<String>> messageMap) {
-        List<StringValue> errMessages = new ArrayList<StringValue>();
+    protected List<String> getErrorMessages(Map<String, List<String>> messageMap) {
+        List<String> errMessages = new ArrayList<String>();
         if (null != messageMap) {
             for (List<String> list : messageMap.values()) {
                 if (null != list && !list.isEmpty()) {
                     for (String msg : list) {
                         if (StringUtils.isNotBlank(msg)) {
-                            errMessages.add(new StringValue(msg));
+                            errMessages.add(msg);
                         }
                     }
                 }

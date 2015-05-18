@@ -1,12 +1,10 @@
-package com.ilimi.graph.common;
+package com.ilimi.common.dto;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-import com.ilimi.graph.common.dto.Params;
-import com.ilimi.graph.common.exception.ResponseCode;
+import com.ilimi.common.exception.ResponseCode;
 
 /**
  * 
@@ -18,11 +16,11 @@ public class Response implements Serializable {
     private static final long serialVersionUID = -3773253896160786443L;
 
     private String id;
-    private String version;
+    private String ver;
     private String ts;
-    private Params params;
+    private ResponseParams params;
     private ResponseCode responseCode = ResponseCode.OK;
-    private Map<String, BaseValueObject> result = new HashMap<String, BaseValueObject>();
+    private Map<String, Object> result = new HashMap<String, Object>();
 
     public String getId() {
         return id;
@@ -32,12 +30,12 @@ public class Response implements Serializable {
         this.id = id;
     }
 
-    public String getVersion() {
-        return version;
+    public String getVer() {
+        return ver;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setVer(String ver) {
+        this.ver = ver;
     }
 
     public String getTs() {
@@ -51,23 +49,23 @@ public class Response implements Serializable {
     /**
      * @return the responseValueObjects
      */
-    public Map<String, BaseValueObject> getResult() {
+    public Map<String, Object> getResult() {
         return result;
     }
 
-    public BaseValueObject get(String key) {
+    public Object get(String key) {
         return result.get(key);
     }
 
-    public void put(String key, BaseValueObject vo) {
+    public void put(String key, Object vo) {
         result.put(key, vo);
     }
 
-    public Params getParams() {
+    public ResponseParams getParams() {
         return params;
     }
 
-    public void setParams(Params params) {
+    public void setParams(ResponseParams params) {
         this.params = params;
     }
 

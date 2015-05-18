@@ -1,10 +1,10 @@
 package com.ilimi.graph.dac.model;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
-
-class LogicalCriterion extends BaseValueObject implements Criterion {
+class LogicalCriterion implements Criterion, Serializable {
 
     private static final long serialVersionUID = -7994028798804438207L;
 

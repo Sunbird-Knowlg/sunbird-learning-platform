@@ -39,7 +39,7 @@ exports.getGameCoverage = function(tid, cb) {
 		}
 		
 		var data = {
-			concepts: _.pluck(results.concepts.result.RESULTS.valueObjectList, 'baseValueMap'),
+			concepts: results.concepts.result.results,
 			games: [],
 			rowLabel: [],
 			colLabel: [],
@@ -51,7 +51,7 @@ exports.getGameCoverage = function(tid, cb) {
 				conceptsWithNoScreener: 0
 			}
 		};
-		_.each(results.games.result.LEARNING_OBJECTS.valueObjectList, function(game) {
+		_.each(results.games.result.learning_objects, function(game) {
 			data.games.push({identifier: game.identifier, name: game.metadata.name, purpose: game.metadata.purpose});
 			data.colLabel.push({id: game.identifier, name: game.metadata.name});
 		});
@@ -103,7 +103,7 @@ exports.getGameDefinition = function(cb, taxonomyId) {
 		if(err) {
 			cb(err);
 		} else {
-			cb(null, data.result.DEFINITION_NODE);
+			cb(null, data.result.definition_node);
 		}
 	});
 }
@@ -121,8 +121,8 @@ exports.getGames = function(cb, taxonomyId, offset, limit) {
 		if(err) {
 			cb(err);
 		} else {
-			var games = data.result.LEARNING_OBJECTS.valueObjectList;
-			var count = data.result.COUNT.id;
+			var games = data.result.learning_objects;
+			var count = data.result.count;
 			var result = {};
 			result.games = games;
 			result.count = count;
@@ -141,18 +141,26 @@ exports.getGame = function(cb, taxonomyId, gameId) {
 			mwService.getCall(urlConstants.GET_GAME, args, callback);
 		},
 		auditHistory: function(callback) {
-			callback(null, []);
+			var args = {
+				path: {id: gameId},
+				parameters: {taxonomyId: taxonomyId}
+			}
+			mwService.getCall(urlConstants.AUDIT_HISTORY, args, callback);
 		},
 		comments: function(callback) {
-			callback(null, []);
+			var args = {
+				path: {id: gameId},
+				parameters: {taxonomyId: taxonomyId}
+			}
+			mwService.getCall(urlConstants.GET_COMMENTS, args, callback);
 		}
 	}, function(err, results) {
 		if(err) {
 			cb(err);
 		} else {
-			var game = results.game.result.LEARNING_OBJECT;
-			game.auditHistory = results.auditHistory;
-			game.comments = results.comments;
+			var game = results.game.result.learning_object;
+			game.auditHistory = results.auditHistory.result.audit_records;
+			game.comments = results.comments.result.comments;
 			cb(null, game);
 		}
 	});
@@ -163,7 +171,7 @@ exports.updateGame = function(data, cb) {
 		path: {id: data.identifier, tid: data.taxonomyId},
 		data: {
 			request: {
-				LEARNING_OBJECT: {
+				learning_object: {
 					identifier: data.identifier,
 	        		objectType: "Game",
 	        		metadata: data.properties,
@@ -193,7 +201,7 @@ exports.createGame = function(data, cb) {
 		path: {tid: data.taxonomyId},
 		data: {
 			request: {
-				LEARNING_OBJECT: {
+				learning_object: {
 	        		objectType: "Game",
 	        		metadata: {
 	 					"name": data.name,
@@ -213,7 +221,7 @@ exports.createGame = function(data, cb) {
 		if(err) {
 			cb(err);
 		} else if(util.validateMWResponse(data, cb)) {
-			cb(null, data.result.NODE_ID);
+			cb(null, data.result.node_id);
 		}
 	});
 }

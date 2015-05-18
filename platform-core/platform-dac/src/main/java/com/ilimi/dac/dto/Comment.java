@@ -1,11 +1,11 @@
 package com.ilimi.dac.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 
-import com.ilimi.graph.common.dto.BaseValueObject;
+public class Comment implements Serializable {
 
-public class Comment extends BaseValueObject {
-
+    private static final long serialVersionUID = 760968615774237832L;
     private Integer id;
     private String title;
     private String comment;

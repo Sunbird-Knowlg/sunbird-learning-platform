@@ -1,11 +1,13 @@
-package com.ilimi.graph.common.dto;
+package com.ilimi.common.dto;
+
+import java.io.Serializable;
 
 /**
  * 
- * @author santhosh
+ * @author rayulu
  * 
  */
-public class Params extends BaseValueObject {
+public class ResponseParams implements Serializable {
 
     private static final long serialVersionUID = 6772142067149203497L;
 
