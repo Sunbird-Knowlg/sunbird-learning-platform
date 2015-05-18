@@ -133,7 +133,7 @@ public abstract class BaseManager {
     protected boolean checkError(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
-            if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
+            if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
                 return true;
             }
         }
@@ -156,7 +156,7 @@ public abstract class BaseManager {
     private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
-        params.setStatus(StatusType.ERROR.name());
+        params.setStatus(StatusType.failed.name());
         params.setErrmsg(errorMessage);
         return params;
     }

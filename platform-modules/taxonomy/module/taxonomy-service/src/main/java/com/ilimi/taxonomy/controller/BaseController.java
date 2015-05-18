@@ -42,7 +42,7 @@ public abstract class BaseController {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setErrmsg(e.getMessage());
-        resStatus.setStatus(StatusType.ERROR.name());
+        resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
             resStatus.setErr(me.getErrCode());
@@ -151,7 +151,7 @@ public abstract class BaseController {
             if (StringUtils.isNotBlank(msgId))
                 params.setMsgid(msgId);
             params.setResmsgid(getUUID());
-            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.SUCCESS.name(), params.getStatus())) {
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
                 params.setErr(null);
                 params.setErrmsg(null);
             }

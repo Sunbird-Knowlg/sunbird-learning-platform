@@ -94,7 +94,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     public boolean checkError(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
-            if (StringUtils.equals(StatusType.ERROR.name(), params.getStatus())) {
+            if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
                 return true;
             }
         }
@@ -178,7 +178,7 @@ public abstract class BaseGraphManager extends UntypedActor {
         LOGGER.error(e.getMessage(), e);
         Response response = new Response();
         ResponseParams params = new ResponseParams();
-        params.setStatus(StatusType.ERROR.name());
+        params.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
             params.setErr(mwException.getErrCode());
@@ -233,7 +233,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     private ResponseParams getSucessStatus() {
         ResponseParams params = new ResponseParams();
         params.setErr("0");
-        params.setStatus(StatusType.SUCCESS.name());
+        params.setStatus(StatusType.successful.name());
         params.setErrmsg("Operation successful");
         return params;
     }
@@ -241,7 +241,7 @@ public abstract class BaseGraphManager extends UntypedActor {
     private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
-        params.setStatus(StatusType.ERROR.name());
+        params.setStatus(StatusType.failed.name());
         params.setErrmsg(errorMessage);
         return params;
     }

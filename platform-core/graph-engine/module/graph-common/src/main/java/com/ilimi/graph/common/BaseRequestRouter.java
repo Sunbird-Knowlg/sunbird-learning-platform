@@ -105,7 +105,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
         LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
         Response response = new Response();
         ResponseParams params = new ResponseParams();
-        params.setStatus(StatusType.ERROR.name());
+        params.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException mwException = (MiddlewareException) e;
             params.setErr(mwException.getErrCode());
