@@ -81,6 +81,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.indexedMetadata.add((MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class));
                     }
+                    metadata.remove(INDEXABLE_METADATA_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -92,6 +93,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.nonIndexedMetadata.add((MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class));
                     }
+                    metadata.remove(NON_INDEXABLE_METADATA_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -103,6 +105,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.inRelations.add((RelationDefinition) mapper.convertValue(metaMap, RelationDefinition.class));
                     }
+                    metadata.remove(IN_RELATIONS_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -114,6 +117,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.outRelations.add((RelationDefinition) mapper.convertValue(metaMap, RelationDefinition.class));
                     }
+                    metadata.remove(OUT_RELATIONS_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -125,9 +129,15 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.systemTags.add((TagDefinition) mapper.convertValue(metaMap, TagDefinition.class));
                     }
+                    metadata.remove(SYSTEM_TAGS_KEY);
                 } catch (Exception e) {
                 }
             }
+            try {
+                metadata.remove(REQUIRED_PROPERTIES);
+            } catch (Exception e) {
+            }
+            setMetadata(metadata);
         }
     }
 
@@ -146,13 +156,15 @@ public class DefinitionNode extends AbstractNode {
         dto.setInRelations(inRelations);
         dto.setOutRelations(outRelations);
         dto.setSystemTags(systemTags);
+        dto.setMetadata(metadata);
         return dto;
     }
 
     @Override
     public Node toNode() {
         Node node = new Node(getNodeId(), SystemNodeTypes.DEFINITION_NODE.name(), objectType);
-        Map<String, Object> metadata = new HashMap<String, Object>();
+        if (null == metadata)
+            metadata = new HashMap<String, Object>();
         try {
             List<String> requiredKeys = new ArrayList<String>();
             if (null != indexedMetadata && !indexedMetadata.isEmpty()) {

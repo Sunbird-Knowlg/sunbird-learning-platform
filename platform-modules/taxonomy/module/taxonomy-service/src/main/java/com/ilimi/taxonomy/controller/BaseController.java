@@ -23,6 +23,7 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
@@ -45,8 +46,10 @@ public abstract class BaseController {
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
             resStatus.setErr(me.getErrCode());
+            response.setResponseCode(me.getResponseCode());
         } else {
             resStatus.setErr(TaxonomyErrorCodes.SYSTEM_ERROR.name());
+            response.setResponseCode(ResponseCode.SERVER_ERROR);
         }
         response.setParams(resStatus);
         return response;

@@ -72,6 +72,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 }
                 DefinitionNode node = new DefinitionNode(this, graphId, definition.getObjectType(), indexedMetadata, nonIndexedMetadata,
                         definition.getInRelations(), definition.getOutRelations(), definition.getSystemTags());
+                node.setMetadata(definition.getMetadata());
                 node.create(request);
             } catch (Exception e) {
                 handleException(e, getSender());

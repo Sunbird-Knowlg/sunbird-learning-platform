@@ -2,6 +2,7 @@ package com.ilimi.graph.model.node;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
@@ -16,6 +17,7 @@ public class DefinitionDTO implements Serializable {
     private List<RelationDefinition> inRelations;
     private List<RelationDefinition> outRelations;
     private List<TagDefinition> systemTags;
+    private Map<String, Object> metadata;
 
     public String getIdentifier() {
         return identifier;
@@ -63,5 +65,13 @@ public class DefinitionDTO implements Serializable {
 
     public void setSystemTags(List<TagDefinition> systemTags) {
         this.systemTags = systemTags;
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
     }
 }
