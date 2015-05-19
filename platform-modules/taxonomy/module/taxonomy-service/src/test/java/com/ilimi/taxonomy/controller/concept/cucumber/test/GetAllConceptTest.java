@@ -1,7 +1,8 @@
-package com.ilimi.taxonomy.cucumber.concept.controller.test;
+package com.ilimi.taxonomy.controller.concept.cucumber.test;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,10 +11,10 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
 
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -22,6 +23,11 @@ import cucumber.api.java.en.When;
 public class GetAllConceptTest extends CucumberBaseTestIlimi{
 	
 	private String TaxonomyId;
+	
+	@Before
+    public void setup() throws IOException {
+        initMockMVC();
+    }
 	
 	@When("^Taxonomy Id is (.*)$")
 	public void getTaxonomyId(String taxonomyId){
@@ -35,7 +41,7 @@ public class GetAllConceptTest extends CucumberBaseTestIlimi{
 	
 	@Then("^I should get ErrorMessage Taxonomy Id is (.*) and status is (\\d+)$")
     public void getConceptWithoutTaxonomy(String errmsg, int status) {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
@@ -63,7 +69,7 @@ public class GetAllConceptTest extends CucumberBaseTestIlimi{
 
 	@Then("^I should get all (.*) Concepts$")
     public void getConcept(String concept) throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";

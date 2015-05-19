@@ -5,6 +5,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import java.util.HashMap;
 import java.util.Map;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
@@ -13,6 +14,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 
 @WebAppConfiguration
@@ -33,5 +35,10 @@ public class GetAllTaxonomyTest extends BaseIlimiTest{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}  
+		
+		Response resp = jasonToObject(actions);
+        Assert.assertEquals("ekstep.lp.taxonomy.list", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
    }
 }

@@ -1,7 +1,8 @@
-package com.ilimi.taxonomy.cucumber.concept.controller.test;
+package com.ilimi.taxonomy.controller.concept.cucumber.test;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
 
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
@@ -26,6 +28,11 @@ import cucumber.api.java.en.When;
 public class CreateConceptTest extends CucumberBaseTestIlimi{
 	
 	private String taxonomyId;
+	
+	@Before
+    public void setup() throws IOException {
+        initMockMVC();
+    }
 	
 	@Given("^Concept object is blank$")
 	public void concept_object_is_blank() {

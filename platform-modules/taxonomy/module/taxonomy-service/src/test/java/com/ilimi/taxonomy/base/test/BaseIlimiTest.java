@@ -36,7 +36,6 @@ public class BaseIlimiTest {
     @Before
     public void setup() throws IOException {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        System.out.println("jitendra ngfhgvjfhgvj,hbk.j,");
     }
 	
 	public ResultActions resultActionGet(String path, Map<String, String> params, MediaType contentType, Map<String, String> header, MockMvc mockMvc) {

@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.controller.iob.cucumber.test;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,8 +14,9 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.cucumber.concept.controller.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.controller.concept.cucumber.test.CucumberBaseTestIlimi;
 
+import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
 
@@ -23,6 +25,11 @@ import cucumber.api.java.en.When;
 public class GetAllGamesTest extends CucumberBaseTestIlimi{
 	
 	private String taxonomyId;
+	
+	@Before
+    public void setup() throws IOException {
+        initMockMVC();
+    }
 	
 	@When("^i give taxonomy id is (.*)$")
 	public void getInputData(String taxonomyId){

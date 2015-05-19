@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -34,7 +35,7 @@ public class CreateTaxonomyTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     }
     
-    @org.junit.Test
+    @Test
     public void createTaxonomy() throws Exception {
     	InputStream is = new FileInputStream("Numeracy-GraphEngine.csv");
     	MockMultipartFile firstFile = new MockMultipartFile("file", is);
@@ -42,7 +43,7 @@ public class CreateTaxonomyTest {
         mockMvc.perform(MockMvcRequestBuilders.fileUpload("/taxonomy/NUMERACY").file(firstFile).contentType(MediaType.MULTIPART_FORM_DATA).header("user-id", "jeetu")).andDo(MockMvcResultHandlers.print()).andExpect(status().isOk());  
    }
     
-    @org.junit.Test
+    @Test
     public void emptyInputFile() throws Exception {
     	InputStream is = new FileInputStream("E:/Ilimi-EkStep/Learning-Platform/platform-modules/taxonomy/module/taxonomy-service/src/test/resources/hi.txt");
     	MockMultipartFile firstFile = new MockMultipartFile("file", is);

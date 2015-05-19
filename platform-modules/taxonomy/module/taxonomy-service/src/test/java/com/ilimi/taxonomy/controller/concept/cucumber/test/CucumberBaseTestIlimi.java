@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.cucumber.concept.controller.test;
+package com.ilimi.taxonomy.controller.concept.cucumber.test;
 
 
 
@@ -21,17 +21,24 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
 
 
-public class CucumberBaseTestIlimi {
+public abstract class CucumberBaseTestIlimi {
 	
 	@Autowired 
     protected WebApplicationContext context;
-    
+	
 	protected MockMvc mockMvc;
+	
+	public abstract void setup() throws IOException;
+	
+	public void initMockMVC() throws IOException {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    }
 	
 	public ResultActions resultActionGet(String path, Map<String, String> params, MediaType contentType, Map<String, String> header, MockMvc mockMvc) {
     	ResultActions actions = null;
