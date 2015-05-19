@@ -15,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.test.util.BaseIlimiTest;
+import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
@@ -26,7 +26,7 @@ public class GetAllGamesTest extends BaseIlimiTest{
     public void findAllGames() {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object/";
+    	String path = "/learning-object";
     	params.put("taxonomyId", "NUMERACY");
     	params.put("objectType", "Games");
     	params.put("offset", "0");

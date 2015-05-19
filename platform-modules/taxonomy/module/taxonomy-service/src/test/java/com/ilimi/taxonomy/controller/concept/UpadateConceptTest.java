@@ -22,7 +22,7 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.test.util.BaseIlimiTest;
+import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)

@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.test.util.BaseIlimiTest;
+import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
@@ -111,8 +111,8 @@ public class CreateGameTest extends BaseIlimiTest{
  			e.printStackTrace();
  		}  
         Response resp = jasonToObject(actions);
-        Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());         
-        Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());         
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
     }
     
     

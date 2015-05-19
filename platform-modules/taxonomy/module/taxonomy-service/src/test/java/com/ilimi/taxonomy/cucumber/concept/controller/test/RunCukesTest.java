@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.controller.concept;
+package com.ilimi.taxonomy.cucumber.concept.controller.test;
 
 import org.junit.runner.RunWith;
 

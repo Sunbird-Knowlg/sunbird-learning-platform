@@ -16,7 +16,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.test.util.BaseIlimiTest;
+import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 
 
 @WebAppConfiguration
