@@ -26,7 +26,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
 import com.ilimi.taxonomy.enums.LearningObjectErrorCodes;
-import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 import com.ilimi.taxonomy.mgr.IGameManager;
 
 @Component
@@ -53,7 +52,6 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         DEFAULT_FIELDS.add("appIcon");
         DEFAULT_FIELDS.add("url");
 
-        DEFAULT_STATUS.add("Active");
         DEFAULT_STATUS.add("Live");
     }
 
@@ -61,13 +59,51 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     @Override
     public Response listGames(Request request) {
         String taxonomyId = (String) request.get(PARAM_SUBJECT);
-        if (StringUtils.isBlank(taxonomyId))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         LOGGER.info("List Games : " + taxonomyId);
-        taxonomyId = taxonomyId.toUpperCase();
-        DefinitionDTO definition = getDefinition(taxonomyId);
-
+        DefinitionDTO definition = null;
         String objectType = LearningObjectManagerImpl.OBJECT_TYPE;
+        List<Request> requests = new ArrayList<Request>();
+        if (StringUtils.isNotBlank(taxonomyId)) {
+            taxonomyId = taxonomyId.toUpperCase();
+            definition = getDefinition(taxonomyId);
+            Request req = getGamesListRequest(request, taxonomyId, objectType, definition);
+            requests.add(req);
+        } else {
+            definition = getDefinition(TaxonomyManagerImpl.taxonomyIds[0]);
+            for (String id : TaxonomyManagerImpl.taxonomyIds) {
+                Request req = getGamesListRequest(request, id, objectType, definition);
+                requests.add(req);
+            }
+        }
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(), LearningObjectAPIParams.games.name());
+        Response listRes = copyResponse(response);
+        if (checkError(response))
+            return response;
+        else {
+            List<List<Node>> nodes = (List<List<Node>>) response.get(LearningObjectAPIParams.games.name());
+            List<Map<String, Object>> games = new ArrayList<Map<String, Object>>();
+            if (null != nodes && !nodes.isEmpty()) {
+                for (List<Node> list : nodes) {
+                    if (null != list && !list.isEmpty()) {
+                        for (Node node : list) {
+                            games.add(node.getMetadata());
+                        }
+                    }
+                }
+            }
+            listRes.put(LearningObjectAPIParams.games.name(), games);
+            Integer ttl = null;
+            if (null != definition && null != definition.getMetadata())
+                ttl = (Integer) definition.getMetadata().get(PARAM_TTL);
+            if (null == ttl || ttl.intValue() <= 0)
+                ttl = DEFAULT_TTL;
+            listRes.put(PARAM_TTL, ttl);
+            return listRes;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Request getGamesListRequest(Request request, String taxonomyId, String objectType, DefinitionDTO definition) {
         SearchCriteria sc = new SearchCriteria();
         sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
         sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
@@ -119,27 +155,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         sc.returnFields(fields);
 
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), sc);
-        Response response = getResponse(req, LOGGER);
-        Response listRes = copyResponse(response);
-        if (checkError(response))
-            return response;
-        else {
-            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-            List<Map<String, Object>> games = new ArrayList<Map<String, Object>>();
-            if (null != nodes && !nodes.isEmpty()) {
-                for (Node node : nodes) {
-                    games.add(node.getMetadata());
-                }
-            }
-            listRes.put(LearningObjectAPIParams.games.name(), games);
-            Integer ttl = null;
-            if (null != definition && null != definition.getMetadata())
-                ttl = (Integer) definition.getMetadata().get(PARAM_TTL);
-            if (null == ttl || ttl.intValue() <= 0)
-                ttl = DEFAULT_TTL;
-            listRes.put(PARAM_TTL, ttl);
-            return listRes;
-        }
+        return req;
     }
 
     private void setLimit(Request request, SearchCriteria sc, DefinitionDTO definition) {
