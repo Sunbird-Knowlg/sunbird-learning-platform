@@ -1,48 +1,79 @@
 package com.ilimi.taxonomy.controller.taxonomy;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.junit.Before;
+import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
+
+import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.test.util.BaseIlimiTest;
 
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetTaxonomyTest {
-	@Autowired 
-    private WebApplicationContext context;
-    
-    private MockMvc mockMvc;
-    
-    @Before
-    public void setup() throws IOException {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-    }
-    
-   @org.junit.Test
-    public void getDefination() throws Exception {
-        ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").param("subgraph", "true").param("cfields", "name").param("tfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().isOk());
+public class GetTaxonomyTest extends BaseIlimiTest{
+
+   @Test
+    public void getTaxonomy() {      
+        Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/taxonomy/NUMERACY";
+    	params.put("subgraph", "true");
+    	params.put("cfields", "name");
+    	params.put("tfields", "name");
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().isAccepted());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}     
    }
    
-   @org.junit.Test
-   public void falseNumeracy() throws Exception {
-       ResultActions actions = mockMvc.perform(get("/taxonomy/NUMERACY").param("subgraph", "false").param("cfields", "name").param("tfields", "name").header("Content-Type", "application/json").header("user-id", "jeetu"));
-       actions.andDo(MockMvcResultHandlers.print());
-       actions.andExpect(status().isOk());
+   @Test
+   public void taxonomyIdNotFound() {      
+		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> header = new HashMap<String, String>();
+		String path = "/taxonomy/NUMEACY";
+		params.put("subgraph", "true");
+		params.put("cfields", "name");
+		params.put("tfields", "name");
+		header.put("user-id", "jeetu");
+		ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+		try {
+			actions.andExpect(status().is(404));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+		Response resp = jasonToObject(actions);
+		Assert.assertEquals("Node not found: NUMEACY", resp.getParams().getErrmsg());
+		Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
+  }
+   
+   @Test
+   public void falseNumeracy() {
+		Map<String, String> params = new HashMap<String, String>();
+		Map<String, String> header = new HashMap<String, String>();
+		String path = "/taxonomy/NUMERACY";
+		params.put("subgraph", "false");
+		params.put("cfields", "name");
+		params.put("tfields", "name");
+		header.put("user-id", "jeetu");
+		ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+		try {
+			actions.andExpect(status().isAccepted());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}    
   }
 
 }

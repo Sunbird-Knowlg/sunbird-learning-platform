@@ -1,153 +1,209 @@
 package com.ilimi.taxonomy.controller.lob;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
-import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.context.WebApplicationContext;
 
-import com.ilimi.graph.common.Response;
+import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.test.util.BaseIlimiTest;
 
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CreateGameTest {
-	@Autowired 
-    private WebApplicationContext context;
+public class CreateGameTest extends BaseIlimiTest{
     
-    private MockMvc mockMvc;
-    
-    @Before
-    public void setup() throws IOException {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    @Test
+    public void create() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+        Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/learning-object";
+    	params.put("taxonomyId", "NUMERACY");
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().isAccepted());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}        
     }
     
-    
-    @org.junit.Test
-    public void create() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().isOk());
+    @Test
+    public void emptyTaxonomyId() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/learning-object";
+    	params.put("taxonomyId", "");
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().is(400));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}        
+        Response resp = jasonToObject(actions);
+        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
     
-    @org.junit.Test
-    public void emptyTaxonomyId() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().get("errmsg"));
-    }
-    
-    @org.junit.Test
-    public void withoutTaxonomyId() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
+    @Test
+    public void withoutTaxonomyId() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/learning-object";
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().is(400));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}      
         Assert.assertEquals("Required String parameter 'taxonomyId' is not present", actions.andReturn().getResponse().getErrorMessage());        
     }
     
-    @org.junit.Test
-    public void blankGameObject() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void blankGameObject() {
+    	String contentString = "{\"request\": {\"learning_object\": {}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}  
+        Response resp = jasonToObject(actions);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Object type not set for node: null", msg.get(0)); 
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
     }
     
-    @org.junit.Test
-    public void emptyObjectType() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void emptyObjectType() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}  
+        Response resp = jasonToObject(actions);
+        Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());         
+        Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
     }
     
     
-    @org.junit.Test
-    public void definationNodeNotFound() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void definationNodeNotFound() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\" : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}  
+        Response resp = jasonToObject(actions);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Object type not set for node: G99", msg.get(0));
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
     }
         
-    @org.junit.Test
-    public void requireMetaData() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void requireMetaData() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}          
+        Response resp = jasonToObject(actions);
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Required Metadata name not set", msg.get(0));
+        Assert.assertEquals("Required Metadata code not set", msg.get(1));
+        Assert.assertEquals("Required Metadata developer not set", msg.get(2));
+        Assert.assertEquals("Required Metadata owner not set", msg.get(3));
     }
     
-    @org.junit.Test
-    public void invalidDataType() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\", \"interactivityLevel\" : \"s\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void invalidDataType() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"status\": 123,\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\", \"interactivityLevel\" : \"s\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}       
+        Response resp = jasonToObject(actions);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Metadata status should be one of: [Draft, Review, Active, Retired, Mock]", msg.get(0)); 
+        Assert.assertEquals("Node Metadata validation failed", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
     }
     
-    @org.junit.Test
-    public void unsupportedRelation() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\": \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));        
-    }
-    
-    @org.junit.Test
-    public void requireInOutRelation() throws Exception {
-    	String contentString = "{\"request\": {\"LEARNING_OBJECT\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\" : \"Google & its Developers\"},\"tags\": [\"tag 1\", \"tag 33\"]}}}";
-        ResultActions actions = mockMvc.perform(post("/learning-object/").param("taxonomyId", "NUMERACY").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "jeetu"));
-        actions.andDo(MockMvcResultHandlers.print());
-        actions.andExpect(status().is(400));
-        String content = (String) actions.andReturn().getResponse().getContentAsString();
-        ObjectMapper objectMapper = new ObjectMapper();
-        Response resp = objectMapper.readValue(content, Response.class);
-//        Assert.assertEquals("Validation Errors", resp.getParams().get("errmsg"));
+    @Test
+    public void unsupportedRelation() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\": \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"isParent\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", "NUMERACY");
+     	header.put("user-id", "jeetu");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(400));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}       
+        Response resp = jasonToObject(actions);   
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Relation isParent is not supported", msg.get(0));
     }
 }

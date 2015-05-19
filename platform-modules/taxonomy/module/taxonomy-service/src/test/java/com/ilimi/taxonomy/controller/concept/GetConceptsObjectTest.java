@@ -17,85 +17,64 @@ import org.springframework.test.web.servlet.ResultActions;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.test.util.BaseIlimiTest;
 
-
-
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class FindAllConceptTest extends BaseIlimiTest{
-     
+public class GetConceptsTest extends BaseIlimiTest{
+    
     @Test
-    public void findAllConcepts() {
+    public void getConcepts()  {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/concept";
+    	String path = "/concept/Num:C1/isParentOf";
     	params.put("taxonomyId", "NUMERACY");
-    	params.put("games", "true");
-    	params.put("cfields", "name");
-    	params.put("gfields", "name");
+    	params.put("depth", "0");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		}       
+        
+    }
+    
+    @Test
+    public void withoutTaxonomyId()  {
+    	Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/concept/Num:C1/isParentOf";
+    	params.put("depth", "0");
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().isAccepted());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}       
+        Assert.assertEquals("Required String parameter 'taxonomyId' is not present", actions.andReturn().getResponse().getErrorMessage());
+        
     }
     
     @Test
     public void emptyTaxonomyId()  {
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/concept";
+    	String path = "/concept/Num:C1/isParentOf";
     	params.put("taxonomyId", "");
-    	params.put("games", "true");
-    	params.put("cfields", "name");
-    	params.put("gfields", "name");
-    	header.put("user-id", "jeetu");
-    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
-        try {
-			actions.andExpect(status().is(400));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}  
-        Response resp = jasonToObject(actions);
-        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
-        Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
-   }
-    
-    @Test
-    public void withoutTaxonomyId()  {
-    	Map<String, String> params = new HashMap<String, String>();
-    	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/concept";
-    	params.put("games", "true");
-    	params.put("cfields", "name");
-    	params.put("gfields", "name");
-    	header.put("user-id", "jeetu");
-    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
-        try {
-			actions.andExpect(status().is(400));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}  
-        Assert.assertEquals("Required String parameter 'taxonomyId' is not present", actions.andReturn().getResponse().getErrorMessage());
-    }
-    
-    @Test
-    public void getConceptWithGamesFalse() {
-    	Map<String, String> params = new HashMap<String, String>();
-    	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/concept";
-    	params.put("taxonomyId", "NUMERACY");
-    	params.put("games", "false");
-    	params.put("cfields", "name");
-    	params.put("gfields", "name");
+    	params.put("depth", "0");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}  
+		}       
+        Response resp = jasonToObject(actions);
+        Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
+        
     }
+    
+    
 }
