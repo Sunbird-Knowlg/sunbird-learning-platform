@@ -13,6 +13,23 @@
 				</ul>
 			</div>
 		</div>
+
+		<div class="il-rt-container recentContent marginBottom20">
+			<div class="il-sc-header il-dd-header pad0">
+				<h3>Tags</h3>
+			</div>
+			<div class="il-rt-notn">
+				<ul>
+					<li ng-if="selectedConcept.tags.length == 0">
+						<span>tags not found</span>
+					</li>	
+					<li ng-repeat="tag in selectedConcept.tags">
+						<a href="javascript:void(0)">{{tag}}</a>
+					</li>
+				</ul>
+			</div>
+		</div>
+
 		<div class="il-rt-container recentContent marginBottom20 rightBarConceptMenu hide" bs-scrollspy-list>
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Concept Details</h3>

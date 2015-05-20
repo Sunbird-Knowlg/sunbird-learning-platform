@@ -46,6 +46,8 @@ exports.getConcept = function(id, tid, cb) {
 			cb(err);
 		} else {
 			var concept = results.concept.result.concept;
+			concept.relatedConcepts = getRelatedObjects(concept, 'Concept');
+			concept.relatedGames = getRelatedObjects(concept, 'Game');
 			concept.auditHistory = results.auditHistory.result.audit_records;
 			concept.comments = results.comments.result.comments;
 			cb(null, concept);
@@ -112,4 +114,14 @@ exports.createConcept = function(data, cb) {
 			cb(null, data.result.node_id);
 		}
 	});
+}
+
+function getRelatedObjects(concept, objectType) {
+	var inRelObjects = _.map(_.where(concept.inRelations, {startNodeObjectType: objectType}), function(obj) {
+		return { id: obj.startNodeId, name: obj.startNodeName};
+	});
+	var outRelObjects = _.map(_.where(concept.outRelations, {endNodeObjectType: objectType}), function(obj) {
+		return { id: obj.endNodeId, name: obj.endNodeName};
+	});
+	return _.union(inRelObjects, outRelObjects);
 }
