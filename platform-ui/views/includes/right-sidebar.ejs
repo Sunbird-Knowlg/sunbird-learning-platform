@@ -30,7 +30,48 @@
 			</div>
 		</div>
 
-		<div class="il-rt-container recentContent marginBottom20 rightBarConceptMenu hide" bs-scrollspy-list>
+		<div class="il-rt-container recentContent marginBottom20">
+			<div class="il-sc-header il-dd-header pad0">
+				<h3>Related Concepts</h3>
+			</div>
+			<div class="bs-docs-sidebar">
+				<ul ng-if="selectedConcept.relatedConcepts.length == 0">
+					<li>
+						<span style="">related concepts not found</span>
+					</li>
+				</ul>
+				<nav class="il-rt-notn" ng-if="selectedConcept.relatedConcepts.length > 0">
+					<ul class="nav">
+						<li ng-repeat="concept in selectedConcept.relatedConcepts">
+							<a href="javascript:void(0)" ng-click="selectConcept({conceptId: concept.id, name: concept.name})">{{concept.name | limitTo: 30}}{{concept.name.length > 30 ? '...' : ''}}</a>
+						</li>
+					</ul>
+				</nav>
+			</div>
+		</div>
+
+		<div class="il-rt-container recentContent marginBottom20">
+			<div class="il-sc-header il-dd-header pad0">
+				<h3>Related Games</h3>
+			</div>
+			<div class="bs-docs-sidebar">
+				<ul ng-if="selectedConcept.relatedGames.length == 0">
+					<li>
+						<span>related games not found</span>
+					</li>
+				</ul>
+				<nav class="il-rt-notn" ng-if="selectedConcept.relatedGames.length > 0">
+					<ul class="nav">
+						<li ng-repeat="game in selectedConcept.relatedGames">
+							<a href="javascript:void(0)">{{game.name | limitTo: 30}}{{game.name.length > 30 ? '...' : ''}}</a></a>
+						</li>
+					</ul>
+					<!-- <a class="pull-right" style="font-size:12px; min-width: 90px;" ng-click="limit = selectedConcept.relatedConcepts.length" ng-show="limit < selectedConcept.relatedConcepts.length">more</a> -->
+				</nav>
+			</div>
+		</div>
+
+		<!-- <div class="il-rt-container recentContent marginBottom20 rightBarConceptMenu hide" bs-scrollspy-list>
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Concept Details</h3>
 			</div>
@@ -44,7 +85,7 @@
 				</nav>
 			</div>
 		</div>
-		<div class="il-rt-container recentContent marginBottom20 rightBarGameMenu hide" bs-scrollspy-list>
+		 <div class="il-rt-container recentContent marginBottom20 rightBarGameMenu hide" bs-scrollspy-list>
 			<div class="il-sc-header il-dd-header pad0">
 				<h3>Game Details</h3>
 			</div>
@@ -57,6 +98,6 @@
 					</ul>
 				</nav>
 			</div>
-		</div>
+		</div> -->
 	</div>
 </div>
