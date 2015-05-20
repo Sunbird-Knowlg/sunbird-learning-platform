@@ -53,7 +53,6 @@ public abstract class BaseCucumberTest {
 		try {
 			if(builder != null)
 				actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 		
@@ -72,7 +71,6 @@ public abstract class BaseCucumberTest {
 		}
 		try {
 			actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 		

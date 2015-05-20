@@ -50,8 +50,7 @@ public class BaseIlimiTest {
 		}
 		try {
 			if(builder != null)
-				actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
+				actions = mockMvc.perform(builder);		
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 		
@@ -106,7 +105,7 @@ public class BaseIlimiTest {
 		}
 		try {
 			actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 		

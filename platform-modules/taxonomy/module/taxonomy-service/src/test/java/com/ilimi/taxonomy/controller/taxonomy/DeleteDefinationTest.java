@@ -23,7 +23,7 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 public class DeleteDefinationTest extends BaseIlimiTest{
 	
 	private void basicAssertion(Response resp){
-		Assert.assertEquals("ekstep.lp.learning-object.update", resp.getId());
+		Assert.assertEquals("ekstep.lp.learning-object.delete", resp.getId());
         Assert.assertEquals("1.0", resp.getVer());
 	}
 	
@@ -31,7 +31,7 @@ public class DeleteDefinationTest extends BaseIlimiTest{
     public void deleteDefination() {
         Map<String, String> params = new HashMap<String, String>();
 		Map<String, String> header = new HashMap<String, String>();
-		String path = "/taxonomy/NUMERACY/defination/Game";
+		String path = "/taxonomy/NUMERACY/definition/Game";
 		header.put("user-id", "ilimi");
 		ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
 		try {
@@ -47,7 +47,7 @@ public class DeleteDefinationTest extends BaseIlimiTest{
     public void taxonomyIdNotFound() {
         Map<String, String> params = new HashMap<String, String>();
 		Map<String, String> header = new HashMap<String, String>();
-		String path = "/taxonomy/NUMERAC/defination/Game";
+		String path = "/taxonomy/NUMERAC/definition/Game";
 		header.put("user-id", "ilimi");
 		ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
 		try {
