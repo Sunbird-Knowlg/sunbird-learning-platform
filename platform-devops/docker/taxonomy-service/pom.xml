@@ -84,7 +84,7 @@
 			  <version>0.1.1</version>
 			  <configuration>
 				<imageName>ekstep/lp-taxonomy-service:${imgVersion}</imageName>
-				<dockerDirectory>src/docker</dockerDirectory>
+				<dockerDirectory>${basedir}/src/docker</dockerDirectory>
 			  </configuration>
 			  <executions>
 					<execution>

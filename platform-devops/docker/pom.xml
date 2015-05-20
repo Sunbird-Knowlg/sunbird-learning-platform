@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.ekstep.lp</groupId>
+	<artifactId>docker-parent</artifactId>
+	<version>v1</version>
+	<packaging>pom</packaging>
+	<name>LP Docker Parent</name>
+
+	<inceptionYear>2014 - 2015</inceptionYear>
+	<organization>
+		<name>Perceptron Learning Solutions Pvt. Ltd.</name>
+		<url>http://www.ilimi.in</url>
+	</organization>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modules>
+		<module>platform-ui</module>
+		<module>taxonomy-service</module>
+	</modules>
+</project>

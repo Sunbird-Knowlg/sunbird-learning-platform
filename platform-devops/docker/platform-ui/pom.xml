@@ -26,11 +26,11 @@
 			  <version>0.1.1</version>
 			  <configuration>
 				<imageName>ekstep/lp-web-service:${imgVersion}</imageName>
-				<dockerDirectory>src/docker</dockerDirectory>
+				<dockerDirectory>${basedir}/src/docker</dockerDirectory>
 				<resources>
 				   <resource>
 					 <targetPath>.</targetPath>
-					 <directory>../../../platform-ui</directory>
+					 <directory>${basedir}/../../../platform-ui</directory>
 				   </resource>
 				</resources>
 			  </configuration>
