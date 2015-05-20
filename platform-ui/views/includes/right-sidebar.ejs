@@ -42,10 +42,11 @@
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedConcepts.length > 0">
 					<ul class="nav">
-						<li ng-repeat="concept in selectedConcept.relatedConcepts">
+						<li ng-repeat="concept in selectedConcept.relatedConcepts" ng-if="$index < selectedConcept.relatedConceptsLimit">
 							<a href="javascript:void(0)" ng-click="selectConcept({conceptId: concept.id, name: concept.name})">{{concept.name | limitTo: 30}}{{concept.name.length > 30 ? '...' : ''}}</a>
 						</li>
 					</ul>
+					<a class="pull-right" style="font-size:12px; min-width: 90px; margin-bottom:10px;" ng-click="selectedConcept.relatedConceptsLimit = selectedConcept.relatedConcepts.length" ng-hide="selectedConcept.relatedConceptsLimit >= selectedConcept.relatedConcepts.length">more</a>
 				</nav>
 			</div>
 		</div>
@@ -62,11 +63,11 @@
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedGames.length > 0">
 					<ul class="nav">
-						<li ng-repeat="game in selectedConcept.relatedGames">
-							<a href="javascript:void(0)">{{game.name | limitTo: 30}}{{game.name.length > 30 ? '...' : ''}}</a></a>
+						<li ng-repeat="game in selectedConcept.relatedGames" ng-if="$index < selectedConcept.relatedGamesLimit">
+							<a href="javascript:void(0)" ng-click="viewGame(game.id)">{{game.name | limitTo: 30}}{{game.name.length > 30 ? '...' : ''}}</a></a>
 						</li>
 					</ul>
-					<!-- <a class="pull-right" style="font-size:12px; min-width: 90px;" ng-click="limit = selectedConcept.relatedConcepts.length" ng-show="limit < selectedConcept.relatedConcepts.length">more</a> -->
+					<a class="pull-right" style="font-size:12px; min-width: 90px; margin-bottom:10px;" ng-click="selectedConcept.relatedGamesLimit = selectedConcept.relatedGames.length" ng-hide="selectedConcept.relatedGamesLimit >= selectedConcept.relatedGames.length">more</a>
 				</nav>
 			</div>
 		</div>

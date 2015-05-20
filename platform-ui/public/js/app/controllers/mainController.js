@@ -69,6 +69,8 @@ app.config(function($stateProvider) {
 
 app.service('PlayerService', ['$http', '$q', function($http, $q) {
 
+    this.rhsSectionObjectsLimit = 5;
+
     this.postToService = function(url, data) {
         var deferred = $q.defer();
         $http.post(url, data).success(function(resp) {
@@ -495,6 +497,11 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             });
         }
     }
+
+    $scope.viewGame = function(gameId) {
+        $state.go('gamePage', {id: gameId});
+    }
+
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -564,6 +571,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.setConceptResponse = function(data) {
         $scope.$parent.selectedConcept = data;
         $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
     }
@@ -906,6 +915,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
     $scope.setGameResponse = function(data) {
         $scope.$parent.selectedConcept = data;
         $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
         setTimeout(function() {
