@@ -15,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -23,7 +23,7 @@ import cucumber.api.java.en.Then;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetAllTaxonomyTest extends CucumberBaseTestIlimi{
+public class GetAllTaxonomyTest extends BaseCucumberTest{
 	
 	@Before
     public void setup() throws IOException {

@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -24,17 +24,22 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetGameTest extends CucumberBaseTestIlimi{
+public class GetGameTest extends BaseCucumberTest{
 	    
     private String taxonomyId;
     private String gameId;
+    
+    private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.find", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
     
     @Before
     public void setup() throws IOException {
         initMockMVC();
     }
     
-    @When("^taxonomy Id is (.*) and Game Id is (.*)$")
+    @When("^taxonomy id is (.*) and Game Id is (.*)$")
 	public void getInputData(String taxonomyId, String gameId){
 		if(taxonomyId.equals("absent"))
 			this.taxonomyId = "absent";
@@ -46,7 +51,7 @@ public class GetGameTest extends CucumberBaseTestIlimi{
 	}
     
     @Then("^i should get the Game with status (.*)$")
-    public void createConcept(String concept) throws Exception {
+    public void createConcept(String status) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
@@ -60,6 +65,9 @@ public class GetGameTest extends CucumberBaseTestIlimi{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals(status, resp.getParams().getStatus());
 	}
     
     @Then("^i should get Error message Taxonomy Id is (.*) and status is (\\d+)$")
@@ -83,6 +91,8 @@ public class GetGameTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
         }               
     }
@@ -104,7 +114,10 @@ public class GetGameTest extends CucumberBaseTestIlimi{
 			System.out.println();
 			e.printStackTrace();
 		} 
-    	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Node not found: " + gameId);               
+    	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Node not found: " + gameId);
+    	Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
     }
 	
 }

@@ -13,9 +13,9 @@ Feature: Test all scenarios of delete Relation Game.
     Then I will get ErrMsg Taxonomy Id is Required and status is 400
     
   Scenario: Delete a Game using identifier.
-  	When I give Game Id jeetu Relation isParentOf with Game Id G1:M1 and taxonomy Id NUMERACY
+  	When I give Game Id ilimi Relation isParentOf with Game Id G1:M1 and taxonomy Id NUMERACY
     Then I will get ErrMsg Node not found and status is 404
     
   Scenario: Delete a concept using identifier.
-  	When I give Game Id G1 Relation isParent with Game Id G1:M1 and taxonomy Id NUMERACY
+  	When I give Game Id G1 Relation associated with Game Id G1:M1 and taxonomy Id NUMERACY
     Then I will get unsupported relation and status is 400

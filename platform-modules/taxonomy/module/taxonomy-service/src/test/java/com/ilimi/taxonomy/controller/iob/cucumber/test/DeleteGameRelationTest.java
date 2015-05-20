@@ -14,7 +14,8 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseIlimiTest;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -22,16 +23,26 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
+public class DeleteGameRelationTest extends BaseCucumberTest{
 	
 	private String gameId1;
 	private String gameId2;
 	private String TaxonomyId;
 	private String relationType;
 	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.delete", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
 	@Before
-    public void setup() throws IOException {
-        initMockMVC();
+    public void setup() {
+        try {
+			initMockMVC();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     }
 	
 	@When("^I give Game Id (.*) Relation (.*) with Game Id (.*) and taxonomy Id (.*)$")
@@ -49,8 +60,7 @@ public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
 	}
 	
 	@Then("^Delete the Relation and get the status (.*)$")
-    public void getConcept(String concept) throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    public void getConcept(String concept) {
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId1 + "/" + relationType + "/" + gameId2;
@@ -62,11 +72,13 @@ public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
 	}
 	
 	@Then("^I will get ErrMsg Taxonomy Id is (.*) and status is (\\d+)$")
     public void getConceptWithoutTaxonomy(String errmsg, int status) {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId1 + "/" + relationType + "/" + gameId2;
@@ -85,12 +97,13 @@ public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+            Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	@Then("^I will get ErrMsg Node not found and status is (\\d+)$")
     public void nodeNotFound(int status) {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId1 + "/" + relationType + "/" + gameId2;
@@ -111,7 +124,6 @@ public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
 	
 	@Then("^I will get unsupported relation and status is (\\d+)$")
     public void unspportedRelation(int status) {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId1 + "/" + relationType + "/" + gameId2;
@@ -126,7 +138,10 @@ public class DeleteRelationGamesTest extends CucumberBaseTestIlimi{
 			System.out.println();
 			e.printStackTrace();
 		} 
-    	//Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Node not found: " + conceptId1);               
+    	Response resp = jasonToObject(actions);
+    	
+        Assert.assertEquals("UnSupported Relation: associated", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_RELATION_CREATE", resp.getParams().getErr());               
     }
 	
 }

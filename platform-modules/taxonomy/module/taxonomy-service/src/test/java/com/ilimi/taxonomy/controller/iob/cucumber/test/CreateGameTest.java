@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -24,35 +24,20 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CreateGameTest extends CucumberBaseTestIlimi{
+public class CreateGameTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.create", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
 	
 	@Before
     public void setup() throws IOException {
         initMockMVC();
     }
-	
-	@Given("^Game object is blank$")
-	public void concept_object_is_blank() {
-	   
-	}
-	
-	@Given("^Game Object type is blank$")
-	public void object_type_is_blank() {
-	   
-	}
-	
-	@Given("^Game Missing metadata$")
-	public void missing_metadata() throws Throwable {
-	    
-	}
-	
-	@Given("^Game Unspported Relation$")
-	public void unspported_Relation() throws Throwable {
-	  
-	}
-	
+		
 	@When("^i give taxonomy ID (.*)$")
 	public void getInputData(String taxonomyId){
 		if(taxonomyId.equals("absent"))
@@ -64,25 +49,27 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
 	}
 	
 	@Then("^Create a Game and get the status (.*)$")
-    public void createConcept(String concept) throws Exception {
+    public void createConcept(String status) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object";
     	params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(202));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
 	}
 	
 	@Then("^i will get Error Message Taxonomy Id is (.*) and status is (\\d+)$")
     public void getConceptWithoutTaxonomy(String errmsg, int status) {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
@@ -90,7 +77,7 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -102,21 +89,22 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	
-	@Then("^i will get errMsg is Validation (.*)$")
-	public void i_should_get_errMsg_is_Validation_Error(String error) throws Throwable {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String contentString = "{\"request\": {\"learning_object\": {}}}";
+	@Then("^i will get errMsg is (.*) learning object$")
+	public void i_should_get_errMsg_is_Validation_Error(String error) {
+		String contentString = "{\"request\": {}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object";
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -124,7 +112,10 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
 			System.out.println();
 			e.printStackTrace();
 		} 
-         
+    	Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());         
 	}
 	
 	@Then("^i will get errMsg is Game Object is (.*)$")
@@ -137,7 +128,7 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -146,7 +137,13 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
-        Assert.assertEquals("Concept Object is " + error, resp.getParams().getErrmsg());         
+        basicAssertion(resp);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Object type not set for node: G99", msg.get(0));
+        Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());         
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());         
 	}
 	
 	@Then("^i will get errMsg is metadata (.*) is not set$")
@@ -159,7 +156,7 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -168,21 +165,49 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
-    	Map<String, Object> result = resp.getResult();
+        basicAssertion(resp);
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Required Metadata code not set", msg.get(1));
+        Assert.assertEquals("Required Metadata developer not set", msg.get(2));
+        Assert.assertEquals("Required Metadata owner not set", msg.get(3));
         Assert.assertEquals("Required Metadata "+name+" not set", msg.get(0));
+	}
+	
+	@Then("^i will get errMsg is validation error and status (\\d+)$")
+	public void invalidDataType(int status){
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"status\": 123,\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\", \"interactivityLevel\" : \"s\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+     	Map<String, String> header = new HashMap<String, String>();
+     	String path = "/learning-object";
+     	params.put("taxonomyId", taxonomyId);
+     	header.put("user-id", "ilimi");
+     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+         try {
+ 			actions.andExpect(status().is(status));
+ 		} catch (Exception e) {
+ 			e.printStackTrace();
+ 		}       
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Metadata status should be one of: [Draft, Review, Active, Retired, Mock]", msg.get(0)); 
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 	}
 	
 	@Then("^i will get errMsg is Relation is (.*) supported$")
 	public void i_should_get_errMsg_is_Relation_is_not_supported(String check) throws Throwable {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"description\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParen\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\": \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"isParent\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object";
     	params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -195,10 +220,5 @@ public class CreateGameTest extends CucumberBaseTestIlimi{
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Relation isParen is "+check+" supported", msg.get(0));
-	}
-	
-	@Given("^Game incoming outgoing relation$")
-	public void incoming_outgoing_relation() throws Throwable {
-	   
 	}	
 }

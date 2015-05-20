@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -24,7 +24,7 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class CreateConceptTest extends CucumberBaseTestIlimi{
+public class CreateConceptTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
 	
@@ -55,7 +55,6 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 	
 	@Then("^Create a Concept and get the status (.*)$")
     public void createConcept(String status) throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"description\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();

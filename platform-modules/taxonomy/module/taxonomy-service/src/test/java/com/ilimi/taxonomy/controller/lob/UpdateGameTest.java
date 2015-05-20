@@ -22,7 +22,11 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class UpdateGameTest extends BaseIlimiTest{
-
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.update", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
     
     @Test
     public void updateGame() {
@@ -37,7 +41,10 @@ public class UpdateGameTest extends BaseIlimiTest{
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}    
+		}   
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS",resp.getParams().getStatus());
     }
     
     @Test
@@ -55,6 +62,7 @@ public class UpdateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -90,6 +98,7 @@ public class UpdateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());
     }
@@ -110,6 +119,7 @@ public class UpdateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Node Not Found", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_NOT_FOUND", resp.getParams().getErr());
     }
@@ -129,6 +139,7 @@ public class UpdateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
@@ -138,7 +149,7 @@ public class UpdateGameTest extends BaseIlimiTest{
     
     @Test
     public void requireMetaData() {
-    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {}}}}";
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\"}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1";
@@ -151,13 +162,12 @@ public class UpdateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Required Metadata name not set", msg.get(0)); 
         Assert.assertEquals("Node Metadata validation failed", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
-    }
-    
-
+    } 
 }

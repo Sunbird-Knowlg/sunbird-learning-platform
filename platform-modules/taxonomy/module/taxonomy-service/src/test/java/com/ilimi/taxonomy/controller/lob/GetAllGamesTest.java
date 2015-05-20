@@ -21,7 +21,12 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class GetAllGamesTest extends BaseIlimiTest{
-	    
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.list", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
    @Test
     public void findAllGames() {
         Map<String, String> params = new HashMap<String, String>();
@@ -38,7 +43,10 @@ public class GetAllGamesTest extends BaseIlimiTest{
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}       
+		}     
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
    }
    
    @Test
@@ -59,6 +67,7 @@ public class GetAllGamesTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}       
 		Response resp = jasonToObject(actions);
+		basicAssertion(resp);
 		Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
 		Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
   }
@@ -81,7 +90,5 @@ public class GetAllGamesTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}       
 	   	Assert.assertEquals("Required String parameter 'taxonomyId' is not present", actions.andReturn().getResponse().getErrorMessage());
-  }
-   
-   
+  } 
 }

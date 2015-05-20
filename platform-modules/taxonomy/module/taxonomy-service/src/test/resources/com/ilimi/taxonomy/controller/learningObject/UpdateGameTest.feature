@@ -2,7 +2,7 @@ Feature: Test all scenarios of update Game.
 
   Scenario: Update a Game.
   	When i give input taxonomy ID is NUMERACY and concept ID is G1
-    Then Update the Game and get the status Successful
+    Then Update the Game and get the status SUCCESS
     
   Scenario: Update a Game when taxonomy id is empty.  	
   	When i give input taxonomy ID is empty and concept ID is G1

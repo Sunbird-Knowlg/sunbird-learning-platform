@@ -11,7 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -19,7 +19,7 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteDefinationTest extends CucumberBaseTestIlimi{
+public class DeleteDefinationTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
 	private String objectType;
@@ -29,7 +29,7 @@ public class DeleteDefinationTest extends CucumberBaseTestIlimi{
         initMockMVC();
     }
 	
-	@When("Taxonomy ID is (.*) and objectType ID  is (.*)$")
+	@When("Taxonomy id is (.*) and objectType ID  is (.*)$")
 	public void getInputData(String taxonomyId, String objectType){
 		this.taxonomyId = taxonomyId;
 		this.objectType = objectType;

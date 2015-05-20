@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -23,9 +23,14 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class UpdateGameTest extends CucumberBaseTestIlimi{
+public class UpdateGameTest extends BaseCucumberTest{
 	private String taxonomyId;
 	private String gameId;
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.update", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
 	
 	@Before
     public void setup() {
@@ -62,6 +67,9 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals(status,resp.getParams().getStatus());
 	}
 	
 	@Then("^i should get Error Message taxonomy Id is (.*) and status is (\\d+)$")
@@ -86,7 +94,9 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	
@@ -108,6 +118,7 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		}
     	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
         Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());
 	}
@@ -127,6 +138,7 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Node "+error+" Found", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_NOT_FOUND", resp.getParams().getErr());
 	}
@@ -146,6 +158,7 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
@@ -168,6 +181,7 @@ public class UpdateGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");

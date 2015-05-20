@@ -16,7 +16,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -25,7 +25,7 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteGameTest extends CucumberBaseTestIlimi{
+public class DeleteGameTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
 	private String gameId;
@@ -35,7 +35,12 @@ public class DeleteGameTest extends CucumberBaseTestIlimi{
         initMockMVC();
     }
 	
-	@When("^I Give input Taxonomy ID (.*) and Game ID (.*)$")
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.delete", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
+	@When("^I Give input taxonomy ID (.*) and Game ID (.*)$")
 	public void getInputData(String taxonomyId, String gameId){
 		if(taxonomyId.equals("absent"))
 			this.taxonomyId = "absent";
@@ -47,7 +52,7 @@ public class DeleteGameTest extends CucumberBaseTestIlimi{
 	}
 	
 	@Then("^Delete the Game Id (.*)$")
-    public void getConcept(String concept) throws Exception {
+    public void deleteGame(String game) throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
@@ -60,6 +65,9 @@ public class DeleteGameTest extends CucumberBaseTestIlimi{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+		basicAssertion(resp);
+		Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
 	}
 	
 	@Then("^I should get Error Taxonomy Id is (.*) and status is (\\d+)$")
@@ -83,7 +91,9 @@ public class DeleteGameTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	
@@ -105,7 +115,9 @@ public class DeleteGameTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
-    	Assert.assertEquals("Node not found: " + gameId , resp.getParams().getErrmsg());               
+    	basicAssertion(resp);
+    	Assert.assertEquals("Node not found: " + gameId , resp.getParams().getErrmsg());
+    	Assert.assertEquals("ERR_GRAPH_NODE_NOT_FOUND", resp.getParams().getErr());
     }
 	
 }

@@ -4,6 +4,8 @@ Feature: Test all scenarios of create concept.
   	When I give Taxonomy ID NUMERACY
     Then Create a Concept and get the status SUCCESS
     
+    Then call api createConcept and check the status is success
+    
   Scenario: Create a concept when taxonomy id is empty.
   	When I give Taxonomy ID empty
     Then I should get Error Message Taxonomy Id is blank and status is 400

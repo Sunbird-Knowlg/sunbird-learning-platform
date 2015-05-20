@@ -23,6 +23,11 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class CreateGameTest extends BaseIlimiTest{
     
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.create", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
     @Test
     public void create() {
     	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
@@ -36,7 +41,10 @@ public class CreateGameTest extends BaseIlimiTest{
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		}  
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
     }
     
     @Test
@@ -54,6 +62,7 @@ public class CreateGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}        
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -76,7 +85,7 @@ public class CreateGameTest extends BaseIlimiTest{
     
     @Test
     public void blankGameObject() {
-    	String contentString = "{\"request\": {\"learning_object\": {}}}";
+    	String contentString = "{\"request\": {}}";
     	Map<String, String> params = new HashMap<String, String>();
      	Map<String, String> header = new HashMap<String, String>();
      	String path = "/learning-object";
@@ -88,12 +97,10 @@ public class CreateGameTest extends BaseIlimiTest{
  		} catch (Exception e) {
  			e.printStackTrace();
  		}  
-        Response resp = jasonToObject(actions);
-        Map<String, Object> result = resp.getResult();
-        @SuppressWarnings("unchecked")
-		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Object type not set for node: null", msg.get(0)); 
-        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+         Response resp = jasonToObject(actions);
+         basicAssertion(resp);
+         Assert.assertEquals("Learning Object is blank", resp.getParams().getErrmsg());
+         Assert.assertEquals("ERR_LOB_BLANK_LEARNING_OBJECT", resp.getParams().getErr());
     }
     
     @Test
@@ -111,6 +118,11 @@ public class CreateGameTest extends BaseIlimiTest{
  			e.printStackTrace();
  		}  
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Object type not set for node: G99", msg.get(0));
         Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());         
         Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
     }
@@ -131,11 +143,7 @@ public class CreateGameTest extends BaseIlimiTest{
  			e.printStackTrace();
  		}  
         Response resp = jasonToObject(actions);
-        Map<String, Object> result = resp.getResult();
-        @SuppressWarnings("unchecked")
-		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Object type not set for node: G99", msg.get(0));
-        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        basicAssertion(resp);
     }
         
     @Test
@@ -153,6 +161,7 @@ public class CreateGameTest extends BaseIlimiTest{
  			e.printStackTrace();
  		}          
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
@@ -178,12 +187,13 @@ public class CreateGameTest extends BaseIlimiTest{
  			e.printStackTrace();
  		}       
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Metadata status should be one of: [Draft, Review, Active, Retired, Mock]", msg.get(0)); 
-        Assert.assertEquals("Node Metadata validation failed", resp.getParams().getErrmsg());
-        Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
     }
     
     @Test
@@ -200,7 +210,8 @@ public class CreateGameTest extends BaseIlimiTest{
  		} catch (Exception e) {
  			e.printStackTrace();
  		}       
-        Response resp = jasonToObject(actions);   
+        Response resp = jasonToObject(actions);  
+        basicAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");

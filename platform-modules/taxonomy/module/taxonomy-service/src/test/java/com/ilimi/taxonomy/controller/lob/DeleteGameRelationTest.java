@@ -20,21 +20,29 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @WebAppConfiguration
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class DeleteRelationGameTest extends BaseIlimiTest{
+public class DeleteGameRelationTest extends BaseIlimiTest{
     
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.learning-object.delete", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
     @Test
     public void deleteRelationGame() {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1/associatedTo/G1:M1";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		}   
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
     }
     
     @Test
@@ -43,7 +51,7 @@ public class DeleteRelationGameTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1/associatedTo/G1:M1";
     	params.put("taxonomyId", "");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(400));
@@ -51,6 +59,7 @@ public class DeleteRelationGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}    
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -61,7 +70,7 @@ public class DeleteRelationGameTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1/associatedTo/G1:M1";
     	params.put("taxonomyId", "");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(400));
@@ -75,9 +84,9 @@ public class DeleteRelationGameTest extends BaseIlimiTest{
     public void gameIdNotFound() {
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object/jeetu/associatedTo/G1:M1";
+    	String path = "/learning-object/ilimi/associatedTo/G1:M1";
     	params.put("taxonomyId", "");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(400));
@@ -85,17 +94,18 @@ public class DeleteRelationGameTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}    
         Response resp = jasonToObject(actions);
-        Assert.assertEquals("Node not found: jeetu", resp.getParams().getErrmsg());
+        basicAssertion(resp);
+        Assert.assertEquals("Node not found: ilimi", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_NODE_NOT_FOUND", resp.getParams().getErr());
     }
     
     @Test
-    public void unsupportedRealation() {
+    public void unsupportedRelation() {
     	Map<String, String> params = new HashMap<String, String>();
      	Map<String, String> header = new HashMap<String, String>();
      	String path = "/learning-object/G1/associated/G1:M1";
      	params.put("taxonomyId", "NUMERACY");
-     	header.put("user-id", "jeetu");
+     	header.put("user-id", "ilimi");
      	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
          try {
  			actions.andExpect(status().is(400));

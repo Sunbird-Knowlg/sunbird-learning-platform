@@ -27,7 +27,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Response;
 
 
-public abstract class CucumberBaseTestIlimi {
+public abstract class BaseCucumberTest {
 	
 	@Autowired 
     protected WebApplicationContext context;
@@ -45,20 +45,16 @@ public abstract class CucumberBaseTestIlimi {
     	MockHttpServletRequestBuilder builder = get(path);
 		for (Entry<String, String> entry : params.entrySet()) {
 			builder.param(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() +"::"+entry.getValue());
 		}
 		builder.contentType(contentType);
 		for (Entry<String, String> entry : header.entrySet()){
 			builder.header(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() +"::"+entry.getValue());
 		}
 		try {
 			if(builder != null)
-				System.out.println("Hello");
 				actions = mockMvc.perform(builder);			
 			actions.andDo(MockMvcResultHandlers.print());
 		} catch (Exception e) {
-			System.out.println("jitendrasinghsankhwR");
 			e.printStackTrace();
 		} 		
     	return actions;
@@ -69,18 +65,15 @@ public abstract class CucumberBaseTestIlimi {
     	MockHttpServletRequestBuilder builder = delete(path);
 		for (Entry<String, String> entry : params.entrySet()) {
 			builder.param(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() +"::"+entry.getValue());
 		}
 		builder.contentType(contentType);
 		for (Entry<String, String> entry : header.entrySet()){
 			builder.header(entry.getKey(), entry.getValue());
 		}
 		try {
-			System.out.println(builder.toString());
 			actions = mockMvc.perform(builder);			
 			actions.andDo(MockMvcResultHandlers.print());
 		} catch (Exception e) {
-			System.out.println("jitendrasinghsankhwR");
 			e.printStackTrace();
 		} 		
     	return actions;
@@ -91,18 +84,14 @@ public abstract class CucumberBaseTestIlimi {
     	MockHttpServletRequestBuilder builder = patch(path);
 		for (Entry<String, String> entry : params.entrySet()) {
 			builder.param(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() +"::"+entry.getValue());
 		}
 		builder.contentType(contentType).content(contentString.getBytes());
 		for (Entry<String, String> entry : header.entrySet()){
 			builder.header(entry.getKey(), entry.getValue());
 		}
-		try {
-			System.out.println(builder.toString());
+		try {									
 			actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
 		} catch (Exception e) {
-			System.out.println("jitendrasinghsankhwR");
 			e.printStackTrace();
 		} 		
     	return actions;
@@ -113,18 +102,14 @@ public abstract class CucumberBaseTestIlimi {
     	MockHttpServletRequestBuilder builder = post(path);
 		for (Entry<String, String> entry : params.entrySet()) {
 			builder.param(entry.getKey(), entry.getValue());
-			System.out.println(entry.getKey() +"::"+entry.getValue());
 		}
 		builder.contentType(contentType).content(contentString.getBytes());
 		for (Entry<String, String> entry : header.entrySet()){
 			builder.header(entry.getKey(), entry.getValue());
 		}
 		try {
-			System.out.println(builder.toString());
-			actions = mockMvc.perform(builder);			
-			actions.andDo(MockMvcResultHandlers.print());
+			actions = mockMvc.perform(builder);	
 		} catch (Exception e) {
-			System.out.println("jitendrasinghsankhwR");
 			e.printStackTrace();
 		} 		
     	return actions;

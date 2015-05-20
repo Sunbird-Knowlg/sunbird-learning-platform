@@ -29,6 +29,7 @@ public class DeleteConceptTest extends BaseIlimiTest {
 	
     @Test
     public void deleteConcept() {
+    	
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept/Num:C1";

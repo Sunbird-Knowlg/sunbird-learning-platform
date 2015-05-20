@@ -52,8 +52,8 @@ public class CreateConceptTest extends BaseIlimiTest{
         Response resp = jasonToObject(actions);
         basicAssertion(resp);
         Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
-		// Map<String, Object> result = resp.getResult();
-		// Assert.assertEquals("NUMERACY_355", result.get("node_id"));
+		Map<String, Object> result = resp.getResult();
+		Assert.assertEquals("NUMERACY_355", result.get("node_id"));
         
     }    
    
@@ -97,7 +97,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     
     @Test
     public void blankConcept() {
-    	String contentString = "\"{\"request\": {\"concept\": {}}}";
+    	String contentString = "\"{\"request\": {}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
