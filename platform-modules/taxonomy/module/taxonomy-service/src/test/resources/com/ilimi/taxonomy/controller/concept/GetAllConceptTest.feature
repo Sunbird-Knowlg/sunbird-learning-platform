@@ -2,7 +2,7 @@ Feature: Test all scenarios of get all concept.
 
   Scenario: Get all concept using identifier .
   	When Taxonomy Id is NUMERACY
-    Then I should get all NUMERACY Concepts
+    Then I should get all NUMERACY Concepts and status is SUCCESS
 	            
   Scenario: Get a concept using identifier with empty taxonomy Id.
   	When Taxonomy Id is blank

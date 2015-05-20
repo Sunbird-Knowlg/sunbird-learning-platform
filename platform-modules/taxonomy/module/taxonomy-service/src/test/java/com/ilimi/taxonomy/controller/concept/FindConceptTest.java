@@ -22,6 +22,11 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class FindConceptTest extends BaseIlimiTest {
 	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.find", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
 	@Test
     public void getConcept() {
         Map<String, String> params = new HashMap<String, String>();
@@ -35,7 +40,10 @@ public class FindConceptTest extends BaseIlimiTest {
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		}   
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
     }
 	
 	@Test
@@ -53,6 +61,7 @@ public class FindConceptTest extends BaseIlimiTest {
 			e.printStackTrace();
 		}  
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -88,6 +97,7 @@ public class FindConceptTest extends BaseIlimiTest {
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
         Assert.assertEquals("Node not found: jeetu", resp.getParams().getErrmsg());
 	}

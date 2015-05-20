@@ -8,15 +8,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Given;
@@ -29,31 +28,21 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 	
 	private String taxonomyId;
 	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.create", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
+	private void ErrorMsgAssertion(Response resp){
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());        
+	}
+	
 	@Before
     public void setup() throws IOException {
         initMockMVC();
     }
-	
-	@Given("^Concept object is blank$")
-	public void concept_object_is_blank() {
-	   
-	}
-	
-	@Given("^Object type is blank$")
-	public void object_type_is_blank() {
-	   
-	}
-	
-	@Given("^Missing metadata$")
-	public void missing_metadata() throws Throwable {
-	    
-	}
-	
-	@Given("^Unspported Relation$")
-	public void unspported_Relation() throws Throwable {
-	  
-	}
-	
+		
 	@When("^I give Taxonomy ID (.*)$")
 	public void getInputData(String taxonomyId){
 		if(taxonomyId.equals("absent"))
@@ -65,7 +54,7 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 	}
 	
 	@Then("^Create a Concept and get the status (.*)$")
-    public void createConcept(String concept) throws Exception {
+    public void createConcept(String status) throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"description\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
@@ -79,6 +68,10 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals(status, resp.getParams().getStatus());
 	}
 	
 	@Then("^I should get Error Message Taxonomy Id is (.*) and status is (\\d+)$")
@@ -103,12 +96,14 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	
 	@Then("^I should get errMsg is Validation (.*)$")
-	public void i_should_get_errMsg_is_Validation_Error(String error) throws Throwable {
+	public void conceptObjectBlank(String error) throws Throwable {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "\"{\"request\": {\"concept\": {}}}";
     	Map<String, String> params = new HashMap<String, String>();
@@ -147,7 +142,33 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
         Assert.assertEquals("Concept Object is " + conceptObject, resp.getParams().getErrmsg());         
+	}
+	
+	@Then("^I should get errMsg is node (.*) found")
+	public void nodeNotFound(String error){
+		String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"description\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"tempNode\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/concept";
+    	if(taxonomyId.equals("absent")){}
+    	else
+    		params.put("taxonomyId", taxonomyId);
+    	header.put("user-id", "ilimi");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
+        try {
+			actions.andExpect(status().is(400));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        Response resp = jasonToObject(actions);      
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Node "+error+" found: tempNode", msg.get(0));
+        Assert.assertEquals("Failed to update relations and tags", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 	}
 	
 	@Then("^I should get errMsg is metadata (.*) is not set$")
@@ -169,10 +190,36 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
+    	ErrorMsgAssertion(resp);
     	Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Required Metadata "+name+" not set", msg.get(0));
+	}
+	
+	@Then("^I should get errMsg is datatype is invalid")
+	public void invalidDataType(){
+		String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"status\": \"wrongstatus\",\"des\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/concept";
+    	if(taxonomyId.equals("absent")){}
+    	else
+    		params.put("taxonomyId", taxonomyId);
+    	header.put("user-id", "ilimi");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
+        try {
+			actions.andExpect(status().is(400));
+		} catch (Exception e) {
+			e.printStackTrace();
+		} 
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        ErrorMsgAssertion(resp);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Metadata status should be one of: [Draft, Active, Retired]", msg.get(0));
 	}
 	
 	@Then("^I should get errMsg is Relation is (.*) supported$")
@@ -194,15 +241,12 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
+    	ErrorMsgAssertion(resp);
     	Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Relation isParen is "+check+" supported", msg.get(0));
-	}
-	
-	@Given("^incoming outgoing relation$")
-	public void incoming_outgoing_relation() throws Throwable {
-	   
 	}
 	
 	@Then("^Required incoming relations are (.*)$")
@@ -224,6 +268,8 @@ public class CreateConceptTest extends CucumberBaseTestIlimi{
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
+    	ErrorMsgAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");

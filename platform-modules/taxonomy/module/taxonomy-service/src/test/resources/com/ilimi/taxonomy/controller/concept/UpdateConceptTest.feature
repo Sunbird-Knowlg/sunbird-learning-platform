@@ -2,7 +2,7 @@ Feature: Test all scenarios of update concept.
 
   Scenario: Update a concept.
   	When i give Taxonomy ID NUMERACY and concept is Num:C1
-    Then update a Concept and get the status Successful
+    Then update a Concept and get the status SUCCESS
     
   Scenario: Update a concept when taxonomy id is empty.  	
   	When i give Taxonomy ID empty and concept is Num:C1
@@ -14,19 +14,23 @@ Feature: Test all scenarios of update concept.
     
   Scenario: Update a concept when concept object is blank.
   	When i give Taxonomy ID NUMERACY and concept is Num:C1
-    Then i should get errMsg is Validation Error
+    Then i should get errMsg is concept object is blank
+    
+  Scenario: Update a concept using wron identifier.
+  	When i give Taxonomy ID NUMERACY and concept is Num:C1
+    Then i should get errMsg is node Not found
     
   Scenario: Update a concept when object type is blank.
   	When i give Taxonomy ID NUMERACY and concept is Num:C1
-    Then i should get errMsg is Concept Object is blank
+    Then i should get errMsg is concept object type is blank
     
   Scenario: Update a concept when metadata is missing.
   	When i give Taxonomy ID NUMERACY and concept is Num:C1
-    Then i should get errMsg is metadata name is not set
+    Then i should get errMsg is metadata code is not set
     
-  Scenario: Update a concept where relation is not supported.
+  Scenario: Update a concept where node is invalid.
    	When i give Taxonomy ID NUMERACY and concept is Num:C1
-    Then i should get errMsg is Relation is not supported
+    Then i should get errMsg is invalid node
     
 
     

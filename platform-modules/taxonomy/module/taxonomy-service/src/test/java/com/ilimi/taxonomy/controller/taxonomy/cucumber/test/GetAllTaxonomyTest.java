@@ -15,7 +15,7 @@ import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.ResultActions;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.controller.concept.cucumber.test.CucumberBaseTestIlimi;
+import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -31,7 +31,7 @@ public class GetAllTaxonomyTest extends CucumberBaseTestIlimi{
     }
 	
 	@Then("I should get all taxonomy for graphId (.*) and (.*) and status is (.*)")
-	public void getAllTaxonomy(String numeracyGraphId, String litracyGraphId, String status){
+	public void getAllTaxonomy(String numeracyGraphId, String litracyGraphId, String status) {
 		Map<String, String> params = new HashMap<String, String>();
 		Map<String, String> header = new HashMap<String, String>();
 		String path = "/taxonomy";		
@@ -46,16 +46,14 @@ public class GetAllTaxonomyTest extends CucumberBaseTestIlimi{
 		Response resp = jasonToObject(actions);
         Assert.assertEquals("ekstep.lp.taxonomy.list", resp.getId());
         Assert.assertEquals("1.0", resp.getVer());
-        Assert.assertEquals(status, resp.getParams().getStatus());
-        
+        Assert.assertEquals(status, resp.getParams().getStatus());        
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
         List<Object>  taxonomy_list =  (ArrayList<Object>) result.get("taxonomy_list");
         @SuppressWarnings("unchecked")
 		Map<String, Object> numeracyMap = (Map<String, Object>) taxonomy_list.get(0);
         @SuppressWarnings("unchecked")
-		Map<String, Object> literacyMap = (Map<String, Object>) taxonomy_list.get(1);
-        
+		Map<String, Object> literacyMap = (Map<String, Object>) taxonomy_list.get(1);        
         Assert.assertEquals(numeracyGraphId, numeracyMap.get("graphId"));
         Assert.assertEquals(litracyGraphId, literacyMap.get("graphId"));
         

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -26,6 +27,11 @@ public class GetConceptObjectTest extends CucumberBaseTestIlimi{
 	private String conceptId;
 	private String relationType;
 	private String taxonomyId;
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.find", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
 	
 	@Before
     public void setup() throws IOException {
@@ -45,7 +51,7 @@ public class GetConceptObjectTest extends CucumberBaseTestIlimi{
 	}
 	
 	@Then("^Get the relation object and status is (.*)$")
-    public void getConcept(String concept) throws Exception {
+    public void getConcept(String status) throws Exception {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
@@ -53,12 +59,15 @@ public class GetConceptObjectTest extends CucumberBaseTestIlimi{
     	params.put("taxonomyId", taxonomyId);
     	params.put("depth", "0");
     	header.put("user-id", "jeetu");
-    	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(202));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals(status, resp.getParams().getStatus());
 	}
 	
 	@Then("^I Should get ErrMsg Taxonomy Id is (.*) and status is (\\d+)$")
@@ -72,7 +81,7 @@ public class GetConceptObjectTest extends CucumberBaseTestIlimi{
     		params.put("taxonomyId", taxonomyId);
     	params.put("depth", "0");
     	header.put("user-id", "jeetu");
-    	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
+    	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
 		} catch (Exception e) {
@@ -83,7 +92,9 @@ public class GetConceptObjectTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
+        	Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
         }               
     }
 	

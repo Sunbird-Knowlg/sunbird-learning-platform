@@ -29,7 +29,7 @@ public class UpdateGameTest extends BaseIlimiTest{
     	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object/G1";
+    	String path = "/learning-object/G12";
     	params.put("taxonomyId", "NUMERACY");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
@@ -132,7 +132,7 @@ public class UpdateGameTest extends BaseIlimiTest{
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Object type not set for node: Num:C1", msg.get(0)); 
+        Assert.assertEquals("Object type not set for node: G1", msg.get(0)); 
         Assert.assertEquals("Node Metadata validation failed", resp.getParams().getErrmsg());
     }
     
@@ -141,7 +141,7 @@ public class UpdateGameTest extends BaseIlimiTest{
     	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {}}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object/G123";
+    	String path = "/learning-object/G1";
     	params.put("taxonomyId", "NUMERACY");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      

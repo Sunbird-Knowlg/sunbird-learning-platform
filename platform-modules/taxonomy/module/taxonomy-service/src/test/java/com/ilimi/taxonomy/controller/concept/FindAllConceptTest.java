@@ -22,6 +22,11 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class FindAllConceptTest extends BaseIlimiTest{
      
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.list", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
     @Test
     public void findAllConcepts() {
         Map<String, String> params = new HashMap<String, String>();
@@ -37,7 +42,10 @@ public class FindAllConceptTest extends BaseIlimiTest{
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		} 
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
     }
     
     @Test
@@ -57,6 +65,7 @@ public class FindAllConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}  
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
    }
@@ -95,5 +104,7 @@ public class FindAllConceptTest extends BaseIlimiTest{
 		} catch (Exception e) {
 			e.printStackTrace();
 		}  
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
     }
 }

@@ -14,6 +14,7 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.base.test.CucumberBaseTestIlimi;
 
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
@@ -25,6 +26,11 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
 	
 	private String TaxonomyId;
 	private String ConceptId;
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.delete", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
 	
 	@Before
     public void setup() throws IOException {
@@ -51,16 +57,18 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept/" + ConceptId;
     	params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(202));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
 	}
 	
-	@Then("^I should get errMsg Taxonomy Id is (.*) and status is (\\d+)$")
+	@Then("^I should get errMsg taxonomy id is (.*) and status is (\\d+)$")
     public void getConceptWithoutTaxonomy(String errmsg, int status) {
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	Map<String, String> params = new HashMap<String, String>();
@@ -69,7 +77,7 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
     	if(TaxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -81,6 +89,7 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
         	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Required String parameter 'taxonomyId' is not present");
         } else{
         	Response resp = jasonToObject(actions);
+        	basicAssertion(resp);
         	Assert.assertEquals(resp.getParams().getErrmsg(), "Taxonomy Id is " + errmsg);
         }               
     }
@@ -94,7 +103,7 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
     	if(TaxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -102,7 +111,10 @@ public class DeleteConceptTest extends CucumberBaseTestIlimi{
 			System.out.println();
 			e.printStackTrace();
 		} 
-    	Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), "Node not found: " + ConceptId);               
+    	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
+    	Assert.assertEquals( "Node not found: " + ConceptId, resp.getParams().getErrmsg()); 
+    	Assert.assertEquals("ERR_GRAPH_NODE_NOT_FOUND", resp.getParams().getErr());
     }
 	
 

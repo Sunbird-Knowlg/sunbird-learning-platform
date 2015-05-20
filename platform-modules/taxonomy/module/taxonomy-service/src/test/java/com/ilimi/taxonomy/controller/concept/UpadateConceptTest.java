@@ -29,6 +29,11 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class UpadateConceptTest extends BaseIlimiTest{
     
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.update", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
     @Test
     public void updateConcept() {
     	String contentString = "{\"request\": {\"concept\": {\"identifier\": \"Num:C1\",\"nodeType\": \"DATA_NODE\",\"objectType\": \"Concept\",\"metadata\": {\"identifier\": \"Num:C1\",\"code\": \"Num:C1\",\"learningObjective\": [\"New Learning Objective 222\"],\"arrayProp\": [\"value1\", \"value3\", \"valu5\"]},\"tags\": [\"Subconcept\", \"tag 9\", \"tag 10\"]},\"COMMENT\" : \"\"}}";
@@ -42,7 +47,10 @@ public class UpadateConceptTest extends BaseIlimiTest{
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}      
+		} 
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
     }
     
     @Test
@@ -76,6 +84,7 @@ public class UpadateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -95,6 +104,7 @@ public class UpadateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
         Assert.assertEquals("Concept Object is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_CONCEPT", resp.getParams().getErr());
     }
@@ -102,7 +112,7 @@ public class UpadateConceptTest extends BaseIlimiTest{
    
     @Test
     public void conceptObjectNotFound()  {
-    	String contentString = "{\"request\": {\"concept\": {\"identifier\": \"Jeetu\",\"nodeType\": \"DATA_NODE\",\"objectType\": \"sadf\",\"metadata\": {\"identifier\": \"Num:C1\",\"code\": \"Num:C1\",\"learningObjective\": [\"New Learning Objective 222\"],\"arrayProp\": [\"value1\", \"value3\", \"valu5\"]},\"tags\": [\"Subconcept\", \"tag 9\", \"tag 10\"]},\"COMMENT\" : \"\"}}";
+    	String contentString = "{\"request\": {\"concept\": {\"identifier\": \"ilimi\",\"nodeType\": \"DATA_NODE\",\"objectType\": \"sadf\",\"metadata\": {\"identifier\": \"Num:C1\",\"code\": \"Num:C1\",\"learningObjective\": [\"New Learning Objective 222\"],\"arrayProp\": [\"value1\", \"value3\", \"valu5\"]},\"tags\": [\"Subconcept\", \"tag 9\", \"tag 10\"]},\"COMMENT\" : \"\"}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept/Num:C1";
@@ -117,6 +127,10 @@ public class UpadateConceptTest extends BaseIlimiTest{
         Response resp = jasonToObject(actions);
         Assert.assertEquals("Node Not Found", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_NOT_FOUND", resp.getParams().getErr());
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Node not found", msg.get(0));
 
     }
     

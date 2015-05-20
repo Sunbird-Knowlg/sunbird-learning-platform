@@ -23,6 +23,16 @@ import com.ilimi.taxonomy.base.test.BaseIlimiTest;
 @RunWith(value=SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class CreateConceptTest extends BaseIlimiTest{
+	
+	private void basicAssertion(Response resp){
+		Assert.assertEquals("ekstep.lp.concept.create", resp.getId());
+        Assert.assertEquals("1.0", resp.getVer());
+	}
+	
+	private void ErrorMsgAssertion(Response resp){
+		Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
+        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());        
+	}
 
     @Test
     public void create(){
@@ -31,13 +41,20 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isAccepted());
 		} catch (Exception e) {
 			e.printStackTrace();
-		}        
+		}  
+        
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+		// Map<String, Object> result = resp.getResult();
+		// Assert.assertEquals("NUMERACY_355", result.get("node_id"));
+        
     }    
    
     @Test
@@ -48,7 +65,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -65,7 +82,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -73,6 +90,7 @@ public class CreateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}  
     	Response resp = jasonToObject(actions);
+    	basicAssertion(resp);
         Assert.assertEquals("Taxonomy Id is blank", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_TAXONOMY_BLANK_TAXONOMY_ID", resp.getParams().getErr());
     }
@@ -84,24 +102,15 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        try {
-			actions.andExpect(status().is(400));
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         Response resp = jasonToObject(actions);
-        Assert.assertEquals("ERR_GRAPH_ADD_NODE_VALIDATION_FAILED", resp.getParams().getErr());
-        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg()); 
-   
-        
+        ErrorMsgAssertion(resp);
     }
     
     @Test
@@ -111,7 +120,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -125,9 +134,8 @@ public class CreateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
-        Assert.assertEquals("Concept Object is blank", resp.getParams().getErrmsg());
-       
-        
+        basicAssertion(resp);
+        Assert.assertEquals("Concept Object is blank", resp.getParams().getErrmsg());        
     }
     
     @Test
@@ -137,7 +145,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -150,6 +158,7 @@ public class CreateConceptTest extends BaseIlimiTest{
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
         Assert.assertEquals("Node not found: tempNode", msg.get(0));
         Assert.assertEquals("Failed to update relations and tags", resp.getParams().getErrmsg());
+        Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
             
     }
     
@@ -160,7 +169,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -168,7 +177,8 @@ public class CreateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
-        Assert.assertEquals("Validation Errors", resp.getParams().getErrmsg());
+        basicAssertion(resp);
+        ErrorMsgAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
@@ -179,19 +189,25 @@ public class CreateConceptTest extends BaseIlimiTest{
     
     @Test
     public void invalidDataType()  {
-    	String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"des\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+    	String contentString = "{\"request\": {\"concept\": {\"objectType\": \"Concept\",\"metadata\": {\"name\": \"GeometryTest\",\"status\": \"wrongstatus\",\"des\": \"GeometryTest\",\"code\": \"Num:C234\",\"learningObjective\": [\"\"]},\"inRelations\" : [{\"startNodeId\": \"Num:C1:SC1\",\"relationType\": \"isParentOf\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
-        
+        Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        ErrorMsgAssertion(resp);
+        Map<String, Object> result = resp.getResult();
+        @SuppressWarnings("unchecked")
+		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
+        Assert.assertEquals("Metadata status should be one of: [Draft, Active, Retired]", msg.get(0));        
     }
     
     @Test
@@ -201,14 +217,16 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        Response resp = jasonToObject(actions);   
+        Response resp = jasonToObject(actions); 
+        basicAssertion(resp);
+        ErrorMsgAssertion(resp);
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
@@ -222,7 +240,7 @@ public class CreateConceptTest extends BaseIlimiTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", "NUMERACY");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);
         try {
 			actions.andExpect(status().is(400));
@@ -230,6 +248,8 @@ public class CreateConceptTest extends BaseIlimiTest{
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
+        basicAssertion(resp);
+        ErrorMsgAssertion(resp);        
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
