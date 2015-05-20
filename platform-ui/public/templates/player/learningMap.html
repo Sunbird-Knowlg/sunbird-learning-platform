@@ -2,10 +2,10 @@
     <div class=" wallActivityHeader">
         <div class="editContent">
             <div class="headerAsk" id="activityStream">
-                <h2>Explore {{taxonomies[selectedTaxonomyId].metadata.name}}
+                <h1>Explore {{taxonomies[selectedTaxonomyId].metadata.name}}
                 <a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Add new concept"  data-original-title="Add new concept">
 					<i class="writeBlackOne fa fa-edit" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i></a>
-                </h2>
+                </h1>
             </div>
             <div class="col-md-12 noPad borderBottom textEditor marginTop20 form-group" id="il-Txt-Editor" style="display:none;">
             	<div class="col-md-12 noPad">
@@ -65,7 +65,7 @@
 		    	<div id="treeLayout" class="treeLayout"></div>
 		    </div>
 		    <div class="col-md-12 noPad padBottom">
-		    	<h3>{{hoveredConcept.name}}</h3>
+		    	<h2>{{hoveredConcept.name}}</h2>
                 <ul class="feature-list-glanceitems col-md-12">
                     <li ng-if="hoveredConcept.level < 1">
                         <h3 class="ng-binding">{{hoveredConcept.concepts}}</h3>

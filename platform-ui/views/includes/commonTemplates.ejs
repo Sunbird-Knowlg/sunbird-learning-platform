@@ -121,16 +121,18 @@
 <div id="{{cat.id}}" class="col-md-12 noPad" ng-repeat="cat in categories">
     <form name="{{cat.id}}Form">
 		<div class="panel panel-default">
-			<div class="il-sc-header" role="tab" data-toggle="collapse" data-target="#collapseDiv{{cat.id}}">
-                <h2 style="padding-left: 20px">{{cat.label}}</h2>
+            <div class="col-md-12">
+    			<div class="il-sc-header" role="tab">
+                    <h2 style="padding-left: 20px">{{cat.label}}</h2>
+                </div>
+                <div class="pull-right marginTop20">
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment()"></i></a>
+                    <a href="#" ng-if="cat.id=='versions'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addVersion()"></i></a>
+                </div>
             </div>
-            <div class="pull-right marginTop20">
-                <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
-                <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
-                <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment();cat.editMode = true"></i></a>
-                <a href="#" ng-if="cat.id=='versions'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addVersion();cat.editMode = true"></i></a>
-            </div>
-			<div class="panel-collapse collapse" ng-class="{ in : cat.id == 'general' || cat.editMode}" role="tabpanel" ng-switch on="cat.id" id="collapseDiv{{cat.id}}">
+			<div class="panel-collapse collapse" ng-class="{ in : cat.id == 'general'}" role="tabpanel" ng-switch on="cat.id" id="collapseDiv{{cat.id}}">
 				<div class="panel-body" ng-switch-when="tags">
 					<div class="col-md-12">
 						<span class="label label-default tag" ng-repeat="tag in selectedConcept.tags">
@@ -271,6 +273,7 @@
                     </div>
 			  	</div>
 			</div>
+            <a data-placement="bottom" title="" class="collapse-Note-link" ng-class="{collapsed : cat.id != 'general'}" data-toggle="collapse" data-target="#collapseDiv{{cat.id}}"><i class="il-collapse"></i></a>
 		</div>
 	</form>
 </div>
