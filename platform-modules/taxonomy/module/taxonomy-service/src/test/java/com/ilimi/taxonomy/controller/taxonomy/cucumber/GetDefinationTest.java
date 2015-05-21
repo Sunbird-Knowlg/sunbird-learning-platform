@@ -24,7 +24,6 @@ import cucumber.api.java.en.When;
 import cucumber.api.junit.Cucumber;
 
 @WebAppConfiguration
-@RunWith(Cucumber.class)
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class GetDefinationTest extends BaseCucumberTest{
 	
