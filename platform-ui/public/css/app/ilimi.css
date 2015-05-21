@@ -37,6 +37,10 @@
     margin-top: 20px
 }
 
+.marginRight5 {
+    margin-right: 5px;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -2078,4 +2082,17 @@ input.validation-error {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.title-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rt-sec-count {
+    font-size: 15px;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 2px;
 }

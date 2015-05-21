@@ -118,12 +118,12 @@
 </script>
 
 <script type="text/ng-template" id="metadata_categories_template.html">
-<div id="{{cat.id}}" class="col-md-12 noPad" ng-repeat="cat in categories">
+<div id="{{cat.id}}" class="col-md-12 noPad" ng-repeat="cat in categories track by $index">
     <form name="{{cat.id}}Form">
 		<div class="panel panel-default">
             <div class="col-md-12">
     			<div class="il-sc-header" role="tab">
-                    <h2 style="padding-left: 20px">{{cat.label}}</h2>
+                    <h2>{{cat.label}}</h2>
                 </div>
                 <div class="pull-right marginTop20">
                     <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true;openSection('collapseDiv'+cat.id);"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
@@ -218,6 +218,11 @@
                     	</table>
                     </div>
 				</div>
+                <div class="panel-body" ng-switch-when="newRelations">
+                    <div class="col-md-12">
+                        {{selectedConcept.relations[cat.dataKey].length}}
+                    </div>
+                </div>
 			  	<div class="panel-body form-group" ng-switch-default>
 			  		<div class="col-md-6 form-group {{(cat.editMode && prop.required) ? 'required' : ''}}" ng-repeat="prop in selectedTaxonomy.definitions[cat.id]" ng-if="prop.displayProperty != 'Hidden'">
                         <label class="control-label">{{prop.title}}</label>

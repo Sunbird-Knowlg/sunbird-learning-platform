@@ -56,8 +56,9 @@ exports.validateMWResponse = function(response, cb) {
 }
 
 exports.getRelatedObjects = function(object, objectType) {
-	var inRelObjects = _.map(_.where(object.inRelations, {startNodeObjectType: objectType}), function(obj) {
-		return { id: obj.startNodeId, name: obj.startNodeName};
+	
+	var	inRelObjects = _.map(_.reject(_.where(object.inRelations, {startNodeObjectType: objectType}), function(r) {return r.relationType == "isParentOf";}), function(obj) {
+			return { id: obj.startNodeId, name: obj.startNodeName};
 	});
 	var outRelObjects = _.map(_.where(object.outRelations, {endNodeObjectType: objectType}), function(obj) {
 		return { id: obj.endNodeId, name: obj.endNodeName};
@@ -65,17 +66,12 @@ exports.getRelatedObjects = function(object, objectType) {
 	return _.union(inRelObjects, outRelObjects);
 }
 
-exports.getRelations = function(object) {
-	var relationNames = _.pluck(_.union(object.inRelations, object.outRelations), "relationType");
-	var relations = {};
-	_.each(relationNames, function(name) {
-		var inRelObjects = _.map(_.where(object.inRelations, {"relationType": name}), function(inRel) {
-			return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType};
-		});
-		var outRelObjects = _.map(_.where(object.outRelations, {"relationType": name}), function(outRel) {
-			return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType};
-		});
-		relations[name] = _.union(inRelObjects, outRelObjects);
+exports.getParent = function(object) {
+	var parentRelObject = _.find(object.inRelations, function(relation) {
+		return relation.relationType == "isParentOf";
 	});
-	return relations;
+	if(parentRelObject) 
+		return {id: parentRelObject.startNodeId, name: parentRelObject.startNodeName};
+	else
+		return null;
 }

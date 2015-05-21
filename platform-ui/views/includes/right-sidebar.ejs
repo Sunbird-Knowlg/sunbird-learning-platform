@@ -1,14 +1,14 @@
 <div class="sidebarContainerz">
 	<div class="RightsideContainer scrollstyle">
-		<div class="il-rt-container recentContent marginBottom20">
+		<div class="il-rt-container recentContent" ng-class="{marginBottom20 : selectedConcept.parent, hrMarginBottom5: !selectedConcept.parent}">
 			<div class="il-rt-header pad0">
-				<h3>Learning Maps</h3>
+				<h3 class="title-truncate">{{selectedConcept.metadata.name}}</h3>
 			</div>
 			<div class="il-rt-notn">
-				<ul>
-					<li ng-repeat="taxonomy in allTaxonomies">
-						<span ng-if="selectedTaxonomyId == taxonomy.id">{{taxonomy.name}}</span>
-						<a href="javascript:void(0)" ng-if="selectedTaxonomyId != taxonomy.id" ng-click="selectTaxonomy(taxonomy.id)">{{taxonomy.name}}</a>
+				<ul ng-if="selectedConcept.parent">
+					<li>
+						<span class="pull-left">in&nbsp;</span>
+						<a class="pull-left title-truncate" href="javascript:void(0)" ng-click="selectSunburstConcept(selectedConcept.parent.id)">{{selectedConcept.parent.name | limitTo: 30}}{{selectedConcept.parent.name.length > 30 ? '...' : ''}}</a>
 					</li>
 				</ul>
 			</div>
@@ -16,28 +16,12 @@
 
 		<div class="il-rt-container recentContent marginBottom20">
 			<div class="il-sc-header il-dd-header pad0">
-				<h3>Tags</h3>
-			</div>
-			<div class="il-rt-notn">
-				<ul>
-					<li ng-if="selectedConcept.tags.length == 0">
-						<span>tags not found</span>
-					</li>	
-					<li ng-repeat="tag in selectedConcept.tags">
-						<a href="javascript:void(0)">{{tag}}</a>
-					</li>
-				</ul>
-			</div>
-		</div>
-
-		<div class="il-rt-container recentContent marginBottom20">
-			<div class="il-sc-header il-dd-header pad0">
-				<h3>Concepts</h3>
+				<h3>Related Concepts<span class="pull-right badge greenBadge marginRight5 rt-sec-count">{{selectedConcept.relatedConcepts.length}}</span></h3>
 			</div>
 			<div class="bs-docs-sidebar">
 				<ul ng-if="selectedConcept.relatedConcepts.length == 0">
 					<li>
-						<span style="">concepts not found</span>
+						<span style="">Concepts not found</span>
 					</li>
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedConcepts.length > 0">
@@ -53,12 +37,12 @@
 
 		<div class="il-rt-container recentContent marginBottom20">
 			<div class="il-sc-header il-dd-header pad0">
-				<h3>Games</h3>
+				<h3>Related Games <span class="pull-right badge greenBadge marginRight5 rt-sec-count">{{selectedConcept.relatedGames.length}}</span></h3>
 			</div>
 			<div class="bs-docs-sidebar">
 				<ul ng-if="selectedConcept.relatedGames.length == 0">
 					<li>
-						<span>games not found</span>
+						<span>Games not found</span>
 					</li>
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedGames.length > 0">
@@ -72,33 +56,18 @@
 			</div>
 		</div>
 
-		<!-- <div class="il-rt-container recentContent marginBottom20 rightBarConceptMenu hide" bs-scrollspy-list>
+		<div class="il-rt-container marginBottom20">
 			<div class="il-sc-header il-dd-header pad0">
-				<h3>Concept Details</h3>
+				<h3>Tags</h3>
 			</div>
-			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
-				<nav class="il-rt-notn">
-					<ul class="nav">
-						<li data-target="#{{cat.id}}" bs-scrollspy ng-repeat="cat in categories">
-							<a href="javascript:void(0)" ng-click="scrolltoHref(cat.id)">{{cat.label}}</a>
-						</li>
-					</ul>
-				</nav>
+			<div class="il-rt-notn">
+				<ul class="recentContent">
+					<li ng-if="selectedConcept.tags.length == 0">
+						<span>Tags not found</span>
+					</li>
+				</ul>
+				<span class="badge greenBadge marginRight5" ng-repeat="tag in selectedConcept.tags">{{tag}}</span>
 			</div>
 		</div>
-		 <div class="il-rt-container recentContent marginBottom20 rightBarGameMenu hide" bs-scrollspy-list>
-			<div class="il-sc-header il-dd-header pad0">
-				<h3>Game Details</h3>
-			</div>
-			<div id="sidebarScrollSpy" class="bs-docs-sidebar">
-				<nav class="il-rt-notn">
-					<ul class="nav">
-						<li data-target="#{{cat.id}}" bs-scrollspy ng-repeat="cat in categories">
-							<a href="javascript:void(0)" ng-click="scrolltoHref(cat.id)">{{cat.label}}</a>
-						</li>
-					</ul>
-				</nav>
-			</div>
-		</div> -->
 	</div>
 </div>

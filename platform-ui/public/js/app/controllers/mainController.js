@@ -244,9 +244,23 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     ]
 
     $scope.resetCategories = function() {
+        var newCategories = [];
         _.each($scope.categories, function(cat) {
             cat.editMode = false;
+            // if(cat.id == 'relations') {
+            //     _.each(_.keys($scope.selectedConcept.relations), function(relation) {
+            //         var newCat = _.clone(cat);
+            //         newCat.id = 'newRelations';
+            //         newCat.dataKey = relation;
+            //         newCat.label = relation;
+            //         if(_.contains(newCategories, newCat) == false)
+            //             newCategories.push(newCat);
+            //     });
+            // } else {
+            //     newCategories.push(cat);
+            // }
         });
+        // $scope.categories = newCategories;
         $('form').removeClass('ng-dirty').addClass('ng-pristine');
     }
 
@@ -440,6 +454,24 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $('#saveChangesModal').modal('show');
     }
 
+    $scope.resetRelations = function() {
+        var relations = {};
+        _.each($scope.selectedTaxonomy.definitions.inRelations, function(defRel) {
+            var inRelObjects = _.map(_.where($scope.selectedConcept.inRelations, {"relationType": defRel.relationName}), function(inRel) {
+                return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType};
+            });
+            relations[defRel.title] = inRelObjects;
+        });
+
+        _.each($scope.selectedTaxonomy.definitions.outRelations, function(defRel) {
+            var outRelObjects = _.map(_.where($scope.selectedConcept.outRelations, {"relationType": defRel.relationName}), function(outRel) {
+                return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType};
+            });
+            relations[defRel.title] = outRelObjects;
+        });
+        $scope.selectedConcept.relations = relations;
+    }
+
     $scope.addComment = function() {
         $scope.showNewComment = true;
         $scope.currentComment = undefined;
@@ -559,6 +591,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
             $scope.$parent.selectedTaxonomy.definitions = definitions;
             $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.relations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
             $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
         }).catch(function(err) {
             console.log('Error fetching taxonomy definitions - ', err);
@@ -590,6 +624,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.$parent.selectedConcept.newMetadata = [];
         $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
     }
@@ -907,6 +942,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
             $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
             $scope.$parent.selectedTaxonomy.definitions = definitions;
             $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
             $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
             $scope.getGame($scope.$parent.selectedTaxonomyId);
         }).catch(function(err) {
@@ -934,6 +971,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         $scope.$parent.selectedConcept.newMetadata = [];
         $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
         setTimeout(function() {

@@ -161,6 +161,7 @@ exports.getGame = function(cb, taxonomyId, gameId) {
 			var game = results.game.result.learning_object;
 			game.relatedConcepts = util.getRelatedObjects(game, 'Concept');
 			game.relatedGames = util.getRelatedObjects(game, 'Game');
+			game.parent = util.getParent(game);
 			game.auditHistory = results.auditHistory.result.audit_records;
 			game.comments = results.comments.result.comments;
 			cb(null, game);
