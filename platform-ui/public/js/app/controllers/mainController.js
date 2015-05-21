@@ -498,6 +498,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         }
     }
 
+    $scope.selectSunburstConcept = function(cid) {
+        selectSunburstConcept(cid);
+    }
+
     $scope.viewGame = function(gameId) {
         $state.go('gamePage', {id: gameId});
     }

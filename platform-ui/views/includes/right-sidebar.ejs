@@ -43,7 +43,7 @@
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedConcepts.length > 0">
 					<ul class="nav">
 						<li ng-repeat="concept in selectedConcept.relatedConcepts" ng-if="$index < selectedConcept.relatedConceptsLimit">
-							<a href="javascript:void(0)" ng-click="selectConcept({conceptId: concept.id, name: concept.name})">{{concept.name | limitTo: 30}}{{concept.name.length > 30 ? '...' : ''}}</a>
+							<a href="javascript:void(0)" ng-click="selectSunburstConcept(concept.id)">{{concept.name | limitTo: 30}}{{concept.name.length > 30 ? '...' : ''}}</a>
 						</li>
 					</ul>
 					<a class="pull-right" style="font-size:12px; min-width: 90px; margin-bottom:10px;" ng-click="selectedConcept.relatedConceptsLimit = selectedConcept.relatedConcepts.length" ng-hide="selectedConcept.relatedConceptsLimit >= selectedConcept.relatedConcepts.length">more</a>
