@@ -2096,3 +2096,7 @@ input.validation-error {
     margin-left: 5px;
     margin-top: 2px;
 }
+
+.text-capitalize {
+     text-transform: capitalize;
+}

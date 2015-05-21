@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-center">
         <div class="modal-content" style="width: 650px;">
             <div class="modal-header">
-            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
             	<h3>Confirm Changes</h3>
             </div>
             <div class="modal-body">
@@ -27,7 +27,7 @@
         </a>
         <div class="reply-body">
             <div class="user">
-                <div class="il-Link-clr ac-contents display-inline">{{reply.lastModifiedBy}}</div> 
+                <div class="il-Link-clr ac-contents display-inline text-capitalize">{{reply.lastModifiedBy}}</div> 
                 <div>
                     <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{reply.lastModifiedOn/1000}}"></span>
                 </div> 
@@ -39,8 +39,8 @@
                 <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{reply.id}}"></textarea>
                 <div class="save_text" style="border: 0px;">
                     <div class="save_btn">
-                        <button class="btn btn-default btn-xs mar-rt-10" ng-click="reply.showForm=false;">cancel</button>
-                        <button class="btn btn-primary btn-xs" ng-click="replyComment(reply)">comment</button>
+                        <button class="btn btn-default btn-xs mar-rt-10" ng-click="reply.showForm=false;">Cancel</button>
+                        <button class="btn btn-primary btn-xs" ng-click="replyComment(reply)">Comment</button>
                     </div>
                 </div>
             </div>
@@ -52,7 +52,7 @@
         </a>
         <div class="reply-body">
             <div class="user">
-                <div class="il-Link-clr ac-contents display-inline">{{childReply.lastModifiedBy}}</div> 
+                <div class="il-Link-clr ac-contents display-inline text-capitalize">{{childReply.lastModifiedBy}}</div> 
                 <div>
                     <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{childReply.lastModifiedOn/1000}}"></span>
                 </div> 
@@ -68,8 +68,8 @@
         <div class="modal-dialog modal-dialog-center">
             <div class="modal-content" style="width: 650px;">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 class="noMargin">Comment</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 class="noMargin">Comments</h3>
                 </div>
                 <div class="modal-body">
 
@@ -80,7 +80,7 @@
                             </a>
                             <div class="reply-body">
                                 <div class="user">
-                                    <div class="il-Link-clr ac-contents display-inline">{{currentComment.lastModifiedBy}}</div> 
+                                    <div class="il-Link-clr ac-contents display-inline text-capitalize">{{currentComment.lastModifiedBy}}</div> 
                                     <div>
                                         <span class="timeDur moveTop8" style="">commented&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{currentComment.lastModifiedOn/1000}}"></span>
                                     </div> 
@@ -92,8 +92,8 @@
                                     <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{currentComment.id}}"></textarea>
                                     <div class="save_text" style="border: 0px;">
                                         <div class="save_btn">
-                                            <button class="btn btn-default btn-xs mar-rt-10" ng-click="currentComment.showForm=false;">cancel</button>
-                                            <button class="btn btn-primary btn-xs" ng-click="replyComment(currentComment)">comment</button>
+                                            <button class="btn btn-default btn-xs mar-rt-10" ng-click="currentComment.showForm=false;">Cancel</button>
+                                            <button class="btn btn-primary btn-xs" ng-click="replyComment(currentComment)">Comment</button>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +107,7 @@
                         <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="newCommentTextArea"></textarea>
                         <div class="save_text" style="border: 0px;">
                             <div class="save_btn">
-                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">comment</button>
+                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">Comment</button>
                             </div>
                         </div>
                     </div>
@@ -177,7 +177,7 @@
                             </a>
                             <div class="reply-body">
                                 <div class="user">
-                                    <div class="il-Link-clr ac-contents display-inline">{{comment.lastModifiedBy}}</div> 
+                                    <div class="il-Link-clr ac-contents display-inline text-capitalize">{{comment.lastModifiedBy}}</div> 
                                     <div>
                                         <span class="timeDur moveTop10" data-livestamp="{{comment.lastModifiedOn/1000}}"></span>
                                     </div> 
@@ -218,11 +218,6 @@
                     	</table>
                     </div>
 				</div>
-                <div class="panel-body" ng-switch-when="newRelations">
-                    <div class="col-md-12">
-                        {{selectedConcept.relations[cat.dataKey].length}}
-                    </div>
-                </div>
 			  	<div class="panel-body form-group" ng-switch-default>
 			  		<div class="col-md-6 form-group {{(cat.editMode && prop.required) ? 'required' : ''}}" ng-repeat="prop in selectedTaxonomy.definitions[cat.id]" ng-if="prop.displayProperty != 'Hidden'">
                         <label class="control-label">{{prop.title}}</label>
@@ -246,7 +241,7 @@
 			            </div>
                     	<button class="btn btn-primary btn-sm" ng-show="!cat.addNew" ng-click="addNew(cat);">Add New</button>
                     </div>
-                    <div class="col-md-12" ng-show="cat.id == 'audit'" ng-init="cat.auditHistory = false">
+                    <!-- <div class="col-md-12" ng-show="cat.id == 'audit'" ng-init="cat.auditHistory = false">
                     	<a href="javascript:void(0)" ng-click="cat.auditHistory = true" ng-if="!cat.auditHistory" class="btn-link">
                     		Show Audit History
                     	</a>
@@ -275,7 +270,7 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 			  	</div>
 			</div>
             <a data-placement="bottom" title="" class="collapse-Note-link" ng-class="{collapsed : cat.id != 'general'}" data-toggle="collapse" data-target="#collapseDiv{{cat.id}}"><i class="il-collapse"></i></a>
@@ -290,6 +285,7 @@
 		</ul>
 	</div>
 	<button class="btn btn-primary pull-right" ng-click="confirmChanges()">Save Changes</button>
+    <a ng-click="showComment(selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].comment)" class="pull-right marginRight5" style="margin-top: 10px; color: #c3c3c3;" ng-if="selectedConcept.auditHistory.length > 0"><span>last updated </span><span data-livestamp="{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedOn/1000}}"></span><span> by </span><span class="text-capitalize">{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedBy}}</span></a>
 </div>
 </script>
 
