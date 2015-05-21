@@ -154,9 +154,11 @@ public class JsonGraphReader implements GraphReader {
                     if (tagDefinition != null)
                         systemTags.add(tagDefinition);
                 }
-
+                
                 DefinitionNode definitionNode = new DefinitionNode(manager, graphId, objectType, indexedMetadata, nonIndexedMetadata,
                         inRelations, outRelations, systemTags);
+                Map<String, Object> metadata = (Map<String, Object>) inputNode.get("metadata");
+                definitionNode.setMetadata(metadata);
                 definitionNodes.add(definitionNode.toNode());
             }
         }

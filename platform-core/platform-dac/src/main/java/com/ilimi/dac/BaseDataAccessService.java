@@ -64,7 +64,7 @@ public abstract class BaseDataAccessService {
     private ResponseParams getSucessStatus() {
         ResponseParams params = new ResponseParams();
         params.setErr("0");
-        params.setStatus(StatusType.SUCCESS.name());
+        params.setStatus(StatusType.successful.name());
         params.setErrmsg("Operation successful");
         return params;
     }

@@ -487,15 +487,8 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
                 sc.countQuery(false);
                 List<String> fields = sc.getFields();
                 boolean returnNode = true;
-                if (null != fields && !fields.isEmpty()) {
+                if (null != fields && !fields.isEmpty())
                     returnNode = false;
-                    if (!fields.contains(SystemProperties.IL_SYS_NODE_TYPE.name()))
-                        sc.returnField(SystemProperties.IL_SYS_NODE_TYPE.name());
-                    if (!fields.contains(SystemProperties.IL_UNIQUE_ID.name()))
-                        sc.returnField(SystemProperties.IL_UNIQUE_ID.name());
-                    if (!fields.contains(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
-                        sc.returnField(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-                }
                 Map<String, Object> params = sc.getParams();
                 String query = sc.getQuery();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);

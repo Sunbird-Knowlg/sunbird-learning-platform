@@ -5,27 +5,32 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
 
     private static final String API_ID_PREFIX = "ekstep.lp";
     private static final String API_VERSION = "1.0";
-    
+
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
@@ -37,12 +42,14 @@ public abstract class BaseController {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setErrmsg(e.getMessage());
-        resStatus.setStatus(StatusType.ERROR.name());
+        resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
             resStatus.setErr(me.getErrCode());
+            response.setResponseCode(me.getResponseCode());
         } else {
             resStatus.setErr(TaxonomyErrorCodes.SYSTEM_ERROR.name());
+            response.setResponseCode(ResponseCode.SERVER_ERROR);
         }
         response.setParams(resStatus);
         return response;
@@ -75,7 +82,8 @@ public abstract class BaseController {
         return status;
     }
 
-    protected void writeToResponse(ResponseParams params, String content, String contentType, HttpServletResponse response) throws Exception {
+    protected void writeToResponse(ResponseParams params, String content, String contentType, HttpServletResponse response)
+            throws Exception {
         response.setContentType(contentType);
         OutputStream resOs = response.getOutputStream();
         OutputStream buffOs = new BufferedOutputStream(resOs);
@@ -98,7 +106,40 @@ public abstract class BaseController {
             throw new RuntimeException(ex);
         }
     }
-    
+
+    @SuppressWarnings("unchecked")
+    protected Request getRequest(Map<String, Object> requestMap) {
+        Request request = new Request();
+        if (null != requestMap && !requestMap.isEmpty()) {
+            String id = (String) requestMap.get("id");
+            String ver = (String) requestMap.get("ver");
+            String ts = (String) requestMap.get("ts");
+            request.setId(id);
+            request.setVer(ver);
+            request.setTs(ts);
+            ObjectMapper mapper = new ObjectMapper();
+            Object reqParams = requestMap.get("params");
+            if (null != reqParams) {
+                try {
+                    RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
+                    request.setParams(params);
+                } catch (Exception e) {
+                }
+            }
+            Object requestObj = requestMap.get("request");
+            if (null != requestObj) {
+                try {
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+                    if (null != map && !map.isEmpty())
+                        request.setRequest(map);
+                } catch (Exception e) {
+                }
+            }
+        }
+        return request;
+    }
+
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
             response.setId(API_ID_PREFIX + "." + apiId);
@@ -110,19 +151,19 @@ public abstract class BaseController {
             if (StringUtils.isNotBlank(msgId))
                 params.setMsgid(msgId);
             params.setResmsgid(getUUID());
-            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.SUCCESS.name(), params.getStatus())) {
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
                 params.setErr(null);
                 params.setErrmsg(null);
             }
             response.setParams(params);
         }
     }
-    
+
     private String getResponseTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
         return sdf.format(new Date());
     }
-    
+
     private String getUUID() {
         UUID uid = UUID.randomUUID();
         return uid.toString();

@@ -36,7 +36,8 @@
         "string": "^2.2.0",
         "underscore": "*",
         "validator": "^3.22.1",
-        "xml2js": "^0.4.8"
+        "xml2js": "^0.4.8",
+        "faker": "*"
     },
     "devDependencies": {
         "grunt": "^0.4.4",

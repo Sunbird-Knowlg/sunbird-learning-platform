@@ -31,7 +31,7 @@ import com.ilimi.taxonomy.mgr.ILearningObjectManager;
 @Component
 public class LearningObjectManagerImpl extends BaseManager implements ILearningObjectManager {
 
-    private static final String OBJECT_TYPE = "Game";
+    protected static final String OBJECT_TYPE = "Game";
 
     private static Logger LOGGER = LogManager.getLogger(ILearningObjectManager.class.getName());
 

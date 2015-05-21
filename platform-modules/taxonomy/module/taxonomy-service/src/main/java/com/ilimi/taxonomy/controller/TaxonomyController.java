@@ -122,24 +122,19 @@ public class TaxonomyController extends BaseController {
         }
     }
 
-    @SuppressWarnings("unchecked")
     private Request getRequestObject(Map<String, Object> requestMap) {
-        Request request = new Request();
-        if (null != requestMap && !requestMap.isEmpty()) {
-            Object requestObj = requestMap.get("request");
-            if (null != requestObj) {
-                try {
-                    ObjectMapper mapper = new ObjectMapper();
-                    String strRequest = mapper.writeValueAsString(requestObj);
-                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-                    Object objConcept = map.get(TaxonomyAPIParams.search_criteria.name());
-                    if (null != objConcept) {
-                        SearchDTO searchDTO = (SearchDTO) mapper.convertValue(objConcept, SearchDTO.class);
-                        request.put(TaxonomyAPIParams.search_criteria.name(), searchDTO);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        ObjectMapper mapper = new ObjectMapper();
+        if (null != map && !map.isEmpty()) {
+            try {
+                Object objConcept = map.get(TaxonomyAPIParams.search_criteria.name());
+                if (null != objConcept) {
+                    SearchDTO searchDTO = (SearchDTO) mapper.convertValue(objConcept, SearchDTO.class);
+                    request.put(TaxonomyAPIParams.search_criteria.name(), searchDTO);
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
         return request;

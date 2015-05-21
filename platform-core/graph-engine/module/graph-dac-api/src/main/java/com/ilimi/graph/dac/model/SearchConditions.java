@@ -70,7 +70,7 @@ public class SearchConditions {
         return new SimpleCriterion(propertyName, value, OP_LESS_OR_EQUAL);
     }
 
-    public static Criterion in(String propertyName, List<Object> values) {
+    public static Criterion in(String propertyName, List<?> values) {
         return new SimpleCriterion(propertyName, values, OP_IN);
     }
 }

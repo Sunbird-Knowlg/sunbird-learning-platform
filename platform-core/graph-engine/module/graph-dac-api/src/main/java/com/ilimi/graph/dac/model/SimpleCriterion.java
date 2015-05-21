@@ -34,25 +34,39 @@ class SimpleCriterion implements Criterion, Serializable {
             params.put("" + pIndex, value);
             pIndex += 1;
         } else if (operator == SearchConditions.OP_LIKE) {
-            sb.append(" n.").append(property).append(" =~ '*").append(value).append("*' ");
+            sb.append(" n.").append(property).append(" =~ {").append(pIndex).append("} ");
+            params.put("" + pIndex, "*" + value + "*");
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_STARTS_WITH) {
-            sb.append(" n.").append(property).append(" =~ '").append(value).append("*' ");
+            sb.append(" n.").append(property).append(" =~ {").append(pIndex).append("} ");
+            params.put("" + pIndex, value + "*");
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_ENDS_WITH) {
-            sb.append(" n.").append(property).append(" =~ '*").append(value).append("' ");
+            sb.append(" n.").append(property).append(" =~ {").append(pIndex).append("} ");
+            params.put("" + pIndex, "*" + value);
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_GREATER_THAN) {
-            sb.append(" n.").append(property).append(" > ").append(value).append(" ");
+            sb.append(" n.").append(property).append(" > {").append(pIndex).append("} ");
+            params.put("" + pIndex, value);
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_GREATER_OR_EQUAL) {
-            sb.append(" n.").append(property).append(" >= ").append(value).append(" ");
+            sb.append(" n.").append(property).append(" >= {").append(pIndex).append("} ");
+            params.put("" + pIndex, value);
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_LESS_THAN) {
-            sb.append(" n.").append(property).append(" < ").append(value).append(" ");
+            sb.append(" n.").append(property).append(" < {").append(pIndex).append("} ");
+            params.put("" + pIndex, value);
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_LESS_OR_EQUAL) {
-            sb.append(" n.").append(property).append(" <= ").append(value).append(" ");
+            sb.append(" n.").append(property).append(" <= {").append(pIndex).append("} ");
+            params.put("" + pIndex, value);
+            pIndex += 1;
         } else if (operator == SearchConditions.OP_NOT_EQUAL) {
             sb.append(" n.").append(property).append(" != {").append(pIndex).append("} ");
             params.put("" + pIndex, value);
             pIndex += 1;
         } else if (operator == SearchConditions.OP_IN) {
-            sb.append(" n.").append(property).append(" in {").append(pIndex).append("} ");
+            sb.append(" ANY (x in {").append(pIndex).append("} WHERE x in n.").append(property).append(") ");
             params.put("" + pIndex, value);
             pIndex += 1;
         }

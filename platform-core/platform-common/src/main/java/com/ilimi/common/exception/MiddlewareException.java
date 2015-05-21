@@ -69,6 +69,10 @@ public class MiddlewareException extends RuntimeException {
         return errCode;
     }
     
+    public ResponseCode getResponseCode() {
+        return ResponseCode.SERVER_ERROR;
+    }
+    
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

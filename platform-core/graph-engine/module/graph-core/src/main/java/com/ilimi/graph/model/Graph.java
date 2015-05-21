@@ -331,7 +331,7 @@ public class Graph extends AbstractDomainObject {
                                             manager.ERROR(throwable, getParent());
                                         } else {
                                             ResponseParams params = (ResponseParams) actorResponse.getParams();
-                                            if (StatusType.ERROR.name().equals(params.getStatus())) {
+                                            if (StatusType.failed.name().equals(params.getStatus())) {
                                                 getParent().tell(actorResponse, manager.getSelf());
                                             } else {
                                                 final Map<String, List<String>> importMsgMap = (Map<String, List<String>>) actorResponse
@@ -765,7 +765,7 @@ public class Graph extends AbstractDomainObject {
                     Response response = new Response();
                     ResponseParams params = new ResponseParams();
                     params.setErr("0");
-                    params.setStatus(StatusType.SUCCESS.name());
+                    params.setStatus(StatusType.successful.name());
                     params.setErrmsg("Operation successful");
                     response.setParams(params);
                     response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
