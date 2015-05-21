@@ -65,7 +65,7 @@
 		    	<div id="treeLayout" class="treeLayout"></div>
 		    </div>
 		    <div class="col-md-12 noPad padBottom">
-		    	<h2>{{hoveredConcept.name}}</h2>
+		    	<h2 id="titleHeaderId">{{hoveredConcept.name}}</h2>
                 <ul class="feature-list-glanceitems col-md-12">
                     <li ng-if="hoveredConcept.level < 1">
                         <h3 class="ng-binding">{{hoveredConcept.concepts}}</h3>
@@ -94,3 +94,12 @@
 <div ng-include="'save_confirmation_template.html'"></div>
 <div ng-include="'comments_template.html'"></div>
 
+<script type="text/javascript">
+	$('.mid-container-full').on("scroll", function(e) {
+		if (this.scrollTop > 550) {
+			$('#titleHeaderId').addClass('fix-title-head');
+		} else {
+			$('#titleHeaderId').removeClass('fix-title-head');
+		}
+	});
+</script>

@@ -499,7 +499,16 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     }
 
     $scope.selectSunburstConcept = function(cid) {
-        selectSunburstConcept(cid);
+        $state.go('learningMap', {id: $scope.selectedTaxonomyId});
+        $timeout(function(){
+            var delay = 100;
+            if(!$rootScope.sunburstLoaded) {
+                delay = 2000;
+            }
+            $timeout(function(){
+                selectSunburstConcept(cid);
+            }, delay);
+        }, 100);
     }
 
     $scope.viewGame = function(gameId) {

@@ -2068,3 +2068,14 @@ input.validation-error {
 }
 /** End Game Page Styles **/
 
+.fix-title-head {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    text-align: center;
+    padding-right: 500px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
