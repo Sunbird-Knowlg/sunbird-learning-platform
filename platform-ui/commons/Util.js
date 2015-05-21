@@ -64,3 +64,18 @@ exports.getRelatedObjects = function(object, objectType) {
 	});
 	return _.union(inRelObjects, outRelObjects);
 }
+
+exports.getRelations = function(object) {
+	var relationNames = _.pluck(_.union(object.inRelations, object.outRelations), "relationType");
+	var relations = {};
+	_.each(relationNames, function(name) {
+		var inRelObjects = _.map(_.where(object.inRelations, {"relationType": name}), function(inRel) {
+			return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType};
+		});
+		var outRelObjects = _.map(_.where(object.outRelations, {"relationType": name}), function(outRel) {
+			return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType};
+		});
+		relations[name] = _.union(inRelObjects, outRelObjects);
+	});
+	return relations;
+}
