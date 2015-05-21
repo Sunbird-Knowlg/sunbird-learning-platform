@@ -64,7 +64,6 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         String objectType = LearningObjectManagerImpl.OBJECT_TYPE;
         List<Request> requests = new ArrayList<Request>();
         if (StringUtils.isNotBlank(taxonomyId)) {
-            taxonomyId = taxonomyId.toUpperCase();
             definition = getDefinition(taxonomyId);
             Request req = getGamesListRequest(request, taxonomyId, objectType, definition);
             requests.add(req);

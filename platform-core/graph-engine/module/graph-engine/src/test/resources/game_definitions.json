@@ -95,6 +95,19 @@
           "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
         },
         {
+          "propertyName": "grayScaleAppIcon",
+          "title": "GrayScale App Icon",
+          "description": "",
+          "category": "general",
+          "dataType": "URL",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
+        },
+        {
           "propertyName": "appIconLabel",
           "title": "App Icon Label",
           "description": "",
@@ -681,7 +694,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "appIcon", "url"],
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "url"],
       	"status": ["Live"]
       }
     },

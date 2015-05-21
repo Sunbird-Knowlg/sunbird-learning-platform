@@ -11,7 +11,6 @@ import java.util.UUID;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,9 +29,7 @@ import com.ilimi.common.dto.Response;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.junit.Cucumber;
 
-@RunWith(Cucumber.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
 public class GameServiceTest {
