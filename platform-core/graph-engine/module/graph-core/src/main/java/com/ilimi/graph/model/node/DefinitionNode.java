@@ -73,6 +73,8 @@ public class DefinitionNode extends AbstractNode {
     private void fromNode(Node defNode) {
         Map<String, Object> metadata = defNode.getMetadata();
         if (null != metadata && !metadata.isEmpty()) {
+            Map<String, Object> otherMetadata = new HashMap<String, Object>();
+            otherMetadata.putAll(metadata);
             String indexableMetadata = (String) metadata.get(INDEXABLE_METADATA_KEY);
             if (StringUtils.isNotBlank(indexableMetadata)) {
                 try {
@@ -81,7 +83,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.indexedMetadata.add((MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class));
                     }
-                    metadata.remove(INDEXABLE_METADATA_KEY);
+                    otherMetadata.remove(INDEXABLE_METADATA_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -93,7 +95,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.nonIndexedMetadata.add((MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class));
                     }
-                    metadata.remove(NON_INDEXABLE_METADATA_KEY);
+                    otherMetadata.remove(NON_INDEXABLE_METADATA_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -105,7 +107,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.inRelations.add((RelationDefinition) mapper.convertValue(metaMap, RelationDefinition.class));
                     }
-                    metadata.remove(IN_RELATIONS_KEY);
+                    otherMetadata.remove(IN_RELATIONS_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -117,7 +119,7 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.outRelations.add((RelationDefinition) mapper.convertValue(metaMap, RelationDefinition.class));
                     }
-                    metadata.remove(OUT_RELATIONS_KEY);
+                    otherMetadata.remove(OUT_RELATIONS_KEY);
                 } catch (Exception e) {
                 }
             }
@@ -129,15 +131,15 @@ public class DefinitionNode extends AbstractNode {
                     for (Map<String, Object> metaMap : listMap) {
                         this.systemTags.add((TagDefinition) mapper.convertValue(metaMap, TagDefinition.class));
                     }
-                    metadata.remove(SYSTEM_TAGS_KEY);
+                    otherMetadata.remove(SYSTEM_TAGS_KEY);
                 } catch (Exception e) {
                 }
             }
             try {
-                metadata.remove(REQUIRED_PROPERTIES);
+                otherMetadata.remove(REQUIRED_PROPERTIES);
             } catch (Exception e) {
             }
-            setMetadata(metadata);
+            setMetadata(otherMetadata);
         }
     }
 
