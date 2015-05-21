@@ -126,10 +126,10 @@
                     <h2 style="padding-left: 20px">{{cat.label}}</h2>
                 </div>
                 <div class="pull-right marginTop20">
-                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
-                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
-                    <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment()"></i></a>
-                    <a href="#" ng-if="cat.id=='versions'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addVersion()"></i></a>
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true;openSection('collapseDiv'+cat.id);"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false;openSection('collapseDiv'+cat.id);"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment();openSection('collapseDiv'+cat.id);"></i></a>
+                    <a href="#" ng-if="cat.id=='versions'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addVersion();openSection('collapseDiv'+cat.id);"></i></a>
                 </div>
             </div>
 			<div class="panel-collapse collapse" ng-class="{ in : cat.id == 'general'}" role="tabpanel" ng-switch on="cat.id" id="collapseDiv{{cat.id}}">

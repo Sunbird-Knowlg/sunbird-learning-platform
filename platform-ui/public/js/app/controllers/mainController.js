@@ -228,6 +228,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         return $sce.trustAsHtml(htmlCode);
     };
 
+    $scope.openSection = function(divId) {
+        $('#'+divId).collapse('show');
+    }
+
     $scope.categories = [
         {id: 'general', label: "General", editable: true, editMode: false},
         {id: 'tags', label: "Tags", editable: true, editMode: false},
