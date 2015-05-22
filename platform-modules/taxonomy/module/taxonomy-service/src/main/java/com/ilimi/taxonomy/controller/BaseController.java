@@ -23,6 +23,7 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
 
 public abstract class BaseController {
@@ -41,12 +42,14 @@ public abstract class BaseController {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setErrmsg(e.getMessage());
-        resStatus.setStatus(StatusType.ERROR.name());
+        resStatus.setStatus(StatusType.failed.name());
         if (e instanceof MiddlewareException) {
             MiddlewareException me = (MiddlewareException) e;
             resStatus.setErr(me.getErrCode());
+            response.setResponseCode(me.getResponseCode());
         } else {
             resStatus.setErr(TaxonomyErrorCodes.SYSTEM_ERROR.name());
+            response.setResponseCode(ResponseCode.SERVER_ERROR);
         }
         response.setParams(resStatus);
         return response;
@@ -148,7 +151,7 @@ public abstract class BaseController {
             if (StringUtils.isNotBlank(msgId))
                 params.setMsgid(msgId);
             params.setResmsgid(getUUID());
-            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.SUCCESS.name(), params.getStatus())) {
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
                 params.setErr(null);
                 params.setErrmsg(null);
             }

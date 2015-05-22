@@ -12,9 +12,13 @@ app.config(function($stateProvider) {
         },
         onEnter: function() {
             $('.rightBarConceptMenu').removeClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
         },
         onExit: function() {
-            $('.rightBarConceptMenu').addClass('hide');  
+            $('.rightBarConceptMenu').addClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
         }
     }).state('gameList', {
         url: "/gameList/:id",
@@ -42,9 +46,13 @@ app.config(function($stateProvider) {
         },
         onEnter: function() {
             $('.rightBarGameMenu').removeClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
         },
         onExit: function() {
             $('.rightBarGameMenu').addClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
         }
     }).state('gameVisualization', {
         url: "/games/coverage/:tid",
@@ -68,6 +76,8 @@ app.config(function($stateProvider) {
 });
 
 app.service('PlayerService', ['$http', '$q', function($http, $q) {
+
+    this.rhsSectionObjectsLimit = 5;
 
     this.postToService = function(url, data) {
         var deferred = $q.defer();
@@ -226,6 +236,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         return $sce.trustAsHtml(htmlCode);
     };
 
+    $scope.openSection = function(divId) {
+        $('#'+divId).collapse('show');
+    }
+
     $scope.categories = [
         {id: 'general', label: "General", editable: true, editMode: false},
         {id: 'tags', label: "Tags", editable: true, editMode: false},
@@ -233,14 +247,27 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
-        {id: 'audit', label: "Audit", editable: true, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: true}
     ]
 
     $scope.resetCategories = function() {
+        var newCategories = [];
         _.each($scope.categories, function(cat) {
             cat.editMode = false;
+            // if(cat.id == 'relations') {
+            //     _.each(_.keys($scope.selectedConcept.relations), function(relation) {
+            //         var newCat = _.clone(cat);
+            //         newCat.id = 'newRelations';
+            //         newCat.dataKey = relation;
+            //         newCat.label = relation;
+            //         if(_.contains(newCategories, newCat) == false)
+            //             newCategories.push(newCat);
+            //     });
+            // } else {
+            //     newCategories.push(cat);
+            // }
         });
+        // $scope.categories = newCategories;
         $('form').removeClass('ng-dirty').addClass('ng-pristine');
     }
 
@@ -434,6 +461,25 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $('#saveChangesModal').modal('show');
     }
 
+    $scope.resetRelations = function() {
+        var relations = {};
+        _.each($scope.selectedTaxonomy.definitions.inRelations, function(defRel) {
+            var inRelObjects = _.map(_.where($scope.selectedConcept.inRelations, {"relationType": defRel.relationName}), function(inRel) {
+                return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType, objectType: inRel.startNodeObjectType};
+            });
+            relations[defRel.title] = inRelObjects;
+        });
+
+        _.each($scope.selectedTaxonomy.definitions.outRelations, function(defRel) {
+            var outRelObjects = _.map(_.where($scope.selectedConcept.outRelations, {"relationType": defRel.relationName}), function(outRel) {
+                return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType, objectType: outRel.endNodeObjectType};
+            });
+            relations[defRel.title] = _.reject(outRelObjects, function(r) { return r.objectType == "Media";});
+        });
+
+        $scope.selectedConcept.relations = relations;
+    }
+
     $scope.addComment = function() {
         $scope.showNewComment = true;
         $scope.currentComment = undefined;
@@ -495,6 +541,24 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             });
         }
     }
+
+    $scope.selectSunburstConcept = function(cid) {
+        $state.go('learningMap', {id: $scope.selectedTaxonomyId});
+        $timeout(function(){
+            var delay = 100;
+            if(!$rootScope.sunburstLoaded) {
+                delay = 2000;
+            }
+            $timeout(function(){
+                selectSunburstConcept(cid);
+            }, delay);
+        }, 100);
+    }
+
+    $scope.viewGame = function(gameId) {
+        $state.go('gamePage', {id: gameId});
+    }
+
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -518,7 +582,6 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
         {id: 'usageMetadata', label: "Usage Metadata", editable: true, editMode: false},
         {id: 'analytics', label: "Analytics", editable: false, editMode: false},
-        {id: 'audit', label: "Audit", editable: false, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: true}
     ]
 
@@ -535,6 +598,8 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
             $scope.$parent.selectedTaxonomy.definitions = definitions;
             $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.relations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
             $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
         }).catch(function(err) {
             console.log('Error fetching taxonomy definitions - ', err);
@@ -564,6 +629,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.setConceptResponse = function(data) {
         $scope.$parent.selectedConcept = data;
         $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
     }
@@ -862,7 +930,6 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         {id: 'technical', label: "Technical", editable: true, editMode: false},
         {id: 'ownership', label: "Ownership", editable: true, editMode: false},
         {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
-        {id: 'audit', label: "Audit", editable: true, editMode: false},
         {id: 'comments', label: "Comments", editable: false, editMode: false}
     ]
 
@@ -881,6 +948,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
             $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
             $scope.$parent.selectedTaxonomy.definitions = definitions;
             $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
             $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
             $scope.getGame($scope.$parent.selectedTaxonomyId);
         }).catch(function(err) {
@@ -906,6 +975,9 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
     $scope.setGameResponse = function(data) {
         $scope.$parent.selectedConcept = data;
         $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
         setTimeout(function() {

@@ -69,8 +69,34 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
+          "propertyName": "url",
+          "title": "Url",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
           "propertyName": "appIcon",
           "title": "App Icon",
+          "description": "",
+          "category": "general",
+          "dataType": "URL",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
+        },
+        {
+          "propertyName": "grayScaleAppIcon",
+          "title": "GrayScale App Icon",
           "description": "",
           "category": "general",
           "dataType": "URL",
@@ -116,7 +142,7 @@
           "range": [
             "Draft",
             "Review",
-            "Active",
+            "Live",
             "Retired",
             "Mock"
           ],
@@ -584,7 +610,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Related Games (OR) Associated Concepts (OR) Screenshots",
+          "title": "Related concepts",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -664,7 +690,13 @@
           "name": "Single-Player",
           "description": "Collaboration "
         }
-      ]
+      ],
+      "metadata": {
+      	"ttl": 24,
+      	"limit": 50,
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "url"],
+      	"status": ["Live"]
+      }
     },
     {
       "objectType": "Media",

@@ -81,7 +81,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
     }
 
     private void testImportDefinitionNodes() throws Exception {
@@ -98,7 +98,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
     }
 
@@ -127,7 +127,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.ERROR.name(), params.getStatus());
+        assertEquals(StatusType.failed.name(), params.getStatus());
         assertTrue(params.getErrmsg().startsWith("Required columns are missing"));
         deleteGraph();
     }
@@ -142,7 +142,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.ERROR.name(), params.getStatus());
+        assertEquals(StatusType.failed.name(), params.getStatus());
         assertTrue(params.getErrmsg().startsWith("Required data(uniqueId, objectType) is missing for the row[2]"));
         deleteGraph();
     }
@@ -157,7 +157,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
         OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
         ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
         String output = new String(os.toByteArray());
@@ -175,7 +175,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -199,7 +199,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
         Thread.sleep(15000);
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -229,7 +229,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         String description = getNodeProperty("Num:C1", "description");
         System.out.println("Description:" + description);
@@ -242,7 +242,7 @@ public class TestGraphImportUsingCSV {
         obj = Await.result(req, t.duration());
         response = (Response) obj;
         params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         description = getNodeProperty("Num:C1", "description");
         assertEquals("Desc of Geometry", description);
@@ -260,7 +260,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
@@ -287,7 +287,7 @@ public class TestGraphImportUsingCSV {
         obj = Await.result(req, t.duration());
         response = (Response) obj;
         params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         tx = graphDb.beginTx();
         while (relations.hasNext()) {
@@ -321,7 +321,7 @@ public class TestGraphImportUsingCSV {
         Object obj = Await.result(req, t.duration());
         Response response = (Response) obj;
         ResponseParams params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         Thread.sleep(10000);
 
@@ -332,7 +332,7 @@ public class TestGraphImportUsingCSV {
         obj = Await.result(req, t.duration());
         response = (Response) obj;
         params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
         OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
         ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
         String output = new String(os.toByteArray());
@@ -350,7 +350,7 @@ public class TestGraphImportUsingCSV {
         obj = Await.result(req, t.duration());
         response = (Response) obj;
         params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
 
         request = getRequest();
         inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("testCSVs/CSV-NodesAndTags.csv");
@@ -359,7 +359,7 @@ public class TestGraphImportUsingCSV {
         obj = Await.result(req, t.duration());
         response = (Response) obj;
         params = response.getParams();
-        assertEquals(StatusType.SUCCESS.name(), params.getStatus());
+        assertEquals(StatusType.successful.name(), params.getStatus());
         osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
         os = (ByteArrayOutputStream) osV.getOutputStream();
         output = new String(os.toByteArray());

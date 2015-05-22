@@ -1396,7 +1396,7 @@ li.inputField {
     display: inline-block;
     border-top: 5px solid #09c;
     padding: 0px;
-    min-width: 150px
+    min-width: 150px;
 }
 
 .lecture-status ul li {

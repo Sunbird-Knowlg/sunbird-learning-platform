@@ -19,7 +19,7 @@ public class ResponseParams implements Serializable {
 
     public enum StatusType {
 
-        SUCCESS, WARNING, ERROR;
+        successful, warning, failed;
     }
 
     public String getResmsgid() {

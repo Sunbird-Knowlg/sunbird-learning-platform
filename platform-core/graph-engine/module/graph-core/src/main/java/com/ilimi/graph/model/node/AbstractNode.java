@@ -147,6 +147,7 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
 
     public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
+        checkMetadata(this.metadata);
     }
 
     public String getNodeId() {
