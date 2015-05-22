@@ -30,7 +30,7 @@ public class UserStatsManagerTest {
 	public void testSearchStats() {
 		List<String> uids = new ArrayList<String>();
 		Response resp = userStatsManager.searchUserStats(uids);
-		assertEquals(resp.getParams().getStatus(), StatusType.SUCCESS.name());
+		assertEquals(resp.getParams().getStatus(), StatusType.successful.name());
 		List<UserStatsDTO> stats = (List<UserStatsDTO>) resp
 				.get(AnalyticsParams.user_stats.name());
 		assertNotNull(stats);
@@ -40,7 +40,7 @@ public class UserStatsManagerTest {
 
 		uids.add("08d5e763-0666-4bf2-9aea-0675684bc2de");
 		resp = userStatsManager.searchUserStats(uids);
-		assertEquals(resp.getParams().getStatus(), StatusType.SUCCESS.name());
+		assertEquals(resp.getParams().getStatus(), StatusType.successful.name());
 		stats = (List<UserStatsDTO>) resp.get(AnalyticsParams.user_stats.name());
 		assertNotNull(stats);
 		System.out.println(stats.size());
