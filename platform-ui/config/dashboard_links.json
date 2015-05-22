@@ -1,15 +1,7 @@
 {
 	"title" : "Dashboard",
 	"links" : [{
-		"title": "Operations",
-		"url": "http://ep-sandbox.ekstep.org"
-	},
-	{
-		"title": "Games",
-		"url": "http://ep-sandbox.ekstep.org"
-	},
-	{
-		"title": "Questions",
-		"url": "http://ep-sandbox.ekstep.org"
+		"title": "Open Dashboard",
+		"url": "http://ep-sandbox.ekstep.org/#/dashboard"
 	}]
 }
