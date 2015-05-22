@@ -6,7 +6,9 @@ import cucumber.api.junit.Cucumber;
 @RunWith(Cucumber.class)
 @CucumberOptions (
 		monochrome = false,
-		format = {"pretty"}
+		format = {"pretty", "html:target/cucumber",
+                "json:target_json/cucumber.json",
+                "junit:taget_junit/cucumber.xml"}
 )
 public class RunCukesTest {
 
