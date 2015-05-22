@@ -37,6 +37,10 @@
     margin-top: 20px
 }
 
+.marginRight5 {
+    margin-right: 5px;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -2068,3 +2072,31 @@ input.validation-error {
 }
 /** End Game Page Styles **/
 
+.fix-title-head {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    text-align: center;
+    padding-right: 500px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rt-sec-count {
+    font-size: 15px;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 2px;
+}
+
+.text-capitalize {
+     text-transform: capitalize;
+}

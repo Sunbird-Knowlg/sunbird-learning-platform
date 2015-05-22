@@ -13,7 +13,7 @@
 	<div class=" wallActivityHeader">
 		<div class="editContent">
 			<div class="headerAsk" >
-                <h2>
+                <h2 id="titleHeaderId">
                 	<a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Back to Games list"  data-original-title="Back to Games list" ng-click="viewGameList()">
 						<i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
 					</a>
@@ -110,3 +110,13 @@
 
 <div ng-include="'save_confirmation_template.html'"></div>
 <div ng-include="'comments_template.html'"></div>
+
+<script type="text/javascript">
+  $('.mid-container-full').on("scroll", function(e) {
+    if (this.scrollTop > 100) {
+      $('#titleHeaderId').addClass('fix-title-head');
+    } else {
+      $('#titleHeaderId').removeClass('fix-title-head');
+    }
+  });
+</script>

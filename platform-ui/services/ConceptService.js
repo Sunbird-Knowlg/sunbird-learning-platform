@@ -46,6 +46,9 @@ exports.getConcept = function(id, tid, cb) {
 			cb(err);
 		} else {
 			var concept = results.concept.result.concept;
+			concept.relatedConcepts = util.getRelatedObjects(concept, 'Concept');
+			concept.relatedGames = util.getRelatedObjects(concept, 'Game');
+			concept.parent = util.getParent(concept);
 			concept.auditHistory = results.auditHistory.result.audit_records;
 			concept.comments = results.comments.result.comments;
 			cb(null, concept);
