@@ -25,7 +25,7 @@ import cucumber.api.junit.Cucumber;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetDefinationTest extends BaseCucumberTest{
+public class GetDefinitionTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
 	private String objectType;
@@ -46,7 +46,7 @@ public class GetDefinationTest extends BaseCucumberTest{
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/taxonomy/"+taxonomyId+"/definition/" + objectType;
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());
@@ -73,7 +73,7 @@ public class GetDefinationTest extends BaseCucumberTest{
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/taxonomy/"+taxonomyId+"/definition/" + objectType;
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(status));

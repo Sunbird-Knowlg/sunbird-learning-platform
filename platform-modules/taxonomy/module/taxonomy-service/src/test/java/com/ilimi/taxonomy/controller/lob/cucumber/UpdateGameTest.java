@@ -55,12 +55,12 @@ public class UpdateGameTest extends BaseCucumberTest{
 	
 	@Then("^Update the Game and get the status (.*)")
 	public void updateGame(String status){
-		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"numeracy\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \" Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"numeracy\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \" Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1";
     	params.put("taxonomyId", "numeracy");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());
@@ -82,7 +82,7 @@ public class UpdateGameTest extends BaseCucumberTest{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -109,7 +109,7 @@ public class UpdateGameTest extends BaseCucumberTest{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -130,7 +130,7 @@ public class UpdateGameTest extends BaseCucumberTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/"+ gameId;
     	params.put("taxonomyId", "numeracy");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(404));
@@ -150,7 +150,7 @@ public class UpdateGameTest extends BaseCucumberTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId;
     	params.put("taxonomyId", "numeracy");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(400));
@@ -173,7 +173,7 @@ public class UpdateGameTest extends BaseCucumberTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId;
     	params.put("taxonomyId", "numeracy");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(400));

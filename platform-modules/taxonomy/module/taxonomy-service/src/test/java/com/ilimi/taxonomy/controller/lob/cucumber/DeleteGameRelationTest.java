@@ -63,7 +63,7 @@ public class DeleteGameRelationTest extends BaseCucumberTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId1 + "/" + relationType + "/" + gameId2;
     	params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(200));
@@ -83,7 +83,7 @@ public class DeleteGameRelationTest extends BaseCucumberTest{
     	if(TaxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -108,7 +108,7 @@ public class DeleteGameRelationTest extends BaseCucumberTest{
     	if(TaxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -128,7 +128,7 @@ public class DeleteGameRelationTest extends BaseCucumberTest{
     	if(TaxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", TaxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));

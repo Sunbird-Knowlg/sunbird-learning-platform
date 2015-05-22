@@ -45,7 +45,7 @@ public class GetTaxonomyTest extends BaseCucumberTest{
     	params.put("subgraph", "true");
     	params.put("cfields", "name");
     	params.put("tfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());
@@ -63,7 +63,7 @@ public class GetTaxonomyTest extends BaseCucumberTest{
 		params.put("subgraph", "true");
 		params.put("cfields", "name");
 		params.put("tfields", "name");
-		header.put("user-id", "jeetu");
+		header.put("user-id", "ilimi");
 		ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
 		try {
 			actions.andExpect(status().is(status));

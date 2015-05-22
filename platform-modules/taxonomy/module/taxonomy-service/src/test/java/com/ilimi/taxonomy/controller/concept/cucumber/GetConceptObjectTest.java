@@ -58,7 +58,7 @@ public class GetConceptObjectTest extends BaseCucumberTest{
     	String path = "/concept/" + conceptId + "/" + relationType;
     	params.put("taxonomyId", taxonomyId);
     	params.put("depth", "0");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(200));
@@ -80,7 +80,7 @@ public class GetConceptObjectTest extends BaseCucumberTest{
     	else
     		params.put("taxonomyId", taxonomyId);
     	params.put("depth", "0");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));

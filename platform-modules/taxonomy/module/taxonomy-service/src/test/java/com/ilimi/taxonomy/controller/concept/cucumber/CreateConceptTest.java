@@ -43,7 +43,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	String path = "/concept/" + conceptId;
     	params.put("taxonomyId", "numeracy");
     	params.put("cfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());
@@ -77,7 +77,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
     	params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(200));
@@ -102,7 +102,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -130,7 +130,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -151,7 +151,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -199,7 +199,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -250,7 +250,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));
@@ -277,7 +277,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(400));

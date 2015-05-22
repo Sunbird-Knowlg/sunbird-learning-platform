@@ -58,7 +58,7 @@ public class GetGameTest extends BaseCucumberTest{
     	String path = "/learning-object/" + gameId;
     	params.put("taxonomyId", taxonomyId);
     	params.put("gfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(200));
@@ -79,7 +79,7 @@ public class GetGameTest extends BaseCucumberTest{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -106,7 +106,7 @@ public class GetGameTest extends BaseCucumberTest{
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", taxonomyId);
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));

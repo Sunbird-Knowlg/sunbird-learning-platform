@@ -57,7 +57,7 @@ public class GetAllGamesTest extends BaseCucumberTest{
     	params.put("offset", "0");
     	params.put("limit", "10");
     	params.put("gfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(200));
@@ -81,7 +81,7 @@ public class GetAllGamesTest extends BaseCucumberTest{
     	params.put("games", "true");
     	params.put("cfields", "name");
     	params.put("gfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));

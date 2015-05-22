@@ -23,7 +23,7 @@ import cucumber.api.java.en.When;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class GetAllDefinationTest extends BaseCucumberTest{
+public class GetAllDefinitionTest extends BaseCucumberTest{
 	
 	private String taxonomyId;
 		
@@ -37,12 +37,12 @@ public class GetAllDefinationTest extends BaseCucumberTest{
 		this.taxonomyId = taxonomyId;
 	}
 	
-	@Then("^I should get all defination and status is (.*)$")
+	@Then("^I should get all definition and status is (.*)$")
 	public void getDefination(String status){
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/taxonomy/"+taxonomyId+"/definition";
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());
@@ -62,8 +62,8 @@ public class GetAllDefinationTest extends BaseCucumberTest{
         @SuppressWarnings("unchecked")
         Map<String, Object> nodeDef2 = (Map<String, Object>) definition_node.get(1);
         
-        Assert.assertEquals("Media", nodeDef1.get("objectType"));
-        Assert.assertEquals("Concept", nodeDef2.get("objectType"));        
+        Assert.assertEquals("Concept", nodeDef1.get("objectType"));
+        Assert.assertEquals("Taxonomy", nodeDef2.get("objectType"));        
 	}
 	
 	@Then("I should get (.*) to get definition node and status should be (\\d+)")
@@ -71,7 +71,7 @@ public class GetAllDefinationTest extends BaseCucumberTest{
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/taxonomy/"+taxonomyId+"/definition";
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().is(status));

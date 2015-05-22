@@ -64,7 +64,7 @@ public class GetConceptTest extends BaseCucumberTest{
     	else
     		params.put("taxonomyId", taxonomyId);
     	params.put("cfields", "name");
-    	header.put("user-id", "jeetu");;
+    	header.put("user-id", "ilimi");;
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc); 
     	try {
 			actions.andExpect(status().is(status));
@@ -89,7 +89,7 @@ public class GetConceptTest extends BaseCucumberTest{
      	String path = "/concept/" + conceptId;
      	params.put("taxonomyId", taxonomyId);
      	params.put("cfields", "name");
-     	header.put("user-id", "jeetu");
+     	header.put("user-id", "ilimi");
      	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
          try {
  			actions.andExpect(status().is(404));
@@ -99,7 +99,7 @@ public class GetConceptTest extends BaseCucumberTest{
          Response resp = jasonToObject(actions);
          basicAssertion(resp);
          Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
-         Assert.assertEquals("Node "+error+" found: jeetu", resp.getParams().getErrmsg());
+         Assert.assertEquals("Node "+error+" found: ilimi", resp.getParams().getErrmsg());
     }
     
     @Then("^I should get the concept with name (.*)$")
@@ -109,7 +109,7 @@ public class GetConceptTest extends BaseCucumberTest{
     	String path = "/concept/" + conceptId;
     	params.put("taxonomyId", taxonomyId);
     	params.put("cfields", "name");
-    	header.put("user-id", "jeetu");
+    	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
 			actions.andExpect(status().isOk());

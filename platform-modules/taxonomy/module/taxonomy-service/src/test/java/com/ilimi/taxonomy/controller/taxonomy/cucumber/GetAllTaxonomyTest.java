@@ -36,7 +36,7 @@ public class GetAllTaxonomyTest extends BaseCucumberTest{
 		Map<String, String> header = new HashMap<String, String>();
 		String path = "/taxonomy";		
 		params.put("tfields", "name");
-		header.put("user-id", "jeetu");
+		header.put("user-id", "ilimi");
 		ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
 		try {
 			actions.andExpect(status().isOk());
