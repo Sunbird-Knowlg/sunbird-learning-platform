@@ -457,17 +457,18 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         var relations = {};
         _.each($scope.selectedTaxonomy.definitions.inRelations, function(defRel) {
             var inRelObjects = _.map(_.where($scope.selectedConcept.inRelations, {"relationType": defRel.relationName}), function(inRel) {
-                return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType};
+                return {id: inRel.startNodeId, name: inRel.startNodeName, direction: "in", relationType: inRel.relationType, objectType: inRel.startNodeObjectType};
             });
             relations[defRel.title] = inRelObjects;
         });
 
         _.each($scope.selectedTaxonomy.definitions.outRelations, function(defRel) {
             var outRelObjects = _.map(_.where($scope.selectedConcept.outRelations, {"relationType": defRel.relationName}), function(outRel) {
-                return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType};
+                return {id: outRel.endNodeId, name: outRel.endNodeName, direction: "out", relationType: outRel.relationType, objectType: outRel.endNodeObjectType};
             });
-            relations[defRel.title] = outRelObjects;
+            relations[defRel.title] = _.reject(outRelObjects, function(r) { return r.objectType == "Media";});
         });
+
         $scope.selectedConcept.relations = relations;
     }
 
