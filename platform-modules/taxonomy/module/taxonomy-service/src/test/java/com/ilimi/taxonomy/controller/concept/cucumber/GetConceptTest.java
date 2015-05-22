@@ -31,7 +31,7 @@ public class GetConceptTest extends BaseCucumberTest{
     private ResultActions actions;    
     private String taxonomyId;
     private String conceptId;
-    private static String NUMERACY = "NUMERACY";
+    private static String NUMERACY = "numeracy";
     
     private void basicAssertion(Response resp){
 		Assert.assertEquals("ekstep.lp.concept.find", resp.getId());
@@ -112,13 +112,13 @@ public class GetConceptTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}   
     	Response resp = jasonToObject(actions);
         basicAssertion(resp);
-        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+        Assert.assertEquals("successful", resp.getParams().getStatus());
     }
     
 

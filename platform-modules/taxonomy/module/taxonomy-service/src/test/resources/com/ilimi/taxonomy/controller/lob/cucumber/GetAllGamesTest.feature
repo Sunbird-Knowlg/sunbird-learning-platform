@@ -1,8 +1,8 @@
 Feature: Test all scenarios of get all concept.
 
   Scenario: Get all concept using identifier .
-  	When i give taxonomy id is NUMERACY
-    Then i should get all games with status SUCCESS
+  	When i give taxonomy id is numeracy
+    Then i should get all games with status successful
 	            
   Scenario: Get a game using identifier with empty taxonomy Id.
   	When i give taxonomy id is empty

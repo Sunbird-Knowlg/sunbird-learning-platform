@@ -58,7 +58,7 @@ public class GetAllConceptTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 

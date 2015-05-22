@@ -39,17 +39,17 @@ public class DeleteConceptTest extends BaseCucumberTest{
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept";
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}         
         Response resp = jasonToObject(actions);
         //new CreateConceptTest().basicAssertion(resp);
-        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+        Assert.assertEquals("successful", resp.getParams().getStatus());
 		Map<String, Object> result = resp.getResult();
 		return (String) result.get("node_id");
 	 }
@@ -58,7 +58,7 @@ public class DeleteConceptTest extends BaseCucumberTest{
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept/" + conceptId;
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	params.put("cfields", "name");
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
@@ -101,7 +101,7 @@ public class DeleteConceptTest extends BaseCucumberTest{
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

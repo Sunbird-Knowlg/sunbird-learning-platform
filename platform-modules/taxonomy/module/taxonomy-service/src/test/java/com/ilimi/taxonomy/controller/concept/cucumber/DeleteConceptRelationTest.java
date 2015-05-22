@@ -63,7 +63,7 @@ public class DeleteConceptRelationTest extends BaseCucumberTest{
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

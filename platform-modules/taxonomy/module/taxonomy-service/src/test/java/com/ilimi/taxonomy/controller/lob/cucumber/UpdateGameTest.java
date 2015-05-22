@@ -55,15 +55,15 @@ public class UpdateGameTest extends BaseCucumberTest{
 	
 	@Then("^Update the Game and get the status (.*)")
 	public void updateGame(String status){
-		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"numeracy\",\"identifier\": \"G99\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \" Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/G1";
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -125,11 +125,11 @@ public class UpdateGameTest extends BaseCucumberTest{
 	
 	@Then("^i should get error message game (.*) found")
 	public void gameNotFound(String error){
-		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G98\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"numeracy\",\"identifier\": \"G98\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/"+ gameId;
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
@@ -145,11 +145,11 @@ public class UpdateGameTest extends BaseCucumberTest{
 	
 	@Then("i should get error message object type not set for node (.*)$")
 	public void emptyObjectType(String node){
-		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"\",\"graphId\": \"NUMERACY\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"\",\"graphId\": \"numeracy\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\"}}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId;
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
@@ -168,11 +168,11 @@ public class UpdateGameTest extends BaseCucumberTest{
 	
 	@Then("^i should get error message node metadata validation (.*)$")
 	public void requireMetadata(String error){
-		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {}}}}";
+		String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"numeracy\",\"identifier\": \"G1\",\"nodeType\": \"DATA_NODE\",\"metadata\": {}}}}";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/learning-object/" + gameId;
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {

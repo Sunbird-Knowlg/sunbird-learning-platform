@@ -39,7 +39,7 @@ public class GetAllTaxonomyTest extends BaseCucumberTest{
 		header.put("user-id", "jeetu");
 		ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
 		try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 

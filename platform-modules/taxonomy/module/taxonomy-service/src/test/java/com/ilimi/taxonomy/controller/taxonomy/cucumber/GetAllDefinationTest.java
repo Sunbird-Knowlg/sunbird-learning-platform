@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
-import org.junit.runner.RunWith;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -21,7 +20,6 @@ import com.ilimi.taxonomy.base.test.BaseCucumberTest;
 import cucumber.api.java.Before;
 import cucumber.api.java.en.Then;
 import cucumber.api.java.en.When;
-import cucumber.api.junit.Cucumber;
 
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
@@ -34,7 +32,7 @@ public class GetAllDefinationTest extends BaseCucumberTest{
         initMockMVC();
     }
 	
-	@When("taxonomy id is (.*)$")
+	@When("taxonomy ID is (.*)$")
 	public void getInputData(String taxonomyId) {
 		this.taxonomyId = taxonomyId;
 	}
@@ -47,7 +45,7 @@ public class GetAllDefinationTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -64,8 +62,8 @@ public class GetAllDefinationTest extends BaseCucumberTest{
         @SuppressWarnings("unchecked")
         Map<String, Object> nodeDef2 = (Map<String, Object>) definition_node.get(1);
         
-        Assert.assertEquals("Concept", nodeDef1.get("objectType"));
-        Assert.assertEquals("Taxonomy", nodeDef2.get("objectType"));        
+        Assert.assertEquals("Media", nodeDef1.get("objectType"));
+        Assert.assertEquals("Concept", nodeDef2.get("objectType"));        
 	}
 	
 	@Then("I should get (.*) to get definition node and status should be (\\d+)")

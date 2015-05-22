@@ -41,18 +41,18 @@ public class CreateConceptTest extends BaseCucumberTest {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/concept/" + conceptId;
-    	params.put("taxonomyId", "NUMERACY");
+    	params.put("taxonomyId", "numeracy");
     	params.put("cfields", "name");
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}   
         Response resp = jasonToObject(actions);
         //new FindConceptTest().basicAssertion(resp);
-        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+        Assert.assertEquals("successful", resp.getParams().getStatus());
     }
 	
 	@Before
@@ -80,7 +80,7 @@ public class CreateConceptTest extends BaseCucumberTest {
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

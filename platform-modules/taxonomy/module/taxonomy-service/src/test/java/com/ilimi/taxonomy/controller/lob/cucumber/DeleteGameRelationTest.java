@@ -66,13 +66,13 @@ public class DeleteGameRelationTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
         basicAssertion(resp);
-        Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+        Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 	
 	@Then("^I will get ErrMsg Taxonomy Id is (.*) and status is (\\d+)$")

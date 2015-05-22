@@ -41,7 +41,7 @@ public class GetDefinationTest extends BaseCucumberTest{
 		this.objectType = objectType;
 	}
 	
-	@Then("^I should get the NUMERACY and status is (.*)$")
+	@Then("^I should get the numeracy and status is (.*)$")
 	public void getDefination(String status){
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
@@ -49,7 +49,7 @@ public class GetDefinationTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		} 
@@ -63,8 +63,8 @@ public class GetDefinationTest extends BaseCucumberTest{
         Map<String, Object>  defination_node =  (Map<String, Object>) result.get("definition_node");
         
         Assert.assertEquals("Game", defination_node.get("objectType"));
-        @SuppressWarnings("unchecked")
-		List<String> array = (ArrayList<String>) defination_node.get("outRelations");
+		// @SuppressWarnings("unchecked")
+		// List<String> array = (ArrayList<String>) defination_node.get("outRelations");
         //LinkedHashMap<String, String> hashMap = array.get(0); 
 	}
 	
@@ -82,7 +82,7 @@ public class GetDefinationTest extends BaseCucumberTest{
 		} 
         
         Response resp = jasonToObject(actions);
-		Assert.assertEquals(error+" to get definition node", resp.getParams().getErrmsg());
+		Assert.assertEquals("Failed to get definition node", resp.getParams().getErrmsg());
 		Assert.assertEquals("ERR_GRAPH_SEARCH_NODE_NOT_FOUND", resp.getParams().getErr());
         
 	}

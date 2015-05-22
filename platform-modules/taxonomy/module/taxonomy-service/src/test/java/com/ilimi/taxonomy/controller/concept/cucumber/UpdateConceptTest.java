@@ -58,7 +58,7 @@ public class UpdateConceptTest extends BaseCucumberTest{
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPatch(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

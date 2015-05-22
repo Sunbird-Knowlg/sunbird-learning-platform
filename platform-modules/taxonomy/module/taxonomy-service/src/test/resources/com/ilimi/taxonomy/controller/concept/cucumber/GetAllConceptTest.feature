@@ -1,8 +1,8 @@
 Feature: Test all scenarios of get all concept.
 
   Scenario: Get all concept using identifier .
-  	When Taxonomy Id is NUMERACY
-    Then I should get all NUMERACY Concepts and status is SUCCESS
+  	When Taxonomy Id is numeracy
+    Then I should get all numeracy Concepts and status is successful
 	            
   Scenario: Get a concept using identifier with empty taxonomy Id.
   	When Taxonomy Id is blank

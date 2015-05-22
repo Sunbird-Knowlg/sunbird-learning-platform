@@ -33,6 +33,26 @@ public class DeleteGameTest extends BaseCucumberTest{
         initMockMVC();
     }
 	
+	public String createGame() {
+    	String contentString = "{\"request\": {\"learning_object\": {\"objectType\": \"Game\",\"graphId\": \"NUMERACY\",\"identifier\": \"G199\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+        Map<String, String> params = new HashMap<String, String>();
+    	Map<String, String> header = new HashMap<String, String>();
+    	String path = "/learning-object";
+    	params.put("taxonomyId", "numeracy");
+    	header.put("user-id", "jeetu");
+    	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
+        try {
+			actions.andExpect(status().isOk());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}  
+        Response resp = jasonToObject(actions);
+        //basicAssertion(resp);
+        Assert.assertEquals("successful", resp.getParams().getStatus());
+        Map<String, Object> result = resp.getResult();
+		return (String) result.get("node_id");
+    }
+	
 	private void basicAssertion(Response resp){
 		Assert.assertEquals("ekstep.lp.learning-object.delete", resp.getId());
         Assert.assertEquals("1.0", resp.getVer());
@@ -51,21 +71,21 @@ public class DeleteGameTest extends BaseCucumberTest{
 	
 	@Then("^Delete the Game Id (.*)$")
     public void deleteGame(String game) throws Exception {
-		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String newGameId = createGame();
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object/" + gameId;
+    	String path = "/learning-object/" + newGameId;
     	params.put("taxonomyId", taxonomyId);
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().is(202));
+			actions.andExpect(status().is(200));
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
 		basicAssertion(resp);
-		Assert.assertEquals("SUCCESS", resp.getParams().getStatus());
+		Assert.assertEquals("successful", resp.getParams().getStatus());
 	}
 	
 	@Then("^I should get Error Taxonomy Id is (.*) and status is (\\d+)$")

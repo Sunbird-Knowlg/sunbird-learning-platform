@@ -36,7 +36,7 @@ public class GetTaxonomyTest extends BaseCucumberTest{
 		this.taxonomyId = taxonomyId;
 	}
 	
-	@Then("I should get all the NUMERACY data")
+	@Then("I should get all the numeracy data")
 	public void getAllNumeracy(){
 		this.mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		Map<String, String> params = new HashMap<String, String>();
@@ -48,7 +48,7 @@ public class GetTaxonomyTest extends BaseCucumberTest{
     	header.put("user-id", "jeetu");
     	ResultActions actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
         try {
-			actions.andExpect(status().isAccepted());
+			actions.andExpect(status().isOk());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}   
