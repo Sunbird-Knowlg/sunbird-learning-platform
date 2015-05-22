@@ -12,9 +12,13 @@ app.config(function($stateProvider) {
         },
         onEnter: function() {
             $('.rightBarConceptMenu').removeClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
         },
         onExit: function() {
-            $('.rightBarConceptMenu').addClass('hide');  
+            $('.rightBarConceptMenu').addClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
         }
     }).state('gameList', {
         url: "/gameList/:id",
@@ -42,9 +46,13 @@ app.config(function($stateProvider) {
         },
         onEnter: function() {
             $('.rightBarGameMenu').removeClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
         },
         onExit: function() {
             $('.rightBarGameMenu').addClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
         }
     }).state('gameVisualization', {
         url: "/games/coverage/:tid",

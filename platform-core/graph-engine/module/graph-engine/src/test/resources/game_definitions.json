@@ -610,7 +610,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Related Games (OR) Associated Concepts (OR) Screenshots",
+          "title": "Related concepts",
           "description": "",
           "required": false,
           "objectTypes": [

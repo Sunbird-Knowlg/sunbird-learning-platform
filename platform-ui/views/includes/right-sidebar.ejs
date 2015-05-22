@@ -14,14 +14,15 @@
 			</div>
 		</div>
 
-		<div class="il-rt-container recentContent marginBottom20">
+		<div class="il-rt-container recentContent marginBottom20 marginTop10">
 			<div class="il-sc-header il-dd-header pad0">
-				<h3>Related Concepts<span class="pull-right badge greenBadge marginRight5 rt-sec-count">{{selectedConcept.relatedConcepts.length}}</span></h3>
+				<h3 id="relConId" class="hide">Related Concepts<span class="pull-right badge greenBadge marginRight5 rt-sec-count">{{selectedConcept.relatedConcepts.length}}</span></h3>
+				<h3 id="gameConCovId" class="hide">Concepts Covered<span class="pull-right badge greenBadge marginRight5 rt-sec-count">{{selectedConcept.relatedConcepts.length}}</span></h3>
 			</div>
 			<div class="bs-docs-sidebar">
 				<ul ng-if="selectedConcept.relatedConcepts.length == 0">
 					<li>
-						<span style="">Concepts not found</span>
+						<span style="">None</span>
 					</li>
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedConcepts.length > 0">
@@ -42,7 +43,7 @@
 			<div class="bs-docs-sidebar">
 				<ul ng-if="selectedConcept.relatedGames.length == 0">
 					<li>
-						<span>Games not found</span>
+						<span>None</span>
 					</li>
 				</ul>
 				<nav class="il-rt-notn" ng-if="selectedConcept.relatedGames.length > 0">
@@ -63,7 +64,7 @@
 			<div class="il-rt-notn">
 				<ul class="recentContent">
 					<li ng-if="selectedConcept.tags.length == 0">
-						<span>Tags not found</span>
+						<span>None</span>
 					</li>
 				</ul>
 				<span class="badge greenBadge marginRight5" ng-repeat="tag in selectedConcept.tags">{{tag}}</span>
