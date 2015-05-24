@@ -29,6 +29,8 @@ object RateOfAdvancementModel extends BaseModel {
 
     def validate(args: Array[String]): Boolean = {
         Console.println("### Arguments - " + args.mkString(" # ") + " ###");
+        if(args.length < 3) 
+            return false;
         return true;
     }
 
@@ -75,13 +77,13 @@ object RateOfAdvancementModel extends BaseModel {
                     }
                 }
             }
-            gameMap.map(f => (f._1, (f._2._2 - f._2._1)/3600000)).map(f => (f._1, f._2, 5.toFloat/f._2));
-            (gameMap);
+            val gm = gameMap.map(f => (f._1, ((f._2._2 - f._2._1).toFloat/3600000))).map(f => (f._1, (f._2, 5.toFloat/f._2)));
+            (gm);
         });
         
         val outputJson = userPairs.map(x => 
             "{\"uid\":" + x._1 + ",\"games\":[" + 
-            x._2.map(f => Array("{\"gameId\":\"" + f._1 + "\", \"levels\": 5, \"time_taken\": "+f._2._1+", \"roa_ratio\": "+f._2._1+"}")).mkString(",")
+            x._2.map(f => "{\"gameId\":\"" + f._1 + "\", \"levels\": 5, \"time_taken\": "+f._2._1+", \"roa_ratio\": "+f._2._2+"}").mkString(",")
             + "]}");
         Console.println("### Saving Rate of advancement stats to " + getPath(output + "/concept_improvement") + " ###");
         outputJson.saveAsTextFile(getPath(output + "/rate_of_advancement"))

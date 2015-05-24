@@ -2,3 +2,7 @@ platform-ui/logs
 platform-ui/node_modules
 .settings
 **/target
+.cache
+derby.log
+.dat829a.054
+platform-analytics/metastore_db

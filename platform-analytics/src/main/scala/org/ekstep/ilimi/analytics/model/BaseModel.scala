@@ -5,6 +5,7 @@ import org.apache.spark.SparkConf
 import org.ekstep.ilimi.analytics.conf.AppConf
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.hive.HiveContext
 
 trait BaseModel extends Serializable {
     
@@ -19,12 +20,17 @@ trait BaseModel extends Serializable {
     def initializeSparkContext(location: String) = {
         this.location = location;
         val conf = new SparkConf().setMaster("local").setAppName("TestSparkDriver");
-        val sc = new SparkContext(conf);
+        this.sc = new SparkContext(conf);
         if("S3".equals(location)) {
-            sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
-            sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
+            this.sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
+            this.sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
         }
+        this.hiveCtx = new HiveContext(this.sc);
         Console.println("### Spark Context instantiated ###");
+    }
+    
+    def getSparkContext() : SparkContext  = {
+        this.sc;
     }
     
     def closeSparkContext() {

@@ -7,10 +7,23 @@ import scala.collection.mutable.Buffer
 
 class BaseDAO {
 
+    def getFloatValue(x: Float): Float = {
+        var retVal: Float = 0;
+
+        if (x.isNaN() || x.isInfinite()) {
+            retVal = 0;
+        } else {
+            retVal = x;
+        }
+
+        return retVal;
+        
+    }
+    
     def getValue(x: Float): AnyRef = {
         var retVal: AnyRef = null;
 
-        if (x.isNaN()) {
+        if (x.isNaN() || x.isInfinite()) {
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
@@ -21,7 +34,7 @@ class BaseDAO {
 
     def getValue(x: Double): AnyRef = {
         var retVal: AnyRef = null;
-        if (x.isNaN()) {
+        if (x.isNaN() || x.isInfinite()) {
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
@@ -32,7 +45,7 @@ class BaseDAO {
 
     def getValue(x: Long): AnyRef = {
         var retVal: AnyRef = null;
-        if (x.toInt.isNaN()) {
+        if (x.toInt.isNaN() || x.toInt.isInfinite()) {
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
