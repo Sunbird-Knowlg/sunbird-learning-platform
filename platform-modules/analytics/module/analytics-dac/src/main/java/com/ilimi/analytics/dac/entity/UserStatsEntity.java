@@ -1,6 +1,6 @@
 package com.ilimi.analytics.dac.entity;
 
-import java.util.Date;
+import java.io.Serializable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,11 +10,9 @@ import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
 
-import com.ilimi.dac.DataAccessEntity;
-
 @Entity
 @Table(name = "USER_STATS")
-public class UserStatsEntity implements DataAccessEntity {
+public class UserStatsEntity implements Serializable {
 
 	private static final long serialVersionUID = 5895194416637216001L;
 
@@ -74,26 +72,6 @@ public class UserStatsEntity implements DataAccessEntity {
 
 	public void setAvgGameSession(Float avgGameSession) {
 		this.avgGameSession = avgGameSession;
-	}
-
-	@Override
-	public String getLastModifiedBy() {
-		return null;
-	}
-
-	@Override
-	public void setLastModifiedBy(String lastModifiedBy) {
-
-	}
-
-	@Override
-	public Date getLastModifiedOn() {
-		return null;
-	}
-
-	@Override
-	public void setLastModifiedOn(Date lastModifiedOn) {
-
 	}
 
 	@Override

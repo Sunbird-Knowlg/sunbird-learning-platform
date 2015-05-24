@@ -14,5 +14,9 @@
     <context:annotation-config />
     
     <bean id="userStatsDAO" class="com.ilimi.analytics.dac.dao.UserStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="gameStatsDAO" class="com.ilimi.analytics.dac.dao.GameStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="conceptStatsDAO" class="com.ilimi.analytics.dac.dao.ConceptStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="studentConceptStatsDAO" class="com.ilimi.analytics.dac.dao.StudentConceptStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="studentGameStatsDAO" class="com.ilimi.analytics.dac.dao.StudentGameStatsDAO" p:sessionFactory-ref="sessionFactory" />
 
 </beans>
