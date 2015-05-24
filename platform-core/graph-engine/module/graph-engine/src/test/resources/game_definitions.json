@@ -610,7 +610,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Related concepts",
+          "title": "Associated Concepts",
           "description": "",
           "required": false,
           "objectTypes": [

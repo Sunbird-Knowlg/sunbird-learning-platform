@@ -328,7 +328,7 @@
       "inRelations": [
         {
           "relationName": "isParentOf",
-          "title": "Parent concept",
+          "title": "Parent",
           "description": "Connected to other nodes with Parent-Child relation",
           "required": true,
           "objectTypes": [
@@ -340,7 +340,7 @@
       "outRelations": [
         {
           "relationName": "isParentOf",
-          "title": "Child concepts",
+          "title": "Children",
           "description": "Connected to other nodes with Parent-Child relation",
           "required": false,
           "objectTypes": [
@@ -350,7 +350,7 @@
         },
         {
           "relationName": "co-occurrence",
-          "title": "Co-occurrence concepts",
+          "title": "Co-occurrent concepts",
           "description": "Connected to other nodes with Co-occurence relation",
           "required": false,
           "objectTypes": [
@@ -360,7 +360,7 @@
         },
         {
           "relationName": "pre-requisite",
-          "title": "Pre-requisite concepts",
+          "title": "Pre-requisites",
           "description": "Pre-requiste relation is created",
           "required": false,
           "objectTypes": [
