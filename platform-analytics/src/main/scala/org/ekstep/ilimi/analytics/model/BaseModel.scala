@@ -6,12 +6,13 @@ import org.ekstep.ilimi.analytics.conf.AppConf
 import org.apache.spark.sql.hive.HiveContext
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.sql.SQLContext
 
 trait BaseModel extends Serializable {
     
     var location:String = null;
     var sc: SparkContext = null;
-    var hiveCtx: HiveContext = null;
+    var sqlContext: SQLContext = null;
     
     def validate(args: Array[String]) : Boolean;
     
@@ -25,7 +26,7 @@ trait BaseModel extends Serializable {
             this.sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
             this.sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
         }
-        this.hiveCtx = new HiveContext(this.sc);
+        this.sqlContext = new SQLContext(this.sc);
         Console.println("### Spark Context instantiated ###");
     }
     
@@ -44,13 +45,13 @@ trait BaseModel extends Serializable {
         
     def loadInput(input: String, table: String) {
         Console.println("### Fetching Input:" + getPath(input) + " ###");
-        val events = hiveCtx.jsonFile(getPath(input)).persist();
+        val events = sqlContext.jsonFile(getPath(input)).persist();
         Console.println("### Data fetched. # of records - " + events.count() + " ###");
         events.registerTempTable(table);
     }
     
-    def queryData(hiveSql: String) : DataFrame = {
-        hiveCtx.sql(hiveSql);
+    def queryData(sql: String) : DataFrame = {
+        sqlContext.sql(sql);
     }
 
 }

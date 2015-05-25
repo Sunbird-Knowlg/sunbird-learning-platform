@@ -55,7 +55,7 @@ object ConceptProficiencyModel extends BaseModel {
         //val validSessions = queryData("SELECT distinct sid FROM telemetry_events where edata.eks.gid in ('" + beforeScreener + "', '" + afterScreener + "')").collect().map { x => x.getString(0) }
         //Console.println("### Valid Sessions - " + validSessions.length + " ###");
         //val results = queryData("SELECT uid, ts, eid, sid, edata.eks.gid, edata.eks.score, edata.eks.maxscore FROM telemetry_events where eid in ('GE_LAUNCH_GAME', 'GE_GAME_END', 'OE_ASSESS') and sid in ('" + validSessions.mkString("','") + "')");
-        val results = queryData("SELECT uid, ts, eid, sid, edata.eks.gid, edata.eks.score, edata.eks.maxscore FROM telemetry_events where eid in ('GE_LAUNCH_GAME', 'GE_GAME_END', 'OE_ASSESS')");
+        val results = queryData("SELECT uid, ts, eid, sid, edata.eks.gid, edata.eks.score, edata.eks.maxscore FROM telemetry_events where eid in ('GE_LAUNCH_GAME', 'GE_GAME_END', 'OE_ASSESS')").persist();
         val userPairs = results.map(row => (row.getString(0), Array(row))).reduceByKey((a, b) => a ++ b, 1).mapValues(rows => {
             rows.sortBy { row => row.getLong(1) };
             var gameMap: Map[String, (Float, Int)] = Map();
@@ -80,10 +80,10 @@ object ConceptProficiencyModel extends BaseModel {
 
             ((gameMap(beforeScreener)._1 / gameMap(beforeScreener)._2) * 100, (gameMap(afterScreener)._1 / gameMap(afterScreener)._2) * 100);
         }).mapValues(f => (f._1, f._2, f._2 - f._1, (f._2 - f._1)/f._1));
-
         val outputJson = userPairs.map(x => "{\"uid\":" + x._1 + ",\"before_score\":" + x._2._1 + ",\"after_score\":" + x._2._2 + ",\"difference\":" + x._2._3 + "}")
         Console.println("### Saving Concept Improvement stats to " + getPath(output + "/concept_improvement") + " ###");
         outputJson.saveAsTextFile(getPath(output + "/concept_improvement"))
+        
         EffectivenessStatsDAO.saveConceptEffectivness(userPairs.collect(), gameId, conceptId);
         closeSparkContext;
     }
