@@ -17,7 +17,7 @@ import com.ilimi.analytics.manager.IConceptStatsManager;
 import com.ilimi.common.dto.Response;
 
 @Controller
-@RequestMapping("/concept")
+@RequestMapping("/v1/concept")
 public class ConceptStatsController extends BaseController {
 	
 	private static Logger LOGGER = LogManager.getLogger(ConceptStatsController.class.getName());

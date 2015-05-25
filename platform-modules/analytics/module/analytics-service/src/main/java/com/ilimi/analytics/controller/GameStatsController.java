@@ -17,7 +17,7 @@ import com.ilimi.analytics.manager.IGameStatsManager;
 import com.ilimi.common.dto.Response;
 
 @Controller
-@RequestMapping("/game")
+@RequestMapping("/v1/game")
 public class GameStatsController extends BaseController {
 	
 	private static Logger LOGGER = LogManager.getLogger(GameStatsController.class.getName());
