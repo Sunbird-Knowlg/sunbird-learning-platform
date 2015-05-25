@@ -211,4 +211,4 @@ function generateLevelEvents(levelIdx, userIdx, did, uid, sid) {
 	}});
 }
 
-generate(10, 200, '/Users/santhosh/ekStep/spark_data_files/simulated_data_3.json');
+generate(10, 10, '/Users/santhosh/ekStep/spark_data_files/simulated_data_4.json');
