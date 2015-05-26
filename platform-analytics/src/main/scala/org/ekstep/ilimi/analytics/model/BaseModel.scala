@@ -1,18 +1,16 @@
 package org.ekstep.ilimi.analytics.model
 
-import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
-import org.ekstep.ilimi.analytics.conf.AppConf
-import org.apache.spark.sql.hive.HiveContext
+import org.apache.spark.SparkContext
 import org.apache.spark.sql.DataFrame
 import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.sql.SQLContext
+import org.ekstep.ilimi.analytics.conf.AppConf
 
 trait BaseModel extends Serializable {
     
     var location:String = null;
     var sc: SparkContext = null;
-    var sqlContext: SQLContext = null;
+    var hiveCtx: HiveContext = null;
     
     def validate(args: Array[String]) : Boolean;
     
@@ -26,7 +24,9 @@ trait BaseModel extends Serializable {
             this.sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
             this.sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
         }
-        this.sqlContext = new SQLContext(this.sc);
+        this.hiveCtx = new HiveContext(this.sc);
+        hiveCtx.getAllConfs.foreach(f => Console.println("Key:" + f._1 + " | value:" + f._2));
+        hiveCtx.sql("set spark.sql.shuffle.partitions=1");
         Console.println("### Spark Context instantiated ###");
     }
     
@@ -45,13 +45,13 @@ trait BaseModel extends Serializable {
         
     def loadInput(input: String, table: String) {
         Console.println("### Fetching Input:" + getPath(input) + " ###");
-        val events = sqlContext.jsonFile(getPath(input)).persist();
-        Console.println("### Data fetched. # of records - " + events.count() + " ###");
+        val events = hiveCtx.jsonFile(getPath(input));
+        //Console.println("### Data fetched. # of records - " + events.count() + " ###");
         events.registerTempTable(table);
     }
     
     def queryData(sql: String) : DataFrame = {
-        sqlContext.sql(sql);
+        hiveCtx.sql(sql);
     }
 
 }

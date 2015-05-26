@@ -1,14 +1,10 @@
 package org.ekstep.ilimi.analytics.model.game
 
-import org.apache.spark.sql.hive.HiveContext
-import org.apache.spark.sql.Row
-import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Map
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
-import org.apache.commons.math3.stat.StatUtils
-import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
+
+import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.conf.AppConf
-import org.apache.spark.sql.hive.HiveContext
+import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
 import org.ekstep.ilimi.analytics.model.BaseModel
 
 object RateOfAdvancementModel extends BaseModel {

@@ -21,7 +21,7 @@ object EffectivenessStatsDAO extends BaseDAO {
         updateSQL = "UPDATE CONCEPT_STATS SET MIN_IMPROVEMENT = ?, MAX_IMPROVEMENT = ?, MEAN_IMPROVEMENT = ?, SD_IMPROVEMENT = ?, EFFECT_SIZE = ? WHERE CONCEPT_ID = ? and GAME_ID = ?";
         data = new ListBuffer[Array[AnyRef]]();
         var stats = new DescriptiveStatistics();
-        userScores.map(x => stats.addValue(x._2._3));
+        userScores.map(x => stats.addValue(getFloatValue(x._2._3)));
         val mean = stats.getMean();
         val sd = stats.getStandardDeviation();
         val tstat = mean / sd;
