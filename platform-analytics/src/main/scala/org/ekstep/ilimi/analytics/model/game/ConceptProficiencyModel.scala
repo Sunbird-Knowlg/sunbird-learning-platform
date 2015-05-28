@@ -2,10 +2,15 @@ package org.ekstep.ilimi.analytics.model.game
 
 import scala.collection.mutable.Map
 
+import org.apache.spark.HashPartitioner
+import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.conf.AppConf
 import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
 import org.ekstep.ilimi.analytics.model.BaseModel
+import org.ekstep.ilimi.analytics.model.Event
+
+case class ConceptProficiencyOutput(uid: String, before_screener: String, after_screener: String, before_score: Float, after_score: Float, difference: Float, percent_improvement: Float);
 
 object ConceptProficiencyModel extends BaseModel {
 
@@ -21,53 +26,57 @@ object ConceptProficiencyModel extends BaseModel {
         val t1 = System.currentTimeMillis;
         compute(args);
         val t2 = System.currentTimeMillis;
-        Console.println("Time taken to compute - " + (t2 - t1) / 1000);
+        Console.println("### Model run complete - Time taken to compute - " + (t2 - t1) / 1000 + " ###");
     }
 
-    def validate(args: Array[String]): Boolean = {
+    override def validate(args: Array[String]): Boolean = {
         Console.println("### Arguments - " + args.mkString(" # ") + " ###");
-        if(args.length < 4) 
+        if (args.length < 4)
             return false;
         return true;
     }
 
-    def compute(args: Array[String]) {
-        if (validate(args))
-            computeGameEffectiveness(args(0), args(1), args(2), args(3));
-        else
+    override def compute(args: Array[String]) {
+        if (validate(args)) {
+            val parallelization = { if (args.length > 4) args(4) else null };
+            val sc = initializeSparkContext(args(2), parallelization);
+            computeGameEffectiveness(sc, args(0), args(1), args(3));
+            closeSparkContext(sc);
+        } else
             throw new Exception("Invalid arguments")
     }
 
-    def computeGameEffectiveness(input: String, output: String, location: String, gameData: String) {
+    val validEvents = Array("GE_LAUNCH_GAME", "GE_GAME_END", "OE_ASSESS");
+    def filter(e: Event): Boolean = {
+        validEvents.contains(e.eid)
+    }
+
+    def computeGameEffectiveness(sc: SparkContext, input: String, output: String, gameData: String) {
 
         var gd: Array[String] = gameData.split(",");
         val gameId = gd(0);
         val beforeScreener = gd(1);
         val afterScreener = gd(2);
         val conceptId = gd(3);
-        initializeSparkContext(location);
-        loadInput(input, "telemetry_events");
+        val baseRDD = loadInput(sc, input, filter);
         Console.println("### Computing concept improvement stats ###");
-        //val validSessions = queryData("SELECT distinct sid FROM telemetry_events where edata.eks.gid in ('" + beforeScreener + "', '" + afterScreener + "')").collect().map { x => x.getString(0) }
-        //Console.println("### Valid Sessions - " + validSessions.length + " ###");
-        //val results = queryData("SELECT uid, ts, eid, sid, edata.eks.gid, edata.eks.score, edata.eks.maxscore FROM telemetry_events where eid in ('GE_LAUNCH_GAME', 'GE_GAME_END', 'OE_ASSESS') and sid in ('" + validSessions.mkString("','") + "')");
-        val results = queryData("SELECT uid, ts, eid, sid, edata.eks.gid, edata.eks.score, edata.eks.maxscore FROM telemetry_events where eid in ('GE_LAUNCH_GAME', 'GE_GAME_END', 'OE_ASSESS')").persist();
-        val userPairs = results.map(row => (row.getString(0), Array(row))).reduceByKey((a, b) => a ++ b, 1).mapValues(rows => {
-            rows.sortBy { row => row.getLong(1) };
+        val userPairs = baseRDD.map(event => (event.uid.get, Array(event))).partitionBy(new HashPartitioner(this.parallelization));
+        val userScores = userPairs.reduceByKey((a, b) => a ++ b).mapValues(events => {
+            events.sortBy { event => event.ts };
             var gameMap: Map[String, (Float, Int)] = Map();
             var currGame: String = null;
-            rows.foreach { row =>
+            events.foreach { event =>
                 {
-                    row.getString(2) match {
+                    event.eid match {
                         case "GE_LAUNCH_GAME" =>
-                            currGame = row.getString(4);
+                            currGame = event.edata.eks.gid.get;
                             if (!gameMap.contains(currGame)) {
                                 gameMap(currGame) = (0, 0);
                             }
                         case "OE_ASSESS" =>
                             if (null != currGame) {
                                 var currVal = gameMap(currGame);
-                                gameMap(currGame) = (currVal._1 + (row.getLong(5).floatValue() / row.getLong(6).floatValue()), currVal._2 + 1);
+                                gameMap(currGame) = (currVal._1 + (event.edata.eks.score.get.floatValue() / event.edata.eks.maxscore.get.floatValue()), currVal._2 + 1);
                             }
                         case _ => {}
                     }
@@ -75,13 +84,13 @@ object ConceptProficiencyModel extends BaseModel {
             }
 
             ((gameMap(beforeScreener)._1 / gameMap(beforeScreener)._2) * 100, (gameMap(afterScreener)._1 / gameMap(afterScreener)._2) * 100);
-        }).mapValues(f => (f._1, f._2, f._2 - f._1, (f._2 - f._1)/f._1));
-        val outputJson = userPairs.map(x => "{\"uid\":" + x._1 + ",\"before_score\":" + x._2._1 + ",\"after_score\":" + x._2._2 + ",\"difference\":" + x._2._3 + "}")
+        }).map(f => ConceptProficiencyOutput(f._1, beforeScreener, afterScreener, f._2._1, f._2._2, f._2._2 - f._2._1, (f._2._2 - f._2._1) / f._2._1))
+
+        val result = userScores.collect().toBuffer;
         Console.println("### Saving Concept Improvement stats to " + getPath(output + "/concept_improvement") + " ###");
-        outputJson.saveAsTextFile(getPath(output + "/concept_improvement"))
-        
-        EffectivenessStatsDAO.saveConceptEffectivness(userPairs.collect(), gameId, conceptId);
-        closeSparkContext;
+        saveResult(sc, result, output + "/concept_improvement");
+        Console.println("### Saving Concept Improvement stats to RDS ###");
+        EffectivenessStatsDAO.saveConceptEffectivness(result, gameId, conceptId);
     }
 
 }
