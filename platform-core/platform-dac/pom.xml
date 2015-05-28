@@ -11,13 +11,11 @@
 		<profile>
 			<id>development</id>
 			<activation>
-<!-- 
-				<activeByDefault>true</activeByDefault>
- -->
+				<!-- <activeByDefault>true</activeByDefault> -->
 				<property>
-                    <name>environment.type</name>
-                    <value>dev</value>
-                </property>
+					<name>environment.type</name>
+					<value>dev</value>
+				</property>
 			</activation>
 			<build>
 				<resources>
@@ -28,21 +26,21 @@
 				</resources>
 			</build>
 			<properties>
-                <db.driverClassName>com.mysql.jdbc.Driver</db.driverClassName>
-                <db.url>jdbc:mysql://localhost:3306/ekstep</db.url>
-                <db.username>root</db.username>
-                <db.password>c4n0pu5</db.password>
-                <db.initialSize>2</db.initialSize>
-                <db.maxActive>10</db.maxActive>
-                <db.validationQuery>select 1</db.validationQuery>
-                <hibernate.dialect>org.hibernate.dialect.MySQL5Dialect</hibernate.dialect>
-                <hibernate.show_sql>true</hibernate.show_sql>
-                <hibernate.query.substitutions>true 1, false 0</hibernate.query.substitutions>
-                <hibernate.hbm2ddl.auto>none</hibernate.hbm2ddl.auto>
-                <hibernate.default_schema>ekstep</hibernate.default_schema>
-                <hibernate.packagesToScan>com.ilimi</hibernate.packagesToScan>
-                <hibernate.jdbc.batch_size>3</hibernate.jdbc.batch_size>
-           </properties>
+				<db.driverClassName>com.mysql.jdbc.Driver</db.driverClassName>
+				<db.url>jdbc:mysql://localhost:3306/ekstep</db.url>
+				<db.username>root</db.username>
+				<db.password>c4n0pu5</db.password>
+				<db.initialSize>2</db.initialSize>
+				<db.maxActive>10</db.maxActive>
+				<db.validationQuery>select 1</db.validationQuery>
+				<hibernate.dialect>org.hibernate.dialect.MySQL5Dialect</hibernate.dialect>
+				<hibernate.show_sql>true</hibernate.show_sql>
+				<hibernate.query.substitutions>true 1, false 0</hibernate.query.substitutions>
+				<hibernate.hbm2ddl.auto>none</hibernate.hbm2ddl.auto>
+				<hibernate.default_schema>ekstep</hibernate.default_schema>
+				<hibernate.packagesToScan>com.ilimi</hibernate.packagesToScan>
+				<hibernate.jdbc.batch_size>3</hibernate.jdbc.batch_size>
+			</properties>
 		</profile>
 	</profiles>
 
@@ -143,10 +141,10 @@
 			</exclusions>
 		</dependency>
 		<dependency>
-            <groupId>org.hibernate</groupId>
-            <artifactId>hibernate-envers</artifactId>
-            <version>${hibernate.version}</version>
-        </dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-envers</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.genericdao</groupId>
 			<artifactId>dao-hibernate</artifactId>

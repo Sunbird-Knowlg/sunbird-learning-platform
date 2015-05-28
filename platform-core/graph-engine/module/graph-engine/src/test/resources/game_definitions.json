@@ -69,9 +69,22 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
-          "propertyName": "url",
-          "title": "Url",
-          "description": "",
+          "propertyName": "launchUrl",
+          "title": "Launch Url",
+          "description": "URL to launch the game",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "osId",
+          "title": "Operating System Id",
+          "description": "Operating System specific Id",
           "category": "general",
           "dataType": "Text",
           "range": [],
@@ -322,9 +335,9 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
         },
         {
-          "propertyName": "location",
-          "title": "Location",
-          "description": "",
+          "propertyName": "downloadUrl",
+          "title": "Download Url",
+          "description": "URL to download the game",
           "category": "technical",
           "dataType": "Text",
           "range": [],
@@ -694,7 +707,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "url"],
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId"],
       	"status": ["Live"]
       }
     },

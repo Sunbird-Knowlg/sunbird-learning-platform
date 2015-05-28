@@ -200,6 +200,7 @@ public class ConceptController extends BaseController {
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Get Concepts | Exception: " + e.getMessage(), e);
+            e.printStackTrace();
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

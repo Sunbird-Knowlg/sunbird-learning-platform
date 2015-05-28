@@ -4,14 +4,12 @@ import cucumber.api.CucumberOptions;
 import cucumber.api.junit.Cucumber;
 
 @RunWith(Cucumber.class)
-@CucumberOptions(
-        monochrome = false,
-        format = {
-                "pretty",
-                "html:target/cucumber",
+@CucumberOptions (
+		monochrome = false,
+		format = {"pretty", "html:target/cucumber",
                 "json:target_json/cucumber.json",
-                "junit:taget_junit/cucumber.xml"
-        }
+                "junit:taget_junit/cucumber.xml"}
 )
 public class RunCukesTest {
+
 }
