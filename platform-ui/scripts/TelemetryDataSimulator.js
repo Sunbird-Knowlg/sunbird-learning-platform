@@ -11,6 +11,9 @@
  * Script to simulate Telemetry data
  *
  * @author Santhosh
+ * usage -
+ *  node TelemetryDataSimulator.js <device-size> <users-per-device> <output-dir>/<file-name>
+ * 	node TelemetryDataSimulator.js 10 10 /Users/santhosh/ekStep/spark_data_files/simulated_data_100.json
  */
 var faker = require('faker');
 var fs = require('fs');
