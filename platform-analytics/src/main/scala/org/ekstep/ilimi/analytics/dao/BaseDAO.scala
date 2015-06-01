@@ -1,9 +1,10 @@
 package org.ekstep.ilimi.analytics.dao
 
-import org.ekstep.ilimi.analytics.util.AppDBUtils
-import org.apache.commons.dbutils.QueryRunner
-import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Buffer
+import scala.collection.mutable.ListBuffer
+
+import org.apache.commons.dbutils.QueryRunner
+import org.ekstep.ilimi.analytics.util.AppDBUtils
 
 class BaseDAO {
 
@@ -11,19 +12,21 @@ class BaseDAO {
         var retVal: Float = 0;
 
         if (x.isNaN() || x.isInfinite()) {
+            Console.println("### Nan or Infinite ### - " + x);
             retVal = 0;
         } else {
             retVal = x;
         }
 
         return retVal;
-        
+
     }
-    
+
     def getValue(x: Float): AnyRef = {
         var retVal: AnyRef = null;
 
         if (x.isNaN() || x.isInfinite()) {
+            Console.println("### Nan or Infinite ### - " + x);
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
@@ -35,6 +38,7 @@ class BaseDAO {
     def getValue(x: Double): AnyRef = {
         var retVal: AnyRef = null;
         if (x.isNaN() || x.isInfinite()) {
+            Console.println("### Nan or Infinite ### - " + x);
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
@@ -46,6 +50,7 @@ class BaseDAO {
     def getValue(x: Long): AnyRef = {
         var retVal: AnyRef = null;
         if (x.toInt.isNaN() || x.toInt.isInfinite()) {
+            Console.println("### Nan or Infinite ### - " + x);
             retVal = 0.asInstanceOf[AnyRef];
         } else {
             retVal = x.asInstanceOf[AnyRef];
