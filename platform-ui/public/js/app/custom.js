@@ -93,13 +93,6 @@
         $(".RightSideBar").toggleClass('Effectsidebar');
         $(".mid-area").toggleClass('Effectside');
         $(".right-search-btn").toggle('slow');
-        setTimeout(function() {
-            resizeDashboardGrid();
-            resizeStudentSummaryGrid();
-            resizeStudentGradebookGrid();
-            CurrentPlayer.resizeMediaPlayer();
-            IntroVideoPlayer.resize();
-        }, 500);
     });
 
     /* added by raj */
