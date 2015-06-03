@@ -1,21 +1,17 @@
 package org.ekstep.ilimi.analytics.model.game
 
-import scala.annotation.migration
 import scala.collection.mutable.Buffer
 
 import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
-import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
 import org.ekstep.ilimi.analytics.model.BaseModel
 import org.ekstep.ilimi.analytics.model.Event
-import org.json4s.DefaultFormats
-import org.json4s.Extraction
-import org.json4s.jackson.JsonMethods.compact
+import org.ekstep.ilimi.analytics.model.Output
 
 case class GameOutput(gameId: String, levels: Int, time_taken: Float, roa_ratio: Float);
-case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]);
+case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]) extends Output;
 
 object RateOfAdvancementModel extends BaseModel {
 
@@ -50,21 +46,9 @@ object RateOfAdvancementModel extends BaseModel {
                 .map(f => GameOutput(f._1, f._2._1, f._2._2, f._2._3));
         }).map(f => RateOfAdvancementOutput(f._1, f._2.toArray)).persist();
 
-        //val result = userScores.collect().toBuffer;
-        Console.println("### Saving Rate of advancement stats to " + getPath(output + "/rate_of_advancement") + " ###");
-        //saveResult(sc, result, output + "/rate_of_advancement");
-        saveResult(userScores, output + "/rate_of_advancement");
+        saveResult(userScores, output, "rate_of_advancement.json");
         Console.println("### Saving Rate of advancement stats to RDS ###");
-        //EffectivenessStatsDAO.saveRateOfAdvStats(result);
         EffectivenessStatsDAO.saveRateOfAdvStats(userScores.collect().toBuffer);
     }
 
-    def saveResult(rdd: RDD[RateOfAdvancementOutput], output: String) = {
-        rdd.map { output =>
-            {
-                implicit val formats = DefaultFormats;
-                compact(Extraction.decompose(output))
-            }
-        }.saveAsTextFile(getPath(output));
-    }
 }
