@@ -138,6 +138,10 @@ function registerMiddlewaresAndListen(app, sessionStore) {
     });
 
     app.use(app.router);
+    if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+        app.use('/' + appConfig.CONTEXT_NAME, app.router);    
+    }
+    
 
     // Override Express routes generic try catch block - Catches all synchronous errors
     app.use(function(err, req, res, next) {
@@ -156,6 +160,11 @@ function registerMiddlewaresAndListen(app, sessionStore) {
 
     //Add dynamic compression if you don't handle all files static
     app.use(express.compress());
+
+    if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+        app.use('/' + appConfig.CONTEXT_NAME, express.static(path.join(__dirname, 'public')));
+        app.use('/' + appConfig.CONTEXT_NAME, express.static(path.join(__dirname, 'views')));
+    }
 
     app.use(express.static(path.join(__dirname, 'public')));
     app.use(express.static(path.join(__dirname, 'views')));
