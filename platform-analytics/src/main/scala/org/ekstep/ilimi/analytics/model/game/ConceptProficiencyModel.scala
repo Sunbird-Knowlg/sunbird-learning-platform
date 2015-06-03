@@ -1,15 +1,21 @@
 package org.ekstep.ilimi.analytics.model.game
 
+import scala.annotation.migration
 import scala.collection.mutable.Buffer
 
 import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
+import org.apache.spark.rdd.RDD
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
 import org.ekstep.ilimi.analytics.model.BaseModel
 import org.ekstep.ilimi.analytics.model.Event
+import org.ekstep.ilimi.analytics.model.Output
+import org.json4s.DefaultFormats
+import org.json4s.Extraction
+import org.json4s.jackson.JsonMethods.compact
 
-case class ConceptProficiencyOutput(uid: String, before_screener: String, after_screener: String, before_score: Float, after_score: Float, difference: Float, percent_improvement: Float);
+case class ConceptProficiencyOutput(uid: String, before_screener: String, after_screener: String, before_score: Float, after_score: Float, difference: Float, percent_improvement: Float) extends Output;
 
 object ConceptProficiencyModel extends BaseModel {
 
@@ -51,13 +57,24 @@ object ConceptProficiencyModel extends BaseModel {
                 .mapValues { x => x.map(f => f._2) }.mapValues { x => x.reduce(_ + _) / x.size }
                 .toMap;
             (gameMap(beforeScreener), gameMap(afterScreener));
-        }).map(f => ConceptProficiencyOutput(f._1, beforeScreener, afterScreener, f._2._1, f._2._2, f._2._2 - f._2._1, (f._2._2 - f._2._1) / f._2._1))
+        }).map(f => ConceptProficiencyOutput(f._1, beforeScreener, afterScreener, f._2._1, f._2._2, f._2._2 - f._2._1, (f._2._2 - f._2._1) / f._2._1)).persist();
 
-        val result = userScores.collect().toBuffer;
+        //val result = userScores.collect().toBuffer;
         Console.println("### Saving Concept Improvement stats to " + getPath(output + "/concept_improvement") + " ###");
-        saveResult(sc, result, output + "/concept_improvement");
+        //saveResult(sc, result, output + "/concept_improvement");
+        saveResult(userScores, output + "/concept_improvement");
         Console.println("### Saving Concept Improvement stats to RDS ###");
-        EffectivenessStatsDAO.saveConceptEffectivness(result, gameId, conceptId);
+        //EffectivenessStatsDAO.saveConceptEffectivness(result, gameId, conceptId);
+        EffectivenessStatsDAO.saveConceptEffectivness(userScores.collect().toBuffer, gameId, conceptId);
+    }
+
+    def saveResult(rdd: RDD[ConceptProficiencyOutput], output: String) = {
+        rdd.map { output =>
+            {
+                implicit val formats = DefaultFormats;
+                compact(Extraction.decompose(output))
+            }
+        }.saveAsTextFile(getPath(output));
     }
 
 }

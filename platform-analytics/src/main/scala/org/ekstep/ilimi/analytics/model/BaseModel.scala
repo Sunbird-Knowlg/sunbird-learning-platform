@@ -18,6 +18,10 @@ case class Edata(eks: Eks)
 case class Gdata(id: String, ver: String)
 case class Event(eid: String, ts: Long, ver: String, gdata: Gdata, sid: Option[String], uid: Option[String], did: String, edata: Edata)
 
+trait Output {
+    
+}
+
 abstract class BaseModel extends Serializable {
 
     var location: String = null;
@@ -62,7 +66,7 @@ abstract class BaseModel extends Serializable {
                 implicit val formats = DefaultFormats;
                 pretty(Extraction.decompose(output))
             }
-        }, this.parallelization).saveAsTextFile(output);
+        }, this.parallelization).saveAsTextFile(getPath(output));
     }
-
+    
 }
