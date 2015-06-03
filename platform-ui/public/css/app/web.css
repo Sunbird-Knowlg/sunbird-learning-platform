@@ -790,27 +790,27 @@ div#page {
 }
 
 .explore-icon {
-    background: url(/img/explore-icon.png) no-repeat;
+    background: url(../../img/explore-icon.png) no-repeat;
 }
 
 .topfaculty-icon {
-    background: url(/img/topfaculty-icon.png) no-repeat;
+    background: url(../../img/topfaculty-icon.png) no-repeat;
 }
 
 .tutoring-icon {
-    background: url(/img/tutoring-icon.png) no-repeat;
+    background: url(../../img/tutoring-icon.png) no-repeat;
 }
 
 .showcase-icon {
-    background: url(/img/showcase-icon.png) no-repeat;
+    background: url(../../img/showcase-icon.png) no-repeat;
 }
 
 .personalization-icon {
-    background: url(/img/personalization-icon.png) no-repeat;
+    background: url(../../img/personalization-icon.png) no-repeat;
 }
 
 .social-learning-icon {
-    background: url(/img/social_learning.png) no-repeat;
+    background: url(../../img/social_learning.png) no-repeat;
 }
 
 .widgetChg {
@@ -922,7 +922,7 @@ div#page {
 
 section#contact {
     background-color: #222;
-    background-image: url(/img/map-image.png);
+    background-image: url(../../img/map-image.png);
     background-position: center;
     background-repeat: no-repeat;
 }
@@ -1332,7 +1332,7 @@ p.courseHint {
 }
 
 .HeaderBannerz {
-    background: url(/img/course/Python-For-Big-Data-Analytics.png) top 37px right no-repeat;
+    background: url(../../img/course/Python-For-Big-Data-Analytics.png) top 37px right no-repeat;
     padding: 50px 0px;
     margin-top: 57px;
     text-align: left;

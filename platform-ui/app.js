@@ -139,10 +139,16 @@ function registerMiddlewaresAndListen(app, sessionStore) {
 
     app.use(app.router);
     if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+        app.locals({
+            contextPath: "/" + appConfig.CONTEXT_NAME
+        });
         app.use('/' + appConfig.CONTEXT_NAME, app.router);    
+    } else {
+        app.locals({
+            contextPath: ""
+        });
     }
     
-
     // Override Express routes generic try catch block - Catches all synchronous errors
     app.use(function(err, req, res, next) {
         if(process.domain) {

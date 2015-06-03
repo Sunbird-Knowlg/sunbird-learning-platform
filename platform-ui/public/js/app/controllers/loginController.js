@@ -18,6 +18,7 @@ appObj.controller('LoginCtrl', function($scope, $rootScope, $http, $location, $w
     $scope.passWord = "";
     $scope.success;
     $scope.environment = 'General';
+    $rootScope.contextPath = $('#contextPath').val();
 
     var currPath = undefined;
 

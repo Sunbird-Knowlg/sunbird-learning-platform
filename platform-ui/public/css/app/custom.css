@@ -1,13 +1,13 @@
 @font-face {
     font-family: 'bebasNeue';
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neuebold') format('svg')
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neuebold') format('svg')
 }
 
 @font-face {
     font-family: 'bebas_neue_bold';
-    src: url('/fonts/bebas-neue/bebasneue_bold-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_bold-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_bold-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_bold-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_bold-webfont.svg#bebas_neuebold') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_bold-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_bold-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.svg#bebas_neuebold') format('svg');
     font-weight: bold;
     font-style: normal
 }
@@ -332,7 +332,7 @@ a {
 }
 
 .sideicon4 {
-    background-image: url("/img/collapse-icon.png");
+    background-image: url("../../img/collapse-icon.png");
     width: 47px;
     display: block;
     height: 16px;
@@ -482,7 +482,7 @@ a#WriteNote i {
 }
 
 .resumeImg {
-    background-image: url("/img/resume.png");
+    background-image: url("../../img/resume.png");
     vertical-align: middle;
     margin-right: 5px
 }
@@ -1359,15 +1359,15 @@ li.inputField {
 }
 
 .il-collapse {
-    background: url(/img/collapse-active.png) no-repeat
+    background: url(../../img/collapse-active.png) no-repeat
 }
 
 .il-arrowLeft {
-    background: url(/img/arrowleft.png) no-repeat
+    background: url(../../img/arrowleft.png) no-repeat
 }
 
 .il-arrowRight {
-    background: url(/img/arrowRight.png) no-repeat;
+    background: url(../../img/arrowRight.png) no-repeat;
     right: 0
 }
 
@@ -1381,11 +1381,11 @@ li.inputField {
 }
 
 .collapsed .il-collapse {
-    background: url(/img/collapse-icon.png) no-repeat
+    background: url(../../img/collapse-icon.png) no-repeat
 }
 
 .video-container .collapsed .il-collapse {
-    background: url(/img/collapse-icon.png) no-repeat #fff
+    background: url(../../img/collapse-icon.png) no-repeat #fff
 }
 
 .dd-content .panel-heading {
@@ -1408,19 +1408,19 @@ li.inputField {
 }
 
 ul .round-full {
-    background: url(/img/round-full.jpg) top left no-repeat
+    background: url(../../img/round-full.jpg) top left no-repeat
 }
 
 ul .round-half {
-    background: url(/img/round-half.jpg) top left no-repeat
+    background: url(../../img/round-half.jpg) top left no-repeat
 }
 
 ul .round-still {
-    background: url(/img/round-still.jpg) top left no-repeat
+    background: url(../../img/round-still.jpg) top left no-repeat
 }
 
 ul .round-null {
-    background: url(/img/round-null.jpg) top left no-repeat
+    background: url(../../img/round-null.jpg) top left no-repeat
 }
 
 .ref-links span.ilauthr:hover {
@@ -1457,7 +1457,7 @@ ul.dropdown-menu li.moreMenu a:hover {
     width: 25px;
     height: 20px;
     margin: 0 3px;
-    background-image: url(/img/reference-icon.png);
+    background-image: url(../../img/reference-icon.png);
     background-repeat: no-repeat;
     display: inline-block
 }
@@ -1495,11 +1495,11 @@ ul.dropdown-menu li.moreMenu a:hover {
 }
 
 .il-fileIcon {
-    background: url(/img/icon-file.png) no-repeat
+    background: url(../../img/icon-file.png) no-repeat
 }
 
 .bookmarkIcn {
-    background: url(/img/bookmark.png) no-repeat;
+    background: url(../../img/bookmark.png) no-repeat;
     display: inline-block;
     width: 24px;
     height: 24px;
@@ -1514,13 +1514,13 @@ ul.dropdown-menu li.moreMenu a:hover {
 .bookmarkIcn:hover,
 .bookmarkIcn.active,
 .bookmarkIcn:focus {
-    background: url(/img/bookmark_blue.png) no-repeat;
+    background: url(../../img/bookmark_blue.png) no-repeat;
     width: 24px;
     height: 24px
 }
 
 .il-videoIcon {
-    background: url(/img/icon-video.png) no-repeat;
+    background: url(../../img/icon-video.png) no-repeat;
     width: 20px;
     height: 20px;
     background-position: left;
@@ -1540,7 +1540,7 @@ ul.dropdown-menu li.moreMenu a:hover {
 }
 
 .ilimiicons {
-    background: url(/img/sprite20.png) no-repeat;
+    background: url(../../img/sprite20.png) no-repeat;
     float: left;
     width: 20px;
     height: 20px
@@ -1699,7 +1699,7 @@ ul {
 }
 
 .votes:hover {
-    background-image: url("/img/thumbs-up.png")
+    background-image: url("../../img/thumbs-up.png")
 }
 
 .ac-contents {
@@ -2108,7 +2108,7 @@ ul.social-icons li a .fa:hover {
 }
 
 .bottomendbtn {
-    background: url(/img/collapse-icon.png) no-repeat transparent;
+    background: url(../../img/collapse-icon.png) no-repeat transparent;
     display: block;
     width: 46px;
     height: 18px;
@@ -2158,7 +2158,7 @@ input.form-control.searchdrpinput {
 }
 
 .courseImg {
-    background-image: url("/img/course.svg");
+    background-image: url("../../img/course.svg");
     background-size: contain
 }
 
@@ -2212,7 +2212,7 @@ input.form-control.searchdrpinput {
 .NavLeftContainer .dropdown .dropdown-toggle:hover .courseImg,
 .dropdown .courseTab .active .common_box,
 .NavLeftContainer li.dropdown.courseTab.active.common_box .courseImg {
-    background-image: url("/img/courseH.svg");
+    background-image: url("../../img/courseH.svg");
     background-size: contain
 }
 
@@ -2233,7 +2233,7 @@ li.dropdown.courseTab.common_box.open,
 }
 
 .exploreImg {
-    background-image: url("/img/explore.svg");
+    background-image: url("../../img/explore.svg");
     background-size: contain
 }
 
@@ -2242,7 +2242,7 @@ li.dropdown.courseTab.common_box.open,
 .NavLeftContainer .dropdown .dropdown-toggle:hover .exploreImg,
 .dropdown .exploreTab .active .common_box,
 .NavLeftContainer li.dropdown.exploreTab.active.common_box .exploreImg {
-    background-image: url("/img/exploreH.svg");
+    background-image: url("../../img/exploreH.svg");
     background-size: contain
 }
 
@@ -2261,7 +2261,7 @@ li.dropdown.exploreTab.common_box.open,
 }
 
 .communityImg {
-    background-image: url("/img/community.svg");
+    background-image: url("../../img/community.svg");
     background-size: contain
 }
 
@@ -2270,7 +2270,7 @@ li.dropdown.exploreTab.common_box.open,
 .NavLeftContainer .dropdown .dropdown-toggle:hover .communityImg,
 .dropdown .communityTab .active .common_box,
 .NavLeftContainer li.dropdown.communityTab.active.common_box .communityImg {
-    background-image: url("/img/communityH.svg");
+    background-image: url("../../img/communityH.svg");
     background-size: contain
 }
 
@@ -2289,7 +2289,7 @@ li.dropdown.communityTab.active.common_box {
 }
 
 .forumsImg {
-    background-image: url("/img/forums.svg");
+    background-image: url("../../img/forums.svg");
     background-size: contain
 }
 
@@ -2298,7 +2298,7 @@ li.dropdown.communityTab.active.common_box {
 .NavLeftContainer .dropdown .dropdown-toggle:hover .forumsImg,
 .dropdown .forumsTab .active .common_box,
 .NavLeftContainer li.dropdown.forumsTab.active.common_box .forumsImg {
-    background-image: url("/img/forumsH.svg");
+    background-image: url("../../img/forumsH.svg");
     background-size: contain
 }
 
@@ -2344,7 +2344,7 @@ li.dropdown.coachingTab.active.common_box {
 }
 
 .coachingImg {
-    background-image: url("/img/coaching.svg");
+    background-image: url("../../img/coaching.svg");
     background-size: contain
 }
 
@@ -2353,7 +2353,7 @@ li.dropdown.coachingTab.active.common_box {
 .NavLeftContainer .dropdown .dropdown-toggle:hover .coachingImg,
 .dropdown .coachingTab .active .common_box,
 .NavLeftContainer li.dropdown.coachingTab.active.common_box .coachingImg {
-    background-image: url("/img/coachingH.svg");
+    background-image: url("../../img/coachingH.svg");
     background-size: contain
 }
 
@@ -2476,7 +2476,7 @@ p.des_content span {
     padding-right: 15px
 }
 .common_icon {
-    background: url('/img/action_icons.png')no-repeat;
+    background: url('../../img/action_icons.png')no-repeat;
     display: inline-block;
     width: 52px;
     height: 44px
@@ -2543,7 +2543,7 @@ li.dropdown.forumsTab.common_box.active {
     padding: 0
 }
 .tocVideo {
-    background-image: url("/img/toc_video.png");
+    background-image: url("../../img/toc_video.png");
     display: inline-block;
     width: 18px;
     height: 13px;
@@ -2551,7 +2551,7 @@ li.dropdown.forumsTab.common_box.active {
     margin-right: 10px
 }
 .tocchecked {
-    background-image: url("/img/toc_checked.png");
+    background-image: url("../../img/toc_checked.png");
     display: inline-block;
     width: 23px;
     height: 13px;
@@ -2559,7 +2559,7 @@ li.dropdown.forumsTab.common_box.active {
     margin-right: 10px
 }
 .tocclass {
-    background-image: url("/img/toc_class.png");
+    background-image: url("../../img/toc_class.png");
     display: inline-block;
     width: 18px;
     height: 15px;
@@ -2653,7 +2653,7 @@ span.titleHint {
     margin-bottom: 20px
 }
 .com-full {
-    background-image: url("/img/round-full.jpg");
+    background-image: url("../../img/round-full.jpg");
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -2662,7 +2662,7 @@ span.titleHint {
     vertical-align: top
 }
 .com-half {
-    background-image: url("/img/round-half.jpg");
+    background-image: url("../../img/round-half.jpg");
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -2671,7 +2671,7 @@ span.titleHint {
     vertical-align: top
 }
 .com-null {
-    background-image: url("/img/round-null.jpg");
+    background-image: url("../../img/round-null.jpg");
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -2698,7 +2698,7 @@ span.titleHint {
     font-family: 'FrutigerSerifLTW01-Medi 722257';
 }
 .FileDetails.video {
-    background-image: url("/img/toc_video.png");
+    background-image: url("../../img/toc_video.png");
     display: inline-block;
     width: 18px;
     height: 13px;
@@ -2709,7 +2709,7 @@ span.titleHint {
     margin-top: 5px
 }
 .FileDetails.doc {
-    background-image: url("/img/doctype.png");
+    background-image: url("../../img/doctype.png");
     display: inline-block;
     width: 26px;
     height: 18px;
@@ -2740,7 +2740,7 @@ span.titleHint {
     padding-left: 30px
 }
 .exam_com {
-    background-image: url("/img/exam_complted.png");
+    background-image: url("../../img/exam_complted.png");
     display: inline-block;
     width: 26px;
     height: 22px;
@@ -2749,7 +2749,7 @@ span.titleHint {
     margin-left: 6px
 }
 .exam_alert {
-    background-image: url("/img/exam_alert.png");
+    background-image: url("../../img/exam_alert.png");
     display: inline-block;
     width: 26px;
     height: 22px;
@@ -2758,7 +2758,7 @@ span.titleHint {
     margin-left: 6px
 }
 .exam_noti {
-    background-image: url("/img/exam_noti.png");
+    background-image: url("../../img/exam_noti.png");
     display: inline-block;
     width: 26px;
     height: 22px;
@@ -2767,7 +2767,7 @@ span.titleHint {
     margin-left: 6px
 }
 .exam_new {
-    background-image: url("/img/exam_new.png");
+    background-image: url("../../img/exam_new.png");
     display: inline-block;
     width: 37px;
     height: 23px;
@@ -2809,7 +2809,7 @@ a:focus {
     min-height: 800px
 }
 .groupFloder {
-    background-image: url("/img/group-category.png");
+    background-image: url("../../img/group-category.png");
     display: inline-block;
     width: 37px;
     height: 23px;
@@ -2818,10 +2818,10 @@ a:focus {
     margin-right: -18px
 }
 .groupFloder:hover {
-    background-image: url("/img/group-categoryH.png")
+    background-image: url("../../img/group-categoryH.png")
 }
 .addmemberhead {
-    background-image: url("/img/addmember.png");
+    background-image: url("../../img/addmember.png");
     display: inline-block;
     width: 37px;
     height: 23px;
@@ -2831,7 +2831,7 @@ a:focus {
     margin-right: -17px
 }
 .editgroupheadz {
-    background-image: url("/img/editFolder.png");
+    background-image: url("../../img/editFolder.png");
     display: inline-block;
     width: 37px;
     height: 23px;
@@ -2841,11 +2841,11 @@ a:focus {
 }
 .editgroupheadz:hover,
 .editgroupheadz:focus {
-    background-image: url("/img/editFolderH.png")
+    background-image: url("../../img/editFolderH.png")
 }
 .addmemberhead:hover,
 .addmemberhead:focus {
-    background-image: url("/img/addmemberH.png")
+    background-image: url("../../img/addmemberH.png")
 
 }
 .addGroupContainer {

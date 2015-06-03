@@ -23,7 +23,7 @@
 <script type="text/ng-template" id="reply_template.html">
     <div class="community-reply">
         <a href="#" class="pull-left">
-            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
         </a>
         <div class="reply-body">
             <div class="user">
@@ -48,7 +48,7 @@
     </div>
     <div class="community-reply marginLeft20" ng-repeat="childReply in reply.replies">
         <a href="#" class="pull-left">
-            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
         </a>
         <div class="reply-body">
             <div class="user">
@@ -76,7 +76,7 @@
                     <div class="community-replies marginBottom10" ng-if="currentComment">
                         <div class="community-reply">
                             <a href="#" class="pull-left">
-                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
                             </a>
                             <div class="reply-body">
                                 <div class="user">
@@ -173,7 +173,7 @@
                     <div class="community-replies" ng-if="selectedConcept.comments.length > 0">
                         <div class="community-reply pointer" ng-repeat="comment in selectedConcept.comments" ng-click="showComment(comment)">
                             <a href="#" class="pull-left">
-                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{comment.author.image.url || '/img/default.png'}}">
+                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{comment.author.image.url || '<%=contextPath%>/img/default.png'}}">
                             </a>
                             <div class="reply-body">
                                 <div class="user">
@@ -273,7 +273,7 @@
                         <div class="community-replies {{cat.auditHistory ? '' : 'hide'}}" ng-if="selectedConcept.auditHistory.length > 0" >
                             <div class="community-reply pointer" ng-repeat="ah in selectedConcept.auditHistory" ng-click="showComment(ah.comment)">
                                 <a href="#" class="pull-left">
-                                    <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+                                    <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
                                 </a>
                                 <div class="reply-body">
                                     <div class="user">

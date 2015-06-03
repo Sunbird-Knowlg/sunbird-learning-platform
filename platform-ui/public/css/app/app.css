@@ -719,7 +719,7 @@ h3.panel-title {
 /**programming paradigm Start**/
 
 .il-vidIcon {
-    background-image: url(/img/icon-video-m.png);
+    background-image: url(../../img/icon-video-m.png);
     height: 32px;
     width: 32px;
     margin-right: 10px;
@@ -745,7 +745,7 @@ h3.panel-title {
 }
 
 .il-roundplusIcon {
-    background-image: url(/img/icon-roundplus.png);
+    background-image: url(../../img/icon-roundplus.png);
     margin: 5px 0px;
 }
 
@@ -822,7 +822,7 @@ a:focus {
 
 .dashImg {
     display: inline-block;
-    background-image: url(/img/userImgBig.jpg);
+    background-image: url(../../img/userImgBig.jpg);
     background-repeat: no-repeat;
     height: 120px;
     width: 120px;
@@ -986,7 +986,7 @@ a:focus {
 }
 
 .evernote-icon {
-    background: url(/img/evernote.png) no-repeat;
+    background: url(../../img/evernote.png) no-repeat;
     width: 33px;
     height: 33px;
     display: inline-block;
@@ -1013,7 +1013,7 @@ a:focus {
 }
 
 .currentcourse-icon {
-    background: url(/img/course.png) no-repeat;
+    background: url(../../img/course.png) no-repeat;
     width: 33px;
     height: 33px;
     display: inline-block;
