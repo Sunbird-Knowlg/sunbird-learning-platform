@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+       http://www.springframework.org/schema/context
+       http://www.springframework.org/schema/context/spring-context-3.1.xsd">
+       
+    <import resource="classpath:mw-spring/commons-dac-context.xml"/>
+    <context:component-scan base-package="com.ilimi.*"/>
+    <context:annotation-config />
+    
+    <bean id="userStatsDAO" class="com.ilimi.analytics.dac.dao.UserStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="gameStatsDAO" class="com.ilimi.analytics.dac.dao.GameStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="conceptStatsDAO" class="com.ilimi.analytics.dac.dao.ConceptStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="studentConceptStatsDAO" class="com.ilimi.analytics.dac.dao.StudentConceptStatsDAO" p:sessionFactory-ref="sessionFactory" />
+    <bean id="studentGameStatsDAO" class="com.ilimi.analytics.dac.dao.StudentGameStatsDAO" p:sessionFactory-ref="sessionFactory" />
+
+</beans>

@@ -37,6 +37,10 @@
     margin-top: 20px
 }
 
+.marginRight5 {
+    margin-right: 5px;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -356,7 +360,7 @@ li.icon-info-list:before {
 }
 
 .evernote-icon {
-    background: url(/img/evernote.png) no-repeat;
+    background: url(../../img/evernote.png) no-repeat;
     display: inline-block;
     vertical-align: bottom;
     background-size: 70% 65%;
@@ -1089,7 +1093,7 @@ ul.qamoduleslist a:hover {
 .NavLeftContainer .sb-dropdown .dropdown-toggle:hover .courseImg,
 .sb-dropdown .courseTab .active .common_box,
 .NavLeftContainer li.sb-dropdown.courseTab.active.common_box .courseImg {
-    background-image: url("/img/courseAct.png")
+    background-image: url("../../img/courseAct.png")
 }
 
 .NavLeftContainer li.sb-dropdown.courseTab.active.common_box .lefttab {
@@ -1114,7 +1118,7 @@ li.sb-dropdown.courseTab.common_box.open,
 .sb-dropdown.forumsTab.open .dropdown-toggle .exploreImg,
 .sb-dropdown.exploreTab.common_box.open .exploreImg,
 .NavLeftContainer .sb-dropdown .dropdown-toggle:hover .exploreImg {
-    background-image: url("/img/exploreAct.png")
+    background-image: url("../../img/exploreAct.png")
 }
 
 li.sb-dropdown.exploreTab.common_box.open {
@@ -1129,7 +1133,7 @@ li.sb-dropdown.exploreTab.common_box.open {
 .NavLeftContainer .sb-dropdown .dropdown-toggle:hover .communityImg,
 .sb-dropdown .communityTab .active .common_box,
 .NavLeftContainer li.sb-dropdown.communityTab.active.common_box .communityImg {
-    background-image: url("/img/comunityAct.png")
+    background-image: url("../../img/comunityAct.png")
 }
 
 li.sb-dropdown.communityTab.common_box.open,
@@ -1153,7 +1157,7 @@ li.sb-dropdown.communityTab.active.common_box {
 .NavLeftContainer .sb-dropdown .dropdown-toggle:hover .forumsImg,
 .sb-dropdown .forumsTab .active .common_box,
 .NavLeftContainer li.sb-dropdown.forumsTab.active.common_box .forumsImg {
-    background-image: url("/img/forumsAct.png")
+    background-image: url("../../img/forumsAct.png")
 }
 
 li.sb-dropdown.forumsTab.common_box.open,
@@ -1194,7 +1198,7 @@ li.sb-dropdown.coachingTab.active.common_box {
 .NavLeftContainer .sb-dropdown .dropdown-toggle:hover .coachingImg,
 .sb-dropdown .coachingTab .active .common_box,
 .NavLeftContainer li.sb-dropdown.coachingTab.active.common_box .coachingImg {
-    background-image: url("/img/coachingAct.png")
+    background-image: url("../../img/coachingAct.png")
 }
 
 li.sb-dropdown.coachingTab.common_box.open,
@@ -1594,7 +1598,7 @@ div.media-entry {
 }
 
 .simple_overlay .close {
-    background-image: url(/img/close.png);
+    background-image: url(../../img/close.png);
     position: absolute;
     right: 0;
     top: 0;
@@ -2068,3 +2072,31 @@ input.validation-error {
 }
 /** End Game Page Styles **/
 
+.fix-title-head {
+    position: fixed;
+    z-index: 1000;
+    top: 0;
+    text-align: center;
+    padding-right: 500px;
+    width: 100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.title-truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.rt-sec-count {
+    font-size: 15px;
+    font-weight: bold;
+    margin-left: 5px;
+    margin-top: 2px;
+}
+
+.text-capitalize {
+     text-transform: capitalize;
+}

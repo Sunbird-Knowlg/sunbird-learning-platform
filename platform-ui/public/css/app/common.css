@@ -2,54 +2,54 @@
 
 @font-face {
     font-family: 'ptf';
-    src: url(/fonts/ptf/PTSerif-Regular.eot);
+    src: url(../../fonts/ptf/PTSerif-Regular.eot);
     /* IE9 Compat Modes */
-    src: url(/fonts/ptf/PTSerif-Regular.woff) format('woff'),
-    url(/fonts/ptf/PTF55F.ttf) format('truetype')
+    src: url(../../fonts/ptf/PTSerif-Regular.woff) format('woff'),
+    url(../../fonts/ptf/PTF55F.ttf) format('truetype')
 }
 
 @font-face {
     font-family: 'bebasNeue';
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neuebold') format('svg')
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neuebold') format('svg')
 }
 
 @font-face {
     font-family: 'bebas_neue_thin';
-    src: url('/fonts/bebas-neue/bebasneue_thin-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_thin-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_thin-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_thin-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_thin-webfont.svg#bebas_neuethin') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_thin-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_thin-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_thin-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_thin-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_thin-webfont.svg#bebas_neuethin') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'bebas_neue_regular';
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neueregular') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_regular-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_regular-webfont.svg#bebas_neueregular') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'bebas_neue_light';
-    src: url('/fonts/bebas-neue/bebasneue_light-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_light-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_light-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_light-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_light-webfont.svg#bebas_neuelight') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_light-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_light-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_light-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_light-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_light-webfont.svg#bebas_neuelight') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'bebas_neue_book';
-    src: url('/fonts/bebas-neue/bebasneue_book-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_book-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_book-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_book-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_book-webfont.svg#bebas_neuebook') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_book-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_book-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_book-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_book-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_book-webfont.svg#bebas_neuebook') format('svg');
     font-weight: normal;
     font-style: normal;
 }
 
 @font-face {
     font-family: 'bebas_neue_bold';
-    src: url('/fonts/bebas-neue/bebasneue_bold-webfont.eot');
-    src: url('/fonts/bebas-neue/bebasneue_bold-webfont.eot?#iefix') format('embedded-opentype'), url('/fonts/bebas-neue/bebasneue_bold-webfont.woff') format('woff'), url('/fonts/bebas-neue/bebasneue_bold-webfont.ttf') format('truetype'), url('/fonts/bebas-neue/bebasneue_bold-webfont.svg#bebas_neuebold') format('svg');
+    src: url('../../fonts/bebas-neue/bebasneue_bold-webfont.eot');
+    src: url('../../fonts/bebas-neue/bebasneue_bold-webfont.eot?#iefix') format('embedded-opentype'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.woff') format('woff'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.ttf') format('truetype'), url('../../fonts/bebas-neue/bebasneue_bold-webfont.svg#bebas_neuebold') format('svg');
     font-weight: bold;
     font-style: normal;
 }
@@ -360,27 +360,27 @@ footer {
 }
 
 .il-youtube {
-    background: url(/img/youtube.png) no-repeat;
+    background: url(../../img/youtube.png) no-repeat;
 }
 
 .il-fb {
-    background: url(/img/fb.png) no-repeat;
+    background: url(../../img/fb.png) no-repeat;
 }
 
 .il-twitter {
-    background: url(/img/twitt.png) no-repeat;
+    background: url(../../img/twitt.png) no-repeat;
 }
 
 .il-gplus {
-    background: url(/img/gplus.png) no-repeat;
+    background: url(../../img/gplus.png) no-repeat;
 }
 
 .il-linked {
-    background: url(/img/ln.png) no-repeat;
+    background: url(../../img/ln.png) no-repeat;
 }
 
 .il-blogger {
-    background: url(/img/blogger.png) no-repeat;
+    background: url(../../img/blogger.png) no-repeat;
 }
 
 .back-to-top {
@@ -621,7 +621,7 @@ footer {
 }
 
 .evernote-icon {
-    background: url(/img/evernote.png) no-repeat;
+    background: url(../../img/evernote.png) no-repeat;
     width: 33px;
     height: 33px;
     display: inline-block;

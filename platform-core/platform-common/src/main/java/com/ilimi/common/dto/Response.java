@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.codehaus.jackson.annotate.JsonIgnore;
+
 import com.ilimi.common.exception.ResponseCode;
 
 /**
@@ -73,6 +75,7 @@ public class Response implements Serializable {
         this.responseCode = code;
     }
 
+    @JsonIgnore
     public ResponseCode getResponseCode() {
         return this.responseCode;
     }

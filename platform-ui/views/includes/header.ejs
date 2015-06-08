@@ -13,12 +13,12 @@
     display: inline-table;
 }
 </style>
-
+<input type="hidden" id="contextPath" value="<%=contextPath%>"/>
 <div class="headerContainer" ng-controller="LoginCtrl" ng-cloak>
 	<div class="container-full">
 		<div class="HeaderContent">
 			<div class="col-sm-3 logoBlock">
-				<a href="/home"><img class="img-responsive" src="/img/logo.png" width="auto" height="auto"></a>
+				<a href="/home"><img class="img-responsive" src="<%=contextPath%>/img/logo.png" width="auto" height="auto"></a>
 			</div>
 			<div class="col-sm-6 titleBlock" style="margin-top: 12px;">
             </div>
@@ -38,7 +38,7 @@
 						<input type="hidden" id="userId" value="<%=user.identifier%>"/>
 						<a href="javascript:void(0);" id="userDropDown" class="dropdown-toggle"  data-toggle="dropdown" style="right: 20px">
 							<% if(!user.metadata || typeof user.metadata.image=='undefined' || user.metadata.image=='' ) { %>
-                                <i><img id="userImage" class="headrUserImg" ng-src="/img/default_user.png" /></i>
+                                <i><img id="userImage" class="headrUserImg" ng-src="<%=contextPath%>/img/default_user.png" /></i>
                             <% } else { %>
                                 <i><img id="userImage" class="headrUserImg" ng-src="<%=user.metadata.image %>" /></i>
                             <% } %>
@@ -46,8 +46,8 @@
 						</a>
 						<!-- User image -->
                         <ul class="dropdown-menu SettingToggle" style="right: 20px">
-                            <li><a href="/private/player">Learning Map</a></li>
-                            <li><a href="/private/v1/logout">Log out</a></li>
+                            <li><a href="<%=contextPath%>/private/player">Learning Map</a></li>
+                            <li><a href="<%=contextPath%>/private/v1/logout">Log out</a></li>
                         </ul>
                         <span class="sideicon3" style="display: none;">
                             <i class="glyph24 fa fa-bars" style="color: #666 !important"></i>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="row">
                             <span class="col-md-3"></span>
-                            <a href="/user/google/login/request" class="btn col-md-6 btn-social btn-google-plus">
+                            <a href="<%=contextPath%>/user/google/login/request" class="btn col-md-6 btn-social btn-google-plus">
                                 <i class="fa fa-google-plus"></i>Sign in with Google
                             </a>
                             <span class="col-md-3"></span>
@@ -160,7 +160,7 @@
                     <p style="font-size: 18px">Welcome to ekStep. Sign in is simplified. Just use your Google+ id.</p><br/>
                     <div class="row">
                         <span class="col-md-3"></span>
-                        <a href="/user/google/login/request" class="btn col-md-6 btn-social btn-google-plus btn-lg">
+                        <a href="<%=contextPath%>/user/google/login/request" class="btn col-md-6 btn-social btn-google-plus btn-lg">
                             <i class="fa fa-google-plus"></i>Sign up with Google
                         </a>
                         <span class="col-md-3"></span>

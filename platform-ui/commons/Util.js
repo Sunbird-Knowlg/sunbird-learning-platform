@@ -54,3 +54,24 @@ exports.validateMWResponse = function(response, cb) {
 	}
 	return valid;
 }
+
+exports.getRelatedObjects = function(object, objectType) {
+	
+	var	inRelObjects = _.map(_.reject(_.where(object.inRelations, {startNodeObjectType: objectType}), function(r) {return r.relationType == "isParentOf";}), function(obj) {
+			return { id: obj.startNodeId, name: obj.startNodeName};
+	});
+	var outRelObjects = _.map(_.where(object.outRelations, {endNodeObjectType: objectType}), function(obj) {
+		return { id: obj.endNodeId, name: obj.endNodeName};
+	});
+	return _.union(inRelObjects, outRelObjects);
+}
+
+exports.getParent = function(object) {
+	var parentRelObject = _.find(object.inRelations, function(relation) {
+		return relation.relationType == "isParentOf";
+	});
+	if(parentRelObject) 
+		return {id: parentRelObject.startNodeId, name: parentRelObject.startNodeName};
+	else
+		return null;
+}

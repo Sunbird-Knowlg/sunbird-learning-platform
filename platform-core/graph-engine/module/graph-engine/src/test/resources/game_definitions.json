@@ -69,8 +69,47 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
+          "propertyName": "launchUrl",
+          "title": "Launch Url",
+          "description": "URL to launch the game",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "osId",
+          "title": "Operating System Id",
+          "description": "Operating System specific Id",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
           "propertyName": "appIcon",
           "title": "App Icon",
+          "description": "",
+          "category": "general",
+          "dataType": "URL",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
+        },
+        {
+          "propertyName": "grayScaleAppIcon",
+          "title": "GrayScale App Icon",
           "description": "",
           "category": "general",
           "dataType": "URL",
@@ -116,7 +155,7 @@
           "range": [
             "Draft",
             "Review",
-            "Active",
+            "Live",
             "Retired",
             "Mock"
           ],
@@ -296,9 +335,9 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
         },
         {
-          "propertyName": "location",
-          "title": "Location",
-          "description": "",
+          "propertyName": "downloadUrl",
+          "title": "Download Url",
+          "description": "URL to download the game",
           "category": "technical",
           "dataType": "Text",
           "range": [],
@@ -584,7 +623,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Related Games (OR) Associated Concepts (OR) Screenshots",
+          "title": "Associated Concepts",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -664,7 +703,13 @@
           "name": "Single-Player",
           "description": "Collaboration "
         }
-      ]
+      ],
+      "metadata": {
+      	"ttl": 24,
+      	"limit": 50,
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId"],
+      	"status": ["Live"]
+      }
     },
     {
       "objectType": "Media",

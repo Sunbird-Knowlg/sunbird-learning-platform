@@ -3,7 +3,7 @@
     <div class="modal-dialog modal-dialog-center">
         <div class="modal-content" style="width: 650px;">
             <div class="modal-header">
-            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            	<button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
             	<h3>Confirm Changes</h3>
             </div>
             <div class="modal-body">
@@ -23,11 +23,11 @@
 <script type="text/ng-template" id="reply_template.html">
     <div class="community-reply">
         <a href="#" class="pull-left">
-            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
         </a>
         <div class="reply-body">
             <div class="user">
-                <div class="il-Link-clr ac-contents display-inline">{{reply.lastModifiedBy}}</div> 
+                <div class="il-Link-clr ac-contents display-inline text-capitalize">{{reply.lastModifiedBy}}</div> 
                 <div>
                     <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{reply.lastModifiedOn/1000}}"></span>
                 </div> 
@@ -39,8 +39,8 @@
                 <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{reply.id}}"></textarea>
                 <div class="save_text" style="border: 0px;">
                     <div class="save_btn">
-                        <button class="btn btn-default btn-xs mar-rt-10" ng-click="reply.showForm=false;">cancel</button>
-                        <button class="btn btn-primary btn-xs" ng-click="replyComment(reply)">comment</button>
+                        <button class="btn btn-default btn-xs mar-rt-10" ng-click="reply.showForm=false;">Cancel</button>
+                        <button class="btn btn-primary btn-xs" ng-click="replyComment(reply)">Comment</button>
                     </div>
                 </div>
             </div>
@@ -48,11 +48,11 @@
     </div>
     <div class="community-reply marginLeft20" ng-repeat="childReply in reply.replies">
         <a href="#" class="pull-left">
-            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+            <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
         </a>
         <div class="reply-body">
             <div class="user">
-                <div class="il-Link-clr ac-contents display-inline">{{childReply.lastModifiedBy}}</div> 
+                <div class="il-Link-clr ac-contents display-inline text-capitalize">{{childReply.lastModifiedBy}}</div> 
                 <div>
                     <span class="timeDur moveTop8" style="">replied&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{childReply.lastModifiedOn/1000}}"></span>
                 </div> 
@@ -68,19 +68,19 @@
         <div class="modal-dialog modal-dialog-center">
             <div class="modal-content" style="width: 650px;">
                 <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-                    <h3 class="noMargin">Comment</h3>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
+                    <h3 class="noMargin">Comments</h3>
                 </div>
                 <div class="modal-body">
 
                     <div class="community-replies marginBottom10" ng-if="currentComment">
                         <div class="community-reply">
                             <a href="#" class="pull-left">
-                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
                             </a>
                             <div class="reply-body">
                                 <div class="user">
-                                    <div class="il-Link-clr ac-contents display-inline">{{currentComment.lastModifiedBy}}</div> 
+                                    <div class="il-Link-clr ac-contents display-inline text-capitalize">{{currentComment.lastModifiedBy}}</div> 
                                     <div>
                                         <span class="timeDur moveTop8" style="">commented&nbsp;&nbsp;</span><span class="timeDur moveTop8" data-livestamp="{{currentComment.lastModifiedOn/1000}}"></span>
                                     </div> 
@@ -92,8 +92,8 @@
                                     <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="commentText{{currentComment.id}}"></textarea>
                                     <div class="save_text" style="border: 0px;">
                                         <div class="save_btn">
-                                            <button class="btn btn-default btn-xs mar-rt-10" ng-click="currentComment.showForm=false;">cancel</button>
-                                            <button class="btn btn-primary btn-xs" ng-click="replyComment(currentComment)">comment</button>
+                                            <button class="btn btn-default btn-xs mar-rt-10" ng-click="currentComment.showForm=false;">Cancel</button>
+                                            <button class="btn btn-primary btn-xs" ng-click="replyComment(currentComment)">Comment</button>
                                         </div>
                                     </div>
                                 </div>
@@ -107,7 +107,7 @@
                         <textarea class="textarea form-control" placeholder="Write your comment ..." style="width: 100%; min-height: 50px;" id="newCommentTextArea"></textarea>
                         <div class="save_text" style="border: 0px;">
                             <div class="save_btn">
-                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">comment</button>
+                                <button class="btn btn-primary btn-xs" ng-click="saveComment()">Comment</button>
                             </div>
                         </div>
                     </div>
@@ -118,18 +118,21 @@
 </script>
 
 <script type="text/ng-template" id="metadata_categories_template.html">
-<div id="{{cat.id}}" class="col-md-12 noPad" ng-repeat="cat in categories">
+<div id="{{cat.id}}" class="col-md-12 noPad" ng-repeat="cat in categories track by $index">
     <form name="{{cat.id}}Form">
 		<div class="panel panel-default">
-			<div class="panel-heading" role="tab">
-			  	<h3 class="panel-title pageitem" style="padding-left: 20px">
-				  	{{cat.label}}
-			  	</h3>
-			  	<a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
-			  	<a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
-                <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment()"></i></a>
-			</div>
-			<div class="panel-collapse collapse in" role="tabpanel" ng-switch on="cat.id">
+            <div class="col-md-12">
+    			<div class="il-sc-header" role="tab">
+                    <h2>{{cat.label}}</h2>
+                </div>
+                <div class="pull-right marginTop20">
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = true;openSection('collapseDiv'+cat.id);"><i class="fa fa-edit" ng-show="!cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.editable" class="pull-right padRight10" ng-click="cat.editMode = false;openSection('collapseDiv'+cat.id);"><i class="fa fa-close" ng-show="cat.editMode"></i></a>
+                    <a href="#" ng-if="cat.id=='comments'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addComment();openSection('collapseDiv'+cat.id);"></i></a>
+                    <a href="#" ng-if="cat.id=='versions'" class="pull-right padRight10"><i class="fa fa-edit" ng-click="addVersion();openSection('collapseDiv'+cat.id);"></i></a>
+                </div>
+            </div>
+			<div class="panel-collapse collapse" ng-class="{ in : cat.id == 'general'}" role="tabpanel" ng-switch on="cat.id" id="collapseDiv{{cat.id}}">
 				<div class="panel-body" ng-switch-when="tags">
 					<div class="col-md-12">
 						<span class="label label-default tag" ng-repeat="tag in selectedConcept.tags">
@@ -170,11 +173,11 @@
                     <div class="community-replies" ng-if="selectedConcept.comments.length > 0">
                         <div class="community-reply pointer" ng-repeat="comment in selectedConcept.comments" ng-click="showComment(comment)">
                             <a href="#" class="pull-left">
-                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{comment.author.image.url || '/img/default.png'}}">
+                                <img width="32" height="32" class="img-rounded media-object" ng-src="{{comment.author.image.url || '<%=contextPath%>/img/default.png'}}">
                             </a>
                             <div class="reply-body">
                                 <div class="user">
-                                    <div class="il-Link-clr ac-contents display-inline">{{comment.lastModifiedBy}}</div> 
+                                    <div class="il-Link-clr ac-contents display-inline text-capitalize">{{comment.lastModifiedBy}}</div> 
                                     <div>
                                         <span class="timeDur moveTop10" data-livestamp="{{comment.lastModifiedOn/1000}}"></span>
                                     </div> 
@@ -185,9 +188,9 @@
                         </div>
                     </div>
 				</div>
-				<div class="panel-body" ng-switch-when="relations">
+				<div class="RightsideContainer bs-docs-sidebar" ng-switch-when="relations">
 					<div class="col-md-12">
-                    	<table class="table table-striped table-bordered table-condensed">
+                    	<!-- <table class="table table-striped table-bordered table-condensed">
                     		<thead><tr><th>Start Node</th><th>Relation</th><th>End Node</th><th ng-if="cat.editMode"></th></tr></thead>
                     		<tbody>
                     			<tr ng-repeat="rel in selectedConcept.outRelations">
@@ -212,7 +215,24 @@
                     				</td>
                     			</tr>
                     		</tbody>
-                    	</table>
+                    	</table> -->
+
+                        <div class="col-md-6 recentContent" ng-repeat="(title, list) in selectedConcept.relations">
+                            <label>{{title}}</label>
+                            <div class="il-rt-notn">
+                                <ul ng-if="list.length == 0">
+                                    <li>
+                                        <span style="">None</span>
+                                    </li>
+                                </ul>
+                                <ul class="nav" ng-show="list.length > 0">
+                                    <li ng-repeat="item in list" >
+                                        <a href="javascript:void(0)" style="cursor: text;">{{item.name | limitTo: 30}}{{item.name.length > 30 ? '...' : ''}}</a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                        </div>
                     </div>
 				</div>
 			  	<div class="panel-body form-group" ng-switch-default>
@@ -238,7 +258,7 @@
 			            </div>
                     	<button class="btn btn-primary btn-sm" ng-show="!cat.addNew" ng-click="addNew(cat);">Add New</button>
                     </div>
-                    <div class="col-md-12" ng-show="cat.id == 'audit'" ng-init="cat.auditHistory = false">
+                    <!-- <div class="col-md-12" ng-show="cat.id == 'audit'" ng-init="cat.auditHistory = false">
                     	<a href="javascript:void(0)" ng-click="cat.auditHistory = true" ng-if="!cat.auditHistory" class="btn-link">
                     		Show Audit History
                     	</a>
@@ -253,7 +273,7 @@
                         <div class="community-replies {{cat.auditHistory ? '' : 'hide'}}" ng-if="selectedConcept.auditHistory.length > 0" >
                             <div class="community-reply pointer" ng-repeat="ah in selectedConcept.auditHistory" ng-click="showComment(ah.comment)">
                                 <a href="#" class="pull-left">
-                                    <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '/img/default.png'}}">
+                                    <img width="32" height="32" class="img-rounded media-object" ng-src="{{ah.author.image.url || '<%=contextPath%>/img/default.png'}}">
                                 </a>
                                 <div class="reply-body">
                                     <div class="user">
@@ -267,9 +287,10 @@
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
 			  	</div>
 			</div>
+            <a data-placement="bottom" title="" class="collapse-Note-link" ng-class="{collapsed : cat.id != 'general'}" data-toggle="collapse" data-target="#collapseDiv{{cat.id}}"><i class="il-collapse"></i></a>
 		</div>
 	</form>
 </div>
@@ -281,6 +302,7 @@
 		</ul>
 	</div>
 	<button class="btn btn-primary pull-right" ng-click="confirmChanges()">Save Changes</button>
+    <a ng-click="showComment(selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].comment)" class="pull-right marginRight5" style="margin-top: 10px; color: #c3c3c3;" ng-if="selectedConcept.auditHistory.length > 0"><span>last updated </span><span data-livestamp="{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedOn/1000}}"></span><span> by </span><span class="text-capitalize">{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedBy}}</span></a>
 </div>
 </script>
 

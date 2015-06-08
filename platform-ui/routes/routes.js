@@ -138,7 +138,11 @@ module.exports = function(app, dirname, passport, connectroles) {
         if(req.params.error) {
             res.redirect("/loginError");
         } else {
-            res.redirect("/private/player");
+            if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+                res.redirect("/" + appConfig.CONTEXT_NAME + "/private/player");
+            } else {
+                res.redirect("/private/player");
+            }
         }
     });
 
@@ -160,7 +164,11 @@ module.exports = function(app, dirname, passport, connectroles) {
             });
         })(req, res, next);
     }, function(req, res) {
-        res.redirect("/private/player");
+        if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+            res.redirect("/" + appConfig.CONTEXT_NAME + "/private/player");
+        } else {
+            res.redirect("/private/player");
+        }
     });
 
     /** Dashboard Links Route */

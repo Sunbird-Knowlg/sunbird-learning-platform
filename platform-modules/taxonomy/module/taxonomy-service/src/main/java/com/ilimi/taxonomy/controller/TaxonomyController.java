@@ -100,6 +100,7 @@ public class TaxonomyController extends BaseController {
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Delete | Exception: " + e.getMessage(), e);
+            e.printStackTrace();
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -151,6 +152,7 @@ public class TaxonomyController extends BaseController {
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
+            e.printStackTrace();
             return getExceptionResponseEntity(e, apiId, null);
         }
     }

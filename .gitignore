@@ -2,3 +2,7 @@ platform-ui/logs
 platform-ui/node_modules
 .settings
 **/target
+.cache
+derby.log
+platform-analytics/metastore_db
+dependency-reduced-pom.xml
