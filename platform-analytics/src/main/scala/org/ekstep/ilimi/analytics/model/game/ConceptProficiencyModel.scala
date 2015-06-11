@@ -55,8 +55,9 @@ object ConceptProficiencyModel extends BaseModel {
         }).map(f => ConceptProficiencyOutput(f._1, beforeScreener, afterScreener, f._2._1, f._2._2, f._2._2 - f._2._1, (f._2._2 - f._2._1) / f._2._1)).persist();
 
         saveResult(userScores, output, "concept_improvement.json");
+        val stats = userScores.map { x => x.difference }.stats();
         Console.println("### Saving Concept Improvement stats to RDS ###");
-        EffectivenessStatsDAO.saveConceptEffectivness(userScores.collect().toBuffer, gameId, conceptId);
+        EffectivenessStatsDAO.saveConceptEffectivness(userScores.collect().toBuffer, gameId, conceptId, stats.mean, stats.stdev, stats.min, stats.max);
     }
 
 }

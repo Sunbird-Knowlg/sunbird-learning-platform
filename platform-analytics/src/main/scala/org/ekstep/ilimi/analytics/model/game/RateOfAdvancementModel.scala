@@ -1,6 +1,8 @@
 package org.ekstep.ilimi.analytics.model.game
 
 import scala.collection.mutable.Buffer
+import scala.collection.mutable.ListBuffer
+import scala.collection.mutable.Map
 
 import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
@@ -47,8 +49,25 @@ object RateOfAdvancementModel extends BaseModel {
         }).map(f => RateOfAdvancementOutput(f._1, f._2.toArray)).persist();
 
         saveResult(userScores, output, "rate_of_advancement.json");
+        var gameMap: Map[String, Buffer[Float]] = Map();
+        val result = userScores.collect().toBuffer;
+        result.foreach(x =>
+            x.games.foreach(f => {
+                if (!gameMap.contains(f.gameId)) {
+                    gameMap(f.gameId) = new ListBuffer[Float]();
+                }
+                gameMap(f.gameId) += f.roa_ratio;
+            }));
+        val data = new ListBuffer[Array[AnyRef]]();
+        gameMap.foreach(f => {
+            val stats = sc.parallelize(f._2).stats()
+            val mean = stats.mean;
+            val sd = stats.stdev;
+            val tstat = mean / sd;
+            data += Array(mean.asInstanceOf[AnyRef], 5.asInstanceOf[AnyRef], sd.asInstanceOf[AnyRef], tstat.asInstanceOf[AnyRef], f._1);
+        })
         Console.println("### Saving Rate of advancement stats to RDS ###");
-        EffectivenessStatsDAO.saveRateOfAdvStats(userScores.collect().toBuffer);
+        EffectivenessStatsDAO.saveRateOfAdvStats(result, data);
     }
 
 }
