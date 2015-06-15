@@ -3,7 +3,6 @@ package org.ekstep.ilimi.analytics.model.game
 import scala.collection.mutable.Buffer
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.Map
-
 import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
@@ -11,6 +10,7 @@ import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
 import org.ekstep.ilimi.analytics.model.BaseModel
 import org.ekstep.ilimi.analytics.model.Event
 import org.ekstep.ilimi.analytics.model.Output
+import org.ekstep.ilimi.analytics.util.CommonUtil
 
 case class GameOutput(gameId: String, levels: Int, time_taken: Float, roa_ratio: Float);
 case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]) extends Output;
@@ -18,20 +18,11 @@ case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]) extend
 object RateOfAdvancementModel extends BaseModel {
 
     def compute(input: String, output: String, location: String, parallelization: Int) {
-        val sc = initializeSparkContext(location, parallelization);
-        computeGameEffectiveness(sc, input, output);
-        closeSparkContext(sc);
-    }
-
-    val validEvents = Array("OE_LEVEL_SET");
-    def filter(e: Event): Boolean = {
-        validEvents.contains(e.eid)
-    }
-
-    def computeGameEffectiveness(sc: SparkContext, input: String, output: String) {
-        val baseRDD = loadInput(sc, input, filter);
+        val validEvents = Array("OE_LEVEL_SET");
+        val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        val baseRDD = CommonUtil.loadData(sc, input, location, parallelization, e => validEvents.contains(e.eid))
         Console.println("### Computing rate of advancement stats ###");
-        val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(this.parallelization));
+        val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));
         val userScores = userPairs.reduceByKey((a, b) => a ++ b).mapValues(events => {
             events.map(event => (event.gdata.id, event.ts, event.edata.eks.current.get, event.edata.eks.max.get))
                 .groupBy { x => x._1 }
@@ -48,7 +39,7 @@ object RateOfAdvancementModel extends BaseModel {
                 .map(f => GameOutput(f._1, f._2._1, f._2._2, f._2._3));
         }).map(f => RateOfAdvancementOutput(f._1, f._2.toArray)).persist();
 
-        saveResult(userScores, output, "rate_of_advancement.json");
+        CommonUtil.saveOutput(userScores, output, "rate_of_advancement.json", location);
         var gameMap: Map[String, Buffer[Float]] = Map();
         val result = userScores.collect().toBuffer;
         result.foreach(x =>
@@ -68,6 +59,7 @@ object RateOfAdvancementModel extends BaseModel {
         })
         Console.println("### Saving Rate of advancement stats to RDS ###");
         EffectivenessStatsDAO.saveRateOfAdvStats(result, data);
+        CommonUtil.closeSparkContext(sc);
     }
 
 }

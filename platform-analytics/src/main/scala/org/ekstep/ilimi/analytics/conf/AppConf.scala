@@ -20,6 +20,9 @@ object AppConf {
     }
 
     def getConfig(key: String): String = {
+        if (!initialized) {
+            init();
+        }
         properties.getProperty(key);
     }
 
