@@ -19,6 +19,10 @@ var faker = require('faker');
 var fs = require('fs');
 require('date-format-lite');
 faker.locale = 'en_IND';
+var kafka = require('kafka-node'),
+    Producer = kafka.Producer,
+    client = new kafka.Client(),
+    producer = new Producer(client);/**/
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -26,6 +30,10 @@ function getRandomInt(min, max) {
 
 function addMinutes(minutes) {
     baseDate = new Date(baseDate.getTime() + minutes * 60000);
+}
+
+function addSeconds(seconds) {
+    baseDate = new Date(baseDate.getTime() + seconds * 1000);
 }
 /**
  * Steps to generate the telemetry data
@@ -40,24 +48,33 @@ function addMinutes(minutes) {
  * 	   Genie End
  */
 var sampleLatLong = ['12.9667,77.5667','12.3000,76.6500','12.8700,74.8800','17.3700,78.4800'];
-var concepts = []
 var events = [];
-var st = new Date();
-st.setDate(st.getDate() - 20);
-var et = new Date();
-et.setDate(et.getDate() - 25);
-var baseDate = faker.date.between(st, et);
+var baseDate = new Date();
+baseDate.setDate(baseDate.getDate() - 2);
 
 function generate(deviceSize, studentDeviceRatio, fileName) {
 	logFile = fileName;
 	for(var i=0; i < deviceSize; i++) {
 		generateDevice(i, studentDeviceRatio);
 	}
-	fs.appendFile(logFile, events.join('\n'));
+	if(fileName) {
+		fs.appendFile(logFile, events.join('\n'));
+	} else {
+		pushEventsToKafka(events);
+		console.log("Complete....");
+		setTimeout(function() {
+			console.log("Closing kafka producer....");
+			client.close();
+		}, 30000);
+	}
 }
 
 function appendEvent(args) {
-	addMinutes(args.tmin);
+	if(args.dt == 'sec') {
+		addSeconds(args.tmin);
+	} else {
+		addMinutes(args.tmin);
+	}
 	events.push(JSON.stringify({
 		"eid": args.eventId, // unique event ID
 		"ts": baseDate.getTime(),
@@ -73,6 +90,19 @@ function appendEvent(args) {
 			"eks": args.eksData
 		}
 	}));
+	if(events.length % 1000 == 0) {
+		pushEventsToKafka(events);
+		events = [];
+	}
+}
+
+function pushEventsToKafka(events) {
+	//console.log("Pushing 1000 events to kafka...");
+	producer.send([{topic: 'telemetry', messages: events, attributes: 1}], function(err, data) {
+		if(err) {
+			console.log('err - ', err);
+		}
+	});
 }
 
 function generateDevice(index, studentDeviceRatio) {
@@ -102,63 +132,65 @@ function generateDevice(index, studentDeviceRatio) {
 	var t2 = baseDate.getTime();
 	appendEvent({eventId: 'GE_GENIE_END', tmin: getRandomInt(1, 2), did: did, eksData: {'length': (t2-t1)/1000}});
 
-	baseDate.setDate(baseDate.getDate() + 3);
-	generateUserTelemetry(users, 'Game:1', did, deviceLoc, dspec);
-	baseDate.setDate(baseDate.getDate() + 3);
-	generateUserTelemetry(users, 'Game:2', did, deviceLoc, dspec);
+	generateUserTelemetry(users, 'Game:1', did, deviceLoc, dspec, 5);
+	generateUserTelemetry(users, 'Game:2', did, deviceLoc, dspec, 8);
+	generateUserTelemetry(users, 'Game:3', did, deviceLoc, dspec, 6);
+	generateUserTelemetry(users, 'Game:4', did, deviceLoc, dspec, 7);
 }
 
 function generateUser(index, did, deviceLoc) {
 	var uid = faker.random.uuid();
 	var uname = faker.internet.userName();
-	appendEvent({eventId: 'GE_SIGNUP', tmin: getRandomInt(1, 10), did: did, eksData: {uid: uid, ueksid: uname, utype: 'CHILD'}});
+	appendEvent({eventId: 'GE_SIGNUP', tmin: getRandomInt(1, 2), dt: 'sec', did: did, eksData: {uid: uid, ueksid: uname, utype: 'CHILD'}});
 	return {uid: uid, uname: uname};
 }
 
-function generateUserTelemetry(users, gid, did, deviceLoc, dspec) {
+function generateUserTelemetry(users, gid, did, deviceLoc, dspec, levels) {
+	var bd = baseDate.getDate();
 	var t1 = baseDate.getTime();
 	appendEvent({eventId: 'GE_GENIE_START', tmin: 0, did: did, eksData: {'dspec': dspec, 'loc': deviceLoc}});
 	users.forEach(function(user, userIdx) {
+		baseDate.setDate(bd);
 		var randomSessions = getRandomInt(1, 4);
 		for(var i=0; i < randomSessions; i++) {
-			generateUserGameSession((userIdx + 1), did, user.uid, user.uname, deviceLoc, gid);
+			generateUserGameSession((userIdx + 1), did, user.uid, user.uname, deviceLoc, gid, levels);
 		}
 	})
 	var t2 = baseDate.getTime();
-	appendEvent({eventId: 'GE_GENIE_END', tmin: getRandomInt(1, 2), did: did, eksData: {'length': (t2-t1)/1000}});
+	appendEvent({eventId: 'GE_GENIE_END', tmin: 0, dt: 'sec', did: did, eksData: {'length': (t2-t1)/1000}});
 }
 
 
-function generateUserGameSession(userIdx, did, uid, uname, deviceLoc, gid) {
+function generateUserGameSession(userIdx, did, uid, uname, deviceLoc, gid, maxLevels) {
 	var sid = faker.random.uuid();
-	appendEvent({eventId: 'GE_SESSION_START', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, eksData: {ueksid: uname, loc: deviceLoc}});
+	appendEvent({eventId: 'GE_SESSION_START', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, eksData: {ueksid: uname, loc: deviceLoc}});
 	var t1 = baseDate.getTime();
 	var randomGameLaunches = getRandomInt(1, 3);
 	for(var i=0; i < randomGameLaunches; i++) {
-		appendEvent({eventId: 'GE_LAUNCH_GAME', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, eksData: {gid: gid, err: ''}});
+		appendEvent({eventId: 'GE_LAUNCH_GAME', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, eksData: {gid: gid, err: ''}});
 		var t3 = baseDate.getTime();
-		generateOEEvents(userIdx, did, uid, sid, gid);
+		generateOEEvents(userIdx, did, uid, sid, gid, maxLevels);
 		var t4 = baseDate.getTime();
-		appendEvent({eventId: 'GE_GAME_END', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, eksData: {gid: gid, err: '', length: (t4-t3)/1000}});
+		appendEvent({eventId: 'GE_GAME_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, eksData: {gid: gid, err: '', length: (t4-t3)/1000}});
 	}
 	var t2 = baseDate.getTime();
-	appendEvent({eventId: 'GE_SESSION_END', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, eksData: {length: (t2-t1)/1000}});
+	appendEvent({eventId: 'GE_SESSION_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, eksData: {length: (t2-t1)/1000}});
 }
 
-function generateOEEvents(userIdx, did, uid, sid, gid) {
-	appendEvent({eventId: 'OE_START', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {}});
+function generateOEEvents(userIdx, did, uid, sid, gid, maxLevels) {
+	appendEvent({eventId: 'OE_START', tmin: getRandomInt(1, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {}});
 	var t1 = baseDate.getTime();
-	for(var i=1; i <= 5; i++) {
-		generateLevelEvents(i, userIdx, did, uid, sid, gid);
+	var randomLevels = getRandomInt(1, maxLevels);
+	for(var i=1; i <= randomLevels; i++) {
+		generateLevelEvents(i, userIdx, did, uid, sid, gid, maxLevels);
 	}
-	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 		subj: 'NUM',
 		"mc": "C:2",
         "skill": "",
         "qid": "Q_2",
         "qtype": "INFER",
         "qlevel": "MEDIUM",
-        //"pass": (userIdx % 9 == 0 ? 'YES': 'NO'),
         "score": (gid == 'Game:1' ? getRandomInt(1, 7): getRandomInt(4, 9)),
         "maxscore": 10,
         "length": getRandomInt(10, 20),
@@ -167,11 +199,11 @@ function generateOEEvents(userIdx, did, uid, sid, gid) {
         "failedatmpts": getRandomInt(0, 2)
 	}});
 	var t2 = baseDate.getTime();
-	appendEvent({eventId: 'OE_END', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {length: (t2-t1)/1000}});
+	appendEvent({eventId: 'OE_END', tmin: 0, did: did, uid: uid, sid: sid, gid:gid, eksData: {length: (t2-t1)/1000}});
 }
 
-function generateLevelEvents(levelIdx, userIdx, did, uid, sid, gid) {
-	appendEvent({eventId: 'OE_LEARN', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+function generateLevelEvents(levelIdx, userIdx, did, uid, sid, gid, maxLevels) {
+	appendEvent({eventId: 'OE_LEARN', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 		"topics": [
 			{
 				"mc": "C:1",
@@ -180,26 +212,26 @@ function generateLevelEvents(levelIdx, userIdx, did, uid, sid, gid) {
            	}
         ]
 	}});
-	appendEvent({eventId: 'OE_INTERACT', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+	appendEvent({eventId: 'OE_INTERACT', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 		type: 'TOUCH',
 		id:'id_1'
 	}});
 	if(userIdx % 17 == 0) {
-		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 			type: 'CALL'
 		}});
 	}
 	if(userIdx % 29 == 0) {
-		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(1, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 			type: 'SWITCH'
 		}});
 	}
 	if(userIdx % 15 == 0) {
-		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+		appendEvent({eventId: 'OE_INTERRUPT', tmin: getRandomInt(1, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 			type: 'IDLE'
 		}});
 	}
-	appendEvent({eventId: 'OE_LEARN', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+	appendEvent({eventId: 'OE_LEARN', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 		"topics": [
 			{
 				"mc": "C:1",
@@ -208,13 +240,30 @@ function generateLevelEvents(levelIdx, userIdx, did, uid, sid, gid) {
            	}
         ]
 	}});
-	appendEvent({eventId: 'OE_LEVEL_SET', tmin: getRandomInt(1, 10), did: did, uid: uid, sid: sid, gid:gid, eksData: {
+	appendEvent({eventId: 'OE_LEVEL_SET', tmin: getRandomInt(0, 60), dt: 'sec', did: did, uid: uid, sid: sid, gid:gid, eksData: {
 		"current": levelIdx,
-		"max": 5
+		"max": maxLevels
 	}});
 }
 
 var deviceSize = process.argv[2];
 var studentDeviceRatio = process.argv[3];
+var loop = 400;
 var fileName = process.argv[4];
-generate(deviceSize, studentDeviceRatio, fileName);
+producer.on('ready', function () {
+	console.log("## Ready...")
+	//setInterval(function() {
+	//	if(loop > 0) {
+	//		console.log("Running loop - ", 401 - loop);
+	//		generate(10, 100);
+	//		loop--;
+	//	} else {
+	//		client.close();
+	//	}
+	//}, 90000);
+	generate(deviceSize, studentDeviceRatio);
+});
+producer.on('error', function (err) {
+	console.log("On Error", err);
+})/**/
+//generate(deviceSize, studentDeviceRatio, fileName);
