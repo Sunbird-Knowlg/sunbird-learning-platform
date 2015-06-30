@@ -6,7 +6,6 @@ import java.nio.file.Paths.get
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.text.SimpleDateFormat
 import java.util.Date
-
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -19,12 +18,14 @@ import org.json4s.jackson.JsonMethods.compact
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jvalue2extractable
 import org.json4s.string2JsonInput
+import org.apache.spark.streaming.Duration
+import org.apache.spark.streaming.StreamingContext
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
-    
-    def getParallelization(parallelization: Int) : Int = {
+
+    def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
             AppConf.getConfig("default.parallelization").toInt
         } else {
@@ -32,14 +33,14 @@ object CommonUtil {
         }
     }
 
-    def getSparkContext(location: String, parallelization: Int, appName : String): SparkContext = {
+    def getSparkContext(location: String, parallelization: Int, appName: String): SparkContext = {
 
         Console.println("### Initializing Spark Context ###");
         val conf = new SparkConf().setAppName(appName);
         val master = conf.getOption("spark.master");
-        if(master.isEmpty) {
-            Console.println("### Master not found. Setting it to local[4] ###");
-            conf.setMaster("local[4]");
+        if (master.isEmpty) {
+            Console.println("### Master not found. Setting it to local[*] ###");
+            conf.setMaster("local[*]");
         }
         val sc = new SparkContext(conf);
         if ("S3".equals(location)) {
@@ -48,6 +49,16 @@ object CommonUtil {
         }
         Console.println("### Spark Context initialized ###");
         sc;
+    }
+    
+    def getSparkStreamingContext(appName: String, duration: Duration): StreamingContext = {
+        val conf = new SparkConf().setAppName(appName);
+        val master = conf.getOption("spark.master");
+        if (master.isEmpty) {
+            Console.println("### Master not found. Setting it to local[*] ###");
+            conf.setMaster("local[*]");
+        }
+        new StreamingContext(conf, duration);
     }
 
     def closeSparkContext(sc: SparkContext) {
@@ -62,12 +73,12 @@ object CommonUtil {
     def loadData(sc: SparkContext, input: String, location: String, parallelization: Int, filter: Event => Boolean): RDD[Event] = {
         Console.println("### Fetching Input:" + getPath("s3_input_bucket", input, location) + " ###");
         val rdd = sc.textFile(getPath("s3_input_bucket", input, location), parallelization).cache();
-        rdd.map { x =>
-            {
-                implicit val formats = DefaultFormats;
-                parse(x).extract[Event]
-            }
-        }.filter { x => filter(x) }
+        rdd.map { x => getEvent(x) }.filter { x => filter(x) }
+    }
+
+    def getEvent(line: String): Event = {
+        implicit val formats = DefaultFormats;
+        parse(line).extract[Event]
     }
 
     def getTempPath(date: String): String = {
@@ -121,6 +132,11 @@ object CommonUtil {
                 Files.createDirectories(get(outputPath));
                 Files.move(from, to, REPLACE_EXISTING);
         }
+    }
+
+    def jsonToString(obj: Any): String = {
+        implicit val formats = DefaultFormats;
+        compact(Extraction.decompose(obj))
     }
 
 }
