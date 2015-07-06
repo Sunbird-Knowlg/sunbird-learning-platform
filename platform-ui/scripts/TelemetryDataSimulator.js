@@ -19,10 +19,7 @@ var faker = require('faker');
 var fs = require('fs');
 require('date-format-lite');
 faker.locale = 'en_IND';
-var kafka = require('kafka-node'),
-    Producer = kafka.Producer,
-    client = new kafka.Client(),
-    producer = new Producer(client);/**/
+var kafkaUtil = require('./KafkaUtil.js');
 
 function getRandomInt(min, max) {
     return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -61,12 +58,9 @@ function generate(deviceSize, studentDeviceRatio, fileName) {
 		fs.appendFile(logFile, events.join('\n'));
 	} else {
 		pushEventsToKafka(events);
-		console.log("Complete....");
-		setTimeout(function() {
-			console.log("Closing kafka producer....");
-			client.close();
-		}, 30000);
+		kafkaUtil.closeClient();
 	}
+	console.log("### Completed telemetry data simulation ###");
 }
 
 function appendEvent(args) {
@@ -98,11 +92,7 @@ function appendEvent(args) {
 
 function pushEventsToKafka(events) {
 	//console.log("Pushing 1000 events to kafka...");
-	producer.send([{topic: 'telemetry', messages: events, attributes: 1}], function(err, data) {
-		if(err) {
-			console.log('err - ', err);
-		}
-	});
+	kafkaUtil.send(events);
 }
 
 function generateDevice(index, studentDeviceRatio) {
@@ -250,20 +240,8 @@ var deviceSize = process.argv[2];
 var studentDeviceRatio = process.argv[3];
 var loop = 400;
 var fileName = process.argv[4];
-producer.on('ready', function () {
-	console.log("## Ready...")
-	//setInterval(function() {
-	//	if(loop > 0) {
-	//		console.log("Running loop - ", 401 - loop);
-	//		generate(10, 100);
-	//		loop--;
-	//	} else {
-	//		client.close();
-	//	}
-	//}, 90000);
+kafkaUtil.register(function() {
 	generate(deviceSize, studentDeviceRatio);
 });
-producer.on('error', function (err) {
-	console.log("On Error", err);
-})/**/
+/**/
 //generate(deviceSize, studentDeviceRatio, fileName);
