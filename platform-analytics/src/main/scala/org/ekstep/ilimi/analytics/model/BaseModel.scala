@@ -23,7 +23,7 @@ import org.apache.spark.SparkConf
 case class Eks(dspec: Option[Any], loc: Option[Any], length: Option[Long], ueksid: Option[String], gid: Option[String], err: Option[Any], subj: Option[String], mc: Option[Array[String]], mmc: Option[Array[String]], pass: Option[String], qid: Option[String], qtype: Option[String], qlevel: Option[String], score: Option[Int], maxscore: Option[Int], exlength: Option[Int], atmpts: Option[Int], failedatmpts: Option[Int], topics: Option[Any], current: Option[Int], max: Option[Int])
 case class Edata(eks: Eks)
 case class Gdata(id: String, ver: String)
-case class Event(eid: String, ts: Long, var tst: Option[String], ver: String, gdata: Gdata, sid: Option[String], uid: Option[String], did: String, edata: Edata)
+case class Event(eid: String, ts: Long, ver: String, gdata: Gdata, sid: Option[String], uid: Option[String], did: String, edata: Edata)
 
 trait Output {}
 
