@@ -6,3 +6,4 @@ platform-ui/node_modules
 derby.log
 platform-analytics/metastore_db
 dependency-reduced-pom.xml
+platform-analytics/checkpoint
