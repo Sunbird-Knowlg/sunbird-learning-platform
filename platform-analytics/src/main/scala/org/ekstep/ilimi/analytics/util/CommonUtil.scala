@@ -50,7 +50,7 @@ object CommonUtil {
         Console.println("### Spark Context initialized ###");
         sc;
     }
-    
+
     def getSparkStreamingContext(appName: String, duration: Duration): StreamingContext = {
         val conf = new SparkConf().setAppName(appName);
         val master = conf.getOption("spark.master");
@@ -137,6 +137,11 @@ object CommonUtil {
     def jsonToString(obj: Any): String = {
         implicit val formats = DefaultFormats;
         compact(Extraction.decompose(obj))
+    }
+
+    def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
+        val p = new java.io.PrintWriter(f)
+        try { op(p) } finally { p.close() }
     }
 
 }
