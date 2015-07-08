@@ -41,7 +41,7 @@ public class NodeExportTest {
         return reqRouter;
     }
     
-    @Test
+//    @Test
     public void test() {
         try {
             ActorRef reqRouter = initReqRouter();

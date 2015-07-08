@@ -1,4 +1,4 @@
-package com.ilimi.graph.engine.mgr.impl;
+package com.ilimi.graph.engine.importtest;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -23,16 +23,18 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 
-public class CSVImportTest {
+public class LiteracyCSVImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
+    String graphId = "literacy";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -45,14 +47,14 @@ public class CSVImportTest {
         return reqRouter;
     }
 
-//    @Test
+    @Test(priority = 1)
     public void testImportDefinitions() {
         try {
             ActorRef reqRouter = initReqRouter();
 
             long t1 = System.currentTimeMillis();
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.graph_id.name(), "LEARNING_MAP_2");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
@@ -63,22 +65,22 @@ public class CSVImportTest {
             request.put(GraphEngineParams.input_stream.name(), new String(b));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
-            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
+//            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
-            System.out.println("Import Time: " + (t2 - t1));
+            System.out.println("Literacy Subject Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-//    @Test
+    @Test(priority = 3)
     public void testImportData() {
         try {
             ActorRef reqRouter = initReqRouter();
 
             Request request = new Request();
-            request.getContext().put(GraphHeaderParams.graph_id.name(), "LEARNING_MAP_2");
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("importGraph");
             request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -95,10 +97,11 @@ public class CSVImportTest {
             if(osV == null) {
                 System.out.println(response.getResult());
             } else {
-                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
-                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
+//                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
+//                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
+//                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
+            System.out.println("Literacy Subject data imported.");
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();

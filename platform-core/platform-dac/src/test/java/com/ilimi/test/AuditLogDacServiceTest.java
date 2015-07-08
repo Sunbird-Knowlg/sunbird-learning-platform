@@ -15,7 +15,7 @@ import com.ilimi.dac.dto.Comment;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.IAuditLogDataService;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+//@RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:mw-spring/commons-dac-context.xml" })
 public class AuditLogDacServiceTest {
 

@@ -64,7 +64,7 @@ public class CreateGameTest extends BaseCucumberTest{
 		}
         Response resp = jasonToObject(actions);
         basicAssertion(resp);
-        Assert.assertEquals("successful", resp.getParams().getStatus());
+        Assert.assertEquals(status, resp.getParams().getStatus());
 	}
 	
 	@Then("^i will get Error Message Taxonomy Id is (.*) and status is (\\d+)$")
