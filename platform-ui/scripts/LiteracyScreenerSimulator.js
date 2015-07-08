@@ -51,6 +51,41 @@ var events = [];
 var baseDate = new Date();
 baseDate.setDate(baseDate.getDate() - 2);
 
+function generate1() {
+	events.push(JSON.stringify({
+        "did": "f0cc12f7-b8ff-4365-b9a2-94834e0f5483",
+        "edata": {
+            "eks": {
+                "exres": [],
+                "length": 6.917114,
+                "maxscore": "1",
+                "mc": "LO2\r",
+                "mmc": "",
+                "pass": "Yes",
+                "qid": "EK.L.KAN.LT02.Q36",
+                "qlevel": "",
+                "qtype": "MCQ",
+                "res": [],
+                "score": 1,
+                "subj": "LIT"
+            },
+            "ext": {
+                "mode": "ASSESSMENT",
+                "task": "LT02 Pick the correct picture (1)"
+            }
+        },
+        "eid": "OE_ASSESS",
+        "gdata": {
+            "id": "org.ekstep.lit.scrnr.kan.basic",
+            "ver": "1.30"
+        },
+        "sid": "cab1571f-eae9-43e8-8545-d6daadfd024a",
+        "ts": "2015-07-07T17:59:14+05:30",
+        "uid": "e0f34ffa3c10d2940937a2d499db16c5e72f5d58"
+    }));
+    pushEventsToKafka();
+}
+
 function generate() {
 
 	var deviceLoc = sampleLatLong[getRandomInt(0,3)];
@@ -59,7 +94,7 @@ function generate() {
 	var sid1 = faker.random.uuid();
 	var uid2 = faker.random.uuid();
 	var sid2 = faker.random.uuid();
-	var gid = 'org.eks.lit_screener';
+	var gid = 'org.ekstep.lit.scrnr.kan.basic';
 
 	appendEvent({eventId: 'GE_SESSION_START', tmin: getRandomInt(0, 1), did: did, uid: uid1, sid: sid1, eksData: {ueksid: 'user1', loc: deviceLoc}});
 	appendEvent({eventId: 'GE_SESSION_START', tmin: getRandomInt(0, 1), did: did, uid: uid2, sid: sid2, eksData: {ueksid: 'user2', loc: deviceLoc}});
@@ -69,48 +104,87 @@ function generate() {
 	appendEvent({eventId: 'GE_SESSION_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid1, sid: sid1, eksData: {length: (t2-t1)/1000}});
 	appendEvent({eventId: 'GE_SESSION_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid2, sid: sid2, eksData: {length: (t2-t1)/1000}});
 	pushEventsToKafka();
-	console.log("### Completed telemetry data simulation ###");
 }
 
 function generateOEEvents(did, uid1, uid2, sid1, sid2, gid) {
 	appendEvent({eventId: 'GE_LAUNCH_GAME', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid1, sid: sid1, eksData: {gid: gid, err: ''}});
 	appendEvent({eventId: 'GE_LAUNCH_GAME', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid2, sid: sid2, eksData: {gid: gid, err: ''}});
 	var t1 = baseDate.getTime();
-	for(var i=1; i <= 331; i++) {
-		appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid1, sid: sid1, gid:gid, eksData: {
-			subj: 'LIT',
-			"mc": ["C:2"],
-	        "qid": "Q"+i,
-	        "qtype": "WORD_PROBLEM",
-	        "qlevel": qlevels[getRandomInt(0, 2)],
-	        "pass": passArr[getRandomInt(0, 1)],
-	        "mmc": [],
-	        "score": getRandomInt(1, 9),
-	        "maxscore": 10,
-	        "length": getRandomInt(10, 20),
-	        "exlength": 13,
-	        "atmpts": getRandomInt(1, 5),
-	        "failedatmpts": getRandomInt(0, 2)
-		}});
-		appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid2, sid: sid2, gid:gid, eksData: {
-			subj: 'LIT',
-			"mc": ["C:2"],
-	        "qid": "Q"+i,
-	        "qtype": "WORD_PROBLEM",
-	        "qlevel": qlevels[getRandomInt(0, 2)],
-	        "pass": passArr[getRandomInt(0, 1)],
-	        "mmc": [],
-	        "score": getRandomInt(1, 9),
-	        "maxscore": 10,
-	        "length": getRandomInt(10, 20),
-	        "exlength": 13,
-	        "atmpts": getRandomInt(1, 5),
-	        "failedatmpts": getRandomInt(0, 2)
-		}});
+	for(var i=1; i <=20; i++) {
+		addOEAssessEvent(i, 'LT1', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=70; i++) {
+		addOEAssessEvent(i, 'LT2', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=5; i++) {
+		addOEAssessEvent(i, 'LT3', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=20; i++) {
+		addOEAssessEvent(i, 'LT4', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=80; i++) {
+		addOEAssessEvent(i, 'LT5', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=20; i++) {
+		addOEAssessEvent(i, 'LT6', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=72; i++) {
+		addOEAssessEvent(i, 'LT7', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=5; i++) {
+		addOEAssessEvent(i, 'LT8', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=10; i++) {
+		addOEAssessEvent(i, 'LT9', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=5; i++) {
+		addOEAssessEvent(i, 'LT10', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=5; i++) {
+		addOEAssessEvent(i, 'LT11', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=8; i++) {
+		addOEAssessEvent(i, 'LT12', did, uid1, uid2, sid1, sid2, gid);
+	}
+	for(var i=1; i <=11; i++) {
+		addOEAssessEvent(i, 'LT13', did, uid1, uid2, sid1, sid2, gid);
 	}
 	var t2 = baseDate.getTime();
 	appendEvent({eventId: 'GE_GAME_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid1, sid: sid1, eksData: {gid: gid, err: '', length: (t2-t1)/1000}});
 	appendEvent({eventId: 'GE_GAME_END', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid2, sid: sid2, eksData: {gid: gid, err: '', length: (t2-t1)/1000}});
+}
+
+function addOEAssessEvent(idx, ltCode, did, uid1, uid2, sid1, sid2, gid) {
+	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid1, sid: sid1, gid:gid, eksData: {
+		subj: 'LIT',
+		"mc": ["C:2"],
+        "qid": 'EK.L.KAN.' + ltCode + '.Q' + idx,
+        "qtype": "WORD_PROBLEM",
+        "qlevel": qlevels[getRandomInt(0, 2)],
+        "pass": passArr[getRandomInt(0, 1)],
+        "mmc": [],
+        "score": getRandomInt(1, 9),
+        "maxscore": 10,
+        "length": getRandomInt(10, 20),
+        "exlength": 13,
+        "atmpts": getRandomInt(1, 5),
+        "failedatmpts": getRandomInt(0, 2)
+	}});
+	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid2, sid: sid2, gid:gid, eksData: {
+		subj: 'LIT',
+		"mc": ["C:2"],
+        "qid": 'EK.L.KAN.' + ltCode + '.Q' + idx,
+        "qtype": "WORD_PROBLEM",
+        "qlevel": qlevels[getRandomInt(0, 2)],
+        "pass": passArr[getRandomInt(0, 1)],
+        "mmc": [],
+        "score": getRandomInt(1, 9),
+        "maxscore": 10,
+        "length": getRandomInt(10, 20),
+        "exlength": 13,
+        "atmpts": getRandomInt(1, 5),
+        "failedatmpts": getRandomInt(0, 2)
+	}});
 }
 
 function appendEvent(args) {
@@ -121,7 +195,8 @@ function appendEvent(args) {
 	}
 	events.push(JSON.stringify({
 		"eid": args.eventId, // unique event ID
-		"ts": baseDate.getTime(),
+		//"ts": baseDate.getTime(),
+		"ts": baseDate.format("YYYY-MM-DD'T'hh:mm:ss+Z"),
 		"ver": "1.0",
 		"gdata": {
 		 	"id": args.gid || "genie.android", // genie id since this is generated by genie
@@ -145,6 +220,7 @@ function pushEventsToKafka() {
 			kafkaUtil.send([event]);
 		}, idx * 100);
 	});
+	console.log("### Completed telemetry data simulation ###");
 	setTimeout(function() {
 		console.log(' Current Time - ', new Date());
 		kafkaUtil.closeClient();
