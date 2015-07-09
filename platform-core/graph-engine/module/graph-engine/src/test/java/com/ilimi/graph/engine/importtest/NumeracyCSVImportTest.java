@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -30,13 +30,11 @@ import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 
-public class GamesCSVImport {
+public class NumeracyCSVImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "LITERACY";
-//    String csvFileName = "NumeracyGames-GraphEngine.csv";
-    String csvFileName = "LiteracyGames-GraphEngine.csv";
+    String graphId = "numeracy";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -49,7 +47,7 @@ public class GamesCSVImport {
         return reqRouter;
     }
 
-    @Test
+    @Test(priority = 1)
     public void testImportDefinitions() {
         try {
             ActorRef reqRouter = initReqRouter();
@@ -60,23 +58,23 @@ public class GamesCSVImport {
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("game_definitions.json");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("taxonomy_definitions.json");
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
             request.put(GraphEngineParams.input_stream.name(), new String(b));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
-            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
+//            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
-            System.out.println("Import Time: " + (t2 - t1));
+            System.out.println("Numeracy Subject Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    @Test
+    @Test(priority = 3)
     public void testImportData() {
         try {
             ActorRef reqRouter = initReqRouter();
@@ -88,7 +86,7 @@ public class GamesCSVImport {
             request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream(csvFileName);
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Numeracy-GraphEngine.csv");
 
             request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
@@ -99,10 +97,11 @@ public class GamesCSVImport {
             if(osV == null) {
                 System.out.println(response.getResult());
             } else {
-                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-                FileUtils.writeByteArrayToFile(new File("Games-GraphEngine-WithResult.csv"), os.toByteArray());
-                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
+//                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
+//                FileUtils.writeByteArrayToFile(new File("Numeracy-GraphEngine-WithResult.csv"), os.toByteArray());
+//                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
+            System.out.println("Numeracy Subject data imported.");
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -119,26 +118,6 @@ public class GamesCSVImport {
                 System.out.println(ar.get(param));
                 System.out.println(ar.getParams());
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    
-    @Test
-    public void testExportGraph() {
-        try {
-            ActorRef reqRouter = initReqRouter();
-            Request request = new Request();
-            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
-            request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
-            request.setOperation("exportGraph");
-            request.put(GraphEngineParams.format.name(), ImportType.JSON.name());
-            Future<Object> req = Patterns.ask(reqRouter, request, t);
-            Object obj = Await.result(req, t.duration());
-            Response response = (Response) obj;
-            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
-            ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-            System.out.println("Result: \n" + new String(os.toByteArray())); 
         } catch (Exception e) {
             e.printStackTrace();
         }

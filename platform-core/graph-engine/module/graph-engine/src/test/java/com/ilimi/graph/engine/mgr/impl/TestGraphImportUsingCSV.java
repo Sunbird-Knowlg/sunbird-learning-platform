@@ -117,7 +117,7 @@ public class TestGraphImportUsingCSV {
         return val;
     }
 
-    @Test
+    //@Test
     public void testForRequiredColumsHandling() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();
@@ -132,7 +132,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForRequiredDataMissing() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();
@@ -147,7 +147,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForDefinitionNodeMissedValidation() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();
@@ -165,7 +165,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForNodesAndRelationsCount() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();
@@ -189,7 +189,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForTagsCount() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();
@@ -218,7 +218,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForUpdateNodeMetadata() throws Exception {
         testImportDefinitionNodes();
         ActorRef reqRouter = initReqRouter();
@@ -249,7 +249,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForUpdateRelationship() throws Exception {
         testImportDefinitionNodes();
         ActorRef reqRouter = initReqRouter();
@@ -306,7 +306,7 @@ public class TestGraphImportUsingCSV {
         deleteGraph();
     }
 
-    @Test
+    //@Test
     public void testForDefinitionNodeUpdate() throws Exception {
         ActorRef reqRouter = initReqRouter();
         Request request = getRequest();

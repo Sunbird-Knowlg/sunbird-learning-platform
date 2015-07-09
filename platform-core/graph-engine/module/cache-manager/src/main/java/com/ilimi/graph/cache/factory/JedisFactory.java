@@ -20,6 +20,7 @@ public class JedisFactory {
     private static int maxConnections = 128;
     private static String host = "localhost";
     private static int port = 6379;
+    private static int index = 0;
 
     static {
         try {
@@ -44,6 +45,13 @@ public class JedisFactory {
                     } catch (Exception e) {
                     }
                 }
+                String dbIndex = props.getProperty("redis.dbIndex");
+                if (StringUtils.isNotBlank(dbIndex)) {
+                    try {
+                        index = Integer.parseInt(dbIndex);
+                    } catch (Exception e) {
+                    }
+                }
             }
         } catch (Exception e) {
         }
@@ -56,6 +64,7 @@ public class JedisFactory {
     public static Jedis getRedisConncetion() {
         try {
             Jedis jedis = jedisPool.getResource();
+            if(index > 0) jedis.select(index);
             return jedis;
         } catch (Exception e) {
             throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_CONNECTION_ERROR.name(), e.getMessage());

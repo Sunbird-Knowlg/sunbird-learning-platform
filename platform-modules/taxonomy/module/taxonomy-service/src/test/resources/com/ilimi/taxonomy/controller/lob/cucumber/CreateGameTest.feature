@@ -2,7 +2,7 @@ Feature: Test all scenarios of create Game.
 
   Scenario: Create a Game.
   	When i give taxonomy ID numeracy
-    Then Create a Game and get the status Successful
+    Then Create a Game and get the status successful
     
   Scenario: Create a Game when taxonomy Id is empty.
   	When i give taxonomy ID empty
