@@ -6,6 +6,7 @@ import org.apache.spark.broadcast.Broadcast
 import org.ekstep.ilimi.analytics.model.Event
 import org.ekstep.ilimi.analytics.util.CommonUtil
 import java.io.File
+import org.ekstep.ilimi.analytics.util.S3Util
 
 case class Pdata(id: String, mod: String, ver: String)
 case class Gdata(id: String, ver: String)
@@ -44,7 +45,7 @@ object LitScreenerLevelComputation extends Serializable {
         val loLevels = loScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
         val ldLevels = ldScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
         val compositeLevels = compositeScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
-        
+
         var result = Buffer[(String, String, Int, String)]();
         ltLevels.foreach(f => result += f);
         loLevels.foreach(f => result += f);
@@ -60,11 +61,13 @@ object LitScreenerLevelComputation extends Serializable {
                 result.foreach { x => Console.println(x) };
             case "csv" =>
                 Console.println("## Printing output to csv ##");
-                CommonUtil.printToFile(new File(outputDir.getOrElse("user-aggregates") + "/lit_scr_levels_" + uid + ".csv")) { p =>
+                val filePath = outputDir.getOrElse("user-aggregates") + "/" + uid + ".csv";
+                CommonUtil.printToFile(new File(filePath)) { p =>
                     result.foreach(f => {
                         p.println(f._1 + "," + f._2 + "," + f._3 + "," + f._4);
                     })
                 }
+                S3Util.uploadPublic("lit-screener-level-compute", filePath, uid + "_" + System.currentTimeMillis() + ".csv")
             case "kafka" =>
                 Console.println("## Printing output to kafka topic ##");
                 var resultEvents = Buffer[EventOutput]();
@@ -78,9 +81,9 @@ object LitScreenerLevelComputation extends Serializable {
         EventOutput("ME_USER_GAME_LEVEL", System.currentTimeMillis(), "1.0", Some(event._1), Some(event._2), Some(Gdata(litScreenerId, screenerVersion)),
             Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), edata);
     }
-    
-    def getCodeMap(codeMap: Map[String, Array[(String, String)]], valueMap: Map[String, Int]) : Map[String, Int] = {
-        codeMap.mapValues(f => {f.map(f => valueMap.getOrElse(f._2, 0))}).mapValues { x => x.reduce(_ + _) }.toMap;
+
+    def getCodeMap(codeMap: Map[String, Array[(String, String)]], valueMap: Map[String, Int]): Map[String, Int] = {
+        codeMap.mapValues(f => { f.map(f => valueMap.getOrElse(f._2, 0)) }).mapValues { x => x.reduce(_ + _) }.toMap;
     }
 
     def getLevel(code: String, score: Int, levelMap: Map[String, Array[LevelAgg]]): String = {

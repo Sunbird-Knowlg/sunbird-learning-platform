@@ -6,6 +6,10 @@ import org.jets3t.service.impl.rest.httpclient.RestS3Service
 import org.jets3t.service.model.S3Object
 import java.nio.file.Files
 import java.io.File
+import org.jets3t.service.acl.AccessControlList
+import org.jets3t.service.acl.GroupGrantee
+import org.jets3t.service.acl.Permission
+import org.jets3t.service.acl.GranteeInterface
 
 object S3Util {
 
@@ -19,5 +23,19 @@ object S3Util {
         val fileObj = s3Service.putObject(bucketName, s3Object);
         Console.println("ETag - " + fileObj.getETag);
     }
+    
+    def uploadPublic(bucketName: String, filePath: String, key: String) {
+        
+        val bucketAcl = s3Service.getBucketAcl(bucketName);
+        val acl = new AccessControlList();
+        acl.setOwner(bucketAcl.getOwner);
+        acl.grantPermission(GroupGrantee.ALL_USERS, Permission.PERMISSION_READ);
+        Console.println("### Uploading file to S3. Bucket - " + bucketName + " | FilePath - " + filePath + " | Key - " + key + " ###")
+        val s3Object = new S3Object(new File(filePath));
+        s3Object.setKey(key)
+        s3Object.setAcl(acl);
+        val fileObj = s3Service.putObject(bucketName, s3Object);
+        Console.println("ETag - " + fileObj.getETag);
+    } 
 
 }
