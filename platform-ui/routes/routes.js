@@ -18,7 +18,8 @@ var userHelper = require('../view_helpers/UserViewHelper')
     , taxonomyHelper = require('../view_helpers/TaxonomyViewHelper')
     , conceptHelper = require('../view_helpers/ConceptViewHelper')
     , gameHelper = require('../view_helpers/GameViewHelper')
-    , commentHelper = require('../view_helpers/CommentViewHelper');
+    , commentHelper = require('../view_helpers/CommentViewHelper')
+    , uploadHelper = require('../view_helpers/UploadViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -191,6 +192,8 @@ module.exports = function(app, dirname, passport, connectroles) {
 
     app.post('/private/v1/player/comment', commentHelper.saveComment);
     app.get('/private/v1/player/comment/thread/:tid/:id/:threadId',commentHelper.getCommentThread);
+
+    app.post('/private/v1/player/fileupload', uploadHelper.uploadFile);
 
 };
 

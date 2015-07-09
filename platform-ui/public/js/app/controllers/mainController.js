@@ -1,4 +1,4 @@
-var app = angular.module('playerApp', ['ui.router', 'readableTime', 'truncate', 'ngSanitize', 'sunburst.services', 'sunburst.directives', 'd3']);
+var app = angular.module('playerApp', ['ui.router', 'readableTime', 'truncate', 'ngSanitize', 'sunburst.services', 'sunburst.directives', 'd3', 'file-model']);
 
 app.config(function($stateProvider) {
     $stateProvider
@@ -161,6 +161,22 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.getFromService('/private/v1/player/comment/thread/' + taxonomyId + '/' + objId + '/' + threadId);
     }
 
+    this.uploadFile = function(fd) {
+        var deferred = $q.defer();
+        $http.post('/private/v1/player/fileupload', fd, {
+            transformRequest: angular.identity,
+            headers: {
+                'Content-Type': undefined
+            }
+        }).success(function(resp) {
+            if (!resp.error)
+                deferred.resolve(resp);
+            else
+                deferred.reject(resp);
+        });
+        return deferred.promise;
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
@@ -178,6 +194,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.selectedTaxonomyId = undefined;
     $scope.selectedConcept = undefined;
     $scope.newComment = "";
+    $scope.uploadFolderName = "games";
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
             if(data && data.length > 0) {
@@ -559,6 +576,34 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $state.go('gamePage', {id: gameId});
     }
 
+    $scope.uploadFile = function(propName) {
+        var fileObj = $scope.selectedConcept.filesToUpload[propName];
+        if (fileObj && fileObj != null) {
+            var type = fileObj.type;
+            if (type.indexOf('image') == 0 || type.indexOf('image') == 0 || type.indexOf('image') == 0) {
+                if (fileObj.size && fileObj.size > 0) {
+                    var fd = new FormData();
+                    fd.append('document', fileObj);
+                    fd.append('folderName', 'games');
+                    $scope.selectedConcept.uploading[propName] = true;
+                    service.uploadFile(fd).then(function(data) {
+                        $scope.selectedConcept.uploading[propName] = false;
+                        $scope.selectedConcept.metadata[propName] = data.url;
+                    }).catch(function(err) {
+                        $scope.selectedConcept.uploading[propName] = false;
+                        alert('File upload failed: ' + err.errorMsg);    
+                    });
+                } else {
+                    alert('Selected file size is 0 bytes. Please select another file');    
+                }    
+            } else {
+                alert('Only images, audio and video files are allowed');    
+            }
+        } else {
+            alert('Please select a file to upload');
+        }
+    }
+
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -634,6 +679,7 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.resetRelations();
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
+        $scope.$parent.selectedConcept.filesToUpload = {};
     }
 
     $scope.getTaxonomyDefinitions($stateParams.id);
@@ -978,6 +1024,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.selectedConcept.relatedGamesLimit = service.rhsSectionObjectsLimit;
         $scope.resetRelations();
+        $scope.$parent.selectedConcept.filesToUpload = {};
+        $scope.$parent.selectedConcept.uploading = {};
         $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
         $scope.resetCategories();
         setTimeout(function() {
