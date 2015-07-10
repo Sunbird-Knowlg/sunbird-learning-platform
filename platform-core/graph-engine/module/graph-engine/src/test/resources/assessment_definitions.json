@@ -208,15 +208,13 @@
           "title": "Sub Purpose",
           "description": "",
           "category": "general",
-          "dataType": "Select",
-          "range": [
-            ""
-          ],
+          "dataType": "Text",
+          "range": [],
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "Draft",
-          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
         },
         {
           "propertyName": "depth_of_knowledge",
@@ -312,8 +310,14 @@
           "title": "Levels",
           "description": "",
           "category": "general",
-          "dataType": "Select",
-          "range": [],
+          "dataType": "Multi-Select",
+          "range": [
+          	"Level1",
+          	"Level2",
+          	"Level3",
+          	"Level4",
+          	"Level5"
+          ],
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
