@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
     <groupId>com.ilimi</groupId>
-    <artifactId>platform</artifactId>
+    <artifactId>ilimi-assessment</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
-    <name>EkStep Platform Main</name>
+    <name>MW for Assessments</name>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -18,17 +17,19 @@
 	</properties>
 
 	<modules>
-		<module>platform-core/platform-common</module>
-		<module>platform-core/graph-engine</module>
-		<module>platform-core/platform-dac</module>
-		<module>platform-modules/taxonomy</module>
-		<module>platform-modules/assessment</module>
-		<module>platform-modules/common</module>
-		<module>platform-modules/service</module>
+		<module>module/assessment-mgr-api</module>
+		<module>module/assessment-mgr</module>
+		<module>module/assessment-service</module>
+		
 	</modules>
 
 	<dependencies>
-		
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -53,6 +54,7 @@
 						<target>1.7</target>
 					</configuration>
 				</plugin>
+				
 			</plugins>
 		</pluginManagement>
 	</build>

@@ -28,7 +28,7 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>taxonomy-service</servlet-name>
+		<servlet-name>ekstep-service</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
@@ -39,12 +39,12 @@
 
 	<servlet>
 		<servlet-name>init-servlet</servlet-name>
-		<servlet-class>com.ilimi.taxonomy.servlet.InitServlet</servlet-class>
+		<servlet-class>com.ilimi.servlet.InitServlet</servlet-class>
 		<load-on-startup>2</load-on-startup>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>taxonomy-service</servlet-name>
+		<servlet-name>ekstep-service</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 

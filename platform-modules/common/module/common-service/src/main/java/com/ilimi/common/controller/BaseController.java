@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.controller;
+package com.ilimi.common.controller;
 
 import java.io.BufferedOutputStream;
 import java.io.OutputStream;
@@ -25,6 +25,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+
 
 public abstract class BaseController {
 

@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.mgr.impl;
+package com.ilimi.common.mgr;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,12 +21,13 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.enums.TaxonomyErrorCodes;
-import com.ilimi.taxonomy.router.RequestRouterPool;
+
 
 public abstract class BaseManager {
 

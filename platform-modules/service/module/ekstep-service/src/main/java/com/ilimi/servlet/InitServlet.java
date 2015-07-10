@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.servlet;
+package com.ilimi.servlet;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;

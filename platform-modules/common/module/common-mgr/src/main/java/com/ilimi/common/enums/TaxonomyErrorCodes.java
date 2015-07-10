@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.enums;
+package com.ilimi.common.enums;
 
 public enum TaxonomyErrorCodes {
 

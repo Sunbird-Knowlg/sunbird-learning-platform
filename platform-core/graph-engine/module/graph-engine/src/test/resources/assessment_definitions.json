@@ -1,0 +1,904 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "Question",
+      "properties": [
+        {
+          "propertyName": "identifier",
+          "title": "Identifier",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "code",
+          "title": "Code",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+        },
+        {
+          "propertyName": "language",
+          "title": "Language",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
+        },
+        {
+          "propertyName": "title",
+          "title": "Title",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
+        },
+        {
+          "propertyName": "body",
+          "title": "Question",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "question_type",
+          "title": "Type",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "embedded",
+            "mcq",
+            "mmcq",
+            "sort_list",
+            "ftb",
+            "mtf",
+            "speech_question",
+            "canvas_question"
+          ],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
+        },
+        {
+          "propertyName": "options",
+          "title": "JSON",
+          "description": "",
+          "category": "general",
+          "dataType": "Option",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": ""
+        },
+        {
+          "propertyName": "lhs_options",
+          "title": "LHS Options",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
+        },
+        {
+          "propertyName": "rhs_options",
+          "title": "RHS Options",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
+        },
+        {
+          "propertyName": "num_answers",
+          "title": "Number of Answers",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'number', 'order': 19 }"
+        },
+        {
+          "propertyName": "answer",
+          "title": "Answer",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "hints",
+          "title": "Hints",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "difficulty_level",
+          "title": "Difficulty Level",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+        },
+        {
+          "propertyName": "purpose",
+          "title": "Purpose",
+          "description": "",
+          "category": "pedagogy",
+          "dataType": "Select",
+          "range": [
+            "Knowledge",
+            "Conceptual",
+            "Application",
+            "Problem Solving"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 14 }"
+        },
+        {
+          "propertyName": "sub_purpose",
+          "title": "Sub Purpose",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            ""
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+        },
+        {
+          "propertyName": "depth_of_knowledge",
+          "title": "Depth of Knowledge",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "Recall",
+            "Skill",
+            "Strategic Thinking",
+            "Extended Thinking"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+        },
+        {
+          "propertyName": "used_for",
+          "title": "Used for",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "assessment",
+            "worksheet"
+          ],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+        },
+        {
+          "propertyName": "score",
+          "title": "Score",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
+        },
+        {
+          "propertyName": "partial_scoring",
+          "title": "Partial Scoring",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "YES",
+            "NO"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
+        },
+        {
+          "propertyName": "feedback",
+          "title": "Feedback",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "max_time",
+          "title": "Max Time",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
+        },
+        {
+          "propertyName": "levels",
+          "title": "Levels",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
+        },
+        {
+          "propertyName": "rendering_metadata",
+          "title": "Rendering Metadata",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": ""
+        },
+        {
+          "propertyName": "status",
+          "title": "Status",
+          "description": "",
+          "category": "lifeCycle",
+          "dataType": "Select",
+          "range": [
+            "Draft",
+            "Review",
+            "Live",
+            "Retired",
+            "Mock"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
+        },
+        {
+          "propertyName": "currentVersion",
+          "title": "Current Version",
+          "description": "",
+          "category": "lifeCycle",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
+        },
+        {
+          "propertyName": "developer",
+          "title": "Developer",
+          "description": "Person or Organization",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "owner",
+          "title": "Owner",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "copyright",
+          "title": "Copyright",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "cost",
+          "title": "Cost",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "license",
+          "title": "License",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 22 }"
+        },
+        {
+          "propertyName": "version",
+          "title": "Version",
+          "description": "",
+          "category": "audit",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 23 }"
+        },
+        {
+          "propertyName": "versionDate",
+          "title": "Version Date",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 24 }"
+        },
+        {
+          "propertyName": "versionCreatedBy",
+          "title": "Version Created By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 25 }"
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "associatedTo",
+          "title": "Associated Concepts",
+          "description": "",
+          "required": true,
+          "objectTypes": [
+            "Concept"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        }
+      ],
+      "systemTags": [
+        {
+          "name": "Literacy",
+          "description": "Subject area"
+        },
+        {
+          "name": "Numeracy",
+          "description": "Subject area"
+        },
+        {
+          "name": "Non Cognitive",
+          "description": "Subject area"
+        },
+        {
+          "name": "Mandatory",
+          "description": "Is the game mandatory?"
+        },
+        {
+          "name": "Audio Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Visual Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Textual Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Touch Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "No Intervention",
+          "description": "Intervention Type"
+        },
+        {
+          "name": "Optional Intervention",
+          "description": "Intervention Type"
+        },
+        {
+          "name": "Mandatory Intervention",
+          "description": "Intervention Type"
+        }
+      ],
+      "metadata": {
+      	"ttl": 24,
+      	"limit": 50
+      }
+    },
+    {
+      "objectType": "Questionnaire",
+      "properties": [
+        {
+          "propertyName": "identifier",
+          "title": "Identifier",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "code",
+          "title": "Code",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+        },
+        {
+          "propertyName": "language",
+          "title": "Language",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
+        },
+        {
+          "propertyName": "title",
+          "title": "Title",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
+        },
+        {
+          "propertyName": "description",
+          "title": "Description",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "instructions",
+          "title": "Instructions",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "used_for",
+          "title": "Used for",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "assessment",
+            "worksheet"
+          ],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
+        },
+        {
+          "propertyName": "duration",
+          "title": "Duration",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'number', 'order': 14 }"
+        },
+        {
+          "propertyName": "total_items",
+          "title": "Total Items",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 19 }"
+        },
+        {
+          "propertyName": "items",
+          "title": "Questions",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "item_sets",
+          "title": "Item Sets",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "strict_sequencing",
+          "title": "Strict Sequencing",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 19 }"
+        },
+        {
+          "propertyName": "allow_skip",
+          "title": "Allow Skip",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 19 }"
+        },
+        {
+          "propertyName": "max_score",
+          "title": "Max Score",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
+        },
+        {
+          "propertyName": "status",
+          "title": "Status",
+          "description": "",
+          "category": "lifeCycle",
+          "dataType": "Select",
+          "range": [
+            "Draft",
+            "Review",
+            "Live",
+            "Retired",
+            "Mock"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
+        },
+        {
+          "propertyName": "currentVersion",
+          "title": "Current Version",
+          "description": "",
+          "category": "lifeCycle",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
+        },
+        {
+          "propertyName": "developer",
+          "title": "Developer",
+          "description": "Person or Organization",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "owner",
+          "title": "Owner",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "copyright",
+          "title": "Copyright",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "cost",
+          "title": "Cost",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "license",
+          "title": "License",
+          "description": "",
+          "category": "ownership",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 22 }"
+        },
+        {
+          "propertyName": "version",
+          "title": "Version",
+          "description": "",
+          "category": "audit",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 23 }"
+        },
+        {
+          "propertyName": "versionDate",
+          "title": "Version Date",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 24 }"
+        },
+        {
+          "propertyName": "versionCreatedBy",
+          "title": "Version Created By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 25 }"
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "associatedTo",
+          "title": "Associated Concepts",
+          "description": "",
+          "required": true,
+          "objectTypes": [
+            "Concept"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        }
+      ],
+      "systemTags": []
+    }
+  ]
+}
