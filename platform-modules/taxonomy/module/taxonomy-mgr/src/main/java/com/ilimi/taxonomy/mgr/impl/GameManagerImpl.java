@@ -32,12 +32,6 @@ import com.ilimi.taxonomy.mgr.IGameManager;
 public class GameManagerImpl extends BaseManager implements IGameManager {
 
     private static Logger LOGGER = LogManager.getLogger(IGameManager.class.getName());
-    private static final String PARAM_SUBJECT = "subject";
-    private static final String PARAM_FIELDS = "fields";
-    private static final String PARAM_LIMIT = "limit";
-    private static final String PARAM_UID = "uid";
-    private static final String PARAM_STATUS = "status";
-    private static final String PARAM_TTL = "ttl";
 
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
