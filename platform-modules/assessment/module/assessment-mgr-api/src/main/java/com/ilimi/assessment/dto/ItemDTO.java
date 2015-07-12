@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.dto;
+package com.ilimi.assessment.dto;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -15,26 +15,28 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
-public class ConceptDTO extends Node {
+public class ItemDTO extends Node {
 
-    private static final long serialVersionUID = -5820790915284632780L;
-
-    public ConceptDTO() {
+    private static final long serialVersionUID = 7657238554576773160L;
+    
+    private List<NodeDTO> concepts;
+    
+    public ItemDTO() {
     }
-
-    public ConceptDTO(Node node) {
+     
+    public ItemDTO(Node node) {
         this(node, null);
     }
-
-    public ConceptDTO(Node node, String[] cfields) {
+    
+    public ItemDTO(Node node, String[] ifields) {
         if (null != node) {
             setGraphId(node.getGraphId());
             setIdentifier(node.getIdentifier());
             setNodeType(node.getNodeType());
             setObjectType(node.getObjectType());
-            if (null != cfields && cfields.length > 0) {
+            if (null != ifields && ifields.length > 0) {
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
-                    List<String> fields = Arrays.asList(cfields);
+                    List<String> fields = Arrays.asList(ifields);
                     Map<String, Object> metadata = new HashMap<String, Object>();
                     for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
                         if (fields.contains(entry.getKey()))
@@ -49,27 +51,26 @@ public class ConceptDTO extends Node {
             setOutRelations(node.getOutRelations());
             setTags(node.getTags());
 
-            if (null != getInRelations() && !getInRelations().isEmpty()) {
-                this.games = new ArrayList<NodeDTO>();
-                for (Relation rel : getInRelations()) {
+            if (null != getOutRelations() && !getOutRelations().isEmpty()) {
+                this.concepts = new ArrayList<NodeDTO>();
+                for (Relation rel : getOutRelations()) {
                     if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
-                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getStartNodeType())) {
-                        if (StringUtils.equalsIgnoreCase("Game", rel.getStartNodeObjectType())) {
-                            this.games.add(new NodeDTO(rel.getStartNodeId(), rel.getStartNodeName(), rel.getStartNodeObjectType()));
+                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
+                        if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
+                            this.concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
                         }
                     }
                 }
             }
         }
     }
-
-    private List<NodeDTO> games;
-
-    public List<NodeDTO> getGames() {
-        return games;
+    
+    
+    public List<NodeDTO> getConcepts() {
+        return concepts;
     }
 
-    public void setGames(List<NodeDTO> games) {
-        this.games = games;
+    public void setConcepts(List<NodeDTO> concepts) {
+        this.concepts = concepts;
     }
 }

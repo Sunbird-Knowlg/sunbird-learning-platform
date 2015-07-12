@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ilimi.taxonomy.router.RequestRouterPool;
+import com.ilimi.common.router.RequestRouterPool;
+
 
 public class InitServlet extends HttpServlet {
 

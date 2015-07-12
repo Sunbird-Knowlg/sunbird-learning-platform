@@ -1,6 +1,7 @@
 platform-ui/logs
 platform-ui/node_modules
 .settings
+.project
 **/target
 .cache
 derby.log

@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.dto;
+package com.ilimi.common.dto;
 
 import java.io.Serializable;
 
