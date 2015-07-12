@@ -318,7 +318,7 @@
 		<tr ng-if="!selectedConcept.metadata[prop.propertyName] || selectedConcept.metadata[prop.propertyName].length == 0"><td>None</td></tr>
 	</table>
 	<span ng-switch-when="Date">{{selectedConcept.metadata[prop.propertyName] | date:'yyyy-MM-dd HH:mm'}}</span>
-    <a ng-switch-when="URL" href="{{selectedConcept.metadata[prop.propertyName]}}" target="_blank">Open</a>
+    <a ng-switch-when="URL" class="nextBtn" href="{{selectedConcept.metadata[prop.propertyName]}}" target="_blank">View</a>
 	<span ng-switch-default>{{selectedConcept.metadata[prop.propertyName] || 'NA'}}</span>
 </div>
 
@@ -338,7 +338,17 @@
 	<select ng-switch-when="Select" ng-model="selectedConcept.metadata[prop.propertyName]" ng-options="val for val in prop.range" class="form-control"></select>
 	<input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
 	<input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
-    <input ng-switch-when="URL" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
+    <div ng-switch-when="URL">
+    <div class="col-md-12 noPad">
+        Select File:
+        <a class="nextBtn pull-right" ng-click="uploadFile(prop.propertyName)" ng-show="!selectedConcept.uploading[prop.propertyName]">Upload</a>
+        <img src="/img/loading.gif" class="pull-right" ng-show="selectedConcept.uploading[prop.propertyName]" />
+    </div>
+    <div class="col-md-12 noPad"><input type="file" file-model="selectedConcept.filesToUpload[prop.propertyName]"/></div>
+    <div class="col-md-12 noPad marTop5">
+    <input type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="or enter URL here"/>
+    </div>
+    </div>
 </div>
 
 </script>

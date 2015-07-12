@@ -36,8 +36,12 @@ object LitScreenerLevelComputation extends Serializable {
                 (x.edata.eks.qid.get, x.uid.get, if ("Yes".equalsIgnoreCase(x.edata.eks.pass.get)) 1 else 0, qids(3));
             }
         };
-        val uid = oeAssesEvents.last._2;
-        val ltScores = oeAssesEvents.groupBy(f => f._4).mapValues(f => f.map(f => f._3)).mapValues { x => x.reduce(_ + _) }.toMap;
+        val distinctEvents = oeAssesEvents.distinct; 
+        //Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
+        distinctEvents.foreach(f => Console.println(f));
+        val uid = distinctEvents.last._2;
+        
+        val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => f._3)).mapValues { x => x.reduce(_ + _) }.toMap;
         val loScores = getCodeMap(loltMap, ltScores);
         val ldScores = getCodeMap(ldloMap, loScores);
         val compositeScores = getCodeMap(compldMap, ldScores);

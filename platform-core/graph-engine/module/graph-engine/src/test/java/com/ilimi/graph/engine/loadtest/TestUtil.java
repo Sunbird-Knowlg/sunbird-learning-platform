@@ -10,28 +10,21 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 import scala.concurrent.duration.Duration;
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
-import akka.pattern.Patterns;
-import akka.routing.SmallestMailboxPool;
 import akka.util.Timeout;
 
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.engine.router.RequestRouter;
+import com.ilimi.graph.engine.router.ActorBootstrap;
+import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 
 public class TestUtil {
 
     public static Timeout timeout = new Timeout(Duration.create(50, TimeUnit.SECONDS));
 
     public static ActorRef initReqRouter() throws Exception {
-        ActorSystem system = ActorSystem.create("MySystem");
-        Props props = Props.create(RequestRouter.class);
-        ActorRef reqRouter = system.actorOf(new SmallestMailboxPool(20).props(props));
-
-        Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
-        Object response = Await.result(future, timeout.duration());
+        ActorBootstrap.getActorSystem();
+        ActorRef reqRouter = GraphEngineActorPoolMgr.getRequestRouter();
         Thread.sleep(2000);
-        System.out.println("Response from request router: " + response);
+        System.out.println("Request Router: " + reqRouter);
         return reqRouter;
     }
 

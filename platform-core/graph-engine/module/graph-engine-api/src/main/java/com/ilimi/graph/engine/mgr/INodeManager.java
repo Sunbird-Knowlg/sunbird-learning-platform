@@ -43,6 +43,18 @@ public interface INodeManager {
     void createDataNode(Request request);
 
     /**
+     * Validates the given node against the metadata definition. The node should
+     * contain the object type, the metadata that needs to be validated and all
+     * the relations on the object.
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - NODE_ID unique id for the definition node
+     * @request - NODE node object to be validated
+     * @response - STATUS: API call status
+     */
+    void validateNode(Request request);
+
+    /**
      * Updates metadata of a data node in the graph. Validates the metadata
      * against the definition node in the graph.
      * 
@@ -83,8 +95,7 @@ public interface INodeManager {
      * @response - MESSAGES: List of validation error messages, if any
      */
     void importDefinitions(final Request request);
-    
-    
+
     void exportNode(Request request);
 
 }

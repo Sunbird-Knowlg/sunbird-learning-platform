@@ -47,7 +47,7 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
         SearchCriteria sc = new SearchCriteria();
         sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
         sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
-        sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+        sc.sort(new Sort(PARAM_STATUS, Sort.SORT_ASC));
         if (null != offset && offset.intValue() >= 0)
             sc.offset(offset);
         if (null != limit && limit.intValue() > 0)

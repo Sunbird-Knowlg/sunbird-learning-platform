@@ -2,6 +2,8 @@ package com.ilimi.graph.engine.loadtest;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -24,7 +26,7 @@ public class SearchNodesTest {
 
     private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
 
-//    @BeforeTest
+    @BeforeTest
     public void init() throws Exception {
         String logFileName = SCENARIO_NAME + "_" + System.currentTimeMillis();
         System.out.println("Logs are captured in " + logFileName + ".log file.");
@@ -42,7 +44,7 @@ public class SearchNodesTest {
         }
     }
 
-//    @Test(threadPoolSize = 500, invocationCount = 500)
+    //@Test(threadPoolSize = 500, invocationCount = 500)
     public void searchNodesTest() {
         try {
             Neo4jGraphFactory.getGraphDb(graphId);
@@ -54,19 +56,13 @@ public class SearchNodesTest {
         }
     }
 
-//    @Test
+    //@Test
     public void searchNodesTest2() {
         try {
-            System.out.println("Sleep for 10 seconds");
-            System.out.println("****************************************************************************************************");
-            System.out.println();
             logger.info("Sleep for 10 seconds");
             logger.info("****************************************************************************************************");
             logger.info("");
             Thread.sleep(10000);
-            System.out.println();
-            System.out.println();
-            System.out.println("****************************************************************************************************");
             logger.info("");
             logger.info("");
             logger.info("****************************************************************************************************");
@@ -75,7 +71,7 @@ public class SearchNodesTest {
         }
     }
 
-//    @Test(threadPoolSize = 500, invocationCount = 500)
+    //@Test(threadPoolSize = 500, invocationCount = 500)
     public void searchNodesTest3() {
         try {
             Neo4jGraphFactory.getGraphDb(graphId);

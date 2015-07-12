@@ -30,6 +30,13 @@ import com.ilimi.graph.dac.model.Node;
 
 
 public abstract class BaseManager {
+    
+    protected static final String PARAM_SUBJECT = "subject";
+    protected static final String PARAM_FIELDS = "fields";
+    protected static final String PARAM_LIMIT = "limit";
+    protected static final String PARAM_UID = "uid";
+    protected static final String PARAM_STATUS = "status";
+    protected static final String PARAM_TTL = "ttl";
 
     protected void setMetadataFields(Node node, String[] fields) {
         if (null != fields && fields.length > 0) {
