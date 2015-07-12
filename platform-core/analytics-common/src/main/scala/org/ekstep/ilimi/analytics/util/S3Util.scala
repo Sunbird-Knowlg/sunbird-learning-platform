@@ -23,9 +23,9 @@ object S3Util {
         val fileObj = s3Service.putObject(bucketName, s3Object);
         Console.println("ETag - " + fileObj.getETag);
     }
-    
+
     def uploadPublic(bucketName: String, filePath: String, key: String) {
-        
+
         val bucketAcl = s3Service.getBucketAcl(bucketName);
         val acl = new AccessControlList();
         acl.setOwner(bucketAcl.getOwner);
@@ -36,6 +36,24 @@ object S3Util {
         s3Object.setAcl(acl);
         val fileObj = s3Service.putObject(bucketName, s3Object);
         Console.println("ETag - " + fileObj.getETag);
-    } 
+    }
+
+    def getMetadata(bucketName: String, key: String) {
+        val bucket = s3Service.getBucket(bucketName);
+        val s3Object = s3Service.getObjectDetails(bucket, key);
+        Console.println("ContentLength - " + s3Object.getContentLength);
+        Console.println("ContentLength - " + s3Object.getLastModifiedDate);
+    }
+
+    def getAllKeys(bucketName: String, prefix: String) : Array[String] = {
+        val bucket = s3Service.getBucket(bucketName);
+        val s3Objects = s3Service.listObjects(bucket, prefix, null);
+        //s3Objects.foreach { x => Console.println(" " + x.getKey() + " (" + x.getContentLength() + " bytes)") }
+        s3Objects.map { x => x.getKey }
+    }
+    
+    def main(args: Array[String]): Unit = {
+        getAllKeys("ep-production-backup", "logs/telemetry/*.gz");
+    }
 
 }
