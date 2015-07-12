@@ -2,6 +2,12 @@ package com.ilimi.graph.engine.loadtest;
 
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
+
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -9,15 +15,19 @@ import akka.pattern.Patterns;
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 public class CreateNodeTest {
     ActorRef reqRouter = null;
 //    String graphId = "GRAPH_" + System.currentTimeMillis();
-    String graphId = "SEARCH_GRAPH";
+    String graphId = "JAVA_CS";
     String SCENARIO_NAME ="CREATE_NODE";
     
-//    @BeforeTest
+    private static final Logger logger = LogManager.getLogger("PerformanceTestLogger");
+    
+    @BeforeTest
     public void init() throws Exception {
         String logFileName = SCENARIO_NAME +"_" + System.currentTimeMillis();
         System.out.println("Logs are captured in "+logFileName+".log file.");
@@ -35,18 +45,48 @@ public class CreateNodeTest {
         request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("saveDefinitionNode");
-        request.put(GraphDACParams.object_type.name(), "COURSE");
+        DefinitionDTO dto = new DefinitionDTO();
+        dto.setObjectType("COURSE");
+        request.put(GraphDACParams.definition_node.name(), dto);
         Future<Object> req = Patterns.ask(reqRouter, request, TestUtil.timeout);
         return req;
     }
 
-//    @AfterTest
+    @AfterTest
     public void destroy() throws Exception {
         Thread.sleep(10000);
     }
         
-//    @Test(threadPoolSize=1000, invocationCount=1000)
-    public void testCreateNode() {
+    //@Test(threadPoolSize=500, invocationCount=500)
+    public void testCreateNode1() {
+        try {
+            String nodeId = "Node_"+System.currentTimeMillis()+"_"+Thread.currentThread().getId();
+            String objectType = "COURSE";
+            Map<String, Object> metadata = TestUtil.getMetadata((int)Thread.currentThread().getId()%10);
+            Future<Object> nodeReq = createDataNode(reqRouter, graphId, nodeId, objectType, metadata);
+            TestUtil.handleFutureBlock(nodeReq, "createDataNode", GraphDACParams.node_id.name());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    //@Test
+    public void testCreateNode2() {
+        try {
+            logger.info("Sleep for 10 seconds");
+            logger.info("****************************************************************************************************");
+            logger.info("");
+            Thread.sleep(10000);
+            logger.info("");
+            logger.info("");
+            logger.info("****************************************************************************************************");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    //@Test(threadPoolSize=500, invocationCount=500)
+    public void testCreateNode3() {
         try {
             String nodeId = "Node_"+System.currentTimeMillis()+"_"+Thread.currentThread().getId();
             String objectType = "COURSE";
@@ -65,9 +105,9 @@ public class CreateNodeTest {
         request.getContext().put(GraphHeaderParams.scenario_name.name(), SCENARIO_NAME);
         request.setManagerName(GraphEngineManagers.NODE_MANAGER);
         request.setOperation("createDataNode");
-        request.put(GraphDACParams.node_id.name(), nodeId);
-        request.put(GraphDACParams.object_type.name(), objectType);
-        request.put(GraphDACParams.metadata.name(), metadata);
+        Node node = new Node(graphId, metadata);
+        node.setObjectType(objectType);
+        request.put(GraphDACParams.node.name(), node);
         Future<Object> req = Patterns.ask(reqRouter, request, TestUtil.timeout);
         return req;
     }

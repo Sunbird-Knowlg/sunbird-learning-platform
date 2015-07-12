@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
@@ -626,7 +627,7 @@ public class DataNode extends AbstractNode {
             String propName = def.getPropertyName();
             String dataType = def.getDataType();
             List<Object> range = def.getRange();
-            if (StringUtils.equalsIgnoreCase("string", dataType) && !(value instanceof String)) {
+            if (StringUtils.equalsIgnoreCase("text", dataType) && !(value instanceof String)) {
                 messages.add("Metadata " + propName + " should be a String value");
             } else if (StringUtils.equalsIgnoreCase("boolean", dataType) && !(value instanceof Boolean)) {
                 messages.add("Metadata " + propName + " should be a Boolean value");
@@ -647,10 +648,21 @@ public class DataNode extends AbstractNode {
                         }
                     }
                 }
+            } else if (StringUtils.equalsIgnoreCase("json", dataType)) {
+                ObjectMapper mapper = new ObjectMapper();
+                try {
+                    mapper.readValue(value.toString(), Map.class);
+                } catch (Exception e) {
+                    try {
+                        mapper.readValue(value.toString(), List.class);
+                    } catch(Exception ex) {
+                        messages.add("Metadata " + propName + " should be a valid JSON");
+                    }
+                }
             }
         }
     }
-
+    
     public List<Relation> getInRelations() {
         return inRelations;
     }
