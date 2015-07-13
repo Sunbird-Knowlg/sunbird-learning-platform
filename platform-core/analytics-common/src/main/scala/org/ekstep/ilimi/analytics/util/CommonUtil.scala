@@ -33,7 +33,7 @@ object CommonUtil {
         }
     }
 
-    def getSparkContext(location: String, parallelization: Int, appName: String): SparkContext = {
+    def getSparkContext(parallelization: Int, appName: String): SparkContext = {
 
         Console.println("### Initializing Spark Context ###");
         val conf = new SparkConf().setAppName(appName);
@@ -43,10 +43,8 @@ object CommonUtil {
             conf.setMaster("local[*]");
         }
         val sc = new SparkContext(conf);
-        if ("S3".equals(location)) {
-            sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
-            sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
-        }
+        sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
+        sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
         Console.println("### Spark Context initialized ###");
         sc;
     }
@@ -142,6 +140,35 @@ object CommonUtil {
     def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
         val p = new java.io.PrintWriter(f)
         try { op(p) } finally { p.close() }
+    }
+
+    def checkContains(a: String, b: String): Boolean = {
+        a.contains(b);
+    }
+
+    def getInputPath(input: String, suffix: String): String = {
+        input match {
+            case a if a.startsWith("s3://") =>
+                val arr = a.replaceFirst("s3://", "").split('/');
+                val bucket = arr(0);
+                val prefix = a.replaceFirst("s3://", "").replaceFirst(bucket + "/", "") + (if (null != suffix) suffix else "");
+                S3Util.getAllKeys(bucket, prefix).map { x => "s3n://" + bucket + "/" + x }.mkString(",");
+            case a if a.startsWith("local://") =>
+                a.replaceFirst("local://", "");
+            case _ =>
+                throw new Exception("Invalid input. Valid input should start with s3:// (for S3 input) or local:// (for file input)");
+
+        }
+    }
+    
+    def getInputPaths(input: String) : String = {
+        val arr = input.split(',');
+        arr.map { x => getInputPath(x, null) }.mkString(",");
+    }
+    
+    def getInputPaths(input: String, suffix: String) : String = {
+        val arr = input.split(',');
+        arr.map { x => getInputPath(x, suffix) }.mkString(",");
     }
 
 }
