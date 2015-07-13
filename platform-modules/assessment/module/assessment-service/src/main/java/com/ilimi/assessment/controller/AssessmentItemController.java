@@ -23,7 +23,6 @@ import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
 
@@ -34,10 +33,10 @@ import com.ilimi.graph.model.node.MetadataDefinition;
  */
 
 @Controller
-@RequestMapping("/item")
-public class ItemController extends BaseController {
+@RequestMapping("/assessmentitem")
+public class AssessmentItemController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(ItemController.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(AssessmentItemController.class.getName());
     
     @Autowired
     private IAssessmentManager assessmentManager;
@@ -46,7 +45,7 @@ public class ItemController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "item.create";
+        String apiId = "assessment_item.create";
         Request request = getRequestObject(map);
         LOGGER.info("Create Item | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -64,7 +63,7 @@ public class ItemController extends BaseController {
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "item.update";
+        String apiId = "assessment_item.update";
         Request request = getRequestObject(map);
         LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
@@ -78,13 +77,13 @@ public class ItemController extends BaseController {
     }
     
     
-    @RequestMapping(value = "", method = RequestMethod.GET)
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "ifields", required = false) String[] ifields, @RequestHeader(value = "user-id") String userId) {
         
-        String apiId = "item.find";
+        String apiId = "assessment_item.find";
         LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields + " | user-id: " + userId);
         try {
             Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
@@ -100,7 +99,7 @@ public class ItemController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "item.delete";
+        String apiId = "assessment_item.delete";
         LOGGER.info("Delete Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = assessmentManager.deleteAssessmentItem(id, taxonomyId);
@@ -120,10 +119,10 @@ public class ItemController extends BaseController {
         ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
-                Object objConcept = map.get(AssessmentAPIParams.item.name());
+                Object objConcept = map.get(AssessmentAPIParams.assessment_item.name());
                 if (null != objConcept) {
                     Node item = (Node) mapper.convertValue(objConcept, Node.class);
-                    request.put(AssessmentAPIParams.item.name(), item);
+                    request.put(AssessmentAPIParams.assessment_item.name(), item);
                 }
                 Object objDefinitions = map.get(AssessmentAPIParams.metadata_definitions.name());
                 if (null != objDefinitions) {

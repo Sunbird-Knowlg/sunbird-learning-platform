@@ -232,14 +232,12 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
     public void validateNode(Request request) {
         final ActorRef parent = getSender();
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String nodeId = (String) request.get(GraphDACParams.node_id.name());
         final Node node = (Node) request.get(GraphDACParams.node.name());
-        if (!validateRequired(nodeId, node)) {
+        if (!validateRequired(node)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_NODE_MISSING_REQ_PARAMS.name(),
                     "Required parameters are missing...");
         } else {
             final ExecutionContext ec = getContext().dispatcher();
-            node.setIdentifier(nodeId);
             final DataNode datanode = new DataNode(this, graphId, node);
             Future<Map<String, List<String>>> validationFuture = datanode.validateNode(request);
             validationFuture.onComplete(new OnComplete<Map<String, List<String>>>() {

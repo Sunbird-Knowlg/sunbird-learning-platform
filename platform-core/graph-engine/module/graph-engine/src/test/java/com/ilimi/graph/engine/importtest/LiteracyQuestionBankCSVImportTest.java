@@ -19,6 +19,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
@@ -26,11 +27,12 @@ import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 
-public class NumeracyCSVImportTest {
+public class LiteracyQuestionBankCSVImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "numeracy";
+    String graphId = "literacy";
+    String csvFileName = "LiteracyGames-GraphEngine.csv";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -43,7 +45,7 @@ public class NumeracyCSVImportTest {
         return reqRouter;
     }
 
-    @Test(priority = 1)
+    @Test(priority = 2)
     public void testImportDefinitions() {
         try {
             ActorRef reqRouter = initReqRouter();
@@ -54,22 +56,24 @@ public class NumeracyCSVImportTest {
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("taxonomy_definitions.json");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("assessment_definitions.json");
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
             request.put(GraphEngineParams.input_stream.name(), new String(b));
-            Patterns.ask(reqRouter, request, t);
+            Future<Object> res = Patterns.ask(reqRouter, request, t);
+            
+            handleFutureBlock(res, "importDefinitions", GraphDACParams.graph_id.name());
 
             long t2 = System.currentTimeMillis();
-            System.out.println("Numeracy Subject Definition Import Time: " + (t2 - t1));
+            System.out.println("Literacy QuestionBank Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-    @Test(priority = 3)
+//    @Test(priority = 4)
     public void testImportData() {
         try {
             ActorRef reqRouter = initReqRouter();
@@ -81,7 +85,7 @@ public class NumeracyCSVImportTest {
             request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Numeracy-GraphEngine.csv");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream(csvFileName);
 
             request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
@@ -92,11 +96,27 @@ public class NumeracyCSVImportTest {
             if(osV == null) {
                 System.out.println(response.getResult());
             }
-            System.out.println("Numeracy Subject data imported.");
+            System.out.println("Literacy Games data imported.");
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
+    private void handleFutureBlock(Future<Object> req, String operation, String param) {
+        try {
+            Object arg1 = Await.result(req, t.duration());
+            System.out.println(operation + " response: " + arg1);
+            if (arg1 instanceof Response) {
+                Response ar = (Response) arg1;
+                System.out.println(ar.getResult());
+                System.out.println(ar.get(param));
+                System.out.println(ar.getParams());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 }

@@ -1,7 +1,7 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Question",
+      "objectType": "AssessmentItem",
       "properties": [
         {
           "propertyName": "identifier",
@@ -60,7 +60,7 @@
           "title": "Question",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "JSON",
           "range": [],
           "required": false,
           "indexed": false,
@@ -92,10 +92,10 @@
         },
         {
           "propertyName": "options",
-          "title": "JSON",
+          "title": "Options",
           "description": "",
           "category": "general",
-          "dataType": "Option",
+          "dataType": "JSON",
           "range": [],
           "required": false,
           "indexed": false,
@@ -149,7 +149,7 @@
           "category": "general",
           "dataType": "JSON",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "Draft",
@@ -370,19 +370,6 @@
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
-          "propertyName": "developer",
-          "title": "Developer",
-          "description": "Person or Organization",
-          "category": "ownership",
-          "dataType": "Text",
-          "range": [],
-          "required": true,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
-        },
-        {
           "propertyName": "owner",
           "title": "Owner",
           "description": "",
@@ -398,19 +385,6 @@
         {
           "propertyName": "copyright",
           "title": "Copyright",
-          "description": "",
-          "category": "ownership",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
-        },
-        {
-          "propertyName": "cost",
-          "title": "Cost",
           "description": "",
           "category": "ownership",
           "dataType": "Text",
@@ -676,7 +650,7 @@
         },
         {
           "propertyName": "items",
-          "title": "Questions",
+          "title": "AssessmentItems",
           "description": "",
           "category": "general",
           "dataType": "JSON",
@@ -772,19 +746,6 @@
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
-          "propertyName": "developer",
-          "title": "Developer",
-          "description": "Person or Organization",
-          "category": "ownership",
-          "dataType": "Text",
-          "range": [],
-          "required": true,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
-        },
-        {
           "propertyName": "owner",
           "title": "Owner",
           "description": "",
@@ -800,19 +761,6 @@
         {
           "propertyName": "copyright",
           "title": "Copyright",
-          "description": "",
-          "category": "ownership",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
-        },
-        {
-          "propertyName": "cost",
-          "title": "Cost",
           "description": "",
           "category": "ownership",
           "dataType": "Text",
@@ -895,7 +843,7 @@
           "relationName": "associatedTo",
           "title": "Associated Concepts",
           "description": "",
-          "required": true,
+          "required": false,
           "objectTypes": [
             "Concept"
           ],

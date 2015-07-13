@@ -137,6 +137,14 @@ public abstract class BaseManager {
         response.setResponseCode(responseCode);
         return response;
     }
+    
+    protected Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo) {
+        Response response = new Response();
+        response.put(responseIdentifier, vo);
+        response.setParams(getErrorStatus(errorCode, errorMessage));
+        response.setResponseCode(code);
+        return response;
+    }
 
     protected boolean checkError(Response response) {
         ResponseParams params = response.getParams();

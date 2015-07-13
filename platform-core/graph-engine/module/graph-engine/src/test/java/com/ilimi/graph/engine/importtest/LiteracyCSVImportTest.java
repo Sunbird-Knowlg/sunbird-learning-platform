@@ -1,12 +1,9 @@
 package com.ilimi.graph.engine.importtest;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
@@ -22,7 +19,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
@@ -63,9 +59,8 @@ public class LiteracyCSVImportTest {
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
             request.put(GraphEngineParams.input_stream.name(), new String(b));
-            Future<Object> req = Patterns.ask(reqRouter, request, t);
+            Patterns.ask(reqRouter, request, t);
 
-//            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
             System.out.println("Literacy Subject Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
@@ -96,10 +91,6 @@ public class LiteracyCSVImportTest {
             OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             if(osV == null) {
                 System.out.println(response.getResult());
-            } else {
-//                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-//                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
-//                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
             System.out.println("Literacy Subject data imported.");
             Thread.sleep(15000);
@@ -107,19 +98,5 @@ public class LiteracyCSVImportTest {
             e.printStackTrace();
         }
     }
-    
-    private void handleFutureBlock(Future<Object> req, String operation, String param) {
-        try {
-            Object arg1 = Await.result(req, t.duration());
-            System.out.println(operation + " response: " + arg1);
-            if (arg1 instanceof Response) {
-                Response ar = (Response) arg1;
-                System.out.println(ar.getResult());
-                System.out.println(ar.get(param));
-                System.out.println(ar.getParams());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+
 }

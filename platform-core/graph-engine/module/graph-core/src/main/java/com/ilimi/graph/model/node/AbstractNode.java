@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
@@ -200,12 +201,26 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), key + " is a reserved system property");
         }
         if (null != value) {
-            if (value instanceof List) {
+            ObjectMapper mapper = new ObjectMapper();
+            if (value instanceof Map) {
+                try {
+                    value = new String(mapper.writeValueAsString(value));
+                    if(null != metadata) 
+                        metadata.put(key, value);
+                } catch (Exception e) {
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid JSON for property:"+key, e);
+                }
+            } else if (value instanceof List) {
                 List list = (List) value;
                 Object[] array = getArray(key, list);
                 if (null == array) {
-                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(),
-                            "Invalid data type for the property: " + key);
+                    try {
+                        value = new String(mapper.writeValueAsString(list));
+                        if(null != metadata) 
+                            metadata.put(key, value);
+                    } catch (Exception e) {
+                        throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid JSON for property:"+key, e);
+                    }
                 } else {
                     value = array;
                     if (null != metadata)
@@ -239,6 +254,10 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                     array = list.toArray(new Integer[list.size()]);
                 } else if (obj instanceof Boolean) {
                     array = list.toArray(new Boolean[list.size()]);
+                } else if( obj instanceof Map) {
+                    array = null;
+                } else {
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: " + key);
                 }
             }
         } catch (Exception e) {
