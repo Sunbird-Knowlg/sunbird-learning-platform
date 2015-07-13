@@ -15,7 +15,7 @@ object LitScreenerLevelModel extends Serializable {
     def compute(input: String, output: Option[String], outputDir: Option[String], location: String, parallelization: Int) {
 
         val validEvents = Array("OE_ASSESS");
-        @transient val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        @transient val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         val loltMapping = EventSessionization.broadcastMapping("src/main/resources/lo_lt_mapping.csv", sc);
         val ldloMapping = EventSessionization.broadcastMapping("src/main/resources/ld_lo_mapping.csv", sc);
         val compldMapping = EventSessionization.broadcastMapping("src/main/resources/composite_ld_mapping.csv", sc);

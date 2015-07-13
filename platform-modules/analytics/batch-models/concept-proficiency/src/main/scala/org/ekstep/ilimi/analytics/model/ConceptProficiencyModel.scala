@@ -22,7 +22,7 @@ object ConceptProficiencyModel extends Serializable {
      * 4. Game Data - [List of comma separated value of GameId,Before Screener Game, After Screener Game, Concept in the specific order]
      */
     def compute(input: String, output: String, location: String, gameData: String, parallelization: Int) {
-        @transient val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        @transient val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         var gd: Array[String] = gameData.split(",");
         val gameId = gd(0);
         val beforeScreener = gd(1);

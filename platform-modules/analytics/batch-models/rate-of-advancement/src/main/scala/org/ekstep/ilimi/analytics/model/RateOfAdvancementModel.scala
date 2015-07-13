@@ -23,7 +23,7 @@ object RateOfAdvancementModel extends BaseModel {
 
     def compute(input: String, output: String, location: String, parallelization: Int) {
         val validEvents = Array("OE_LEVEL_SET");
-        val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         val baseRDD = CommonUtil.loadData(sc, input, location, parallelization, e => validEvents.contains(e.eid))
         Console.println("### Computing rate of advancement stats ###");
         val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));

@@ -10,6 +10,7 @@ import org.ekstep.ilimi.analytics.util.S3Util
 import org.ekstep.ilimi.analytics.model.EventOutput
 import org.ekstep.ilimi.analytics.model.Pdata
 import org.ekstep.ilimi.analytics.model.Gdata
+import java.io.FileWriter
 
 case class LevelAgg(code: String, min: Int, max: Int, level: String);
 
@@ -38,7 +39,7 @@ object LitScreenerLevelComputation extends Serializable {
         };
         val distinctEvents = oeAssesEvents.distinct; 
         //Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
-        distinctEvents.foreach(f => Console.println(f));
+        //distinctEvents.foreach(f => Console.println(f));
         val uid = distinctEvents.last._2;
         
         val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => f._3)).mapValues { x => x.reduce(_ + _) }.toMap;
@@ -66,11 +67,15 @@ object LitScreenerLevelComputation extends Serializable {
             case "csv" =>
                 Console.println("## Printing output to csv ##");
                 val filePath = outputDir.getOrElse("user-aggregates") + "/" + uid + ".csv";
+                //val filePath = outputDir.getOrElse("user-aggregates") + "/sprint2_tumkur.csv";
                 CommonUtil.printToFile(new File(filePath)) { p =>
                     result.foreach(f => {
                         p.println(f._1 + "," + f._2 + "," + f._3 + "," + f._4);
                     })
-                }
+                }/**/
+                /*val fw = new FileWriter(filePath, true);
+                result.foreach { f => fw.write(f._1 + "," + f._2 + "," + f._3 + "," + f._4 + "\n"); }
+                fw.close();*/
                 S3Util.uploadPublic("lit-screener-level-compute", filePath, uid + "_" + System.currentTimeMillis() + ".csv")
             case "kafka" =>
                 Console.println("## Printing output to kafka topic ##");
