@@ -11,6 +11,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
 import akka.actor.ActorRef;
@@ -333,6 +334,12 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
+                Iterable<Relationship> rels = node.getRelationships();
+                if (null != rels) {
+                    for (Relationship rel : rels) {
+                        rel.delete();
+                    }
+                }
                 node.delete();
                 tx.success();
                 OK(getSender());

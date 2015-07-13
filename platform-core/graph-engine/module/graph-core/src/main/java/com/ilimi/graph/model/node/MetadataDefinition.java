@@ -17,6 +17,7 @@ public class MetadataDefinition implements Serializable {
         VALID_DATA_TYPES.add("list");
         VALID_DATA_TYPES.add("date");
         VALID_DATA_TYPES.add("url");
+        VALID_DATA_TYPES.add("json");
     }
 
     private static final long serialVersionUID = -6210344089409649758L;
