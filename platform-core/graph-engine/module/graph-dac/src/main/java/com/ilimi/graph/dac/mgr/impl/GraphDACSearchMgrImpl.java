@@ -484,7 +484,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                sc.countQuery(false);
+                sc.setCountQuery(false);
                 List<String> fields = sc.getFields();
                 boolean returnNode = true;
                 if (null != fields && !fields.isEmpty())
@@ -539,7 +539,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             Transaction tx = null;
             try {
                 Long count = (long) 0;
-                sc.countQuery(true);
+                sc.setCountQuery(true);
                 Map<String, Object> params = sc.getParams();
                 String query = sc.getQuery();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);

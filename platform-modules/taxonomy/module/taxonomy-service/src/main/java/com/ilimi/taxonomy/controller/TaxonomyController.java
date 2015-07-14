@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.graph.dac.model.SearchDTO;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
@@ -131,7 +131,7 @@ public class TaxonomyController extends BaseController {
             try {
                 Object objConcept = map.get(TaxonomyAPIParams.search_criteria.name());
                 if (null != objConcept) {
-                    SearchDTO searchDTO = (SearchDTO) mapper.convertValue(objConcept, SearchDTO.class);
+                    SearchCriteria searchDTO = (SearchCriteria) mapper.convertValue(objConcept, SearchCriteria.class);
                     request.put(TaxonomyAPIParams.search_criteria.name(), searchDTO);
                 }
             } catch (Exception e) {

@@ -19,12 +19,9 @@ import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.dac.model.SearchDTO;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -141,14 +138,13 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     @SuppressWarnings("unchecked")
     @Override
     public Response search(String id, Request request) {
-        SearchDTO dto = (SearchDTO) request.get(TaxonomyAPIParams.search_criteria.name());
+        SearchCriteria sc = (SearchCriteria) request.get(TaxonomyAPIParams.search_criteria.name());
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        if (null == dto)
+        if (null == sc)
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_SEARCH_CRITERIA.name(), "Empty Search Criteria");
-        LOGGER.info("Search Taxonomy : " + dto);
-        SearchCriteria sc = dto.searchCriteria();
-        sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
+        LOGGER.info("Search Taxonomy : " + sc);
+        sc.setObjectType("Concept");
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
         request.put(TaxonomyAPIParams.search_criteria.name(), sc);
         request.setOperation("searchNodes");

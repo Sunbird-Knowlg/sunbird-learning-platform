@@ -9,99 +9,154 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-/**
- * SearchCriteria provides a simple way for specifying criteria to search using
- * variable number of conditions. Multiple Criterion objects can be added to the
- * SearchCriteria object, with either AND or OR logic to be applied among the
- * several Criterion objects. SearchConditions class can be used to create
- * Criterion objects.
- * 
- * This also supports sorting on multiple fields, which can be specified using
- * setSortOrder(), sort(), asc() or desc() methods. Pagination is also
- * supported: maximum results per page can be specified using limit() method and
- * starting position of the result set can be specified using offset() method.
- * 
- * @author rayulu
- * 
- */
+import com.ilimi.graph.dac.enums.SystemProperties;
+
 public class SearchCriteria implements Serializable {
 
-    private static final long serialVersionUID = -1686174755480352761L;
-
-    private List<Criterion> criteriaEntries = new ArrayList<Criterion>();
-    private List<Sort> sortOrder = new LinkedList<Sort>();
+    private static final long serialVersionUID = -6991536066924072138L;
+    private String nodeType;
+    private String objectType;
+    private String op;
+    private List<MetadataCriterion> metadata;
+    private List<RelationCriterion> relations;
+    private TagCriterion tag;
+    private boolean countQuery;
     private int resultSize = 0;
     private int startPosition = 0;
     private List<String> fields = new LinkedList<String>();
-    private Map<String, Object> params = new HashMap<String, Object>();
-    private int pIndex = 1;
-    private boolean countQuery = false;
+    private List<Sort> sortOrder = new LinkedList<Sort>();
 
-    public SearchCriteria() {
+
+    Map<String, Object> params = new HashMap<String, Object>();
+    int pIndex = 1;
+    int index = 1;
+    
+    public Map<String, Object> getParams() {
+        return this.params;
     }
 
-    public SearchCriteria add(Criterion c) {
-        this.criteriaEntries.add(c);
-        return this;
+    public List<MetadataCriterion> getMetadata() {
+        return metadata;
     }
 
-    public SearchCriteria sort(Sort sort) {
-        if (null != sort)
-            this.sortOrder.add(sort);
-        return this;
+    public void setMetadata(List<MetadataCriterion> metadata) {
+        this.metadata = metadata;
     }
 
-    public SearchCriteria asc(String fieldName) {
-        if (StringUtils.isNotBlank(fieldName))
-            this.sortOrder.add(new Sort(fieldName, Sort.SORT_ASC));
-        return this;
+    public void addMetadata(MetadataCriterion mc) {
+        if (null == metadata)
+            metadata = new ArrayList<MetadataCriterion>();
+        metadata.add(mc);
     }
 
-    public SearchCriteria desc(String fieldName) {
-        if (StringUtils.isNotBlank(fieldName))
-            this.sortOrder.add(new Sort(fieldName, Sort.SORT_DESC));
-        return this;
+    public String getOp() {
+        if (StringUtils.isBlank(this.op))
+            this.op = SearchConditions.LOGICAL_AND;
+        return op;
     }
 
-    public SearchCriteria limit(int limit) {
-        if (limit > 0)
-            this.resultSize = limit;
-        return this;
+    public void setOp(String op) {
+        if (StringUtils.equalsIgnoreCase(SearchConditions.LOGICAL_OR, op))
+            this.op = SearchConditions.LOGICAL_OR;
+        else
+            this.op = SearchConditions.LOGICAL_AND;
     }
 
-    public SearchCriteria offset(int offset) {
-        if (offset > 0)
-            this.startPosition = offset;
-        return this;
+    public boolean isCountQuery() {
+        return countQuery;
     }
 
-    public SearchCriteria returnField(String field) {
-        if (StringUtils.isNotBlank(field))
-            this.fields.add(field);
-        return this;
+    public void setCountQuery(boolean countQuery) {
+        this.countQuery = countQuery;
     }
 
-    public SearchCriteria returnFields(List<String> fields) {
-        this.fields = fields;
-        return this;
+    public int getResultSize() {
+        return resultSize;
     }
 
-    public SearchCriteria countQuery(boolean count) {
-        this.countQuery = count;
-        return this;
+    public void setResultSize(int resultSize) {
+        this.resultSize = resultSize;
+    }
+
+    public int getStartPosition() {
+        return startPosition;
+    }
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
+    }
+
+    public String getNodeType() {
+        return nodeType;
+    }
+
+    public void setNodeType(String nodeType) {
+        this.nodeType = nodeType;
+    }
+
+    public String getObjectType() {
+        return objectType;
+    }
+
+    public void setObjectType(String objectType) {
+        this.objectType = objectType;
+    }
+
+    public List<RelationCriterion> getRelations() {
+        return relations;
+    }
+
+    public void setRelations(List<RelationCriterion> relations) {
+        this.relations = relations;
+    }
+
+    public void addRelationCriterion(RelationCriterion rc) {
+        if (null == relations)
+            relations = new ArrayList<RelationCriterion>();
+        relations.add(rc);
+    }
+
+    public TagCriterion getTag() {
+        return tag;
+    }
+
+    public void setTag(TagCriterion tag) {
+        this.tag = tag;
     }
 
     public String getQuery() {
         StringBuilder sb = new StringBuilder();
         sb.append("MATCH (n:NODE) ");
-        if (null != criteriaEntries && criteriaEntries.size() > 0) {
-            sb.append("WHERE ");
-            for (int i = 0; i < criteriaEntries.size(); i++) {
-                sb.append(criteriaEntries.get(i).getCypher(this));
-                if (i < criteriaEntries.size() - 1) {
+        if (StringUtils.isNotBlank(nodeType) || StringUtils.isNotBlank(objectType) || (null != metadata && metadata.size() > 0)) {
+            sb.append("WHERE ( ");
+            if (StringUtils.isNotBlank(nodeType)) {
+                sb.append(" n.").append(SystemProperties.IL_SYS_NODE_TYPE.name()).append(" = {").append(pIndex).append("} ");
+                params.put("" + pIndex, nodeType);
+                pIndex += 1;
+            }
+            if (StringUtils.isNotBlank(objectType)) {
+                if (pIndex > 1)
                     sb.append("AND ");
+                sb.append(" n.").append(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).append(" = {").append(pIndex).append("} ");
+                params.put("" + pIndex, objectType);
+                pIndex += 1;
+            }
+            if (null != metadata && metadata.size() > 0) {
+                if (pIndex > 1)
+                    sb.append("AND ");
+                for (int i = 0; i < metadata.size(); i++) {
+                    sb.append(metadata.get(i).getCypher(this, "n"));
+                    if (i < metadata.size() - 1)
+                        sb.append(" ").append(getOp()).append(" ");
                 }
             }
+            sb.append(") ");
+        }
+        if (null != tag)
+            sb.append(tag.getCypher(this, "n"));
+        if (null != relations && relations.size() > 0) {
+            for (RelationCriterion rel : relations)
+                sb.append(rel.getCypher(this, null));
         }
         if (!countQuery) {
             if (null == fields || fields.isEmpty()) {
@@ -123,6 +178,7 @@ public class SearchCriteria implements Serializable {
                     }
                 }
             }
+
             if (startPosition > 0) {
                 sb.append("SKIP ").append(startPosition).append(" ");
             }
@@ -135,21 +191,26 @@ public class SearchCriteria implements Serializable {
         return sb.toString();
     }
 
-    public Map<String, Object> getParams() {
-        return this.params;
-    }
-
     public List<String> getFields() {
-        if (null == this.fields)
-            this.fields = new ArrayList<String>();
-        return this.fields;
+        return fields;
     }
 
-    int getParamIndex() {
-        return this.pIndex;
+    public void setFields(List<String> fields) {
+        this.fields = fields;
     }
 
-    void setParamIndex(int pIndex) {
-        this.pIndex = pIndex;
+    public List<Sort> getSortOrder() {
+        return sortOrder;
     }
+
+    public void setSortOrder(List<Sort> sortOrder) {
+        this.sortOrder = sortOrder;
+    }
+    
+    public void sort(Sort sort) {
+        if (null == sortOrder)
+            sortOrder = new LinkedList<Sort>();
+        sortOrder.add(sort);
+    }
+
 }

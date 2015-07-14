@@ -28,7 +28,6 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
@@ -268,9 +267,9 @@ public class DefinitionNode extends AbstractNode {
                 request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
                 request.setOperation("searchNodes");
                 SearchCriteria sc = new SearchCriteria();
-                sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name())).add(
-                        SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
-                sc.limit(1);
+                sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
+                sc.setObjectType(objectType);
+                sc.setResultSize(1);
                 request.put(GraphDACParams.search_criteria.name(), sc);
                 Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                 response.onComplete(new OnComplete<Object>() {

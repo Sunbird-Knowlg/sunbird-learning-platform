@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.junit.Test;
 
 import scala.concurrent.Await;
 import scala.concurrent.Future;
@@ -24,8 +23,6 @@ import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -210,7 +207,7 @@ public class GraphMgrTest {
             req0.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             req0.setOperation("getNodesCount");
             SearchCriteria sc0 = new SearchCriteria();
-            sc0.countQuery(true);
+            sc0.setCountQuery(true);
             req0.put(GraphDACParams.search_criteria.name(), sc0);
             Future<Object> res0 = Patterns.ask(reqRouter, req0, timeout);
             Object arg0 = Await.result(res0, t.duration());
@@ -222,8 +219,7 @@ public class GraphMgrTest {
             request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             request.setOperation("searchNodes");
             SearchCriteria sc = new SearchCriteria();
-            sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name()));
-            // sc.returnField("OUT_RELATION_OBJECTS");
+            sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
             request.put(GraphDACParams.search_criteria.name(), sc);
             Future<Object> req = Patterns.ask(reqRouter, request, timeout);
             Object arg1 = Await.result(req, t.duration());
@@ -236,7 +232,7 @@ public class GraphMgrTest {
             SearchCriteria sc2 = new SearchCriteria();
             // sc2.add(SearchConditions.eq(SystemProperties.IL_UNIQUE_ID.name(),
             // SystemNodeTypes.DEFINITION_NODE.name() + "_COURSE"));
-            sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+            sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
             // sc2.returnField("OUT_RELATION_OBJECTS");
 
             request2.put(GraphDACParams.search_criteria.name(), sc2);
@@ -258,7 +254,7 @@ public class GraphMgrTest {
             request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
             request.setOperation("getNodesCount");
             SearchCriteria sc = new SearchCriteria();
-            sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name()));
+            sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
             request.put(GraphDACParams.search_criteria.name(), sc);
             Future<Object> req = Patterns.ask(reqRouter, request, timeout);
             Object arg1 = Await.result(req, t.duration());

@@ -15,9 +15,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -45,13 +43,13 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
             objectType = OBJECT_TYPE;
         LOGGER.info("Find All Learning Objects : " + taxonomyId + ", ObjectType: " + objectType);
         SearchCriteria sc = new SearchCriteria();
-        sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
-        sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
         sc.sort(new Sort(PARAM_STATUS, Sort.SORT_ASC));
         if (null != offset && offset.intValue() >= 0)
-            sc.offset(offset);
+            sc.setStartPosition(offset);
         if (null != limit && limit.intValue() > 0)
-            sc.limit(limit);
+            sc.setResultSize(limit);
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(),
                 sc);
         request.put(GraphDACParams.get_tags.name(), true);

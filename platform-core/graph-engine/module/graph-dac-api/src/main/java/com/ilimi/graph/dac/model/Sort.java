@@ -40,4 +40,5 @@ public class Sort implements Serializable {
             sortOrder = SORT_ASC;
         this.sortOrder = sortOrder.trim().toUpperCase();
     }
+    
 }

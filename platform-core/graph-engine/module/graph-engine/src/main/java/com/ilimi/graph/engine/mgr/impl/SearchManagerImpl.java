@@ -21,9 +21,8 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.FilterDTO;
+import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.RelationTraversal;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.engine.mgr.ISearchManager;
@@ -54,7 +53,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         try {
             Graph graph = new Graph(this, graphId);
             SearchCriteria sc = new SearchCriteria();
-            sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name()));
+            sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
             request.put(GraphDACParams.search_criteria.name(), sc);
             graph.getDefinitionNodes(request);
         } catch (Exception e) {
@@ -73,9 +72,9 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             try {
                 Graph graph = new Graph(this, graphId);
                 SearchCriteria sc = new SearchCriteria();
-                sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name())).add(
-                        SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
-                sc.limit(1);
+                sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
+                sc.setObjectType(objectType);
+                sc.setResultSize(1);
                 request.put(GraphDACParams.search_criteria.name(), sc);
                 graph.getDefinitionNode(request);
             } catch (Exception e) {
@@ -258,9 +257,9 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     @Override
     @SuppressWarnings("unchecked")
     public void searchRelations(Request request) {
-        List<FilterDTO> nodeFilter = (List<FilterDTO>) request.get(GraphDACParams.start_node_filter.name());
+        List<Filter> nodeFilter = (List<Filter>) request.get(GraphDACParams.start_node_filter.name());
         final String relationType = (String) request.get(GraphDACParams.relation_type.name());
-        List<FilterDTO> relatedNodeFilter = (List<FilterDTO>) request.get(GraphDACParams.related_node_filter.name());
+        List<Filter> relatedNodeFilter = (List<Filter>) request.get(GraphDACParams.related_node_filter.name());
         List<String> nodeFields = (List<String>) request.get(GraphDACParams.start_node_fields.name());
         List<String> relatedNodeFields = (List<String>) request.get(GraphDACParams.related_node_fields.name());
         Integer direction = (Integer) request.get(GraphDACParams.direction.name());
@@ -358,9 +357,9 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         }
     }
 
-    private int getFilterQuery(List<FilterDTO> filters, StringBuilder sb, Map<String, Object> params, String index, int pIndex) {
+    private int getFilterQuery(List<Filter> filters, StringBuilder sb, Map<String, Object> params, String index, int pIndex) {
         for (int i = 0; i < filters.size(); i++) {
-            FilterDTO filter = filters.get(i);
+            Filter filter = filters.get(i);
             sb.append(" ").append(index).append(".").append(filter.getProperty()).append(" = {").append(pIndex).append("} ");
             params.put("" + pIndex, filter.getValue());
             pIndex += 1;

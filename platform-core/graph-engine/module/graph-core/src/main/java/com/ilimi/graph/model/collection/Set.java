@@ -25,9 +25,9 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
@@ -348,11 +348,12 @@ public class Set extends AbstractCollection {
                                 }
                                 boolean valid = true;
                                 SearchCriteria sc = new SearchCriteria();
-                                sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()))
-                                        .add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), criteria.getObjectType()));
+                                sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+                                sc.setObjectType(criteria.getObjectType());
+                                MetadataCriterion metadata = new MetadataCriterion();
                                 for (Entry<String, Object> entry : criteria.getCriteria().entrySet()) {
                                     if (indexableFields.contains(entry.getKey())) {
-                                        sc.add(SearchConditions.eq(entry.getKey(), entry.getValue()));
+                                        metadata.addFilter(new Filter(entry.getKey(), entry.getValue()));
                                     } else {
                                         valid = false;
                                         break;
@@ -363,6 +364,7 @@ public class Set extends AbstractCollection {
                                             "Set criteria should contain only indexable metadata fields", ResponseCode.CLIENT_ERROR,
                                             getParent());
                                 } else {
+                                    sc.addMetadata(metadata);
                                     getMembersByCriteria(req, sc, ec);
                                 }
                             }

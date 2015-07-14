@@ -19,6 +19,8 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -99,8 +101,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     @SuppressWarnings("unchecked")
     private Request getGamesListRequest(Request request, String taxonomyId, String objectType, DefinitionDTO definition) {
         SearchCriteria sc = new SearchCriteria();
-        sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
-        sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType));
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
         sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
         setLimit(request, sc, definition);
 
@@ -120,7 +122,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
         if (null == statusList || statusList.isEmpty())
             statusList = DEFAULT_STATUS;
-        sc.add(SearchConditions.in(PARAM_STATUS, statusList));
+        MetadataCriterion mc = new MetadataCriterion();
+        mc.addFilter(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
 
         // set metadata filter params
         for (Entry<String, Object> entry : request.getRequest().entrySet()) {
@@ -130,10 +133,11 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                     && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())) {
                 List<String> list = getList(mapper, entry.getValue(), entry.getKey());
                 if (null != list && !list.isEmpty()) {
-                    sc.add(SearchConditions.in(entry.getKey(), list));
+                    mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
                 }
             }
         }
+        sc.addMetadata(mc);
         Object objFields = request.get(PARAM_FIELDS);
         List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
         if (null == fields || fields.isEmpty()) {
@@ -146,7 +150,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
         if (null == fields || fields.isEmpty())
             fields = DEFAULT_FIELDS;
-        sc.returnFields(fields);
+        sc.setFields(fields);
 
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), sc);
         return req;
@@ -169,7 +173,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 limit = defaultLimit;
         } catch (Exception e) {
         }
-        sc.limit(limit);
+        sc.setResultSize(limit);
     }
 
     private DefinitionDTO getDefinition(String taxonomyId) {

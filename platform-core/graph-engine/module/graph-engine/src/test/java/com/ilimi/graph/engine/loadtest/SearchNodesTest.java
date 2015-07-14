@@ -3,7 +3,6 @@ package com.ilimi.graph.engine.loadtest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeTest;
-import org.testng.annotations.Test;
 
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
@@ -13,8 +12,8 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.SearchConditions;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -104,55 +103,67 @@ public class SearchNodesTest {
 
     public SearchCriteria getSearchCriteria(int value) {
         SearchCriteria sc = new SearchCriteria();
-        sc.add(SearchConditions.eq(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "COURSE"));
-        sc.add(SearchConditions.eq(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType("COURSE");
         // sc.add(SearchConditions.eq("META_TYPE", "TYPE_5"));
         // sc.returnField("META_TYPE").returnField("LEVEL").returnField("META_POLICY");
+        MetadataCriterion mc = new MetadataCriterion();
         switch (value) {
         case -1:
-            sc.add(SearchConditions.eq("LEVEL", 0)).add(SearchConditions.eq("META_TYPE", "TYPE_1"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("LEVEL", 0));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_1"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 0:
-            sc.add(SearchConditions.eq("LEVEL", 4)).add(SearchConditions.eq("META_POLICY", "POLICY_2"));
+            mc.addFilter(new Filter("LEVEL", 4));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
             break;
         case 1:
-            sc.add(SearchConditions.eq("META_TYPE", "TYPE_2")).add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_2"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 2:
-            sc.add(SearchConditions.eq("LEVEL", 2)).add(SearchConditions.eq("META_TYPE", "TYPE_4"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("LEVEL", 2));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_4"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 3:
-            sc.add(SearchConditions.eq("LEVEL", 9)).add(SearchConditions.eq("META_TYPE", "TYPE_5"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_2"));
+            mc.addFilter(new Filter("LEVEL", 9));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
             break;
         case 4:
-            sc.add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 5:
-            sc.add(SearchConditions.eq("LEVEL", 1)).add(SearchConditions.eq("META_TYPE", "TYPE_3"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("LEVEL", 1));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_3"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 6:
-            sc.add(SearchConditions.eq("LEVEL", 3)).add(SearchConditions.eq("META_POLICY", "POLICY_2"));
+            mc.addFilter(new Filter("LEVEL", 3));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
             break;
         case 7:
-            sc.add(SearchConditions.eq("META_TYPE", "TYPE_2"));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_2"));
             break;
         case 8:
-            sc.add(SearchConditions.eq("META_TYPE", "TYPE_4")).add(SearchConditions.eq("META_POLICY", "POLICY_1"));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_4"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
             break;
         case 9:
-            sc.add(SearchConditions.eq("LEVEL", 7)).add(SearchConditions.eq("META_TYPE", "TYPE_5"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_2"));
+            mc.addFilter(new Filter("LEVEL", 7));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
             break;
         default:
-            sc.add(SearchConditions.eq("LEVEL", 9)).add(SearchConditions.eq("META_TYPE", "TYPE_5"))
-                    .add(SearchConditions.eq("META_POLICY", "POLICY_2"));
+            mc.addFilter(new Filter("LEVEL", 9));
+            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
+            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
             break;
         }
-        sc.limit(100);
+        sc.addMetadata(mc);
+        sc.setResultSize(100);;
         return sc;
     }
 }

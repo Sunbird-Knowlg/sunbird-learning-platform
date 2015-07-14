@@ -18,7 +18,7 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.model.FilterDTO;
+import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.RelationTraversal;
@@ -198,14 +198,14 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchRelations");
         request.put(GraphDACParams.relation_type.name(), RelationTypes.ASSOCIATED_TO.relationName());
         request.put(GraphDACParams.direction.name(), RelationTraversal.DIRECTION_IN);
-        List<FilterDTO> nodeFilters = new ArrayList<FilterDTO>();
-        nodeFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
-        nodeFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
+        List<Filter> nodeFilters = new ArrayList<Filter>();
+        nodeFilters.add(new Filter(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+        nodeFilters.add(new Filter(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Concept"));
         request.put(GraphDACParams.start_node_filter.name(), nodeFilters);
 
-        List<FilterDTO> relFilters = new ArrayList<FilterDTO>();
-        relFilters.add(new FilterDTO(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
-        relFilters.add(new FilterDTO(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Game"));
+        List<Filter> relFilters = new ArrayList<Filter>();
+        relFilters.add(new Filter(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name()));
+        relFilters.add(new Filter(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Game"));
         request.put(GraphDACParams.related_node_filter.name(), relFilters);
 
         List<String> nodeFields = new ArrayList<String>();
