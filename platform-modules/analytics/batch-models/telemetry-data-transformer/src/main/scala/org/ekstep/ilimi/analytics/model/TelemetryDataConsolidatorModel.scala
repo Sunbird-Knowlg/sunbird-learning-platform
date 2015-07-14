@@ -65,14 +65,17 @@ object TelemetryDataConsolidatorModel extends Serializable {
                 implicit val formats = DefaultFormats;
                 parse(line).extract[SyncEvent]
             }
-        }.map { x => x.data.getOrElse(LineData(None, None, None, Array())).events }.map { x =>
+        }.map { x => x.data.getOrElse(LineData(None, None, None, Array())).events }.collect();
+        
+        events.foreach { x =>
             {
                 accum += x.distinct.size;
                 val fw = new FileWriter(filePath, true);
                 x.distinct.foreach { x => fw.write(CommonUtil.jsonToString(x) + "\n"); }
                 fw.close();
             }
-        }.count();
+        };
+        
         Console.println("## Events Size - " + accum.value + " ##");
         CommonUtil.closeSparkContext(sc);
     }
