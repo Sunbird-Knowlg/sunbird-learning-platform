@@ -70,7 +70,7 @@ object CommonUtil {
 
     def loadData(sc: SparkContext, input: String, location: String, parallelization: Int, filter: Event => Boolean): RDD[Event] = {
         Console.println("### Fetching Input:" + getPath("s3_input_bucket", input, location) + " ###");
-        val rdd = sc.textFile(getPath("s3_input_bucket", input, location), parallelization).cache();
+        val rdd = sc.textFile(getPath("s3_input_bucket", input, location), parallelization).distinct().cache();
         rdd.map { x => getEvent(x) }.filter { x => filter(x) }
     }
 

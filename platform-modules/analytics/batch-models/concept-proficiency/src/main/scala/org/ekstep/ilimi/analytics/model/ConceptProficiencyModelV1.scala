@@ -12,7 +12,7 @@ import org.ekstep.ilimi.analytics.util.CommonUtil
 
 case class ConceptProficiencyOutput(uid: String, before_screener: String, after_screener: String, before_score: Float, after_score: Float, difference: Float, percent_improvement: Float) extends Output;
 
-object ConceptProficiencyModel extends Serializable {
+object ConceptProficiencyModelV1 extends Serializable {
 
     /**
      * Arguments that are required in specific order
