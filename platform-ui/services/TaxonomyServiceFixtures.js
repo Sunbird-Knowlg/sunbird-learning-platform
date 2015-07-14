@@ -27,23 +27,23 @@ exports.getTaxonomyDefinitions = function(id, cb) {
 }
 
 exports.getTaxonomyGraph = function(id, cb) {
-
-	async.waterfall([
-		function(next) {
-			util.sendJSONResponse('taxonomy_graph.json', next);
-		},
-		function(graph, next) {
-			var clonedGraph = JSON.parse(JSON.stringify(graph));
-			paginateConcepts(clonedGraph, 10);
-			next(null, graph, clonedGraph)
-		}
-	], function(err, graph, clonedGraph) {
-		var data = {
-			graph: graph,
-			paginatedGraph: clonedGraph
-		}
-		cb(null, data);
-	});
+	util.sendJSONResponse('taxonomy_graph.json', cb);
+	// async.waterfall([
+	// 	function(next) {
+	// 		util.sendJSONResponse('taxonomy_graph.json', next);
+	// 	},
+	// 	function(graph, next) {
+	// 		var clonedGraph = JSON.parse(JSON.stringify(graph));
+	// 		paginateConcepts(clonedGraph, 10);
+	// 		next(null, graph, clonedGraph)
+	// 	}
+	// ], function(err, graph, clonedGraph) {
+	// 	var data = {
+	// 		graph: graph,
+	// 		paginatedGraph: clonedGraph
+	// 	}
+	// 	cb(null, data);
+	// });
 }
 
 function paginateConcepts(concept, paginationSize) {

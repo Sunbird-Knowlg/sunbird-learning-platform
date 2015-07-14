@@ -1,9 +1,156 @@
-[{
-    "metadata": {"name": "Numeracy"},
-    "identifier": "NUMERACY",
-    "conceptsCount": "30"
-}, {
-    "metadata":  {"name": "Literacy"},
-    "identifier": "LITERACY",
-    "conceptsCount": "40"
-}]
+[
+  {
+    "graphId": "numeracy",
+    "identifier": "numeracy",
+    "nodeType": "DATA_NODE",
+    "objectType": "Taxonomy",
+    "metadata": {
+      "name": "Numeracy",
+      "identifier": "numeracy"
+    },
+    "outRelations": [
+      {
+        "id": 0,
+        "graphId": "numeracy",
+        "relationType": "isParentOf",
+        "startNodeId": "numeracy",
+        "endNodeId": "Num:C5",
+        "startNodeName": "Numeracy",
+        "endNodeName": "Statistics",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "numeracy",
+        "relationType": "isParentOf",
+        "startNodeId": "numeracy",
+        "endNodeId": "Num:C4",
+        "startNodeName": "Numeracy",
+        "endNodeName": "Measurement",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "numeracy",
+        "relationType": "isParentOf",
+        "startNodeId": "numeracy",
+        "endNodeId": "Num:C3",
+        "startNodeName": "Numeracy",
+        "endNodeName": "Linear math",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "numeracy",
+        "relationType": "isParentOf",
+        "startNodeId": "numeracy",
+        "endNodeId": "Num:C2",
+        "startNodeName": "Numeracy",
+        "endNodeName": "Number sense",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "numeracy",
+        "relationType": "isParentOf",
+        "startNodeId": "numeracy",
+        "endNodeId": "Num:C1",
+        "startNodeName": "Numeracy",
+        "endNodeName": "Geometry",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      }
+    ],
+    "inRelations": [],
+    "tags": []
+  },
+  {
+    "graphId": "literacy",
+    "identifier": "literacy",
+    "nodeType": "DATA_NODE",
+    "objectType": "Taxonomy",
+    "metadata": {
+      "name": "Literacy",
+      "identifier": "literacy"
+    },
+    "outRelations": [
+      {
+        "id": 0,
+        "graphId": "literacy",
+        "relationType": "isParentOf",
+        "startNodeId": "literacy",
+        "endNodeId": "Lit:C4",
+        "startNodeName": "Literacy",
+        "endNodeName": "Writing",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "literacy",
+        "relationType": "isParentOf",
+        "startNodeId": "literacy",
+        "endNodeId": "Lit:C3",
+        "startNodeName": "Literacy",
+        "endNodeName": "Reading",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "literacy",
+        "relationType": "isParentOf",
+        "startNodeId": "literacy",
+        "endNodeId": "Lit:C2",
+        "startNodeName": "Literacy",
+        "endNodeName": "Speaking",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      },
+      {
+        "id": 0,
+        "graphId": "literacy",
+        "relationType": "isParentOf",
+        "startNodeId": "literacy",
+        "endNodeId": "Lit:C1",
+        "startNodeName": "Literacy",
+        "endNodeName": "Listening",
+        "startNodeType": "DATA_NODE",
+        "endNodeType": "DATA_NODE",
+        "startNodeObjectType": "Taxonomy",
+        "endNodeObjectType": "Concept",
+        "metadata": {}
+      }
+    ],
+    "inRelations": [],
+    "tags": []
+  }
+]
