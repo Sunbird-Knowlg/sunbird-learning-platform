@@ -26,11 +26,11 @@ import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
 
-public class LiteracyCSVImportTest {
+public class LiteracyCSVImportV2Test {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "literacy";
+    String graphId = "literacy_v2";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -63,7 +63,7 @@ public class LiteracyCSVImportTest {
 
 //            handleFutureBlock(req, "importDefinitions", GraphDACParams.graph_id.name());
             long t2 = System.currentTimeMillis();
-            System.out.println("Literacy Subject Definition Import Time: " + (t2 - t1));
+            System.out.println("Literacy V2 Subject Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -82,7 +82,7 @@ public class LiteracyCSVImportTest {
             request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Literacy-GraphEngine.csv");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("Literacy-GraphEngine_V2.csv");
 
             request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
@@ -97,7 +97,7 @@ public class LiteracyCSVImportTest {
 //                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
 //                System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
-            System.out.println("Literacy Subject data imported.");
+            System.out.println("Literacy V2 Subject data imported.");
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
