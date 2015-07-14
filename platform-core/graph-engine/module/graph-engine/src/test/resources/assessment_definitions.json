@@ -467,7 +467,7 @@
           "relationName": "associatedTo",
           "title": "Associated Concepts",
           "description": "",
-          "required": true,
+          "required": false,
           "objectTypes": [
             "Concept"
           ],

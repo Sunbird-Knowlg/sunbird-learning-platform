@@ -100,6 +100,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             if(assessmentErrors.size() > 0) {
                 return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Node validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
             } else {
+                if(null == item.getIdentifier()) item.setIdentifier(id);
                 Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                 updateReq.put(GraphDACParams.node.name(), item);
                 updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());

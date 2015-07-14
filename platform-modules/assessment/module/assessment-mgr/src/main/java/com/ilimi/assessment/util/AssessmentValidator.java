@@ -24,22 +24,34 @@ public class AssessmentValidator {
     public List<String> validate(Node item) {
         List<String> errorMessages = new ArrayList<String>();
         String itemType = getAssessmentType(item);
-        Map<String, Object> metadata = item.getMetadata();
-        checkJsonMap(metadata, errorMessages, "body", new String[] {"content_type", "content"});
-        if(AssessmentType.mcq.name().equals(itemType) || AssessmentType.mmcq.name().equals(itemType)) {
-            checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"});
-        } else if(AssessmentType.sort_list.name().equals(itemType)) {
-            // TODO: check            
-        } else if(AssessmentType.ftb.name().equals(itemType)) {
-            // TODO: check            
-        } else if(AssessmentType.mtf.name().equals(itemType)) {
-            checkJsonList(metadata, errorMessages, "rhs_options", new String[] {"content_type", "content", "index"});
-            checkJsonList(metadata, errorMessages, "lhs_options", new String[] {"content_type", "content", "index"});
-        } else if(AssessmentType.speech_question.name().equals(itemType)) {
-            // TODO: check
-        } else if(AssessmentType.canvas_question.name().equals(itemType)) {
-            // TODO: check            
-        } 
+        if(AssessmentType.isValidAssessmentType(itemType)) {
+            Map<String, Object> metadata = item.getMetadata();
+            checkJsonMap(metadata, errorMessages, "body", new String[] {"content_type", "content"});
+            switch (AssessmentType.getAssessmentType(itemType)) {
+                case mcq:
+                case mmcq:
+                    checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"});
+                    break;
+                case ftb:
+                    if(null == metadata.get("answer")) errorMessages.add("answer is missing.");
+                    break;
+                case mtf:
+                    checkJsonList(metadata, errorMessages, "rhs_options", new String[] {"content_type", "content", "index"});
+                    checkJsonList(metadata, errorMessages, "lhs_options", new String[] {"content_type", "content", "index"});
+                    break;
+                case speech_question:
+                    if(null == metadata.get("answer")) errorMessages.add("answer is missing.");
+                    break;
+                case canvas_question:
+                    if(null == metadata.get("answer")) errorMessages.add("answer is missing.");
+                    break;
+                default:
+                    errorMessages.add("invalid assessment type: "+itemType);
+                    break;
+            }
+        } else {
+            errorMessages.add("invalid assessment type: "+itemType);
+        }
         return errorMessages;
     }
     
