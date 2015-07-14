@@ -25,7 +25,7 @@ object LitScreenerLevelComputation extends Serializable {
     private val litScreenerId = "org.ekstep.lit.scrnr.kan.basic";
     private val screenerVersion = "1.30";
 
-    def compute(events: Buffer[Event], loltMapping: Broadcast[Map[String, Array[(String, String)]]], ldloMapping: Broadcast[Map[String, Array[(String, String)]]], compldMapping: Broadcast[Map[String, Array[(String, String)]]], litLevelsMap: Broadcast[Map[String, Array[LevelAgg]]], output: String, outputDir: Option[String], brokerList: String) {
+    def compute(events: Buffer[Event], loltMapping: Broadcast[Map[String, Array[(String, String)]]], ldloMapping: Broadcast[Map[String, Array[(String, String)]]], compldMapping: Broadcast[Map[String, Array[(String, String)]]], litLevelsMap: Broadcast[Map[String, Array[LevelAgg]]], output: String, outputDir: Option[String], brokerList: String) : Buffer[(String, String, Int, String)] = {
 
         val loltMap = loltMapping.value;
         val ldloMap = ldloMapping.value;
@@ -82,7 +82,10 @@ object LitScreenerLevelComputation extends Serializable {
                 var resultEvents = Buffer[EventOutput]();
                 result.foreach(f => resultEvents += getEventOutput(f));
                 KafkaEventProducer.sendEvents(resultEvents, outputDir.getOrElse("user_aggregates"), brokerList);
+            case _ =>
         }
+        
+        result;
     }
 
     def getEventOutput(event: (String, String, Int, String)): EventOutput = {

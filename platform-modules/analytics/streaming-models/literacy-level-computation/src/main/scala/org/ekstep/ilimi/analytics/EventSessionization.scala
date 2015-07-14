@@ -56,6 +56,16 @@ object EventSessionization extends Application with Serializable {
         }.collect().groupBy { x => x._1 }.toMap;
         sc.broadcast(config);
     }
+    
+    def reverseBroadcastMapping(file: String, sc: SparkContext): Broadcast[Map[String, String]] = {
+        val config = sc.textFile(file, 1).map { x =>
+            {
+                val arr = x.split(",");
+                (arr(1), arr(0));
+            }
+        }.distinct().collect().toMap;
+        sc.broadcast(config);
+    }
 
     def broadcastLevelRanges(file: String, sc: SparkContext): Broadcast[Map[String, Array[LevelAgg]]] = {
         val config = sc.textFile(file, 1).map { x =>
