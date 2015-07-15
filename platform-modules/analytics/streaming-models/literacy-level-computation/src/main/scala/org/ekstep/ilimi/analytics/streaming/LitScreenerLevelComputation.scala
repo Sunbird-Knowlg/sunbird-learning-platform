@@ -27,11 +27,12 @@ object LitScreenerLevelComputation extends Serializable {
 
     def compute(events: Buffer[Event], loltMapping: Broadcast[Map[String, Array[(String, String)]]], ldloMapping: Broadcast[Map[String, Array[(String, String)]]], compldMapping: Broadcast[Map[String, Array[(String, String)]]], litLevelsMap: Broadcast[Map[String, Array[LevelAgg]]], output: String, outputDir: Option[String], brokerList: String) : Buffer[(String, String, Int, String)] = {
 
+        var result = Buffer[(String, String, Int, String)]();
         val loltMap = loltMapping.value;
         val ldloMap = ldloMapping.value;
         val compldMap = compldMapping.value;
         val levelMap = litLevelsMap.value;
-        val oeAssesEvents = events.filter { x => (x.eid.equals("OE_ASSESS") && x.gdata.id.equals(litScreenerId)) }.map { x =>
+        val oeAssesEvents = events.filter { x => (x.eid.get.equals("OE_ASSESS") && x.gdata.id.equals(litScreenerId)) }.map { x =>
             {
                 val qids = x.edata.eks.qid.get.split('.');
                 (x.edata.eks.qid.get, x.uid.get, if ("Yes".equalsIgnoreCase(x.edata.eks.pass.get)) 1 else 0, qids(3));
@@ -39,7 +40,6 @@ object LitScreenerLevelComputation extends Serializable {
         };
         val distinctEvents = oeAssesEvents.distinct; 
         //Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
-        //distinctEvents.foreach(f => Console.println(f));
         val uid = distinctEvents.last._2;
         
         val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => f._3)).mapValues { x => x.reduce(_ + _) }.toMap;
@@ -51,7 +51,6 @@ object LitScreenerLevelComputation extends Serializable {
         val ldLevels = ldScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
         val compositeLevels = compositeScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
 
-        var result = Buffer[(String, String, Int, String)]();
         ltLevels.foreach(f => result += f);
         loLevels.foreach(f => result += f);
         ldLevels.foreach(f => result += f);

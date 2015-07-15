@@ -17,13 +17,12 @@ object LitScreenerLevelModel extends Serializable {
 
     def compute(input: String, output: Option[String], outputDir: Option[String], location: String, parallelization: Int) {
 
-        val validEvents = Array("OE_ASSESS");
+        val validEvents = Array("OE_ASSESS", "OE_INTERACT");
         @transient val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         val loltMapping = EventSessionization.broadcastMapping("src/main/resources/lo_lt_mapping.csv", sc);
         val ltloMapping = EventSessionization.reverseBroadcastMapping("src/main/resources/lo_lt_mapping.csv", sc);
         val ldloMapping = EventSessionization.broadcastMapping("src/main/resources/ld_lo_mapping.csv", sc);
         val loldMapping = EventSessionization.reverseBroadcastMapping("src/main/resources/ld_lo_mapping.csv", sc);
-        loldMapping.value.foreach(f => Console.println("Key:" + f._1 + " | Value:" + f._2));
         val compldMapping = EventSessionization.broadcastMapping("src/main/resources/composite_ld_mapping.csv", sc);
         val litLevelsMap = EventSessionization.broadcastLevelRanges("src/main/resources/lit_scr_level_ranges.csv", sc);
         val userMapping = LitScreenerLevelDAO.getUserMapping();
@@ -31,7 +30,7 @@ object LitScreenerLevelModel extends Serializable {
         writeHeader(filePath);
             
         val resultOutput = output.getOrElse("console");
-        val rdd = sc.textFile(CommonUtil.getPath("s3_input_bucket", input, location), parallelization).cache();
+        val rdd = sc.textFile(CommonUtil.getPath("s3_input_bucket", input, location), parallelization).distinct().cache();
         val events = rdd.map { line =>
             {
                 implicit val formats = DefaultFormats;
@@ -42,7 +41,7 @@ object LitScreenerLevelModel extends Serializable {
         events.groupBy { event => event.uid.get }.foreach(f => {
             val events = f._2.toBuffer;
             val levelSetEvents = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap, resultOutput, outputDir, null);
-            val filterEvents = events.distinct.filter { x => ((x.eid.equals("OE_ASSESS") || x.eid.equals("OE_INTERACT")) && x.gdata.id.equals("org.ekstep.lit.scrnr.kan.basic")) };
+            val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && x.gdata.id.equals("org.ekstep.lit.scrnr.kan.basic")) };
             val uid = userMapping.getOrElse(f._1, f._1);
             var records = new ListBuffer[Array[String]];
             // Write to CSV & upload to S3
@@ -59,6 +58,7 @@ object LitScreenerLevelModel extends Serializable {
                         ;
                 }
                 records += Array(
+                    f._1,    
                     getString(uid),
                     "",
                     getString(event.eid),
@@ -89,6 +89,7 @@ object LitScreenerLevelModel extends Serializable {
 
             levelSetEvents.foreach(f => {
                 records += Array(
+                    f._1,
                     getString(uid),
                     "",
                     "LEVEL_SET",
@@ -112,9 +113,9 @@ object LitScreenerLevelModel extends Serializable {
                     "",
                     "",
                     getString(Option(f._4)),
-                    "",
-                    "",
-                    "")
+                    " ",
+                    " ",
+                    " ")
             })
             val fw = new FileWriter(filePath, true);
             records.foreach { f => fw.write(f.mkString(",") + "\n"); }
@@ -124,6 +125,7 @@ object LitScreenerLevelModel extends Serializable {
 
     def writeHeader(filePath: String) {
         val header = Array(
+                    "Uid",
                     "Child Genie id",
                     "Location",
                     "Event ID",
