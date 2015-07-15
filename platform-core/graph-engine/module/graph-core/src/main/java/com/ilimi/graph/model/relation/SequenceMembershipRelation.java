@@ -24,7 +24,7 @@ public class SequenceMembershipRelation extends AbstractRelation {
 
     @Override
     public String getRelationType() {
-        return RelationTypes.SEQUENCE_MEMBERSHIP.name();
+        return RelationTypes.SEQUENCE_MEMBERSHIP.relationName();
     }
 
     @Override

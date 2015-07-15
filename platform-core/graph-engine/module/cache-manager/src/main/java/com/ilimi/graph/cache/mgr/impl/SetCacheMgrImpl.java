@@ -3,11 +3,8 @@ package com.ilimi.graph.cache.mgr.impl;
 import static com.ilimi.graph.cache.factory.JedisFactory.getRedisConncetion;
 import static com.ilimi.graph.cache.factory.JedisFactory.returnConnection;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import redis.clients.jedis.Jedis;
@@ -18,7 +15,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
 import com.ilimi.graph.cache.mgr.ISetCacheMgr;
 import com.ilimi.graph.cache.util.RedisKeyGenerator;
-import com.ilimi.graph.cache.util.RedisPropValueUtil;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -37,42 +33,11 @@ public class SetCacheMgrImpl implements ISetCacheMgr {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String setId = (String) request.get(GraphDACParams.set_id.name());
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
-        String objectType = (String) request.get(GraphDACParams.object_type.name());
-        Map<String, Object> criteria = (Map<String, Object>) request.get(GraphDACParams.criteria.name());
-        List<String> indexedFields = (List<String>) request.get(GraphDACParams.indexable_metadata_key.name());
         if (!manager.validateRequired(setId)) {
             throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name(), "Required parameters are missing");
         }
         Jedis jedis = getRedisConncetion();
         try {
-            if (manager.validateRequired(objectType)) {
-                String criteriaKey = RedisKeyGenerator.getSetCriteriaKey(graphId, objectType);
-                if (manager.validateRequired(criteria)) {
-                    if (null == indexedFields || indexedFields.isEmpty()) {
-                        throw new ClientException(GraphCacheErrorCodes.ERR_CACHE_CREATE_SET_ERROR.name(),
-                                "There are no indexed fields defined for :" + objectType);
-                    } else {
-                        Collections.sort(indexedFields);
-                        for (String index : indexedFields) {
-                            if (criteria.containsKey(index)) {
-                                criteriaKey += index;
-                            } else {
-                                criteriaKey += "*";
-                            }
-                        }
-                        for (Entry<String, Object> entry : criteria.entrySet()) {
-                            String criteriaValueKey = RedisKeyGenerator.getSetCriteriaValueKey(graphId, setId, entry.getKey());
-                            Set<String> list = RedisPropValueUtil.getStringifiedValue(entry.getValue());
-                            if (null != list && !list.isEmpty()) {
-                                jedis.sadd(criteriaValueKey, RedisPropValueUtil.convertSetToArray(list));
-                            }
-                        }
-                    }
-                } else {
-                    criteriaKey += "*";
-                }
-                jedis.sadd(criteriaKey, setId);
-            }
             if (manager.validateRequired(memberIds)) {
                 String[] members = new String[memberIds.size()];
                 for (int i = 0; i < memberIds.size(); i++) {

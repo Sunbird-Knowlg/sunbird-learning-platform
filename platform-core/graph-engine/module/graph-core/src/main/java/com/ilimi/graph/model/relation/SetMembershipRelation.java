@@ -27,7 +27,7 @@ public class SetMembershipRelation extends AbstractRelation {
 
     @Override
     public String getRelationType() {
-        return RelationTypes.SET_MEMBERSHIP.name();
+        return RelationTypes.SET_MEMBERSHIP.relationName();
     }
 
     @Override

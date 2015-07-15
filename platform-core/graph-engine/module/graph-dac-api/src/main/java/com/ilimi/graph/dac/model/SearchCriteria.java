@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 import com.ilimi.graph.dac.enums.SystemProperties;
 
@@ -124,6 +125,7 @@ public class SearchCriteria implements Serializable {
         this.tag = tag;
     }
 
+    @JsonIgnore
     public String getQuery() {
         StringBuilder sb = new StringBuilder();
         sb.append("MATCH (n:NODE) ");

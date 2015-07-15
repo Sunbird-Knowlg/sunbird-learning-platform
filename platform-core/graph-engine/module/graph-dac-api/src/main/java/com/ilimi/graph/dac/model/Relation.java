@@ -27,6 +27,8 @@ public class Relation implements Serializable {
     private String startNodeObjectType;
     private String endNodeObjectType;
     private Map<String, Object> metadata;
+    private Map<String, Object> startNodeMetadata;
+    private Map<String, Object> endNodeMetadata;
 
     public Relation() {
 
@@ -56,6 +58,8 @@ public class Relation implements Serializable {
         this.endNodeObjectType = getObjectType(endNode);
         this.relationType = neo4jRel.getType().name();
         this.metadata = new HashMap<String, Object>();
+        this.startNodeMetadata = getNodeMetadata(neo4jRel.getStartNode());
+        this.endNodeMetadata = getNodeMetadata(neo4jRel.getEndNode());
         Iterable<String> keys = neo4jRel.getPropertyKeys();
         if (null != keys && null != keys.iterator()) {
             for (String key : keys) {
@@ -88,6 +92,19 @@ public class Relation implements Serializable {
     private String getObjectType(Node node) {
         String objectType = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), null);
         return objectType;
+    }
+
+    private Map<String, Object> getNodeMetadata(Node node) {
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        if (null != node) {
+            Iterable<String> keys = node.getPropertyKeys();
+            if (null != keys) {
+                for (String key : keys) {
+                    metadata.put(key, node.getProperty(key));
+                }
+            }
+        }
+        return metadata;
     }
 
     public String getRelationType() {
@@ -184,5 +201,21 @@ public class Relation implements Serializable {
 
     public void setEndNodeObjectType(String endNodeObjectType) {
         this.endNodeObjectType = endNodeObjectType;
+    }
+
+    public Map<String, Object> getStartNodeMetadata() {
+        return startNodeMetadata;
+    }
+
+    public void setStartNodeMetadata(Map<String, Object> startNodeMetadata) {
+        this.startNodeMetadata = startNodeMetadata;
+    }
+
+    public Map<String, Object> getEndNodeMetadata() {
+        return endNodeMetadata;
+    }
+
+    public void setEndNodeMetadata(Map<String, Object> endNodeMetadata) {
+        this.endNodeMetadata = endNodeMetadata;
     }
 }

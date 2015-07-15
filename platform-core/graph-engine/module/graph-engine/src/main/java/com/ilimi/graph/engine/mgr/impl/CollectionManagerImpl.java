@@ -13,6 +13,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.mgr.ICollectionManager;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -21,7 +22,6 @@ import com.ilimi.graph.model.ICollection;
 import com.ilimi.graph.model.collection.CollectionHandler;
 import com.ilimi.graph.model.collection.Sequence;
 import com.ilimi.graph.model.collection.Set;
-import com.ilimi.graph.model.collection.SetCriteria;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.node.DataNode;
 
@@ -56,14 +56,15 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     @Override
     public void createSet(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        SetCriteria criteria = (SetCriteria) request.get(GraphDACParams.criteria.name());
+        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
+        String setObjectType = (String) request.get(GraphDACParams.object_type.name());
         try {
             if (validateRequired(memberIds)) {
-                ICollection set = new Set(this, graphId, null, memberIds);
+                ICollection set = new Set(this, graphId, null, setObjectType, memberIds);
                 set.create(request);
             } else {
-                ICollection set = new Set(this, graphId, null, criteria);
+                ICollection set = new Set(this, graphId, null, setObjectType, criteria);
                 set.create(request);
             }
         } catch (Exception e) {
