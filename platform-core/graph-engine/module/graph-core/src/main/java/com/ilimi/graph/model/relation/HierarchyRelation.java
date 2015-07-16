@@ -45,7 +45,7 @@ public class HierarchyRelation extends AbstractRelation {
             final ExecutionContext ec = manager.getContext().dispatcher();
             Future<Node> startNode = getNode(request, this.startNodeId);
             Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(startNode, SystemNodeTypes.DATA_NODE.name(), ec);
+            Future<String> startNodeMsg = getNodeTypeFuture(startNode, new String[]{SystemNodeTypes.DATA_NODE.name()}, ec);
             futures.add(startNodeMsg);
             Future<String> endNodeMsg = endNode.map(new Mapper<Node, String>() {
                 @Override

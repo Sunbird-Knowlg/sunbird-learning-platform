@@ -845,7 +845,8 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Concept"
+            "Concept",
+            "AssessmentItem"
           ],
           "renderingHints": "{ 'order': 26 }"
         }

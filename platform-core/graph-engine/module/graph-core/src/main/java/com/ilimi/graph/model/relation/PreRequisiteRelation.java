@@ -37,9 +37,9 @@ public class PreRequisiteRelation extends AbstractRelation {
             final ExecutionContext ec = manager.getContext().dispatcher();
             Future<Node> startNode = getNode(request, this.startNodeId);
             Future<Node> endNode = getNode(request, this.endNodeId);
-            Future<String> startNodeMsg = getNodeTypeFuture(startNode, SystemNodeTypes.DATA_NODE.name(), ec);
+            Future<String> startNodeMsg = getNodeTypeFuture(startNode, new String[]{SystemNodeTypes.DATA_NODE.name()}, ec);
             futures.add(startNodeMsg);
-            Future<String> endNodeMsg = getNodeTypeFuture(endNode, SystemNodeTypes.DATA_NODE.name(), ec);
+            Future<String> endNodeMsg = getNodeTypeFuture(endNode, new String[]{SystemNodeTypes.DATA_NODE.name()}, ec);
             futures.add(endNodeMsg);
 
             // check if the relation is valid between object type definitions.

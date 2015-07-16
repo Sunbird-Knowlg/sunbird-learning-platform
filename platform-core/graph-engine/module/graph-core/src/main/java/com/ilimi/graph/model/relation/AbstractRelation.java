@@ -1,6 +1,7 @@
 package com.ilimi.graph.model.relation;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -288,17 +289,17 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         }
     }
 
-    protected Future<String> getNodeTypeFuture(Future<Node> node, final String nodeType, final ExecutionContext ec) {
+    protected Future<String> getNodeTypeFuture(Future<Node> node, final String[] nodeTypes, final ExecutionContext ec) {
         Future<String> endNodeMsg = node.map(new Mapper<Node, String>() {
             @Override
             public String apply(Node node) {
                 if (null == node) {
                     return "Node not found";
                 } else {
-                    if (StringUtils.equals(nodeType, node.getNodeType())) {
+                    if (Arrays.asList(nodeTypes).contains(node.getNodeType())) {
                         return null;
                     } else {
-                        return "Node " + node.getIdentifier() + " is not a " + nodeType;
+                        return "Node " + node.getIdentifier() + " is not a " + nodeTypes;
                     }
                 }
             }

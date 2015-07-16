@@ -1,6 +1,8 @@
 package com.ilimi.assessment.mgr;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,7 +21,9 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -194,9 +198,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         return setRes;
                     } else {
                         item.getMetadata().remove("items");
-                        // TODO - Create a Out Relation for the Set with relation type “associatedTo".
+                        Relation relation = new Relation();
+                        relation.setEndNodeId((String)setRes.get(GraphDACParams.set_id.name()));
+                        relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
+                        Map<String, Object> metadata = new HashMap<String, Object>();
+                        metadata.put("count", item.getMetadata().get("total_items"));
+                        relation.setMetadata(metadata);
+                        item.getOutRelations().add(relation);
                     }
-                    return setRes;
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
                     // TODO - Create Out Relations for all Item Sets with relation type “associatedTo”.
                 } else {
