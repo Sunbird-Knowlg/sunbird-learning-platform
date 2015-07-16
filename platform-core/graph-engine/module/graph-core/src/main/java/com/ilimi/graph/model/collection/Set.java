@@ -414,11 +414,13 @@ public class Set extends AbstractCollection {
                 Future<Boolean> validMembers = checkMemberNodes(req, memberIds, ec);
                 validMembers.onComplete(new OnComplete<Boolean>() {
                     @Override
-                    public void onComplete(Throwable arg0, Boolean arg1) throws Throwable {
-                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                                GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid");
+                    public void onComplete(Throwable arg0, Boolean valid) throws Throwable {
+//                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+//                                GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid");
                         if (valid) {
                             createSetNode(req, ec);
+                        } else {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
                         }
                     }
                 }, ec);

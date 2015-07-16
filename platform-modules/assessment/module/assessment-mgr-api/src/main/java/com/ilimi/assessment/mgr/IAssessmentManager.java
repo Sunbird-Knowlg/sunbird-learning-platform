@@ -67,4 +67,35 @@ public interface IAssessmentManager {
      * 
      */
     public Response deleteAssessmentItem(String id, String taxonomyId);
+    
+    
+    // Questionnaire - START
+
+    /**
+     * Creates Questionnaire. The identifier of the saved QuestionPaper is returned in
+     * response.
+     * 
+     */
+    public Response createQuestionnaire(String taxonomyId, Request request);
+    
+    /**
+     * 
+     * Updates Questionnaire. The identifier of the saved QuestionPaper is returned in
+     * response.
+     */
+    
+    public Response updateQuestionnaire(String id, String taxonomyId, Request request);
+
+    /**
+     * Gets Questionnaire for the identifier
+     *        
+     */
+    public Response getQuestionnaire(Request request);
+    
+    /**
+     * Deletes the Question paper for given id.
+     * 
+     */
+    public Response deleteQuestionnaire(Request request);
+    
 }

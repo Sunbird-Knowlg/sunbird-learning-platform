@@ -129,7 +129,7 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
         Request request = new Request(req);
         request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
         request.setOperation("getNodesByUniqueIds");
-        request.put(GraphDACParams.node_list.name(), memberIds);
+        request.put(GraphDACParams.node_ids.name(), memberIds);
         Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
         Future<Boolean> validMembers = dacFuture.map(new Mapper<Object, Boolean>() {
             @Override

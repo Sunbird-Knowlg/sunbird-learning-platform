@@ -651,10 +651,10 @@ public class DataNode extends AbstractNode {
             } else if (StringUtils.equalsIgnoreCase("json", dataType)) {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
-                    mapper.readValue(value.toString(), Map.class);
+                    mapper.readValue(mapper.writeValueAsString(value), Map.class);
                 } catch (Exception e) {
                     try {
-                        mapper.readValue(value.toString(), List.class);
+                        mapper.readValue(mapper.writeValueAsString(value), List.class);
                     } catch(Exception ex) {
                         messages.add("Metadata " + propName + " should be a valid JSON");
                     }

@@ -167,8 +167,9 @@ public class GraphCacheActor extends BaseGraphManager {
     public void createSet(Request request) {
         ISetCacheMgr cacheMgr = new SetCacheMgrImpl(this);
         try {
+            String setId = (String) request.get(GraphDACParams.set_id.name());
             cacheMgr.createSet(request);
-            OK(getSender());
+            OK(GraphDACParams.set_id.name(), setId, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
         }

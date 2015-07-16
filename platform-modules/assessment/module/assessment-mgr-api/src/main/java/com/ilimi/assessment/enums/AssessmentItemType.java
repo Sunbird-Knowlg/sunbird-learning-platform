@@ -2,14 +2,14 @@ package com.ilimi.assessment.enums;
 
 import org.apache.commons.lang3.StringUtils;
 
-public enum AssessmentType {
+public enum AssessmentItemType {
     mcq, mmcq, sort_list, ftb, mtf, speech_question, canvas_question;
     
     public static boolean isValidAssessmentType(String str) {
-        AssessmentType val = null;
+        AssessmentItemType val = null;
         try {
-            AssessmentType[] types = AssessmentType.values();
-            for (AssessmentType type : types) {
+            AssessmentItemType[] types = AssessmentItemType.values();
+            for (AssessmentItemType type : types) {
                 if (StringUtils.equals(type.name(), str))
                     val = type;
             }
@@ -20,8 +20,8 @@ public enum AssessmentType {
         return true;
     }
     
-    public static AssessmentType getAssessmentType(String str) {
-        return AssessmentType.valueOf(str);
+    public static AssessmentItemType getAssessmentType(String str) {
+        return AssessmentItemType.valueOf(str);
     }
     
 }

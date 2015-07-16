@@ -7,7 +7,7 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.assessment.enums.AssessmentType;
+import com.ilimi.assessment.enums.AssessmentItemType;
 import com.ilimi.graph.dac.model.Node;
 
 @Component
@@ -15,19 +15,32 @@ public class AssessmentValidator {
     
     private ObjectMapper mapper = new ObjectMapper();
 
-    public String getAssessmentType(Node item) {
+    public String getAssessmentItemType(Node item) {
         Map<String, Object> metadata = item.getMetadata();
         String itemType = (String) metadata.get("question_type");
         return itemType;
     }
     
-    public List<String> validate(Node item) {
+    public String getQuestionnaireType(Node item) {
+        Map<String, Object> metadata = item.getMetadata();
+        String itemType = (String) metadata.get("type");
+        return itemType;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<String> getQuestionnaireMemberIds(Node item) {
+        Map<String, Object> metadata = item.getMetadata();
+        List<String> memberIds = mapper.convertValue(metadata.get("items"), List.class);
+        return memberIds;
+    }
+    
+    public List<String> validateAssessmentItem(Node item) {
         List<String> errorMessages = new ArrayList<String>();
-        String itemType = getAssessmentType(item);
-        if(AssessmentType.isValidAssessmentType(itemType)) {
+        String itemType = getAssessmentItemType(item);
+        if(AssessmentItemType.isValidAssessmentType(itemType)) {
             Map<String, Object> metadata = item.getMetadata();
             checkJsonMap(metadata, errorMessages, "body", new String[] {"content_type", "content"});
-            switch (AssessmentType.getAssessmentType(itemType)) {
+            switch (AssessmentItemType.getAssessmentType(itemType)) {
                 case mcq:
                 case mmcq:
                     checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"});
@@ -52,6 +65,11 @@ public class AssessmentValidator {
         } else {
             errorMessages.add("invalid assessment type: "+itemType);
         }
+        return errorMessages;
+    }
+    
+    public List<String> validateQuestionnaire(Node item) {
+        List<String> errorMessages = new ArrayList<String>();
         return errorMessages;
     }
     
@@ -90,7 +108,6 @@ public class AssessmentValidator {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
                 errorMessages.add("invalid assessment item property: "+propertyName+".");
             }
         }
