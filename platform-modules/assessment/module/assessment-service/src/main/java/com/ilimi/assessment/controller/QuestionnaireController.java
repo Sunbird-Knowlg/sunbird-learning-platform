@@ -8,6 +8,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -51,6 +52,40 @@ public class QuestionnaireController extends BaseController {
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "ifields", required = false) String[] qrfields, @RequestHeader(value = "user-id") String userId) {
+        
+        String apiId = "questionnaire.find";
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + qrfields + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.getQuestionnaire(id, taxonomyId, qrfields);
+            LOGGER.info("Find | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "questionnaire.delete";
+        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.deleteAssessmentItem(id, taxonomyId);
+            LOGGER.info("Delete | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Delete | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
     

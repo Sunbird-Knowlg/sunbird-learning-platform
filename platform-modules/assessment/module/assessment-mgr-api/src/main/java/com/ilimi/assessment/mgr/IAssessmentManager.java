@@ -90,12 +90,12 @@ public interface IAssessmentManager {
      * Gets Questionnaire for the identifier
      *        
      */
-    public Response getQuestionnaire(Request request);
+    public Response getQuestionnaire(String id, String taxonomyId, String[] qrfields);
     
     /**
      * Deletes the Question paper for given id.
      * 
      */
-    public Response deleteQuestionnaire(Request request);
+    public Response deleteQuestionnaire(String id, String taxonomyId);
     
 }

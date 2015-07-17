@@ -28,10 +28,21 @@ public class AssessmentValidator {
     }
     
     @SuppressWarnings("unchecked")
-    public List<String> getQuestionnaireMemberIds(Node item) {
-        Map<String, Object> metadata = item.getMetadata();
+    public List<String> getQuestionnaireItems(Node node) {
+        Map<String, Object> metadata = node.getMetadata();
         List<String> memberIds = mapper.convertValue(metadata.get("items"), List.class);
         return memberIds;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public List<Map<String, String>> getQuestionnaireItemSets(Node node) {
+        List<Map<String,String>> values = null;
+        Map<String, Object> metadata = node.getMetadata();
+        try {
+            values = mapper.readValue((String)metadata.get("item_sets"), List.class);
+        } catch (Exception e) {
+        }
+        return values;
     }
     
     public List<String> validateAssessmentItem(Node item) {

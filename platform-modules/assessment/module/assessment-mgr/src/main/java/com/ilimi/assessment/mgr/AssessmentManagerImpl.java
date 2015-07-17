@@ -171,13 +171,13 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     public Response createQuestionnaire(String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        Node item = (Node) request.get(AssessmentAPIParams.questionnaire.name());
-        if (null == item)
+        Node node = (Node) request.get(AssessmentAPIParams.questionnaire.name());
+        if (null == node)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE.name(), "Questionnaire Object is blank");
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-        validateReq.put(GraphDACParams.node.name(), item);
+        validateReq.put(GraphDACParams.node.name(), node);
         Response validateRes = getResponse(validateReq, LOGGER);
-        List<String> assessmentErrors = validator.validateQuestionnaire(item);
+        List<String> assessmentErrors = validator.validateQuestionnaire(node);
         if(checkError(validateRes)) {
             if(assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
@@ -188,32 +188,41 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             if(assessmentErrors.size() > 0) {
                 return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Questionnaire validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
             } else {
-                String type = validator.getQuestionnaireType(item);
+                String type = validator.getQuestionnaireType(node);
                 if(QuestionnaireType.materialised.name().equals(type)) {
                     Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
                     setReq.put(GraphDACParams.object_type.name(), "AssessmentItem");
-                    setReq.put(GraphDACParams.members.name(), validator.getQuestionnaireMemberIds(item));
+                    setReq.put(GraphDACParams.members.name(), validator.getQuestionnaireItems(node));
                     Response setRes = getResponse(setReq, LOGGER);
                     if(checkError(setRes)) {
                         return setRes;
                     } else {
-                        item.getMetadata().remove("items");
+                        node.getMetadata().remove("items");
                         Relation relation = new Relation();
                         relation.setEndNodeId((String)setRes.get(GraphDACParams.set_id.name()));
                         relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
                         Map<String, Object> metadata = new HashMap<String, Object>();
-                        metadata.put("count", item.getMetadata().get("total_items"));
+                        metadata.put("count", node.getMetadata().get("total_items"));
                         relation.setMetadata(metadata);
-                        item.getOutRelations().add(relation);
+                        node.getOutRelations().add(relation);
                     }
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
-                    // TODO - Create Out Relations for all Item Sets with relation type “associatedTo”.
+                    List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
+                    for(Map<String, String> criteria : setCriteria) {
+                        Relation relation = new Relation();
+                        relation.setEndNodeId(criteria.get("id"));
+                        relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
+                        Map<String, Object> metadata = new HashMap<String, Object>();
+                        metadata.put("count", criteria.get("count"));
+                        relation.setMetadata(metadata);
+                        node.getOutRelations().add(relation);
+                    }
                 } else {
                     return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Invalid Questionnaire Type: "+type, ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
                 }
                 
                 Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-                createReq.put(GraphDACParams.node.name(), item);
+                createReq.put(GraphDACParams.node.name(), node);
                 Response createRes = getResponse(createReq, LOGGER);
                 return createRes;
             }
@@ -227,15 +236,25 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     }
 
     @Override
-    public Response getQuestionnaire(Request request) {
-        // TODO Auto-generated method stub
-        return null;
+    public Response getQuestionnaire(String id, String taxonomyId, String[] qrfields) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE_ID.name(), "Questionnaire Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response getNodeRes = getResponse(request, LOGGER);
+        return getNodeRes;
     }
 
     @Override
-    public Response deleteQuestionnaire(Request request) {
-        // TODO Auto-generated method stub
-        return null;
+    public Response deleteQuestionnaire(String id, String taxonomyId) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE_ID.name(), "Questionnaire Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.node_id.name(), id);
+        return getResponse(request, LOGGER);
     }
 
 }
