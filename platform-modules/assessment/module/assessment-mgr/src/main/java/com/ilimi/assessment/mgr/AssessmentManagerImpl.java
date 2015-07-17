@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.dto.ItemDTO;
+import com.ilimi.assessment.dto.QuestionnaireDTO;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.enums.QuestionnaireType;
@@ -90,7 +91,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Node item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(), "AssessmentItem Object is blank");
-        
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
@@ -220,7 +220,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 } else {
                     return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Invalid Questionnaire Type: "+type, ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
                 }
-                
                 Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
                 createReq.put(GraphDACParams.node.name(), node);
                 Response createRes = getResponse(createReq, LOGGER);
@@ -229,10 +228,58 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Response updateQuestionnaire(String id, String taxonomyId, Request request) {
-        // TODO Auto-generated method stub
-        return null;
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE_ID.name(), "Questionnaire Id is blank");
+        Node node = (Node) request.get(AssessmentAPIParams.questionnaire.name());
+        if (null == node)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE.name(), "Questionnaire Object is blank");
+        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+        validateReq.put(GraphDACParams.node.name(), node);
+        Response validateRes = getResponse(validateReq, LOGGER);
+        List<String> assessmentErrors = validator.validateQuestionnaire(node);
+        if(checkError(validateRes)) {
+            if(assessmentErrors.size() > 0) {
+                List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
+                messages.addAll(assessmentErrors);
+            }
+            return validateRes;
+        } else {
+            if(assessmentErrors.size() > 0) {
+                return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Questionnaire validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
+            } else {
+                String type = validator.getQuestionnaireType(node);
+                if(QuestionnaireType.materialised.name().equals(type)) {
+                    List<String> qrItems = validator.getQuestionnaireItems(node);
+                    node.getMetadata().remove("items");
+                    // TODO:-Get Collection Members. Compare and 
+                    //      -Update Set Members.
+                } else if(QuestionnaireType.dynamic.name().equals(type)) {
+                    List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
+                    for(Map<String, String> criteria : setCriteria) {
+                        Relation relation = new Relation();
+                        relation.setEndNodeId(criteria.get("id"));
+                        relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
+                        Map<String, Object> metadata = new HashMap<String, Object>();
+                        metadata.put("count", criteria.get("count"));
+                        relation.setMetadata(metadata);
+                        node.getOutRelations().add(relation);
+                    }
+                } else {
+                    return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Invalid Questionnaire Type: "+type, ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
+                }
+            }
+        }
+        if(null == node.getIdentifier()) node.setIdentifier(id);
+        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+        updateReq.put(GraphDACParams.node.name(), node);
+        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+        Response updateRes = getResponse(updateReq, LOGGER);
+        return updateRes;
     }
 
     @Override
@@ -244,7 +291,16 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
         request.put(GraphDACParams.get_tags.name(), true);
         Response getNodeRes = getResponse(request, LOGGER);
-        return getNodeRes;
+        Response response = copyResponse(getNodeRes);
+        if (checkError(response)) {
+            return response;
+        }
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+        if (null != node) {
+            QuestionnaireDTO dto = new QuestionnaireDTO(node, qrfields);
+            response.put(AssessmentAPIParams.questionnaire.name(), dto);
+        }
+        return response;
     }
 
     @Override

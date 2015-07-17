@@ -55,14 +55,33 @@ public class QuestionnaireController extends BaseController {
         }
     }
     
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "questionnaire.update";
+        Request request = getRequestObject(map);
+        LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.updateQuestionnaire(id, taxonomyId, request);
+            LOGGER.info("Update | Response: " + response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("Update | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "ifields", required = false) String[] qrfields, @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "qrfields", required = false) String[] qrfields, @RequestHeader(value = "user-id") String userId) {
         
         String apiId = "questionnaire.find";
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + qrfields + " | user-id: " + userId);
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | qrfields: " + qrfields + " | user-id: " + userId);
         try {
             Response response = assessmentManager.getQuestionnaire(id, taxonomyId, qrfields);
             LOGGER.info("Find | Response: " + response);
