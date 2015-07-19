@@ -8,7 +8,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.enums.AssessmentItemType;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 
 @Component
 public class AssessmentValidator {
@@ -121,6 +123,30 @@ public class AssessmentValidator {
             } catch (Exception e) {
                 errorMessages.add("invalid assessment item property: "+propertyName+".");
             }
+        }
+    }
+
+    public String getQuestionnaireSetId(Node node) {
+        String setId = null;
+        for(Relation relation : node.getOutRelations()) {
+            if(SystemNodeTypes.SET.name().equals(relation.getEndNodeType())) {
+                setId = relation.getEndNodeId();
+                break;
+            }
+        }
+        return setId;
+    }
+
+    public void compareMembers(List<String> inputMembers, List<String> existingMembers, List<String> addIds, List<String> removeIds) {
+        if(null != inputMembers) {
+            for(String member: inputMembers) {
+                if(existingMembers.contains(member)) {
+                   existingMembers.remove(member);
+                } else {
+                    addIds.add(member);
+                }
+            }
+            removeIds.addAll(existingMembers);
         }
     }
 }

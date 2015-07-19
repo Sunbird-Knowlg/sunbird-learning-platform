@@ -1,5 +1,6 @@
 package com.ilimi.assessment.mgr;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -254,10 +256,49 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             } else {
                 String type = validator.getQuestionnaireType(node);
                 if(QuestionnaireType.materialised.name().equals(type)) {
-                    List<String> qrItems = validator.getQuestionnaireItems(node);
+                    List<String> inputMembers = validator.getQuestionnaireItems(node);
+                    
+                    Request getNodeReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+                    getNodeReq.put(GraphDACParams.get_tags.name(), true);
+                    Response getNodeRes = getResponse(getNodeReq, LOGGER);
+                    Node qrNode = (Node) getNodeRes.get(GraphDACParams.node.name());
+                    
+                    Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
+                    setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+                    String setId = validator.getQuestionnaireSetId(qrNode);
+                    setReq.put(GraphDACParams.collection_id.name(), setId);
+                    Response setRes = getResponse(setReq, LOGGER);
+                    List<String> existingMembers = (List<String>) setRes.get(GraphDACParams.members.name());
+                    List<String> removeIds = new ArrayList<String>();
+                    List<String> addIds = new ArrayList<String>();
+                    validator.compareMembers(inputMembers, existingMembers, addIds, removeIds);
+                    if(addIds.size() > 0) {
+                        for(String addId: addIds) {
+                            Request addMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
+                            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+                            setReq.put(GraphDACParams.collection_id.name(), setId);
+                            setReq.put(GraphDACParams.member_id.name(), addId);
+                            getResponse(addMemReq, LOGGER);
+                        }
+                    }
+                    
+                    if(removeIds.size() > 0) {
+                        for(String removeId: removeIds) {
+                            Request addMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
+                            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+                            setReq.put(GraphDACParams.collection_id.name(), setId);
+                            setReq.put(GraphDACParams.member_id.name(), removeId);
+                            getResponse(addMemReq, LOGGER);
+                        }
+                    }
                     node.getMetadata().remove("items");
-                    // TODO:-Get Collection Members. Compare and 
-                    //      -Update Set Members.
+                    Relation relation = new Relation();
+                    relation.setEndNodeId((String)setRes.get(GraphDACParams.set_id.name()));
+                    relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
+                    Map<String, Object> metadata = new HashMap<String, Object>();
+                    metadata.put("count", node.getMetadata().get("total_items"));
+                    relation.setMetadata(metadata);
+                    node.getOutRelations().add(relation);
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
                     for(Map<String, String> criteria : setCriteria) {
