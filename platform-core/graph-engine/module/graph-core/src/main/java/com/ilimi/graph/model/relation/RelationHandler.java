@@ -1,5 +1,7 @@
 package com.ilimi.graph.model.relation;
 
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.exception.ClientException;
@@ -10,7 +12,7 @@ import com.ilimi.graph.model.IRelation;
 
 public class RelationHandler {
 
-    public static IRelation getRelation(BaseGraphManager manager, String graphId, String startNodeId, String relationType, String endNodeId) {
+    public static IRelation getRelation(BaseGraphManager manager, String graphId, String startNodeId, String relationType, String endNodeId, Map<String, Object> metadata) {
 
         if (StringUtils.isNotBlank(relationType) && RelationTypes.isValidRelationType(relationType)) {
             if (StringUtils.equals(RelationTypes.HIERARCHY.relationName(), relationType)) {
@@ -18,7 +20,7 @@ public class RelationHandler {
             } else if (StringUtils.equals(RelationTypes.CONSTITUENCY.relationName(), relationType)) {
                 return new ConstituentRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), relationType)) {
-                return new AssociationRelation(manager, graphId, startNodeId, endNodeId);
+                return new AssociationRelation(manager, graphId, startNodeId, endNodeId, metadata);
             } else if (StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), relationType)) {
                 return new SetMembershipRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {

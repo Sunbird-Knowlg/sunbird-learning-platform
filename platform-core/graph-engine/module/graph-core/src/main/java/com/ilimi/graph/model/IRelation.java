@@ -20,6 +20,8 @@ public interface IRelation extends IPropertyContainer {
     String getStartNodeId();
 
     String getEndNodeId();
+    
+    Map<String, Object> getMetadata();
 
     boolean isType(String relationType);
 

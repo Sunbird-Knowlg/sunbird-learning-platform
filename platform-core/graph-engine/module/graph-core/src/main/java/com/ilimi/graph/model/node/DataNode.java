@@ -266,7 +266,7 @@ public class DataNode extends AbstractNode {
         if (null != delRels && !delRels.isEmpty()) {
             for (Relation rel : delRels) {
                 IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
-                        rel.getEndNodeId());
+                        rel.getEndNodeId(), rel.getMetadata());
                 relations.add(relation);
             }
         }
@@ -308,7 +308,7 @@ public class DataNode extends AbstractNode {
         if (null != addRels && !addRels.isEmpty()) {
             for (Relation rel : addRels) {
                 IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
-                        rel.getEndNodeId());
+                        rel.getEndNodeId(), rel.getMetadata());
                 relations.add(relation);
             }
         }

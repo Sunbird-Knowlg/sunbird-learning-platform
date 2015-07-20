@@ -97,7 +97,7 @@ public class AssessmentValidator {
                     List list = mapper.readValue(mapper.writeValueAsString(metadata.get("items")), List.class);
                     Integer total = (Integer) metadata.get("total_items");
                     if(list.size() < total) {
-                        errorMessages.add("items has insufficient assessment items.");
+                        errorMessages.add("Questionnaire has insufficient assessment items.");
                     }
                 } catch (Exception e) {
                     errorMessages.add("invalid items array list.");
@@ -115,7 +115,7 @@ public class AssessmentValidator {
                             criteriaTotal += count;
                         }
                         if(criteriaTotal < total) {
-                            errorMessages.add("item sets has insufficient assessment items (count).");
+                            errorMessages.add("Questionnaire has insufficient assessment items (count).");
                         }
                     } catch (Exception e) {
                     }

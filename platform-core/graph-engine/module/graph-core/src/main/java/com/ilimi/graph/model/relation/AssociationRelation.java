@@ -19,6 +19,10 @@ import com.ilimi.graph.exception.GraphRelationErrorCodes;
 
 public class AssociationRelation extends AbstractRelation {
 
+    public AssociationRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId, Map<String, Object> metadata) {
+        super(manager, graphId, startNodeId, endNodeId, metadata);
+    }
+    
     public AssociationRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
         super(manager, graphId, startNodeId, endNodeId);
     }

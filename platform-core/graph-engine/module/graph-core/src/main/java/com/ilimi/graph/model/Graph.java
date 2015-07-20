@@ -880,7 +880,7 @@ public class Graph extends AbstractDomainObject {
                             for (final Relation rel : rels) {
                                 try {
                                     IRelation iRel = RelationHandler.getRelation(getManager(), rel.getGraphId(), rel.getStartNodeId(),
-                                            rel.getRelationType(), rel.getEndNodeId());
+                                            rel.getRelationType(), rel.getEndNodeId(), rel.getMetadata());
                                     Future<Map<String, List<String>>> validationMsgs = iRel.validateRelation(request);
                                     msgFutures.add(validationMsgs);
                                 } catch (Exception e) {

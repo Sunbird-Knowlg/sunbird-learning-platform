@@ -37,6 +37,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     protected String startNodeId;
     protected String endNodeId;
+    protected Map<String, Object> metadata;
+
+    protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId, Map<String, Object> metadata) {
+        this(manager, graphId, startNodeId, endNodeId);
+        this.metadata = metadata;
+    }
 
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
         super(manager, graphId);
@@ -82,6 +88,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
         request.put(GraphDACParams.relation_type.name(), getRelationType());
         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
+        request.put(GraphDACParams.metadata.name(), getMetadata());
         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
         Future<String> message = response.map(new Mapper<Object, String>() {
             @Override
@@ -175,6 +182,10 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         return this.endNodeId;
     }
 
+    public Map<String, Object> getMetadata() {
+        return this.metadata;
+    }
+    
     public boolean isType(String relationType) {
         return StringUtils.equalsIgnoreCase(getRelationType(), relationType);
     }
