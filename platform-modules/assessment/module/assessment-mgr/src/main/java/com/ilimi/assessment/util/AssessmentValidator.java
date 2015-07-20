@@ -1,12 +1,9 @@
 package com.ilimi.assessment.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
@@ -59,15 +56,17 @@ public class AssessmentValidator {
             checkJsonMap(metadata, errorMessages, "body", new String[] {"content_type", "content"});
             switch (AssessmentItemType.getAssessmentType(itemType)) {
                 case mcq:
+                    checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"}, AssessmentItemType.mcq.name());
+                    break;
                 case mmcq:
-                    checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"});
+                    checkJsonList(metadata, errorMessages, "options", new String[] {"content_type", "content", "is_answer"}, AssessmentItemType.mmcq.name());
                     break;
                 case ftb:
                     if(null == metadata.get("answer")) errorMessages.add("answer is missing.");
                     break;
                 case mtf:
-                    checkJsonList(metadata, errorMessages, "rhs_options", new String[] {"content_type", "content", "index"});
-                    checkJsonList(metadata, errorMessages, "lhs_options", new String[] {"content_type", "content", "index"});
+                    checkJsonList(metadata, errorMessages, "rhs_options", new String[] {"content_type", "content", "index"}, null);
+                    checkJsonList(metadata, errorMessages, "lhs_options", new String[] {"content_type", "content", "index"}, null);
                     break;
                 case speech_question:
                     if(null == metadata.get("answer")) errorMessages.add("answer is missing.");
@@ -105,7 +104,7 @@ public class AssessmentValidator {
                 }
             } else if(QuestionnaireType.dynamic.name().equals(type)) {
                 List<String> dynamicErrors = new ArrayList<String>();
-                checkJsonList(metadata, dynamicErrors, "item_sets", new String[] {"id", "count"});
+                checkJsonList(metadata, dynamicErrors, "item_sets", new String[] {"id", "count"}, null);
                 if(dynamicErrors.size() == 0) {
                     try {
                         Integer total = (Integer) metadata.get("total_items");
@@ -148,19 +147,28 @@ public class AssessmentValidator {
     }
     
     @SuppressWarnings("unchecked")
-    private void checkJsonList(Map<String, Object> metadata, List<String> errorMessages, String propertyName, String[] keys) {
+    private void checkJsonList(Map<String, Object> metadata, List<String> errorMessages, String propertyName, String[] keys, String itemType) {
         if(null == metadata.get(propertyName)) {
             errorMessages.add("item "+propertyName+" is missing.");
         } else {
             try {
-                List<Map<String,String>> values = mapper.readValue((String)metadata.get(propertyName), List.class);
-                for(Map<String, String> value: values) {
+                List<Map<String,Object>> values = mapper.readValue((String)metadata.get(propertyName), List.class);
+                Integer answerCount = 0;
+                for(Map<String, Object> value: values) {
                     for(String key : keys) {
                         if(!value.containsKey(key)) {
                             errorMessages.add("invalid assessment item property: "+propertyName+ ". "+key+" is missing.");
                             break;
                         }
                     }
+                    if(itemType != null && (Boolean) value.get("is_answer")) answerCount++;
+                        
+                }
+                if(AssessmentItemType.mcq.name().equals(itemType)) {
+                    if(answerCount < 1) errorMessages.add("no option found with answer.");
+                    else if(answerCount > 1) errorMessages.add("multiple answers found in a mcq assessment item.");
+                } else if(AssessmentItemType.mmcq.name().equals(itemType)) {
+                    if(answerCount <=1) errorMessages.add("there are no multiple answer options.");
                 }
             } catch (Exception e) {
                 errorMessages.add("invalid assessment item property: "+propertyName+".");

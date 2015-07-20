@@ -210,6 +210,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     }
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
+                    node.getMetadata().remove("item_sets");
                     for(Map<String, String> criteria : setCriteria) {
                         Relation relation = new Relation();
                         relation.setEndNodeId(criteria.get("id"));
@@ -281,7 +282,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                             getResponse(addMemReq, LOGGER);
                         }
                     }
-                    
                     if(removeIds.size() > 0) {
                         for(String removeId: removeIds) {
                             Request addMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
@@ -301,6 +301,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     node.getOutRelations().add(relation);
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
+                    node.getMetadata().remove("item_sets");
                     for(Map<String, String> criteria : setCriteria) {
                         Relation relation = new Relation();
                         relation.setEndNodeId(criteria.get("id"));
