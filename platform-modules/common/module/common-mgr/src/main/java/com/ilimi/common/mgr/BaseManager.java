@@ -146,6 +146,13 @@ public abstract class BaseManager {
         return response;
     }
 
+    protected Response OK(String responseIdentifier, Object vo) {
+        Response response = new Response();
+        response.put(responseIdentifier, vo);
+        response.setParams(getSucessStatus());
+        return response;
+    }
+    
     protected boolean checkError(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
@@ -174,6 +181,14 @@ public abstract class BaseManager {
         params.setErr(errorCode);
         params.setStatus(StatusType.failed.name());
         params.setErrmsg(errorMessage);
+        return params;
+    }
+    
+    private ResponseParams getSucessStatus() {
+        ResponseParams params = new ResponseParams();
+        params.setErr("0");
+        params.setStatus(StatusType.successful.name());
+        params.setErrmsg("Operation successful");
         return params;
     }
 

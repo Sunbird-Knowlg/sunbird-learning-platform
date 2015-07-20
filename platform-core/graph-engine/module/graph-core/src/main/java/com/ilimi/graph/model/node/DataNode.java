@@ -55,6 +55,12 @@ public class DataNode extends AbstractNode {
         this.objectType = node.getObjectType();
         this.inRelations = node.getInRelations();
         this.outRelations = node.getOutRelations();
+        if(this.inRelations != null) {
+            for(Relation relation : this.inRelations) relation.setEndNodeId(getNodeId());
+        } 
+        if(this.outRelations != null) {
+            for(Relation relation : this.outRelations) relation.setStartNodeId(getNodeId());
+        }
     }
 
     @Override
@@ -656,7 +662,15 @@ public class DataNode extends AbstractNode {
                     try {
                         mapper.readValue((String)value, List.class);
                     } catch(Exception ex) {
-                        messages.add("Metadata " + propName + " should be a valid JSON");
+                        try {
+                            mapper.readValue(mapper.writeValueAsString(value), Map.class);
+                        } catch (Exception e2) {
+                            try {
+                                mapper.readValue(mapper.writeValueAsString(value), List.class);
+                            } catch (Exception ex2) {
+                                messages.add("Metadata " + propName + " should be a valid JSON");
+                            }
+                        }
                     }
                 }
             }

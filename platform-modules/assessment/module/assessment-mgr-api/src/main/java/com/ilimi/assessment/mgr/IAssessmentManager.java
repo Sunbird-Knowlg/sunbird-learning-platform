@@ -98,4 +98,9 @@ public interface IAssessmentManager {
      */
     public Response deleteQuestionnaire(String id, String taxonomyId);
     
+    /**
+     * Deliver Questionnaire.
+     */
+    public Response deliverQuestionnaire(String id, String taxonomyId);
+    
 }

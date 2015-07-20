@@ -92,6 +92,25 @@ public class QuestionnaireController extends BaseController {
         }
     }
     
+    @RequestMapping(value = "/deliver/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    ResponseEntity<Response> deliverQuestionnaire(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestHeader(value = "user-id") String userId) {
+        
+        String apiId = "questionnaire.deliver";
+        LOGGER.info("DeliverQuestionnaire | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.deliverQuestionnaire(id, taxonomyId);
+            LOGGER.info("DeliverQuestionnaire | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("DeliverQuestionnaire | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,

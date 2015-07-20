@@ -47,13 +47,13 @@ public class ItemDTO extends Node {
             } else {
                 setMetadata(node.getMetadata());
             }
-            setInRelations(node.getInRelations());
-            setOutRelations(node.getOutRelations());
+//            setInRelations(node.getInRelations());
+//            setOutRelations(node.getOutRelations());
             setTags(node.getTags());
 
-            if (null != getOutRelations() && !getOutRelations().isEmpty()) {
+            if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                 this.concepts = new ArrayList<NodeDTO>();
-                for (Relation rel : getOutRelations()) {
+                for (Relation rel : node.getOutRelations()) {
                     if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
                         if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {

@@ -1,9 +1,12 @@
 package com.ilimi.assessment.mgr;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -276,34 +279,40 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     if(addIds.size() > 0) {
                         for(String addId: addIds) {
                             Request addMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
-                            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
-                            setReq.put(GraphDACParams.collection_id.name(), setId);
-                            setReq.put(GraphDACParams.member_id.name(), addId);
-                            getResponse(addMemReq, LOGGER);
+                            addMemReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+                            addMemReq.put(GraphDACParams.collection_id.name(), setId);
+                            addMemReq.put(GraphDACParams.member_id.name(), addId);
+                            Response addMemRes = getResponse(addMemReq, LOGGER);
+                            if(checkError(addMemRes)) return addMemRes;
                         }
                     }
                     if(removeIds.size() > 0) {
                         for(String removeId: removeIds) {
-                            Request addMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
-                            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
-                            setReq.put(GraphDACParams.collection_id.name(), setId);
-                            setReq.put(GraphDACParams.member_id.name(), removeId);
-                            getResponse(addMemReq, LOGGER);
+                            Request removeMemReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
+                            removeMemReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+                            removeMemReq.put(GraphDACParams.collection_id.name(), setId);
+                            removeMemReq.put(GraphDACParams.member_id.name(), removeId);
+                            Response removeMemRes = getResponse(removeMemReq, LOGGER);
+                            if(checkError(removeMemRes)) return removeMemRes;
+                            
                         }
                     }
                     node.getMetadata().remove("items");
                     Relation relation = new Relation();
-                    relation.setEndNodeId((String)setRes.get(GraphDACParams.set_id.name()));
+                    relation.setStartNodeId(id);
+                    relation.setEndNodeId(setId);
                     relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
                     Map<String, Object> metadata = new HashMap<String, Object>();
                     metadata.put("count", node.getMetadata().get("total_items"));
                     relation.setMetadata(metadata);
+                    
                     node.getOutRelations().add(relation);
                 } else if(QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
                     node.getMetadata().remove("item_sets");
                     for(Map<String, String> criteria : setCriteria) {
                         Relation relation = new Relation();
+                        relation.setStartNodeId(id);
                         relation.setEndNodeId(criteria.get("id"));
                         relation.setRelationType(RelationTypes.ASSOCIATED_TO.relationName());
                         Map<String, Object> metadata = new HashMap<String, Object>();
@@ -353,6 +362,42 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE_ID.name(), "Questionnaire Id is blank");
         Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.node_id.name(), id);
         return getResponse(request, LOGGER);
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response deliverQuestionnaire(String id, String taxonomyId) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_QUESTIONNAIRE_ID.name(), "Questionnaire Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response getNodeRes = getResponse(request, LOGGER);
+        if (checkError(getNodeRes)) {
+            return copyResponse(getNodeRes);
+        }
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+        List<Relation> setRelations = new ArrayList<Relation>();
+        for(Relation relation : node.getOutRelations()) {
+            if(SystemNodeTypes.SET.name().equals(relation.getEndNodeType()) && "AssessmentItem".equals(relation.getEndNodeObjectType())) {
+                setRelations.add(relation);
+            }
+        }
+        Set<String> allMembers = new HashSet<String>();
+        for(Relation relation: setRelations) {
+            Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
+            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+            setReq.put(GraphDACParams.collection_id.name(), relation.getEndNodeId());
+            Response setRes = getResponse(setReq, LOGGER);
+            List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
+            allMembers.addAll(members);
+        }
+        List<String> members = new ArrayList<String>(allMembers);
+        Collections.shuffle(members);
+        Integer totalItems = (Integer) node.getMetadata().get("total_items");
+        List<String> finalMembers = members.subList(0, totalItems);
+        return OK(AssessmentAPIParams.assessment_items.name(), finalMembers);
     }
 
 }

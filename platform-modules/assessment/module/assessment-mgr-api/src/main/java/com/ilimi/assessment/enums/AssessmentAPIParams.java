@@ -1,5 +1,5 @@
 package com.ilimi.assessment.enums;
 
 public enum AssessmentAPIParams {
-    assessment_item, metadata_definitions, questionnaire
+    assessment_item, assessment_items, metadata_definitions, questionnaire
 }
