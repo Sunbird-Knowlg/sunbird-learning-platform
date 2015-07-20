@@ -12,15 +12,14 @@ import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -123,18 +122,20 @@ public abstract class BaseCucumberTest {
         ObjectMapper objectMapper = new ObjectMapper();
         Response resp = null;
         try {
-			resp = objectMapper.readValue(content, Response.class);
-		} catch (JsonParseException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
+			if(StringUtils.isNotBlank(content))
+			    resp = objectMapper.readValue(content, Response.class);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
         return resp;
+    }
+    
+    public void assertStatus(ResultActions actions, int code) {
+        try {
+            Assert.assertEquals(code, actions.andReturn().getResponse().getStatus());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
 }
