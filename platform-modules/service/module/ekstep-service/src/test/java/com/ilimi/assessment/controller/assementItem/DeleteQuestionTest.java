@@ -34,10 +34,10 @@ public class DeleteQuestionTest extends BaseCucumberTest{
 	}
 	
 	 public String createQuestion(){
-		String contentString = "{ \"request\": { \"assessment_item\": { \"identifier\":\"Q2\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"easy\", \"num_answers\": 3, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
+		String contentString = "{ \"request\": { \"assessment_item\": { \"identifier\":\"tempQ\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"easy\", \"num_answers\": 3, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
     	Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/question";
+    	String path = "/assessmentitem";
     	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
@@ -55,7 +55,7 @@ public class DeleteQuestionTest extends BaseCucumberTest{
 	 public void nodeNotFound(String questionId)  {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/question/" + questionId;
+    	String path = "/assessmentitem/" + questionId;
     	params.put("taxonomyId", "numeracy");
     	params.put("cfields", "name");
     	header.put("user-id", "ilimi");
@@ -78,6 +78,11 @@ public class DeleteQuestionTest extends BaseCucumberTest{
 	
 	@When("^Delete question when Taxonomy id is (.*) and question id is (.*)$")
 	public void getInputData(String taxonomyId, String questionId){
+		this.questionId = questionId;
+		if(questionId.equals("ilimi"))
+			this.questionId = createQuestion();
+		else
+			questionId = createQuestion();
 		if(taxonomyId.equals("absent"))
 			this.taxonomyId = "absent";
 		if(taxonomyId.equals("empty"))

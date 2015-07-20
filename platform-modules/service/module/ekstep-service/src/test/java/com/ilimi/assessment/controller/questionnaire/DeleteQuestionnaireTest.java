@@ -39,10 +39,10 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 	public String createquestionnaire() {
 		MockMvc mockMvc;		
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String contentString = "{\"request\": {\"questionnaire\": {\"objectType\": \"Questionnaire\",\"graphId\": \"NUMERACY\",\"identifier\": \"G199\",\"nodeType\": \"DATA_NODE\",\"metadata\": {\"name\": \"Animals Puzzle For Kids\",\"code\": \"ek.lit.an\",\"developer\" : \"Play Store\",\"owner\"     : \"Google & its Developers\"},\"inRelations\" : [{\"startNodeId\": \"G1\",\"relationType\": \"associatedTo\"}],\"tags\": [\"tag 1\", \"tag 33\"]}}}";
+		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/learning-object";
+    	String path = "/questionnaire";
     	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
@@ -65,6 +65,10 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 	
 	@When("^Delete questionnaire when Taxonomy id is (.*) and questionnaire id is (.*)$")
 	public void getInputData(String taxonomyId, String questionnaireId){
+		if(questionnaireId.equals("ilimi"))
+			this.questionnaireId = questionnaireId;
+		else
+			questionnaireId = createquestionnaire();
 		if(taxonomyId.equals("absent"))
 			this.taxonomyId = "absent";
 		if(taxonomyId.equals("empty"))
@@ -74,7 +78,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 		this.questionnaireId = questionnaireId;
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/questionnaire/" + questionnaireId;
+    	String path = "/questionnaire/" + this.questionnaireId;
     	if(taxonomyId.equals("absent")){}
     	else
     		params.put("taxonomyId", this.taxonomyId);

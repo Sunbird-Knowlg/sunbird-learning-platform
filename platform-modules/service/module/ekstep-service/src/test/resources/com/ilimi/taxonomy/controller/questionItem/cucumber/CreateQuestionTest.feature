@@ -19,7 +19,7 @@ Feature: Test all scenarios of create Question.
     When Create Question Taxonomy is numeracy with proper question data for mtf
     Then return status of create Question is successful and response code is 200
     
-  Scenario: Create a Question.
+  Scenario: Create a Question with invalid options.
     When Create Question Taxonomy is numeracy with invalid question options for mcq
     Then return status of create Question is failed and response code is 400
     And get error message as invalid assessment item property: options. is_answer is missing.
@@ -54,7 +54,7 @@ Feature: Test all scenarios of create Question.
     
     When Create Question Taxonomy is numeracy with empty object type
     Then return status of create Question is failed and response code is 400
-    And get error message as Object type not set for node: Q2
+    And get error message as Object type not set for node: tQ2
     
     When Create Question Taxonomy is numeracy with wrong definition node
     Then return status of create Question is failed and response code is 400
