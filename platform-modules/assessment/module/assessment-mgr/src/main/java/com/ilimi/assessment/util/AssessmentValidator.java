@@ -1,13 +1,17 @@
 package com.ilimi.assessment.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.enums.AssessmentItemType;
+import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -81,8 +85,46 @@ public class AssessmentValidator {
         return errorMessages;
     }
     
+    @SuppressWarnings("unchecked")
     public List<String> validateQuestionnaire(Node item) {
         List<String> errorMessages = new ArrayList<String>();
+        Map<String, Object> metadata = item.getMetadata();
+        String type = getQuestionnaireType(item);
+        if(!QuestionnaireType.isValidQuestionnaireType(type)) {
+            errorMessages.add("invalid questionnaire type" + type);
+        } else {
+            if(QuestionnaireType.materialised.name().equals(type)) {
+                try {
+                    List list = mapper.readValue(mapper.writeValueAsString(metadata.get("items")), List.class);
+                    Integer total = (Integer) metadata.get("total_items");
+                    if(list.size() < total) {
+                        errorMessages.add("items has insufficient assessment items.");
+                    }
+                } catch (Exception e) {
+                    errorMessages.add("invalid items array list.");
+                }
+            } else if(QuestionnaireType.dynamic.name().equals(type)) {
+                List<String> dynamicErrors = new ArrayList<String>();
+                checkJsonList(metadata, dynamicErrors, "item_sets", new String[] {"id", "count"});
+                if(dynamicErrors.size() == 0) {
+                    try {
+                        Integer total = (Integer) metadata.get("total_items");
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) mapper.readValue((String)metadata.get("items"), List.class);
+                        Integer criteriaTotal = 0;
+                        for(Map<String, Object>itemSet : list) {
+                            Integer count = (Integer)itemSet.get("count");
+                            criteriaTotal += count;
+                        }
+                        if(criteriaTotal < total) {
+                            errorMessages.add("item sets has insufficient assessment items (count).");
+                        }
+                    } catch (Exception e) {
+                    }
+                } else {
+                    errorMessages.addAll(dynamicErrors);
+                }
+            }
+        }
         return errorMessages;
     }
     
