@@ -613,9 +613,8 @@ public class DataNode extends AbstractNode {
                             if (StringUtils.isBlank((String) value))
                                 messages.add("Required Metadata " + propName + " not set");
                         }
-                    } else {
-                        checkDataType(value, def, messages);
                     }
+                    checkDataType(value, def, messages);
                 }
             }
         }
