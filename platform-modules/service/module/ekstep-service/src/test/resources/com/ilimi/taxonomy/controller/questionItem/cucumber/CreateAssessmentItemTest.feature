@@ -1,6 +1,8 @@
 Feature: Test all scenarios of create Question.
 
   Scenario: Create a Question.
+  	When create question data for Assessment-items
+  	
     When Create Question Taxonomy is numeracy with proper question data for mcq
     Then return status of create Question is successful and response code is 200
     
@@ -72,7 +74,7 @@ Feature: Test all scenarios of create Question.
     Then return status of create Question is failed and response code is 400
     And get error message as Relation ilimi is not supported
     
-#    When Create Question Taxonomy is numeracy with invalid data type
-#    Then return status of create Question is failed and response code is 400
-#    And get error message as invalid data type
+    When Create Question Taxonomy is numeracy with invalid data type
+    Then return status of create Question is failed and response code is 400
+    And get error message as invalid data type
     

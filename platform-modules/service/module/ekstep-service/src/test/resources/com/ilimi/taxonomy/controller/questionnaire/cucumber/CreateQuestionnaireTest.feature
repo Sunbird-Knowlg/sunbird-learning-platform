@@ -17,7 +17,7 @@ Feature: Test all scenarios of create Questionnaire.
   Scenario: Create a Questionnaire with insufficient assessment items.
     When Create Questionnaire Taxonomy is numeracy with insufficient assessment items
     Then return status of create Questionnaire is failed and response code is 400
-    And get error message of create Questionnaire is items has insufficient assessment items.
+    And get error message of create Questionnaire is questionnaire has insufficient assessment items.
     
     When Create Questionnaire Taxonomy is numeracy with wrong member id
     Then return status of create Questionnaire is failed and response code is 400

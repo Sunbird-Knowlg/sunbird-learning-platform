@@ -36,7 +36,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
         initMockMVC();
     }
 	
-	public String createquestionnaire() {
+	public String createQuestionnaire() {
 		MockMvc mockMvc;		
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
@@ -68,7 +68,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 		if(questionnaireId.equals("ilimi"))
 			this.questionnaireId = questionnaireId;
 		else
-			questionnaireId = createquestionnaire();
+			questionnaireId = createQuestionnaire();
 		if(taxonomyId.equals("absent"))
 			this.taxonomyId = "absent";
 		if(taxonomyId.equals("empty"))
