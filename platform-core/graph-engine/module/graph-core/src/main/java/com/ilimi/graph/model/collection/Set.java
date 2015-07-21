@@ -122,8 +122,10 @@ public class Set extends AbstractCollection {
                                     Future<Node> nodeFuture = getNodeObject(req, ec, memberId);
                                     nodeFuture.onComplete(new OnComplete<Node>() {
                                         public void onComplete(Throwable arg0, Node member) throws Throwable {
-                                            if (null != arg0 || null == member) {
+                                            if (null != arg0 ) {
                                                 manager.ERROR(arg0, getParent());
+                                            } else if(null == member) {
+                                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(), "Member with identifier: "+memberId+" does not exist.", ResponseCode.CLIENT_ERROR, getParent());
                                             } else {
                                                 addMemberToSet(req, setId, memberId);
                                             }

@@ -108,13 +108,13 @@ public class AssessmentValidator {
                 if(dynamicErrors.size() == 0) {
                     try {
                         Integer total = (Integer) metadata.get("total_items");
-                        List<Map<String, Object>> list = (List<Map<String, Object>>) mapper.readValue((String)metadata.get("items"), List.class);
+                        List<Map<String, Object>> list = (List<Map<String, Object>>) mapper.readValue((String)metadata.get("item_sets"), List.class);
                         Integer criteriaTotal = 0;
                         for(Map<String, Object>itemSet : list) {
                             Integer count = (Integer)itemSet.get("count");
                             criteriaTotal += count;
                         }
-                        if(criteriaTotal < total) {
+                        if(criteriaTotal != total) {
                             errorMessages.add("Questionnaire has insufficient assessment items (count).");
                         }
                     } catch (Exception e) {

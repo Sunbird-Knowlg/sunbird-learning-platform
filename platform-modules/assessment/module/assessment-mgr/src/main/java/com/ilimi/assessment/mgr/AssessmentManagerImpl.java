@@ -30,6 +30,7 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -265,6 +266,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     Request getNodeReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
                     getNodeReq.put(GraphDACParams.get_tags.name(), true);
                     Response getNodeRes = getResponse(getNodeReq, LOGGER);
+                    if(checkError(getNodeRes)) 
+                        return getNodeRes;
                     Node qrNode = (Node) getNodeRes.get(GraphDACParams.node.name());
                     
                     Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
@@ -283,7 +286,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                             addMemReq.put(GraphDACParams.collection_id.name(), setId);
                             addMemReq.put(GraphDACParams.member_id.name(), addId);
                             Response addMemRes = getResponse(addMemReq, LOGGER);
-                            if(checkError(addMemRes)) return addMemRes;
+                            if(checkError(addMemRes)) 
+                                return addMemRes;
                         }
                     }
                     if(removeIds.size() > 0) {
@@ -293,7 +297,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                             removeMemReq.put(GraphDACParams.collection_id.name(), setId);
                             removeMemReq.put(GraphDACParams.member_id.name(), removeId);
                             Response removeMemRes = getResponse(removeMemReq, LOGGER);
-                            if(checkError(removeMemRes)) return removeMemRes;
+                            if(checkError(removeMemRes)) 
+                                return removeMemRes;
                             
                         }
                     }
@@ -391,6 +396,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             setReq.put(GraphDACParams.collection_id.name(), relation.getEndNodeId());
             Response setRes = getResponse(setReq, LOGGER);
             List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
+            Collections.shuffle(members);
+            Integer count = (Integer) relation.getMetadata().get("count");
+            members.subList(0, count);
             allMembers.addAll(members);
         }
         List<String> members = new ArrayList<String>(allMembers);
@@ -398,6 +406,41 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Integer totalItems = (Integer) node.getMetadata().get("total_items");
         List<String> finalMembers = members.subList(0, totalItems);
         return OK(AssessmentAPIParams.assessment_items.name(), finalMembers);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response createItemSet(String taxonomyId, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
+        if(criteria != null || memberIds != null) {
+            Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
+            setReq.copyRequestValueObjects(request.getRequest());
+            setReq.put(GraphDACParams.object_type.name(), "AssessmentItem");
+            return getResponse(setReq, LOGGER);
+        } else {
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_SET_CRITERIA.name(), "AssessmentItem Set Criteria or members is blank");
+        }
+    }
+
+    @Override
+    public Response updateItemSet(String id, String taxonomyId, Request request) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Response getItemSet(Request request) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
+    @Override
+    public Response deleteItemSet(Request request) {
+        // TODO Auto-generated method stub
+        return null;
     }
 
 }

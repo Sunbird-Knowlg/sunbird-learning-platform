@@ -1,7 +1,9 @@
 package com.ilimi.assessment.mgr;
 
+import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 
 /**
  * AssessmentManager provides Service API to Manage Assessment data - Assessment
@@ -18,27 +20,38 @@ public interface IAssessmentManager {
      * generated. The identifier of the saved AssessmentItem is returned in
      * response.
      * 
-     * Some fields like qtiXML, media... will be ignored and the values will be
-     * regenerated during save.
      * 
-     * @request AssessmentManagerParams.ASSESSMENT_ITEM AssessmentItem -
+     * @request {@link AssessmentAPIParams}.assessment_item AssessmentItem -
      *          mandatory
-     * @request AssessmentManagerParams.QUESTION_SUBTYPE StringValue - mandatory
-     * @request AssessmentManagerParams.COURSE_ID StringValue - mandatory
-     * @response AssessmentManagerParams.ASSESSMENT_ITEM_ID StringValue -
+     * 
+     * @response {@link GraphDACParams}.node_id String -
      *           Identifier of the saved AssessmentItem. This will be new id if
-     *           ASSESSMENT_ITEM does not have identifier specified.
+     *           identifier not specified.
+     *           
      */
     public Response createAssessmentItem(String taxonomyId, Request request);
     
+    /**
+     * Updates AssessmentItem. The identifier of the updated AssessmentItem is returned in
+     * response.
+     * 
+     * @id      AssessmentItem identifier - mandatory
+     * @request {@link AssessmentAPIParams}.assessment_item AssessmentItem -
+     *          mandatory
+     * 
+     * @response {@link GraphDACParams}.node_id String -
+     *           Identifier of the saved AssessmentItem. This will be new id if
+     *           identifier not specified.
+     *           
+     */
     public Response updateAssessmentItem(String id, String taxonomyId, Request request);
     
     /**
      * Gets AssessmentItem for the identifier
      * 
-     * @request AssessmentManagerParams.ASSESSMENT_ITEM_ID - StringValue - AssessmentItem identifier-
-     *          mandatory
-     * @response AssessmentManagerParams.ASSESSMENT_ITEM - AssessmentItem 
+     * @id       AssessmentItem identifier - mandatory
+     * @ifields  AssessmentItems fields to return
+     * @response {@link AssessmentAPIParams.assessment_item} - AssessmentItem
      *           
      */
     public Response getAssessmentItem(String id, String taxonomyId, String[] ifields);
@@ -61,12 +74,68 @@ public interface IAssessmentManager {
     /**
      * Deletes the AssessmentItem for given id.
      * 
-     * @request AssessmentManagerParams.ASSESSMENT_ITEM_ID - StringValue -
-     *          mandatory
+     * @id       AssessmentItem identifier - mandatory - String
      * @response None
      * 
      */
     public Response deleteAssessmentItem(String id, String taxonomyId);
+    
+    // Assessment Item Set - START
+
+    /**
+     * Creates AssessmentItem Set. If identifier is not provided, it will be
+     * generated. The identifier of the saved AssessmentItem is returned in
+     * response.
+     * 
+     * @see com.ilimi.graph.model.collection.Set
+     * 
+     * @request {@link AssessmentAPIParams}.item_set Set -
+     *          mandatory
+     * @response AssessmentManagerParams.item_set_id String -
+     *           Identifier of the created Object. This will be new id if
+     *           input does not have identifier specified.
+     */
+    public Response createItemSet(String taxonomyId, Request request);
+    
+    /**
+     * Saves AssessmentItem Set. If identifier is not provided, it will be
+     * generated. The identifier of the saved AssessmentItem is returned in
+     * response.
+     * 
+     * @see com.canopus.perceptron.dac.mulgara.dto.Set
+     * 
+     * @request AssessmentManagerParams.ITEM_SET Set -
+     *          mandatory
+     * @response AssessmentManagerParams.ITEM_SET_ID StringValue -
+     *           Identifier of the saved Object. This will be new id if
+     *           input does not have identifier specified.
+     */
+    public Response updateItemSet(String id, String taxonomyId, Request request);
+
+    /**
+     * Gets Assessment Item Set for the set identifier
+     * 
+     * @see com.canopus.perceptron.dac.mulgara.dto.Set
+     * 
+     * @request AssessmentManagerParams.ITEM_SET_ID - StringValue - 
+     *          mandatory
+     * @response AssessmentManagerParams.ITEM_SET - Set 
+     *           
+     */
+    public Response getItemSet(Request request);
+
+    /**
+     * Deletes the Assessment Item Sets for given list of ids.
+     * 
+     * @request AssessmentManagerParams.ITEM_SET_IDS - StringValueList -
+     *          mandatory
+     * @response None
+     * 
+     */
+    public Response deleteItemSet(Request request);
+
+    // Assessment Item Set - END
+
     
     
     // Questionnaire - START
