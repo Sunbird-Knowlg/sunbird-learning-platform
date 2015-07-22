@@ -211,7 +211,7 @@
           "category": "ownership",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
