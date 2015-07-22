@@ -59,9 +59,10 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
+        String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
         try {
             if (validateRequired(memberIds)) {
-                ICollection set = new Set(this, graphId, null, setObjectType, memberIds);
+                ICollection set = new Set(this, graphId, null, setObjectType, memberObjectType, memberIds);
                 set.create(request);
             } else {
                 ICollection set = new Set(this, graphId, null, setObjectType, criteria);

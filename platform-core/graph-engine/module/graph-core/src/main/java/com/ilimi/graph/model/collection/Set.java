@@ -39,6 +39,7 @@ public class Set extends AbstractCollection {
     public static final String SET_TYPE_KEY = "SET_TYPE";
     private SearchCriteria criteria;
     private String setObjectType;
+    private String memberObjectType;
     private String setCriteria;
     private String setType = SET_TYPES.MATERIALISED_SET.name();
     private List<String> memberIds;
@@ -60,26 +61,29 @@ public class Set extends AbstractCollection {
         this.setType = SET_TYPES.MATERIALISED_SET.name();
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, List<String> memberIds) {
+    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, String memberObjectType, List<String> memberIds) {
         super(manager, graphId, id);
         this.memberIds = memberIds;
         this.setObjectType = setObjectType;
+        this.memberObjectType = memberObjectType;
         this.setType = SET_TYPES.MATERIALISED_SET.name();
     }
 
     @Override
     public Node toNode() {
         Node node = new Node(getNodeId(), getSystemNodeType(), getFunctionalObjectType());
+        Map<String, Object> metadata = new HashMap<String, Object>();
         if (null != criteria) {
-            Map<String, Object> metadata = new HashMap<String, Object>();
             metadata.put(SET_OBJECT_TYPE_KEY, criteria.getObjectType());
             metadata.put(SET_CRITERIA_QUERY_KEY, criteria.getQuery());
             metadata.put(SET_TYPE_KEY, getSetType());
             metadata.put(SET_CRITERIA_KEY, getSetCriteria());
-            if (!metadata.isEmpty()) {
-                node.setMetadata(metadata);
-            }
+        } else {
+            if (StringUtils.isNotBlank(this.memberObjectType))
+                metadata.put(SET_OBJECT_TYPE_KEY, this.memberObjectType);
         }
+        if (!metadata.isEmpty())
+            node.setMetadata(metadata);
         return node;
     }
 
@@ -417,8 +421,6 @@ public class Set extends AbstractCollection {
                 validMembers.onComplete(new OnComplete<Boolean>() {
                     @Override
                     public void onComplete(Throwable arg0, Boolean valid) throws Throwable {
-//                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-//                                GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid");
                         if (valid) {
                             createSetNode(req, ec);
                         } else {
