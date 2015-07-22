@@ -737,7 +737,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId"],
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId", "communication_scheme", "activity_class"],
       	"status": ["Live"]
       }
     },
