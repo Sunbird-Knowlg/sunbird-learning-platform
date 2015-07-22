@@ -122,8 +122,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
         if (null == statusList || statusList.isEmpty())
             statusList = DEFAULT_STATUS;
-        MetadataCriterion mc = new MetadataCriterion();
-        mc.addFilter(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
+        MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
 
         // set metadata filter params
         for (Entry<String, Object> entry : request.getRequest().entrySet()) {

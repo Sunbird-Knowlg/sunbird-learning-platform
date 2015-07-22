@@ -107,7 +107,7 @@ public class SearchNodesTest {
         sc.setObjectType("COURSE");
         // sc.add(SearchConditions.eq("META_TYPE", "TYPE_5"));
         // sc.returnField("META_TYPE").returnField("LEVEL").returnField("META_POLICY");
-        MetadataCriterion mc = new MetadataCriterion();
+        MetadataCriterion mc = null; // TODO: need to update this.
         switch (value) {
         case -1:
             mc.addFilter(new Filter("LEVEL", 0));

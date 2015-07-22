@@ -2,6 +2,7 @@ package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnore;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.graph.dac.enums.SystemProperties;
 
@@ -147,9 +149,12 @@ public class SearchCriteria implements Serializable {
                 if (pIndex > 1)
                     sb.append("AND ");
                 for (int i = 0; i < metadata.size(); i++) {
-                    sb.append(metadata.get(i).getCypher(this, "n"));
-                    if (i < metadata.size() - 1)
-                        sb.append(" ").append(getOp()).append(" ");
+                    String metadataCypher = metadata.get(i).getCypher(this, "n");
+                    if(StringUtils.isNotBlank(metadataCypher)) {
+                        sb.append(metadataCypher);
+                        if (i < metadata.size() - 1)
+                            sb.append(" ").append(getOp()).append(" ");
+                    }
                 }
             }
             sb.append(") ");

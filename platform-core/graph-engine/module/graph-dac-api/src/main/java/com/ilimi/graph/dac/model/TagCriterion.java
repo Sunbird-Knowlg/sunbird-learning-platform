@@ -1,6 +1,7 @@
 package com.ilimi.graph.dac.model;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,13 +14,21 @@ public class TagCriterion implements Serializable {
     private static final long serialVersionUID = -8964080910603198695L;
     private List<String> tags;
     private boolean optional;
+    
+    public TagCriterion(List<String> tags) {
+        
+        this.tags = tags;
+    }
 
     public List<String> getTags() {
         return tags;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
+    public void addTag(String tag) {
+        if(null == tags)
+            tags = new ArrayList<String>();
+        if(StringUtils.isNotBlank(tag))
+            tags.add(tag);
     }
 
     public boolean isOptional() {
