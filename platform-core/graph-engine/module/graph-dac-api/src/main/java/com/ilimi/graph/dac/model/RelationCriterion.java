@@ -19,6 +19,8 @@ public class RelationCriterion implements Serializable {
     private TagCriterion tag;
     private boolean optional;
 
+    private RelationCriterion() {}
+    
     public RelationCriterion(String name, String objectType) {
         this.name = name;
         this.objectType = objectType;

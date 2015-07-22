@@ -60,43 +60,43 @@ public class Filter implements Serializable {
         if (StringUtils.isBlank(param))
             param = "n";
         param = param + ".";
-        if (getOperator() == SearchConditions.OP_EQUAL) {
+        if (SearchConditions.OP_EQUAL.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_LIKE) {
+        } else if (SearchConditions.OP_LIKE.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, "*" + value + "*");
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_STARTS_WITH) {
+        } else if (SearchConditions.OP_STARTS_WITH.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value + "*");
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_ENDS_WITH) {
+        } else if (SearchConditions.OP_ENDS_WITH.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, "*" + value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_GREATER_THAN) {
+        } else if (SearchConditions.OP_GREATER_THAN.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" > {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_GREATER_OR_EQUAL) {
+        } else if (SearchConditions.OP_GREATER_OR_EQUAL.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" >= {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_LESS_THAN) {
+        } else if (SearchConditions.OP_LESS_THAN.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" < {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_LESS_OR_EQUAL) {
+        } else if (SearchConditions.OP_LESS_OR_EQUAL.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" <= {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_NOT_EQUAL) {
+        } else if (SearchConditions.OP_NOT_EQUAL.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" != {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
-        } else if (getOperator() == SearchConditions.OP_IN) {
+        } else if (SearchConditions.OP_IN.equals(getOperator())) {
             sb.append(" ANY (x in {").append(pIndex).append("} WHERE x in ").append(param).append(property).append(") ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;

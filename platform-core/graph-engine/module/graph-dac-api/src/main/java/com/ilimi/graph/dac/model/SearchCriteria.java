@@ -219,5 +219,54 @@ public class SearchCriteria implements Serializable {
             sortOrder = new LinkedList<Sort>();
         sortOrder.add(sort);
     }
+    
+    public static void main(String[] args) {
+
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType("DATA_NODE");
+        sc.setObjectType("AssessmentItem");
+
+        MetadataCriterion mc1 = MetadataCriterion.create(Arrays.asList(new Filter("prop1", "value1"), new Filter("prop2", SearchConditions.OP_NOT_EQUAL, "value2")), SearchConditions.LOGICAL_OR);
+        MetadataCriterion mc11 = MetadataCriterion.create(Arrays.asList(new Filter("prop5", "value5"), new Filter("prop6", SearchConditions.OP_NOT_EQUAL, "value6")), SearchConditions.LOGICAL_AND);
+        mc1.addMetadata(mc11);
+        sc.addMetadata(mc1);
+
+        MetadataCriterion mc2 = MetadataCriterion.create(Arrays.asList(new Filter("prop3", "value3"), new Filter("prop4", SearchConditions.OP_IN, Arrays.asList("1","2","3","4"))), SearchConditions.LOGICAL_OR);
+        sc.addMetadata(mc2);
+
+        TagCriterion tag = new TagCriterion(Arrays.asList("tag1", "tag2"));
+        sc.setTag(tag);
+        
+        RelationCriterion rc1 = new RelationCriterion("associatedTo", "Concept");
+        MetadataCriterion rmc1 = MetadataCriterion.create(Arrays.asList(new Filter("identifier", "C1"), new Filter("cLevel", "Level1")),  SearchConditions.LOGICAL_OR);
+        rc1.addMetadata(rmc1);
+        
+        RelationCriterion rc11 = new RelationCriterion("associatedTo", "Game");
+        MetadataCriterion rmc11 = MetadataCriterion.create(Arrays.asList(new Filter("os", "Android"), new Filter("ver", "4.4")));
+        rc11.addMetadata(rmc11);
+        
+        MetadataCriterion rmc12 = MetadataCriterion.create(Arrays.asList(new Filter("os", "ios")));
+        rc11.addMetadata(rmc12);
+        rc11.setOp(SearchConditions.LOGICAL_OR);
+        
+        sc.addRelationCriterion(rc1);
+
+        System.out.println(sc.getQuery());
+        System.out.println(sc.params);
+        
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            String str = mapper.writeValueAsString(sc);
+            System.out.println(str);
+            
+            SearchCriteria sc1 = mapper.readValue(str, SearchCriteria.class);
+            System.out.println(sc1.getQuery());
+            System.out.println(sc1.params);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    
+    }
+
 
 }
