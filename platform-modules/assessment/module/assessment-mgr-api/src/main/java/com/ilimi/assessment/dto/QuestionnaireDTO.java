@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -20,7 +21,8 @@ public class QuestionnaireDTO extends Node  {
     private static final long serialVersionUID = 2382516005215431314L;
     
     private List<NodeDTO> concepts;
-    private List<String> memberIds;
+    private List<String> items;
+    private List<Map<String, Object>> item_sets;
 
     public QuestionnaireDTO() {
     }
@@ -48,8 +50,8 @@ public class QuestionnaireDTO extends Node  {
             } else {
                 setMetadata(node.getMetadata());
             }
-            setInRelations(node.getInRelations());
-            setOutRelations(node.getOutRelations());
+//            setInRelations(node.getInRelations());
+//            setOutRelations(node.getOutRelations());
             setTags(node.getTags());
 
             if (null != getOutRelations() && !getOutRelations().isEmpty()) {
@@ -59,6 +61,17 @@ public class QuestionnaireDTO extends Node  {
                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
                         if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
                             this.concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
+                        }
+                    } else if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
+                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), rel.getEndNodeType())) {
+                        if (StringUtils.equalsIgnoreCase("AssessmentItem", rel.getEndNodeObjectType())) {
+                            String type = (String)node.getMetadata().get("type");
+                            if(null != type && QuestionnaireType.materialised.name().equals(type)) {
+                                //TODO: update items
+                            } else if(null != type && QuestionnaireType.dynamic.name().equals(type)) {
+                                Map<String, Object> data = new HashMap<String, Object>();
+                                
+                            }
                         }
                     }
                 }
@@ -74,19 +87,26 @@ public class QuestionnaireDTO extends Node  {
         this.concepts = concepts;
     }
 
-    /**
-     * @return the memberIds
-     */
-    public List<String> getMemberIds() {
-        return memberIds;
+    public List<String> getItems() {
+        return items;
     }
 
-    /**
-     * @param memberIds the memberIds to set
-     */
-    public void setMemberIds(List<String> memberIds) {
-        this.memberIds = memberIds;
+    public void setItems(List<String> items) {
+        this.items = items;
+    }
+
+    public List<Map<String, Object>> getItem_sets() {
+        return item_sets;
+    }
+
+    public void setItem_sets(List<Map<String, Object>> item_sets) {
+        this.item_sets = item_sets;
     }
     
-    
+    public void addItem_set(Map<String, Object> data) {
+        if(null == item_sets) 
+            item_sets = new ArrayList<Map<String, Object>>();
+        item_sets.add(data);
+    }
+
 }

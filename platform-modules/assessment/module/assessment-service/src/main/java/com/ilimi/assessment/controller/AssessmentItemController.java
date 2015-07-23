@@ -18,11 +18,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
+import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
 
@@ -95,6 +98,40 @@ public class AssessmentItemController extends BaseController {
         }
     }
     
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> search(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "assessment_item.search";
+        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        try {
+            Request reqeust = getSearchRequest(map);
+            Response response = assessmentManager.searchAssessmentItems(taxonomyId, reqeust);
+            LOGGER.info("Search | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Search | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    private Request getSearchRequest(Map<String, Object> requestMap) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        ObjectMapper mapper = new ObjectMapper();
+        if (null != map && !map.isEmpty()) {
+            try {
+                ItemSearchCriteria criteria = mapper.convertValue(map, ItemSearchCriteria.class);
+                request.put(AssessmentAPIParams.assessment_search_criteria.name(), criteria);
+            } catch (Exception e) {
+                throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(), "Invalid search criteria.", e);
+            }
+        } else if(null != map && map.isEmpty()) {
+            request.put(AssessmentAPIParams.assessment_search_criteria.name(), new ItemSearchCriteria());
+        }
+        return request;
+    }
+
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,

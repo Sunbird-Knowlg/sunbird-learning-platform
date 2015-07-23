@@ -69,7 +69,7 @@ public interface IAssessmentManager {
      *           <code>BaseValueObjectList<AssessmentItemListDTO></code>
      * 
      */
-    public Response searchAssessmentItems(Request request);
+    public Response searchAssessmentItems(String taxonomyId, Request request);
     
     /**
      * Deletes the AssessmentItem for given id.
@@ -111,6 +111,12 @@ public interface IAssessmentManager {
      *           input does not have identifier specified.
      */
     public Response updateItemSet(String id, String taxonomyId, Request request);
+    
+    /**
+     * 
+     * 
+     */
+    public Response searchQuestionnaire(String taxonomyId, Request request);
 
     /**
      * Gets Assessment Item Set for the set identifier

@@ -15,7 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.dto.ItemDTO;
+import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.dto.QuestionnaireDTO;
+import com.ilimi.assessment.dto.QuestionnaireSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.enums.QuestionnaireType;
@@ -135,10 +137,30 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public Response searchAssessmentItems(Request request) {
-        
-        return null;
+    public Response searchAssessmentItems(String taxonomyId, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        ItemSearchCriteria criteria = (ItemSearchCriteria) request.get(AssessmentAPIParams.assessment_search_criteria.name());
+        if (null == criteria)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(), "AssessmentItem Search Criteria Object is blank");
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+        Response response = getResponse(req, LOGGER);
+        Response listRes = copyResponse(response);
+        if (checkError(response))
+            return response;
+        else {
+            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+            List<ItemDTO> searchItems = new ArrayList<ItemDTO>();
+            if(null != nodes && nodes.size() > 0) {
+                for(Node node : nodes) {
+                    searchItems.add(new ItemDTO(node));
+                }
+            }
+            listRes.put(AssessmentAPIParams.assessment_items.name(), searchItems);
+            return listRes;
+        }
     }
 
     @Override
@@ -338,6 +360,32 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         return updateRes;
     }
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response searchQuestionnaire(String taxonomyId, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        QuestionnaireSearchCriteria criteria = (QuestionnaireSearchCriteria) request.get(AssessmentAPIParams.assessment_search_criteria.name());
+        if (null == criteria)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(), "Questionnaire Search Criteria Object is blank");
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+        Response response = getResponse(req, LOGGER);
+        Response listRes = copyResponse(response);
+        if (checkError(response))
+            return response;
+        else {
+            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+            List<QuestionnaireDTO> searchItemSets = new ArrayList<QuestionnaireDTO>();
+            if(null != nodes && nodes.size() > 0) {
+                for(Node node : nodes) {
+                    searchItemSets.add(new QuestionnaireDTO(node));
+                }
+            }
+            listRes.put(AssessmentAPIParams.questionnaire_list.name(), searchItemSets);
+            return listRes;
+        }
+    }
+    
     @Override
     public Response getQuestionnaire(String id, String taxonomyId, String[] qrfields) {
         if (StringUtils.isBlank(taxonomyId))
