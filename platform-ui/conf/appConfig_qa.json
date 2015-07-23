@@ -25,7 +25,7 @@
         "GOOGLE_CLIENT_ID": "149422338782-gp602lvp42iig3cvovi7i6i4rp3dr9o5.apps.googleusercontent.com",
         "GOOGLE_CLIENT_SECRET": "DiFwTGwVGcxgiTR6eWlntRN9",
         "GOOGLE_REDIRECT_URI": "http://lp-sandbox.ekstep.org/oauth2callback",
-        "ACCEPTED_DOMAINS": ["ilimi.in","ekstep.org","sahajsoft.com"],
+        "ACCEPTED_DOMAINS": ["ilimi.in","ekstep.org","sahajsoft.com","goodworklabs.com"],
         "GOOGLE_AUTH_SCOPES": ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"],
         "FACEBOOK_APP_ID": "844215588980073",
         "FACEBOOK_APP_SECRET": "b129dfc70b3f62b182ca580795d7b2c8",
