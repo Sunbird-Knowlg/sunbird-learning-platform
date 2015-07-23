@@ -7,14 +7,14 @@ import org.apache.commons.lang3.StringUtils;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -22,13 +22,11 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.HasMetadataRelation;
 
-public class MetadataNode extends AbstractDomainObject {
+public class MetadataNode extends AbstractIndexNode {
 
-    private String nodeId;
     private String objectType;
     private String name;
     private static final String METADATA_NODE_NAME_KEY = "METADATA_PROPERTY_NAME";
@@ -38,11 +36,13 @@ public class MetadataNode extends AbstractDomainObject {
         if (StringUtils.isBlank(objectType) || StringUtils.isBlank(name))
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Metadata Node");
         this.objectType = objectType;
-        this.nodeId = getSystemNodeType() + "_" + objectType + "_" + name;
+        setNodeId(getSystemNodeType() + "_" + objectType + "_" + name);
         this.name = name;
     }
 
-    public void create(final Request req) {
+    public Future<Map<String, Object>> create(final Request req) {
+        final Promise<Map<String, Object>> promise = Futures.promise();
+        Future<Map<String, Object>> future = promise.future();
         final String defNodeId = SystemNodeTypes.DEFINITION_NODE.name() + "_" + objectType;
         final ExecutionContext ec = manager.getContext().dispatcher();
         final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
@@ -50,36 +50,16 @@ public class MetadataNode extends AbstractDomainObject {
         getFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = false;
-                if (null != arg0) {
-                    manager.ERROR(arg0, getParent());
-                } else {
-                    if (arg1 instanceof Response) {
-                        Response res = (Response) arg1;
-                        if (manager.checkError(res)) {
-                            if (!StringUtils.equals(ResponseCode.RESOURCE_NOT_FOUND.name(), res.getResponseCode().name())) {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(),
-                                        manager.getErrorMessage(res), res.getResponseCode(), getParent());
-                            } else {
-                                valid = true;
-                            }
-                        } else {
-                            valid = true;
-                        }
-                    } else {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(), "Internal Error",
-                                ResponseCode.SERVER_ERROR, getParent());
-                    }
-                }
+                boolean valid = checkIfNodeExists(promise, arg0, arg1, GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name());
                 if (valid) {
                     Future<Object> getDefNodeFuture = getNodeObject(req, dacRouter, defNodeId);
                     getDefNodeFuture.onComplete(new OnComplete<Object>() {
                         @Override
                         public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                            boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                            boolean createNode = validateResponse(promise, arg0, arg1,
                                     GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(), "Definition Node not found: "
                                             + getObjectType());
-                            if (valid) {
+                            if (createNode) {
                                 Request request = new Request(req);
                                 request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
                                 request.setOperation("addNode");
@@ -88,13 +68,10 @@ public class MetadataNode extends AbstractDomainObject {
                                 createFuture.onComplete(new OnComplete<Object>() {
                                     @Override
                                     public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                                        boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                                        IRelation rel = new HasMetadataRelation(getManager(), getGraphId(), defNodeId, getNodeId());
+                                        createIndexNodeRelation(promise, arg0, arg1, req, rel,
                                                 GraphEngineErrorCodes.ERR_GRAPH_CREATE_METADATA_NODE_FAILED.name(),
-                                                "Failed to create Metadata Node");
-                                        if (valid) {
-                                            IRelation rel = new HasMetadataRelation(getManager(), getGraphId(), defNodeId, getNodeId());
-                                            rel.create(req);
-                                        }
+                                                "Failed to create Metadata Node: " + getObjectType() + " - " + getName());
                                     }
                                 }, ec);
                             }
@@ -103,6 +80,7 @@ public class MetadataNode extends AbstractDomainObject {
                 }
             }
         }, ec);
+        return future;
     }
 
     public String getSystemNodeType() {
@@ -117,10 +95,6 @@ public class MetadataNode extends AbstractDomainObject {
         return node;
     }
 
-    public String getNodeId() {
-        return nodeId;
-    }
-
     public String getObjectType() {
         return objectType;
     }
@@ -129,12 +103,4 @@ public class MetadataNode extends AbstractDomainObject {
         return name;
     }
 
-    private Future<Object> getNodeObject(Request req, ActorRef dacRouter, String nodeId) {
-        Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-        request.setOperation("getNodeByUniqueId");
-        request.put(GraphDACParams.node_id.name(), nodeId);
-        Future<Object> future = Patterns.ask(dacRouter, request, timeout);
-        return future;
-    }
 }

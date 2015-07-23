@@ -2,6 +2,7 @@ package com.ilimi.graph.model.collection;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
+import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 
@@ -25,11 +27,17 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.RelationCriterion;
+import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
+import com.ilimi.graph.model.node.MetadataNode;
+import com.ilimi.graph.model.node.RelationNode;
 
 public class Set extends AbstractCollection {
 
@@ -69,14 +77,30 @@ public class Set extends AbstractCollection {
         this.setType = SET_TYPES.MATERIALISED_SET.name();
     }
 
+    public Set(BaseGraphManager manager, String graphId, Node node) {
+        super(manager, graphId, node.getIdentifier());
+        Map<String, Object> metadata = node.getMetadata();
+        this.setType = (String) metadata.get(SET_TYPE_KEY);
+        this.setObjectType = node.getObjectType();
+        this.setCriteria = (String) metadata.get(SET_CRITERIA_KEY);
+        this.memberObjectType = (String) metadata.get(SET_OBJECT_TYPE_KEY);
+        if (StringUtils.isNotBlank(setCriteria)) {
+            try {
+                SearchCriteria sc = mapper.readValue(setCriteria, SearchCriteria.class);
+                this.criteria = sc;
+            } catch (Exception e) {
+            }
+        }
+    }
+
     @Override
     public Node toNode() {
         Node node = new Node(getNodeId(), getSystemNodeType(), getFunctionalObjectType());
         Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put(SET_TYPE_KEY, getSetType());
         if (null != criteria) {
             metadata.put(SET_OBJECT_TYPE_KEY, criteria.getObjectType());
             metadata.put(SET_CRITERIA_QUERY_KEY, criteria.getQuery());
-            metadata.put(SET_TYPE_KEY, getSetType());
             metadata.put(SET_CRITERIA_KEY, getSetCriteria());
         } else {
             if (StringUtils.isNotBlank(this.memberObjectType))
@@ -126,10 +150,12 @@ public class Set extends AbstractCollection {
                                     Future<Node> nodeFuture = getNodeObject(req, ec, memberId);
                                     nodeFuture.onComplete(new OnComplete<Node>() {
                                         public void onComplete(Throwable arg0, Node member) throws Throwable {
-                                            if (null != arg0 ) {
+                                            if (null != arg0) {
                                                 manager.ERROR(arg0, getParent());
-                                            } else if(null == member) {
-                                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(), "Member with identifier: "+memberId+" does not exist.", ResponseCode.CLIENT_ERROR, getParent());
+                                            } else if (null == member) {
+                                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+                                                        "Member with identifier: " + memberId + " does not exist.",
+                                                        ResponseCode.CLIENT_ERROR, getParent());
                                             } else {
                                                 addMemberToSet(req, setId, memberId);
                                             }
@@ -424,7 +450,8 @@ public class Set extends AbstractCollection {
                         if (valid) {
                             createSetNode(req, ec);
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid", ResponseCode.CLIENT_ERROR, getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_INVALID_MEMBER_IDS.name(), "Member Ids are invalid",
+                                    ResponseCode.CLIENT_ERROR, getParent());
                         }
                     }
                 }, ec);
@@ -451,6 +478,7 @@ public class Set extends AbstractCollection {
                 if (valid) {
                     Response res = (Response) arg1;
                     String setId = (String) res.get(GraphDACParams.node_id.name());
+                    setNodeId(setId);
                     ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                     Request request = new Request(req);
                     request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
@@ -528,6 +556,68 @@ public class Set extends AbstractCollection {
             dacRouter.tell(dacRequest, manager.getSelf());
         }
         manager.returnResponse(response, getParent());
+    }
+
+    private void updateIndex(Request req, SearchCriteria sc) {
+        if (null != sc) {
+            java.util.Set<String> startNodeIds = new HashSet<String>();
+            String objectType = sc.getObjectType();
+            if (null != sc.getMetadata() && !sc.getMetadata().isEmpty()) {
+                for (MetadataCriterion mc : sc.getMetadata()) {
+                    getMetadataCriteriaStartNodeIds(req, objectType, mc, startNodeIds);
+                }
+            }
+            if (null != sc.getRelations() && !sc.getRelations().isEmpty()) {
+                for (RelationCriterion rc : sc.getRelations()) {
+                    getRelationCriteriaStartNodeIds(req, objectType, rc, startNodeIds);
+                }
+            }
+        }
+    }
+
+    private void getMetadataCriteriaStartNodeIds(Request req, String objectType, MetadataCriterion mc, java.util.Set<String> startNodeIds) {
+        List<Filter> filters = mc.getFilters();
+        if (null != filters && filters.size() > 0) {
+            for (Filter filter : filters) {
+                MetadataNode mNode = new MetadataNode(getManager(), getGraphId(), objectType, filter.getProperty());
+                Future<String> mNodeIdFuture = getNodeIdFuture(mNode.create(req));
+                if (StringUtils.equalsIgnoreCase(SearchConditions.OP_EQUAL, filter.getOperator())
+                        || StringUtils.equalsIgnoreCase(SearchConditions.OP_IN, filter.getOperator())) {
+                    // add value node id to start node ids
+                } else {
+                    // add metadata node id to start node ids
+                }
+            }
+        }
+    }
+
+    private Future<String> getNodeIdFuture(Future<Map<String, Object>> future) {
+        final ExecutionContext ec = manager.getContext().dispatcher();
+        Future<String> nodeIdFuture = future.map(new Mapper<Map<String, Object>, String>() {
+            @Override
+            public String apply(Map<String, Object> parameter) {
+                if (null != parameter) {
+                    return (String) parameter.get(GraphDACParams.node_id.name());
+                }
+                return null;
+            }
+        }, ec);
+        return nodeIdFuture;
+    }
+
+    private void getRelationCriteriaStartNodeIds(Request req, String objectType, RelationCriterion rc, java.util.Set<String> startNodeIds) {
+        // get RelationNode id and add to start node ids
+        RelationNode relNode = new RelationNode(getManager(), getGraphId(), objectType, rc.getName(), rc.getObjectType());
+        if (null != rc.getMetadata() && !rc.getMetadata().isEmpty()) {
+            for (MetadataCriterion mc : rc.getMetadata()) {
+                getMetadataCriteriaStartNodeIds(req, rc.getObjectType(), mc, startNodeIds);
+            }
+        }
+        if (null != rc.getRelations() && !rc.getRelations().isEmpty()) {
+            for (RelationCriterion rc1 : rc.getRelations()) {
+                getRelationCriteriaStartNodeIds(req, rc.getObjectType(), rc1, startNodeIds);
+            }
+        }
     }
 
 }
