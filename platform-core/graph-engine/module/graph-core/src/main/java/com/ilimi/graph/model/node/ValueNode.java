@@ -8,14 +8,15 @@ import org.apache.commons.lang3.StringUtils;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
+import scala.concurrent.Promise;
 import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.dispatch.OnComplete;
 import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -24,12 +25,11 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
-import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
 import com.ilimi.graph.model.relation.HasTagRelation;
 import com.ilimi.graph.model.relation.HasValueRelation;
 
-public class ValueNode extends AbstractDomainObject {
+public class ValueNode extends AbstractIndexNode {
 
     private String nodeId;
     private String objectType;
@@ -53,7 +53,7 @@ public class ValueNode extends AbstractDomainObject {
         this.sourceNodeId = SystemNodeTypes.METADATA_NODE.name() + "_" + objectType + "_" + name;
     }
 
-    public ValueNode(BaseGraphManager manager, String graphId, String objectType, String name, String relatedType, Object value) {
+    public ValueNode(BaseGraphManager manager, String graphId, String objectType, String name, String relatedType, String value) {
         super(manager, graphId);
         if (StringUtils.isBlank(objectType) || StringUtils.isBlank(name) || null == value)
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Value Node");
@@ -67,7 +67,7 @@ public class ValueNode extends AbstractDomainObject {
             this.sourceNodeId += "_" + relatedType;
     }
 
-    public ValueNode(BaseGraphManager manager, String graphId, String objectType, Object value) {
+    public ValueNode(BaseGraphManager manager, String graphId, String objectType, String value) {
         super(manager, graphId);
         if (StringUtils.isBlank(objectType) || null == value)
             throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_NODE.name(), "Invalid Value Node");
@@ -78,15 +78,18 @@ public class ValueNode extends AbstractDomainObject {
         this.sourceNodeId = SystemNodeTypes.DEFINITION_NODE.name() + "_" + objectType;
     }
 
-    public void create(final Request req) {
+    public Future<Map<String, Object>> create(final Request req) {
+        final Promise<Map<String, Object>> promise = Futures.promise();
+        Future<Map<String, Object>> future = promise.future();
         final ExecutionContext ec = manager.getContext().dispatcher();
         final ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Future<Object> getFuture = getNodeObject(req, dacRouter, getSourceNodeId());
         getFuture.onComplete(new OnComplete<Object>() {
             @Override
             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                        GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Source Node not found: " + getObjectType());
+                boolean valid = validateResponse(promise, arg0, arg1,
+                        GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Source Node not found: "
+                                + getObjectType());
                 if (valid) {
                     Response res = (Response) arg1;
                     Node sourceNode = (Node) res.get(GraphDACParams.node.name());
@@ -97,6 +100,7 @@ public class ValueNode extends AbstractDomainObject {
                             if (StringUtils.equalsIgnoreCase(getRelationType(), rel.getRelationType())) {
                                 Object endNodeValue = rel.getEndNodeMetadata().get(VALUE_NODE_VALUE_KEY);
                                 if (getValue() == endNodeValue) {
+                                    setNodeId(rel.getEndNodeId());
                                     found = true;
                                     break;
                                 }
@@ -112,7 +116,7 @@ public class ValueNode extends AbstractDomainObject {
                         createFuture.onComplete(new OnComplete<Object>() {
                             @Override
                             public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                                boolean valid = validateResponse(promise, arg0, arg1,
                                         GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Failed to create Value Node");
                                 if (valid) {
                                     Response addRes = (Response) arg1;
@@ -120,21 +124,26 @@ public class ValueNode extends AbstractDomainObject {
                                     setNodeId(valueNodeId);
                                     if (StringUtils.equalsIgnoreCase(SystemNodeTypes.TAG.name(), getValueNodeType())) {
                                         IRelation rel = new HasTagRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
-                                        rel.create(req);
+                                        rel.createRelation(req);
                                     } else {
                                         IRelation rel = new HasValueRelation(getManager(), getGraphId(), getSourceNodeId(), getNodeId());
-                                        rel.create(req);
+                                        rel.createRelation(req);
                                     }
+                                    Map<String, Object> map = new HashMap<String, Object>();
+                                    map.put(GraphDACParams.node_id.name(), getNodeId());
+                                    promise.success(map);
                                 }
                             }
                         }, ec);
                     } else {
-                        getManager().ERROR(GraphEngineErrorCodes.ERR_GRAPH_CREATE_VALUE_NODE_FAILED.name(), "Value Node already exists",
-                                ResponseCode.CLIENT_ERROR, getParent());
+                        Map<String, Object> map = new HashMap<String, Object>();
+                        map.put(GraphDACParams.node_id.name(), getNodeId());
+                        promise.success(map);
                     }
                 }
             }
         }, ec);
+        return future;
     }
 
     public String getSystemNodeType() {
@@ -184,14 +193,5 @@ public class ValueNode extends AbstractDomainObject {
 
     public String getSourceNodeId() {
         return sourceNodeId;
-    }
-
-    private Future<Object> getNodeObject(Request req, ActorRef dacRouter, String nodeId) {
-        Request request = new Request(req);
-        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-        request.setOperation("getNodeByUniqueId");
-        request.put(GraphDACParams.node_id.name(), nodeId);
-        Future<Object> future = Patterns.ask(dacRouter, request, timeout);
-        return future;
     }
 }
