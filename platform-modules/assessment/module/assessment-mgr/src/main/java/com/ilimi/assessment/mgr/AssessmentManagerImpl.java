@@ -219,7 +219,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 String type = validator.getQuestionnaireType(node);
                 if(QuestionnaireType.materialised.name().equals(type)) {
                     Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
-                    setReq.put(GraphDACParams.object_type.name(), "AssessmentItem");
+                    setReq.put(GraphDACParams.object_type.name(), "ItemSet");
+                    setReq.put(GraphDACParams.member_type.name(), "AssessmentItem");
                     setReq.put(GraphDACParams.members.name(), validator.getQuestionnaireItems(node));
                     Response setRes = getResponse(setReq, LOGGER);
                     if(checkError(setRes)) {
@@ -466,7 +467,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if(criteria != null || memberIds != null) {
             Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
             setReq.copyRequestValueObjects(request.getRequest());
-            setReq.put(GraphDACParams.object_type.name(), "AssessmentItem");
+            setReq.put(GraphDACParams.object_type.name(), "ItemSet");
+            setReq.put(GraphDACParams.member_type.name(), "AssessmentItem");
             return getResponse(setReq, LOGGER);
         } else {
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_SET_CRITERIA.name(), "AssessmentItem Set Criteria or members is blank");
