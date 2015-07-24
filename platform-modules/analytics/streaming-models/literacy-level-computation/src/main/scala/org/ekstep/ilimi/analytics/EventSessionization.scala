@@ -18,7 +18,7 @@ import org.ekstep.ilimi.analytics.streaming.LitScreenerLevelComputation
 
 object EventSessionization extends Application with Serializable {
 
-    def main(brokerList: String, topic: String, output: Option[String], outputDir: Option[String]) {
+    def main(brokerList: String, topic: String, output: Option[String], of: Option[String], kt: Option[String]) {
 
         val ssc = CommonUtil.getSparkStreamingContext("EventSessionization", Seconds(10));
 
@@ -40,7 +40,10 @@ object EventSessionization extends Application with Serializable {
         val completedSessions = latestSessionEvents.filter(f => f._2._2);
 
         completedSessions.foreachRDD(rdd => {
-            rdd.collect().foreach(f => LitScreenerLevelComputation.compute(f._2._1, loltMapping, ldloMapping, compldMapping, litLevelsMap, resultOutput, outputDir, brokerList));
+            rdd.collect().foreach(f => {
+                val res = LitScreenerLevelComputation.compute(f._2._1, loltMapping, ldloMapping, compldMapping, litLevelsMap);
+                LitScreenerLevelComputation.sendOutput(res._1, res._2, resultOutput, of, kt, brokerList)
+            });
         });
 
         ssc.start();

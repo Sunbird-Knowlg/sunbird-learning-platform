@@ -6,9 +6,12 @@ import java.nio.file.Paths.get
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.Duration
+import org.apache.spark.streaming.StreamingContext
 import org.ekstep.ilimi.analytics.conf.AppConf
 import org.ekstep.ilimi.analytics.model.Event
 import org.ekstep.ilimi.analytics.model.Output
@@ -18,12 +21,11 @@ import org.json4s.jackson.JsonMethods.compact
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jvalue2extractable
 import org.json4s.string2JsonInput
-import org.apache.spark.streaming.Duration
-import org.apache.spark.streaming.StreamingContext
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
+    @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
 
     def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
@@ -83,6 +85,10 @@ object CommonUtil {
         AppConf.getConfig("spark_output_temp_dir") + date;
     }
 
+    def getTempPath(date: Date): String = {
+        AppConf.getConfig("spark_output_temp_dir") + df.format(date);
+    }
+
     class Visitor extends java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
         override def visitFile(
             file: java.nio.file.Path,
@@ -105,6 +111,10 @@ object CommonUtil {
     def deleteDirectory(dir: String) {
         val path = get(dir);
         Files.walkFileTree(path, new Visitor());
+    }
+
+    def deleteFile(file: String) {
+        Files.delete(get(file));
     }
 
     def saveOutput[T <: Output](rdd: RDD[T], outputPath: String, fileSuffix: String, location: String) = {
@@ -160,15 +170,23 @@ object CommonUtil {
 
         }
     }
-    
-    def getInputPaths(input: String) : String = {
+
+    def getInputPaths(input: String): String = {
         val arr = input.split(',');
         arr.map { x => getInputPath(x, null) }.mkString(",");
     }
-    
-    def getInputPaths(input: String, suffix: String) : String = {
+
+    def getInputPaths(input: String, suffix: String): String = {
         val arr = input.split(',');
         arr.map { x => getInputPath(x, suffix) }.mkString(",");
+    }
+
+    def formatEventDate(date: Date): String = {
+        df2.format(date);
+    }
+
+    def main(args: Array[String]): Unit = {
+        formatEventDate(new Date());
     }
 
 }

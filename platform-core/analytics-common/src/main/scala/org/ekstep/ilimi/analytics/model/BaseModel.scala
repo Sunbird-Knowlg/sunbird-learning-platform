@@ -27,7 +27,8 @@ case class Gdata(id: String, ver: String)
 case class Event(eid: Option[String], ts: Option[String], ver: Option[String], gdata: Gdata, sid: Option[String], uid: Option[String], did: String, edata: Edata)
 
 case class Pdata(id: String, mod: String, ver: String)
-case class EventOutput(eid: String, ts: Long, ver: String, uid: Option[String], cid: Option[String], gdata: Option[Gdata], pdata: Option[Pdata], edata: Map[String, AnyRef])
+case class Edata2(eks: Map[String, AnyRef])
+case class EventOutput(eid: String, ts: String, ver: String, uid: Option[String], cid: Option[String], ctype: Option[String], gdata: Option[Gdata], pdata: Option[Pdata], edata: Edata2)
 case class LineData(id: Option[String], ver: Option[String], ts: Option[String], events: Array[Event]);
 case class SyncEvent(apiType: Option[String], level: Option[String], msg: Option[String], time: Option[String], data: Option[LineData]);
 

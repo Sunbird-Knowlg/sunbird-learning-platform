@@ -11,6 +11,8 @@ import org.ekstep.ilimi.analytics.model.EventOutput
 import org.ekstep.ilimi.analytics.model.Pdata
 import org.ekstep.ilimi.analytics.model.Gdata
 import java.io.FileWriter
+import org.ekstep.ilimi.analytics.model.Edata2
+import java.util.Date
 
 case class LevelAgg(code: String, min: Int, max: Int, level: String);
 
@@ -25,9 +27,9 @@ object LitScreenerLevelComputation extends Serializable {
     private val litScreenerId = "org.ekstep.lit.scrnr.kan.basic";
     private val screenerVersion = "1.30";
 
-    def compute(events: Buffer[Event], loltMapping: Broadcast[Map[String, Array[(String, String)]]], ldloMapping: Broadcast[Map[String, Array[(String, String)]]], compldMapping: Broadcast[Map[String, Array[(String, String)]]], litLevelsMap: Broadcast[Map[String, Array[LevelAgg]]], output: String, outputDir: Option[String], brokerList: String) : Buffer[(String, String, Int, String)] = {
+    def compute(events: Buffer[Event], loltMapping: Broadcast[Map[String, Array[(String, String)]]], ldloMapping: Broadcast[Map[String, Array[(String, String)]]], compldMapping: Broadcast[Map[String, Array[(String, String)]]], litLevelsMap: Broadcast[Map[String, Array[LevelAgg]]]): (String, Buffer[(String, String, Int, String, String)]) = {
 
-        var result = Buffer[(String, String, Int, String)]();
+        var result = Buffer[(String, String, Int, String, String)]();
         val loltMap = loltMapping.value;
         val ldloMap = ldloMapping.value;
         val compldMap = compldMapping.value;
@@ -38,59 +40,31 @@ object LitScreenerLevelComputation extends Serializable {
                 (x.edata.eks.qid.get, x.uid.get, if ("Yes".equalsIgnoreCase(x.edata.eks.pass.get)) 1 else 0, qids(3));
             }
         };
-        val distinctEvents = oeAssesEvents.distinct; 
-        //Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
+        val distinctEvents = oeAssesEvents.distinct;
+        Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
         val uid = distinctEvents.last._2;
-        
+
         val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => f._3)).mapValues { x => x.reduce(_ + _) }.toMap;
         val loScores = getCodeMap(loltMap, ltScores);
         val ldScores = getCodeMap(ldloMap, loScores);
         val compositeScores = getCodeMap(compldMap, ldScores);
-        val ltLevels = ltScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
-        val loLevels = loScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
-        val ldLevels = ldScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
-        val compositeLevels = compositeScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap)) });
+        val ltLevels = ltScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap), "LT") });
+        val loLevels = loScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap), "LO") });
+        val ldLevels = ldScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap), "LD") });
+        val compositeLevels = compositeScores.map(f => { (uid, f._1, f._2, getLevel(f._1, f._2, levelMap), "COMPOSITE") });
 
         ltLevels.foreach(f => result += f);
         loLevels.foreach(f => result += f);
         ldLevels.foreach(f => result += f);
         compositeLevels.foreach(f => result += f);
 
-        output match {
-            case "console" =>
-                Console.println("## Printing output to console ##");
-                var resultEvents = Buffer[EventOutput]();
-                result.foreach(f => resultEvents += getEventOutput(f));
-                //resultEvents.foreach { x => Console.println(CommonUtil.jsonToString(x)) };
-                result.foreach { x => Console.println(x) };
-            case "csv" =>
-                Console.println("## Printing output to csv ##");
-                val filePath = outputDir.getOrElse("user-aggregates") + "/" + uid + ".csv";
-                //val filePath = outputDir.getOrElse("user-aggregates") + "/sprint2_tumkur.csv";
-                CommonUtil.printToFile(new File(filePath)) { p =>
-                    result.foreach(f => {
-                        p.println(f._1 + "," + f._2 + "," + f._3 + "," + f._4);
-                    })
-                }/**/
-                /*val fw = new FileWriter(filePath, true);
-                result.foreach { f => fw.write(f._1 + "," + f._2 + "," + f._3 + "," + f._4 + "\n"); }
-                fw.close();*/
-                S3Util.uploadPublic("lit-screener-level-compute", filePath, uid + "_" + System.currentTimeMillis() + ".csv")
-            case "kafka" =>
-                Console.println("## Printing output to kafka topic ##");
-                var resultEvents = Buffer[EventOutput]();
-                result.foreach(f => resultEvents += getEventOutput(f));
-                KafkaEventProducer.sendEvents(resultEvents, outputDir.getOrElse("user_aggregates"), brokerList);
-            case _ =>
-        }
-        
-        result;
+        (uid, result);
     }
 
-    def getEventOutput(event: (String, String, Int, String)): EventOutput = {
+    def getEventOutput(event: (String, String, Int, String, String)): EventOutput = {
         val edata = Map[String, AnyRef]("score" -> event._3.asInstanceOf[AnyRef], "current_level" -> event._4);
-        EventOutput("ME_USER_GAME_LEVEL", System.currentTimeMillis(), "1.0", Some(event._1), Some(event._2), Some(Gdata(litScreenerId, screenerVersion)),
-            Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), edata);
+        EventOutput("ME_USER_GAME_LEVEL", CommonUtil.formatEventDate(new Date), "1.0", Some(event._1), Some(event._2), Some(event._5), Some(Gdata(litScreenerId, screenerVersion)),
+            Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), Edata2(edata));
     }
 
     def getCodeMap(codeMap: Map[String, Array[(String, String)]], valueMap: Map[String, Int]): Map[String, Int] = {
@@ -111,6 +85,42 @@ object LitScreenerLevelComputation extends Serializable {
             }
         }
         level;
+    }
+
+    def sendOutput(uid: String, result: Buffer[(String, String, Int, String, String)], output: String, outputFile: Option[String], kafkaTopic: Option[String], brokerList: String) = {
+
+        val currDate = new Date();
+        output match {
+            case "console" =>
+                Console.println("## Printing output to console ##");
+                var resultEvents = Buffer[EventOutput]();
+                result.foreach(f => resultEvents += getEventOutput(f));
+                resultEvents.foreach { x => Console.println(CommonUtil.jsonToString(x)) };
+                //result.foreach { x => Console.println(x) };
+            case "csv-file" =>
+                Console.println("## Printing output to csv ##");
+                val filePath = outputFile.getOrElse(CommonUtil.getTempPath(currDate) + "/" + uid + ".csv");
+                val fw = new FileWriter(filePath, true);
+                result.foreach { f => fw.write(f._1 + "," + f._2 + "," + f._3 + "," + f._4 + "\n"); }
+                fw.close();
+            case "csv-s3" =>
+                Console.println("## Printing output to csv and uploading to S3 ##");
+                val filePath = CommonUtil.getTempPath(currDate) + "/" + uid + ".csv";
+                CommonUtil.printToFile(new File(filePath)) { p =>
+                    result.foreach(f => {
+                        p.println(f._1 + "," + f._2 + "," + f._3 + "," + f._4);
+                    })
+                }
+                S3Util.uploadPublic("lit-screener-level-compute", filePath, uid + "_" + System.currentTimeMillis() + ".csv");
+                CommonUtil.deleteFile(filePath);
+            case "kafka" =>
+                Console.println("## Printing output to kafka topic ##");
+                var resultEvents = Buffer[EventOutput]();
+                result.foreach(f => resultEvents += getEventOutput(f));
+                KafkaEventProducer.sendEvents(resultEvents, kafkaTopic.getOrElse("user_aggregates"), brokerList);
+            case _ =>
+                Console.println("## No output handler found for " + output + " ##");
+        }
     }
 
 }

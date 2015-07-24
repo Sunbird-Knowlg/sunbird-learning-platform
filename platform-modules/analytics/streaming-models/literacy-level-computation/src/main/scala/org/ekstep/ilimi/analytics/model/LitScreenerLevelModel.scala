@@ -10,6 +10,9 @@ import org.ekstep.ilimi.analytics.streaming.LitScreenerLevelComputation
 import org.ekstep.ilimi.analytics.dao.LitScreenerLevelDAO
 import scala.collection.mutable.ListBuffer
 import java.io.FileWriter
+import java.util.Date
+import org.ekstep.ilimi.analytics.util.S3Util
+import java.io.File
 
 case class Events(events: Array[Event]);
 
@@ -26,9 +29,10 @@ object LitScreenerLevelModel extends Serializable {
         val compldMapping = EventSessionization.broadcastMapping("src/main/resources/composite_ld_mapping.csv", sc);
         val litLevelsMap = EventSessionization.broadcastLevelRanges("src/main/resources/lit_scr_level_ranges.csv", sc);
         val userMapping = LitScreenerLevelDAO.getUserMapping();
-        val filePath = outputDir.getOrElse("user-aggregates") + "/sprint2_tumkur_consolidated.csv";
-        writeHeader(filePath);
-            
+
+        var records = new ListBuffer[Array[String]];
+        records += getHeader();
+
         val resultOutput = output.getOrElse("console");
         val rdd = sc.textFile(CommonUtil.getPath("s3_input_bucket", input, location), parallelization).distinct().cache();
         val events = rdd.map { line =>
@@ -40,10 +44,9 @@ object LitScreenerLevelModel extends Serializable {
 
         events.groupBy { event => event.uid.get }.foreach(f => {
             val events = f._2.toBuffer;
-            val levelSetEvents = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap, resultOutput, outputDir, null);
+            val res = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap);
             val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && x.gdata.id.equals("org.ekstep.lit.scrnr.kan.basic")) };
             val uid = userMapping.getOrElse(f._1, f._1);
-            var records = new ListBuffer[Array[String]];
             // Write to CSV & upload to S3
             filterEvents.foreach { event =>
                 var ltCode = "";
@@ -58,7 +61,7 @@ object LitScreenerLevelModel extends Serializable {
                         ;
                 }
                 records += Array(
-                    f._1,    
+                    f._1,
                     getString(uid),
                     "",
                     getString(event.eid),
@@ -87,7 +90,7 @@ object LitScreenerLevelModel extends Serializable {
                     getString(event.ts));
             }
 
-            levelSetEvents.foreach(f => {
+            res._2.foreach(f => {
                 records += Array(
                     f._1,
                     getString(uid),
@@ -117,44 +120,64 @@ object LitScreenerLevelModel extends Serializable {
                     " ",
                     " ")
             })
-            val fw = new FileWriter(filePath, true);
-            records.foreach { f => fw.write(f.mkString(",") + "\n"); }
-            fw.close();
         });
+        sendOutput(records, output.getOrElse("csv-file"), outputDir);
     }
 
-    def writeHeader(filePath: String) {
-        val header = Array(
-                    "Uid",
-                    "Child Genie id",
-                    "Location",
-                    "Event ID",
-                    "Game ID",
-                    "Subj",
-                    "Concept (Dimensions)",
-                    "Micro Concept (Learning Objective)",
-                    "Task Code",
-                    "qid",
-                    "qtype",
-                    "qlevel",
-                    "qtech",
-                    "pass",
-                    "mmc",
-                    "score",
-                    "maxscore",
-                    "res",
-                    "exres",
-                    "length",
-                    "atmpts",
-                    "failedatmpts",
-                    "category",
-                    "current",
-                    "type",
-                    "id",
-                    "ts");
-        val fw = new FileWriter(filePath, true);
-        fw.write(header.mkString(",") + "\n");
-        fw.close();
+    def getHeader() : Array[String] = {
+        Array(
+            "Uid",
+            "Child Genie id",
+            "Location",
+            "Event ID",
+            "Game ID",
+            "Subj",
+            "Concept (Dimensions)",
+            "Micro Concept (Learning Objective)",
+            "Task Code",
+            "qid",
+            "qtype",
+            "qlevel",
+            "qtech",
+            "pass",
+            "mmc",
+            "score",
+            "maxscore",
+            "res",
+            "exres",
+            "length",
+            "atmpts",
+            "failedatmpts",
+            "category",
+            "current",
+            "type",
+            "id",
+            "ts");
+    }
+
+    def sendOutput(records: Buffer[Array[String]], output: String, outputDir: Option[String]) = {
+
+        val currDate = new Date();
+        output match {
+            case "csv-file" =>
+                Console.println("## Printing output to csv ##");
+                val filePath = outputDir.getOrElse(CommonUtil.getTempPath(currDate)) + "/consolidated_output_" + System.currentTimeMillis() + ".csv";
+                val fw = new FileWriter(filePath, true);
+                records.foreach { f => fw.write(f.mkString(",") + "\n"); }
+                fw.close();
+            case "csv-s3" =>
+                Console.println("## Printing output to csv and uploading to S3 ##");
+                val filePath = CommonUtil.getTempPath(currDate) + "/consolidated_output_" + System.currentTimeMillis() + ".csv";
+                CommonUtil.printToFile(new File(filePath)) { p =>
+                    records.foreach(f => {
+                        p.println(f.mkString(","));
+                    })
+                }
+                S3Util.uploadPublic("lit-screener-level-compute", filePath, "consolidated_output_" + System.currentTimeMillis() + ".csv");
+                CommonUtil.deleteFile(filePath);
+            case _ =>
+                Console.println("## No output handler found for " + output + " ##");
+        }
     }
 
     def getString(str: String): String = {
