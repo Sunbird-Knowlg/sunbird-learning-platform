@@ -84,6 +84,11 @@ public class AssessmentValidator {
         return errorMessages;
     }
     
+    public List<String> validateAssessmentItemSet(Node item) {
+        List<String> errorMessages = new ArrayList<String>();
+        return errorMessages;
+    }
+    
     @SuppressWarnings("unchecked")
     public List<String> validateQuestionnaire(Node item) {
         List<String> errorMessages = new ArrayList<String>();
@@ -199,4 +204,5 @@ public class AssessmentValidator {
             removeIds.addAll(existingMembers);
         }
     }
+
 }

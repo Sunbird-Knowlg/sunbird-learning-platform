@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.dto.ItemDTO;
 import com.ilimi.assessment.dto.ItemSearchCriteria;
+import com.ilimi.assessment.dto.ItemSetDTO;
 import com.ilimi.assessment.dto.QuestionnaireDTO;
 import com.ilimi.assessment.dto.QuestionnaireSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
@@ -32,13 +33,15 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataDefinition;
 
 @Component
 public class AssessmentManagerImpl extends BaseManager implements IAssessmentManager {
+
+    private static final String ITEM_SET_OBJECT_TYPE = "ItemSet";
+    private static final String ITEM_SET_MEMBERS_TYPE = "AssessmentItem";
 
     private static Logger LOGGER = LogManager.getLogger(IAssessmentManager.class.getName());
     
@@ -466,16 +469,33 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     public Response createItemSet(String taxonomyId, Request request) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
-        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
-        if(criteria != null || memberIds != null) {
-            Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
-            setReq.copyRequestValueObjects(request.getRequest());
-            setReq.put(GraphDACParams.object_type.name(), "ItemSet");
-            setReq.put(GraphDACParams.member_type.name(), "AssessmentItem");
-            return getResponse(setReq, LOGGER);
+        
+        Node node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+        if (null == node)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(), "AssessmentItemSet Object is blank");
+        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+        validateReq.put(GraphDACParams.node.name(), node);
+        Response validateRes = getResponse(validateReq, LOGGER);
+        List<String> assessmentErrors = validator.validateAssessmentItemSet(node);
+        if(checkError(validateRes)) {
+            if(assessmentErrors.size() > 0) {
+                List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
+                messages.addAll(assessmentErrors);
+            }
+            return validateRes;
         } else {
-            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_SET_CRITERIA.name(), "AssessmentItem Set Criteria or members is blank");
+            if(assessmentErrors.size() > 0) {
+                return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "AssessmentItemSet validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
+            } else {
+                ItemSetDTO itemSet = new ItemSetDTO(node);
+                Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
+                setReq.put(GraphDACParams.criteria.name(), itemSet.getCriteria());
+                setReq.put(GraphDACParams.members.name(), itemSet.getMemberIds());
+                setReq.put(GraphDACParams.node.name(), node);
+                setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
+                setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
+                return getResponse(setReq, LOGGER);
+            }
         }
     }
 

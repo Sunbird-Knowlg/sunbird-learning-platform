@@ -13,6 +13,7 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.mgr.ICollectionManager;
 import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
@@ -60,19 +61,33 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
         String setObjectType = (String) request.get(GraphDACParams.object_type.name());
         String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
+        Node node = (Node) request.get(GraphDACParams.node.name());
         try {
+            if (!validateRequired(node, setObjectType)) 
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
+            Set set = null;
             if (validateRequired(memberIds)) {
-                // TODO: Need to include metadata while initializing the Set.
-                ICollection set = new Set(this, graphId, null, setObjectType, memberObjectType, null, memberIds);
-                set.create(request);
+                set = new Set(this, graphId, null, setObjectType, memberObjectType, node.getMetadata(), memberIds);
             } else {
-                // TODO: Need to include metadata while initializing the Set.
-                ICollection set = new Set(this, graphId, null, setObjectType, null, criteria);
-                set.create(request);
+                set = new Set(this, graphId, null, setObjectType, node.getMetadata(), criteria);
             }
+            set.setInRelations(node.getInRelations());
+            set.setOutRelations(node.getOutRelations());
+            set.create(request);
         } catch (Exception e) {
             handleException(e, getSender());
         }
+    }
+    
+    @Override
+    public void getSetCardinality(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String setId = (String) request.get(GraphDACParams.collection_id.name());
+        if(!validateRequired(setId))
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ID_MISSING.name(), "Collection Id is missing...");
+        Set set = new Set(this, graphId, setId, null);
+        set.getCardinality(request);
     }
 
     @SuppressWarnings("unchecked")

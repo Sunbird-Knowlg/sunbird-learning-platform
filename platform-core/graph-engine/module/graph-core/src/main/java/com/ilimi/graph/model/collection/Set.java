@@ -1,7 +1,6 @@
 package com.ilimi.graph.model.collection;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
@@ -51,6 +51,8 @@ public class Set extends AbstractCollection {
     private String setCriteria;
     private String setType = SET_TYPES.MATERIALISED_SET.name();
     private List<String> memberIds;
+    private List<Relation> inRelations;
+    private List<Relation> outRelations;
     private ObjectMapper mapper = new ObjectMapper();
 
     public static enum SET_TYPES {
@@ -91,12 +93,14 @@ public class Set extends AbstractCollection {
             } catch (Exception e) {
             }
         }
+        this.inRelations = node.getInRelations();
+        this.outRelations = node.getOutRelations();
     }
 
     @Override
     public Node toNode() {
         Node node = new Node(getNodeId(), getSystemNodeType(), getFunctionalObjectType());
-        Map<String, Object> metadata = new HashMap<String, Object>();
+        Map<String, Object> metadata = getMetadata();
         metadata.put(SET_TYPE_KEY, getSetType());
         if (null != criteria) {
             metadata.put(SET_OBJECT_TYPE_KEY, criteria.getObjectType());
@@ -356,8 +360,8 @@ public class Set extends AbstractCollection {
     @Override
     public void getCardinality(Request req) {
         try {
-            String setId = (String) req.get(GraphDACParams.collection_id.name());
-            if (!manager.validateRequired(setId)) {
+//            String setId = (String) req.get(GraphDACParams.collection_id.name());
+            if (!manager.validateRequired(this.getNodeId())) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
             } else {
@@ -365,7 +369,7 @@ public class Set extends AbstractCollection {
                 Request request = new Request(req);
                 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
                 request.setOperation("getSetCardinality");
-                request.put(GraphDACParams.set_id.name(), setId);
+                request.put(GraphDACParams.set_id.name(), this.getNodeId());
                 Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                 manager.returnResponse(response, getParent());
             }
@@ -381,6 +385,22 @@ public class Set extends AbstractCollection {
 
     public String getSetCriteria() {
         return setCriteria;
+    }
+    
+    public List<Relation> getInRelations() {
+        return inRelations;
+    }
+
+    public void setInRelations(List<Relation> inRelations) {
+        this.inRelations = inRelations;
+    }
+
+    public List<Relation> getOutRelations() {
+        return outRelations;
+    }
+
+    public void setOutRelations(List<Relation> outRelations) {
+        this.outRelations = outRelations;
     }
 
     public void setCriteria(SearchCriteria criteria) {

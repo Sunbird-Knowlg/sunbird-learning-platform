@@ -32,6 +32,8 @@ public interface ICollectionManager {
      * @response - STATUS: API call status
      */
     void createSet(Request request);
+    
+    void getSetCardinality(Request request);
 
     /**
      * API to create a new tag. Tag can be created on a node or a on a node

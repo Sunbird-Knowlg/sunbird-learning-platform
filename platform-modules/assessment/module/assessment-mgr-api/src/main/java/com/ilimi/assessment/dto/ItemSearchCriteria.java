@@ -33,6 +33,7 @@ public class ItemSearchCriteria extends AbstractSearchCriteria {
         criteria.setMetadata(metadata);
         
         RelationCriterion rc1 = new RelationCriterion("associatedTo", "Concept");
+        rc1.addMetadata(MetadataCriterion.create(Arrays.asList(new Filter("name", "valueX"))));
         RelationCriterion rc11 = new RelationCriterion("associatedTo", "Game");
         criteria.setRelations(Arrays.asList(rc1, rc11));
         
