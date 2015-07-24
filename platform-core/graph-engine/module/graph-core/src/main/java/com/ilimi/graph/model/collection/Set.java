@@ -34,6 +34,7 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
@@ -62,7 +63,8 @@ public class Set extends AbstractCollection {
         MATERIALISED_SET, CRITERIA_SET;
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, Map<String, Object> metadata, SearchCriteria criteria) {
+    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, Map<String, Object> metadata,
+            SearchCriteria criteria) {
         super(manager, graphId, id, metadata);
         setCriteria(criteria);
         this.setObjectType = setObjectType;
@@ -74,7 +76,8 @@ public class Set extends AbstractCollection {
         this.setType = SET_TYPES.MATERIALISED_SET.name();
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, String memberObjectType, Map<String, Object> metadata, List<String> memberIds) {
+    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, String memberObjectType,
+            Map<String, Object> metadata, List<String> memberIds) {
         super(manager, graphId, id, metadata);
         this.memberIds = memberIds;
         this.setObjectType = setObjectType;
@@ -363,7 +366,8 @@ public class Set extends AbstractCollection {
     @Override
     public void getCardinality(Request req) {
         try {
-//            String setId = (String) req.get(GraphDACParams.collection_id.name());
+            // String setId = (String)
+            // req.get(GraphDACParams.collection_id.name());
             if (!manager.validateRequired(this.getNodeId())) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_GET_CARDINALITY_MISSING_REQ_PARAMS.name(),
                         "Required parameters are missing...");
@@ -389,7 +393,7 @@ public class Set extends AbstractCollection {
     public String getSetCriteria() {
         return setCriteria;
     }
-    
+
     public List<Relation> getInRelations() {
         return inRelations;
     }
@@ -604,6 +608,11 @@ public class Set extends AbstractCollection {
                         futures.addAll(relFutures);
                 }
             }
+            if (null != sc.getTag()) {
+                List<Future<String>> tagFutures = getTagCriteriaNodeIds(req, ec, objectType, sc.getTag());
+                if (null != tagFutures && tagFutures.size() > 0)
+                    futures.addAll(tagFutures);
+            }
             updateIndexRelations(req, ec, futures);
         }
     }
@@ -774,6 +783,26 @@ public class Set extends AbstractCollection {
                 List<Future<String>> subFutures = getRelationCriteriaNodeIds(req, ec, rc.getObjectType(), subRc);
                 if (null != subFutures && subFutures.size() > 0)
                     futures.addAll(subFutures);
+            }
+        }
+        if (null != rc.getTag()) {
+            List<Future<String>> tagFutures = getTagCriteriaNodeIds(req, ec, rc.getObjectType(), rc.getTag());
+            if (null != tagFutures && tagFutures.size() > 0)
+                futures.addAll(tagFutures);
+        }
+        return futures;
+    }
+
+    private List<Future<String>> getTagCriteriaNodeIds(final Request req, final ExecutionContext ec, final String objectType,
+            TagCriterion tc) {
+        final List<Future<String>> futures = new ArrayList<Future<String>>();
+        if (null != tc && null != tc.getTags() && !tc.getTags().isEmpty()) {
+            for (String tag : tc.getTags()) {
+                if (StringUtils.isNotBlank(tag)) {
+                    ValueNode vNode = new ValueNode(getManager(), getGraphId(), objectType, tag);
+                    Future<String> vNodeIdFuture = getNodeIdFuture(vNode.create(req));
+                    futures.add(vNodeIdFuture);
+                }
             }
         }
         return futures;
