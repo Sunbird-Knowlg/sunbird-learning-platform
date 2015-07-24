@@ -12,20 +12,24 @@ public class RelationCriterion implements Serializable {
 
     private static final long serialVersionUID = 4077508345374294817L;
     private String name;
+    // related object type
     private String objectType;
+    // list of related object identifiers
+    private List<String> identifiers;
     private String op;
     private List<MetadataCriterion> metadata;
     private List<RelationCriterion> relations;
     private TagCriterion tag;
     private boolean optional;
 
-    private RelationCriterion() {}
-    
+    private RelationCriterion() {
+    }
+
     public RelationCriterion(String name, String objectType) {
         this.name = name;
         this.objectType = objectType;
     }
-    
+
     public String getName() {
         return name;
     }
@@ -99,6 +103,22 @@ public class RelationCriterion implements Serializable {
         this.optional = optional;
     }
 
+    public List<String> getIdentifiers() {
+        return identifiers;
+    }
+
+    public void setIdentifiers(List<String> identifiers) {
+        this.identifiers = identifiers;
+    }
+
+    public void addIdentifier(String identifier) {
+        if (StringUtils.isNotBlank(identifier)) {
+            if (null == this.identifiers)
+                this.identifiers = new ArrayList<String>();
+            this.identifiers.add(identifier);
+        }
+    }
+
     public String getCypher(SearchCriteria sc, String prevParam) {
         StringBuilder sb = new StringBuilder();
         sb.append("WITH n ");
@@ -114,7 +134,8 @@ public class RelationCriterion implements Serializable {
         else
             sb.append("n");
         sb.append(")-[:").append(name).append("]->").append("(").append(param).append(") ");
-        if (StringUtils.isNotBlank(objectType) || (null != metadata && metadata.size() > 0)) {
+        if (StringUtils.isNotBlank(objectType) || (null != identifiers && identifiers.size() > 0)
+                || (null != metadata && metadata.size() > 0)) {
             sb.append("WHERE ( ");
             if (StringUtils.isNotBlank(objectType)) {
                 sb.append(param).append(".").append(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).append(" = {").append(sc.pIndex)
@@ -122,8 +143,15 @@ public class RelationCriterion implements Serializable {
                 sc.params.put("" + sc.pIndex, objectType);
                 sc.pIndex += 1;
             }
-            if (null != metadata && metadata.size() > 0) {
+            if (null != identifiers && identifiers.size() > 0) {
                 if (StringUtils.isNotBlank(objectType))
+                    sb.append("AND ");
+                sb.append(param).append(".").append(SystemProperties.IL_UNIQUE_ID.name()).append(" IN {").append(sc.pIndex).append("} ");
+                sc.params.put("" + sc.pIndex, identifiers);
+                sc.pIndex += 1;
+            }
+            if (null != metadata && metadata.size() > 0) {
+                if (StringUtils.isNotBlank(objectType) || (null != identifiers && identifiers.size() > 0))
                     sb.append("AND ");
                 for (int i = 0; i < metadata.size(); i++) {
                     sb.append(metadata.get(i).getCypher(sc, param));
