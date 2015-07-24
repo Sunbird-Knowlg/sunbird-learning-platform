@@ -1,7 +1,6 @@
 package com.ilimi.graph.model.collection;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -11,8 +10,10 @@ import org.codehaus.jackson.map.ObjectMapper;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import akka.actor.ActorRef;
+import akka.dispatch.Futures;
 import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
@@ -38,6 +39,8 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataNode;
 import com.ilimi.graph.model.node.RelationNode;
+import com.ilimi.graph.model.node.ValueNode;
+import com.ilimi.graph.model.relation.UsedBySetRelation;
 
 public class Set extends AbstractCollection {
 
@@ -516,7 +519,11 @@ public class Set extends AbstractCollection {
                         dacRequest.put(GraphDACParams.members.name(), memberIds);
                         dacRouter.tell(dacRequest, manager.getSelf());
                     }
-                    manager.returnResponse(response, getParent());
+                    if (null != criteria) {
+                        updateIndex(req, criteria);
+                    } else {
+                        manager.returnResponse(response, getParent());
+                    }
                 }
             }
         }, ec);
@@ -580,35 +587,196 @@ public class Set extends AbstractCollection {
 
     private void updateIndex(Request req, SearchCriteria sc) {
         if (null != sc) {
-            java.util.Set<String> startNodeIds = new HashSet<String>();
+            final ExecutionContext ec = manager.getContext().dispatcher();
+            final List<Future<String>> futures = new ArrayList<Future<String>>();
             String objectType = sc.getObjectType();
             if (null != sc.getMetadata() && !sc.getMetadata().isEmpty()) {
                 for (MetadataCriterion mc : sc.getMetadata()) {
-                    getMetadataCriteriaStartNodeIds(req, objectType, mc, startNodeIds);
+                    List<Future<String>> mcFutures = getMetadataCriteriaNodeIds(req, ec, objectType, mc);
+                    if (null != mcFutures && mcFutures.size() > 0)
+                        futures.addAll(mcFutures);
                 }
             }
             if (null != sc.getRelations() && !sc.getRelations().isEmpty()) {
                 for (RelationCriterion rc : sc.getRelations()) {
-                    getRelationCriteriaStartNodeIds(req, objectType, rc, startNodeIds);
+                    List<Future<String>> relFutures = getRelationCriteriaNodeIds(req, ec, objectType, rc);
+                    if (null != relFutures && relFutures.size() > 0)
+                        futures.addAll(relFutures);
+                }
+            }
+            updateIndexRelations(req, ec, futures);
+        }
+    }
+
+    private void updateIndexRelations(final Request req, final ExecutionContext ec, final List<Future<String>> futures) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+        request.setOperation("getNodeByUniqueId");
+        request.put(GraphDACParams.node_id.name(), getNodeId());
+        Future<Object> setResponse = Patterns.ask(dacRouter, request, timeout);
+        setResponse.onComplete(new OnComplete<Object>() {
+            @Override
+            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                if (null != arg0) {
+                    manager.ERROR(arg0, getParent());
+                } else {
+                    if (arg1 instanceof Response) {
+                        final Response response = (Response) arg1;
+                        if (manager.checkError(response)) {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_INDEX_ERROR.name(), manager.getErrorMessage(response),
+                                    ResponseCode.CLIENT_ERROR, getParent());
+                        } else {
+                            Node setNode = (Node) response.get(GraphDACParams.node.name());
+                            final List<String> dbIndexes = new ArrayList<String>();
+                            List<Relation> inRels = setNode.getInRelations();
+                            if (null != inRels && inRels.size() > 0) {
+                                for (Relation inRel : inRels) {
+                                    if (StringUtils.equalsIgnoreCase(UsedBySetRelation.RELATION_NAME, inRel.getRelationType())) {
+                                        dbIndexes.add(inRel.getStartNodeId());
+                                    }
+                                }
+                            }
+                            Future<Iterable<String>> indexFuture = Futures.sequence(futures, ec);
+                            indexFuture.onSuccess(new OnSuccess<Iterable<String>>() {
+                                @Override
+                                public void onSuccess(Iterable<String> list) throws Throwable {
+                                    List<String> addIndexes = new ArrayList<String>();
+                                    List<String> delIndexes = new ArrayList<String>();
+                                    getDeltaIndexes(dbIndexes, list, addIndexes, delIndexes);
+                                    for (String indexId : addIndexes) {
+                                        UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(), indexId, getNodeId());
+                                        rel.createRelation(req);
+                                    }
+                                    for (String indexId : delIndexes) {
+                                        UsedBySetRelation rel = new UsedBySetRelation(getManager(), getGraphId(), indexId, getNodeId());
+                                        rel.deleteRelation(req);
+                                    }
+                                    manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
+                                }
+                            }, ec);
+                        }
+                    } else {
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_INDEX_ERROR.name(), "Internal Error",
+                                ResponseCode.SERVER_ERROR, getParent());
+                    }
+                }
+            }
+        }, ec);
+    }
+
+    private void getDeltaIndexes(List<String> dbIndexes, Iterable<String> list, List<String> addIndexes, List<String> delIndexes) {
+        if (null == dbIndexes || dbIndexes.isEmpty()) {
+            if (null != list) {
+                for (String id : list)
+                    if (StringUtils.isNotBlank(id))
+                        addIndexes.add(id);
+            }
+        } else {
+            delIndexes.addAll(dbIndexes);
+            if (null != list) {
+                for (String id : list) {
+                    if (StringUtils.isNotBlank(id)) {
+                        if (dbIndexes.contains(id))
+                            delIndexes.remove(id);
+                        else
+                            addIndexes.add(id);
+                    }
                 }
             }
         }
     }
 
-    private void getMetadataCriteriaStartNodeIds(Request req, String objectType, MetadataCriterion mc, java.util.Set<String> startNodeIds) {
+    @SuppressWarnings("unchecked")
+    private List<Future<String>> getMetadataCriteriaNodeIds(final Request req, final ExecutionContext ec, final String objectType,
+            MetadataCriterion mc) {
         List<Filter> filters = mc.getFilters();
+        final List<Future<String>> futures = new ArrayList<Future<String>>();
         if (null != filters && filters.size() > 0) {
-            for (Filter filter : filters) {
+            for (final Filter filter : filters) {
                 MetadataNode mNode = new MetadataNode(getManager(), getGraphId(), objectType, filter.getProperty());
                 Future<String> mNodeIdFuture = getNodeIdFuture(mNode.create(req));
                 if (StringUtils.equalsIgnoreCase(SearchConditions.OP_EQUAL, filter.getOperator())
                         || StringUtils.equalsIgnoreCase(SearchConditions.OP_IN, filter.getOperator())) {
-                    // add value node id to start node ids
+                    // Set is linked to the value node
+                    mNodeIdFuture.onComplete(new OnComplete<String>() {
+                        @Override
+                        public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                            if (null != arg0 && StringUtils.isNotBlank(arg1)) {
+                                if (StringUtils.equalsIgnoreCase(SearchConditions.OP_EQUAL, filter.getOperator())) {
+                                    ValueNode vNode = new ValueNode(getManager(), getGraphId(), objectType, filter.getProperty(), filter
+                                            .getValue());
+                                    Future<String> vNodeIdFuture = getNodeIdFuture(vNode.create(req));
+                                    futures.add(vNodeIdFuture);
+                                } else {
+                                    if (filter.getValue() instanceof List) {
+                                        List<Object> list = (List<Object>) filter.getValue();
+                                        if (null != list && list.size() > 0) {
+                                            for (Object val : list) {
+                                                ValueNode vNode = new ValueNode(getManager(), getGraphId(), objectType, filter
+                                                        .getProperty(), val);
+                                                Future<String> vNodeIdFuture = getNodeIdFuture(vNode.create(req));
+                                                futures.add(vNodeIdFuture);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }, ec);
                 } else {
-                    // add metadata node id to start node ids
+                    // Set is linked to the metadata node
+                    futures.add(mNodeIdFuture);
                 }
             }
         }
+        if (null != mc.getMetadata() && !mc.getMetadata().isEmpty()) {
+            for (MetadataCriterion subMc : mc.getMetadata()) {
+                List<Future<String>> subFutures = getMetadataCriteriaNodeIds(req, ec, objectType, subMc);
+                if (null != subFutures && subFutures.size() > 0)
+                    futures.addAll(subFutures);
+            }
+        }
+        return futures;
+    }
+
+    private List<Future<String>> getRelationCriteriaNodeIds(final Request req, final ExecutionContext ec, final String objectType,
+            final RelationCriterion rc) {
+        final List<Future<String>> futures = new ArrayList<Future<String>>();
+        // get RelationNode id to link to the Set
+        RelationNode relNode = new RelationNode(getManager(), getGraphId(), objectType, rc.getName(), rc.getObjectType());
+        Future<String> rNodeIdFuture = getNodeIdFuture(relNode.create(req));
+        if (null == rc.getIdentifiers() || rc.getIdentifiers().isEmpty()) {
+            futures.add(rNodeIdFuture);
+        } else {
+            rNodeIdFuture.onComplete(new OnComplete<String>() {
+                @Override
+                public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                    if (null != arg0 && StringUtils.isNotBlank(arg1)) {
+                        for (String id : rc.getIdentifiers()) {
+                            ValueNode vNode = new ValueNode(getManager(), getGraphId(), objectType, rc.getName(), id);
+                            Future<String> vNodeIdFuture = getNodeIdFuture(vNode.create(req));
+                            futures.add(vNodeIdFuture);
+                        }
+                    }
+                }
+            }, ec);
+        }
+        if (null != rc.getMetadata() && !rc.getMetadata().isEmpty()) {
+            for (MetadataCriterion mc : rc.getMetadata()) {
+                List<Future<String>> mcFutures = getMetadataCriteriaNodeIds(req, ec, rc.getObjectType(), mc);
+                if (null != mcFutures && mcFutures.size() > 0)
+                    futures.addAll(mcFutures);
+            }
+        }
+        if (null != rc.getRelations() && !rc.getRelations().isEmpty()) {
+            for (RelationCriterion subRc : rc.getRelations()) {
+                List<Future<String>> subFutures = getRelationCriteriaNodeIds(req, ec, rc.getObjectType(), subRc);
+                if (null != subFutures && subFutures.size() > 0)
+                    futures.addAll(subFutures);
+            }
+        }
+        return futures;
     }
 
     private Future<String> getNodeIdFuture(Future<Map<String, Object>> future) {
@@ -623,21 +791,6 @@ public class Set extends AbstractCollection {
             }
         }, ec);
         return nodeIdFuture;
-    }
-
-    private void getRelationCriteriaStartNodeIds(Request req, String objectType, RelationCriterion rc, java.util.Set<String> startNodeIds) {
-        // get RelationNode id and add to start node ids
-        RelationNode relNode = new RelationNode(getManager(), getGraphId(), objectType, rc.getName(), rc.getObjectType());
-        if (null != rc.getMetadata() && !rc.getMetadata().isEmpty()) {
-            for (MetadataCriterion mc : rc.getMetadata()) {
-                getMetadataCriteriaStartNodeIds(req, rc.getObjectType(), mc, startNodeIds);
-            }
-        }
-        if (null != rc.getRelations() && !rc.getRelations().isEmpty()) {
-            for (RelationCriterion rc1 : rc.getRelations()) {
-                getRelationCriteriaStartNodeIds(req, rc.getObjectType(), rc1, startNodeIds);
-            }
-        }
     }
 
 }
