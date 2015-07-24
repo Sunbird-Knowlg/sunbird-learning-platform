@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
@@ -16,10 +18,12 @@ import akka.pattern.Patterns;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
@@ -30,10 +34,21 @@ import com.ilimi.graph.model.ICollection;
 public abstract class AbstractCollection extends AbstractDomainObject implements ICollection {
 
     private String id;
+    protected Map<String, Object> metadata;
 
-    public AbstractCollection(BaseGraphManager manager, String graphId, String id) {
+    public AbstractCollection(BaseGraphManager manager, String graphId, String id, Map<String, Object> metadata) {
         super(manager, graphId);
         this.id = id;
+        this.metadata = metadata;
+    }
+    
+    public Map<String, Object> getMetadata() {
+        return this.metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+        checkMetadata(this.metadata);
     }
 
     @Override
@@ -170,6 +185,85 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
             }
         }, ec);
         return nodeFuture;
+    }
+    
+    protected void checkMetadata(Map<String, Object> metadata) {
+        if (null != metadata && metadata.size() > 0) {
+            for (Entry<String, Object> entry : metadata.entrySet()) {
+                checkMetadata(entry.getKey(), entry.getValue());
+            }
+        }
+    }
+
+    @SuppressWarnings("rawtypes")
+    protected void checkMetadata(String key, Object value) {
+        if (SystemProperties.isSystemProperty(key)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), key + " is a reserved system property");
+        }
+        if (null != value) {
+            ObjectMapper mapper = new ObjectMapper();
+            if (value instanceof Map) {
+                try {
+                    value = new String(mapper.writeValueAsString(value));
+                    if(null != metadata) 
+                        metadata.put(key, value);
+                } catch (Exception e) {
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid JSON for property:"+key, e);
+                }
+            } else if (value instanceof List) {
+                List list = (List) value;
+                Object[] array = getArray(key, list);
+                if (null == array) {
+                    try {
+                        value = new String(mapper.writeValueAsString(list));
+                        if(null != metadata) 
+                            metadata.put(key, value);
+                    } catch (Exception e) {
+                        throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid JSON for property:"+key, e);
+                    }
+                } else {
+                    value = array;
+                    if (null != metadata)
+                        metadata.put(key, array);
+                }
+            } else if (!(value instanceof String) && !(value instanceof String[]) && !(value instanceof Double)
+                    && !(value instanceof double[]) && !(value instanceof Float) && !(value instanceof float[]) && !(value instanceof Long)
+                    && !(value instanceof long[]) && !(value instanceof Integer) && !(value instanceof int[])
+                    && !(value instanceof Boolean) && !(value instanceof boolean[])) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: "
+                        + key);
+            }
+        }
+    }
+    
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private Object[] getArray(String key, List list) {
+        Object[] array = null;
+        try {
+            if (null != list && !list.isEmpty()) {
+                Object obj = list.get(0);
+                if (obj instanceof String) {
+                    array = list.toArray(new String[list.size()]);
+                } else if (obj instanceof Double) {
+                    array = list.toArray(new Double[list.size()]);
+                } else if (obj instanceof Float) {
+                    array = list.toArray(new Float[list.size()]);
+                } else if (obj instanceof Long) {
+                    array = list.toArray(new Long[list.size()]);
+                } else if (obj instanceof Integer) {
+                    array = list.toArray(new Integer[list.size()]);
+                } else if (obj instanceof Boolean) {
+                    array = list.toArray(new Boolean[list.size()]);
+                } else if( obj instanceof Map) {
+                    array = null;
+                } else {
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: " + key);
+                }
+            }
+        } catch (Exception e) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_PROPERTY.name(), "Invalid data type for the property: " + key);
+        }
+        return array;
     }
 
 }

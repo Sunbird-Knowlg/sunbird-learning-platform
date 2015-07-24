@@ -40,11 +40,11 @@ public class Tag extends AbstractCollection {
     private List<String> memberIds;
 
     public Tag(BaseGraphManager manager, String graphId, String id) {
-        super(manager, graphId, id);
+        super(manager, graphId, id, null); // TODO: Will add metadata if required.
     }
 
     public Tag(BaseGraphManager manager, String graphId, String tagName, String attributeName, List<String> memberIds) {
-        super(manager, graphId, null);
+        super(manager, graphId, null, null); // TODO: Will add metadata if required.
         if (StringUtils.isBlank(tagName)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_EMPTY_TAG_NAME.name(), "Tag name cannot be empty");
         }

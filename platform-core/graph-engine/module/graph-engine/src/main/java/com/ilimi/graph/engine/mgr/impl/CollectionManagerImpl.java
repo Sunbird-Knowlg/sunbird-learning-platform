@@ -62,10 +62,12 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
         try {
             if (validateRequired(memberIds)) {
-                ICollection set = new Set(this, graphId, null, setObjectType, memberObjectType, memberIds);
+                // TODO: Need to include metadata while initializing the Set.
+                ICollection set = new Set(this, graphId, null, setObjectType, memberObjectType, null, memberIds);
                 set.create(request);
             } else {
-                ICollection set = new Set(this, graphId, null, setObjectType, criteria);
+                // TODO: Need to include metadata while initializing the Set.
+                ICollection set = new Set(this, graphId, null, setObjectType, null, criteria);
                 set.create(request);
             }
         } catch (Exception e) {

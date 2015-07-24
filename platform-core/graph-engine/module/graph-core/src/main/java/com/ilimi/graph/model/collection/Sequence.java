@@ -31,11 +31,11 @@ public class Sequence extends AbstractCollection {
     public static final String INDEX_PROPERTY = "INDEX";
 
     public Sequence(BaseGraphManager manager, String graphId, String id) {
-        super(manager, graphId, id);
+        super(manager, graphId, id, null); // TODO: Will add metadata if required.
     }
 
     public Sequence(BaseGraphManager manager, String graphId, String id, List<String> memberIds) {
-        super(manager, graphId, id);
+        super(manager, graphId, id, null); // TODO: Will add metadata if required.
         this.memberIds = memberIds;
     }
 

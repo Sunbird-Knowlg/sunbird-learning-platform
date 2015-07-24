@@ -434,7 +434,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         List<Relation> setRelations = new ArrayList<Relation>();
         for(Relation relation : node.getOutRelations()) {
-            if(SystemNodeTypes.SET.name().equals(relation.getEndNodeType()) && "AssessmentItem".equals(relation.getEndNodeObjectType())) {
+            if(SystemNodeTypes.SET.name().equals(relation.getEndNodeType()) && "ItemSet".equals(relation.getEndNodeObjectType())) {
                 setRelations.add(relation);
             }
         }
@@ -447,14 +447,18 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
             Collections.shuffle(members);
             Integer count = (Integer) relation.getMetadata().get("count");
-            members.subList(0, count);
-            allMembers.addAll(members);
+            if(members.size() < count) {
+                throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INSUFFICIENT_ITEMS.name(), "Questionnaire deliver expect "+count+ "AssessmentItems from"+relation.getEndNodeId()+ " but, it has only"+members.size()+ " AssessmentItems.");
+            } else {
+                allMembers.addAll(members.subList(0, count));
+            }
+            
         }
         List<String> members = new ArrayList<String>(allMembers);
         Collections.shuffle(members);
-        Integer totalItems = (Integer) node.getMetadata().get("total_items");
-        List<String> finalMembers = members.subList(0, totalItems);
-        return OK(AssessmentAPIParams.assessment_items.name(), finalMembers);
+//        Integer totalItems = (Integer) node.getMetadata().get("total_items");
+//        List<String> finalMembers = members.subList(0, totalItems);
+        return OK(AssessmentAPIParams.assessment_items.name(), members);
     }
 
     @SuppressWarnings("unchecked")

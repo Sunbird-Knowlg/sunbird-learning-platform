@@ -16,13 +16,15 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
+import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.model.SearchCriteria;
 
 /**
  * 
@@ -66,8 +68,12 @@ public class AssessmentItemSetController extends BaseController {
                 Object objCriteria = map.get(AssessmentAPIParams.assessment_item_set_criteria.name());
                 Object objMembers = map.get(AssessmentAPIParams.assessment_item_set_members.name());
                 if (null != objCriteria) {
-                    SearchCriteria criteria = mapper.convertValue(objCriteria, SearchCriteria.class);
-                    request.put(GraphDACParams.criteria.name(), criteria);
+                    try {
+                        ItemSearchCriteria itemSearchCriteria = mapper.convertValue(objCriteria, ItemSearchCriteria.class);
+                        request.put(GraphDACParams.criteria.name(), itemSearchCriteria.getSearchCriteria());
+                    } catch (Exception e) {
+                        throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(), "Invalid search criteria.", e);
+                    }
                 } else if(null != objMembers) {
                     List<String> members = mapper.convertValue(objMembers, List.class);
                     request.put(GraphDACParams.members.name(), members);

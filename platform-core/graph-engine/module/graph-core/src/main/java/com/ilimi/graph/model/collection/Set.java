@@ -57,20 +57,20 @@ public class Set extends AbstractCollection {
         MATERIALISED_SET, CRITERIA_SET;
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, SearchCriteria criteria) {
-        super(manager, graphId, id);
+    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, Map<String, Object> metadata, SearchCriteria criteria) {
+        super(manager, graphId, id, metadata);
         setCriteria(criteria);
         this.setObjectType = setObjectType;
         this.setType = SET_TYPES.CRITERIA_SET.name();
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id) {
-        super(manager, graphId, id);
+    public Set(BaseGraphManager manager, String graphId, String id, Map<String, Object> metadata) {
+        super(manager, graphId, id, metadata);
         this.setType = SET_TYPES.MATERIALISED_SET.name();
     }
 
-    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, String memberObjectType, List<String> memberIds) {
-        super(manager, graphId, id);
+    public Set(BaseGraphManager manager, String graphId, String id, String setObjectType, String memberObjectType, Map<String, Object> metadata, List<String> memberIds) {
+        super(manager, graphId, id, metadata);
         this.memberIds = memberIds;
         this.setObjectType = setObjectType;
         this.memberObjectType = memberObjectType;
@@ -78,7 +78,7 @@ public class Set extends AbstractCollection {
     }
 
     public Set(BaseGraphManager manager, String graphId, Node node) {
-        super(manager, graphId, node.getIdentifier());
+        super(manager, graphId, node.getIdentifier(), node.getMetadata());
         Map<String, Object> metadata = node.getMetadata();
         this.setType = (String) metadata.get(SET_TYPE_KEY);
         this.setObjectType = node.getObjectType();

@@ -1,5 +1,7 @@
 package com.ilimi.graph.engine.loadtest;
 
+import java.util.Arrays;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.annotations.BeforeTest;
@@ -110,56 +112,40 @@ public class SearchNodesTest {
         MetadataCriterion mc = null; // TODO: need to update this.
         switch (value) {
         case -1:
-            mc.addFilter(new Filter("LEVEL", 0));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_1"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 0), new Filter("META_TYPE", "TYPE_1"), new Filter("META_POLICY", "POLICY_1")));
             break;
         case 0:
-            mc.addFilter(new Filter("LEVEL", 4));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 4), new Filter("META_POLICY", "POLICY_2")));
             break;
         case 1:
-            mc.addFilter(new Filter("META_TYPE", "TYPE_2"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("META_TYPE", "TYPE_2"), new Filter("META_POLICY", "POLICY_1")));
             break;
         case 2:
-            mc.addFilter(new Filter("LEVEL", 2));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_4"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 2), new Filter("META_TYPE", "TYPE_4"), new Filter("META_POLICY", "POLICY_1")));
             break;
         case 3:
-            mc.addFilter(new Filter("LEVEL", 9));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 9), new Filter("META_TYPE", "TYPE_5"), new Filter("META_POLICY", "POLICY_2")));
             break;
         case 4:
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("META_POLICY", "POLICY_1")));
             break;
         case 5:
-            mc.addFilter(new Filter("LEVEL", 1));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_3"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 1), new Filter("META_TYPE", "TYPE_3"), new Filter("META_POLICY", "POLICY_1")));
             break;
         case 6:
-            mc.addFilter(new Filter("LEVEL", 3));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 3), new Filter("META_POLICY", "POLICY_2")));
             break;
         case 7:
-            mc.addFilter(new Filter("META_TYPE", "TYPE_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("META_TYPE", "TYPE_2")));
             break;
         case 8:
-            mc.addFilter(new Filter("META_TYPE", "TYPE_4"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_1"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("META_TYPE", "TYPE_4"), new Filter("META_POLICY", "POLICY_1")));
             break;
         case 9:
-            mc.addFilter(new Filter("LEVEL", 7));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 7), new Filter("META_TYPE", "TYPE_5"), new Filter("META_POLICY", "POLICY_2")));
             break;
         default:
-            mc.addFilter(new Filter("LEVEL", 9));
-            mc.addFilter(new Filter("META_TYPE", "TYPE_5"));
-            mc.addFilter(new Filter("META_POLICY", "POLICY_2"));
+            mc = MetadataCriterion.create(Arrays.asList(new Filter("LEVEL", 9), new Filter("META_TYPE", "TYPE_5"), new Filter("META_POLICY", "POLICY_2")));
             break;
         }
         sc.addMetadata(mc);
