@@ -69,21 +69,8 @@ public class AssessmentItemSetController extends BaseController {
                 Object objItemSet = map.get(AssessmentAPIParams.assessment_item_set.name());
                 if (null != objItemSet) {
                     Node itemSetNode = (Node) mapper.convertValue(objItemSet, Node.class);
-                    request.put(AssessmentAPIParams.assessment_item.name(), itemSetNode);
+                    request.put(AssessmentAPIParams.assessment_item_set.name(), itemSetNode);
                 }
-//                Object objCriteria = map.get(AssessmentAPIParams.assessment_item_set_criteria.name());
-//                Object objMembers = map.get(AssessmentAPIParams.assessment_item_set_members.name());
-//                if (null != objCriteria) {
-//                    try {
-//                        ItemSearchCriteria itemSearchCriteria = mapper.convertValue(objCriteria, ItemSearchCriteria.class);
-//                        request.put(GraphDACParams.criteria.name(), itemSearchCriteria.getSearchCriteria());
-//                    } catch (Exception e) {
-//                        throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(), "Invalid search criteria.", e);
-//                    }
-//                } else if(null != objMembers) {
-//                    List<String> members = mapper.convertValue(objMembers, List.class);
-//                    request.put(GraphDACParams.members.name(), members);
-//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

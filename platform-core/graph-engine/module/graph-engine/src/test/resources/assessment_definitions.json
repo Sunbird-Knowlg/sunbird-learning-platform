@@ -585,7 +585,7 @@
           "title": "Description",
           "description": "",
           "category": "general",
-          "dataType": "JSON",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": false,
@@ -608,19 +608,6 @@
           "displayProperty": "Editable",
           "defaultValue": "Draft",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
-        },
-        {
-          "propertyName": "memberObjectType",
-          "title": "Member Object Type",
-          "description": "",
-          "category": "general",
-          "dataType": "Text",
-          "range": [],
-          "required": true,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
         },
         {
           "propertyName": "criteria",
@@ -863,10 +850,10 @@
       "inRelations": [],
       "outRelations": [
         {
-          "relationName": "hasMembership",
+          "relationName": "hasMember",
           "title": "Members of the Set",
           "description": "",
-          "required": true,
+          "required": false,
           "objectTypes": [
             "AssessmentItem"
           ],
