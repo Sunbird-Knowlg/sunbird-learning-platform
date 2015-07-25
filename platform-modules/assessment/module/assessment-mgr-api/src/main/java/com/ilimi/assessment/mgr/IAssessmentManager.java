@@ -128,7 +128,7 @@ public interface IAssessmentManager {
      * @response AssessmentManagerParams.ITEM_SET - Set 
      *           
      */
-    public Response getItemSet(Request request);
+    public Response getItemSet(String id, String taxonomyId, String[] isfields);
 
     /**
      * Deletes the Assessment Item Sets for given list of ids.

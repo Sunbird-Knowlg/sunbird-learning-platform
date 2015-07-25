@@ -506,9 +506,23 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     }
 
     @Override
-    public Response getItemSet(Request request) {
-        // TODO Auto-generated method stub
-        return null;
+    public Response getItemSet(String id, String taxonomyId, String[] isfields) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_SET_ID.name(), "ItemSet Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getSet", GraphDACParams.collection_id.name(), id);
+        Response getNodeRes = getResponse(request, LOGGER);
+        Response response = copyResponse(getNodeRes);
+        if (checkError(response)) {
+            return response;
+        }
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+        if (null != node) {
+            ItemDTO dto = new ItemDTO(node, isfields);
+            response.put(AssessmentAPIParams.assessment_item_set.name(), dto);
+        }
+        return response;
     }
 
     @Override

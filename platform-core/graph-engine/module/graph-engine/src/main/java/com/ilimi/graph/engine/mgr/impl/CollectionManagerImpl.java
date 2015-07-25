@@ -81,6 +81,16 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
     }
     
     @Override
+    public void getSet(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String setId = (String) request.get(GraphDACParams.collection_id.name());
+        if(!validateRequired(setId))
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ID_MISSING.name(), "Collection Id is missing...");
+        Set set = new Set(this, graphId, setId, null);
+        set.getNode(request);
+    }
+    
+    @Override
     public void getSetCardinality(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String setId = (String) request.get(GraphDACParams.collection_id.name());

@@ -9,6 +9,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -56,6 +57,24 @@ public class AssessmentItemSetController extends BaseController {
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "isfields", required = false) String[] isfields, @RequestHeader(value = "user-id") String userId) {
+        
+        String apiId = "assessment_item.find";
+        LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.getItemSet(id, taxonomyId, isfields);
+            LOGGER.info("Find Item | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
     

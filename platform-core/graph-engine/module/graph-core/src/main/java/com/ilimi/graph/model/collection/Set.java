@@ -362,6 +362,25 @@ public class Set extends AbstractCollection {
             manager.handleException(e, getParent());
         }
     }
+    
+    public void getNode(Request req) {
+        try {
+            if (!manager.validateRequired(this.getNodeId())) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_GET_COLLECTION_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
+            } else {
+                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                Request request = new Request(req);
+                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                request.setOperation("getNodeByUniqueId");
+                request.put(GraphDACParams.node_id.name(), this.getNodeId());
+                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+                manager.returnResponse(response, getParent());
+            }
+        } catch (Exception e) {
+            manager.handleException(e, getParent());
+        }
+    }
 
     @Override
     public void getCardinality(Request req) {
