@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
@@ -203,18 +204,22 @@ public class Relation implements Serializable {
         this.endNodeObjectType = endNodeObjectType;
     }
 
+    @JsonIgnore
     public Map<String, Object> getStartNodeMetadata() {
         return startNodeMetadata;
     }
 
+    @JsonIgnore
     public void setStartNodeMetadata(Map<String, Object> startNodeMetadata) {
         this.startNodeMetadata = startNodeMetadata;
     }
 
+    @JsonIgnore
     public Map<String, Object> getEndNodeMetadata() {
         return endNodeMetadata;
     }
 
+    @JsonIgnore
     public void setEndNodeMetadata(Map<String, Object> endNodeMetadata) {
         this.endNodeMetadata = endNodeMetadata;
     }

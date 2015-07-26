@@ -39,8 +39,8 @@ public class ValueNode extends AbstractIndexNode {
     private String valueNodeType;
     private String sourceNodeId;
     private String relationType = HasValueRelation.RELATION_NAME;
-    private static final String VALUE_NODE_VALUE_KEY = "VALUE_NODE_VALUE";
-    private static final String VALUE_NODE_TYPE_KEY = "VALUE_NODE_TYPE";
+    public static final String VALUE_NODE_VALUE_KEY = "VALUE_NODE_VALUE";
+    public static final String VALUE_NODE_TYPE_KEY = "VALUE_NODE_TYPE";
 
     public ValueNode(BaseGraphManager manager, String graphId, String objectType, String name, Object value) {
         super(manager, graphId);
