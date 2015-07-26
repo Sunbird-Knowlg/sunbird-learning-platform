@@ -39,7 +39,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 	public String createQuestionnaire() {
 		MockMvc mockMvc;		
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
+		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"difficulty_level\":\"low\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/questionnaire";
@@ -63,7 +63,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
         Assert.assertEquals("1.0", resp.getVer());
 	}
 	
-	@When("^Delete questionnaire when Taxonomy id is (.*) and questionnaire id is (.*)$")
+	@When("^Deleting a questionnaire Taxonomy id is (.*) and questionnaire id is (.*)$")
 	public void getInputData(String taxonomyId, String questionnaireId){
 		if(questionnaireId.equals("ilimi"))
 			this.questionnaireId = questionnaireId;
@@ -96,7 +96,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 		}
 	}
 	
-	@And("^get error message of delete questionnaire is (.*)$")
+	@And("^return error message by delete questionnaire API is (.*)$")
 	public void assertErrorMessage(String message) {
 		if (taxonomyId.equals("absent")) {
 			Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), message);

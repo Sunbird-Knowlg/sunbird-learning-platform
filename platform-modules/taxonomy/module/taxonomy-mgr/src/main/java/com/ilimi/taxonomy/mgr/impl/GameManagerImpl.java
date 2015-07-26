@@ -191,11 +191,15 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         if (null != object) {
             try {
                 String strObject = mapper.writeValueAsString(object);
+                System.out.println(strObject);
                 List list = mapper.readValue(strObject.toString(), List.class);
+                System.out.println(strObject + ":: NO Exception");
                 return list;
             } catch (Exception e) {
+            	System.out.println(" Exception");
                 throw new ClientException(LearningObjectErrorCodes.ERR_GAME_INVALID_PARAM.name(), "Request Parameter '" + propName
                         + "' should be a list");
+                
             }
         }
         return null;

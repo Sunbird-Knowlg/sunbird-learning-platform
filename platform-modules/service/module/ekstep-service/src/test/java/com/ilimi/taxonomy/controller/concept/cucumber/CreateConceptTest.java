@@ -107,7 +107,6 @@ public class CreateConceptTest extends BaseCucumberTest {
     	try {
 			actions.andExpect(status().is(status));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
         if(taxonomyId.equals("absent")) {
@@ -135,7 +134,6 @@ public class CreateConceptTest extends BaseCucumberTest {
     	try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
          

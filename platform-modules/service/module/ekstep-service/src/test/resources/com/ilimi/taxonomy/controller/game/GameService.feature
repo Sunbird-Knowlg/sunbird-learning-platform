@@ -20,8 +20,10 @@ Feature: BDD test scenarios for Game Service
     When Fields parameter is name
     Then return status is successful and games list has only name
     
-    When developer is Play Store and Status is Mock
-    Then return status is successful and developer value is Play Store
+    #When developer is Play Store and Status is Mock
+    #Then return status is successful and developer value is Play Store
+    
+    
     
     
     

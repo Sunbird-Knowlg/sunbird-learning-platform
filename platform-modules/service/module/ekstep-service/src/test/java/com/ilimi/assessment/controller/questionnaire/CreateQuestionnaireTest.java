@@ -58,7 +58,7 @@ public class CreateQuestionnaireTest extends BaseCucumberTest {
     	initMockMVC();        
     }
 
-    @When("^Create Questionnaire Taxonomy is (.*) with (.*)$")
+    @When("^Creating a Questionnaire Taxonomy id is (.*) with (.*)$")
     public void createquestionnaire(String taxonomyId, String questionnaireDetails) throws Exception {
         this.taxonomyId = taxonomyId;
         this.questionnaireDetails = questionnaireDetails;
@@ -109,9 +109,8 @@ public class CreateQuestionnaireTest extends BaseCucumberTest {
         }
     }
 
-    @And("^get error message of create Questionnaire is (.*)$")
+    @And("^return error message by create Questionnaire API is (.*)$")
     public void assertErrorMessage(String message) {
-        System.out.println("Msg:" + message);
         if (taxonomyId.equals("absent")) {
             Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), message);
         } else if (taxonomyId.equals("empty")) {

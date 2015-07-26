@@ -1,6 +1,5 @@
 package com.ilimi.assessment.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,15 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
-import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 
 /**

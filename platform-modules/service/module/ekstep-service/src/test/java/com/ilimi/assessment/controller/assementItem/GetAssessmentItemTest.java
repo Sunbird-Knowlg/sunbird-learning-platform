@@ -58,7 +58,7 @@ public class GetAssessmentItemTest extends BaseCucumberTest{
 		return (String) result.get("node_id");
 	 }
     
-    @When("^Get question when Taxonomy id is (.*) and question id is (.*)$")
+    @When("^Getting a question Taxonomy id is (.*) and question id is (.*)$")
     public void getInput(String taxonomyId, String questionId) {
     	this.questionId = questionId;
     	if(questionId.equals("ilimi"))
@@ -92,7 +92,7 @@ public class GetAssessmentItemTest extends BaseCucumberTest{
 		}
 	}
 	
-	@And("^get error message of get question is (.*)$")
+	@And("^return error message by get question API is (.*)$")
 	public void assertErrorMessage(String message) {
 		if (taxonomyId.equals("absent")) {
 			Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), message);

@@ -50,6 +50,7 @@ public class QuestionnaireController extends BaseController {
         LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = assessmentManager.createQuestionnaire(taxonomyId, request);
+            
             LOGGER.info("Create | Response: " + response);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
@@ -107,6 +108,7 @@ public class QuestionnaireController extends BaseController {
             LOGGER.info("Search | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
+        	e.printStackTrace();
             LOGGER.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
