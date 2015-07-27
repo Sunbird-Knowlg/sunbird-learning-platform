@@ -1,9 +1,11 @@
 package com.ilimi.graph.engine.importtest;
-
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
@@ -91,6 +93,10 @@ public class LiteracyCSVImportTest {
             OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             if(osV == null) {
                 System.out.println(response.getResult());
+            } else {
+            	ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
+            	FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
+//            	System.out.println("Result: \n"+new String(os.toByteArray()));   //Prints the string content read from input stream
             }
             System.out.println("Literacy Subject data imported.");
             Thread.sleep(15000);

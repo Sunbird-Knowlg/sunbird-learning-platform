@@ -69,7 +69,7 @@ public class UpdateQuestionnaireTest extends BaseCucumberTest{
 		}
     }
 	
-	@When("^Update questionnaire when Taxonomy id is (.*) and questionnaire id is (.*) with (.*)$")
+	@When("^Updating a questionnaire Taxonomy id is (.*) and questionnaire id is (.*) with (.*)$")
 	public void getInputData(String taxonomyId, String questionnaireId , String questionnaireDetail){
 		this.questionnaireDetails = questionnaireDetail.toLowerCase();
 		this.taxonomyId = taxonomyId;
@@ -116,9 +116,8 @@ public class UpdateQuestionnaireTest extends BaseCucumberTest{
         }
     }
 	
-	@And("^get error message of update questionnaire is (.*)$")
+	@And("^return error message by update questionnaire API is (.*)$")
     public void assertErrorMessage(String message) {
-        System.out.println("Msg:" + message);
         if (taxonomyId.equals("absent")) {
             Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage().toLowerCase(), message.toLowerCase());
         } else if (taxonomyId.equals("empty")) {

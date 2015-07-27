@@ -208,7 +208,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), node);
         Response validateRes = getResponse(validateReq, LOGGER);
-        List<String> assessmentErrors = validator.validateQuestionnaire(node);
+        List<String> assessmentErrors = validator.validateQuestionnaire(taxonomyId, node);
         if(checkError(validateRes)) {
             if(assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
@@ -222,9 +222,10 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 String type = validator.getQuestionnaireType(node);
                 if(QuestionnaireType.materialised.name().equals(type)) {
                     Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
-                    setReq.put(GraphDACParams.object_type.name(), "ItemSet");
-                    setReq.put(GraphDACParams.member_type.name(), "AssessmentItem");
-                    setReq.put(GraphDACParams.members.name(), validator.getQuestionnaireItems(node));
+                    setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
+                    setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
+                    setReq.put(GraphDACParams.members.name(), validator.getQuestionnaireItems(node));                    
+                    setReq.put(GraphDACParams.node.name(), node);   
                     Response setRes = getResponse(setReq, LOGGER);
                     if(checkError(setRes)) {
                         return setRes;
@@ -274,7 +275,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), node);
         Response validateRes = getResponse(validateReq, LOGGER);
-        List<String> assessmentErrors = validator.validateQuestionnaire(node);
+        List<String> assessmentErrors = validator.validateQuestionnaire(taxonomyId, node);
         if(checkError(validateRes)) {
             if(assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());

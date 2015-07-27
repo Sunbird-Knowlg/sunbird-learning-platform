@@ -257,7 +257,10 @@ public class SearchCriteria implements Serializable {
         try {
             ObjectMapper mapper = new ObjectMapper();
             String str = mapper.writeValueAsString(sc);
+            
             System.out.println(str);
+            System.out.println();
+           
             
             SearchCriteria sc1 = mapper.readValue(str, SearchCriteria.class);
             System.out.println(sc1.getQuery());

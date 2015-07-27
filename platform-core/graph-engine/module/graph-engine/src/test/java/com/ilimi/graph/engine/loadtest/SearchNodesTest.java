@@ -41,7 +41,6 @@ public class SearchNodesTest {
             Future<Object> searchRes = searchNodes(reqRouter, graphId, -1);
             TestUtil.handleFutureBlock(searchRes, "searchNodes", GraphDACParams.node_id.name());
         } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

@@ -59,11 +59,10 @@ public class DeliverQuestionnaire extends BaseCucumberTest{
         //basicAssertion(resp);
         Assert.assertEquals("successful", resp.getParams().getStatus());
         Map<String, Object> result = resp.getResult();
-        System.out.println("Node Id : " + (String) result.get("node_id"));
 		return (String) result.get("node_id");
     }
     
-    @When("^Deliver questionnaire when Taxonomy id is (.*) and questionnaire id is (.*)$")
+    @When("^Delivering a questionnaire Taxonomy id is (.*) and questionnaire id is (.*)$")
     public void getInput(String taxonomyId, String questionnaireId) {
     	if(questionnaireId.equals("ilimi"))
     		this.questionnaireId = questionnaireId;
@@ -86,7 +85,7 @@ public class DeliverQuestionnaire extends BaseCucumberTest{
     	actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);
     }
     
-	@Then("^return status of Deliver questionnaire is (.*) and response code is (\\d+)$")
+	@Then("^return status of deliver questionnaire is (.*) and response code is (\\d+)$")
 	public void assertResultAction(String status, int code) throws Exception {
 		assertStatus(actions, code);
 		Response resp = jasonToObject(actions);
@@ -96,7 +95,7 @@ public class DeliverQuestionnaire extends BaseCucumberTest{
 		}
 	}
 	
-	@And("^get error message of Deliver questionnaire is (.*)$")
+	@And("^return error message by deliver questionnaire API is (.*)$")
 	public void assertErrorMessage(String message) {
 		if (taxonomyId.equals("absent")) {
 			Assert.assertEquals(actions.andReturn().getResponse().getErrorMessage(), message);

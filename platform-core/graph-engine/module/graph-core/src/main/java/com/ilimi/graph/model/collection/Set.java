@@ -87,20 +87,31 @@ public class Set extends AbstractCollection {
 
     public Set(BaseGraphManager manager, String graphId, Node node) {
         super(manager, graphId, node.getIdentifier(), node.getMetadata());
-        Map<String, Object> metadata = node.getMetadata();
-        this.setType = (String) metadata.get(SET_TYPE_KEY);
-        this.setObjectType = node.getObjectType();
-        this.setCriteria = (String) metadata.get(SET_CRITERIA_KEY);
-        this.memberObjectType = (String) metadata.get(SET_OBJECT_TYPE_KEY);
-        if (StringUtils.isNotBlank(setCriteria)) {
-            try {
-                SearchCriteria sc = mapper.readValue(setCriteria, SearchCriteria.class);
-                this.criteria = sc;
-            } catch (Exception e) {
+        fromNode(node);
+    }
+
+    public Future<Node> getSetObject(Request req) {
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+        request.setOperation("getNodeByUniqueId");
+        request.put(GraphDACParams.node_id.name(), getNodeId());
+        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+        Future<Node> message = response.map(new Mapper<Object, Node>() {
+            @Override
+            public Node apply(Object parameter) {
+                if (null != parameter && parameter instanceof Response) {
+                    Response res = (Response) parameter;
+                    Node node = (Node) res.get(GraphDACParams.node.name());
+                    if (StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), node.getNodeType())) {
+                        fromNode(node);
+                        return node;
+                    }
+                }
+                return null;
             }
-        }
-        this.inRelations = node.getInRelations();
-        this.outRelations = node.getOutRelations();
+        }, manager.getContext().dispatcher());
+        return message;
     }
 
     @Override
@@ -128,6 +139,52 @@ public class Set extends AbstractCollection {
         } else {
             createSet(request);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public void updateMembership(final Request req) {
+        final ExecutionContext ec = manager.getContext().dispatcher();
+        Future<Node> nodeFuture = getSetObject(req);
+        nodeFuture.onComplete(new OnComplete<Node>() {
+            @Override
+            public void onComplete(Throwable arg0, Node arg1) throws Throwable {
+                if (null == arg1) {
+                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_NOT_FOUND.name(), "Set not found", ResponseCode.RESOURCE_NOT_FOUND,
+                            getParent());
+                } else {
+                    if (null == criteria || !StringUtils.equals(SET_TYPES.CRITERIA_SET.name(), getSetType())) {
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SET_UPDATE_MEMBERSHIP_ERROR.name(),
+                                "Update membership is supported only for criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+                    } else {
+                        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+                        final Request request = new Request(req);
+                        request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                        request.setOperation("searchNodes");
+                        request.put(GraphDACParams.search_criteria.name(), criteria);
+                        Future<Object> dacFuture = Patterns.ask(dacRouter, request, timeout);
+                        dacFuture.onComplete(new OnComplete<Object>() {
+                            @Override
+                            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                                        GraphEngineErrorCodes.ERR_GRAPH_CREATE_SET_UNKNOWN_ERROR.name(), "Error searching nodes");
+                                if (valid) {
+                                    Response res = (Response) arg1;
+                                    List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+                                    List<String> memberIds = new ArrayList<String>();
+                                    if (null != nodes && !nodes.isEmpty()) {
+                                        for (Node node : nodes) {
+                                            memberIds.add(node.getIdentifier());
+                                        }
+                                    }
+                                    // TODO: add new members and remove old
+                                    // members
+                                }
+                            }
+                        }, ec);
+                    }
+                }
+            }
+        }, ec);
     }
 
     @Override
@@ -362,7 +419,7 @@ public class Set extends AbstractCollection {
             manager.handleException(e, getParent());
         }
     }
-    
+
     public void getNode(Request req) {
         try {
             if (!manager.validateRequired(this.getNodeId())) {
@@ -475,8 +532,6 @@ public class Set extends AbstractCollection {
                         }
                         setMemberIds(memberIds);
                         createSetNode(req, ec);
-                        // TODO: create/update metadata, relation and value
-                        // nodes using criteria
                     }
                 }
             }, ec);
@@ -839,6 +894,26 @@ public class Set extends AbstractCollection {
             }
         }, ec);
         return nodeIdFuture;
+    }
+
+    private void fromNode(Node node) {
+        this.metadata = node.getMetadata();
+        this.setObjectType = node.getObjectType();
+        Map<String, Object> metadata = node.getMetadata();
+        if (null != metadata) {
+            this.setType = (String) metadata.get(SET_TYPE_KEY);
+            this.setCriteria = (String) metadata.get(SET_CRITERIA_KEY);
+            this.memberObjectType = (String) metadata.get(SET_OBJECT_TYPE_KEY);
+            if (StringUtils.isNotBlank(setCriteria)) {
+                try {
+                    SearchCriteria sc = mapper.readValue(setCriteria, SearchCriteria.class);
+                    this.criteria = sc;
+                } catch (Exception e) {
+                }
+            }
+        }
+        this.inRelations = node.getInRelations();
+        this.outRelations = node.getOutRelations();
     }
 
 }

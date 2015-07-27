@@ -9,13 +9,13 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchCriteria;
-import com.ilimi.graph.model.collection.TagCriteria;
+import com.ilimi.graph.dac.model.TagCriterion;
 
 public abstract class AbstractSearchCriteria {
 
     private MetadataCriterion metadata;
     private List<RelationCriterion> relations;
-    private TagCriteria tag;
+    private TagCriterion tag;
     private int resultSize = 50;
     private int startPosition = 0;
 
@@ -35,11 +35,11 @@ public abstract class AbstractSearchCriteria {
         this.relations = relations;
     }
 
-    public TagCriteria getTag() {
+    public TagCriterion getTag() {
         return tag;
     }
 
-    public void setTag(TagCriteria tag) {
+    public void setTag(TagCriterion tag) {
         this.tag = tag;
     }
 
