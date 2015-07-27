@@ -35,6 +35,8 @@ public interface ICollectionManager {
     
     void getSet(Request request);
     
+    void updateSet(Request request);
+    
     void getSetCardinality(Request request);
 
     /**

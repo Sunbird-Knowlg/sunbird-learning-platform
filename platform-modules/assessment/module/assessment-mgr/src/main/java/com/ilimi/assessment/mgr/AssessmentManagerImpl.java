@@ -499,10 +499,41 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public Response updateItemSet(String id, String taxonomyId, Request request) {
-        // TODO Auto-generated method stub
-        return null;
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_SET_ID.name(), "AssessmentItemSet Id is blank");
+        Node node = (Node) request.get(AssessmentAPIParams.assessment_item_set.name());
+        if (null == node)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(), "AssessmentItemSet Object is blank");
+        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+        validateReq.put(GraphDACParams.node.name(), node);
+        Response validateRes = getResponse(validateReq, LOGGER);
+        List<String> assessmentErrors = validator.validateAssessmentItemSet(node);
+        if(checkError(validateRes)) {
+            if(assessmentErrors.size() > 0) {
+                List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
+                messages.addAll(assessmentErrors);
+            }
+            return validateRes;
+        } else {
+            if(assessmentErrors.size() > 0) {
+                return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "AssessmentItemSet validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
+            } else {
+                node.setIdentifier(id);
+                ItemSetDTO itemSet = new ItemSetDTO(node);
+                Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "updateSet");
+                setReq.put(GraphDACParams.criteria.name(), itemSet.getCriteria());
+                setReq.put(GraphDACParams.members.name(), itemSet.getMemberIds());
+                setReq.put(GraphDACParams.node.name(), node);
+                setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
+                setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
+                return getResponse(setReq, LOGGER);
+            }
+        }
     }
 
     @Override

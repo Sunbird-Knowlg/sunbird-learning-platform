@@ -1,6 +1,5 @@
 package com.ilimi.assessment.controller;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -17,15 +16,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
-import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -60,13 +55,31 @@ public class AssessmentItemSetController extends BaseController {
         }
     }
     
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
+    @ResponseBody
+    public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "assessment_item_set.update";
+        Request request = getRequestObject(map);
+        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
+            LOGGER.info("Update Item | Response: " + response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("Update Item | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "isfields", required = false) String[] isfields, @RequestHeader(value = "user-id") String userId) {
         
-        String apiId = "assessment_item.find";
+        String apiId = "assessment_item_set.find";
         LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: " + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields);
@@ -78,7 +91,6 @@ public class AssessmentItemSetController extends BaseController {
         }
     }
     
-    @SuppressWarnings("unchecked")
     private Request getRequestObject(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         ObjectMapper mapper = new ObjectMapper();

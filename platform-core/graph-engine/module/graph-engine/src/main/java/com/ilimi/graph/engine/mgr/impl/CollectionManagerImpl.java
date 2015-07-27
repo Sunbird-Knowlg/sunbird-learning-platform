@@ -80,6 +80,33 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
         }
     }
     
+    @SuppressWarnings("unchecked")
+    @Override
+    public void updateSet(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        SearchCriteria criteria = (SearchCriteria) request.get(GraphDACParams.criteria.name());
+        List<String> memberIds = (List<String>) request.get(GraphDACParams.members.name());
+        String setObjectType = (String) request.get(GraphDACParams.object_type.name());
+        String memberObjectType = (String) request.get(GraphDACParams.member_type.name());
+        Node node = (Node) request.get(GraphDACParams.node.name());
+        try {
+            if (!validateRequired(node, setObjectType)) 
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_SET_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
+            Set set = null;
+            if (validateRequired(memberIds)) {
+                set = new Set(this, graphId, null, setObjectType, memberObjectType, node.getMetadata(), memberIds);
+            } else {
+                set = new Set(this, graphId, null, setObjectType, node.getMetadata(), criteria);
+            }
+            set.setInRelations(node.getInRelations());
+            set.setOutRelations(node.getOutRelations());
+            set.create(request);
+        } catch (Exception e) {
+            handleException(e, getSender());
+        }
+    }
+    
     @Override
     public void getSet(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
