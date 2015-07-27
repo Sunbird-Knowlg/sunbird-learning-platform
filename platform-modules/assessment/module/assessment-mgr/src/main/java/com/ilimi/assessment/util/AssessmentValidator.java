@@ -1,19 +1,16 @@
 package com.ilimi.assessment.util;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.assessment.enums.AssessmentItemType;
 import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.assessment.mgr.IAssessmentManager;
@@ -24,7 +21,6 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 @Component
@@ -340,5 +336,28 @@ public class AssessmentValidator extends BaseManager {
             removeIds.addAll(existingMembers);
         }
     }
+
+	public List<String> validateAssessmentItemSet(Request request) {
+		List<String> errorMessages = new ArrayList<String>();
+		try {
+			@SuppressWarnings("rawtypes")
+			Map map = mapper.readValue(mapper.writeValueAsString(request.get(AssessmentAPIParams.assessment_search_criteria.name())), Map.class);
+			System.out.println(map);
+			@SuppressWarnings("unchecked")
+			Map<String, Object> metadata = (Map<String, Object>) map.get("metadata");
+			@SuppressWarnings("unchecked")
+			List<Map<String, Object>> values = (List<Map<String, Object>>) metadata.get("filters");
+			for(Map<String, Object> value : values){
+				if(value.get("property").equals("")){
+					errorMessages.add( value.get("property") + " can not be empty string");
+					break;
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return errorMessages;
+	}
 
 }

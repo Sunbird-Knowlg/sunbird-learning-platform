@@ -143,17 +143,21 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     @SuppressWarnings("unchecked")
     @Override
     public Response searchAssessmentItems(String taxonomyId, Request request) {
-        if (StringUtils.isBlank(taxonomyId))
+    	if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         ItemSearchCriteria criteria = (ItemSearchCriteria) request.get(AssessmentAPIParams.assessment_search_criteria.name());
+        
         if (null == criteria)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(), "AssessmentItem Search Criteria Object is blank");
+        List<String> assessmentErrors = validator.validateAssessmentItemSet(request);
+        if (assessmentErrors.size() > 0)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(), "property can not be empty string");
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
         Response response = getResponse(req, LOGGER);
         Response listRes = copyResponse(response);
-        if (checkError(response))
-            return response;
-        else {
+        if (checkError(response)){
+        	return response;
+        } else {
             List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
             List<ItemDTO> searchItems = new ArrayList<ItemDTO>();
             if(null != nodes && nodes.size() > 0) {
