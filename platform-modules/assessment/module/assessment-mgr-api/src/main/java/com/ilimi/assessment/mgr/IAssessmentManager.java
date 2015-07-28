@@ -129,6 +129,12 @@ public interface IAssessmentManager {
      *           
      */
     public Response getItemSet(String id, String taxonomyId, String[] isfields);
+    
+    /**
+     * 
+     * 
+     */
+    public Response searchItemSets(String taxonomyId, Request request);
 
     /**
      * Deletes the Assessment Item Sets for given list of ids.
@@ -177,5 +183,5 @@ public interface IAssessmentManager {
      * Deliver Questionnaire.
      */
     public Response deliverQuestionnaire(String id, String taxonomyId);
-    
+
 }

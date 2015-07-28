@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.assessment.dto.ItemDTO;
 import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.dto.ItemSetDTO;
+import com.ilimi.assessment.dto.ItemSetSearchCriteria;
 import com.ilimi.assessment.dto.QuestionnaireDTO;
 import com.ilimi.assessment.dto.QuestionnaireSearchCriteria;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
@@ -559,6 +560,33 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             response.put(AssessmentAPIParams.assessment_item_set.name(), dto);
         }
         return response;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response searchItemSets(String taxonomyId, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        ItemSetSearchCriteria criteria = (ItemSetSearchCriteria) request.get(AssessmentAPIParams.assessment_search_criteria.name());
+        
+        if (null == criteria)
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(), "ItemSet Search Criteria Object is blank");
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+        Response response = getResponse(req, LOGGER);
+        Response listRes = copyResponse(response);
+        if (checkError(response)){
+            return response;
+        } else {
+            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+            List<ItemDTO> searchItems = new ArrayList<ItemDTO>();
+            if(null != nodes && nodes.size() > 0) {
+                for(Node node : nodes) {
+                    searchItems.add(new ItemDTO(node));
+                }
+            }
+            listRes.put(AssessmentAPIParams.assessment_item_sets.name(), searchItems);
+            return listRes;
+        }
     }
 
     @Override
