@@ -775,7 +775,7 @@
       ]
     },
     {
-      "objectType": "Media",
+      "objectType": "mediaUrl",
       "properties": [
         {
           "propertyName": "title",

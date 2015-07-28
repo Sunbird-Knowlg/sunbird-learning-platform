@@ -14,3 +14,4 @@ exports.AUDIT_HISTORY = '/taxonomy-service/audit/${id}';
 exports.GET_COMMENTS = '/taxonomy-service/comment/${id}';
 exports.SAVE_COMMENT = '/taxonomy-service/comment?taxonomyId=${tid}';
 exports.GET_COMMENT_THREAD = '/taxonomy-service/comment/${id}/${threadId}';
+exports.SAVE_MEDIA = '/taxonomy-service/learning-object/media?taxonomyId=${tid}';

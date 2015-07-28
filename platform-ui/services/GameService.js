@@ -37,7 +37,7 @@ exports.getGameCoverage = function(tid, cb) {
 		if(!util.validateMWResponse(results.concepts, cb)) {
 			return;
 		}
-
+		
 		var data = {
 			concepts: results.concepts.result.results,
 			games: [],
@@ -207,18 +207,13 @@ exports.createGame = function(data, cb) {
 				learning_object: {
 	        		objectType: "Game",
 	        		metadata: {
-						"identifier": data.code,
+	 					"name": data.name,
 	 					"code": data.code,
-						"launchUrl": data.code,
-						"osId": data.code,
-						"name": data.name,
 	 					"appIcon": data.appIcon,
 	 					"posterImage": data.posterImage,
-						"grayScaleAppIcon": data.appIcon,
 	 					"owner": data.owner,
 	 					"developer": data.developer,
-	 					"description": data.description,
-						"status": "Draft"
+	 					"description": data.description
 					}
 				}
 			},

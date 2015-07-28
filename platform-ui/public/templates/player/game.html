@@ -65,6 +65,17 @@
                 	</div>
             	</div>
             </div>
+            <div class="col-md-12 padBottom10">
+                <div class="col-md-4 noPad">
+                  Upload images or video <a href="javascript: void(0)"><h4 class="margin0 grayText"></h4></a>
+                </div>
+                <div class="col-md-4 noPad" style = "display:inline">              
+                    <input style = "display:inline; border-radius: 5px;" type="file" file-model="selectedConcept.filesToUpload[selectedConcept]"/>
+                </div>
+                <div div class="col-md-4 noPad" style = "display:inline">
+                  <button class="btn btn-primary btn-xs pull-right" style = "display:inline; margin-right: 5%;"  ng-click="uploadScreenshots($event, selectedConcept)" data-loading-text="Uploading Media...">Upload</button>
+                </div>
+            </div>
             <div class="col-md-12 noPad padTop marginBottom15">
               <ul class="bxslider" ng-if="selectedConcept.screenshots && selectedConcept.screenshots.length > 0">
                 <li ng-repeat="screenshot in selectedConcept.screenshots">
@@ -110,6 +121,7 @@
 
 <div ng-include="'save_confirmation_template.html'"></div>
 <div ng-include="'comments_template.html'"></div>
+<div ng-include="'audit_log_template.html'"></div>
 
 <script type="text/javascript">
   $('.mid-container-full').on("scroll", function(e) {

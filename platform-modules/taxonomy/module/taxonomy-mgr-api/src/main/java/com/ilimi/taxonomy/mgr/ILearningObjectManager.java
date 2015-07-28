@@ -10,6 +10,8 @@ public interface ILearningObjectManager {
     Response find(String id, String taxonomyId, String[] gfields);
 
     Response create(String taxonomyId, Request request);
+    
+    Response createMedia(String taxonomyId, Request request);
 
     Response update(String id, String taxonomyId, Request request);
 
