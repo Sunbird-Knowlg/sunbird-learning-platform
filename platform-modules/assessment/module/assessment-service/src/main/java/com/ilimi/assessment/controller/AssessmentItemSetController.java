@@ -68,10 +68,10 @@ public class AssessmentItemSetController extends BaseController {
         LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
-            LOGGER.info("Update Item | Response: " + response);
+            LOGGER.info("Update | Response: " + response);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.error("Update Item | Exception: " + e.getMessage(), e);
+            LOGGER.error("Update | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
@@ -83,13 +83,13 @@ public class AssessmentItemSetController extends BaseController {
             @RequestParam(value = "isfields", required = false) String[] isfields, @RequestHeader(value = "user-id") String userId) {
         
         String apiId = "assessment_item_set.find";
-        LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: " + userId);
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: " + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields);
-            LOGGER.info("Find Item | Response: " + response);
+            LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
-            LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+            LOGGER.error("Find | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
@@ -98,7 +98,7 @@ public class AssessmentItemSetController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> search(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "assessment_item.search";
+        String apiId = "assessment_item_set.search";
         LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
         try {
             Request reqeust = getSearchRequest(map);
@@ -107,6 +107,22 @@ public class AssessmentItemSetController extends BaseController {
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Search | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "assessment_item_set.delete";
+        LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
+        try {
+            Response response = assessmentManager.deleteItemSet(id, taxonomyId);
+            LOGGER.info("Delete | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Delete | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
