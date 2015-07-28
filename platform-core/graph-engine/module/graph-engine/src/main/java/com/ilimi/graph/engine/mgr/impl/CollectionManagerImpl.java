@@ -101,7 +101,7 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             }
             set.setInRelations(node.getInRelations());
             set.setOutRelations(node.getOutRelations());
-            set.create(request);
+            set.updateMembership(request);
         } catch (Exception e) {
             handleException(e, getSender());
         }

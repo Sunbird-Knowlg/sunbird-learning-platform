@@ -13,7 +13,6 @@ import org.springframework.stereotype.Component;
 import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.assessment.enums.AssessmentItemType;
 import com.ilimi.assessment.enums.QuestionnaireType;
-import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
@@ -27,7 +26,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class AssessmentValidator extends BaseManager {
     
     private ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(IAssessmentManager.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(AssessmentValidator.class.getName());
 
     public String getAssessmentItemType(Node item) {
         Map<String, Object> metadata = item.getMetadata();

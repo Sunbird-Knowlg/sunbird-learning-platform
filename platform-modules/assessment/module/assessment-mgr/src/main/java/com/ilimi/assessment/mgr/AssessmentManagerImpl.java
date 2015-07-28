@@ -562,9 +562,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     }
 
     @Override
-    public Response deleteItemSet(Request request) {
-        // TODO Auto-generated method stub
-        return null;
+    public Response deleteItemSet(String id, String taxonomyId) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_ID.name(), "AssessmentItem Id is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "dropCollection", GraphDACParams.collection_id.name(), id);
+        request.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+        return getResponse(request, LOGGER);
     }
 
 }

@@ -138,7 +138,7 @@ public interface IAssessmentManager {
      * @response None
      * 
      */
-    public Response deleteItemSet(Request request);
+    public Response deleteItemSet(String id, String taxonomyId);
 
     // Assessment Item Set - END
 

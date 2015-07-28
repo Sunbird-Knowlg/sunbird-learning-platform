@@ -116,6 +116,10 @@ public abstract class BaseGraphManager extends UntypedActor {
         onSuccessResponse(response, parent);
         onFailureResponse(response, parent);
     }
+    
+    public void returnResponseOnFailure(Future<Object> response, final ActorRef parent) {
+        onFailureResponse(response, parent);
+    }
 
     public void onSuccessResponse(Future<Object> response, final ActorRef parent) {
         response.onSuccess(new OnSuccess<Object>() {
