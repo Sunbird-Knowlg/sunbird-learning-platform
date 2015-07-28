@@ -105,7 +105,7 @@ public class Set extends AbstractCollection {
                     Response res = (Response) parameter;
                     Node node = (Node) res.get(GraphDACParams.node.name());
                     if (StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), node.getNodeType())) {
-                        fromNode(node);
+//                        fromNode(node);
                         return node;
                     }
                 }

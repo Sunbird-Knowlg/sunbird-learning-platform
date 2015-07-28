@@ -95,9 +95,9 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
                         "Required parameters are missing...");
             Set set = null;
             if (validateRequired(memberIds)) {
-                set = new Set(this, graphId, null, setObjectType, memberObjectType, node.getMetadata(), memberIds);
+                set = new Set(this, graphId, node.getIdentifier(), setObjectType, memberObjectType, node.getMetadata(), memberIds);
             } else {
-                set = new Set(this, graphId, null, setObjectType, node.getMetadata(), criteria);
+                set = new Set(this, graphId, node.getIdentifier(), setObjectType, node.getMetadata(), criteria);
             }
             set.setInRelations(node.getInRelations());
             set.setOutRelations(node.getOutRelations());
