@@ -190,16 +190,40 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> getConcepts(@PathVariable(value = "id") String id, @PathVariable(value = "rel") String relationType,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "cfields", required = false) String[] cfields,
             @RequestParam(value = "depth", required = false, defaultValue = "0") int depth, @RequestHeader(value = "user-id") String userId) {
         String apiId = "concept.get.children";
         LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth
                 + " | user-id: " + userId);
         try {
-            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId);
+            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId, cfields, false);
             LOGGER.info("Get Concepts | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Get Concepts | Exception: " + e.getMessage(), e);
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> getConceptsHierarchy(@PathVariable(value = "id") String id, 
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "depth", required = false, defaultValue = "0") int depth, 
+            @RequestParam(value = "rel", required = false, defaultValue = "isParentOf") String relationType,
+            @RequestParam(value = "cfields", required = false) String[] cfields,
+            @RequestHeader(value = "user-id") String userId) {
+    	if(cfields == null) cfields = new String[]{"name", "code"};
+        String apiId = "concept.get.children.hierarchy";
+        LOGGER.info("Get Concepts Hierarchy | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth
+                + " | user-id: " + userId);
+        try {
+            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId, cfields, true);
+            LOGGER.info("Get Concepts Hierarchy | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Get Concepts Hierarchy | Exception: " + e.getMessage(), e);
             e.printStackTrace();
             return getExceptionResponseEntity(e, apiId, null);
         }
