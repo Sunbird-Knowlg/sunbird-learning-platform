@@ -36,7 +36,6 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 	public static final int PS = 5;
 	List<String> questionnaireIds = new ArrayList<String>();
 	List<String> questionIds = new ArrayList<String>();
-	static int i = 0;
 	AtomicInteger aiG = new AtomicInteger(0);
 	AtomicInteger aiU = new AtomicInteger(0);
 	AtomicInteger aiD = new AtomicInteger(0);
@@ -59,10 +58,6 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 		}
         return resp;
     }
-	
-	public static synchronized int generateNumber(){
-		return i++;
-	}
 	
 	@Test
 	public void createQuestions(){
