@@ -62,7 +62,7 @@ public class ActorBootstrap {
     public static void loadConfiguration() {
         try {
             Config config = ConfigFactory.load();
-            if (null != document) {
+            /*if (null != document) {
                 // init actor configuration
                 NodeList configList = document.getElementsByTagName("init");
                 if (null != configList && configList.getLength() > 0) {
@@ -87,7 +87,9 @@ public class ActorBootstrap {
             } else {
                 system = ActorSystem.create(DEFAULT_SYSTEM_NAME, config.getConfig(DEFAULT_SYSTEM_NAME));
                 createLocatConfig();
-            }
+            }*/
+            system = ActorSystem.create(DEFAULT_SYSTEM_NAME, config.getConfig(DEFAULT_SYSTEM_NAME));
+            createLocatConfig();
             initMethodMap();
         } catch (Exception e) {
             e.printStackTrace();
@@ -95,7 +97,7 @@ public class ActorBootstrap {
     }
 
     private static void createLocatConfig() {
-        int poolSize = 4;
+        int poolSize = 100;
 
         Props graphMgrProps = Props.create(GraphMgrImpl.class);
         ActorRef graphMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(graphMgrProps));

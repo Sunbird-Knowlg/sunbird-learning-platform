@@ -72,7 +72,8 @@ public abstract class BaseCucumberTest {
 			actions = mockMvc.perform(builder);			
 		} catch (Exception e) {
 			e.printStackTrace();
-		} 		
+		} 
+		
     	return actions;
     }
     

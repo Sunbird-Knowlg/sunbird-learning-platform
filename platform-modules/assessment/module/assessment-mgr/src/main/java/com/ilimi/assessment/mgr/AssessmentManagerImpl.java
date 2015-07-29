@@ -48,6 +48,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     
     @Autowired
     private AssessmentValidator validator;
+    long [] sum = {0,0,0,0,0,0,0,0,0,0,0,0};
     
     @SuppressWarnings("unchecked")
     @Override
@@ -57,9 +58,13 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Node item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(), "AssessmentItem Object is blank");
+        long t1 = System.currentTimeMillis();
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
+        long t2 = System.currentTimeMillis();
+        System.out.println("Node Validation Time for Canvas : " + (t2 - t1));
+        
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
         if(checkError(validateRes)) {
             if(assessmentErrors.size() > 0) {
