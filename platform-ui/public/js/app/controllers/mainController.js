@@ -181,7 +181,7 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
     }
 
     this.getMedia = function(data){
-        return this.postToService('/private/v1/player/media/', data);
+        return this.postToService('/private/v1/player/media', data);
     }
 
 }]);
@@ -1012,8 +1012,23 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
                                 mediaType : mediaval
                             }                        
                         service.getMedia($scope.newMedia).then(function(data){
-                            $scope.getGame($scope.selectedTaxonomyId);
+                            var screenshot = {
+                                              "identifier": data,
+                                              "mediaUrl": $scope.newMedia.url,
+                                              "mediaType": $scope.newMedia.mediaType,
+                                              "mimeType": $scope.newMedia.mimeType,
+                                              "posterImage": null,
+                                              "title": null,
+                                              "description": null,
+                                              "metadata": {
+                                                "identifier": data
+                                              }
+                                            };
+                            $scope.$parent.selectedConcept.screenshots.push(screenshot);
                             $scope.showConformationMessage('alert-success','Media uploaded successfully.');
+                            setTimeout(function() {
+                                $scope.resetSlider();
+                            }, 500);
                             $scope.buttonReset($event);
                         });
                     }).catch(function(err) {
@@ -1109,24 +1124,28 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         setTimeout(function() {
             $('.tool-tip').tooltip();
             if ($scope.$parent.selectedConcept.screenshots && $scope.$parent.selectedConcept.screenshots.length > 0) {
-                if ($scope.slider && $scope.slider != null) {
-                    $scope.slider.destroySlider();
-                } 
-                $scope.slider = $('.bxslider').bxSlider({
-                    minSlides: 2,
-                    maxSlides: 5,
-                    slideWidth: 320,
-                    slideMargin: 20,
-                    pager: false,
-                    infiniteLoop: false,
-                    hideControlOnEnd: true,
-                    responsive: false,
-                    onSliderLoad: function() {
-                        $('ul.bxslider li').width('auto');
-                    }
-                });
+                $scope.resetSlider();
             }
         }, 500);
+    }
+
+    $scope.resetSlider = function() {
+        if ($scope.slider && $scope.slider != null) {
+            $scope.slider.destroySlider();
+        } 
+        $scope.slider = $('.bxslider').bxSlider({
+            minSlides: 2,
+            maxSlides: 5,
+            slideWidth: 320,
+            slideMargin: 20,
+            pager: false,
+            infiniteLoop: false,
+            hideControlOnEnd: true,
+            responsive: false,
+            onSliderLoad: function() {
+                $('ul.bxslider li').width('auto');
+            }
+        });
     }
 
     $scope.saveChanges = function($event) {

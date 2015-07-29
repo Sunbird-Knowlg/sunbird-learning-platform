@@ -99,7 +99,7 @@ public class LearningObjectController extends BaseController {
     
     @RequestMapping(value = "/media", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> createMediaNode(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    public ResponseEntity<Response> createMedia(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         String apiId = "media-object.create";
         Request request = getMediaRequestObject(map);
