@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
@@ -14,12 +15,14 @@ public class ConceptHierarhy {
 
 	private String identifier;
 	private String objectType;
+	private String type;
 	private Map<String, Object> metadata = new HashMap<String, Object>();
 	private List<ConceptHierarhy> children;
 
 	public ConceptHierarhy(Node parent, Map<String, Node> nodes, String[] cfields) {
 		setIdentifier(parent.getIdentifier());
 		setObjectType(parent.getObjectType());
+		setType(parent); // TODO: We need to change this in future.
 		setMetadata(parent, cfields);
 		setChildren(parent, nodes, cfields);
 	}
@@ -67,10 +70,21 @@ public class ConceptHierarhy {
 		if(null != relations && !relations.isEmpty()) {
 			this.children = new ArrayList<ConceptHierarhy>();
 			for(Relation relation : relations) {
-				Node child = nodes.get(relation.getEndNodeId());
-				this.children.add(new ConceptHierarhy(child, nodes, cfields));
+				if(SystemNodeTypes.DATA_NODE.name().equals(relation.getEndNodeType()) && "Concept".equals(relation.getEndNodeObjectType())) {
+					Node child = nodes.get(relation.getEndNodeId());
+					this.children.add(new ConceptHierarhy(child, nodes, cfields));
+				}
 			}
 		}
+	}
+
+	public String getType() {
+		return type;
+	}
+
+	public void setType(Node node) {
+		if("Concept".equals(node.getObjectType()))
+			this.type = node.getIdentifier().substring(0, 2);
 	}
 
 }

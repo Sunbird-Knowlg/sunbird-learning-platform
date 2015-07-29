@@ -186,16 +186,14 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
         		Node parent = null;
         		Map<String, Node> nodes = new HashMap<String, Node>();
                 for (Node node : graph.getNodes()) {
-                	if(SystemNodeTypes.DATA_NODE.name().equals(node.getNodeType())) {
                 		nodes.put(node.getIdentifier(), node);
-                		if("Taxonomy".equals(node.getObjectType()))
+                		if(id.equals(node.getIdentifier()))
                 			parent = node;
-                	}
                 }
                 if(null != parent) {
-                    response.put(TaxonomyAPIParams.concept_hierarchy.name(), new ConceptHierarhy(parent, nodes, cfields));
+                    response.put(TaxonomyAPIParams.taxonomy_hierarchy.name(), new ConceptHierarhy(parent, nodes, cfields));
                 } else {
-                	response.put(TaxonomyAPIParams.concept_hierarchy.name(), null);
+                	response.put(TaxonomyAPIParams.taxonomy_hierarchy.name(), null);
                 }
         	} else {
         		List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
