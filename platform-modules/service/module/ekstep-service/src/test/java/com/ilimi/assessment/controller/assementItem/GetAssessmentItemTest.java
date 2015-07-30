@@ -74,9 +74,10 @@ public class GetAssessmentItemTest extends BaseCucumberTest{
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/assessmentitem/" + questionId;
-    	if(taxonomyId.equals("absent")){}
-    	else
-    		params.put("taxonomyId", this.taxonomyId);
+    	if ("empty".equals(this.taxonomyId))
+            params.put("taxonomyId", "");
+        else if (!"absent".equals(this.taxonomyId))
+            params.put("taxonomyId", this.taxonomyId);  
     	params.put("cfields", "name");
     	header.put("user-id", "ilimi");;
     	actions = resultActionGet(path, params, MediaType.APPLICATION_JSON, header, mockMvc);

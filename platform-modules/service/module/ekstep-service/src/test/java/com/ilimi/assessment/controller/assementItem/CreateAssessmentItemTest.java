@@ -96,11 +96,10 @@ public class CreateAssessmentItemTest extends BaseCucumberTest {
         Map<String, String> header = new HashMap<String, String>();
         String path = "/assessmentitem";
         header.put("user-id", "ilimi");
-        if (this.taxonomyId.equals("empty"))
+        if ("empty".equals(this.taxonomyId))
             params.put("taxonomyId", "");
-        else if (!this.taxonomyId.equals("absent"))
-            params.put("taxonomyId", this.taxonomyId);
-        
+        else if (!"absent".equals(this.taxonomyId))
+            params.put("taxonomyId", this.taxonomyId);        
         if (questionDetails.equals("proper question data for mcq")) {
             contentString = "{ \"request\": { \"assessment_item\": { \"identifier\":\"tQ21\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 21.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q24\", \"difficulty_level\": \"low\", \"num_answers\": 3, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
         } else if (questionDetails.equals("proper question data for mmcq")) {

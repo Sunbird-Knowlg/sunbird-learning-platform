@@ -508,7 +508,7 @@ public class DataNode extends AbstractNode {
                     public List<String> apply(Object parameter) {
 
                         long t2  = System.currentTimeMillis();
-                        System.out.println("getNodeByUniqueId code Performance : " + (t2 - t1));
+                        System.out.println("getNodeByUniqueId code Performance (" +getNodeId() + " ) :" + (t2 - t1));
                         if (null != parameter && parameter instanceof Response) {
                             Response res = (Response) parameter;
                             Node node = (Node) res.get(GraphDACParams.node.name());

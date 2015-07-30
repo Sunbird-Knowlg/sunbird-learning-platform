@@ -21,6 +21,8 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.AfterTest;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
 import com.ilimi.common.dto.Response;
@@ -34,15 +36,16 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 	@Autowired
 	protected WebApplicationContext context;	
 	long [] sum = {0,0,0,0,0,0,0,0,0,0,0,0};
-	public static final int IC = 1;
-	public static final int PS = 1;
+	public static final int IC = 50;
+	public static final int PS = 50;
 	List<String> questionIds =  Collections.synchronizedList(new ArrayList<String>());
 	static int i = 0;
+	AtomicInteger id = new AtomicInteger();
 	AtomicInteger aiG = new AtomicInteger();
 	AtomicInteger aiU = new AtomicInteger();
 	AtomicInteger aiD = new AtomicInteger();
     
-	public Response jsonToObject(ResultActions actions) {
+	public Response jsonToObject(ResultActions actions) { 
     	String content = null;
 		try {
 			content = actions.andReturn().getResponse().getContentAsString();
@@ -67,23 +70,38 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 	@AfterTest
     public void calculateAVG(){
 		System.out.println();
-    	System.out.println("Avg time taken by create question API(MCQ) for " +IC+ " Threads :" + sum[0]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by create question API(MMCQ) for " +IC+ " Threads :" + sum[4]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by create question API(FTB) for " +IC+ " Threads :" + sum[5]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by create question API(MTF) for " +IC+ " Threads :" + sum[6]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by create question API(Speech) for " +IC+ " Threads :" + sum[7]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by create question API(Canvas) for " +IC+ " Threads :" + sum[8]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by update question API for " +IC+ " Threads :" + sum[1]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by get question API for " +IC+ " Threads    :" + sum[2]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by delete question API for " +IC+ " Threads :" + sum[3]/(float)(1000*IC) + " seconds");
+    	System.out.println("Avg time taken by create question API(MCQ) for " +IC+ " Threads    : " + sum[0]/IC + " ms");
+    	System.out.println("Avg time taken by create question API(MMCQ) for " +IC+ " Threads   : " + sum[4]/IC + " ms");
+    	System.out.println("Avg time taken by create question API(FTB) for " +IC+ " Threads    : " + sum[5]/IC + " ms");
+    	System.out.println("Avg time taken by create question API(MTF) for " +IC+ " Threads    : " + sum[6]/IC + " ms");
+    	System.out.println("Avg time taken by create question API(Speech) for " +IC+ " Threads : " + sum[7]/IC + " ms");
+    	System.out.println("Avg time taken by create question API(Canvas) for " +IC+ " Threads : " + sum[8]/IC + " ms");
+    	System.out.println("Avg time taken by update question API for " +IC+ " Threads         : " + sum[1]/IC + " ms");
+    	System.out.println("Avg time taken by get question API for " +IC+ " Threads            : " + sum[2]/IC + " ms");
+    	System.out.println("Avg time taken by delete question API for " +IC+ " Threads         : " + sum[3]/IC + " ms");
     	System.out.println("QuestionIds Size : " + questionIds.size());
     }
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+	@Test(threadPoolSize = 10, invocationCount = 10)
+	public void assessmentDefinition(){
+		MockMvc mockMvc;
+    	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+        String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Write the name of the animal.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Write the name of the animal showed below <img src='images/monkey.png' />\" }, \"question_type\": \"canvas_question\", \"description\": \"Literacy Test\", \"answer\": [ \"http://platform.ekstep.in/sounds/word_monkey.jpeg\" ], \"code\": \"CQ_1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
+        String path = "/assessmentitem";
+        try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).param("taxonomyId", "numeracy").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+			Thread.sleep(1000);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+    @Test(threadPoolSize = PS, invocationCount = IC)
     public void createQuestionMCQ() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-        String contentString = "{ \"request\": { \"assessment_item\": {\"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
+        String contentString = "{ \"request\": { \"assessment_item\": {\"identifier\" :\"MCQ_"+id.getAndIncrement()+"\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
         String path = "/assessmentitem";
         try {
         	long t1 = System.currentTimeMillis();

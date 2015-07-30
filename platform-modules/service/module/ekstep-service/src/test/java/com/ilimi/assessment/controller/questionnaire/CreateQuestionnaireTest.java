@@ -68,11 +68,10 @@ public class CreateQuestionnaireTest extends BaseCucumberTest {
         Map<String, String> header = new HashMap<String, String>();
         String path = "/questionnaire";
         header.put("user-id", "ilimi");
-        if (this.taxonomyId.equals("empty"))
+        if ("empty".equals(this.taxonomyId))
             params.put("taxonomyId", "");
-        else if (!this.taxonomyId.equals("absent"))
-            params.put("taxonomyId", this.taxonomyId);
-
+        else if (!"absent".equals(this.taxonomyId))
+            params.put("taxonomyId", this.taxonomyId);  
         if (questionnaireDetails.equals("questionnaire as blank")) {
             contentString = "{\"request\": {}}";
         } else if (questionnaireDetails.equals("empty object type")) {

@@ -2,8 +2,10 @@ package com.ilimi.assessmentservice.load.test;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -30,12 +32,14 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 	@Autowired
 	protected WebApplicationContext context;
 	private ResultActions actions; 
-	public static final int IC = 5;
-	public static final int PS = 5;
+	public static final int IC = 10;
+	public static final int PS = 10;
 	long [] sum = {0,0,0};
-	List<String> questionIds = new ArrayList<String>();
 	String setId ;
-	String questionnaireId;
+	List<String> questionnaireIds =  Collections.synchronizedList(new ArrayList<String>());
+	List<String> questionIds =  Collections.synchronizedList(new ArrayList<String>());
+	AtomicInteger aiG = new AtomicInteger();
+	AtomicInteger aiU = new AtomicInteger(0);
 	
     public Response jasonToObject(ResultActions actions) {
     	String content = null;
@@ -58,8 +62,9 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
     @AfterTest
     public void calculateAVG(){
 		System.out.println();
-    	System.out.println("Avg time taken by create dynamic Questionnaire API for " +IC+ " Threads :" + sum[0]/(float)(1000*IC) + " seconds");
-    	System.out.println("Avg time taken by update dynamic Questionnaire API for " +IC+ " Threads :" + sum[1]/(float)(1000*IC) + " seconds");
+    	System.out.println("Avg time taken by create dynamic Questionnaire API for " +IC+ " Threads : " + sum[0]/(float)(IC) + " ms");
+    	System.out.println("Avg time taken by update dynamic Questionnaire API for " +IC+ " Threads : " + sum[1]/(float)(IC) + " ms");
+    	System.out.println("Avg time taken by get dynamic Questionnaire API for " +IC+ " Threads : " + sum[2]/(float)(IC) + " ms");
     	System.out.println();
     }
 
@@ -102,41 +107,75 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		setId = (String) result.get("set_id");
     }
 	
-	@Test(threadPoolSize = PS, invocationCount = IC, priority = 2)
-    public void createDynamicQuestionnaire() {
-    	long t1 = System.currentTimeMillis();
+	@Test(dependsOnMethods = "createQuestionSet")
+    public void assistDynamicQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
     	String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR2\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"dynamic\", \"duration\": 20, \"total_items\": 7, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"item_sets\": [ { \"id\": \""+this.setId+"\", \"count\": 7 } ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         String path = "/questionnaire";
         try {
+        	long t1 = System.currentTimeMillis();
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).param("taxonomyId", "numeracy").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+			long t2 = System.currentTimeMillis();
+//	        sum[0] = sum[0] + (t2 - t1);
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());	
+		} catch (Exception e) {
+			e.printStackTrace();
+		}       
+    } 
+	
+	@Test(threadPoolSize = PS, invocationCount = IC, priority = 2)
+    public void createDynamicQuestionnaire() {
+    	MockMvc mockMvc;
+    	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    	String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR2\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"dynamic\", \"duration\": 20, \"total_items\": 7, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"item_sets\": [ { \"id\": \""+this.setId+"\", \"count\": 7 } ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
+        String path = "/questionnaire";
+        try {
+        	long t1 = System.currentTimeMillis();
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path).param("taxonomyId", "numeracy").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "ilimi"));
+			long t2 = System.currentTimeMillis();
+	        sum[0] = sum[0] + (t2 - t1);
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());	
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
         Response resp = jasonToObject(actions);
         Assert.assertEquals("successful", resp.getParams().getStatus());
 		Map<String, Object> result = resp.getResult();
-		questionnaireId = (String) result.get("node_id");
-        long t2 = System.currentTimeMillis();
-        sum[0] = sum[0] + (t2 - t1);
+		questionnaireIds.add((String) result.get("node_id"));        
     } 
 	
 	@Test(threadPoolSize = PS, invocationCount = IC, priority = 3)
     public void updateDynamicQuestionnaire() {
-    	long t1 = System.currentTimeMillis();
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-    	String contentString = "{ \"request\": { \"questionnaire\": { \"identifier\": \""+this.questionnaireId+"\",\"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR2\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"dynamic\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"item_sets\": [ { \"id\": \""+this.setId+"\", \"count\": 6 } ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
+    	String contentString = "{ \"request\": { \"questionnaire\": { \"identifier\": \""+this.questionnaireIds.get(aiU.getAndIncrement())+"\",\"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR2\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"dynamic\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"item_sets\": [ { \"id\": \""+this.setId+"\", \"count\": 6 } ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         String path = "/questionnaire/" + this.setId;
         try {
+        	long t1 = System.currentTimeMillis();
 			actions = mockMvc.perform(MockMvcRequestBuilders.patch(path).param("taxonomyId", "numeracy").contentType(MediaType.APPLICATION_JSON).content(contentString.getBytes()).header("user-id", "ilimi"));
+			long t2 = System.currentTimeMillis();
+	        sum[1] = sum[1] + (t2 - t1);
 			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-        long t2 = System.currentTimeMillis();
-        sum[1] = sum[1] + (t2 - t1);
     } 
+	
+	@Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "updateDynamicQuestionnaire")
+    public void getDynamicQuestionnaire(){
+    	MockMvc mockMvc;
+    	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+    	String path = "/questionnaire/" + questionnaireIds.get(aiG.getAndIncrement());
+        try {
+        	long t1 = System.currentTimeMillis();
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path).param("taxonomyId", "numeracy").contentType(MediaType.APPLICATION_JSON).header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse().getStatus());
+			long t2 = System.currentTimeMillis();
+	        sum[2] = sum[2] + (t2 - t1);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+        
+	}
 }

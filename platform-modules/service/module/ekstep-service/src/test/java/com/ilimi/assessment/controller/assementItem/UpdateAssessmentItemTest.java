@@ -73,10 +73,10 @@ public class UpdateAssessmentItemTest extends BaseCucumberTest{
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/assessmentitem/" + this.questionId;
     	header.put("user-id", "ilimi");
-		 if (this.taxonomyId.equals("empty"))
-	            params.put("taxonomyId", "");
-	        else if (!this.taxonomyId.equals("absent"))
-	            params.put("taxonomyId", this.taxonomyId);
+    	if ("empty".equals(this.taxonomyId))
+            params.put("taxonomyId", "");
+        else if (!"absent".equals(this.taxonomyId))
+            params.put("taxonomyId", this.taxonomyId);  
     	if (questionDetails.equals("question as blank")) {
 	            contentString = "{\"request\": {}}";
 	        } else if (questionDetails.equals("proper question data and relation changes")) {

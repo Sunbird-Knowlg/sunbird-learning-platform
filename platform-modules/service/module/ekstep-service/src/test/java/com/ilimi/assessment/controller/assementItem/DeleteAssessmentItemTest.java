@@ -93,9 +93,10 @@ public class DeleteAssessmentItemTest extends BaseCucumberTest{
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/assessmentitem/" + questionId;
-    	if(taxonomyId.equals("absent")){}
-    	else
-    		params.put("taxonomyId", this.taxonomyId);
+    	if ("empty".equals(this.taxonomyId))
+            params.put("taxonomyId", "");
+        else if (!"absent".equals(this.taxonomyId))
+            params.put("taxonomyId", this.taxonomyId);  
     	header.put("user-id", "ilimi");
     	actions = resultActionDelete(path, params, MediaType.APPLICATION_JSON, header, mockMvc);     
 	}

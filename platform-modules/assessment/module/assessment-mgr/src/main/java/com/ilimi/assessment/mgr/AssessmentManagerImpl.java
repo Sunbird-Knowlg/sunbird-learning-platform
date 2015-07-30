@@ -63,7 +63,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
         long t2 = System.currentTimeMillis();
-        System.out.println("Node Validation Time for Canvas : " + (t2 - t1));
+        //System.out.println("Node Validation Time for Canvas : " + (t2 - t1));
         
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
         if(checkError(validateRes)) {
