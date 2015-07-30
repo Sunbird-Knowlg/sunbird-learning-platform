@@ -4,7 +4,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -130,7 +129,6 @@ public class AssessmentItemSetController extends BaseController {
     private Request getSearchRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
-        ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
                 ItemSetSearchCriteria criteria = mapper.convertValue(map, ItemSetSearchCriteria.class);
@@ -146,7 +144,6 @@ public class AssessmentItemSetController extends BaseController {
     
     private Request getRequestObject(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
-        ObjectMapper mapper = new ObjectMapper();
         Map<String, Object> map = request.getRequest();
         if (null != map && !map.isEmpty()) {
             try {

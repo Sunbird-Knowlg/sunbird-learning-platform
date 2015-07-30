@@ -31,6 +31,7 @@ public abstract class BaseController {
 
     private static final String API_ID_PREFIX = "ekstep.lp";
     private static final String API_VERSION = "1.0";
+    protected ObjectMapper mapper = new ObjectMapper();
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
         int statusCode = response.getResponseCode().code();
@@ -118,7 +119,6 @@ public abstract class BaseController {
             request.setId(id);
             request.setVer(ver);
             request.setTs(ts);
-            ObjectMapper mapper = new ObjectMapper();
             Object reqParams = requestMap.get("params");
             if (null != reqParams) {
                 try {

@@ -95,7 +95,7 @@ public class ActorBootstrap {
     }
 
     private static void createLocatConfig() {
-        int poolSize = 100;
+        int poolSize = 4;
 
         Props graphMgrProps = Props.create(GraphMgrImpl.class);
         ActorRef graphMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(graphMgrProps));

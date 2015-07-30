@@ -6,7 +6,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -40,8 +39,6 @@ import com.ilimi.graph.model.node.MetadataDefinition;
 public class AssessmentItemController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AssessmentItemController.class.getName());
-    
-    private ObjectMapper mapper = new ObjectMapper();
     
     @Autowired
     private IAssessmentManager assessmentManager;
