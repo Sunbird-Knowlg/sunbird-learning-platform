@@ -496,7 +496,6 @@ public class DataNode extends AbstractNode {
                 Future<List<String>> message = Futures.successful(messages);
                 return getMessageMap(message, ec);
             } else {
-            	final long t1  = System.currentTimeMillis();
                 ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
                 Request request = new Request(req);
                 request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
@@ -506,9 +505,6 @@ public class DataNode extends AbstractNode {
                 Future<List<String>> props = response.map(new Mapper<Object, List<String>>() {
                     @Override
                     public List<String> apply(Object parameter) {
-
-                        long t2  = System.currentTimeMillis();
-                        System.out.println("getNodeByUniqueId code Performance (" +getNodeId() + " ) :" + (t2 - t1));
                         if (null != parameter && parameter instanceof Response) {
                             Response res = (Response) parameter;
                             Node node = (Node) res.get(GraphDACParams.node.name());

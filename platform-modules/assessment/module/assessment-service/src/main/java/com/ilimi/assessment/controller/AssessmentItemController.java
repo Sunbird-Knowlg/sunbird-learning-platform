@@ -41,6 +41,8 @@ public class AssessmentItemController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AssessmentItemController.class.getName());
     
+    private ObjectMapper mapper = new ObjectMapper();
+    
     @Autowired
     private IAssessmentManager assessmentManager;
     
@@ -85,7 +87,6 @@ public class AssessmentItemController extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "ifields", required = false) String[] ifields, @RequestHeader(value = "user-id") String userId) {
-        
         String apiId = "assessment_item.find";
         LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields + " | user-id: " + userId);
         try {
@@ -118,7 +119,6 @@ public class AssessmentItemController extends BaseController {
     private Request getSearchRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
-        ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
                 ItemSearchCriteria criteria = mapper.convertValue(map, ItemSearchCriteria.class);
@@ -153,7 +153,6 @@ public class AssessmentItemController extends BaseController {
     private Request getRequestObject(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
-        ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
                 Object objConcept = map.get(AssessmentAPIParams.assessment_item.name());
