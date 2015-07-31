@@ -20,14 +20,12 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.Test;
 
 import com.ilimi.common.dto.Response;
 
 @ContextConfiguration({ "classpath:servlet-context.xml" })						
 @WebAppConfiguration
-public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
+public class QuestionnaireLoadTest /* extends AbstractTestNGSpringContextTests */{
 
 	private ResultActions actions;
 	@Autowired
@@ -60,7 +58,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
         return resp;
     }
 
-	@AfterTest
+//	@AfterTest
     public void calculateAVG(){
 		System.out.println("Question Ids :" + questionIds.size() + " ::: " + "Questionnaire Ids :" + questionnaireIds.size());
     	System.out.println("Avg time taken by create Questionnaire API for " +IC+ " Threads  : " + sum[0]/IC + " ms");
@@ -71,7 +69,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
     	System.out.println();
     }
 	
-	@Test
+	// @Test
 	public void createQuestions(){
 		for(int i = 0; i < 13; i ++){
 			MockMvc mockMvc;
@@ -92,7 +90,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 		}
 	}
 	
-	@Test( dependsOnMethods = "createQuestions")
+	// @Test( dependsOnMethods = "createQuestions")
     public void assistQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -107,7 +105,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC , dependsOnMethods = "assistQuestionnaire")
+    // @Test(threadPoolSize = PS, invocationCount = IC , dependsOnMethods = "assistQuestionnaire")
     public void createQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -129,7 +127,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 		questionnaireIds.add(nodeId);
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "createQuestionnaire")
+    // @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "createQuestionnaire")
     public void updateQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -147,7 +145,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
         
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "updateQuestionnaire")
+    // @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "updateQuestionnaire")
     public void getQuestionnaire(){
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -164,7 +162,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
         
 	}
     
-    @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "getQuestionnaire")
+    // @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "getQuestionnaire")
     public void deliverQuestionnaire(){
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();  
@@ -180,7 +178,7 @@ public class QuestionnaireLoadTest extends AbstractTestNGSpringContextTests{
 		};
 	}
     
-    @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "deliverQuestionnaire")
+    // @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "deliverQuestionnaire")
     public void deleteQuestionnaire(){
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();  

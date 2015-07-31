@@ -13,21 +13,18 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.Test;
 
 import com.ilimi.common.dto.Response;
 
 @ContextConfiguration({ "classpath:servlet-context.xml" })						
 @WebAppConfiguration
-public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTests {
+public class DynamicQuestionnaireLoadTest /* extends AbstractTestNGSpringContextTests  */{
 	
 	@Autowired
 	protected WebApplicationContext context;
@@ -59,7 +56,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
         return resp;
     }
     
-    @AfterTest
+//    @AfterTest
     public void calculateAVG(){
 		System.out.println();
     	System.out.println("Avg time taken by create dynamic Questionnaire API for " +IC+ " Threads : " + sum[0]/(float)(IC) + " ms");
@@ -68,7 +65,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
     	System.out.println();
     }
 
-    @Test
+    // @Test
 	public void createQuestions(){
 		for(int i = 0; i < 13; i ++){
 			MockMvc mockMvc;
@@ -89,7 +86,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		}
 	}
     
-	@Test(priority = 1)
+	// @Test(priority = 1)
     public void createQuestionSet() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -107,7 +104,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		setId = (String) result.get("set_id");
     }
 	
-	@Test(dependsOnMethods = "createQuestionSet")
+	// @Test(dependsOnMethods = "createQuestionSet")
     public void assistDynamicQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -124,7 +121,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		}       
     } 
 	
-	@Test(threadPoolSize = PS, invocationCount = IC, priority = 2)
+	// @Test(threadPoolSize = PS, invocationCount = IC, priority = 2)
     public void createDynamicQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -145,7 +142,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		questionnaireIds.add((String) result.get("node_id"));        
     } 
 	
-	@Test(threadPoolSize = PS, invocationCount = IC, priority = 3)
+	// @Test(threadPoolSize = PS, invocationCount = IC, priority = 3)
     public void updateDynamicQuestionnaire() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -162,7 +159,7 @@ public class DynamicQuestionnaireLoadTest extends AbstractTestNGSpringContextTes
 		}
     } 
 	
-	@Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "updateDynamicQuestionnaire")
+	// @Test(threadPoolSize = PS, invocationCount = IC, dependsOnMethods = "updateDynamicQuestionnaire")
     public void getDynamicQuestionnaire(){
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();

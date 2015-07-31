@@ -7,30 +7,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.PostConstruct;
-
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.Test;
 
 import com.ilimi.common.dto.Response;
 
-@Test
+// @Test
 @ContextConfiguration({ "classpath:servlet-context.xml" })						
 @WebAppConfiguration
-public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
+public class AssessmentItemLoadTest /* extends AbstractTestNGSpringContextTests  */{
    
 	private ResultActions actions;
 	@Autowired
@@ -65,7 +60,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         return resp;
     }
 	
-	@PostConstruct
+//	@PostConstruct
 	public void initMvc() {
 	    if (null == mockMvc) {
 	        System.out.println("Initialising Mock MVC...");
@@ -78,7 +73,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 	}
 	
 
-	@AfterTest
+//	@AfterTest
     public void calculateAVG(){
 		System.out.println();
     	System.out.println("Avg time taken by create question API(MCQ) for " +PS+ " Threads    : " + sum[0]/IC + " ms");
@@ -93,7 +88,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
     	System.out.println("QuestionIds Size : " + questionIds.size());
     }
     
-	@Test(threadPoolSize = PS, invocationCount = IC)
+	// @Test(threadPoolSize = PS, invocationCount = IC)
 	public void test0(){
 	    // for neo4j warm up, not considered for response time computation
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Write the name of the animal.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Write the name of the animal showed below <img src='images/monkey.png' />\" }, \"question_type\": \"canvas_question\", \"description\": \"Literacy Test\", \"answer\": [ \"http://platform.ekstep.in/sounds/word_monkey.jpeg\" ], \"code\": \"CQ_1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
@@ -106,7 +101,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 		}
 	}
 	
-    @Test(threadPoolSize = PS, invocationCount = IC)
+    // @Test(threadPoolSize = PS, invocationCount = IC)
     public void test1_createMCQ() {
         String contentString = "{ \"request\": { \"assessment_item\": {\"identifier\" :\"MCQ_"+id.getAndIncrement()+"\", \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
         String path = "/assessmentitem";
@@ -126,7 +121,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 		questionIds.add(nodeId);      
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+    // @Test(threadPoolSize = PS, invocationCount = IC )
     public void test2_createMMCQ() {
     	long t1 = System.currentTimeMillis();
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select vowels letters.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select vowels letters.\" }, \"question_type\": \"mmcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"E\", \"is_answer\": true } ], \"code\": \"MMCQ1\", \"difficulty_level\": \"low\", \"num_answers\": 3, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
@@ -141,7 +136,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         sum[4] = sum[4] + (t2 - t1);
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+    // @Test(threadPoolSize = PS, invocationCount = IC )
     public void test3_createFTB() {
     	long t1 = System.currentTimeMillis();
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Write first letter of vowels in english.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Write first letter of vowels in english.\" }, \"question_type\": \"ftb\", \"description\": \"Literacy Test\", \"answer\": [ \"a\", \"A\" ], \"code\": \"FTB_1\", \"difficulty_level\": \"low\", \"num_answers\": 2, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
@@ -156,7 +151,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         sum[5] = sum[5] + (t2 - t1);
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+    // @Test(threadPoolSize = PS, invocationCount = IC )
     public void test4_createMTF() {
     	long t1 = System.currentTimeMillis();
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Match the capital letters with small letters\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mtf\", \"description\": \"GeometryTest\", \"code\": \"MTFQ_1\", \"lhs_options\": [ { \"content_type\": \"text/html\", \"content\": \"K\", \"index\": 4 }, { \"content_type\": \"text/html\", \"content\": \"C\", \"index\": 1 }, { \"content_type\": \"text/html\", \"content\": \"B\", \"index\": 2 }, { \"content_type\": \"text/html\", \"content\": \"D\", \"index\": 3 } ], \"rhs_options\": [ { \"content_type\": \"text/html\", \"content\": \"c\", \"index\": 1 }, { \"content_type\": \"text/html\", \"content\": \"b\", \"index\": 2 }, { \"content_type\": \"text/html\", \"content\": \"d\", \"index\": 3 }, { \"content_type\": \"text/html\", \"content\": \"k\", \"index\": 4 } ], \"difficulty_level\": \"low\", \"num_answers\": 3, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
@@ -171,7 +166,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         sum[6] = sum[6] + (t2 - t1);
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+    // @Test(threadPoolSize = PS, invocationCount = IC )
     public void test5_createSpeech() {
     	long t1 = System.currentTimeMillis();
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Spell the letter 'a'.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Spell the letter 'a'.\" }, \"question_type\": \"speech_question\", \"description\": \"Literacy Test\", \"answer\": [ \"http://platform.ekstep.in/sounds/letter_a.mp3\" ], \"code\": \"SPQ_1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
@@ -186,7 +181,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         sum[7] = sum[7] + (t2 - t1);
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC )
+    // @Test(threadPoolSize = PS, invocationCount = IC )
     public void test6_createCanvas() {
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Write the name of the animal.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Write the name of the animal showed below <img src='images/monkey.png' />\" }, \"question_type\": \"canvas_question\", \"description\": \"Literacy Test\", \"answer\": [ \"http://platform.ekstep.in/sounds/word_monkey.jpeg\" ], \"code\": \"CQ_1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";
         String path = "/assessmentitem";
@@ -201,7 +196,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 		}
     }
     
-    @Test(threadPoolSize = PS, invocationCount = IC)
+    // @Test(threadPoolSize = PS, invocationCount = IC)
     public void test70_update() {
         // for neo4j warm up, not considered for response time computation
         String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";     
@@ -214,7 +209,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
         }
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC)
+    // @Test(threadPoolSize = PS, invocationCount = IC)
     public void test7_update() {
     	String contentString = "{ \"request\": { \"assessment_item\": { \"objectType\": \"AssessmentItem\", \"metadata\": { \"title\": \"Select a char of vowels - 1.\", \"body\": { \"content_type\": \"text/html\", \"content\": \"Select a char of vowels.\" }, \"question_type\": \"mcq\", \"description\": \"GeometryTest\", \"options\": [ { \"content_type\": \"text/html\", \"content\": \"A\", \"is_answer\": true }, { \"content_type\": \"text/html\", \"content\": \"B\", \"is_answer\": false }, { \"content_type\": \"text/html\", \"content\": \"C\", \"is_answer\": false } ], \"code\": \"Q1\", \"difficulty_level\": \"low\", \"num_answers\": 1, \"owner\": \"Ilimi\", \"used_for\": \"assessment\", \"score\": 3, \"max_time\": 120, \"rendering_metadata\": [ { \"interactivity\": [ \"drag-drop\", \"zoom\" ], \"keywords\": [ \"compare\", \"multi-options\" ], \"rendering_hints\": { \"styles\": \"css styles that will override the theme level styles for this one item\", \"view-mode\": \"landscape\" } } ] }, \"outRelations\": [ { \"endNodeId\": \"Num:C1:SC1\", \"relationType\": \"associatedTo\" } ] } } }";    	
         String path = "/assessmentitem/" + questionIds.get(aiU.getAndIncrement());
@@ -229,7 +224,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 		}
     } 
     
-    @Test(threadPoolSize = PS, invocationCount = IC)
+    // @Test(threadPoolSize = PS, invocationCount = IC)
     public void test8_get(){
     	String path = "/assessmentitem/" + questionIds.get(aiG.getAndIncrement());
         try {
@@ -243,7 +238,7 @@ public class AssessmentItemLoadTest extends AbstractTestNGSpringContextTests{
 		}
 	}
     
-    @Test(threadPoolSize = PS, invocationCount = IC)
+    // @Test(threadPoolSize = PS, invocationCount = IC)
     public void test9_delete(){
         int index = aiD.getAndIncrement();
         if (index < questionIds.size()) {

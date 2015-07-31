@@ -14,21 +14,18 @@ import org.junit.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.AfterTest;
-import org.testng.annotations.Test;
 
 import com.ilimi.common.dto.Response;
 
 @ContextConfiguration({ "classpath:servlet-context.xml" })						
 @WebAppConfiguration
-public class AssessmentItemSetLoadTest extends AbstractTestNGSpringContextTests {
+public class AssessmentItemSetLoadTest /* extends AbstractTestNGSpringContextTests  */{
 	
 	@Autowired
 	protected WebApplicationContext context;
@@ -58,7 +55,7 @@ public class AssessmentItemSetLoadTest extends AbstractTestNGSpringContextTests 
         return resp;
     }
     
-    @AfterTest
+//    @AfterTest
     public void calculateAVG(){
 		System.out.println();
     	System.out.println("Avg time taken by create AssessmentItem Set API for " +IC+ " Threads : " + sum[0]/(float)(IC) + " ms");
@@ -66,7 +63,7 @@ public class AssessmentItemSetLoadTest extends AbstractTestNGSpringContextTests 
     	System.out.println();
     }
 
-    @Test
+    // @Test
 	public void createQuestions(){
 		for(int i = 0; i < 13; i ++){
 			MockMvc mockMvc;
@@ -87,7 +84,7 @@ public class AssessmentItemSetLoadTest extends AbstractTestNGSpringContextTests 
 		}
 	}
     
-    @Test(threadPoolSize = PS, invocationCount = IC, priority = 1)
+    // @Test(threadPoolSize = PS, invocationCount = IC, priority = 1)
     public void createQuestionSet() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -108,7 +105,7 @@ public class AssessmentItemSetLoadTest extends AbstractTestNGSpringContextTests 
 		setId = (String) result.get("set_id");
     }
     
-    @Test(threadPoolSize = PS, invocationCount = IC, priority = 1)
+    // @Test(threadPoolSize = PS, invocationCount = IC, priority = 1)
     public void getQuestionSet() {
     	MockMvc mockMvc;
     	mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
