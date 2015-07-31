@@ -23,19 +23,19 @@ object RateOfAdvancementModel extends BaseModel {
 
     def compute(input: String, output: String, location: String, parallelization: Int) {
         val validEvents = Array("OE_LEVEL_SET");
-        val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         val baseRDD = CommonUtil.loadData(sc, input, location, parallelization, e => validEvents.contains(e.eid))
         Console.println("### Computing rate of advancement stats ###");
         val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));
         val userScores = userPairs.reduceByKey((a, b) => a ++ b).mapValues(events => {
-            events.map(event => (event.gdata.id, event.ts, event.edata.eks.current.get, event.edata.eks.max.get))
+            events.map(event => (event.gdata.id, event.ts, event.edata.eks.current.get.toInt, event.edata.eks.max.get.toInt))
                 .groupBy { x => x._1 }
                 .mapValues { x =>
                     {
                         x.sortBy(f => (f._3, f._2));
                         val min = x.take(1)(0);
                         val max = x.takeRight(1)(0);
-                        (max._3 - min._3 + 1, df.parse(max._2).getTime - df.parse(min._2).getTime)
+                        (max._3 - min._3 + 1, df.parse(max._2.get).getTime - df.parse(min._2.get).getTime)
                     }
                 }
                 .mapValues(f => (f._1, f._2.toFloat / 3600000))

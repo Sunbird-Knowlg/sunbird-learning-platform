@@ -14,3 +14,4 @@ exports.AUDIT_HISTORY = '/ekstep-service/audit/${id}';
 exports.GET_COMMENTS = '/ekstep-service/comment/${id}';
 exports.SAVE_COMMENT = '/ekstep-service/comment?taxonomyId=${tid}';
 exports.GET_COMMENT_THREAD = '/ekstep-service/comment/${id}/${threadId}';
+exports.SAVE_MEDIA = '/ekstep-service/learning-object/media?taxonomyId=${tid}';

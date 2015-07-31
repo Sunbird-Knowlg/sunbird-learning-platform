@@ -1,5 +1,6 @@
 platform-ui/logs
 platform-ui/node_modules
+.project
 .settings
 .project
 **/target

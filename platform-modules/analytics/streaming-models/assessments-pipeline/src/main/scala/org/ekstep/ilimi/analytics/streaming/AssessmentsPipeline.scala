@@ -39,7 +39,7 @@ object AssessmentsPipeline extends Application {
                     msg._2;
                 })
                     .filter { e => validEvents.contains(e.eid) }
-                    .map(event => (event.uid.get, Buffer(GameLevel(event.gdata.id, event.edata.eks.current.get))))
+                    .map(event => (event.uid.get, Buffer(GameLevel(event.gdata.id, event.edata.eks.current.get.toInt))))
                     .reduceByKey((a, b) => a ++ b).mapValues(events => {
                         events.map(event => (event.gid, event.level))
                             .groupBy { x => x._1 }

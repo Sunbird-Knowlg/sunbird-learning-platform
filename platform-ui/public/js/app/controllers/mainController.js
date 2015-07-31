@@ -84,8 +84,11 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         $http.post(url, data).success(function(resp) {
             if (!resp.error)
                 deferred.resolve(resp);
-            else
+            else{
                 deferred.reject(resp);
+                console.log("postToService Error");
+            }
+                
         });
         return deferred.promise;
     }
@@ -175,6 +178,10 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
                 deferred.reject(resp);
         });
         return deferred.promise;
+    }
+
+    this.getMedia = function(data){
+        return this.postToService('/private/v1/player/media', data);
     }
 
 }]);
@@ -512,6 +519,23 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $('#commentModal').modal('show');
     }
 
+    $scope.collapseIcon = true;
+
+    $scope.showAllComments = function(auditHistory) {
+        $scope.showNewComment = false;
+        $scope.auditHistoryObjects = auditHistory;
+        $('#auditLogModal').modal('show');
+        
+    }
+
+    $scope.getCommentReplies = function(comment){
+            $scope.currentComment = comment;
+            service.getCommentThread($scope.selectedTaxonomyId, $scope.selectedConcept.identifier, $scope.currentComment.id).then(function(data) {
+            $scope.getReplies(data, $scope.currentComment, $scope.currentComment.id);
+        });
+
+    }
+
     $scope.getReplies = function(data, comment, id) {
         var replies = _.where(data, {replyTo: id+''});
         comment.replies = replies;
@@ -522,8 +546,19 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         }
     }
 
+    $scope.auditCommentReply = function(comment){
+         var reply = $('#auditTextArea'+comment.id).val();
+         $scope.sendComment(comment, reply);
+         $('#auditTextArea'+comment.id).val("");
+    }
+
     $scope.replyComment = function(comment) {
         var reply = $('#commentText'+comment.id).val();
+         $scope.sendComment(comment, reply);
+         $('#commentText'+comment.id).val("");
+    }
+
+    $scope.sendComment = function(comment, reply){
         if(reply) {
             var data = {
                 taxonomyId: $scope.selectedTaxonomyId,
@@ -532,11 +567,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                 threadId: comment.threadId || comment.id,
                 replyTo: comment.id
             };
-
             service.saveComment(data).then(function(resp) {
-                $('#commentText'+comment.id).val("");
                 comment.showForm = false;
                 resp.replies = [];
+                if(comment.replies == null) comment.replies = [];
                 comment.replies.push(resp);
             });
         }
@@ -552,7 +586,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             };
             service.saveComment(data).then(function(resp) {
                 $('#newCommentTextArea').val("");
-                $('#commentModal').modal('hide');
+                $('#commentsModal').modal('hide');
                 resp.replies = [];
                 $scope.selectedConcept.comments.push(resp);
             });
@@ -580,6 +614,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         var fileObj = $scope.selectedConcept.filesToUpload[propName];
         if (fileObj && fileObj != null) {
             var type = fileObj.type;
+            console.log("File oj type:" + type);
             if (type.indexOf('image') == 0 || type.indexOf('image') == 0 || type.indexOf('image') == 0) {
                 if (fileObj.size && fileObj.size > 0) {
                     var fd = new FormData();
@@ -589,6 +624,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                     service.uploadFile(fd).then(function(data) {
                         $scope.selectedConcept.uploading[propName] = false;
                         $scope.selectedConcept.metadata[propName] = data.url;
+                        console.log(propName);
                     }).catch(function(err) {
                         $scope.selectedConcept.uploading[propName] = false;
                         alert('File upload failed: ' + err.errorMsg);    
@@ -603,6 +639,8 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             alert('Please select a file to upload');
         }
     }
+
+   
 
 }]);
 
@@ -953,6 +991,61 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
 app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
     $scope.showFullDesc = false;
+     $scope.uploadScreenshots = function($event, propName) {
+        var fileObj = $scope.selectedConcept.filesToUpload[propName];
+        if (fileObj && fileObj != null) {
+            var type = fileObj.type;            
+            if (type.indexOf('image') == 0 || type.indexOf('video') == 0) {
+                if (fileObj.size && fileObj.size > 0) {
+                    $scope.buttonLoading($event);
+                    var fd = new FormData();
+                    fd.append('document', fileObj);
+                    fd.append('folderName', 'games');
+                    $scope.selectedConcept.uploading[propName] = true;
+                    var mediaval = (type.indexOf('image') == 0 ? "image" : "video");
+                    service.uploadFile(fd).then(function(data) {
+                            $scope.newMedia = {
+                                taxonomyId: $scope.selectedTaxonomyId,
+                                gameId: propName.identifier,
+                                url: data.url,
+                                mimeType : type,
+                                mediaType : mediaval
+                            }                        
+                        service.getMedia($scope.newMedia).then(function(data){
+                            var screenshot = {
+                                              "identifier": data,
+                                              "mediaUrl": $scope.newMedia.url,
+                                              "mediaType": $scope.newMedia.mediaType,
+                                              "mimeType": $scope.newMedia.mimeType,
+                                              "posterImage": null,
+                                              "title": null,
+                                              "description": null,
+                                              "metadata": {
+                                                "identifier": data
+                                              }
+                                            };
+                            $scope.$parent.selectedConcept.screenshots.push(screenshot);
+                            $scope.showConformationMessage('alert-success','Media uploaded successfully.');
+                            setTimeout(function() {
+                                $scope.resetSlider();
+                            }, 500);
+                            $scope.buttonReset($event);
+                        });
+                    }).catch(function(err) {
+                        // $scope.selectedConcept.uploading[propName] = false;
+                        $scope.showConformationMessage('alert-danger','Media upload failed: ' + err.errorMsg);
+                        $scope.buttonReset($event);
+                    });
+                } else {
+                    $scope.showConformationMessage('alert-danger', 'Selected file size is 0 bytes. Please select another file');
+                }    
+            } else {
+                $scope.showConformationMessage('alert-danger', 'Only images, audio and video files are allowed');
+            }
+        } else {
+            $scope.showConformationMessage('alert-danger', 'Please select a file to upload');
+        }
+    }
 
     $scope.moreDescription = function() {
         $scope.showFullDesc = true;        
@@ -1031,24 +1124,28 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
         setTimeout(function() {
             $('.tool-tip').tooltip();
             if ($scope.$parent.selectedConcept.screenshots && $scope.$parent.selectedConcept.screenshots.length > 0) {
-                if ($scope.slider && $scope.slider != null) {
-                    $scope.slider.destroySlider();
-                } 
-                $scope.slider = $('.bxslider').bxSlider({
-                    minSlides: 2,
-                    maxSlides: 5,
-                    slideWidth: 320,
-                    slideMargin: 20,
-                    pager: false,
-                    infiniteLoop: false,
-                    hideControlOnEnd: true,
-                    responsive: false,
-                    onSliderLoad: function() {
-                        $('ul.bxslider li').width('auto');
-                    }
-                });
+                $scope.resetSlider();
             }
         }, 500);
+    }
+
+    $scope.resetSlider = function() {
+        if ($scope.slider && $scope.slider != null) {
+            $scope.slider.destroySlider();
+        } 
+        $scope.slider = $('.bxslider').bxSlider({
+            minSlides: 2,
+            maxSlides: 5,
+            slideWidth: 320,
+            slideMargin: 20,
+            pager: false,
+            infiniteLoop: false,
+            hideControlOnEnd: true,
+            responsive: false,
+            onSliderLoad: function() {
+                $('ul.bxslider li').width('auto');
+            }
+        });
     }
 
     $scope.saveChanges = function($event) {

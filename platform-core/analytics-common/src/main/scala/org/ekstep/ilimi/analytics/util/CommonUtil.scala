@@ -6,9 +6,12 @@ import java.nio.file.Paths.get
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.text.SimpleDateFormat
 import java.util.Date
+
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
+import org.apache.spark.streaming.Duration
+import org.apache.spark.streaming.StreamingContext
 import org.ekstep.ilimi.analytics.conf.AppConf
 import org.ekstep.ilimi.analytics.model.Event
 import org.ekstep.ilimi.analytics.model.Output
@@ -18,12 +21,11 @@ import org.json4s.jackson.JsonMethods.compact
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jvalue2extractable
 import org.json4s.string2JsonInput
-import org.apache.spark.streaming.Duration
-import org.apache.spark.streaming.StreamingContext
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
+    @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
 
     def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
@@ -33,7 +35,7 @@ object CommonUtil {
         }
     }
 
-    def getSparkContext(location: String, parallelization: Int, appName: String): SparkContext = {
+    def getSparkContext(parallelization: Int, appName: String): SparkContext = {
 
         Console.println("### Initializing Spark Context ###");
         val conf = new SparkConf().setAppName(appName);
@@ -43,10 +45,8 @@ object CommonUtil {
             conf.setMaster("local[*]");
         }
         val sc = new SparkContext(conf);
-        if ("S3".equals(location)) {
-            sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
-            sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
-        }
+        sc.hadoopConfiguration.set("fs.s3n.awsAccessKeyId", AppConf.getConfig("s3_aws_key"));
+        sc.hadoopConfiguration.set("fs.s3n.awsSecretAccessKey", AppConf.getConfig("s3_aws_secret"));
         Console.println("### Spark Context initialized ###");
         sc;
     }
@@ -72,7 +72,7 @@ object CommonUtil {
 
     def loadData(sc: SparkContext, input: String, location: String, parallelization: Int, filter: Event => Boolean): RDD[Event] = {
         Console.println("### Fetching Input:" + getPath("s3_input_bucket", input, location) + " ###");
-        val rdd = sc.textFile(getPath("s3_input_bucket", input, location), parallelization).cache();
+        val rdd = sc.textFile(getPath("s3_input_bucket", input, location), parallelization).distinct().cache();
         rdd.map { x => getEvent(x) }.filter { x => filter(x) }
     }
 
@@ -83,6 +83,10 @@ object CommonUtil {
 
     def getTempPath(date: String): String = {
         AppConf.getConfig("spark_output_temp_dir") + date;
+    }
+
+    def getTempPath(date: Date): String = {
+        AppConf.getConfig("spark_output_temp_dir") + df.format(date);
     }
 
     class Visitor extends java.nio.file.SimpleFileVisitor[java.nio.file.Path] {
@@ -107,6 +111,10 @@ object CommonUtil {
     def deleteDirectory(dir: String) {
         val path = get(dir);
         Files.walkFileTree(path, new Visitor());
+    }
+
+    def deleteFile(file: String) {
+        Files.delete(get(file));
     }
 
     def saveOutput[T <: Output](rdd: RDD[T], outputPath: String, fileSuffix: String, location: String) = {
@@ -142,6 +150,43 @@ object CommonUtil {
     def printToFile(f: java.io.File)(op: java.io.PrintWriter => Unit) {
         val p = new java.io.PrintWriter(f)
         try { op(p) } finally { p.close() }
+    }
+
+    def checkContains(a: String, b: String): Boolean = {
+        a.contains(b);
+    }
+
+    def getInputPath(input: String, suffix: String): String = {
+        input match {
+            case a if a.startsWith("s3://") =>
+                val arr = a.replaceFirst("s3://", "").split('/');
+                val bucket = arr(0);
+                val prefix = a.replaceFirst("s3://", "").replaceFirst(bucket + "/", "") + (if (null != suffix) suffix else "");
+                S3Util.getAllKeys(bucket, prefix).map { x => "s3n://" + bucket + "/" + x }.mkString(",");
+            case a if a.startsWith("local://") =>
+                a.replaceFirst("local://", "");
+            case _ =>
+                throw new Exception("Invalid input. Valid input should start with s3:// (for S3 input) or local:// (for file input)");
+
+        }
+    }
+
+    def getInputPaths(input: String): String = {
+        val arr = input.split(',');
+        arr.map { x => getInputPath(x, null) }.mkString(",");
+    }
+
+    def getInputPaths(input: String, suffix: String): String = {
+        val arr = input.split(',');
+        arr.map { x => getInputPath(x, suffix) }.mkString(",");
+    }
+
+    def formatEventDate(date: Date): String = {
+        df2.format(date);
+    }
+
+    def main(args: Array[String]): Unit = {
+        formatEventDate(new Date());
     }
 
 }

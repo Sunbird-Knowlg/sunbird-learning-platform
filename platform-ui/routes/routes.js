@@ -19,7 +19,8 @@ var userHelper = require('../view_helpers/UserViewHelper')
     , conceptHelper = require('../view_helpers/ConceptViewHelper')
     , gameHelper = require('../view_helpers/GameViewHelper')
     , commentHelper = require('../view_helpers/CommentViewHelper')
-    , uploadHelper = require('../view_helpers/UploadViewHelper');
+    , uploadHelper = require('../view_helpers/UploadViewHelper')
+    , mediaHelper = require('../view_helpers/MediaViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -194,6 +195,7 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.get('/private/v1/player/comment/thread/:tid/:id/:threadId',commentHelper.getCommentThread);
 
     app.post('/private/v1/player/fileupload', uploadHelper.uploadFile);
+    app.post('/private/v1/player/media', mediaHelper.createMedia);
 
 };
 

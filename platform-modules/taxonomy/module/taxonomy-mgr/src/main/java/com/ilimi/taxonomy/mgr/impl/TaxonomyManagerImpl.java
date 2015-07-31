@@ -34,7 +34,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 
     private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
 
-    protected static String[] taxonomyIds = { "numeracy", "literacy" };
+    protected static String[] taxonomyIds = { "numeracy", "literacy", "literacy_v2" };
 
     @SuppressWarnings("unchecked")
     @Override

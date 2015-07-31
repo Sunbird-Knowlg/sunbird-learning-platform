@@ -97,6 +97,28 @@ public class LearningObjectController extends BaseController {
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
+    
+    @RequestMapping(value = "/media", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> createMedia(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "media-object.create";
+        Request request = getMediaRequestObject(map);
+        
+        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
+        try {
+            Response response = lobManager.createMedia(taxonomyId, request);
+            LOGGER.info("Create | Response: " + response);
+            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
+                    (String) map.get("COMMENT"));
+            auditLogManager.saveAuditRecord(audit);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("Create | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
 
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
@@ -126,10 +148,42 @@ public class LearningObjectController extends BaseController {
         ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
-                Object objConcept = map.get(LearningObjectAPIParams.learning_object.name());
+            	Object objConcept = map.get(LearningObjectAPIParams.learning_object.name());
                 if (null != objConcept) {
                     Node concept = (Node) mapper.convertValue(objConcept, Node.class);
                     request.put(LearningObjectAPIParams.learning_object.name(), concept);
+                }
+                Object objDefinitions = map.get(TaxonomyAPIParams.metadata_definitions.name());
+                if (null != objDefinitions) {
+                    String strObjDefinitions = mapper.writeValueAsString(objDefinitions);
+                    List<Map<String, Object>> listMap = (List<Map<String, Object>>) mapper.readValue(strObjDefinitions.toString(),
+                            List.class);
+                    List<MetadataDefinition> definitions = new ArrayList<MetadataDefinition>();
+                    for (Map<String, Object> metaMap : listMap) {
+                        MetadataDefinition def = (MetadataDefinition) mapper.convertValue(metaMap, MetadataDefinition.class);
+                        definitions.add(def);
+                    }
+                    request.put(TaxonomyAPIParams.metadata_definitions.name(), definitions);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return request;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Request getMediaRequestObject(Map<String, Object> requestMap) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        System.out.println("Request Map:" + map);
+        ObjectMapper mapper = new ObjectMapper();
+        if (null != map && !map.isEmpty()) {
+            try {
+            	Object objConcept = map.get(LearningObjectAPIParams.media.name());
+                if (null != objConcept) {
+                    Node concept = (Node) mapper.convertValue(objConcept, Node.class);
+                    request.put(LearningObjectAPIParams.media.name(), concept);
                 }
                 Object objDefinitions = map.get(TaxonomyAPIParams.metadata_definitions.name());
                 if (null != objDefinitions) {

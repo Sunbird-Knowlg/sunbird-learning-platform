@@ -148,6 +148,34 @@ public class LearningObjectManagerImpl extends BaseManager implements ILearningO
         }
         return createRes;
     }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response createMedia(String taxonomyId, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        Node lob = (Node) request.get(LearningObjectAPIParams.media.name());
+        if (null == lob)
+            throw new ClientException(LearningObjectErrorCodes.ERR_LOB_BLANK_MEDIA_OBJECT.name(), "Media Object is blank");
+        Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+        createReq.put(GraphDACParams.node.name(), lob);
+        Response createRes = getResponse(createReq, LOGGER);
+        if (checkError(createRes)) {
+            return createRes;
+        } else {
+            List<MetadataDefinition> newDefinitions = (List<MetadataDefinition>) request.get(TaxonomyAPIParams.metadata_definitions.name());
+            if (validateRequired(newDefinitions)) {
+                Request defRequest = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDefinition");
+                defRequest.put(GraphDACParams.object_type.name(), lob.getObjectType());
+                defRequest.put(GraphDACParams.metadata_definitions.name(), newDefinitions);
+                Response defResponse = getResponse(defRequest, LOGGER);
+                if (checkError(defResponse)) {
+                    return defResponse;
+                }
+            }
+        }
+        return createRes;
+    }
 
     @SuppressWarnings("unchecked")
     @Override

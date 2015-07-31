@@ -211,7 +211,7 @@
           "category": "ownership",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -402,6 +402,36 @@
           "range": [],
           "required": false,
           "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
+          "propertyName": "communication_scheme",
+          "title": "Communication scheme",
+          "description": "",
+          "category": "technical",
+          "dataType": "Select",
+          "range": [
+            "NONE",
+            "FILE",
+            "INTENT"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 14 }"
+        },
+        {
+          "propertyName": "activity_class",
+          "title": "Activity Class Name",
+          "description": "",
+          "category": "technical",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
@@ -707,7 +737,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId"],
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId", "communication_scheme", "activity_class"],
       	"status": ["Live"]
       }
     },

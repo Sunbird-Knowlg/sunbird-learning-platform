@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,6 +26,7 @@ import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.taxonomy.dto.ConceptDTO;
+import com.ilimi.taxonomy.dto.ConceptHierarhy;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IConceptManager;
 
@@ -163,7 +165,7 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
     }
 
     @Override
-    public Response getConcepts(String id, String relationType, int depth, String taxonomyId) {
+    public Response getConcepts(String id, String relationType, int depth, String taxonomyId, String[] cfields, boolean isHierarchical) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(id))
@@ -181,12 +183,29 @@ public class ConceptManagerImpl extends BaseManager implements IConceptManager {
             return response;
         Graph graph = (Graph) findRes.get(GraphDACParams.sub_graph.name());
         if (null != graph && null != graph.getNodes() && !graph.getNodes().isEmpty()) {
-            List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
-            for (Node node : graph.getNodes()) {
-                ConceptDTO dto = new ConceptDTO(node);
-                concepts.add(dto);
-            }
-            response.put(TaxonomyAPIParams.concepts.name(), concepts);
+        	if(isHierarchical) {
+        		Node parent = null;
+        		Map<String, Node> nodes = new HashMap<String, Node>();
+                for (Node node : graph.getNodes()) {
+                		nodes.put(node.getIdentifier(), node);
+                		if(id.equals(node.getIdentifier()))
+                			parent = node;
+                }
+                if(null != parent) {
+                    response.put(TaxonomyAPIParams.taxonomy_hierarchy.name(), new ConceptHierarhy(parent, nodes, cfields));
+                } else {
+                	response.put(TaxonomyAPIParams.taxonomy_hierarchy.name(), null);
+                }
+        	} else {
+        		List<ConceptDTO> concepts = new ArrayList<ConceptDTO>();
+                for (Node node : graph.getNodes()) {
+                	if(SystemNodeTypes.DATA_NODE.name().equals(node.getNodeType())) {
+                		ConceptDTO dto = new ConceptDTO(node);
+                        concepts.add(dto);
+                	}
+                }
+                response.put(TaxonomyAPIParams.concepts.name(), concepts);
+        	}
         }
         return response;
     }

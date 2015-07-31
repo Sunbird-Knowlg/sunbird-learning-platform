@@ -81,7 +81,6 @@ public class CreateGameTest extends BaseCucumberTest{
     	try {
 			actions.andExpect(status().is(status));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
         if(taxonomyId.equals("absent")) {
@@ -108,7 +107,6 @@ public class CreateGameTest extends BaseCucumberTest{
     	try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
@@ -132,7 +130,7 @@ public class CreateGameTest extends BaseCucumberTest{
     	try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
-			System.out.println();
+			
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
@@ -160,7 +158,6 @@ public class CreateGameTest extends BaseCucumberTest{
     	try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);
@@ -169,10 +166,9 @@ public class CreateGameTest extends BaseCucumberTest{
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Required Metadata code not set", msg.get(1));
-        Assert.assertEquals("Required Metadata developer not set", msg.get(2));
-        Assert.assertEquals("Required Metadata owner not set", msg.get(3));
-        Assert.assertEquals("Required Metadata "+name+" not set", msg.get(0));
+        Assert.assertTrue(msg.contains("Required Metadata code not set"));
+        Assert.assertTrue(msg.contains("Required Metadata owner not set"));
+        Assert.assertTrue(msg.contains("Required Metadata "+name+" not set"));
 	}
 	
 	@Then("^i will get errMsg is validation error and status (\\d+)$")
@@ -211,7 +207,6 @@ public class CreateGameTest extends BaseCucumberTest{
     	try {
 			actions.andExpect(status().is(400));
 		} catch (Exception e) {
-			System.out.println();
 			e.printStackTrace();
 		} 
     	Response resp = jasonToObject(actions);

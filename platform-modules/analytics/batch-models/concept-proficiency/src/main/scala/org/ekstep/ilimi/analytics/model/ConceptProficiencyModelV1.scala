@@ -1,13 +1,10 @@
-package org.ekstep.ilimi.analytics.model.game
+package org.ekstep.ilimi.analytics.model
 
 import scala.collection.mutable.Buffer
 import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
-import org.ekstep.ilimi.analytics.model.BaseModel
-import org.ekstep.ilimi.analytics.model.Event
-import org.ekstep.ilimi.analytics.model.Output
 import org.json4s.DefaultFormats
 import org.json4s.Extraction
 import org.json4s.jackson.JsonMethods.parse
@@ -15,7 +12,7 @@ import org.ekstep.ilimi.analytics.util.CommonUtil
 
 case class ConceptProficiencyOutput(uid: String, before_screener: String, after_screener: String, before_score: Float, after_score: Float, difference: Float, percent_improvement: Float) extends Output;
 
-object ConceptProficiencyModel extends BaseModel {
+object ConceptProficiencyModelV1 extends Serializable {
 
     /**
      * Arguments that are required in specific order
@@ -25,7 +22,7 @@ object ConceptProficiencyModel extends BaseModel {
      * 4. Game Data - [List of comma separated value of GameId,Before Screener Game, After Screener Game, Concept in the specific order]
      */
     def compute(input: String, output: String, location: String, gameData: String, parallelization: Int) {
-        @transient val sc = CommonUtil.getSparkContext(location, parallelization, "GameEffectiveness");
+        @transient val sc = CommonUtil.getSparkContext(parallelization, "GameEffectiveness");
         var gd: Array[String] = gameData.split(",");
         val gameId = gd(0);
         val beforeScreener = gd(1);

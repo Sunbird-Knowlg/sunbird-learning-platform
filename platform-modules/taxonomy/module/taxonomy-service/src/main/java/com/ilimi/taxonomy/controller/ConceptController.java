@@ -191,12 +191,13 @@ public class ConceptController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> getConcepts(@PathVariable(value = "id") String id, @PathVariable(value = "rel") String relationType,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "cfields", required = false) String[] cfields,
             @RequestParam(value = "depth", required = false, defaultValue = "0") int depth, @RequestHeader(value = "user-id") String userId) {
         String apiId = "concept.get.children";
         LOGGER.info("Get Concepts | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Relation: " + relationType + " | Depth: " + depth
                 + " | user-id: " + userId);
         try {
-            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId);
+            Response response = conceptManager.getConcepts(id, relationType, depth, taxonomyId, cfields, false);
             LOGGER.info("Get Concepts | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
