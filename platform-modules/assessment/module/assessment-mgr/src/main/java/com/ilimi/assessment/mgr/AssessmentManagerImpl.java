@@ -1,6 +1,7 @@
 package com.ilimi.assessment.mgr;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -32,8 +33,13 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchConditions;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -467,9 +473,30 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
         List<String> members = new ArrayList<String>(allMembers);
         Collections.shuffle(members);
-//        Integer totalItems = (Integer) node.getMetadata().get("total_items");
-//        List<String> finalMembers = members.subList(0, totalItems);
-        return OK(AssessmentAPIParams.assessment_items.name(), members);
+        System.out.println("Members:"+members);
+        if(null != members && members.size() > 0) {
+            SearchCriteria criteria = new SearchCriteria();
+            criteria.setNodeType(SystemNodeTypes.DATA_NODE.name());
+            criteria.setObjectType("AssessmentItem");
+            criteria.addMetadata(MetadataCriterion.create(Arrays.asList(new Filter(SystemProperties.IL_UNIQUE_ID.name(), SearchConditions.OP_IN, members))));
+            Request itemNodesReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), criteria);
+            Response itemNodesRes = getResponse(itemNodesReq, LOGGER);
+            if (checkError(itemNodesRes)) {
+                return copyResponse(itemNodesRes);
+            }
+            List<Node> itemNodes =(List<Node>) itemNodesRes.get(GraphDACParams.node_list.name());
+            System.out.println("ItemNodes:"+itemNodes.size());
+            List<ItemDTO> deliveryItems = new ArrayList<ItemDTO>();
+            for(Node itemNode: itemNodes) {
+                deliveryItems.add(new ItemDTO(itemNode));
+            }
+            System.out.println("DeliveryItems:"+deliveryItems.size());
+            return OK(AssessmentAPIParams.assessment_items.name(), deliveryItems);
+        } else {
+            return OK(AssessmentAPIParams.assessment_items.name(), members);
+        }
+        
+        
     }
 
     @SuppressWarnings("unchecked")
