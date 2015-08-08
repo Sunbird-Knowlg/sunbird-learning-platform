@@ -47,6 +47,7 @@ object LitScreenerLevelModel extends Serializable {
             val res = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap);
             val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && x.gdata.id.equals("org.ekstep.lit.scrnr.kan.basic")) };
             val uid = userMapping.getOrElse(f._1, f._1);
+            LitScreenerLevelComputation.sendOutput(uid, res._2, resultOutput, null, null, "");
             // Write to CSV & upload to S3
             filterEvents.foreach { event =>
                 var ltCode = "";
@@ -108,14 +109,14 @@ object LitScreenerLevelModel extends Serializable {
                     "",
                     "",
                     getStringFromInt(Option(f._3)),
+                    getStringFromInt(Option(f._4)),
                     "",
                     "",
                     "",
                     "",
                     "",
                     "",
-                    "",
-                    getString(Option(f._4)),
+                    getString(Option(f._5)),
                     " ",
                     " ",
                     " ")
