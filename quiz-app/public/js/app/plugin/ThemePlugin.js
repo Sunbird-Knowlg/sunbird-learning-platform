@@ -40,11 +40,16 @@ var ThemePlugin = Plugin.extend({
         this.render();
     },
     update: function() {
-        console.log('this._self', this._self);
         this._self.update();
     },
     getAsset: function(aid) {
         return this.loader.getResult(aid);
+    },
+    replaceStage: function(stageId) {
+        console.log('ReplaceStage event stageId', stageId);
+        var stage = _.findWhere(this._data.stage, {id: stageId});
+        pluginManager.invoke('stage', stage, this, this);
+        this.update();
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);
