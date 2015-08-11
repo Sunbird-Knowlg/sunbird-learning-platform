@@ -44,7 +44,6 @@
 $(document).ready(function() {
     $.get('/json/sample3.json',
         function(data) {
-            console.log('data', data);
             Renderer.init(data, 'gameCanvas');
         },
         'json').fail(function() {

@@ -1,4 +1,5 @@
 var ThemePlugin = Plugin.extend({
+    _type: 'theme',
     update: false,
     loader: undefined,
     _director: false,
@@ -30,7 +31,7 @@ var ThemePlugin = Plugin.extend({
     render: function() {
         if(this._data.stage) {
             var stage = _.findWhere(this._data.stage, {start: true});
-            pluginManager.invoke('stage', stage, this, this);
+            pluginManager.invoke('stage', stage, this, null, this);
         }
         this.update();
     },
@@ -48,8 +49,15 @@ var ThemePlugin = Plugin.extend({
     replaceStage: function(stageId) {
         console.log('ReplaceStage event stageId', stageId);
         var stage = _.findWhere(this._data.stage, {id: stageId});
-        pluginManager.invoke('stage', stage, this, this);
+        pluginManager.invoke('stage', stage, this, null, this);
         this.update();
+    },
+    registerEvent: function(instance, eventData) {
+        if(eventData.isTest) {
+            instance.on(eventData.on, function(event) {
+                console.log('Theme Event invoked - ', eventData.on);
+            });
+        }
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);

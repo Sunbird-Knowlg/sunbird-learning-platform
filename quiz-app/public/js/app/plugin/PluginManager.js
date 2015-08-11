@@ -3,6 +3,7 @@ var PluginManager = Class.extend({
 	_errors: [],
 	registerPlugin: function(id, plugin) {
 		this._pluginMap[id] = plugin;
+		createjs.EventDispatcher.initialize(plugin.prototype);
 	},
 	isPlugin: function(id) {
 		if(this._pluginMap[id]) {
@@ -11,7 +12,7 @@ var PluginManager = Class.extend({
 			return false;
 		}
 	},
-	invoke: function(id, data, parent, theme) {
+	invoke: function(id, data, parent, stage, theme) {
 		var p,
 			pluginMap = this._pluginMap;
 		if(!pluginMap[id]) {
@@ -20,10 +21,10 @@ var PluginManager = Class.extend({
 		} else {
 			if(_.isArray(data)) {
 				data.forEach(function(d) {
-					new pluginMap[id](theme, parent, d);
+					new pluginMap[id](d, parent, stage, theme);
 				})
 			} else {
-				p = new pluginMap[id](theme, parent, data);
+				p = new pluginMap[id](data, parent, stage, theme);
 			}
 		}
 		return p;

@@ -20,7 +20,7 @@
             Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
         </text>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
-        <image asset="entermission" x="30" y="78" w="22" h="22" onclick="next"/>
+        <image asset="entermission" x="30" y="78" w="22" h="22" onclick="stage:next"/>
         <events>
             <event on="enter" sprite="" animation="" effect=""/>
             <event on="idle" sprite="" animation="" effect=""/>
@@ -49,4 +49,7 @@ things to my space ship
             </g>
         </g>
     </stage>
+    <events>
+        <event on="test" isTest="true"/>
+    </events>
 </theme>

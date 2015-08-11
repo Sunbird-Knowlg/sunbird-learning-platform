@@ -1,4 +1,6 @@
 var TextPlugin = Plugin.extend({
+	_type: 'text',
+	_isContainer: false,
 	initPlugin: function(data) {
 		var instance = this;
 		var fontsize = data.fontsize || 20;

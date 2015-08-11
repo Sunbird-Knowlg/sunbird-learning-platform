@@ -4,7 +4,6 @@ Renderer = {
     update: false,
     gdata: undefined,
     resizeGame: function(disableDraw) {
-        console.log('Resizing game...', 'disableDraw', disableDraw);
         var gameArea = document.getElementById('gameArea');
         var widthToHeight = 16 / 9;
         var newWidth = window.innerWidth;
@@ -26,10 +25,9 @@ Renderer = {
         if(!disableDraw) Renderer.theme.reRender();
     },
     init: function(data, canvasId) {
-        console.log('Initializing....');
         Renderer.gdata = data;
         data.theme.canvasId = canvasId;
-        Renderer.theme = new ThemePlugin(null, null, data.theme);
+        Renderer.theme = new ThemePlugin(data.theme);
         Renderer.resizeGame(true);
         Renderer.theme.loader = new createjs.LoadQueue(true, '/assets/');
         Renderer.theme.loader.addEventListener("complete", Renderer.startCanvas);
@@ -37,7 +35,6 @@ Renderer = {
         //createjs.Ticker.addEventListener("tick", Renderer.theme.tick);
     },
     startCanvas: function() {
-        console.log('Rendering the canvas');
         Renderer.theme.render();
     }
 }

@@ -1,4 +1,5 @@
 var InputPlugin = Plugin.extend({
+	_isContainer: false,
 	initPlugin: function(data) {
 	}
 });
