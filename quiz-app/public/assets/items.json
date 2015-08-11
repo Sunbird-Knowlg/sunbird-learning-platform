@@ -4,23 +4,23 @@
 			"var1" : {
 				"type": "image",
 				"asset": "butterfly_ltgray",
-				"count": 4	
+				"count": 12
 			},
 			"var2" : {
 				"type": "image",
 				"asset": "butterfly_white",
-				"count": 3	
+				"count": 14	
 			},
 			"var3" : {
 				"type": "image",
 				"asset": "butterfly_midgray",
-				"count": 7
+				"count": 26
 			}
 		},
 		"answer": {
-			"ans1": {"value": 4},
-			"ans2": {"value": 3},
-			"ans3": {"value": 7}
+			"ans1": {"value": 12},
+			"ans2": {"value": 14},
+			"ans3": {"value": 26}
 		}
 	},
 	{
@@ -42,9 +42,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 2},
-			"ans2": {"value": 2},
-			"ans3": {"value": 4}
+			"ans1": {"value": 9},
+			"ans2": {"value": 1},
+			"ans3": {"value": 10}
 		}
 	},
 	{
@@ -52,22 +52,22 @@
 			"var1" : {
 				"type": "image",
 				"asset": "deer_ltgray",
-				"count": 1
+				"count": 3
 			},
 			"var2" : {
 				"type": "image",
 				"asset": "deer_white",
-				"count": 4
+				"count": 5
 			},
 			"var3" : {
 				"type": "image",
 				"asset": "deer_midgray",
-				"count": 5
+				"count": 8
 			}
 		},
 		"answer": {
-			"ans1": {"value": 7},
-			"ans2": {"value": 1},
+			"ans1": {"value": 3},
+			"ans2": {"value": 5},
 			"ans3": {"value": 8}
 		}
 	},
@@ -81,18 +81,18 @@
 			"var2" : {
 				"type": "image",
 				"asset": "elephant_white",
-				"count": 5
+				"count": 6
 			},
 			"var3" : {
 				"type": "image",
 				"asset": "elephant_midgray",
-				"count": 8
+				"count": 9
 			}
 		},
 		"answer": {
-			"ans1": {"value": 5},
-			"ans2": {"value": 3},
-			"ans3": {"value": 8}
+			"ans1": {"value": 3},
+			"ans2": {"value": 6},
+			"ans3": {"value": 9}
 		}
 	},
 	{
@@ -100,23 +100,23 @@
 			"var1" : {
 				"type": "image",
 				"asset": "deer_ltgray",
-				"count": 6
+				"count": 16
 			},
 			"var2" : {
 				"type": "image",
 				"asset": "deer_white",
-				"count": 3
+				"count": 9
 			},
 			"var3" : {
 				"type": "image",
 				"asset": "deer_midgray",
-				"count": 9
+				"count": 25
 			}
 		},
 		"answer": {
-			"ans1": {"value": 6},
-			"ans2": {"value": 3},
-			"ans3": {"value": 9}
+			"ans1": {"value": 16},
+			"ans2": {"value": 9},
+			"ans3": {"value": 25}
 		}
 	}]
 }

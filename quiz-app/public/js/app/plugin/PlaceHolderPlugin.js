@@ -13,7 +13,9 @@ var PlaceHolderPlugin = Plugin.extend({
 			}
 			var dataItem = datasource.items[count];
 			instance.param = dataItem.params[data.param];
-			instance.renderGridLayout(instance._parent, instance);
+			if (instance.param.type == 'image') {
+				instance.renderGridLayout(instance._parent, instance);
+			}
 		}
 	},
 
@@ -35,15 +37,16 @@ var PlaceHolderPlugin = Plugin.extend({
 	        return imgCont;
 	    }
 
-	    var x = instance._dimensions.x,
-        	y = instance._dimensions.y,
-        	area = instance._dimensions.w * instance._dimensions.h,
-        	pad = instance._dimensions.pad || 0,
+	    var x = instance.dimensions().x,
+        	y = instance.dimensions().y,
+        	area = instance.dimensions().w * instance.dimensions().h,
+        	pad = instance.dimensions().pad || 0,
         	repeat = instance.param.count;
 
         // This code assumes that the img aspect ratio is 1. i.e. the image is a square
     	// Hardcoding the cell size adjusting factor to 1.5. Need to invent a new algorithm
     	var pixelPerImg = computePixel(area, repeat || 1) - parseFloat(pad / 1.5);
+
     	var param = instance.param;
     	param.paddedImg = paddedImageContainer(param.asset, pad);
     	var assetBounds = param.paddedImg.getBounds();
@@ -54,11 +57,13 @@ var PlaceHolderPlugin = Plugin.extend({
     	param.paddedImg.x = x + pad;
     	param.paddedImg.y = y + pad;
     	
+    	var instanceBoundary = instance.dimensions().x + instance.dimensions().w;
+    	console.log(instance.dimensions().x + ' - ' + instance.dimensions().y + ' - ' + instance.dimensions().w + ' - ' + instance.dimensions().h);
     	for (i = 0; i < param.count; i++) {
 	    	var clonedAsset = param.paddedImg.clone(true);
 	        //console.log(x + pixelPerImg, cw);
-	        if ((x + pixelPerImg) > instance._dimensions.w) {
-	            x = instance._dimensions.x || 0;
+	        if ((x + pixelPerImg) > instanceBoundary) {
+	            x = instance.dimensions().x || 0;
 	            y += pixelPerImg + pad;
 	        }
 	        clonedAsset.x = x + pad;

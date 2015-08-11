@@ -77,16 +77,16 @@ things to my space ship
         <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
-        <placeholder param="var1" x="15" y="20" w="30" h="10"/>
-        <input type="number" class="inputText" x="16" y="57" w="5" h="5" id="text1"/>
-        <image asset="separator_vertical" x="30" y="15" w="0.5" h="50"/>
-        <placeholder param="var2" x="35" y="3" w="30" h="10"/>
-        <input type="number" class="inputText" x="35" y="57" w="5" h="5" id="text2"/>
-        <image asset="separator_horizontal" x="2" y="70" w="56" h="1"/>
-        <placeholder param="var3" x="10" y="80" w="80" h="5"/>
-        <input type="number" class="inputText" x="27" y="90" w="5" h="5" id="text3"/>
-        <image asset="plus" x="28.7" y="38" w="3" h="3"/>
-        <image asset="equals" x="28.7" y="69" w="3" h="3"/>
+        <placeholder param="var1" x="5" y="15" w="25" h="25"/>
+        <input type="number" class="inputText" x="14" y="57" w="5" h="5" id="text1"/>
+        <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
+        <placeholder param="var2" x="37" y="15" w="25" h="25"/>
+        <input type="number" class="inputText" x="43" y="57" w="5" h="5" id="text2"/>
+        <image asset="separator_horizontal" x="2" y="65" w="58" h="1"/>
+        <placeholder param="var3" x="2" y="66" w="80" h="15"/>
+        <input type="number" class="inputText" x="28" y="90" w="5" h="5" id="text3"/>
+        <image asset="plus" x="30.7" y="33" w="3" h="3"/>
+        <image asset="equals" x="30.7" y="64" w="3" h="3"/>
         <image asset="noah" x="62" y="5" w="15" h="50"/>
         <image asset="hint" x="93" y="20" w="5" h="9"/>
         <image asset="validate" x="93" y="30" w="5" h="9" onclick="next"/>
