@@ -30,6 +30,7 @@ RUN apt-get -y autoremove
 RUN rm /bin/sh
 RUN ["/bin/bash", "-c", "ln -s /bin/bash /bin/sh"]
 RUN echo "smallfiles=true" >> /etc/mongod.conf
+RUN sed -i 's|dbpath.*|dbpath=/data/mongodb|g' /etc/mongod.conf
 
 # Copy the config and rename routes
 RUN npm install -g grunt-cli
