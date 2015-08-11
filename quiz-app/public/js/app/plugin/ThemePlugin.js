@@ -6,6 +6,7 @@ var ThemePlugin = Plugin.extend({
     _stageRepeatCount: undefined,
     _currentScene: undefined,
     _canvasId: undefined,
+    inputs: [],
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
@@ -50,8 +51,14 @@ var ThemePlugin = Plugin.extend({
         return this.loader.getResult(aid);
     },
     addChild: function(child, childPlugin) {
+        var instance = this;
+        child.on('sceneenter', function() {
+            instance.enableInputs();
+        })
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
+            this.disableInputs();
+            this.inputs = [];
             this._director.replace(child, new creatine.transitions.ScaleIn);
         } else {
             this._director.replace(child);
@@ -69,6 +76,16 @@ var ThemePlugin = Plugin.extend({
                 console.log('Theme Event invoked - ', eventData.on);
             });
         }
+    },
+    disableInputs: function() {
+        this.inputs.forEach(function(inputId) {
+            document.getElementById(inputId).style.display = 'none';
+        })
+    },
+    enableInputs: function() {
+        this.inputs.forEach(function(inputId) {
+            document.getElementById(inputId).style.display = 'block';
+        })
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);
