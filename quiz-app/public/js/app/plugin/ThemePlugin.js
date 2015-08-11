@@ -4,8 +4,10 @@ var ThemePlugin = Plugin.extend({
     loader: undefined,
     _director: false,
     _gameAreaLeft: 0,
+    _stageRepeatCount: undefined,
     initPlugin: function(data) {
         this._self = new createjs.Stage(data.canvasId);
+        this._stageRepeatCount = {};
         //this._director = new creatine.Director(this._self);
         this._dimensions = {
             x:0,
