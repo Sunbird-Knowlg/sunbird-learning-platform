@@ -7,6 +7,7 @@ var ThemePlugin = Plugin.extend({
     _currentScene: undefined,
     _canvasId: undefined,
     inputs: [],
+    _animationEffect: 'moveOutLeft',
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
@@ -59,14 +60,15 @@ var ThemePlugin = Plugin.extend({
         if(this._currentScene) {
             this.disableInputs();
             this.inputs = [];
-            this._director.replace(child, new creatine.transitions.ScaleIn);
+            this._director.replace(child, this.getTransition(this._animationEffect));
         } else {
             this._director.replace(child);
         }
         childPlugin.setIndex(nextIdx);
         this._currentScene = child;
     },
-    replaceStage: function(prevStage, stageId) {
+    replaceStage: function(prevStage, stageId, effect) {
+        this._animationEffect = effect;
         var stage = _.findWhere(this._data.stage, {id: stageId});
         pluginManager.invoke('stage', stage, this, null, this);
     },
@@ -86,6 +88,32 @@ var ThemePlugin = Plugin.extend({
         this.inputs.forEach(function(inputId) {
             document.getElementById(inputId).style.display = 'block';
         })
+    },
+    getTransition: function(id) {
+        id = id || 'moveOutLeft';
+        if(id == 'scaleIn') {
+            return new creatine.transitions.ScaleIn;
+        } else if(id == 'scaleOut') {
+            return new creatine.transitions.ScaleOut;
+        } else if(id == 'scaleInOut') {
+            return new creatine.transitions.ScaleInOut;
+        } else if(id == 'moveOutRight') {
+            return new creatine.transitions.MoveOut(creatine.RIGHT);
+        } else if(id == 'moveInLeft') {
+            return new creatine.transitions.MoveIn(creatine.LEFT);
+        } else if(id == 'moveInRight') {
+            return new creatine.transitions.MoveIn(creatine.RIGHT);
+        } else if(id == 'scroll') {
+            return new creatine.transitions.Scroll;
+        } else if(id == 'fadeIn') {
+            return new creatine.transitions.ScaleIn;
+        } else if(id == 'fadeOut') {
+            return new creatine.transitions.ScaleOut;
+        } else if(id == 'fadeInOut') {
+            return new creatine.transitions.ScaleInOut;
+        } else {
+            return new creatine.transitions.MoveOut(creatine.LEFT);
+        }
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);

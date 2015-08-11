@@ -47,7 +47,7 @@
         <events>
             <event on="enter" sprite="" animation="" effect=""/>
             <event on="idle" sprite="" animation="" effect=""/>
-            <event on="next" transition="welcome" effect="page-flip"/>
+            <event on="next" transition="welcome" effect="moveInRight"/>
         </events>
     </stage>
     <stage id="welcome" x="0" y="0" w="100" h="100">

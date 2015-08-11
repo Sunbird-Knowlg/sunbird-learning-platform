@@ -32,7 +32,7 @@ var StagePlugin = Plugin.extend({
             instance.on(eventData.on, function(event) {
                 var count = instance._theme._stageRepeatCount[instance._data.id];
                 if (count >= instance._repeat) {
-                    instance._theme.replaceStage(this._self, eventData.transition);
+                    instance._theme.replaceStage(this._self, eventData.transition, eventData.effect);
                 } else {
                     instance._theme.replaceStage(this._self, instance._data.id);
                 }
