@@ -38,10 +38,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
 
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
-    private static final int DEFAULT_TTL = 24;
-
-    private static final int DEFAULT_LIMIT = 50;
-
+    
     static {
         DEFAULT_FIELDS.add("identifier");
         DEFAULT_FIELDS.add("name");

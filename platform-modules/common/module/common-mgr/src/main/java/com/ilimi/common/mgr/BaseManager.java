@@ -37,6 +37,10 @@ public abstract class BaseManager {
     protected static final String PARAM_UID = "uid";
     protected static final String PARAM_STATUS = "status";
     protected static final String PARAM_TTL = "ttl";
+    
+    protected static final int DEFAULT_TTL = 24;
+    protected static final int DEFAULT_LIMIT = 50;
+
 
     protected void setMetadataFields(Node node, String[] fields) {
         if (null != fields && fields.length > 0) {

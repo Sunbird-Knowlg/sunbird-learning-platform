@@ -15,4 +15,6 @@ public interface IContentManager {
 
     Response delete(String id, String taxonomyId);
 
+    Response listContents(String objectType, Request request);
+
 }

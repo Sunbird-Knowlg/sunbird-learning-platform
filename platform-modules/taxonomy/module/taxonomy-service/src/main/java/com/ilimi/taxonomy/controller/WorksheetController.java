@@ -106,6 +106,31 @@ public class WorksheetController extends BaseController {
         }
     }
     
+    @RequestMapping(value = "", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "offset", required = false) Integer offset,
+            @RequestParam(value = "limit", required = false) Integer limit,
+            @RequestParam(value = "fields", required = false) String[] fields, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "worksheet.findall";
+        LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | fields: " + fields
+                + " | user-id: " + userId);
+        try {
+            Response findAllResp = contentManager.findAll(taxonomyId, objectType, offset, limit, fields);
+            Response response = copyResponse(findAllResp);
+            if(checkError(response)) {
+                return getResponseEntity(response, apiId, null);
+            }
+            response.put(ContentAPIParams.worksheets.name(), findAllResp.get(ContentAPIParams.contents.name()));
+            response.put(GraphDACParams.count.name(), findAllResp.get(GraphDACParams.count.name()));
+            LOGGER.info("FindAll | Response: " + findAllResp);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
@@ -120,6 +145,41 @@ public class WorksheetController extends BaseController {
             LOGGER.error("Delete | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
+    }
+    
+    @RequestMapping(value = "/list", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> list(@RequestBody Map<String, Object> map) {
+        String apiId = "worksheet.list";
+        Request request = getListRequestObject(map);
+        LOGGER.info("List Worksheets | Request: " + request);
+        try {
+            Response response = contentManager.listContents(objectType, request);
+            LOGGER.info("List Worksheets | Response: " + response);
+            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List Worksheets | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private Request getListRequestObject(Map<String, Object> requestMap) {
+        Request request = getRequest(requestMap);
+        if (null != requestMap && !requestMap.isEmpty()) {
+            Object requestObj = requestMap.get("request");
+            if (null != requestObj) {
+                try {
+                    ObjectMapper mapper = new ObjectMapper();
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+                    request.setRequest(map);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return request;
     }
     
     private Request getRequestObject(Map<String, Object> requestMap) {

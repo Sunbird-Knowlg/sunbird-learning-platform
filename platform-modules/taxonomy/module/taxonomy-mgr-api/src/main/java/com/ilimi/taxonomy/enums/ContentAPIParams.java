@@ -1,5 +1,5 @@
 package com.ilimi.taxonomy.enums;
 
 public enum ContentAPIParams {
-    worksheet
+    contents, worksheet, worksheets, game, games,
 }
