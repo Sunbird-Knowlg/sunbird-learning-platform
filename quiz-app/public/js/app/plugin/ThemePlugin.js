@@ -3,10 +3,11 @@ var ThemePlugin = Plugin.extend({
     update: false,
     loader: undefined,
     _director: false,
-    _gameAreaLeft: 0,
     _stageRepeatCount: undefined,
     _currentScene: undefined,
+    _canvasId: undefined,
     initPlugin: function(data) {
+        this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
         this._director = new creatine.Director(this._self);
         this._stageRepeatCount = {};
@@ -21,7 +22,6 @@ var ThemePlugin = Plugin.extend({
         this._self.mouseMoveOutside = true;
     },
     updateCanvas: function(w, h) {
-        this._gameAreaLeft = w / 2;
         this._self.canvas.width = w;
         this._self.canvas.height = h;
         this._dimensions = {
