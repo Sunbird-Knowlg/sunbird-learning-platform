@@ -5,10 +5,11 @@ var ThemePlugin = Plugin.extend({
     _director: false,
     _gameAreaLeft: 0,
     _stageRepeatCount: undefined,
+    _currentScene: undefined,
     initPlugin: function(data) {
         this._self = new createjs.Stage(data.canvasId);
+        this._director = new creatine.Director(this._self);
         this._stageRepeatCount = {};
-        //this._director = new creatine.Director(this._self);
         this._dimensions = {
             x:0,
             y: 0,
@@ -48,11 +49,19 @@ var ThemePlugin = Plugin.extend({
     getAsset: function(aid) {
         return this.loader.getResult(aid);
     },
-    replaceStage: function(stageId) {
-        console.log('ReplaceStage event stageId', stageId);
+    addChild: function(child, childPlugin) {
+        var nextIdx = this._currIndex++;
+        if(this._currentScene) {
+            this._director.replace(child, new creatine.transitions.ScaleIn);
+        } else {
+            this._director.replace(child);
+        }
+        childPlugin.setIndex(nextIdx);
+        this._currentScene = child;
+    },
+    replaceStage: function(prevStage, stageId) {
         var stage = _.findWhere(this._data.stage, {id: stageId});
         pluginManager.invoke('stage', stage, this, null, this);
-        this.update();
     },
     registerEvent: function(instance, eventData) {
         if(eventData.isTest) {

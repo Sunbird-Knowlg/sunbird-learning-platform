@@ -32,7 +32,9 @@ Renderer = {
         Renderer.theme.loader = new createjs.LoadQueue(true, '/assets/');
         Renderer.theme.loader.addEventListener("complete", Renderer.startCanvas);
         Renderer.theme.loader.loadManifest(data.theme.manifest.media, true);
-        //createjs.Ticker.addEventListener("tick", Renderer.theme.tick);
+        createjs.Ticker.addEventListener("tick", function() {
+            Renderer.theme.update();
+        });
     },
     startCanvas: function() {
         Renderer.theme.render();

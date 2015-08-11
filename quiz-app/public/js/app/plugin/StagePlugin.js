@@ -9,7 +9,7 @@ var StagePlugin = Plugin.extend({
         this._theme._stageRepeatCount[data.id] = count + 1;
 
         var instance = this;
-		this._self = new createjs.Container();
+		this._self = new creatine.Scene();;
 		var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
@@ -26,10 +26,9 @@ var StagePlugin = Plugin.extend({
     registerEvent: function(instance, eventData) {
         if(eventData.transition) {
             instance.on(eventData.on, function(event) {
-                console.log('Stage Event invoked - ', eventData.on);
                 var count = instance._theme._stageRepeatCount[instance._data.id];
                 if (count >= instance._repeat) {
-                    instance._theme.replaceStage(eventData.transition);    
+                    instance._theme.replaceStage(this._self, eventData.transition);
                 } else {
                     instance._theme.replaceStage(instance._data.id);
                 }

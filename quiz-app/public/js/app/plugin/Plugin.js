@@ -69,7 +69,6 @@ var Plugin = Class.extend({
 	    		});
 	    	} else if(arr[0] == 'stage') {
 	    		instance._self.on('click', function() {
-	    			console.log('dispatching event - ', arr[1]);
 	    			instance._stage.dispatchEvent(arr[1]);
 	    		});
 	    	} else {
