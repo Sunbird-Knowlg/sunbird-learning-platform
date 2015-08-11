@@ -16,6 +16,21 @@
         <media id="equals" src="operator_equals.png" type="image" />
         <media id="hint" src="icons/icon_hint.png" type="image" />
         <media id="validate" src="icons/icon_validate.png" type="image" />
+
+        <media id="butterfly_ltgray" src="characters/character_butterfly_ltgray.png" type="image" /> 
+        <media id="butterfly_midgray" src="characters/character_butterfly_midgray.png" type="image" />
+        <media id="butterfly_white" src="characters/character_butterfly_white.png" type="image" />
+        <media id="cat_ltgray" src="characters/character_cat_ltgray.png" type="image" />
+        <media id="cat_midgray" src="characters/character_cat_midgray.png" type="image" />
+        <media id="cat_white" src="characters/character_cat_white.png" type="image" />
+        <media id="deer_ltgray" src="characters/character_deer_ltgray.png" type="image" />
+        <media id="deer_midgray" src="characters/character_deer_midgray.png" type="image" />
+        <media id="deer_white" src="characters/character_deer_white.png" type="image" />
+        <media id="elephant_ltgray" src="characters/character_elephant_ltgray.png" type="image" />
+        <media id="elephant_midgray" src="characters/character_elephant_midgray.png" type="image" />
+        <media id="elephant_white" src="characters/character_elephant_white.png" type="image" />
+
+        <media id="items" src="items.json" type="json" />
     </manifest>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
@@ -56,14 +71,17 @@ things to my space ship
             <event on="next" transition="item" effect="page-flip"/>
         </events>
     </stage>
-    <stage id="item" x="0" y="0" w="100" h="100" repeat="5">
+    <stage id="item" x="0" y="0" w="100" h="100" repeat="5" datasource="items">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="difficulty_high" x="2" y="3" w="5" h="10"/>
         <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
+        <placeholder param="var1" x="15" y="20" w="30" h="10"/>
         <image asset="separator_vertical" x="30" y="15" w="0.5" h="50"/>
+        <placeholder param="var2" x="35" y="3" w="30" h="10"/>
         <image asset="separator_horizontal" x="2" y="70" w="56" h="1"/>
+        <placeholder param="var3" x="2" y="80" w="80" h="10"/>
         <image asset="plus" x="28.7" y="38" w="3" h="3"/>
         <image asset="equals" x="28.7" y="69" w="3" h="3"/>
         <image asset="noah" x="62" y="5" w="15" h="50"/>
@@ -73,7 +91,7 @@ things to my space ship
             <event on="next" transition="summary" effect="page-flip"/>
         </events>
     </stage>
-    <stage id="summary" x="0" y="0" w="100" h="100" repeat="5">
+    <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="difficulty_high" x="2" y="3" w="5" h="10"/>
         <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">

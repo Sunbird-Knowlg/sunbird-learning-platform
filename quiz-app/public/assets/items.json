@@ -1,0 +1,122 @@
+{
+	"items": [{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "butterfly_ltgray",
+				"count": 4	
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "butterfly_white",
+				"count": 3	
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "butterfly_midgray",
+				"count": 7
+			}
+		},
+		"answer": {
+			"ans1": {"value": 4},
+			"ans2": {"value": 3},
+			"ans3": {"value": 7}
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "cat_ltgray",
+				"count": 9
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "cat_white",
+				"count": 1
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "cat_midgray",
+				"count": 10
+			}
+		},
+		"answer": {
+			"ans1": {"value": 2},
+			"ans2": {"value": 2},
+			"ans3": {"value": 4}
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "deer_ltgray",
+				"count": 1
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "deer_white",
+				"count": 4
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "deer_midgray",
+				"count": 5
+			}
+		},
+		"answer": {
+			"ans1": {"value": 7},
+			"ans2": {"value": 1},
+			"ans3": {"value": 8}
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "elephant_ltgray",
+				"count": 3
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "elephant_white",
+				"count": 5
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "elephant_midgray",
+				"count": 8
+			}
+		},
+		"answer": {
+			"ans1": {"value": 5},
+			"ans2": {"value": 3},
+			"ans3": {"value": 8}
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "deer_ltgray",
+				"count": 6
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "deer_white",
+				"count": 3
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "deer_midgray",
+				"count": 9
+			}
+		},
+		"answer": {
+			"ans1": {"value": 6},
+			"ans2": {"value": 3},
+			"ans3": {"value": 9}
+		}
+	}]
+}
