@@ -1,0 +1,36 @@
+<worksheet>
+	<manifest>
+		<media id="background" uri="worksheets/worksheet1/assets/theme/bg.png" type="image"/>
+		<media id="noah" uri="worksheets/worksheet1/assets/theme/noah.png" type="image"/>
+		<media id="blacktint_square" uri="worksheets/worksheet1/assets/theme/blacktint_736x648.png" type="image"/>
+		<media id="blacktint_rect" uri="worksheets/worksheet1/assets/theme/blacktint_736x325.png" type="image"/>
+		<media id="blacktint_full" uri="worksheets/worksheet1/assets/theme/blacktint_full.png" type="image"/>
+		<media id="enter_mission" uri="worksheets/worksheet1/assets/theme/entermission.png" type="image"/>
+	</manifest>
+
+	<stage id="splash" start="true">
+		<g asset="background" x="0" y="0" w="100" h="100">
+			<text x="7" y="9.5" w="21.5" h="23.5" font="46px solid Arial, sans-serif" color="#fff">
+				Noah's Ark...
+			</text>
+			<g asset="blacktint_square" x="4" y="34.7" w="38.5" h="54.5">
+				<text x="7" y="6.5" w="88.5" h="88.5" font="18px Arial, serif" color="#fff">
+					Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
+				</text>
+			</g>
+			<image asset="noah" x="48.33" y="9.8" w="23.3" h="68.4"/>
+			<image asset="enter_mission" x="32.2" y="79.8" w="24" h="19.5" onclick="next()"/>
+		</g>
+	</stage>
+
+	<stage id="welcome">
+		<g>
+			<image asset="background" x="0" y="0" w="100" h="100"/>
+			<text x="7" y="9.5" w="21.5" h="23.5" font="46px solid Arial, sans-serif" color="#fff">
+				Noah's Ark...
+			</text>
+		</g>
+	</stage>
+
+
+</worksheet>
