@@ -1,0 +1,17 @@
+<theme>
+    <manifest>
+        <media id="bg" src="bg.png" type="image" />
+        <media id="noah" src="noah.png" type="image" />
+    </manifest>
+    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+        <g x="0" y="0" w="100" h="100">
+            <image asset="bg" x="0" y="0" w="100" h="100"/>
+            <image asset="noah" x="60" y="20" w="20" h="45"/>
+        </g>
+    </stage>
+    <stage id="welcome" x="0" y="0" w="100" h="100">
+        <g x="0" y="0" w="100" h="100">
+            <image asset="bg" x="0" y="0" w="100" h="100"/>
+        </g>
+    </stage>
+</theme>

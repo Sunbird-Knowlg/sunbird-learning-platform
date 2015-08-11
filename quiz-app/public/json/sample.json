@@ -1,0 +1,137 @@
+{
+    "manifest": [{
+        "src": "/img/background.jpg",
+        "id": "background"
+    }, {
+        "src": "/img/apple.png",
+        "id": "apple"
+    }, {
+        "src": "/img/apple_green.png",
+        "id": "appleG"
+    }, {
+        "src": "/img/blue_equals.png",
+        "id": "bEqualsImg"
+    }, {
+        "src": "/img/plus-sign-simple.png",
+        "id": "plusImg"
+    }, {
+        "src": "/img/3D_shelf.png",
+        "id": "3D_shelf"
+    }, {
+        "src": "/img/felt.png",
+        "id": "felt"
+    }, {
+        "src": "/img/5A_bg.png",
+        "id": "5A_bg"
+    }, {
+        "src": "/img/banana.png",
+        "id": "banana"
+    }],
+    "template": {
+        "bg": {
+            "assetId": "felt"
+        },
+        "displayObjects": [{
+            "type": "container",
+            "layout": {
+                "type": "image",
+                "assetId": "5A_bg",
+                "x": 100,
+                "y": 150,
+                "w": 300,
+                "h": 300
+            },
+            "displayObjects": [{
+                "type": "gridLayout",
+                "assets": [{"id":"apple","repeat": 20}],
+                "w": 280,
+                "h": 200,
+                "x": 20,
+                "y": 25,
+                "pad": 8
+            }]
+        }, {
+            "type": "container",
+            "layout": {
+                "type": "image",
+                "assetId": "5A_bg",
+                "x": 600,
+                "y": 150,
+                "w": 300,
+                "h": 300
+            },
+            "displayObjects": []
+        }, {
+            "type": "asset",
+            "layout": {
+                "type": "image",
+                "assetId": "bEqualsImg",
+                "x": 970,
+                "y": 240,
+                "w": 120,
+                "h": 120
+            }
+        }, {
+            "type": "asset",
+            "layout": {
+                "type": "image",
+                "assetId": "plusImg",
+                "x": 460,
+                "y": 250,
+                "w": 90,
+                "h": 90
+            }
+        }, {
+            "type": "container",
+            "layout": {
+                "type": "image",
+                "assetId": "5A_bg",
+                "x": 1150,
+                "y": 150,
+                "w": 360,
+                "h": 300
+            },
+            "displayObjects": [{
+                "type": "gridLayout",
+                "assets": [{"id":"appleG","repeat": 5}, {"id":"banana","repeat": 6}, {"id":"appleG","repeat": 7}, {"id":"apple","repeat": 8}],
+                "w": 330,
+                "h": 180,
+                "x": 25,
+                "y": 25,
+                "pad": 8
+            }]
+        }, {
+            "type": "container",
+            "layout": {
+                "type": "image",
+                "assetId": "3D_shelf",
+                "x": 100,
+                "y": 580,
+                "w": 1400,
+                "h": 350
+            },
+            "displayObjects": [{
+                "type": "gridLayout",
+                "assets": [{"id":"appleG","repeat": 20}, {"id":"banana","repeat": 10}, {"id":"apple","repeat": 20}],
+                "w": 1100,
+                "h": 150,
+                "x": 300,
+                "y": 35,
+                "pad": 8,
+                "enableDrag": true
+            }]
+        }, {
+            "type": "asset",
+            "layout": {
+                "type": "text",
+                "assetId": "Hello, Can you fill up the empty box with apples (either green or red) from the bottom box?",
+                "x": 100,
+                "y": 70,
+                "w": 1200,
+                "h": 70,
+                "color": "white",
+                "font": "30px solid Arial"
+            }
+        }]
+    }
+}

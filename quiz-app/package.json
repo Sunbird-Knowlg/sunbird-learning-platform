@@ -1,0 +1,20 @@
+{
+    "name": "platform-ui",
+    "version": "0.0.1",
+    "private": true,
+    "scripts": {
+        "start": "node app.js"
+    },
+    "dependencies": {
+        "async": "*",
+        "ejs": "*",
+        "express": "3.2.6",
+        "xml2json": "*"
+    },
+    "devDependencies": {
+        "grunt": "^0.4.4",
+        "grunt-cli": "*",
+        "grunt-contrib-copy": "*",
+        "grunt-string-replace": "*"
+    }
+}
