@@ -1,5 +1,6 @@
 var PluginManager = Class.extend({
 	_pluginMap: {},
+	_pluginObjMap: {},
 	_errors: [],
 	registerPlugin: function(id, plugin) {
 		this._pluginMap[id] = plugin;
@@ -28,6 +29,12 @@ var PluginManager = Class.extend({
 			}
 		}
 		return p;
+	},
+	registerPluginObject: function(id, pluginObj) {
+		this._pluginObjMap[id] = pluginObj;
+	},
+	getPluginObject: function(id, pluginObj) {
+		return this._pluginObjMap[id];
 	}
 });
 

@@ -58,7 +58,6 @@ var PlaceHolderPlugin = Plugin.extend({
     	param.paddedImg.y = y + pad;
     	
     	var instanceBoundary = instance.dimensions().x + instance.dimensions().w;
-    	console.log(instance.dimensions().x + ' - ' + instance.dimensions().y + ' - ' + instance.dimensions().w + ' - ' + instance.dimensions().h);
     	for (i = 0; i < param.count; i++) {
 	    	var clonedAsset = param.paddedImg.clone(true);
 	        //console.log(x + pixelPerImg, cw);

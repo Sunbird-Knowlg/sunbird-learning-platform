@@ -20,7 +20,9 @@ var TextPlugin = Plugin.extend({
 	    text.textAlign = 'left';
 	    text.textBaseline = 'middle';
 	    this._self = text;
-	    this.render();
+	    if (!data.hide) {
+	    	this.render();
+		}
 	}
 });
 pluginManager.registerPlugin('text', TextPlugin);

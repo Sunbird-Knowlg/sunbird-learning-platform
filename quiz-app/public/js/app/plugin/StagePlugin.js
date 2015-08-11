@@ -37,6 +37,43 @@ var StagePlugin = Plugin.extend({
                     instance._theme.replaceStage(this._self, instance._data.id);
                 }
             });
+        } else if(eventData.on == 'eval') {
+            instance.on(eventData.on, function(event) {
+                // randomly generating success and failure events
+                // should actually evaluate the values in eventData.values
+                var i = Math.floor(Math.random() * (2)) + 1;
+                if (i%2 == 0) {
+                    instance.dispatchEvent(eventData.success);
+                } else {
+                    //TODO: objects hide is not working properly
+                    //instance.dispatchEvent(eventData.failure);
+                    instance.dispatchEvent(eventData.success);
+                }
+            });
+        } else if(eventData.on == 'correct_answer' || eventData.on == 'wrong_answer' || eventData.on == 'try_again') {
+            instance.on(eventData.on, function(event) {
+                var showIds = [];
+                if (eventData.show) {
+                    var showIds = eventData.show.split(",");
+                    showIds.forEach(function(id) {
+                        var plugIn = pluginManager.getPluginObject(id);
+                        if (plugIn) {
+                            plugIn.render();
+                        }
+                    });
+                }
+                if (eventData.hide) {
+                    //TODO: objects hide is not working properly
+                    //this logic is not working properly
+                    var hideIds = eventData.hide.split(",");
+                    hideIds.forEach(function(id) {
+                        var plugIn = pluginManager.getPluginObject(id);
+                        if (plugIn && plugIn._parent) {
+                            plugIn._parent.removeChild(plugIn._self);
+                        }
+                    });
+                }
+            });
         }
     }
 });

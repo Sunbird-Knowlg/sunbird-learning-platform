@@ -15,7 +15,9 @@ var ImagePlugin = Plugin.extend({
 	        s.scaleX = dims.w / sb.width;
 	    }
 	    this._self = s;
-	    this.render();
+	    if (!data.hide) {
+	    	this.render();
+		}
 	}
 });
 pluginManager.registerPlugin('image', ImagePlugin);

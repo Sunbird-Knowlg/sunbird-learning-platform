@@ -8,7 +8,6 @@
         <media id="blacktint_square" src="blacktint_736x648.png" type="image" />
         <media id="startnow" src="startnow.png" type="image" />
         <media id="speechbubble" src="speechbubble.png" type="image" />
-        <media id="difficulty_high" src="icons/icon_difficulty_high.png" type="image" />
         <media id="separator_vertical" src="separator_vertical.png" type="image" />
         <media id="separator_horizontal" src="separator_horizontal.png" type="image" />
         <media id="plus" src="operator_plus.png" type="image" />
@@ -16,6 +15,12 @@
         <media id="equals" src="operator_equals.png" type="image" />
         <media id="hint" src="icons/icon_hint.png" type="image" />
         <media id="validate" src="icons/icon_validate.png" type="image" />
+        <media id="difficulty_high" src="icons/icon_difficulty_high.png" type="image" />
+
+        <media id="correct_answer" src="spaceship_gotitcorrect.png" type="image" />
+        <media id="wrong_answer" src="spaceship_wronganswer.png" type="image" />
+        <media id="button_next" src="button_next.png" type="image" />
+        <media id="button_tryagain" src="button_tryagain.png" type="image" />
 
         <media id="butterfly_ltgray" src="characters/character_butterfly_ltgray.png" type="image" /> 
         <media id="butterfly_midgray" src="characters/character_butterfly_midgray.png" type="image" />
@@ -89,8 +94,17 @@ things to my space ship
         <image asset="equals" x="30.7" y="64" w="3" h="3"/>
         <image asset="noah" x="62" y="5" w="15" h="50"/>
         <image asset="hint" x="93" y="20" w="5" h="9"/>
-        <image asset="validate" x="93" y="30" w="5" h="9" onclick="next"/>
+        <image asset="validate" x="93" y="30" w="5" h="9" onclick="eval"/>
+        <image asset="blacktint_full" x="0" y="0" w="100" h="100" hide="true" id="img_overlay"/>
+        <image asset="correct_answer" x="15" y="15" w="70" h="70" hide="true" id="img_correct_answer"/>
+        <image asset="wrong_answer" x="15" y="15" w="70" h="70" hide="true" id="img_wrong_answer"/>
+        <image asset="button_next" x="43" y="45" w="15" h="5" hide="true" id="btn_next" onclick="next"/>
+        <image asset="button_tryagain" x="43" y="45" w="15" h="5" hide="true" id="btn_try_again" onclick="try_again"/>
         <events>
+            <event on="eval" values="text1,text2,text3" success="correct_answer" failure="wrong_answer"/>
+            <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next" hide="img_wrong_answer,btn_try_again"/>
+            <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,btn_next"/>
+            <event on="try_again" hide="img_overlay,img_wrong_answer,btn_try_again"/>
             <event on="next" transition="summary" effect="page-flip"/>
         </events>
     </stage>

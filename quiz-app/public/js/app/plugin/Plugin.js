@@ -19,6 +19,9 @@ var Plugin = Class.extend({
 		} else {
 			this.assetEvents(data);
 		}
+		if (data.id) {
+			pluginManager.registerPluginObject(data.id, this);	
+		}
 	},
 	setIndex: function(idx) {
 		this._index = idx;
@@ -30,8 +33,11 @@ var Plugin = Class.extend({
 			childPlugin.setIndex(nextIdx);
 		}
 	},
-	removeChild: function(idx) {
+	removeChildAt: function(idx) {
 		this._self.removeChildAt(idx);
+	},
+	removeChild: function(child) {
+		this._self.removeChild(child);
 	},
 	render: function() {
 		this._parent.addChild(this._self, this);
