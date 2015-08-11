@@ -672,6 +672,8 @@ public class DataNode extends AbstractNode {
                         }
                     }
                 }
+            } else if (StringUtils.equalsIgnoreCase("xml", dataType)) {
+                // TODO need to implement the xml validation.
             }
         }
     }

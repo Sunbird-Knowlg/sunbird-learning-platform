@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.annotate.JsonIgnore;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.Relationship;
 
@@ -104,6 +105,7 @@ public class Node implements Serializable {
         this.identifier = identifier;
     }
 
+    @JsonIgnore
     public String getGraphId() {
         return graphId;
     }
@@ -112,6 +114,7 @@ public class Node implements Serializable {
         this.graphId = graphId;
     }
 
+    @JsonIgnore
     public String getNodeType() {
         if (StringUtils.isBlank(nodeType) && null != metadata)
             this.nodeType = (String) metadata.get(SystemProperties.IL_SYS_NODE_TYPE.name());

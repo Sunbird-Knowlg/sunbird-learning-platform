@@ -141,6 +141,23 @@ public abstract class BaseController {
         return request;
     }
 
+    protected boolean checkError(Response response) {
+        ResponseParams params = response.getParams();
+        if (null != params) {
+            if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    protected Response copyResponse(Response res) {
+        Response response = new Response();
+        response.setResponseCode(res.getResponseCode());
+        response.setParams(res.getParams());
+        return response;
+    }
+    
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
             response.setId(API_ID_PREFIX + "." + apiId);

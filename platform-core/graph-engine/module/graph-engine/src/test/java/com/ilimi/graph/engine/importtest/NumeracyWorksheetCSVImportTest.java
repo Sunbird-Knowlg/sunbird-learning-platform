@@ -24,7 +24,7 @@ import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
 
-public class NumeracyQuestionBankCSVImportTest {
+public class NumeracyWorksheetCSVImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
@@ -52,7 +52,7 @@ public class NumeracyQuestionBankCSVImportTest {
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("assessment_definitions.json");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("worksheet_definitions.json");
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
@@ -62,7 +62,7 @@ public class NumeracyQuestionBankCSVImportTest {
             handleFutureBlock(res, "importDefinitions", GraphDACParams.graph_id.name());
             
             long t2 = System.currentTimeMillis();
-            System.out.println("Numeracy QuestionBank Definition Import Time: " + (t2 - t1));
+            System.out.println("Numeracy Worksheet Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();

@@ -24,11 +24,11 @@ import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
 
-public class NumeracyQuestionBankCSVImportTest {
+public class LiteracyWorkSheetCSVImportV2Test {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "numeracy";
+    String graphId = "literacy_v2";
 
     private ActorRef initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
@@ -52,17 +52,17 @@ public class NumeracyQuestionBankCSVImportTest {
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
             // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("assessment_definitions.json");
+            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("worksheet_definitions.json");
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
             request.put(GraphEngineParams.input_stream.name(), new String(b));
             Future<Object> res = Patterns.ask(reqRouter, request, t);
-
-            handleFutureBlock(res, "importDefinitions", GraphDACParams.graph_id.name());
             
+            handleFutureBlock(res, "importDefinitions", GraphDACParams.graph_id.name());
+
             long t2 = System.currentTimeMillis();
-            System.out.println("Numeracy QuestionBank Definition Import Time: " + (t2 - t1));
+            System.out.println("Literacy V2 Worksheet Definition Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
@@ -83,5 +83,6 @@ public class NumeracyQuestionBankCSVImportTest {
             e.printStackTrace();
         }
     }
+
 
 }
