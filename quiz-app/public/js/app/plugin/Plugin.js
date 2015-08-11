@@ -26,7 +26,9 @@ var Plugin = Class.extend({
 	addChild: function(child, childPlugin) {
 		var nextIdx = this._currIndex++;
 		this._self.addChildAt(child, nextIdx);
-		childPlugin.setIndex(nextIdx);
+		if (childPlugin) {
+			childPlugin.setIndex(nextIdx);
+		}
 	},
 	removeChild: function(idx) {
 		this._self.removeChildAt(idx);

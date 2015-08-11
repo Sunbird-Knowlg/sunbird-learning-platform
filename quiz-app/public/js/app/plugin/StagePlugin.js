@@ -1,9 +1,13 @@
 var StagePlugin = Plugin.extend({
     _type: 'stage',
     _repeat: 1,
+    _datasource: undefined,
 	initPlugin: function(data) {
         if (data.repeat) {
             this._repeat = data.repeat;
+        }
+        if (data.datasource) {
+            this._datasource = data.datasource;
         }
         var count = this._theme._stageRepeatCount[data.id] || 0;
         this._theme._stageRepeatCount[data.id] = count + 1;
@@ -30,7 +34,7 @@ var StagePlugin = Plugin.extend({
                 if (count >= instance._repeat) {
                     instance._theme.replaceStage(this._self, eventData.transition);
                 } else {
-                    instance._theme.replaceStage(instance._data.id);
+                    instance._theme.replaceStage(this._self, instance._data.id);
                 }
             });
         }
