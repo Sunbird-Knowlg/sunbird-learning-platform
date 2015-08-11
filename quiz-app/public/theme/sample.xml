@@ -6,14 +6,17 @@
         <media id="entermission" src="entermission.png" type="image" />
         <media id="blacktint_full" src="blacktint_full.png" type="image" />
         <media id="blacktint_square" src="blacktint_736x648.png" type="image" />
+        <media id="startnow" src="startnow.png" type="image" />
+        <media id="speechbubble" src="speechbubble.png" type="image" />
     </manifest>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
-        <image asset="blacktint_square" x="4" y="34" w="38" h="55"/>
-        <text x="10" y="15" w="22" h="23" font="64px solid Arial, sans-serif" color="#fff">
+        <image asset="blacktint_square" x="4" y="34" w="38" h="50"/>
+        <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
+        <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
             Noah's Ark...
         </text>
-        <text x="7" y="40" w="32" h="49" font="30px Arial, serif" color="#fff">
+        <text x="7" y="40" w="32" h="49" font="Arial, serif" fontsize="48" width="614" color="#fff">
             Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
         </text>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
@@ -27,6 +30,23 @@
     <stage id="welcome" x="0" y="0" w="100" h="100">
         <g x="0" y="0" w="100" h="100">
             <image asset="bg" x="0" y="0" w="100" h="100"/>
+            <image asset="blacktint_square" x="4" y="34" w="38" h="30"/>
+            <image asset="startnow" x="4" y="65" w="35" h="30"/>
+            <image asset="noah" x="60" y="10" w="20" h="65"/>
+            <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
+            <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
+            <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
+                Noah's Ark...
+            </text>
+            <text x="7" y="40" w="32" h="40" font="Arial, serif" fontsize="48" width="614" color="#fff">
+                Add the things in pictures to find out the total number of beings that Noah is carrying in his spaceship to Mars.
+            </text>
+            <g x="38" y="22" w="28" h="16">
+            <text x="0" y="0" w="100" h="100" font="Arial, serif" fontsize="32" width="537" color="#000">Hey, Ramya...
+I need your help in adding the
+things to my space ship
+            </text>
+            </g>
         </g>
     </stage>
 </theme>

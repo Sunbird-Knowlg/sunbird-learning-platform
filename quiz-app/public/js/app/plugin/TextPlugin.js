@@ -1,9 +1,17 @@
 var TextPlugin = Plugin.extend({
 	initPlugin: function(data) {
-		console.log('text: ' + data.$t);
 		var instance = this;
-		var text = new createjs.Text(data.$t || '', data.font || '20px Arial', data.color || '#000000');
+		var fontsize = data.fontsize || 20;
 		var dims = this.relativeDims();
+		if (data.width) {
+	    	var exp = data.width;	
+	    	var cw = this._parent.dimensions().w;
+	    	var width = parseFloat(cw * data.w / 100);
+	    	var scale = parseFloat(width/exp);
+	    	fontsize = parseFloat(fontsize * scale);
+	    }
+	    var font = fontsize + 'px ' + data.font || 'Arial';
+		var text = new createjs.Text(data.$t || '', font, data.color || '#000000');
 	    text.x = dims.x;
 	    text.y = dims.y;
 	    text.lineWidth = dims.w;
