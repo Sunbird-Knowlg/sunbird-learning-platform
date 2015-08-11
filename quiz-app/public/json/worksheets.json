@@ -1,0 +1,29 @@
+{
+  "id": "ekstep.lp.game.list",
+  "ver": "1.0",
+  "ts": "2015-08-03T18:22:03ZZ",
+  "params": {
+    "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
+    "msgid": null,
+    "err": null,
+    "status": "successful",
+    "errmsg": null
+  },
+  "result": {
+    "games": [
+      {
+        "name": "Arithmetic Class 2",
+        "description": "Arithmetic Operations for Class 2",
+        "appIcon": "img/icons/math3.jpg",
+        "launchUrl": "index3.html"
+      },
+      {
+        "name": "Place Value Class 1",
+        "description": "Place Value Addition Subtraction Game",
+        "appIcon": "img/icons/fruits.png",
+        "launchUrl": "index2.html"
+      }
+    ],
+    "ttl": 24
+  }
+}

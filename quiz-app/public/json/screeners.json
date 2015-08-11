@@ -1,0 +1,47 @@
+{
+  "id": "ekstep.lp.game.list",
+  "ver": "1.0",
+  "ts": "2015-08-03T18:22:03ZZ",
+  "params": {
+    "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
+    "msgid": null,
+    "err": null,
+    "status": "successful",
+    "errmsg": null
+  },
+  "result": {
+    "games": [
+      {
+        "name": "Numeracy Broad Screener",
+        "description": "Numeracy Broad Screener",
+        "appIcon": "img/icons/math11.jpg",
+        "launchUrl": "index3.html"
+      },
+      {
+        "name": "Math Pen & Paper",
+        "description": "Math Pen & Paper",
+        "appIcon": "img/icons/math9.jpg",
+        "launchUrl": "index3.html"
+      },
+      {
+        "name": "Literacy Screener",
+        "description": "Literacy Screener",
+        "appIcon": "img/icons/math4.png",
+        "launchUrl": "index3.html"
+      },
+      {
+        "name": "Aser Screener",
+        "description": "Aser Screener",
+        "appIcon": "img/icons/ekstep180px.png",
+        "launchUrl": "index2.html"
+      },
+      {
+        "name": "Numeracy Detailed Screener",
+        "description": "Numeracy Detailed Screener",
+        "appIcon": "img/icons/math8.jpg",
+        "launchUrl": "index3.html"
+      }
+    ],
+    "ttl": 24
+  }
+}
