@@ -1,50 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html ng-app="starter">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
 
-<head>
-    <meta charset="UTF-8">
-    <title>Test App</title>
-    <script src="/js/thirdparty/createjs-2015.05.21.min.js"></script>
-    <script src="/js/thirdparty/jquery.min.js"></script>
-    <script src="/js/thirdparty/underscore.js"></script>
-    <!-- <script src="/js/app/renderer.js"></script> -->
-    <script src="/js/app/canvasRenderer.js"></script>
-    <script src="/js/thirdparty/CanvasInput.js"></script>
-    <style>
-    	#gameArea {
-		  	position: absolute;
-		  	left:     50%;
-		  	top:      50%;
-		}
-		#gameCanvas {
-  			width: 100%;
-  			height: 100%;
-		}
-    </style>
-</head>
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/app/style.css" rel="stylesheet">
 
-<body style="background: url('/img/felt.png') repeat;">
-	<div id="gameArea">
-  		<canvas id="gameCanvas" width="1366" height="768"></canvas>
-	</div>
-</body>
+    <link rel="stylesheet" type="text/css" href="css/thirdparty/bookshelf_slider.css" />
+    <link rel="stylesheet" type="text/css" href="css/thirdparty/skin01.css" />
 
+    <script type="text/javascript" src="js/thirdparty/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thirdparty/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/thirdparty/jquery.bookshelfslider.min.js"></script>
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.min.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="lib/ngCordova/dist/ng-cordova.min.js"></script>
+
+    <script src="lib/angular-resource/angular-resource.min.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app/app.js"></script>
+    <script src="js/app/services.js"></script>
+  </head>
+  <body>
+    <ion-nav-view></ion-nav-view>
+  </body>
 </html>
-<script>
-// Rules
-// 1. A display object of type Asset cannot contain another asset or container
-// 2. A display object of type container can contain another asset or a container
-$(document).ready(function() {
-    $.get('/json/sample2.json',
-        function(data) {
-            console.log('data', data);
-            Renderer.init(data, 'gameCanvas');
-        	$(window).resize(function() {
-                Renderer.resizeGame(false);
-            });
-        },
-        'json').fail(function() {
-    alert( "error" );
-  });
-});
-</script>

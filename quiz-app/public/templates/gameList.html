@@ -1,0 +1,48 @@
+<ion-pane ng-if="!load.status">
+    <ion-content>
+        <div id="bookshelf_slider" class="bookshelf_slider">
+
+            <div class="panel_title">
+                <div class="selected_title_box"><div class="selected_title">Selected Title</div></div>
+                <button ng-click="resetGameCache()" class="button button-clear icon ion-android-refresh" style="float:right; color:#000;"></button>
+            </div><!-- .panel_title -->
+            
+            <div class="panel_slider">
+                <div class="panel_items">
+
+                    <div class="slide_animate">
+                        <div class="products_box" id="products_box_1">
+                            <div class="product" data-type="book" title="{{game.name}}" ng-repeat="game in games" ng-click="gameClick(game);">
+                                <img ng-src="{{game.appIcon}}" alt="" width="100" height="105" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slide_animate">
+                        <div class="products_box" id="products_box_2">
+                            <div class="product" data-type="book" title="{{scr.name}}" ng-repeat="scr in screeners" ng-click="gameClick(scr);">
+                                <img ng-src="{{scr.appIcon}}" alt="" width="100" height="105" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div><!-- panel_items -->
+            </div><!-- panel_slider -->
+            
+            <div class="panel_bar">
+                <div class='buttons_container'>
+                    <div id="arrow_box"><div id="arrow_menu"></div></div>
+                    <div class="button_items">
+                        <div id="btn1" class="button_bar"><a href="#">Worksheets</a></div>
+                        <div id="btn2" class="button_bar"><a href="#">Screeners</a></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </ion-content>
+</ion-pane>
+<div style="margin:auto; position:fixed;left:50%;top:50%;" ng-if="load.status">
+    <ion-spinner icon="spiral"></ion-spinner>    
+</div>
