@@ -18,7 +18,7 @@ var InputPlugin = Plugin.extend({
 	        input.style.height=dims.h + 'px';
 	    }
 	    input.style.marginLeft = ($('#' + this._theme._canvasId).offset().left + dims.x) + 'px';
-	    input.style.marginTop = (dims.y) + 'px';
+	    input.style.marginTop = ($('#' + this._theme._canvasId).offset().top + dims.y) + 'px';
 	    input.style.display = 'none';
 	    this._theme.inputs.push(data.id);
 	}
