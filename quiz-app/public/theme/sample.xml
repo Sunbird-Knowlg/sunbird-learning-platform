@@ -8,6 +8,14 @@
         <media id="blacktint_square" src="blacktint_736x648.png" type="image" />
         <media id="startnow" src="startnow.png" type="image" />
         <media id="speechbubble" src="speechbubble.png" type="image" />
+        <media id="difficulty_high" src="icons/icon_difficulty_high.png" type="image" />
+        <media id="separator_vertical" src="separator_vertical.png" type="image" />
+        <media id="separator_horizontal" src="separator_horizontal.png" type="image" />
+        <media id="plus" src="operator_plus.png" type="image" />
+        <media id="minus" src="operator_minus.png" type="image" />
+        <media id="equals" src="operator_equals.png" type="image" />
+        <media id="hint" src="icons/icon_hint.png" type="image" />
+        <media id="validate" src="icons/icon_validate.png" type="image" />
     </manifest>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
@@ -28,26 +36,39 @@
         </events>
     </stage>
     <stage id="welcome" x="0" y="0" w="100" h="100">
-        <g x="0" y="0" w="100" h="100">
-            <image asset="bg" x="0" y="0" w="100" h="100"/>
-            <image asset="blacktint_square" x="4" y="34" w="38" h="30"/>
-            <image asset="startnow" x="4" y="65" w="35" h="30"/>
-            <image asset="noah" x="60" y="10" w="20" h="65"/>
-            <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
-            <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
-            <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
-                Noah's Ark...
-            </text>
-            <text x="7" y="40" w="32" h="40" font="Arial, serif" fontsize="48" width="614" color="#fff">
-                Add the things in pictures to find out the total number of beings that Noah is carrying in his spaceship to Mars.
-            </text>
-            <g x="38" y="22" w="28" h="16">
-            <text x="0" y="0" w="100" h="100" font="Arial, serif" fontsize="32" width="537" color="#000">Hey, Ramya...
+        <image asset="bg" x="0" y="0" w="100" h="100"/>
+        <image asset="blacktint_square" x="4" y="34" w="38" h="30"/>
+        <image asset="startnow" x="4" y="65" w="35" h="30" onclick="next"/>
+        <image asset="noah" x="60" y="10" w="20" h="65"/>
+        <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
+        <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
+        <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
+            Noah's Ark...
+        </text>
+        <text x="7" y="40" w="32" h="40" font="Arial, serif" fontsize="48" width="614" color="#fff">
+            Add the things in pictures to find out the total number of beings that Noah is carrying in his spaceship to Mars.
+        </text>
+        <text x="38" y="22" w="28" h="16" font="Arial, serif" fontsize="32" width="537" color="#000">Hey, Ramya...
 I need your help in adding the
 things to my space ship
-            </text>
-            </g>
-        </g>
+        </text>
+        <events>
+            <event on="enter" sprite="" animation="" effect=""/>
+            <event on="idle" sprite="" animation="" effect=""/>
+            <event on="next" transition="item" effect="page-flip"/>
+        </events>
+    </stage>
+    <stage id="item" x="0" y="0" w="100" h="100">
+        <image asset="bg" x="0" y="0" w="100" h="100"/>
+        <image asset="difficulty_high" x="2" y="3" w="5" h="10"/>
+        <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
+            ADDITION - By Grouping
+        </text>
+        <image asset="separator_vertical" x="30" y="15" w="0.5" h="50"/>
+        <image asset="separator_horizontal" x="2" y="70" w="56" h="1"/>
+        <image asset="plus" x="28.7" y="38" w="3" h="3"/>
+        <image asset="equals" x="28.7" y="69" w="3" h="3"/>
+        <image asset="noah" x="62" y="5" w="15" h="50"/>
     </stage>
     <events>
         <event on="test" isTest="true"/>
