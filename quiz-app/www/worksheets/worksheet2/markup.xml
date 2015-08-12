@@ -36,7 +36,7 @@
         <text x="40" y="45" w="55" h="49" font="Arial, serif" fontsize="36" width="1056" color="#666">
             Counting and number recognition worksheets are among the first math worksheets that preschool and kindergarten children will practice with. Number recognition is a building block to success in math. As preschool and kindergarten children start to recognize their numbers, it is natural for them to begin counting objects.
         </text>
-        <sprite asset="grant_sprite" start="run" x="65" y="55"/>
+        <sprite asset="grant_sprite" start="run" x="35" y="50"/>
         
         <image asset="start" x="40" y="78" w="22" h="22" onclick="stage:next"/>
         <events>
@@ -52,9 +52,7 @@
             Enter the number that tells how many are in the group in the input box next to each group
         </text>
         <image asset="box" x="40" y="36" w="20" h="20"/>
-        <text x="38" y="58" w="35" h="20" font="Arial, serif" fontsize="24" width="576" color="#666">
-            Fun Activity: Drag objects into this box
-        </text>
+        <placeholder param="var4" x="38" y="58" w="35" h="20" font="Arial, serif" fontsize="24" width="576" color="#666"/>
         <placeholder param="var2" x="9" y="75" w="40" h="5" enabledrag="true"/>
         <input type="number" class="inputText" x="2" y="76" w="5" h="5" id="text1" param="ans1"/>
 

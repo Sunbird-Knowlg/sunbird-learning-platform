@@ -14,21 +14,27 @@ var PlaceHolderPlugin = Plugin.extend({
 			}
 			var dataItem = datasource.items[count];
 			instance.param = dataItem.params[data.param];
-			if (instance.param.type == 'image') {
+			if (instance.param.type == 'gridLayout') {
 				instance.renderGridLayout(instance._parent, instance);
-			} else if (instance.param.type == 'background') {
-				instance.renderBackground(instance);
+			} else if (instance.param.type == 'image') {
+				instance.renderImage(instance);
+			} else if (instance.param.type == 'text') {
+				instance.renderText(instance);
 			}
 		}
 	},
-
-	renderBackground: function(instance) {
+	renderText: function(instance) {
+		var param = instance.param;
+		var data = instance._data;
+		data.$t = param.asset;
+		pluginManager.invoke('text', data, instance._parent, instance._stage, instance._theme);
+	},
+	renderImage: function(instance) {
 		var param = instance.param;
 		var data = instance._data;
 		data.asset = param.asset;
 		pluginManager.invoke('image', data, instance._parent, instance._stage, instance._theme);
 	},
-
 	renderGridLayout: function(parent, instance) {
 		var computePixel = function(area, repeat) {
         	return Math.floor(Math.sqrt(parseFloat(area / repeat)))
