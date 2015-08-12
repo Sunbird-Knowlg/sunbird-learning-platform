@@ -4,22 +4,22 @@ var InputPlugin = Plugin.extend({
 	initPlugin: function(data) {
 		var dims = this.relativeDims();
 		var input = document.getElementById(data.id);
-		if(!input) {
-	        input = document.createElement('input');
-	        input.style.position = 'absolute';
-	        input.id = data.id;
-	        input.type = data.type;
-	        input.style.width = dims.w + 'px';
-	        input.style.height = dims.h + 'px';
-	        input.className = data.class;
-	        document.body.appendChild(input);
-	    } else {
-	        input.style.width=dims.w + 'px';
-	        input.style.height=dims.h + 'px';
-	    }
-	    input.style.marginLeft = ($('#' + this._theme._canvasId).offset().left + dims.x) + 'px';
-	    input.style.marginTop = ($('#' + this._theme._canvasId).offset().top + dims.y) + 'px';
-	    input.style.display = 'none';
+		if(input) {
+			$("#" + data.id).remove();
+		}
+        input = document.createElement('input');
+        input.id = data.id;
+        input.type = data.type;
+        input.style.width = dims.w + 'px';
+        input.style.height = dims.h + 'px';
+        input.className = data.class;
+        input.style.display = 'none';
+        var div = document.getElementById('gameArea');
+        div.insertBefore(input, div.childNodes[0]);
+        this._self = new createjs.DOMElement(input);
+        this._self.x = dims.x;
+	    this._self.y = dims.y;
+        this.render();
 	    this._theme.inputs.push(data.id);
 	}
 });
