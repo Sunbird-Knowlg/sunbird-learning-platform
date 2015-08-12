@@ -29,6 +29,44 @@
     <!-- your app's js -->
     <script src="js/app/app.js"></script>
     <script src="js/app/services.js"></script>
+    <script src="js/thirdparty/createjs-2015.05.21.min.js"></script>
+    <script src="js/thirdparty/underscore.js"></script>
+    <script src="js/thirdparty/Class.js"></script>
+    <script src="js/thirdparty/creatine-1.0.0.min.js"></script>
+    <script src="js/app/plugin/PluginManager.js"></script>
+    <script src="js/app/plugin/Plugin.js"></script>
+    <script src="js/app/plugin/ContainerPlugin.js"></script>
+    <script src="js/app/plugin/ThemePlugin.js"></script>
+    <script src="js/app/plugin/StagePlugin.js"></script>
+    <script src="js/app/plugin/ImagePlugin.js"></script>
+    <script src="js/app/plugin/TextPlugin.js"></script>
+    <script src="js/app/plugin/InputPlugin.js"></script>
+    <script src="js/app/plugin/PlaceHolderPlugin.js"></script>
+    <script src="js/app/renderer/CanvasRenderer.js"></script>
+    <style>
+        #gameArea {
+            position: absolute;
+            left:     50%;
+            top:      50%;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .inputText {
+            -moz-border-radius: 15px;
+            border-radius: 15px;
+            border:solid 2px black !important;
+            font-size: 15px !important;
+            padding-left: 10px !important;
+            font-weight: bold !important;
+            padding-right: 5px;
+            z-index: 1000;
+        }
+        .pane {
+            background-color: #333 !important;
+        }
+    </style>
   </head>
   <body>
     <ion-nav-view></ion-nav-view>
