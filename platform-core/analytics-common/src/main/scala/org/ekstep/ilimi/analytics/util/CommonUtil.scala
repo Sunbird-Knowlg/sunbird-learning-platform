@@ -6,7 +6,6 @@ import java.nio.file.Paths.get
 import java.nio.file.StandardCopyOption.REPLACE_EXISTING
 import java.text.SimpleDateFormat
 import java.util.Date
-
 import org.apache.spark.SparkConf
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD
@@ -21,11 +20,15 @@ import org.json4s.jackson.JsonMethods.compact
 import org.json4s.jackson.JsonMethods.parse
 import org.json4s.jvalue2extractable
 import org.json4s.string2JsonInput
+import org.joda.time.format.DateTimeFormatter
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.DateTime
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
     @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
+    @transient val df3:DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ssZZ");
 
     def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
@@ -181,12 +184,12 @@ object CommonUtil {
         arr.map { x => getInputPath(x, suffix) }.mkString(",");
     }
 
-    def formatEventDate(date: Date): String = {
-        df2.format(date);
+    def formatEventDate(date: DateTime): String = {
+        df3.print(date);
     }
 
     def main(args: Array[String]): Unit = {
-        formatEventDate(new Date());
+        Console.println(formatEventDate(new DateTime));
     }
 
 }

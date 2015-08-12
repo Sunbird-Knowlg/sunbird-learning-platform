@@ -43,7 +43,7 @@ object EventSessionization extends Application with Serializable {
         completedSessions.foreachRDD(rdd => {
             rdd.collect().foreach(f => {
                 val res = LitScreenerLevelComputation.compute(f._2._1, loltMapping, ldloMapping, compldMapping, litLevelsMap);
-                LitScreenerLevelComputation.sendOutput(res._1, res._2, resultOutput, of, kt, brokerList)
+                LitScreenerLevelComputation.sendOutput(res._1, res._2, res._3, resultOutput, of, kt, brokerList)
             });
         });
 
