@@ -12,34 +12,16 @@
   "result": {
     "games": [
       {
-        "name": "Numeracy Broad Screener",
-        "description": "Numeracy Broad Screener",
-        "appIcon": "img/icons/math11.jpg",
+        "name": "Addition through Objects",
+        "description": "Addition through Objects",
+        "appIcon": "assets/addition.png",
         "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
-        "name": "Math Pen & Paper",
-        "description": "Math Pen & Paper",
-        "appIcon": "img/icons/math9.jpg",
-        "launchUrl": "worksheets/worksheet1/markup.json"
-      },
-      {
-        "name": "Literacy Screener",
-        "description": "Literacy Screener",
-        "appIcon": "img/icons/math4.png",
-        "launchUrl": "worksheets/worksheet1/markup.json"
-      },
-      {
-        "name": "Aser Screener",
-        "description": "Aser Screener",
-        "appIcon": "img/icons/ekstep180px.png",
-        "launchUrl": "worksheets/worksheet1/markup.json"
-      },
-      {
-        "name": "Numeracy Detailed Screener",
-        "description": "Numeracy Detailed Screener",
-        "appIcon": "img/icons/math8.jpg",
-        "launchUrl": "worksheets/worksheet1/markup.json"
+        "name": "Counting Numbers",
+        "description": "Counting Numbers",
+        "appIcon": "assets/counting.png",
+        "launchUrl": "worksheets/worksheet2/markup.json"
       }
     ],
     "ttl": 24

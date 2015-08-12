@@ -16,8 +16,17 @@ var PlaceHolderPlugin = Plugin.extend({
 			instance.param = dataItem.params[data.param];
 			if (instance.param.type == 'image') {
 				instance.renderGridLayout(instance._parent, instance);
+			} else if (instance.param.type == 'background') {
+				instance.renderBackground(instance);
 			}
 		}
+	},
+
+	renderBackground: function(instance) {
+		var param = instance.param;
+		var data = instance._data;
+		data.asset = param.asset;
+		pluginManager.invoke('image', data, instance._parent, instance._stage, instance._theme);
 	},
 
 	renderGridLayout: function(parent, instance) {

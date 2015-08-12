@@ -1,0 +1,89 @@
+{
+	"items": [{
+		"params": {
+			"var1" : {
+				"type": "background",
+				"asset": "bg1"
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "angry_bird",
+				"count": 6	
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "yellow_bird",
+				"count": 4
+			}
+		},
+		"answer": {
+			"ans1": 6,
+			"ans2": 4
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "background",
+				"asset": "bg3"
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "apple",
+				"count": 8	
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "banana",
+				"count": 3
+			}
+		},
+		"answer": {
+			"ans1": 8,
+			"ans2": 3
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "background",
+				"asset": "bg4"
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "rabbit",
+				"count": 6	
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "horse",
+				"count": 3
+			}
+		},
+		"answer": {
+			"ans1": 6,
+			"ans2": 3
+		}
+	}],
+	"summary": [{
+		"range": {"min": 80},
+		"message": {
+			"type": "text",
+			"asset": "Whoa! Great Job...!!!"
+		}
+	},
+	{
+		"range": {"min": 50, "max": 79},
+		"message": {
+			"type": "text",
+			"asset": "You can do better...!!!"
+		}
+	},
+	{
+		"range": {"max": 50},
+		"message": {
+			"type": "text",
+			"asset": "Sorry. You didn't pass the quiz...!!!"
+		}
+	}]
+}

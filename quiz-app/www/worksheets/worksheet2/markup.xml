@@ -1,0 +1,91 @@
+<theme>
+    <manifest>
+        <media id="bg1" src="assets/theme2/bg1.png" type="image" />
+        <media id="bg3" src="assets/theme2/bg3.png" type="image" />
+        <media id="bg4" src="assets/theme2/bg4.png" type="image" />
+        <media id="bg5" src="assets/theme2/bg5.png" type="image" />
+        <media id="box" src="assets/theme2/box.png" type="image" />
+        <media id="blacktint_full" src="assets/theme2/blacktint_full.png" type="image" />
+        <media id="next" src="assets/theme2/icon_next.png" type="image" />
+        <media id="previous" src="assets/theme2/icon_previous.png" type="image" />
+        <media id="profile" src="assets/theme2/icon_profile.png" type="image" />
+        <media id="button_next" src="assets/theme2/button_next.png" type="image" />
+        <media id="button_tryagain" src="assets/theme2/button_tryagain.png" type="image" />
+
+        <media id="angry_bird" src="assets/theme2/characters/angry-bird.png" type="image" />
+        <media id="apple" src="assets/theme2/characters/apple.png" type="image" />
+        <media id="banana" src="assets/theme2/characters/banana.png" type="image" />
+        <media id="horse" src="assets/theme2/characters/horse.png" type="image" />
+        <media id="mango" src="assets/theme2/characters/mango.png" type="image" />
+        <media id="rabbit" src="assets/theme2/characters/rabbit.png" type="image" />
+        <media id="yellow_bird" src="assets/theme2/characters/yellow_bird.png" type="image" />
+
+        <media id="start" src="assets/theme2/start.png" type="image" />
+        <media id="correct" src="assets/theme2/correct.png" type="image" />
+        <media id="try_again" src="assets/theme2/try_again.png" type="image" />
+        <media id="grant_sprite" src="assets/theme2/grant_sprite.json" type="spritesheet" />
+        
+
+        <media id="items" src="worksheets/worksheet2/items.json" type="json" />
+    </manifest>
+    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+        <image asset="bg5" x="0" y="0" w="100" h="100"/>
+        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+            Counting Numbers...
+        </text>
+        <text x="40" y="45" w="55" h="49" font="Arial, serif" fontsize="36" width="1056" color="#666">
+            Counting and number recognition worksheets are among the first math worksheets that preschool and kindergarten children will practice with. Number recognition is a building block to success in math. As preschool and kindergarten children start to recognize their numbers, it is natural for them to begin counting objects.
+        </text>
+        <sprite asset="grant_sprite" start="run" x="65" y="55"/>
+        
+        <image asset="start" x="40" y="78" w="22" h="22" onclick="stage:next"/>
+        <events>
+            <event on="next" transition="item" effect="moveInLeft"/>
+        </events>
+    </stage>
+    <stage id="item" x="0" y="0" w="100" h="100" datasource="items">
+        <placeholder param="var1" x="0" y="0" w="100" h="100"/>
+        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+            Counting Numbers...
+        </text>
+        <text x="40" y="15" w="55" h="49" font="Arial, serif" fontsize="36" width="1056" color="#fff">
+            Enter the number that tells how many are in the group in the input box next to each group
+        </text>
+        <image asset="box" x="40" y="36" w="20" h="20"/>
+        <text x="38" y="58" w="35" h="20" font="Arial, serif" fontsize="24" width="576" color="#666">
+            Fun Activity: Drag objects into this box
+        </text>
+        <placeholder param="var2" x="9" y="75" w="40" h="5" enabledrag="true"/>
+        <input type="number" class="inputText" x="2" y="76" w="5" h="5" id="text1" param="ans1"/>
+
+        <placeholder param="var3" x="79" y="70" w="30" h="5" enabledrag="true"/>
+        <input type="number" class="inputText" x="72" y="72" w="5" h="5" id="text2" param="ans2"/>
+
+        <image asset="blacktint_full" x="0" y="0" w="100" h="100" hide="true" id="img_overlay"/>
+        <sprite asset="grant_sprite" start="jump" x="45" y="45" hide="true" id="sprite_jump"/>
+        <image asset="correct" x="30" y="30" w="40" h="30" hide="true" id="img_correct" onclick="next"/>
+        <image asset="try_again" x="30" y="30" w="40" h="30" hide="true" id="img_try_again" onclick="try_again"/>
+
+        <image asset="previous" x="83" y="1" w="5" h="9" onclick="previous"/>
+        <image asset="profile" x="88" y="1" w="5" h="9"/>
+        <image asset="next" x="93" y="1" w="5" h="9" onclick="next"/>
+        <image asset="button_next" x="80" y="90" w="15" h="9" onclick="eval"/>
+        <events>
+            <event on="eval" eval="text1,text2" success="correct_answer" failure="wrong_answer"/>
+            <event on="correct_answer" show="img_overlay,img_correct,sprite_jump" hide="img_try_again"/>
+            <event on="wrong_answer" show="img_overlay,img_try_again" hide="img_correct,sprite_jump"/>
+            <event on="try_again" reload="true" effect="fadeInOut"/>
+            <event on="previous" transition="item" effect="scaleInOut"/>
+            <event on="next" transition="summary" effect="moveInRight"/>
+        </events>
+    </stage>
+    <stage id="summary" x="0" y="0" w="100" h="100">
+        <image asset="bg5" x="0" y="0" w="100" h="100"/>
+        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+            Counting Numbers...
+        </text>
+        <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" datasource="items">
+        </summary>
+        <sprite asset="grant_sprite" start="jump_run" x="35" y="30"/>
+    </stage>
+</theme>
