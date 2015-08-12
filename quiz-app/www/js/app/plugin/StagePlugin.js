@@ -3,11 +3,12 @@ var StagePlugin = Plugin.extend({
     _repeat: 1,
     _datasource: undefined,
 	initPlugin: function(data) {
-        if (data.repeat) {
-            this._repeat = data.repeat;
-        }
         if (data.datasource) {
             this._datasource = data.datasource;
+            var dataItems = this._theme.getAsset(this._datasource);
+            if (dataItems && dataItems.items && dataItems.items.length > 0) {
+                this._repeat = dataItems.items.length;
+            }
         }
         var count = this._theme._stageRepeatCount[data.id] || 0;
         this._theme._stageRepeatCount[data.id] = count + 1;
@@ -37,21 +38,43 @@ var StagePlugin = Plugin.extend({
                     instance._theme.replaceStage(this._self, instance._data.id);
                 }
             });
-        } else if(eventData.on == 'eval') {
+        } else if(eventData.eval) {
             instance.on(eventData.on, function(event) {
-                // randomly generating success and failure events
-                // should actually evaluate the values in eventData.values
-                var i = Math.floor(Math.random() * (2)) + 1;
-                if (i%2 == 0) {
+                var count = instance._theme._stageRepeatCount[instance._data.id];
+                count -= 1;
+                if (count < 0 || count >= instance._repeat) {
+                    count = 0;
+                }
+                var dataItems = instance._theme.getAsset(instance._datasource);
+                var dataItem = dataItems.items[count];
+                var valid = true;
+                var evalFields = eventData.eval.split(',');
+                evalFields.forEach(function(inputId) {
+                    if (valid) {
+                        var inputPlugIn = pluginManager.getPluginObject(inputId);
+                        if (inputPlugIn) {
+                            var ansParam = inputPlugIn._data.param;
+                            var expected = dataItem.answer[ansParam];
+                            var actual = document.getElementById(inputId).value; 
+                            if (_.isObject(expected)) {
+                                valid = _.isEqual(expected, actual);    
+                            } else {
+                                valid = (expected == actual);
+                            }
+                        } else {
+                            valid = false;
+                        }
+                    }
+                });
+                if (valid) {
                     instance.dispatchEvent(eventData.success);
                 } else {
-                    //TODO: objects hide is not working properly
-                    //instance.dispatchEvent(eventData.failure);
-                    instance.dispatchEvent(eventData.success);
+                    instance.dispatchEvent(eventData.failure);
                 }
             });
-        } else if(eventData.on == 'correct_answer' || eventData.on == 'wrong_answer' || eventData.on == 'try_again') {
+        } else if(eventData.show || eventData.hide) {
             instance.on(eventData.on, function(event) {
+                instance._theme.disableInputs();
                 var showIds = [];
                 if (eventData.show) {
                     var showIds = eventData.show.split(",");
@@ -63,8 +86,6 @@ var StagePlugin = Plugin.extend({
                     });
                 }
                 if (eventData.hide) {
-                    //TODO: objects hide is not working properly
-                    //this logic is not working properly
                     var hideIds = eventData.hide.split(",");
                     hideIds.forEach(function(id) {
                         var plugIn = pluginManager.getPluginObject(id);
@@ -74,6 +95,13 @@ var StagePlugin = Plugin.extend({
                     });
                 }
             });
+        } else if(eventData.reload) {
+            instance.on(eventData.on, function(event) {
+                var count = instance._theme._stageRepeatCount[instance._data.id];
+                count -= 1;
+                instance._theme._stageRepeatCount[instance._data.id] = count;
+                instance._theme.replaceStage(this._self, instance._data.id);
+            }); 
         }
     }
 });

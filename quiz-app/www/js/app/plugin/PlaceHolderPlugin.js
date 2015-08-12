@@ -8,7 +8,8 @@ var PlaceHolderPlugin = Plugin.extend({
 			var datasource = this._theme.getAsset(this._stage._datasource);
 			var dataLength = datasource.items.length;
 			var count = this._theme._stageRepeatCount[this._stage._data.id];
-			if (count >= dataLength) {
+			count -= 1;
+			if (count < 0 || count >= dataLength) {
 				count = 0;
 			}
 			var dataItem = datasource.items[count];

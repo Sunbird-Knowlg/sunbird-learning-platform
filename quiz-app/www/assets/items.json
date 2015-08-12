@@ -18,9 +18,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 12},
-			"ans2": {"value": 14},
-			"ans3": {"value": 26}
+			"ans1": 12,
+			"ans2": 14,
+			"ans3": 26
 		}
 	},
 	{
@@ -42,9 +42,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 9},
-			"ans2": {"value": 1},
-			"ans3": {"value": 10}
+			"ans1": 9,
+			"ans2": 1,
+			"ans3": 10
 		}
 	},
 	{
@@ -66,9 +66,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 3},
-			"ans2": {"value": 5},
-			"ans3": {"value": 8}
+			"ans1": 3,
+			"ans2": 5,
+			"ans3": 8
 		}
 	},
 	{
@@ -90,9 +90,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 3},
-			"ans2": {"value": 6},
-			"ans3": {"value": 9}
+			"ans1": 3,
+			"ans2": 6,
+			"ans3": 9
 		}
 	},
 	{
@@ -114,9 +114,9 @@
 			}
 		},
 		"answer": {
-			"ans1": {"value": 16},
-			"ans2": {"value": 9},
-			"ans3": {"value": 25}
+			"ans1": 16,
+			"ans2": 9,
+			"ans3": 25
 		}
 	}]
 }
