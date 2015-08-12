@@ -1,5 +1,7 @@
 package com.ilimi.taxonomy.mgr;
 
+import java.io.File;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
@@ -16,5 +18,7 @@ public interface IContentManager {
     Response delete(String id, String taxonomyId);
 
     Response listContents(String objectType, Request request);
+
+    Response upload(String id, String taxonomyId, File uploadedFile);
 
 }

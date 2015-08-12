@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -180,6 +181,36 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Content Object Id is blank");
         Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode", GraphDACParams.node_id.name(), id);
         return getResponse(request, LOGGER);
+    }
+    
+
+    @Override
+    public Response upload(String id, String taxonomyId, File uploadedFile) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(id))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Content Object Id is blank");
+        if(null == uploadedFile) {
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(), "Upload file is blank");
+        }
+        
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response getNodeRes = getResponse(request, LOGGER);
+        Response response = copyResponse(getNodeRes);
+        if (checkError(response)) {
+            return response;
+        }
+        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+        // TODO: complete the upload logic
+        String s3URL = uploadedFile.getAbsolutePath();
+        node.getMetadata().put("downloadUrl", s3URL);
+        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+        updateReq.put(GraphDACParams.node.name(), node);
+        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+        Response updateRes = getResponse(updateReq, LOGGER);
+        updateRes.put(ContentAPIParams.content_url.name(), s3URL);
+        return updateRes;        
     }
     
     @SuppressWarnings("unchecked")

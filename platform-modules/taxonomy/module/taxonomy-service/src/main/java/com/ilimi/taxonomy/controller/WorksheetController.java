@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.controller;
 
+import java.io.File;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
@@ -160,6 +162,24 @@ public class WorksheetController extends BaseController {
         } catch (Exception e) {
             LOGGER.error("List Worksheets | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> upload(@PathVariable(value = "id") String id, @RequestParam(value = "file", required = true) MultipartFile file,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "worksheet.upload";
+        LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
+        try {
+            File uploadedFile = new File(file.getName());
+            file.transferTo(uploadedFile);
+            Response response = contentManager.upload(id, taxonomyId, uploadedFile);
+            LOGGER.info("Upload | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 
