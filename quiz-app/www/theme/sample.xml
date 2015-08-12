@@ -40,6 +40,7 @@
         <media id="elephant_white" src="characters/character_elephant_white.png" type="image" />
 
         <media id="items" src="items.json" type="json" />
+        <media id="grant_sprite" src="grant_sprite.json" type="spritesheet" />
     </manifest>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
@@ -110,8 +111,8 @@ things to my space ship
         <image asset="button_tryagain" x="43" y="45" w="15" h="5" hide="true" id="btn_try_again" onclick="try_again"/>
         <events>
             <event on="eval" eval="text1,text2,text3" success="correct_answer" failure="wrong_answer"/>
-            <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next" hide="img_wrong_answer,btn_try_again"/>
-            <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,btn_next"/>
+            <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next,sprite_correct_answer" hide="img_wrong_answer,btn_try_again"/>
+            <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,sprite_correct_answer,btn_next"/>
             <event on="try_again" reload="true"/>
             <event on="previous" transition="item" effect="moveInLeft"/>
             <event on="next" transition="summary" effect="moveInRight"/>

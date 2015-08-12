@@ -38,6 +38,24 @@ var PlaceHolderPlugin = Plugin.extend({
 	        return imgCont;
 	    }
 
+	    var enableDrag = function(asset) {
+	    	asset.cursor = "pointer";
+	        asset.on("mousedown", function(evt) {
+	            this.parent.addChild(this);
+	            this.offset = {
+	                x: this.x - evt.stageX,
+	                y: this.y - evt.stageY
+	            };
+	        });
+	        asset.on("pressmove", function(evt) {
+	            this.x = evt.stageX + this.offset.x;
+	            this.y = evt.stageY + this.offset.y;
+	            Renderer.update = true;
+	        });
+	        asset.on("pressup", function(evt) {
+	        });
+	    }
+
 	    var x = instance.dimensions().x,
         	y = instance.dimensions().y,
         	area = instance.dimensions().w * instance.dimensions().h,
@@ -69,6 +87,9 @@ var PlaceHolderPlugin = Plugin.extend({
 	        clonedAsset.x = x + pad;
 	        clonedAsset.y = y + pad;
 	        x += pixelPerImg;
+	        if (instance._data.enabledrag) {
+	            enableDrag(clonedAsset);
+	        }
 	        parent.addChild(clonedAsset);
 	    }
 	}
