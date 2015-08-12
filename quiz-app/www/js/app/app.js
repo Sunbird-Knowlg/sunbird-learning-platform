@@ -100,6 +100,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                     'arrow_easing': 'easeInCirc',
                     'folder': ''
                 });
+                $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
             }, 500);
         };
 
