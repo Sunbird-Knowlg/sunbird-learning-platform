@@ -8,11 +8,21 @@ var StagePlugin = Plugin.extend({
             var dataItems = this._theme.getAsset(this._datasource);
             if (dataItems && dataItems.items && dataItems.items.length > 0) {
                 this._repeat = dataItems.items.length;
+                if (!this._theme._assessmentData[data.id]) {
+                    this._theme._assessmentData[data.id] = {};
+                }
+                for (var i=1; i<=this._repeat; i++) {
+                    if (!this._theme._assessmentData[data.id][i]) {
+                        this._theme._assessmentData[data.id][i] = 0;
+                    }
+                }
             }
         }
         var count = this._theme._stageRepeatCount[data.id] || 0;
+        if (count <= 0) {
+            count = 0;
+        }
         this._theme._stageRepeatCount[data.id] = count + 1;
-
         var instance = this;
 		this._self = new creatine.Scene();;
 		var dims = this.relativeDims();
@@ -32,10 +42,14 @@ var StagePlugin = Plugin.extend({
         if(eventData.transition) {
             instance.on(eventData.on, function(event) {
                 var count = instance._theme._stageRepeatCount[instance._data.id];
+                if (eventData.on == 'previous') {
+                    count -= 2;
+                    instance._theme._stageRepeatCount[instance._data.id] = count;
+                }
                 if (count >= instance._repeat) {
                     instance._theme.replaceStage(this._self, eventData.transition, eventData.effect);
                 } else {
-                    instance._theme.replaceStage(this._self, instance._data.id);
+                    instance._theme.replaceStage(this._self, instance._data.id, eventData.effect);
                 }
             });
         } else if(eventData.eval) {
@@ -68,6 +82,8 @@ var StagePlugin = Plugin.extend({
                 });
                 if (valid) {
                     instance.dispatchEvent(eventData.success);
+                    var itemIndex = instance._theme._stageRepeatCount[instance._data.id];
+                    instance._theme._assessmentData[instance._data.id][itemIndex] = 1;
                 } else {
                     instance.dispatchEvent(eventData.failure);
                 }
@@ -100,7 +116,7 @@ var StagePlugin = Plugin.extend({
                 var count = instance._theme._stageRepeatCount[instance._data.id];
                 count -= 1;
                 instance._theme._stageRepeatCount[instance._data.id] = count;
-                instance._theme.replaceStage(this._self, instance._data.id);
+                instance._theme.replaceStage(this._self, instance._data.id, eventData.effect);
             }); 
         }
     }
