@@ -1,9 +1,9 @@
-// Ionic Starter App
+// Ionic Quiz App
 
 // angular.module is a global place for creating, registering and retrieving Angular modules
-// 'starter' is the name of this angular module example (also set in a <body> attribute in index.html)
+// 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
-angular.module('starter', ['ionic', 'ngCordova', 'starter.services'])
+angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .run(function($ionicPlatform, $cordovaFile, $cordovaToast, GameService, $localstorage) {
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
@@ -17,20 +17,24 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.services'])
         });
     })
     .config(function($stateProvider, $urlRouterProvider) {
-        // $urlRouterProvider.otherwise("/game/list");
-        $urlRouterProvider.otherwise("/game/list");
+        $urlRouterProvider.otherwise("/content/list");
         $stateProvider
             .state('loading', {
                 url: "/loading",
                 templateUrl: "templates/loading.html"
             })
-            .state('gameList', {
-                url: "/game/list",
-                templateUrl: "templates/gameList.html",
-                controller: 'TodoCtrl'
+            .state('contentList', {
+                url: "/content/list",
+                templateUrl: "templates/content-list.html",
+                controller: 'ContentListCtrl'
+            })
+            .state('playWorksheet', {
+                url: "/play/worksheet",
+                templateUrl: "templates/worksheet-template.html",
+                controller: 'ContentListCtrl'
             });
     })
-    .controller('TodoCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, GameService, $localstorage) {
+    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
         $scope.load = {
             status: true,
             message: "Loading..."
@@ -129,6 +133,10 @@ angular.module('starter', ['ionic', 'ngCordova', 'starter.services'])
                     };
                 });
             
+        }
+
+        $scope.playWorksheet = function() {
+            $state.go('playWorksheet');
         }
 
         $scope.gameClick = function(game) {

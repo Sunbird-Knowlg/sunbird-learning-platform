@@ -1,4 +1,4 @@
-angular.module('starter.services', ['ngResource'])
+angular.module('quiz.services', ['ngResource'])
     .factory('GameService', function($q, $timeout, $http, $resource) {
         return {
             getGamesLocal: function(jsonFile) {

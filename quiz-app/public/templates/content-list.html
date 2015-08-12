@@ -12,7 +12,7 @@
 
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_1">
-                            <div class="product" data-type="book" title="{{game.name}}" ng-repeat="game in games" ng-click="gameClick(game);">
+                            <div class="product" data-type="book" title="{{game.name}}" ng-repeat="game in games" ng-click="playWorksheet();">
                                 <img ng-src="{{game.appIcon}}" alt="" width="100" height="105" />
                             </div>
                         </div>
@@ -20,7 +20,7 @@
 
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_2">
-                            <div class="product" data-type="book" title="{{scr.name}}" ng-repeat="scr in screeners" ng-click="gameClick(scr);">
+                            <div class="product" data-type="book" title="{{scr.name}}" ng-repeat="scr in screeners" ng-click="playWorksheet();">
                                 <img ng-src="{{scr.appIcon}}" alt="" width="100" height="105" />
                             </div>
                         </div>
