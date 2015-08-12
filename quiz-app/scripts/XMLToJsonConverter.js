@@ -10,4 +10,4 @@ exports.xml2json = function(input, output) {
     });
 }
 
-exports.xml2json('../www/theme/sample.xml', '../www/json/sample3.json');
+exports.xml2json('../www/worksheets/worksheet1/markup.xml', '../www/worksheets/worksheet1/markup.json');

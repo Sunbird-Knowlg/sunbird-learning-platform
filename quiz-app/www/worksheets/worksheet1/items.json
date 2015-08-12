@@ -1,0 +1,143 @@
+{
+	"items": [{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "butterfly_ltgray",
+				"count": 12
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "butterfly_white",
+				"count": 14	
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "butterfly_midgray",
+				"count": 26
+			}
+		},
+		"answer": {
+			"ans1": 12,
+			"ans2": 14,
+			"ans3": 26
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "cat_ltgray",
+				"count": 9
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "cat_white",
+				"count": 1
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "cat_midgray",
+				"count": 10
+			}
+		},
+		"answer": {
+			"ans1": 9,
+			"ans2": 1,
+			"ans3": 10
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "deer_ltgray",
+				"count": 3
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "deer_white",
+				"count": 5
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "deer_midgray",
+				"count": 8
+			}
+		},
+		"answer": {
+			"ans1": 3,
+			"ans2": 5,
+			"ans3": 8
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "elephant_ltgray",
+				"count": 3
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "elephant_white",
+				"count": 6
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "elephant_midgray",
+				"count": 9
+			}
+		},
+		"answer": {
+			"ans1": 3,
+			"ans2": 6,
+			"ans3": 9
+		}
+	},
+	{
+		"params": {
+			"var1" : {
+				"type": "image",
+				"asset": "deer_ltgray",
+				"count": 16
+			},
+			"var2" : {
+				"type": "image",
+				"asset": "deer_white",
+				"count": 9
+			},
+			"var3" : {
+				"type": "image",
+				"asset": "deer_midgray",
+				"count": 25
+			}
+		},
+		"answer": {
+			"ans1": 16,
+			"ans2": 9,
+			"ans3": 25
+		}
+	}],
+	"summary": [{
+		"range": {"min": 80},
+		"message": {
+			"type": "text",
+			"asset": "Whoa! Great Job...!!!"
+		}
+	},
+	{
+		"range": {"min": 50, "max": 79},
+		"message": {
+			"type": "text",
+			"asset": "Brush up your knowledge. You can do better...!!!"
+		}
+	},
+	{
+		"range": {"max": 50},
+		"message": {
+			"type": "text",
+			"asset": "Sorry. You didn't pass the quiz. Thanks for trying...!!!"
+		}
+	}]
+}
