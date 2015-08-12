@@ -6,6 +6,7 @@
         <media id="entermission" src="entermission.png" type="image" />
         <media id="blacktint_full" src="blacktint_full.png" type="image" />
         <media id="blacktint_square" src="blacktint_736x648.png" type="image" />
+        <media id="blacktint_rect" src="blacktint_736x325.png" type="image" />
         <media id="startnow" src="startnow.png" type="image" />
         <media id="speechbubble" src="speechbubble.png" type="image" />
         <media id="separator_vertical" src="separator_vertical.png" type="image" />
@@ -16,6 +17,9 @@
         <media id="hint" src="icons/icon_hint.png" type="image" />
         <media id="validate" src="icons/icon_validate.png" type="image" />
         <media id="difficulty_high" src="icons/icon_difficulty_high.png" type="image" />
+        <media id="next" src="icons/icon_next.png" type="image" />
+        <media id="previous" src="icons/icon_previous.png" type="image" />
+        <media id="profile" src="icons/icon_profile.png" type="image" />
 
         <media id="correct_answer" src="spaceship_gotitcorrect.png" type="image" />
         <media id="wrong_answer" src="spaceship_wronganswer.png" type="image" />
@@ -78,21 +82,25 @@ things to my space ship
     </stage>
     <stage id="item" x="0" y="0" w="100" h="100" datasource="items">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
-        <image asset="difficulty_high" x="2" y="3" w="5" h="10"/>
-        <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
+        <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
+        <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
+        <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
         <placeholder param="var1" x="5" y="15" w="25" h="25"/>
-        <input type="number" class="inputText" x="14" y="57" w="5" h="5" id="text1" param="ans1"/>
+        <input type="number" class="inputText" x="14" y="57" w="7" h="7" id="text1" param="ans1"/>
         <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
         <placeholder param="var2" x="37" y="15" w="25" h="25"/>
-        <input type="number" class="inputText" x="43" y="57" w="5" h="5" id="text2" param="ans2"/>
+        <input type="number" class="inputText" x="43" y="57" w="7" h="7" id="text2" param="ans2"/>
         <image asset="separator_horizontal" x="2" y="65" w="58" h="1"/>
         <placeholder param="var3" x="2" y="66" w="80" h="15"/>
-        <input type="number" class="inputText" x="28" y="90" w="5" h="5" id="text3" param="ans3"/>
+        <input type="number" class="inputText" x="28" y="90" w="7" h="7" id="text3" param="ans3"/>
         <image asset="plus" x="30.7" y="33" w="3" h="3"/>
         <image asset="equals" x="30.7" y="64" w="3" h="3"/>
         <image asset="noah" x="62" y="5" w="15" h="50"/>
+        <image asset="previous" x="83" y="1" w="5" h="9" onclick="previous"/>
+        <image asset="profile" x="88" y="1" w="5" h="9"/>
+        <image asset="next" x="93" y="1" w="5" h="9" onclick="next"/>
         <image asset="hint" x="93" y="20" w="5" h="9"/>
         <image asset="validate" x="93" y="30" w="5" h="9" onclick="eval"/>
         <image asset="blacktint_full" x="0" y="0" w="100" h="100" hide="true" id="img_overlay"/>
@@ -105,18 +113,19 @@ things to my space ship
             <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next" hide="img_wrong_answer,btn_try_again"/>
             <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,btn_next"/>
             <event on="try_again" reload="true"/>
-            <event on="next" transition="summary" effect="page-flip"/>
+            <event on="previous" transition="item" effect="moveInLeft"/>
+            <event on="next" transition="summary" effect="moveInRight"/>
         </events>
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
-        <image asset="difficulty_high" x="2" y="3" w="5" h="10"/>
-        <text x="8" y="8" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
+        <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
+        <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
+        <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
-        <text x="10" y="50" w="32" h="40" font="Arial, serif" fontsize="96" width="614" color="#fff">
-            The End
-        </text>
+        <summary x="13" y="40" w="32" h="40" font="Arial, serif" fontsize="96" width="614" color="#fff" datasource="items">
+        </summary>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
     </stage>
     <events>

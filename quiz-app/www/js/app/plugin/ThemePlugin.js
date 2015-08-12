@@ -8,6 +8,7 @@ var ThemePlugin = Plugin.extend({
     _canvasId: undefined,
     inputs: [],
     _animationEffect: 'moveOutLeft',
+    _assessmentData: {},
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
@@ -87,6 +88,7 @@ var ThemePlugin = Plugin.extend({
     enableInputs: function() {
         this.inputs.forEach(function(inputId) {
             document.getElementById(inputId).style.display = 'block';
+            document.getElementById(inputId).value = undefined;
         })
     },
     getTransition: function(id) {

@@ -118,5 +118,26 @@
 			"ans2": 9,
 			"ans3": 25
 		}
+	}],
+	"summary": [{
+		"range": {"min": 80},
+		"message": {
+			"type": "text",
+			"asset": "Great Job...!!!"
+		}
+	},
+	{
+		"range": {"min": 50, "max": 79},
+		"message": {
+			"type": "text",
+			"asset": "You can do better...!!!"
+		}
+	},
+	{
+		"range": {"max": 50},
+		"message": {
+			"type": "text",
+			"asset": "You need to work harder...!!!"
+		}
 	}]
 }
