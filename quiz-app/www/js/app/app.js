@@ -30,8 +30,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             })
             .state('playWorksheet', {
                 url: "/play/worksheet",
-                templateUrl: "templates/worksheet-template.html",
-                controller: 'ContentListCtrl'
+                // templateUrl: "templates/worksheet-template.html",
+                templateUrl: "index2.html",
+                controller: 'WorksheetCtrl'
             });
     })
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
@@ -151,4 +152,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             };
         }
 
+    }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
+        console.log('Worksheet controller...');
     });

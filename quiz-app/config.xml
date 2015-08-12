@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<widget id="com.ilimi.quiz.app" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>Quiz-App</name>
+  <description>
+        Ilimi Sample App.
+    </description>
+  <author email="dev@ilimi.in" href="http://www.ilimi.in/">
+      Ilimi Team.
+    </author>
+  <content src="index.html"/>
+  <access origin="*"/>
+  <preference name="webviewbounce" value="false"/>
+  <preference name="UIWebViewBounce" value="false"/>
+  <preference name="DisallowOverscroll" value="true"/>
+  <preference name="android-minSdkVersion" value="16"/>
+  <preference name="BackupWebStorage" value="none"/>
+  <preference name="SplashScreen" value="screen"/>
+  <preference name="SplashScreenDelay" value="3000"/>
+  <preference name="Orientation" value="landscape" />
+  <feature name="StatusBar">
+    <param name="ios-package" value="CDVStatusBar" onload="true"/>
+  </feature>
+  <platform name="android">
+    <icon src="www/img/icons/quiz-icon.png" density="ldpi"/>
+    <icon src="www/img/icons/quiz-icon.png" density="mdpi"/>
+    <icon src="www/img/icons/quiz-icon.png" density="hdpi"/>
+    <icon src="www/img/icons/quiz-icon.png" density="xhdpi"/>
+    <icon src="www/img/icons/quiz-icon.png" density="xxhdpi"/>
+    <icon src="www/img/icons/quiz-icon.png" density="xxxhdpi"/>
+
+    <splash src="www/img/icons/splash1.png" density="land-ldpi"/>
+    <splash src="www/img/icons/splash1.png" density="land-mdpi"/>
+    <splash src="www/img/icons/splash1.png" density="land-hdpi"/>
+    <splash src="www/img/icons/splash1.png" density="land-xhdpi"/>
+    <splash src="www/img/icons/splash1.png" density="land-xxhdpi"/>
+    <splash src="www/img/icons/splash1.png" density="land-xxxhdpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-ldpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-mdpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-hdpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-xhdpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-xxhdpi"/>
+    <splash src="www/img/icons/splash1.png" density="port-xxxhdpi"/>
+  </platform>
+</widget>
