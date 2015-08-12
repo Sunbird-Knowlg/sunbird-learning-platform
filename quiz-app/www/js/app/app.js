@@ -29,7 +29,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentListCtrl'
             })
             .state('playWorksheet', {
-                url: "/play/worksheet",
+                url: "/play/worksheet/:launchUrl",
                 // templateUrl: "templates/worksheet-template.html",
                 templateUrl: "worksheet1.html",
                 controller: 'WorksheetCtrl'
@@ -136,8 +136,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             
         }
 
-        $scope.playWorksheet = function() {
-            $state.go('playWorksheet');
+        $scope.playWorksheet = function(launchUrl) {
+            $state.go('playWorksheet', {'launchUrl': launchUrl});
         }
 
         $scope.gameClick = function(game) {
@@ -152,6 +152,17 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             };
         }
 
-    }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
-        console.log('Worksheet controller...');
+    }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage, $stateParams) {
+        if($stateParams.launchUrl) {
+            $http.get($stateParams.launchUrl)
+            .then(function(data) {
+                Renderer.init(data.data, 'gameCanvas');
+            }, function(err) {
+                alert( "error" );
+                $state.go('contentList');
+            });    
+        } else {
+            $state.go('contentList');
+        }
+        
     });

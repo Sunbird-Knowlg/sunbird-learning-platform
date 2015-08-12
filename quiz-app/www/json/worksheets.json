@@ -15,13 +15,13 @@
         "name": "Arithmetic Class 2",
         "description": "Arithmetic Operations for Class 2",
         "appIcon": "img/icons/math3.jpg",
-        "launchUrl": "index3.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
         "name": "Place Value Class 1",
         "description": "Place Value Addition Subtraction Game",
         "appIcon": "img/icons/fruits.png",
-        "launchUrl": "index2.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       }
     ],
     "ttl": 24

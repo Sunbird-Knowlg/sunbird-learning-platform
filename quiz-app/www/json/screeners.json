@@ -15,31 +15,31 @@
         "name": "Numeracy Broad Screener",
         "description": "Numeracy Broad Screener",
         "appIcon": "img/icons/math11.jpg",
-        "launchUrl": "index3.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
         "name": "Math Pen & Paper",
         "description": "Math Pen & Paper",
         "appIcon": "img/icons/math9.jpg",
-        "launchUrl": "index3.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
         "name": "Literacy Screener",
         "description": "Literacy Screener",
         "appIcon": "img/icons/math4.png",
-        "launchUrl": "index3.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
         "name": "Aser Screener",
         "description": "Aser Screener",
         "appIcon": "img/icons/ekstep180px.png",
-        "launchUrl": "index2.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       },
       {
         "name": "Numeracy Detailed Screener",
         "description": "Numeracy Detailed Screener",
         "appIcon": "img/icons/math8.jpg",
-        "launchUrl": "index3.html"
+        "launchUrl": "worksheets/worksheet1/markup.json"
       }
     ],
     "ttl": 24
