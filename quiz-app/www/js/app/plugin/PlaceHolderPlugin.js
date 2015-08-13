@@ -4,16 +4,9 @@ var PlaceHolderPlugin = Plugin.extend({
 	initPlugin: function(data) {
 		var dims = this.relativeDims();
 		var instance = this;
-		if (this._stage._datasource) {
-			var datasource = this._theme.getAsset(this._stage._datasource);
-			var dataLength = datasource.items.length;
-			var count = this._theme._stageRepeatCount[this._stage._data.id];
-			count -= 1;
-			if (count < 0 || count >= dataLength) {
-				count = 0;
-			}
-			var dataItem = datasource.items[count];
-			instance.param = dataItem.params[data.param];
+		var stageData = this._stage._stageData;
+		if (stageData) {
+			instance.param = stageData.params[data.param];
 			if (instance.param.type == 'gridLayout') {
 				instance.renderGridLayout(instance._parent, instance);
 			} else if (instance.param.type == 'image') {

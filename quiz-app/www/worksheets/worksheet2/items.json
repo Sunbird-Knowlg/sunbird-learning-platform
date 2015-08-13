@@ -1,5 +1,5 @@
 {
-	"items": [{
+	"item": [{
 		"params": {
 			"var1" : {
 				"type": "image",
@@ -77,25 +77,27 @@
 			"ans2": 3
 		}
 	}],
-	"summary": [{
+	"summary": {
+		"summary": [{
 		"range": {"min": 80},
-		"message": {
-			"type": "text",
-			"asset": "Whoa! Great Job...!!!"
-		}
-	},
-	{
-		"range": {"min": 50, "max": 79},
-		"message": {
-			"type": "text",
-			"asset": "You can do better...!!!"
-		}
-	},
-	{
-		"range": {"max": 50},
-		"message": {
-			"type": "text",
-			"asset": "You need to work harder..."
-		}
-	}]
+			"message": {
+				"type": "text",
+				"asset": "Whoa! Great Job...!!!"
+			}
+		},
+		{
+			"range": {"min": 50, "max": 79},
+			"message": {
+				"type": "text",
+				"asset": "You can do better...!!!"
+			}
+		},
+		{
+			"range": {"max": 50},
+			"message": {
+				"type": "text",
+				"asset": "You need to work harder..."
+			}
+		}]
+	}
 }

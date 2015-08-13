@@ -25,10 +25,10 @@
         <media id="correct" src="assets/theme2/correct.png" type="image" />
         <media id="try_again" src="assets/theme2/try_again.png" type="image" />
         <media id="grant_sprite" src="assets/theme2/grant_sprite.json" type="spritesheet" />
-        
 
-        <media id="items" src="worksheets/worksheet2/items.json" type="json" />
+        <media id="worksheet_data" src="worksheets/worksheet2/items.json" type="json" />
     </manifest>
+    <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
         <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
@@ -44,7 +44,7 @@
             <event on="next" transition="item" effect="moveInLeft"/>
         </events>
     </stage>
-    <stage id="item" x="0" y="0" w="100" h="100" datasource="items">
+    <stage id="item" x="0" y="0" w="100" h="100">
         <placeholder param="var1" x="0" y="0" w="100" h="100"/>
         <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
             Counting Numbers...
@@ -84,7 +84,7 @@
         <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
             Counting Numbers...
         </text>
-        <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" datasource="items">
+        <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" param="summary">
         </summary>
         <sprite asset="grant_sprite" start="jump_run" x="35" y="30"/>
         <events>

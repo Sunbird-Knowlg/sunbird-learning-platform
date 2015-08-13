@@ -1,28 +1,14 @@
 var StagePlugin = Plugin.extend({
     _type: 'stage',
     _repeat: 1,
-    _datasource: undefined,
+    _stageData: undefined,
 	initPlugin: function(data) {
-        if (data.datasource) {
-            this._datasource = data.datasource;
-            var dataItems = this._theme.getAsset(this._datasource);
-            if (dataItems && dataItems.items && dataItems.items.length > 0) {
-                this._repeat = dataItems.items.length;
-                if (!this._theme._assessmentData[data.id]) {
-                    this._theme._assessmentData[data.id] = {};
-                }
-                for (var i=1; i<=this._repeat; i++) {
-                    if (!this._theme._assessmentData[data.id][i]) {
-                        this._theme._assessmentData[data.id][i] = 0;
-                    }
-                }
-            }
-        }
         var count = this._theme._stageRepeatCount[data.id] || 0;
         if (count <= 0) {
             count = 0;
         }
         this._theme._stageRepeatCount[data.id] = count + 1;
+        this.getStageData(data, count);
         var instance = this;
 		this._self = new creatine.Scene();;
 		var dims = this.relativeDims();
@@ -38,6 +24,22 @@ var StagePlugin = Plugin.extend({
         	}
         }
 	},
+    getStageData: function(data, count) {
+        if (this._theme._themeData) {
+            var stageData = this._theme._themeData[data.id];
+            if (stageData) {
+                if (_.isArray(stageData) && stageData.length > 0) {
+                    this._repeat = stageData.length;
+                    if (count >= this._repeat) {
+                        count = 0;
+                    }
+                    this._stageData = stageData[count];
+                } else {
+                    this._stageData = stageData;
+                }
+            }
+        }
+    },
     registerEvent: function(instance, eventData) {
         if(eventData.transition) {
             instance.on(eventData.on, function(event) {
@@ -53,14 +55,16 @@ var StagePlugin = Plugin.extend({
                 }
             });
         } else if(eventData.eval) {
-            instance.on(eventData.on, function(event) {
-                var count = instance._theme._stageRepeatCount[instance._data.id];
-                count -= 1;
-                if (count < 0 || count >= instance._repeat) {
-                    count = 0;
+            if (!instance._theme._assessmentData[instance._data.id]) {
+                instance._theme._assessmentData[instance._data.id] = {};
+            }
+            for (var i=1; i<=instance._repeat; i++) {
+                if (!instance._theme._assessmentData[instance._data.id][i]) {
+                    instance._theme._assessmentData[instance._data.id][i] = 0;
                 }
-                var dataItems = instance._theme.getAsset(instance._datasource);
-                var dataItem = dataItems.items[count];
+            }
+            instance.on(eventData.on, function(event) {
+                var dataItem = instance._stageData;
                 var valid = true;
                 var evalFields = eventData.eval.split(',');
                 evalFields.forEach(function(inputId) {

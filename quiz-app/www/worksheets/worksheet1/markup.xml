@@ -40,8 +40,9 @@
         <media id="elephant_midgray" src="assets/theme1/characters/character_elephant_midgray.png" type="image" />
         <media id="elephant_white" src="assets/theme1/characters/character_elephant_white.png" type="image" />
 
-        <media id="items" src="worksheets/worksheet1/items.json" type="json" />
+        <media id="worksheet_data" src="worksheets/worksheet1/items.json" type="json" />
     </manifest>
+    <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="50"/>
@@ -81,7 +82,7 @@ things to my space ship
             <event on="next" transition="item" effect="page-flip"/>
         </events>
     </stage>
-    <stage id="item" x="0" y="0" w="100" h="100" datasource="items">
+    <stage id="item" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
         <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
@@ -128,7 +129,7 @@ things to my space ship
         <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
-        <summary x="13" y="35" w="25" h="40" font="Arial, serif" fontsize="40" width="480" color="#333" datasource="items">
+        <summary x="13" y="35" w="25" h="40" font="Arial, serif" fontsize="40" width="480" color="#333" param="summary">
         </summary>
         <events>
             <event on="start_page" start_page="index.html"/>
