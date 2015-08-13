@@ -118,6 +118,10 @@ var StagePlugin = Plugin.extend({
                 instance._theme._stageRepeatCount[instance._data.id] = count;
                 instance._theme.replaceStage(this._self, instance._data.id, eventData.effect);
             }); 
+        } else if(eventData.start_page) {
+            instance.on(eventData.on, function(event) {
+                instance._theme.startPage();
+            });   
         }
     }
 });

@@ -11,6 +11,7 @@
         <media id="profile" src="assets/theme2/icon_profile.png" type="image" />
         <media id="button_next" src="assets/theme2/button_next.png" type="image" />
         <media id="button_tryagain" src="assets/theme2/button_tryagain.png" type="image" />
+        <media id="home_icon" src="assets/theme2/home_icon.png" type="image" />
 
         <media id="angry_bird" src="assets/theme2/characters/angry-bird.png" type="image" />
         <media id="apple" src="assets/theme2/characters/apple.png" type="image" />
@@ -79,11 +80,15 @@
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
+        <image asset="home_icon" x="93" y="1" w="5" h="9" onclick="start_page"/>
         <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
             Counting Numbers...
         </text>
         <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" datasource="items">
         </summary>
         <sprite asset="grant_sprite" start="jump_run" x="35" y="30"/>
+        <events>
+            <event on="start_page" start_page="index.html"/>
+        </events>
     </stage>
 </theme>

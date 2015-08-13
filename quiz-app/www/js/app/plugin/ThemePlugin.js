@@ -116,6 +116,9 @@ var ThemePlugin = Plugin.extend({
         } else {
             return new creatine.transitions.MoveOut(creatine.LEFT);
         }
+    },
+    startPage: function() {
+        window.location.href = 'index.html';
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);

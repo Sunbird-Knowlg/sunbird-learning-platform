@@ -16,27 +16,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-               setTimeout(function() {
-                    $.bookshelfSlider('#bookshelf_slider', {
-                        'item_width': '100%', //responsive design > resize window to see working
-                        'item_height': 320,
-                        'products_box_margin_left': 30,
-                        'product_title_textcolor': '#ffffff',
-                        'product_title_bgcolor': '#990000',
-                        'product_margin': 30,
-                        'product_show_title': true,
-                        'show_icons': true,
-                        'buttons_margin': 15,
-                        'buttons_align': 'center', // left, center, right
-                        'slide_duration': 800,
-                        'slide_easing': 'easeOutCirc',
-                        'arrow_duration': 800,
-                        'arrow_easing': 'easeInCirc',
-                        'folder': ''
-                    });
-                    $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
-                    // $state.go('contentList', {}, {reload: true});
-                }, 500); 
+                initBookshelf();
             });
         });
     })
@@ -106,26 +86,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
         $scope.loadBookshelf = function() {
-            setTimeout(function() {
-                $.bookshelfSlider('#bookshelf_slider', {
-                    'item_width': '100%', //responsive design > resize window to see working
-                    'item_height': 320,
-                    'products_box_margin_left': 30,
-                    'product_title_textcolor': '#ffffff',
-                    'product_title_bgcolor': '#990000',
-                    'product_margin': 30,
-                    'product_show_title': true,
-                    'show_icons': true,
-                    'buttons_margin': 15,
-                    'buttons_align': 'center', // left, center, right
-                    'slide_duration': 800,
-                    'slide_easing': 'easeOutCirc',
-                    'arrow_duration': 800,
-                    'arrow_easing': 'easeInCirc',
-                    'folder': ''
-                });
-                $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
-            }, 500);
+            initBookshelf();
         };
 
         $scope.getGames = function() {
@@ -191,3 +152,36 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
         
     });
+
+
+function initBookshelf() {
+    setTimeout(function() {
+        var widthToHeight = 16 / 9;
+        var newWidth = window.innerWidth;
+        var newHeight = window.innerHeight;
+        var newWidthToHeight = newWidth / newHeight;
+        if (newWidthToHeight > widthToHeight) {
+            newWidth = newHeight * widthToHeight;
+        } else {
+            newHeight = newWidth / widthToHeight;
+        }
+        $.bookshelfSlider('#bookshelf_slider', {
+            'item_width': newWidth, 
+            'item_height': newHeight,
+            'products_box_margin_left': 30,
+            'product_title_textcolor': '#ffffff',
+            'product_title_bgcolor': '#990000',
+            'product_margin': 30,
+            'product_show_title': true,
+            'show_icons': true,
+            'buttons_margin': 15,
+            'buttons_align': 'center', // left, center, right
+            'slide_duration': 800,
+            'slide_easing': 'easeOutCirc',
+            'arrow_duration': 800,
+            'arrow_easing': 'easeInCirc',
+            'folder': ''
+        });
+        $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
+    }, 500); 
+}

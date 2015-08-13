@@ -123,21 +123,21 @@
 		"range": {"min": 80},
 		"message": {
 			"type": "text",
-			"asset": "Whoa! Great Job...!!!"
+			"asset": "Well done Ramya. I think you are ready to start with Place Value. Good Going..."
 		}
 	},
 	{
 		"range": {"min": 50, "max": 79},
 		"message": {
 			"type": "text",
-			"asset": "Brush up your knowledge. You can do better...!!!"
+			"asset": "I know you can do better Ramya... Try again and count carefully when you have more than 10 deers."
 		}
 	},
 	{
 		"range": {"max": 50},
 		"message": {
 			"type": "text",
-			"asset": "Sorry. You didn't pass the quiz. Thanks for trying...!!!"
+			"asset": "Great effort Ramya... I think you need to practice Counting and come back to me."
 		}
 	}]
 }
