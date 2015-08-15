@@ -4,6 +4,7 @@ import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import scala.concurrent.Await;
@@ -19,104 +20,81 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
-import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.engine.mgr.impl.GraphMgrTest;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
-import com.ilimi.graph.importer.OutputStreamValue;
 
-public class LiteracyQuestionBankCSVImportTest {
+public class GraphImportTest {
 
     long timeout = 50000;
     Timeout t = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    String graphId = "literacy";
-    String csvFileName = "LiteracyGames-GraphEngine.csv";
-
-    private ActorRef initReqRouter() throws Exception {
+    
+    ActorRef reqRouter = null;
+    
+    @BeforeClass
+    private void initReqRouter() throws Exception {
         ActorSystem system = ActorSystem.create("MySystem");
-        ActorRef reqRouter = system.actorOf(Props.create(RequestRouter.class));
+        reqRouter = system.actorOf(Props.create(RequestRouter.class));
 
         Future<Object> future = Patterns.ask(reqRouter, "init", timeout);
         Object response = Await.result(future, t.duration());
         Thread.sleep(2000);
         System.out.println("Response from request router: " + response);
-        return reqRouter;
     }
-
-    @Test(priority = 2)
-    public void testImportDefinitions() {
+    
+    @Test(priority =1, dataProvider="definitions", dataProviderClass=GraphImportDataProvider.class)
+    public void testImportDefinitions(String graphId, String fileName, String message) {
         try {
-            ActorRef reqRouter = initReqRouter();
-
             long t1 = System.currentTimeMillis();
             Request request = new Request();
             request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
-            // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream("assessment_definitions.json");
+            InputStream inputStream = GraphImportTest.class.getClassLoader().getResourceAsStream(fileName);
             DataInputStream dis = new DataInputStream(inputStream);
             byte[] b = new byte[dis.available()];
             dis.readFully(b);
             request.put(GraphEngineParams.input_stream.name(), new String(b));
-            Future<Object> res = Patterns.ask(reqRouter, request, t);
-            
-            handleFutureBlock(res, "importDefinitions", GraphDACParams.graph_id.name());
+            Patterns.ask(reqRouter, request, t);
 
             long t2 = System.currentTimeMillis();
-            System.out.println("Literacy QuestionBank Definition Import Time: " + (t2 - t1));
+            System.out.println(message+" Import Time: " + (t2 - t1));
             Thread.sleep(15000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
     
-//    @Test(priority = 4)
-    public void testImportData() {
+    
+    @Test(priority =2, dataProvider="csvdata", dataProviderClass=GraphImportDataProvider.class)
+    public void testImportData(String graphId, String fileName, String message) {
         try {
-            ActorRef reqRouter = initReqRouter();
-
             Request request = new Request();
             request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
             request.setOperation("importGraph");
             request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 
-            // Change the file path.
-            InputStream inputStream = GraphMgrTest.class.getClassLoader().getResourceAsStream(csvFileName);
+            InputStream inputStream = GraphImportTest.class.getClassLoader().getResourceAsStream(fileName);
 
             request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(inputStream));
             Future<Object> req = Patterns.ask(reqRouter, request, t);
 
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
-            if(osV == null) {
-                System.out.println(response.getResult());
-            }
-            System.out.println("Literacy Games data imported.");
-            Thread.sleep(15000);
+//            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
+            System.out.println(response.getResult());
+//            if(osV == null) {
+//                System.out.println(response.getResult());
+//            } else {
+//                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
+//                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
+//            }
+            System.out.println(message+" imported.");
+            Thread.sleep(10000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
-    
-    private void handleFutureBlock(Future<Object> req, String operation, String param) {
-        try {
-            Object arg1 = Await.result(req, t.duration());
-            System.out.println(operation + " response: " + arg1);
-            if (arg1 instanceof Response) {
-                Response ar = (Response) arg1;
-                System.out.println(ar.getResult());
-                System.out.println(ar.get(param));
-                System.out.println(ar.getParams());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-
 }

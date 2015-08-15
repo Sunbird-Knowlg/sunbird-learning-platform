@@ -239,14 +239,11 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         } else {
             final ExecutionContext ec = getContext().dispatcher();
             final DataNode datanode = new DataNode(this, graphId, node);
-            final long t1  = System.currentTimeMillis();
             Future<Map<String, List<String>>> validationFuture = datanode.validateNode(request);
             
             validationFuture.onComplete(new OnComplete<Map<String, List<String>>>() {
                 @Override
                 public void onComplete(Throwable arg0, Map<String, List<String>> map) throws Throwable {  
-                	long t2  = System.currentTimeMillis();
-                    //System.out.println("nodeManager validation code Performance : " + (t2 - t1));
                     if (null != arg0) {
                         ERROR(arg0, parent);
                     } else {
