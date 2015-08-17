@@ -15,13 +15,13 @@
         "name": "Addition through Objects",
         "description": "Addition through Objects",
         "appIcon": "assets/addition.png",
-        "launchUrl": "worksheets/worksheet1/markup.json"
+        "launchUrl": "worksheets/worksheet1/markup.xml"
       },
       {
         "name": "Counting Numbers",
         "description": "Counting Numbers",
         "appIcon": "assets/counting.png",
-        "launchUrl": "worksheets/worksheet2/markup.json"
+        "launchUrl": "worksheets/worksheet2/markup.xml"
       }
     ],
     "ttl": 24

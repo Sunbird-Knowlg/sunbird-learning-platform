@@ -25,6 +25,10 @@ Renderer = {
         if(!disableDraw) Renderer.theme.reRender();
     },
     init: function(data, canvasId) {
+        if(!$.isPlainObject(data)) {
+            var x2js = new X2JS({attributePrefix: 'none'});
+            data = x2js.xml_str2json(data);
+        }
         Renderer.gdata = data;
         data.theme.canvasId = canvasId;
         Renderer.theme = new ThemePlugin(data.theme);

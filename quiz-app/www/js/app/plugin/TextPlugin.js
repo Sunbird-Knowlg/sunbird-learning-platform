@@ -13,7 +13,7 @@ var TextPlugin = Plugin.extend({
 	    	fontsize = parseFloat(fontsize * scale);
 	    }
 	    var font = fontsize + 'px ' + data.font || 'Arial';
-		var text = new createjs.Text(data.$t || '', font, data.color || '#000000');
+		var text = new createjs.Text((data.$t || data.__text) || '', font, data.color || '#000000');
 	    text.x = dims.x;
 	    text.y = dims.y;
 	    text.lineWidth = dims.w;
