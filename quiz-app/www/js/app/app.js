@@ -134,11 +134,13 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         message: "Loading..."
                     };
                 });
-            
+
         }
 
         $scope.playWorksheet = function(launchUrl) {
-            $state.go('playWorksheet', {'launchUrl': launchUrl});
+            $state.go('playWorksheet', {
+                'launchUrl': launchUrl
+            });
         }
 
         $scope.gameClick = function(game) {
@@ -154,16 +156,16 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
     }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage, $stateParams) {
-        if($stateParams.launchUrl) {
+        if ($stateParams.launchUrl) {
             $http.get($stateParams.launchUrl)
-            .then(function(data) {
-                Renderer.init(data.data, 'gameCanvas');
-            }, function(err) {
-                alert( "error" );
-                $state.go('contentList');
-            });    
+                .then(function(data) {
+                    Renderer.init(data.data, 'gameCanvas');
+                }, function(err) {
+                    alert("error");
+                    $state.go('contentList');
+                });
         } else {
             $state.go('contentList');
         }
-        
+
     });
