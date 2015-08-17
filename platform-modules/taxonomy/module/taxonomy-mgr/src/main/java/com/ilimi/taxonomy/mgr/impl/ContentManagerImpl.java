@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +19,7 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -35,6 +37,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
+import com.ilimi.taxonomy.util.AWSUploader;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
@@ -54,6 +57,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         DEFAULT_STATUS.add("Live");
     }
     
+    private static final String bucketName = "ekstep-public";
+    private static final String folderName = "worksheets";
     
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
@@ -187,11 +192,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     @Override
     public Response upload(String id, String taxonomyId, File uploadedFile) {
         if (StringUtils.isBlank(taxonomyId))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
         if (StringUtils.isBlank(id))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Content Object Id is blank");
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Content Object Id is blank.");
         if(null == uploadedFile) {
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(), "Upload file is blank");
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(), "Upload file is blank.");
+        }
+        if(null != uploadedFile && !Arrays.asList("zip", "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName()))) {
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.name(), "Upload file is invalid.");
         }
         
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
@@ -202,15 +210,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             return response;
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-        // TODO: complete the upload logic
-        String s3URL = uploadedFile.getAbsolutePath();
-        node.getMetadata().put("downloadUrl", s3URL);
+        String[] urlArray = new String[]{};
+        try {
+            urlArray = AWSUploader.uploadFile(bucketName, folderName, uploadedFile);
+        } catch (Exception e) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(), "Error wihile uploading the File.", e);
+        }
+        node.getMetadata().put("s3Key", urlArray[0]);
+        node.getMetadata().put("downloadUrl", urlArray[1]);
         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
         updateReq.put(GraphDACParams.node.name(), node);
         updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
         Response updateRes = getResponse(updateReq, LOGGER);
-        updateRes.put(ContentAPIParams.content_url.name(), s3URL);
-        return updateRes;        
+        updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
+        return updateRes;
     }
     
     @SuppressWarnings("unchecked")

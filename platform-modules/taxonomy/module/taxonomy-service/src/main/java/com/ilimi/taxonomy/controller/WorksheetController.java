@@ -3,6 +3,8 @@ package com.ilimi.taxonomy.controller;
 import java.io.File;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -172,8 +174,10 @@ public class WorksheetController extends BaseController {
         String apiId = "worksheet.upload";
         LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
-            File uploadedFile = new File(file.getName());
+            String name = FilenameUtils.getBaseName(file.getOriginalFilename())+"_"+System.currentTimeMillis()+"."+FilenameUtils.getExtension(file.getOriginalFilename());
+            File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
+            
             Response response = contentManager.upload(id, taxonomyId, uploadedFile);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
