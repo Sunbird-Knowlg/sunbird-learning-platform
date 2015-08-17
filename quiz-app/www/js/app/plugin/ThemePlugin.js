@@ -7,7 +7,7 @@ var ThemePlugin = Plugin.extend({
     _currentScene: undefined,
     _canvasId: undefined,
     inputs: [],
-    _animationEffect: 'moveOutLeft',
+    _animationEffect: {effect:'moveOut'},
     _themeData: undefined,
     _assessmentData: {},
     initPlugin: function(data) {
@@ -71,7 +71,7 @@ var ThemePlugin = Plugin.extend({
         if(this._currentScene) {
             this.disableInputs();
             this.inputs = [];
-            this._director.replace(child, this.getTransition(this._animationEffect));
+            this._director.replace(child, this.getTransitionEffect(this._animationEffect));
         } else {
             this._director.replace(child);
         }
@@ -101,31 +101,52 @@ var ThemePlugin = Plugin.extend({
             document.getElementById(inputId).value = undefined;
         })
     },
-    getTransition: function(id) {
-        id = id || 'moveOutLeft';
-        if(id == 'scaleIn') {
-            return new creatine.transitions.ScaleIn;
-        } else if(id == 'scaleOut') {
-            return new creatine.transitions.ScaleOut;
-        } else if(id == 'scaleInOut') {
-            return new creatine.transitions.ScaleInOut;
-        } else if(id == 'moveOutRight') {
-            return new creatine.transitions.MoveOut(creatine.RIGHT);
-        } else if(id == 'moveInLeft') {
-            return new creatine.transitions.MoveIn(creatine.LEFT);
-        } else if(id == 'moveInRight') {
-            return new creatine.transitions.MoveIn(creatine.RIGHT);
-        } else if(id == 'scroll') {
-            return new creatine.transitions.Scroll;
-        } else if(id == 'fadeIn') {
-            return new creatine.transitions.ScaleIn;
-        } else if(id == 'fadeOut') {
-            return new creatine.transitions.ScaleOut;
-        } else if(id == 'fadeInOut') {
-            return new creatine.transitions.ScaleInOut;
-        } else {
-            return new creatine.transitions.MoveOut(creatine.LEFT);
+    getTransitionEffect: function(animation) {
+        var d = this.getDirection(animation.direction),
+            e = this.getEase(animation.ease),
+            t = animation.duration;
+        var effect;
+        switch (animation.effect.toUpperCase()) {
+            case "SCALEIN":
+                effect = new creatine.transitions.ScaleIn(e, t);
+                break;
+            case "SCALEOUT":
+                effect = new creatine.transitions.ScaleOut(e, t);
+                break;
+            case "SCALEINOUT":
+                effect = new creatine.transitions.ScaleInOut(e, t);
+                break;
+            case "MOVEIN":
+                effect = new creatine.transitions.MoveIn(d, e, t);
+                break;
+            case "SCROLL":
+                effect = new creatine.transitions.Scroll(d, e, t);
+                break;
+            case "FADEIN":
+                effect = new creatine.transitions.FadeIn(e, t);
+                break;
+            case "FADEOUT":
+                effect = new creatine.transitions.FadeOut(e, t);
+                break;
+            case "FADEINOUT":
+                effect = new creatine.transitions.FadeInOut(e, t);
+                break;
+            default:
+                effect = new creatine.transitions.MoveOut(d, e, t);
         }
+        return effect;
+    },
+    getDirection: function(d) {
+        if(d === undefined) {
+            return d;
+        }
+        return eval('creatine.' + d.toUpperCase())
+    },
+    getEase: function(e) {
+        if(e === undefined) {
+            return e;
+        }
+        return eval('createjs.Ease.' + e);
     },
     startPage: function() {
         window.location.href = 'index.html';

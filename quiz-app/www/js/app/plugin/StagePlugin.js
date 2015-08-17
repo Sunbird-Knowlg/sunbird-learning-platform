@@ -49,9 +49,9 @@ var StagePlugin = Plugin.extend({
                     instance._theme._stageRepeatCount[instance._data.id] = count;
                 }
                 if (count >= instance._repeat) {
-                    instance._theme.replaceStage(this._self, eventData.transition, eventData.effect);
+                    instance._theme.replaceStage(this._self, eventData.transition, eventData);
                 } else {
-                    instance._theme.replaceStage(this._self, instance._data.id, eventData.effect);
+                    instance._theme.replaceStage(this._self, instance._data.id, eventData);
                 }
             });
         } else if(eventData.eval) {
