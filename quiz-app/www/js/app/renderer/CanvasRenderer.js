@@ -35,6 +35,7 @@ Renderer = {
         Renderer.resizeGame(true);
         Renderer.theme.loader = new createjs.LoadQueue(true);
         Renderer.theme.loader.addEventListener("complete", Renderer.startCanvas);
+        Renderer.theme.loader.installPlugin(createjs.Sound);
         Renderer.theme.loader.loadManifest(data.theme.manifest.media, true);
         createjs.Ticker.addEventListener("tick", function() {
             Renderer.theme.update();
