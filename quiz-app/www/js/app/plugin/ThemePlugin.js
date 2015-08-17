@@ -8,6 +8,7 @@ var ThemePlugin = Plugin.extend({
     _canvasId: undefined,
     inputs: [],
     _animationEffect: 'moveOutLeft',
+    _themeData: undefined,
     _assessmentData: {},
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
@@ -35,6 +36,15 @@ var ThemePlugin = Plugin.extend({
         }
     },
     render: function() {
+        if (this._data.datasource) {
+            var themeData = undefined;
+            if (_.isArray(this._data.datasource)) {
+                themeData = this.getAsset(this._data.datasource[0].asset);
+            } else {
+                themeData = this.getAsset(this._data.datasource.asset);
+            }
+            this._themeData = themeData;
+        }
         if(this._data.stage) {
             var stage = _.findWhere(this._data.stage, {start: true});
             pluginManager.invoke('stage', stage, this, null, this);
@@ -116,6 +126,9 @@ var ThemePlugin = Plugin.extend({
         } else {
             return new creatine.transitions.MoveOut(creatine.LEFT);
         }
+    },
+    startPage: function() {
+        window.location.href = 'index.html';
     }
 });
 pluginManager.registerPlugin('theme', ThemePlugin);

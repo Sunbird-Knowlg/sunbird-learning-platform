@@ -16,8 +16,12 @@ var SummaryPlugin = Plugin.extend({
 			total = 1;
 		}
 		var percent = parseInt((score/total) * 100);
-		var dataItems = this._theme.getAsset(data.datasource);
-		var summary = dataItems.summary;
+		var dataItems = this._stage._stageData;
+		var param = 'summary';
+		if (data.param) {
+			param = data.param;
+		}
+		var summary = dataItems[param];
 		var message = undefined;
 		summary.forEach(function(range) {
 			if (!message) {

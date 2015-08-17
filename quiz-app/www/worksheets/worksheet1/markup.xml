@@ -7,6 +7,7 @@
         <media id="blacktint_full" src="assets/theme1/blacktint_full.png" type="image" />
         <media id="blacktint_square" src="assets/theme1/blacktint_736x648.png" type="image" />
         <media id="blacktint_rect" src="assets/theme1/blacktint_736x325.png" type="image" />
+        <media id="home_icon" src="assets/theme1/home_icon.png" type="image" />
         <media id="startnow" src="assets/theme1/startnow.png" type="image" />
         <media id="speechbubble" src="assets/theme1/speechbubble.png" type="image" />
         <media id="separator_vertical" src="assets/theme1/separator_vertical.png" type="image" />
@@ -39,8 +40,9 @@
         <media id="elephant_midgray" src="assets/theme1/characters/character_elephant_midgray.png" type="image" />
         <media id="elephant_white" src="assets/theme1/characters/character_elephant_white.png" type="image" />
 
-        <media id="items" src="worksheets/worksheet1/items.json" type="json" />
+        <media id="worksheet_data" src="worksheets/worksheet1/items.json" type="json" />
     </manifest>
+    <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="50"/>
@@ -80,7 +82,7 @@ things to my space ship
             <event on="next" transition="item" effect="page-flip"/>
         </events>
     </stage>
-    <stage id="item" x="0" y="0" w="100" h="100" datasource="items">
+    <stage id="item" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
         <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
@@ -119,14 +121,19 @@ things to my space ship
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
+        <image asset="home_icon" x="93" y="1" w="5" h="9" onclick="start_page"/>
         <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
         <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
+        <image asset="speechbubble" x="5" y="30" w="50" h="30"/>
+        <image asset="noah" x="48" y="35" w="20" h="65"/>
         <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
             ADDITION - By Grouping
         </text>
-        <summary x="13" y="40" w="32" h="40" font="Arial, serif" fontsize="96" width="614" color="#fff" datasource="items">
+        <summary x="13" y="35" w="25" h="40" font="Arial, serif" fontsize="40" width="480" color="#333" param="summary">
         </summary>
-        <image asset="noah" x="48" y="10" w="20" h="65"/>
+        <events>
+            <event on="start_page" start_page="index.html"/>
+        </events>
     </stage>
     <events>
         <event on="test" isTest="true"/>
