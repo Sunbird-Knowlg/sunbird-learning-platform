@@ -10,25 +10,32 @@ var ShapePlugin = Plugin.extend({
 		if(data.stroke) {
 			graphics.beginStroke(data.stroke);
 		}
-    	switch(data.type) {
+        switch(data.type) {
     		case 'rect':
-    			graphics.dr(dims.x, dims.y, dims.w, dims.h);
+    			graphics.dr(0, 0, dims.w, dims.h);
     			if(data.hitArea) {
 		    		var hit = new createjs.Shape();
-					hit.graphics.beginFill("#000").r(dims.x, dims.y, dims.w, dims.h);
+					hit.graphics.beginFill("#000").r(0, 0, dims.w, dims.h);
 					this._self.hitArea = hit;
 		    	}
     			break;
     		case 'circle':
-    			graphics.dc(dims.x, dims.y, dims.w);
+    			graphics.dc(0, 0, dims.w);
     			if(data.hitArea) {
 		    		var hit = new createjs.Shape();
-					hit.graphics.beginFill("#000").dc(dims.x, dims.y, dims.w);
+					hit.graphics.beginFill("#000").dc(0, 0, dims.w);
 					this._self.hitArea = hit;
 		    	}
     			break;
     		default:
     	}
+        this._self.x = dims.x;
+        this._self.y = dims.y;
+        this._self.regX = dims.w/2;
+        this._self.regY = dims.h/2;
+        if(data.rotate) {
+            this._self.rotation = data.rotate;
+        }
     	this.render();
     }
 });

@@ -23,6 +23,22 @@ var StagePlugin = Plugin.extend({
                 // Handle plugin specific data like animations, events
             }
         }
+        if(data.animate) {
+            this.animations = {};
+            if(_.isArray(data.animate)) {
+                data.animate.forEach(function(animate) {
+                    this.animations[animate.id] = {};
+                    if(animate.type == 'tween') {
+                        this.animations[animate.id].animateFn = this.getAnimationFn(animate, animate.to);
+                    }
+                })
+            } else {
+                this.animations[data.animate.id] = {};
+                if(data.animate.type == 'tween') {
+                    this.animations[data.animate.id].animateFn = this.getAnimationFn(data.animate, data.animate.to);
+                }
+            }
+        }
     },
     getStageData: function(data, count) {
         if (this._theme._themeData) {
@@ -102,7 +118,6 @@ var StagePlugin = Plugin.extend({
                         var plugIn = pluginManager.getPluginObject(id);
                         if (plugIn) {
                             if (plugIn.animate_on_show) {
-                                console.log('plugIn.animations', plugIn.animations);
                                 var animationFn = eval(plugIn.animations[plugIn.animate_on_show].animateFn);
                                 animationFn.apply(null, [plugIn._self]);
                             } else {
@@ -146,6 +161,13 @@ var StagePlugin = Plugin.extend({
                         break;
                     default:
                 }
+            });
+        } else if (eventData.animate) {
+            console.log('Registering animation event on - ', eventData.on);
+            instance.on(eventData.on, function() {
+                console.log('Animation event received - ', eventData, instance.animations);
+                var animationFn = eval(instance.animations[eventData.animate].animateFn);
+                animationFn.apply(null, [pluginManager.getPluginObject(eventData.asset)._self]);
             });
         }
     }

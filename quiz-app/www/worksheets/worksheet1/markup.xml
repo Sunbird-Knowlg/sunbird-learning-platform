@@ -82,7 +82,7 @@
 I need your help in adding the
 things to my space ship
         </text>
-        <shape type="circle" x="67" y="27" w="5" h="10" hitArea="true" onclick="toggleThunder"/>
+        <shape type="rect" x="67" y="27" w="5" h="10" hitArea="true" rotate="30" onclick="toggleThunder"/>
         <events>
             <event on="next" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
             <event on="enter" audio="true" type="play" asset="thunder_sound" loop="1"/>

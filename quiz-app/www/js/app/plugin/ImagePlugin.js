@@ -39,28 +39,6 @@ var ImagePlugin = Plugin.extend({
 		}
 		this.render();
 	},
-	getAnimationFn: function(animate, to) {
-		var instance = this;
-		if(!_.isArray(to)) {
-			to = [to];
-		}
-		var fn = '(function() {return function(plugin){';
-		fn += 'createjs.Tween.get(plugin, {override:true})';
-		to.forEach(function(to) {
-			var data = JSON.parse(to.__cdata);
-			var relDims = instance.getRelativeDims(data);
-			data.x = relDims.x;
-			data.y = relDims.y;
-			data.width = relDims.w;
-			data.height = relDims.h;
-			fn += '.to(' + JSON.stringify(data) + ',' + to.duration + ', createjs.Ease.' + to.ease + ')';
-		});
-		if(animate.widthChangeEvent) {
-			fn += '.addEventListener("change", ' + instance.getWidthHandler() + ')';
-		}
-		fn += '}})()';
-		return fn;
-	},
 	getWidthHandler: function() {
 		return function(event) {
 			var sb = plugin.getBounds();
