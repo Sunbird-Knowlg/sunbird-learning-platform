@@ -58,6 +58,16 @@ var Plugin = Class.extend({
         }
         return this._dimensions;
 	},
+	getRelativeDims: function(data) {
+		var parentDims = this._parent.dimensions();
+		var relDimensions = {
+            x: parseFloat(parentDims.w * (data.x || 0)/100),
+            y: parseFloat(parentDims.h * (data.y || 0)/100),
+            w: parseFloat(parentDims.w * (data.w || 0)/100),
+            h: parseFloat(parentDims.h * (data.h || 0)/100)
+        }
+        return relDimensions;
+	},
 	initPlugin: function(data) {
 		throw "Subclasses of plugin should implement this function";
 	},
