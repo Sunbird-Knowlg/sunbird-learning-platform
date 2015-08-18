@@ -5,6 +5,10 @@ var ContainerPlugin = Plugin.extend({
 		var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
+        this._self.visible = true;
+        if (data.visible == false) {
+            this._self.visible = false;
+        }
         this.render();
 
         for(k in data) {
@@ -20,6 +24,13 @@ var ContainerPlugin = Plugin.extend({
             instance.on(eventData.on, function(event) {
                 console.log('Container Event invoked - ', eventData.on);
             });
+        }
+    },
+    toggle: function() {
+        if(this._self.visible) {
+            this._self.visible = false;
+        } else {
+            this._self.visible = true;
         }
     }
 });

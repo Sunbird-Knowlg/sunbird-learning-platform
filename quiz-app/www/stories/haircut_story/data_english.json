@@ -60,6 +60,26 @@
 			"body" : {
 				"type": "text",
 				"asset": "Now a little worried, Sringeri Srinivas went to one more friend, the carpenter."
+			},
+			"kettle_title" : {
+				"type": "text",
+				"asset": "Kettle"
+			},
+			"kettle_synonyms" : {
+				"type": "text",
+				"asset": "Synonyms: Teapot"
+			},
+			"kettle_hindi" : {
+				"type": "text",
+				"asset": "Hindi: केटली"
+			},
+			"kettle_usage" : {
+				"type": "text",
+				"asset": "Kettle is used for boiling tea."
+			},
+			"kettle_rhyme" : {
+				"type": "text",
+				"asset": "Rhyme: I'm a little Teapot..."
 			}
 		}
 	},

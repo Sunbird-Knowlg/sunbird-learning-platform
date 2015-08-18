@@ -172,6 +172,15 @@ var StagePlugin = Plugin.extend({
                 var animationFn = eval(instance.animations[eventData.animate].animateFn);
                 animationFn.apply(null, [pluginManager.getPluginObject(eventData.asset)._self]);
             });
+        } else if (eventData.container) {
+            instance.on(eventData.on, function() {
+                switch(eventData.type) {
+                    case 'toggle':
+                        commandManager.toggle(eventData.asset);
+                        break;
+                    default:
+                }
+            });
         }
     }
 });
