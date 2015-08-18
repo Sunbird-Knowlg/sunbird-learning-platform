@@ -20,13 +20,13 @@
       {
         "name": "Counting Numbers",
         "description": "Counting Numbers",
-        "appIcon": "assets/counting.png",
+        "appIcon": "assets/kitchensink.jpg",
         "launchUrl": "worksheets/worksheet2/markup.xml"
       },
       {
         "name": "Annual Haircut Day",
         "description": "Sringeri Srinivas Annual Haircut Day",
-        "appIcon": "assets/sringeri.png",
+        "appIcon": "assets/haircut.png",
         "launchUrl": "stories/haircut_story/markup.xml"
       }
     ],
