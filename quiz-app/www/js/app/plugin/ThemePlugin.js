@@ -107,6 +107,7 @@ var ThemePlugin = Plugin.extend({
         var d = this.getDirection(animation.direction),
             e = this.getEase(animation.ease),
             t = animation.duration;
+        animation.effect = animation.effect || 'scroll';
         var effect;
         switch (animation.effect.toUpperCase()) {
             case "SCALEIN":
