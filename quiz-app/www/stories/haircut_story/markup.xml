@@ -4,7 +4,12 @@
         <media id="publisher_logo" src="stories/haircut_story/assets/publisher_logo.jpg" type="image" />
         <media id="previous" src="stories/haircut_story/assets/icon_previous.png" type="image" />
         <media id="next" src="stories/haircut_story/assets/icon_next.png" type="image" />
+        <media id="start" src="stories/haircut_story/assets/start.png" type="image" />
         <media id="sringeri" src="stories/haircut_story/assets/sringeri.png" type="image" />
+        <media id="clock_sound" src="stories/haircut_story/assets/sounds/clock_sound.mp3" type="sound" />
+        <media id="tree_frogs_and_birds_sound" src="stories/haircut_story/assets/sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
+        <media id="water_sound" src="stories/haircut_story/assets/sounds/water_sound.mp3" type="sound" />
+
         <media id="page1" src="stories/haircut_story/assets/scenes/image_1.jpg" type="image" />
         <media id="page2" src="stories/haircut_story/assets/scenes/image_2.jpg" type="image" />
         <media id="page3" src="stories/haircut_story/assets/image_3.png" type="image" />
@@ -29,11 +34,11 @@
         <media id="story_data" src="stories/haircut_story/data_english.json" type="json" />
     </manifest>
     <datasource asset="story_data"/>
-    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+    <stage id="splash" x="0" y="0" w="100" h="100">
         <image asset="page1" x="2" y="2" w="96" h="70"/>
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
         <image asset="level_band" x="2" y="94" w="13" h="5"/>
-        <image asset="next" x="94" y="32" w="4" h="6" onclick="stage:next"/>
+        <image asset="start" x="92" y="80" w="6" h="10" onclick="stage:next"/>
         <text x="35" y="80" w="25" h="5" font="Arial" fontsize="48">
             Annual Haircut Day
         </text>
@@ -58,26 +63,35 @@
     </stage>
 
     <stage id="scene1" x="0" y="0" w="100" h="100">
+        <audio id="clock_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
         <image asset="page2" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true" onclick="toggleClockSound"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="splash" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene2" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="toggleClockSound" audio="true" type="toggle" asset="clock_sound" loop="1"/>
         </events>
     </stage>
-    <stage id="scene2" x="0" y="0" w="100" h="100">
+    <stage id="scene2" start="true" x="0" y="0" w="100" h="100">
+        <audio id="tree_frogs_and_birds_sound"/>
+        <audio id="water_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true" onclick="toggleTreeSound"/>
+        <shape type="circle" x="58" y="37" w="3.5" h="3.5" hitArea="true" onclick="toggleWaterSound"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene1" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene3" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="toggleTreeSound" audio="true" type="toggle" asset="tree_frogs_and_birds_sound" loop="1"/>
+            <event on="toggleWaterSound" audio="true" type="toggle" asset="water_sound" loop="1"/>
             <event on="enter" animate="sringeriWalking" asset="sringeri"/>
         </events>
         <animate id="sringeriWalking" type="tween">
@@ -92,8 +106,8 @@
     <stage id="scene3" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
         <image asset="page4" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene2" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -103,8 +117,8 @@
     <stage id="scene4" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
         <image asset="page5" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene3" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -114,8 +128,8 @@
     <stage id="scene5" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page6" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene4" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -125,8 +139,8 @@
     <stage id="scene6" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
         <image asset="page7" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene5" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -136,8 +150,8 @@
     <stage id="scene7" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8"/>
         <image asset="page8" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene6" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -147,8 +161,8 @@
     <stage id="scene8" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9"/>
         <image asset="page9" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene7" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -158,8 +172,8 @@
     <stage id="scene9" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB"/>
         <image asset="page10" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene8" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -169,8 +183,8 @@
     <stage id="scene10" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page11" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene9" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -180,8 +194,8 @@
     <stage id="scene11" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
         <image asset="page12" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene10" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -191,8 +205,8 @@
     <stage id="scene12" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
         <image asset="page13" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene11" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -202,8 +216,8 @@
     <stage id="scene13" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
         <image asset="page14" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene12" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -213,8 +227,8 @@
     <stage id="scene14" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page15" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene13" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -224,8 +238,8 @@
     <stage id="scene15" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page16" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene14" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -235,8 +249,8 @@
     <stage id="scene16" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page17" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene15" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -246,8 +260,8 @@
     <stage id="scene17" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
         <image asset="page18" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene16" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -257,8 +271,8 @@
     <stage id="scene18" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
         <image asset="page19" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="4" h="6" onclick="stage:next"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene17" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -268,10 +282,12 @@
     <stage id="scene19" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
         <image asset="page20" x="2" y="12" w="96" h="86"/>
-        <image asset="previous" x="2" y="4" w="4" h="6" onclick="stage:previous"/>
+        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene18" effect="scroll" direction="right" ease="linear" duration="1000"/>
+            <event on="next" transition="splash" effect="scroll" direction="left" ease="linear" duration="1000"/>
         </events>
     </stage>
 </theme>

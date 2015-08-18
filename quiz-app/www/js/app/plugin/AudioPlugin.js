@@ -4,7 +4,6 @@ var AudioPlugin = Plugin.extend({
     _id: undefined,
     _state: 'stop',
     initPlugin: function(data) {
-        console.log('instantiating audio plugin - ', data.id);
         this._id = data.id;
     },
     play: function() {
@@ -34,6 +33,11 @@ var AudioPlugin = Plugin.extend({
         if(this._state == 'play') {
             this._self.paused = true;
             this._state = 'paused';
+        }
+    },
+    stop: function() {
+        if(this._state == 'play') {
+            this._self.stop();
         }
     }
 

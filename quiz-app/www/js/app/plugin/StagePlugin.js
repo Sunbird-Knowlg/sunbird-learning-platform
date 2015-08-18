@@ -159,13 +159,14 @@ var StagePlugin = Plugin.extend({
                     case 'toggle':
                         commandManager.toggle(eventData.asset);
                         break;
+                    case 'stop':
+                        commandManager.stop(eventData.asset);
+                        break;
                     default:
                 }
             });
         } else if (eventData.animate) {
-            console.log('Registering animation event on - ', eventData.on);
             instance.on(eventData.on, function() {
-                console.log('Animation event received - ', eventData, instance.animations);
                 var animationFn = eval(instance.animations[eventData.animate].animateFn);
                 animationFn.apply(null, [pluginManager.getPluginObject(eventData.asset)._self]);
             });
