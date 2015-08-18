@@ -14,8 +14,8 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        //this._render = true;
-        this.render();
+        this._render = true;
+        //this.render();
 
         for (k in data) {
             if (pluginManager.isPlugin(k)) {
