@@ -31,9 +31,9 @@ var ShapePlugin = Plugin.extend({
     	}
         this._self.x = dims.x;
         this._self.y = dims.y;
-        this._self.regX = dims.w/2;
-        this._self.regY = dims.h/2;
         if(data.rotate) {
+            this._self.regX = dims.w/2;
+            this._self.regY = dims.h/2;
             this._self.rotation = data.rotate;
         }
     	this.render();

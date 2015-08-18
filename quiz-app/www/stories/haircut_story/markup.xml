@@ -10,6 +10,17 @@
         <media id="tree_frogs_and_birds_sound" src="stories/haircut_story/assets/sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
         <media id="water_sound" src="stories/haircut_story/assets/sounds/water_sound.mp3" type="sound" />
 
+        <media id="A4_sound" src="stories/haircut_story/assets/sounds/xylophone/A4_sound.mp3" type="sound" />
+        <media id="A5_sound" src="stories/haircut_story/assets/sounds/xylophone/A5_sound.mp3" type="sound" />
+        <media id="Ab4_sound" src="stories/haircut_story/assets/sounds/xylophone/Ab4_sound.mp3" type="sound" />
+        <media id="Ab5_sound" src="stories/haircut_story/assets/sounds/xylophone/Ab5_sound.mp3" type="sound" />
+        <media id="B4_sound" src="stories/haircut_story/assets/sounds/xylophone/B4_sound.mp3" type="sound" />
+        <media id="B5_sound" src="stories/haircut_story/assets/sounds/xylophone/B5_sound.mp3" type="sound" />
+        <media id="Bb4_sound" src="stories/haircut_story/assets/sounds/xylophone/Bb4_sound.mp3" type="sound" />
+        <media id="Bb5_sound" src="stories/haircut_story/assets/sounds/xylophone/Bb5_sound.mp3" type="sound" />
+        <media id="C5_sound" src="stories/haircut_story/assets/sounds/xylophone/C5_sound.mp3" type="sound" />
+        <media id="D5_sound" src="stories/haircut_story/assets/sounds/xylophone/D5_sound.mp3" type="sound" />
+
         <media id="page1" src="stories/haircut_story/assets/scenes/image_1.jpg" type="image" />
         <media id="page2" src="stories/haircut_story/assets/scenes/image_2.jpg" type="image" />
         <media id="page3" src="stories/haircut_story/assets/image_3.png" type="image" />
@@ -34,7 +45,7 @@
         <media id="story_data" src="stories/haircut_story/data_english.json" type="json" />
     </manifest>
     <datasource asset="story_data"/>
-    <stage id="splash" x="0" y="0" w="100" h="100">
+    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="page1" x="2" y="2" w="96" h="70"/>
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
         <image asset="level_band" x="2" y="94" w="13" h="5"/>
@@ -71,28 +82,83 @@
         <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true" onclick="toggleClockSound"/>
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
+            <event on="exit" audio="true" type="stop" loop="1"/>
             <event on="previous" transition="splash" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene2" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleClockSound" audio="true" type="toggle" asset="clock_sound" loop="1"/>
         </events>
     </stage>
-    <stage id="scene2" start="true" x="0" y="0" w="100" h="100">
+    <stage id="scene2" x="0" y="0" w="100" h="100">
         <audio id="tree_frogs_and_birds_sound"/>
         <audio id="water_sound"/>
+        <audio id="A4_sound"/>
+        <audio id="A5_sound"/>
+        <audio id="Ab4_sound"/>
+        <audio id="Ab5_sound"/>
+        <audio id="B4_sound"/>
+        <audio id="B5_sound"/>
+        <audio id="Bb4_sound"/>
+        <audio id="Bb5_sound"/>
+        <audio id="C5_sound"/>
+        <audio id="D5_sound"/>
+
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
+
         <image asset="page3" x="2" y="12" w="96" h="86"/>
-        <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri"/>
+        <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri" onclick="moveSringeri"/>
         <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
         <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+
         <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true" onclick="toggleTreeSound"/>
         <shape type="circle" x="58" y="37" w="3.5" h="3.5" hitArea="true" onclick="toggleWaterSound"/>
+
+        <shape type="rect" x="41" y="40" w="3" h="5" hitArea="true" onclick="toggleA4"/>
+        <shape type="rect" x="44" y="36" w="3" h="5" hitArea="true" onclick="toggleA5"/>
+        <shape type="rect" x="46.5" y="32" w="2" h="4" hitArea="true" onclick="toggleAb4"/>
+        <shape type="rect" x="49" y="27" w="3" h="7" hitArea="true" onclick="toggleAb5"/>
+        <shape type="rect" x="52.5" y="21" w="3.5" h="11" hitArea="true" onclick="toggleB4"/>
+        <shape type="rect" x="57" y="20" w="3" h="11" hitArea="true" onclick="toggleB5"/>
+        <shape type="rect" x="60.5" y="20" w="3" h="10" hitArea="true" onclick="toggleBb4"/>
+        <shape type="rect" x="64" y="22" w="2.3" h="8" hitArea="true" onclick="toggleBb5"/>
+        <shape type="rect" x="66.5" y="25" w="4" h="10" hitArea="true" onclick="toggleC5"/>
+        <shape type="rect" x="64.5" y="36" w="7" h="4" hitArea="true" onclick="toggleD5"/>
+
+        <shape type="rect" x="61.5" y="40.5" w="5" h="7" hitArea="true" onclick="toggleA4"/>
+        <shape type="rect" x="57.5" y="44" w="4.5" h="7" hitArea="true" onclick="toggleA5"/>
+        <shape type="rect" x="53" y="45" w="4" h="9" hitArea="true" onclick="toggleAb4"/>
+        <shape type="rect" x="46.5" y="47" w="6" h="15" hitArea="true" onclick="toggleB4"/>
+        <shape type="rect" x="39.5" y="52" w="6.5" h="15" hitArea="true" onclick="toggleB5"/>
+        <shape type="rect" x="35" y="59" w="4" h="11" hitArea="true" onclick="toggleBb4"/>
+        <shape type="rect" x="28.5" y="65" w="6" h="13" hitArea="true" onclick="toggleBb5"/>
+        <shape type="rect" x="28.5" y="79" w="7.5" h="11" hitArea="true" onclick="toggleC5"/>
+        <shape type="rect" x="36.5" y="81" w="3" h="9" hitArea="true" onclick="toggleA5"/>
+        <shape type="rect" x="40.5" y="78" w="3.5" h="13" hitArea="true" onclick="toggleD5"/>
+
+        <shape type="rect" x="46" y="78" w="3.5" h="13" hitArea="true" onclick="toggleA4"/>
+        <shape type="rect" x="50" y="80" w="3" h="10" hitArea="true" onclick="toggleA5"/>
+        <shape type="rect" x="54" y="81" w="2" h="8" hitArea="true" onclick="toggleAb4"/>
+        <shape type="rect" x="57" y="82" w="1.2" h="7" hitArea="true" onclick="toggleB4"/>
+        <shape type="rect" x="59" y="82" w="1" h="7" hitArea="true" onclick="toggleB5"/>
+
         <placeholder param="body" x="7" y="7" w="90" h="4" font="Georgia" fontsize="44"/>
         <events>
             <event on="previous" transition="scene1" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene3" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleTreeSound" audio="true" type="toggle" asset="tree_frogs_and_birds_sound" loop="1"/>
             <event on="toggleWaterSound" audio="true" type="toggle" asset="water_sound" loop="1"/>
-            <event on="enter" animate="sringeriWalking" asset="sringeri"/>
+            <event on="toggleA4" audio="true" type="toggle" asset="A4_sound" loop="1"/>
+            <event on="toggleA5" audio="true" type="toggle" asset="A5_sound" loop="1"/>
+            <event on="toggleAb4" audio="true" type="toggle" asset="Ab4_sound" loop="1"/>
+            <event on="toggleAb5" audio="true" type="toggle" asset="Ab5_sound" loop="1"/>
+            <event on="toggleB4" audio="true" type="toggle" asset="B4_sound" loop="1"/>
+            <event on="toggleB5" audio="true" type="toggle" asset="B5_sound" loop="1"/>
+            <event on="toggleBb4" audio="true" type="toggle" asset="Bb4_sound" loop="1"/>
+            <event on="toggleBb5" audio="true" type="toggle" asset="Bb5_sound" loop="1"/>
+            <event on="toggleC5" audio="true" type="toggle" asset="C5_sound" loop="1"/>
+            <event on="toggleD5" audio="true" type="toggle" asset="D5_sound" loop="1"/>
+
+            <event on="moveSringeri" animate="sringeriWalking" asset="sringeri"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
         </events>
         <animate id="sringeriWalking" type="tween">
             <to ease="linear" duration="500"><![CDATA[{"x":20,"y":20}]]></to>
@@ -100,7 +166,7 @@
             <to ease="linear" duration="1"><![CDATA[{"x":75,"y":0, "scaleX": -1}]]></to>
             <to ease="linear" duration="2000"><![CDATA[{"x":40,"y":55}]]></to>
             <to ease="linear" duration="1"><![CDATA[{"x":18,"y": 55, "scaleX": 1}]]></to>
-            <to ease="linear" duration="2000"><![CDATA[{"x":55,"y":55}]]></to>
+            <to ease="linear" duration="2000"><![CDATA[{"x":57,"y":55}]]></to>
         </animate>
     </stage>
     <stage id="scene3" x="0" y="0" w="100" h="100">
