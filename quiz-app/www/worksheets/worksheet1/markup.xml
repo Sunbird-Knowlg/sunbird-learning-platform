@@ -69,7 +69,7 @@
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="30"/>
         <image asset="startnow" x="4" y="65" w="35" h="30" onclick="next"/>
-        <image asset="noah" x="60" y="10" w="20" h="65" onclick="toggleThunder"/>
+        <image asset="noah" x="60" y="10" w="20" h="65"/>
         <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
         <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
         <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
@@ -82,6 +82,7 @@
 I need your help in adding the
 things to my space ship
         </text>
+        <shape type="circle" x="67" y="27" w="5" h="10" hitArea="true" onclick="toggleThunder"/>
         <events>
             <event on="next" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
             <event on="enter" audio="true" type="play" asset="thunder_sound" loop="1"/>
