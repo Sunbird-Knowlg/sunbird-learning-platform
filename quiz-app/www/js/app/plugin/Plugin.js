@@ -19,6 +19,9 @@ var Plugin = Class.extend({
 		} else {
 			this.assetEvents(data);
 		}
+		if(this._render) {
+			this.render();
+		}
 		if (data.id) {
 			pluginManager.registerPluginObject(data.id, this);
 		}

@@ -14,7 +14,7 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        this.render();
+        this._render = true;
 
         for (k in data) {
             if (pluginManager.isPlugin(k)) {
@@ -166,7 +166,9 @@ var StagePlugin = Plugin.extend({
                 }
             });
         } else if (eventData.animate) {
+            //console.log('Registering animation events...');
             instance.on(eventData.on, function() {
+                //console.log('Receiving animation event - ', eventData);
                 var animationFn = eval(instance.animations[eventData.animate].animateFn);
                 animationFn.apply(null, [pluginManager.getPluginObject(eventData.asset)._self]);
             });
