@@ -87,7 +87,7 @@ things to my space ship
             <event on="next" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
             <event on="enter" audio="true" type="play" asset="thunder_sound" loop="1"/>
             <event on="toggleThunder" audio="true" type="toggle" asset="thunder_sound" loop="1"/>
-            <event on="exit" audio="true" type="stop" asset="thunder_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
         </events>
     </stage>
     <stage id="item" x="0" y="0" w="100" h="100">
