@@ -11,6 +11,10 @@ var CommandManager = Class.extend({
 		var plugin = pluginManager.getPluginObject(id);
 		plugin.toggle();
 	},
+	stop: function(id) {
+		var plugin = pluginManager.getPluginObject(id);
+		plugin.stop();
+	},
 	raiseEvent: function(id, eventType) {
 		var plugin = pluginManager.getPluginObject(id);
 		plugin.dispatchEvent(eventType);

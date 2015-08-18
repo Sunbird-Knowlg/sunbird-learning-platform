@@ -35,6 +35,11 @@ var AudioPlugin = Plugin.extend({
             this._self.paused = true;
             this._state = 'paused';
         }
+    },
+    stop: function() {
+        if(this._state == 'play') {
+            this._self.stop();
+        }
     }
 
 });

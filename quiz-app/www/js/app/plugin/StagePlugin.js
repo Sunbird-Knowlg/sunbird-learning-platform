@@ -144,6 +144,9 @@ var StagePlugin = Plugin.extend({
                     case 'toggle':
                         commandManager.toggle(eventData.asset);
                         break;
+                    case 'stop':
+                        commandManager.stop(eventData.asset);
+                        break;
                     default:
                 }
             });
