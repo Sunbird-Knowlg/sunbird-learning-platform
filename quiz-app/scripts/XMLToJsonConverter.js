@@ -6,6 +6,8 @@ exports.xml2json = function(input, output) {
         if (!err) {
             var json = parser.toJson(data, {sanitize: false});
             fs.writeFileSync(output, json);
+        } else {
+        	console.log('Error:', err);
         }
     });
 }
