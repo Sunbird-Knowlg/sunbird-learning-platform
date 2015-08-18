@@ -40,6 +40,9 @@
         <media id="elephant_midgray" src="assets/theme1/characters/character_elephant_midgray.png" type="image" />
         <media id="elephant_white" src="assets/theme1/characters/character_elephant_white.png" type="image" />
 
+        <media id="thunder_sound" src="assets/thunder.mp3" type="sound" />
+        <media id="sound_image" src="assets/sound.png" type="image" />
+
         <media id="worksheet_data" src="worksheets/worksheet1/items.json" type="json" />
     </manifest>
     <datasource asset="worksheet_data"/>
@@ -90,6 +93,7 @@ things to my space ship
             <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
                 ADDITION - By Grouping
             </text>
+            <audio x="35" y="3" w="3" h="5" asset="thunder_sound" event="added,click" />
             <placeholder param="var1" x="5" y="15" w="25" h="25"/>
             <input type="number" class="inputText" x="14" y="57" w="7" h="7" id="text1" param="ans1"/>
             <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
@@ -100,7 +104,7 @@ things to my space ship
             <input type="number" class="inputText" x="28" y="90" w="7" h="7" id="text3" param="ans3"/>
             <image asset="plus" x="30.7" y="33" w="3" h="3"/>
             <image asset="equals" x="30.7" y="64" w="3" h="3"/>
-            <image asset="noah" x="62" y="5" w="15" h="50"/>
+            <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
             <image asset="previous" x="83" y="1" w="5" h="9" onclick="stage:previous"/>
             <image asset="profile" x="88" y="1" w="5" h="9"/>
             <image asset="next" x="93" y="1" w="5" h="9" onclick="stage:next"/>
@@ -132,6 +136,7 @@ things to my space ship
                 <to duration="1500" ease="linear"><![CDATA[{"x":43,"y":45,"visible":true}]]></to>
             </animate>
         </image>
+        <audio parentasset="img_noah" asset="thunder_sound" />
         <events>
             <event on="eval" eval="text1,text2,text3" success="correct_answer" failure="wrong_answer"/>
             <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next,sprite_correct_answer" hide="img_wrong_answer,btn_try_again"/>
