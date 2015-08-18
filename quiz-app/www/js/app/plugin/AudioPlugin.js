@@ -1,39 +1,41 @@
 var AudioPlugin = Plugin.extend({
-	_type: 'audio',
-	_isContainer: false,
-	initPlugin: function(data) {
+    _type: 'audio',
+    _isContainer: false,
+    _id: undefined,
+    _state: 'stop',
+    initPlugin: function(data) {
+        console.log('instantiating audio plugin - ', data.id);
+        this._id = data.id;
+    },
+    play: function() {
+        if(this._state == 'paused') {
+            this._self.paused = false;
+            this._state = 'play';
+        } else if(this._self) {
+            this._state = 'play';
+            this._self.play();
+        } else {
+            this._state = 'play';
             var instance = this;
-            var s = null;
-            if(data.parentasset) {
-                var pluginObj = pluginManager.getPluginObject(data.parentasset);
-                if(pluginObj == null) {
-                    console.log('No plugin object:'+data.parentasset);
-                }
-                s = pluginObj._self;
-            } else {
-                s = new createjs.Bitmap(this._theme.getAsset('sound_image'));
-                var dims = this.relativeDims();
-                var sb = s.getBounds();
-                s.x = dims.x;
-                s.y = dims.y;
-                if (dims.h && dims.h > 0) {
-                    s.scaleY = dims.h / sb.height;
-                }
-                if (dims.w && dims.w > 0) {
-                    s.scaleX = dims.w / sb.width;
-                }    
-            }
-            // createjs.Sound.registerSound("assets/thunder.mp3", data.asset);
-            var events = (data.event)?data.event.split(",") : ["click"];
-            for (var i = 0; i < events.length; i++) {
-                s.addEventListener(events[i], function(event) {
-                    createjs.Sound.play(data.asset, createjs.Sound.INTERRUPT_NONE);
-                });
-            };
-            if(!data.parentasset) {
-                this._self = s;
-                this.render();
-            }
-	}
+            this._self = createjs.Sound.play(this._id);
+            this._self.on("complete", function() {
+                instance._state = 'stop';
+            });
+        }
+    },
+    toggle: function() {
+        if(this._state == 'play') {
+            this.pause();
+        } else {
+            this.play();
+        }
+    },
+    pause: function() {
+        if(this._state == 'play') {
+            this._self.paused = true;
+            this._state = 'paused';
+        }
+    }
+
 });
 pluginManager.registerPlugin('audio', AudioPlugin);

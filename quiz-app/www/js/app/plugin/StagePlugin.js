@@ -132,6 +132,21 @@ var StagePlugin = Plugin.extend({
             instance.on(eventData.on, function(event) {
                 instance._theme.startPage();
             });
+        } else if (eventData.audio) {
+            instance.on(eventData.on, function() {
+                switch(eventData.type) {
+                    case 'play':
+                        commandManager.play(eventData.asset);
+                        break;
+                    case 'pause':
+                        commandManager.pause(eventData.asset);
+                        break;
+                    case 'toggle':
+                        commandManager.toggle(eventData.asset);
+                        break;
+                    default:
+                }
+            });
         }
     }
 });

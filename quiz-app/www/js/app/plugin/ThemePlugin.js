@@ -66,17 +66,19 @@ var ThemePlugin = Plugin.extend({
         var instance = this;
         child.on('sceneenter', function() {
             instance.enableInputs();
+            childPlugin.dispatchEvent('enter');
         })
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
             this.disableInputs();
             this.inputs = [];
+            this._currentScene.dispatchEvent('exit');
             this._director.replace(child, this.getTransitionEffect(this._animationEffect));
         } else {
             this._director.replace(child);
         }
         childPlugin.setIndex(nextIdx);
-        this._currentScene = child;
+        this._currentScene = childPlugin;
     },
     replaceStage: function(prevStage, stageId, effect) {
         this._animationEffect = effect;
