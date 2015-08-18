@@ -2,6 +2,8 @@ var PluginManager = Class.extend({
 	_pluginMap: {},
 	_pluginObjMap: {},
 	_errors: [],
+	_defaultResWidth: 1920,
+	_defaultResHeight: 1200,
 	registerPlugin: function(id, plugin) {
 		this._pluginMap[id] = plugin;
 		createjs.EventDispatcher.initialize(plugin.prototype);

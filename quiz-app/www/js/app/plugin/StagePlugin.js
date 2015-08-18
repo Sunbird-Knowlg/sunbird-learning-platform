@@ -44,7 +44,7 @@ var StagePlugin = Plugin.extend({
         if (eventData.transition) {
             instance.on(eventData.on, function(event) {
                 var count = instance._theme._stageRepeatCount[instance._data.id];
-                if (eventData.on == 'previous') {
+                if (eventData.on == 'paginate_prev') {
                     count -= 2;
                     instance._theme._stageRepeatCount[instance._data.id] = count;
                 }

@@ -49,11 +49,11 @@
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="50"/>
-        <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
-        <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
+        <!-- fontsize is the expected font size of text in 1920 x 1200 resolution -->
+        <text x="10" y="15" w="22" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Noah's Ark...
         </text>
-        <text x="7" y="40" w="32" h="49" font="Arial, serif" fontsize="48" width="614" color="#fff">
+        <text x="7" y="40" w="32" h="49" font="Arial, serif" fontsize="48" color="#fff">
             Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
         </text>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
@@ -71,14 +71,14 @@
         <image asset="startnow" x="4" y="65" w="35" h="30" onclick="next"/>
         <image asset="noah" x="60" y="10" w="20" h="65"/>
         <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
-        <!-- fontsize and width are expected font and widths of text in 1920 x 1200 resolution -->
-        <text x="10" y="15" w="22" h="23" font="solid Arial, sans-serif" fontsize="96" width="422" color="#fff">
+        <!-- fontsize is the expected font size of text in 1920 x 1200 resolution -->
+        <text x="10" y="15" w="22" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Noah's Ark...
         </text>
-        <text x="7" y="40" w="32" h="40" font="Arial, serif" fontsize="48" width="614" color="#fff">
+        <text x="7" y="40" w="32" h="40" font="Arial" fontsize="48" color="#fff">
             Add the things in pictures to find out the total number of beings that Noah is carrying in his spaceship to Mars.
         </text>
-        <text x="38" y="22" w="28" h="16" font="Arial, serif" fontsize="32" width="537" color="#000">Hey, Ramya...
+        <text x="38" y="22" w="28" h="16" font="Arial, serif" fontsize="32" color="#000">Hey, Ramya...
 I need your help in adding the
 things to my space ship
         </text>
@@ -94,7 +94,7 @@ things to my space ship
             <image asset="bg" x="0" y="0" w="100" h="100"/>
             <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
             <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
-            <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
+            <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff">
                 ADDITION - By Grouping
             </text>
             <placeholder param="var1" x="5" y="15" w="25" h="25"/>
@@ -108,7 +108,7 @@ things to my space ship
             <image asset="plus" x="30.7" y="33" w="3" h="3"/>
             <image asset="equals" x="30.7" y="64" w="3" h="3"/>
             <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
-            <image asset="previous" x="83" y="1" w="5" h="9" onclick="stage:previous"/>
+            <image asset="previous" x="83" y="1" w="5" h="9" onclick="stage:paginate_prev"/>
             <image asset="profile" x="88" y="1" w="5" h="9"/>
             <image asset="next" x="93" y="1" w="5" h="9" onclick="stage:next"/>
             <image asset="hint" x="93" y="20" w="5" h="9"/>
@@ -144,7 +144,7 @@ things to my space ship
             <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next,sprite_correct_answer" hide="img_wrong_answer,btn_try_again"/>
             <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,sprite_correct_answer,btn_next"/>
             <event on="try_again" reload="true"/>
-            <event on="previous" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
+            <event on="paginate_prev" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
             <event on="next" transition="summary" effect="scroll" direction="top" ease="linear" duration="1000"/>
         </events>
     </stage>
@@ -155,10 +155,10 @@ things to my space ship
         <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
         <image asset="speechbubble" x="5" y="30" w="50" h="30"/>
         <image asset="noah" x="48" y="35" w="20" h="65"/>
-        <text x="6" y="5" w="40" h="10" font="solid Arial, sans-serif" fontsize="48" width="768" color="#fff">
+        <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff">
             ADDITION - By Grouping
         </text>
-        <summary x="13" y="35" w="25" h="40" font="Arial, serif" fontsize="40" width="480" color="#333" param="summary">
+        <summary x="13" y="35" w="25" h="40" font="Arial" fontsize="40" color="#333" param="summary">
         </summary>
         <events>
             <event on="start_page" start_page="index.html"/>

@@ -22,6 +22,12 @@
         "description": "Counting Numbers",
         "appIcon": "assets/counting.png",
         "launchUrl": "worksheets/worksheet2/markup.xml"
+      },
+      {
+        "name": "Annual Haircut Day",
+        "description": "Sringeri Srinivas Annual Haircut Day",
+        "appIcon": "assets/sringeri.png",
+        "launchUrl": "stories/haircut_story/markup.xml"
       }
     ],
     "ttl": 24

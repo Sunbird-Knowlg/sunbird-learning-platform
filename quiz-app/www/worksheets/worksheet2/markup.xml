@@ -31,10 +31,10 @@
     <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
-        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+        <text x="10" y="15" w="30" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Counting Numbers...
         </text>
-        <text x="40" y="45" w="55" h="49" font="Arial, serif" fontsize="36" width="1056" color="#666">
+        <text x="40" y="45" w="55" h="49" font="Georgia" fontsize="36" color="#666">
             Counting and number recognition worksheets are among the first math worksheets that preschool and kindergarten children will practice with. Number recognition is a building block to success in math. As preschool and kindergarten children start to recognize their numbers, it is natural for them to begin counting objects.
         </text>
         <sprite asset="grant_sprite" start="run" x="35" y="50"/>
@@ -46,14 +46,14 @@
     </stage>
     <stage id="item" x="0" y="0" w="100" h="100">
         <placeholder param="var1" x="0" y="0" w="100" h="100"/>
-        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+        <text x="10" y="15" w="30" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Counting Numbers...
         </text>
-        <text x="40" y="15" w="55" h="49" font="Arial, serif" fontsize="36" width="1056" color="#fff">
+        <text x="40" y="15" w="55" h="49" font="Georgia" fontsize="36" color="#fff">
             Enter the number that tells how many are in the group in the input box next to each group
         </text>
         <image asset="box" x="40" y="36" w="20" h="20"/>
-        <placeholder param="var4" x="38" y="58" w="35" h="20" font="Arial, serif" fontsize="24" width="576" color="#666"/>
+        <placeholder param="var4" x="38" y="58" w="35" h="20" font="Georgia" fontsize="24" color="#666"/>
         <placeholder param="var2" x="9" y="75" w="40" h="5" enabledrag="true"/>
         <input type="number" class="inputText" x="2" y="76" w="5" h="5" id="text1" param="ans1"/>
 
@@ -65,7 +65,7 @@
         <image asset="correct" x="30" y="30" w="40" h="30" hide="true" id="img_correct" onclick="next"/>
         <image asset="try_again" x="30" y="30" w="40" h="30" hide="true" id="img_try_again" onclick="try_again"/>
 
-        <image asset="previous" x="83" y="1" w="5" h="9" onclick="previous"/>
+        <image asset="previous" x="83" y="1" w="5" h="9" onclick="paginate_prev"/>
         <image asset="profile" x="88" y="1" w="5" h="9"/>
         <image asset="next" x="93" y="1" w="5" h="9" onclick="next"/>
         <image asset="button_next" x="80" y="90" w="15" h="9" onclick="eval"/>
@@ -74,14 +74,14 @@
             <event on="correct_answer" show="img_overlay,img_correct,sprite_jump" hide="img_try_again"/>
             <event on="wrong_answer" show="img_overlay,img_try_again" hide="img_correct,sprite_jump"/>
             <event on="try_again" reload="true" effect="fadeInOut"/>
-            <event on="previous" transition="item" effect="scaleInOut"/>
+            <event on="paginate_prev" transition="item" effect="scaleInOut"/>
             <event on="next" transition="summary" effect="moveInRight"/>
         </events>
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
         <image asset="home_icon" x="93" y="1" w="5" h="9" onclick="start_page"/>
-        <text x="10" y="15" w="30" h="23" font="solid Arial, sans-serif" fontsize="96" width="576" color="#fff">
+        <text x="10" y="15" w="30" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Counting Numbers...
         </text>
         <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" param="summary">

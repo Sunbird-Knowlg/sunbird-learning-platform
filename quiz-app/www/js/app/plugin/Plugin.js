@@ -78,7 +78,7 @@ var Plugin = Class.extend({
 		if(data.onclick) {
 			var arr = data.onclick.split(':');
 			var action = arr[1] || arr[0];
-	    	if (action == 'previous') {
+	    	if (action == 'paginate_prev') {
 	    		var count = this._theme._stageRepeatCount[this._stage._data.id];
 	    		if (count <= 1) {
 	    			data.hide = true;
