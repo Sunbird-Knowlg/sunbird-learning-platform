@@ -54,10 +54,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 $scope.$apply(function() {
                     $scope.games = $localstorage.getObject('games');
                     $scope.screeners = $localstorage.getObject('screeners');
-                    // $scope.load = {
-                    //     status: false,
-                    //     message: "Loading..."
-                    // };
+                    $scope.load = {
+                        status: false,
+                        message: "Loading..."
+                    };
                 });
                 $scope.loadBookshelf();
             }
@@ -192,5 +192,5 @@ function initBookshelf($scope) {
                 message: "Loading..."
             };
         });
-    }, 100);
+    }, 500);
 }
