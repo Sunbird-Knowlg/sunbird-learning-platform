@@ -114,9 +114,9 @@
         <audio id="scene1_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
         <image asset="page2" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene1Sound"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true" onclick="toggleClockSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -146,8 +146,8 @@
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri" onclick="moveSringeri"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene2Sound"/>
 
         <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true" onclick="toggleTreeSound"/>
@@ -216,8 +216,8 @@
         <audio id="scene3_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
         <image asset="page4" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene3Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -233,8 +233,8 @@
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
         <image asset="page5" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene4Sound"/>
         <shape type="rect" x="0" y="40" w="23" h="58" hitArea="true" onclick="toggleTreeSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -251,8 +251,8 @@
         <audio id="scene5_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page6" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene5Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -268,8 +268,8 @@
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
         <image asset="page7" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene6Sound"/>
         <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true" onclick="toggleTreeSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -286,8 +286,8 @@
         <audio id="scene7_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8"/>
         <image asset="page8" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene7Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -304,8 +304,8 @@
         <audio id="teapot_rhyme"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9"/>
         <image asset="page9" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene8Sound"/>
         <g x="18" y="20" w="30" h="27" id="teapotInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
@@ -335,8 +335,8 @@
         <audio id="saw_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB"/>
         <image asset="page10" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene9Sound"/>
         <shape type="rect" x="60" y="17" w="10" h="42" hitArea="true" onclick="toggleSawSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -353,8 +353,8 @@
         <audio id="scene10_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page11" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene10Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -369,8 +369,8 @@
         <audio id="scene11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
         <image asset="page12" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene11Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -386,8 +386,8 @@
         <audio id="forest_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
         <image asset="page13" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene12Sound"/>
         <shape type="rect" x="70" y="12" w="28" h="86" hitArea="true" onclick="toggleForestSound"/>
         <shape type="rect" x="2" y="50" w="23" h="48" hitArea="true" onclick="toggleForestSound"/>
@@ -405,8 +405,8 @@
         <audio id="scene13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
         <image asset="page14" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene13Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -422,8 +422,8 @@
         <audio id="tiger_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page15" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene14Sound"/>
         <shape type="rect" x="36" y="30" w="62" h="52" hitArea="true" onclick="toggleTigerSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -440,8 +440,8 @@
         <audio id="scene15_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page16" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene15Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -456,8 +456,8 @@
         <audio id="scene16_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page17" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene16Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -472,8 +472,8 @@
         <audio id="scene17_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
         <image asset="page18" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene17Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -488,8 +488,8 @@
         <audio id="scene18_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
         <image asset="page19" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene18Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
@@ -504,8 +504,8 @@
         <audio id="scene19_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
         <image asset="page20" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene19Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
