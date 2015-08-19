@@ -170,5 +170,21 @@
 				"asset": "Now, Sringeri Srinivas will not need a haircut for a very long time."
 			}
 		}
+	},
+	"scene20": {
+		"params": {
+			"body" : {
+				"type": "text",
+				"asset": "Find the Barber. Barber has Scissors to Cut hair."
+			}
+		}
+	},
+	"scene21": {
+		"params": {
+			"body" : {
+				"type": "text",
+				"asset": "Find the Carpenter. Carpenter has a hammer and nail."
+			}
+		}
 	}
 }
