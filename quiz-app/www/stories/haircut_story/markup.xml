@@ -176,14 +176,44 @@
         </animate>
     </stage>
     <stage id="scene3" x="0" y="0" w="100" h="100">
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
+        
         <image asset="page4" x="2" y="12" w="96" h="86"/>
         <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
         <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
+
+		<g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="150">
+Razor
+	        </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
+Razor is used to cut hair
+	        </text>
+        </g>
+
+        <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="125">
+Barber
+	        </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
+Barber is cutting hair
+Barber uses Razor and Scissors 
+to Cut hair
+	        </text>
+        </g>
+
+        <shape type="rect" x="63" y="30" w="5" h="13" hitArea="true" onclick="toggleRazorInfo"/>
+        <shape type="rect" x="53" y="45" w="18" h="25" hitArea="true" onclick="toggleBarberInfo"/>
+
         <events>
             <event on="previous" transition="scene2" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene4" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="toggleRazorInfo" container="true" type="toggle" asset="razorInfo" />
+            <event on="toggleBarberInfo" container="true" type="toggle" asset="barberInfo" />
         </events>
     </stage>
     <stage id="scene4" x="0" y="0" w="100" h="100">
@@ -202,14 +232,43 @@
         </events>
     </stage>
     <stage id="scene5" x="0" y="0" w="100" h="100">
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
+        
         <image asset="page6" x="2" y="12" w="96" h="86"/>
         <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
         <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
+
+		<g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="150">
+Knife
+	        </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
+Knife is used to cut vegetables
+	        </text>
+        </g>
+
+        <g x="28" y="12" w="30" h="27" id="wifeInfo" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="125">
+Sringeri Srinivas's Wife
+	        </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
+Wife is cooking food
+Wife uses a Knife to Cut vegetables
+	        </text>
+        </g>
+
+        <shape type="rect" x="20" y="28" w="12" h="22" hitArea="true" onclick="toggleWifeInfo"/>
+        <shape type="rect" x="13" y="20" w="6" h="22" hitArea="true" onclick="toggleKnifeInfo"/>
+
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene4" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene6" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="toggleWifeInfo" container="true" type="toggle" asset="wifeInfo" />
+            <event on="toggleKnifeInfo" container="true" type="toggle" asset="knifeInfo" />
         </events>
     </stage>
     <stage id="scene6" x="0" y="0" w="100" h="100">
