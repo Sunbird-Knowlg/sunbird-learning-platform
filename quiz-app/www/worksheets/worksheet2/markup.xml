@@ -52,12 +52,12 @@
         <text x="40" y="15" w="55" h="49" font="Georgia" fontsize="36" color="#fff">
             Enter the number that tells how many are in the group in the input box next to each group
         </text>
-        <image asset="box" x="40" y="36" w="20" h="20"/>
+        <image asset="box" x="40" y="36" w="20" h="20" id="snapBox"/>
         <placeholder param="var4" x="38" y="58" w="35" h="20" font="Georgia" fontsize="24" color="#666"/>
-        <placeholder param="var2" x="9" y="75" w="40" h="5" enabledrag="true"/>
+        <placeholder param="var2" x="9" y="75" w="40" h="5" enabledrag="true" snapTo="snapBox"/>
         <input type="number" class="inputText" x="2" y="76" w="5" h="5" id="text1" param="ans1"/>
 
-        <placeholder param="var3" x="79" y="70" w="30" h="5" enabledrag="true"/>
+        <placeholder param="var3" x="79" y="70" w="30" h="5" enabledrag="true" snapTo="snapBox"/>
         <input type="number" class="inputText" x="72" y="72" w="5" h="5" id="text2" param="ans2"/>
 
         <image asset="blacktint_full" x="0" y="0" w="100" h="100" hide="true" id="img_overlay"/>
