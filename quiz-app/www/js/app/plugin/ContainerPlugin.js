@@ -26,6 +26,12 @@ var ContainerPlugin = Plugin.extend({
             });
         }
     },
+    show: function() {
+        this._self.visible = true;
+    },
+    hide: function() {
+        this._self.visible = false;
+    },
     toggle: function() {
         if(this._self.visible) {
             this._self.visible = false;

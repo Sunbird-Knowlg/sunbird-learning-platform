@@ -199,7 +199,7 @@
 		"params": {
 			"body" : {
 				"type": "text",
-				"asset": "Match the following."
+				"asset": "Match the tools to the persons."
 			},
 			"hint" : {
 				"type": "text",

@@ -180,6 +180,12 @@ var StagePlugin = Plugin.extend({
                     case 'toggle':
                         commandManager.toggle(eventData.asset);
                         break;
+                    case 'show':
+                        commandManager.show(eventData.asset);
+                        break;
+                    case 'hide':
+                        commandManager.hide(eventData.asset);
+                        break;
                     default:
                 }
             });

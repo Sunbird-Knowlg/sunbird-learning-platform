@@ -97,22 +97,25 @@ var Plugin = Class.extend({
 		//console.log('Registering asset events', 'Plugin Type -', instance._type);
 		if(asset.onclick) {
 	    	instance._self.cursor = "pointer";
-	    	var arr = asset.onclick.split(':');
-	    	//raise click event
-	    	if(arr[0] == 'theme') {
-	    		instance._self.on('click', function() {
-	    			instance._theme.dispatchEvent(arr[1]);
-	    		});
-	    	} else if(arr[0] == 'stage') {
-	    		instance._self.on('click', function() {
-	    			instance._stage.dispatchEvent(arr[1]);
-	    		});
-	    	} else {
-	    		//default to parent
-	    		instance._self.on('click', function() {
-	    			instance._parent.dispatchEvent(arr[1] || arr[0]);
-	    		});
-	    	}
+	    	var events = asset.onclick.split(',');
+	    	events.forEach(function(ev) {
+	    		var arr = ev.split(':');
+		    	//raise click event
+		    	if(arr[0] == 'theme') {
+		    		instance._self.on('click', function() {
+		    			instance._theme.dispatchEvent(arr[1]);
+		    		});
+		    	} else if(arr[0] == 'stage') {
+		    		instance._self.on('click', function() {
+		    			instance._stage.dispatchEvent(arr[1]);
+		    		});
+		    	} else {
+		    		//default to parent
+		    		instance._self.on('click', function() {
+		    			instance._parent.dispatchEvent(arr[1] || arr[0]);
+		    		});
+		    	}
+	    	});
 	    } else if(asset.onclick_command) {
 	    	instance._self.cursor = "pointer";
 	    	instance._self.on('click', function() {

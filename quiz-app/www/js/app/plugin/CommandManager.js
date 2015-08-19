@@ -11,6 +11,14 @@ var CommandManager = Class.extend({
 		var plugin = pluginManager.getPluginObject(id);
 		plugin.toggle();
 	},
+	show: function(id) {
+		var plugin = pluginManager.getPluginObject(id);
+		plugin.show();
+	},
+	hide: function(id) {
+		var plugin = pluginManager.getPluginObject(id);
+		plugin.hide();
+	},
 	stop: function(ids) {
 		if(ids) {
 			var idArray = ids.split(',');
