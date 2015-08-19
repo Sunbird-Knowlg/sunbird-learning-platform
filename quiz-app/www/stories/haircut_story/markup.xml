@@ -757,7 +757,7 @@ Hint
         <shape type="rect" x="9" y="17" w="20" h="20" hitArea="true" onclick="hideHint,stopLearning13Sound"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleLearning12Sound"/>
         <events>
-            <event on="previous" transition="scene21" effect="scroll" direction="right" ease="linear" duration="500"/>
+            <event on="previous" transition="scene20" effect="scroll" direction="right" ease="linear" duration="500"/>
             <event on="next" transition="scene22" effect="scroll" direction="left" ease="linear" duration="500"/>
             <event on="showHint" container="true" type="show" asset="hint" loop="1"/>
             <event on="hideHint" container="true" type="hide" asset="hint" loop="1"/>
