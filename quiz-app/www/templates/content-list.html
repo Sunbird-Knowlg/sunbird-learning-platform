@@ -1,4 +1,4 @@
-<ion-pane ng-show="!load.status">
+<ion-pane>
     <ion-content>
         <div id="bookshelf_slider" class="bookshelf_slider">
 
@@ -43,7 +43,7 @@
 
     </ion-content>
 </ion-pane>
-<div style="margin:auto; position:absolute;width:100%;height:100%;" ng-if="load.status">
+<div id="loadingDiv" style="margin:auto; position:absolute;width:100%;height:100%; background-color: #fff; z-index: 1000;">
     <div style="margin: auto; width: 100%; position: fixed; text-align: center; top: 50%; font-weight: bold;">
         <ion-spinner icon="bubbles"></ion-spinner>
         <div style="margin: auto; width: 100%; position: fixed; text-align: center; font-weight: bold;">

@@ -39,25 +39,25 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
     })
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
-        $scope.load = {
-            status: true,
-            message: "Loading..."
-        };
+        // $scope.load = {
+        //     status: true,
+        //     message: "Loading..."
+        // };
         setTimeout(function() {
             if (null == $localstorage.getObject('games')) {
                 $scope.getGames();
             } else {
-                $scope.load = {
-                    status: true,
-                    message: "Loading games..."
-                };
+                // $scope.load = {
+                //     status: true,
+                //     message: "Loading games..."
+                // };
                 $scope.$apply(function() {
                     $scope.games = $localstorage.getObject('games');
                     $scope.screeners = $localstorage.getObject('screeners');
-                    $scope.load = {
-                        status: false,
-                        message: "Loading..."
-                    };
+                    // $scope.load = {
+                    //     status: false,
+                    //     message: "Loading..."
+                    // };
                 });
                 $scope.loadBookshelf();
             }
@@ -77,11 +77,12 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         };
 
         $scope.resetGameCache = function() {
+            $("#loadingDiv").show();
             $localstorage.remove('games');
             $localstorage.remove('screeners');
             setTimeout(function() {
                 $scope.getGames();
-            }, 1000);
+            }, 100);
         }
 
         $scope.loadBookshelf = function() {
@@ -89,10 +90,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         };
 
         $scope.getGames = function() {
-            $scope.load = {
-                status: true,
-                message: "Loading games..."
-            };
+            // $scope.load = {
+            //     status: true,
+            //     message: "Loading games..."
+            // };
             GameService.getGamesLocal('screeners.json')
                 .then(function(resp) {
                     $localstorage.setObject('screeners', resp);
@@ -101,22 +102,22 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         .then(function(gamesResp) {
                             $localstorage.setObject('games', gamesResp);
                             $scope.games = $localstorage.getObject('games');
-                            $scope.load = {
-                                status: false,
-                                message: "Loading..."
-                            };
+                            // $scope.load = {
+                            //     status: false,
+                            //     message: "Loading..."
+                            // };
                             $scope.loadBookshelf();
                         }, function(err) {
-                            $scope.load = {
-                                status: false,
-                                message: "Loading..."
-                            };
+                            // $scope.load = {
+                            //     status: false,
+                            //     message: "Loading..."
+                            // };
                         });
                 }, function(err) {
-                    $scope.load = {
-                        status: false,
-                        message: "Loading..."
-                    };
+                    // $scope.load = {
+                    //     status: false,
+                    //     message: "Loading..."
+                    // };
                 });
 
         }
@@ -186,11 +187,6 @@ function initBookshelf($scope) {
             'folder': ''
         });
         $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
-        $scope.$apply(function() {
-            $scope.load = {
-                status: false,
-                message: "Loading..."
-            };
-        });
-    }, 500);
+        $("#loadingDiv").hide();
+    }, 100);
 }
