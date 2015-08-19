@@ -37,6 +37,9 @@ var ImagePlugin = Plugin.extend({
 	    if (data.hide) {
 	    	this._self.visible = false;
 		}
+		if(data.type == 'choice') {
+			this._stage._choices.push(this);
+		}
 		this.render();
 	},
 	getWidthHandler: function() {
@@ -45,6 +48,16 @@ var ImagePlugin = Plugin.extend({
 	    	plugin.scaleY = plugin.height / sb.height;
 	    	plugin.scaleX = plugin.width / sb.width;
 		}
+	},
+	toggleShadow: function() {
+		if(this._self.shadow) {
+			this._self.shadow = undefined;
+		} else {
+			this._self.shadow = new createjs.Shadow(this._data.shadowColor, 0, 0, 30);
+		}
+	},
+	removeShadow: function() {
+		this._self.shadow = undefined;
 	}
 });
 pluginManager.registerPlugin('image', ImagePlugin);

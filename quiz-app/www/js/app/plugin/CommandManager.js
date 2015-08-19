@@ -25,6 +25,13 @@ var CommandManager = Class.extend({
 	raiseEvent: function(id, eventType) {
 		var plugin = pluginManager.getPluginObject(id);
 		plugin.dispatchEvent(eventType);
+	},
+	toggleShadow: function(id) {
+		var plugin = pluginManager.getPluginObject(id);
+		plugin._stage._choices.forEach(function(choice) {
+			choice.removeShadow();
+		});
+		plugin.toggleShadow();
 	}
 });
 

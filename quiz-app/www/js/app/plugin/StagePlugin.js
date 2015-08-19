@@ -2,6 +2,7 @@ var StagePlugin = Plugin.extend({
     _type: 'stage',
     _repeat: 1,
     _stageData: undefined,
+    _choices: [],
     initPlugin: function(data) {
         var count = this._theme._stageRepeatCount[data.id] || 0;
         if (count <= 0) {

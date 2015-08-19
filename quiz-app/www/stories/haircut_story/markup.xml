@@ -1,13 +1,18 @@
 <theme>
     <manifest>
+        <media id="question_block" src="stories/haircut_story/assets/question_b.png" type="image" />
+        <media id="barber_img" src="stories/haircut_story/assets/barber.png" type="image" />
+        <media id="carpenter_img" src="stories/haircut_story/assets/carpenter.png" type="image" />
+        <media id="tailor_img" src="stories/haircut_story/assets/tailor.png" type="image" />
+        <media id="wife_img" src="stories/haircut_story/assets/wife.png" type="image" />
         <media id="level_band" src="stories/haircut_story/assets/level_band.png" type="image" />
         <media id="publisher_logo" src="stories/haircut_story/assets/publisher_logo.jpg" type="image" />
         <media id="previous" src="stories/haircut_story/assets/icon_previous.png" type="image" />
         <media id="next" src="stories/haircut_story/assets/icon_next.png" type="image" />
+        <media id="icon_sound" src="stories/haircut_story/assets/icon_sound.png" type="image" />
         <media id="start" src="stories/haircut_story/assets/start.png" type="image" />
         <media id="speech_bubble" src="stories/haircut_story/assets/speech_bubble.png" type="image" />
         <media id="sringeri" src="stories/haircut_story/assets/sringeri.png" type="image" />
-        
         <media id="clock_sound" src="stories/haircut_story/assets/sounds/clock_sound.mp3" type="sound" />
         <media id="tree_frogs_and_birds_sound" src="stories/haircut_story/assets/sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
         <media id="water_sound" src="stories/haircut_story/assets/sounds/water_sound.mp3" type="sound" />
@@ -16,6 +21,27 @@
         <media id="forest_sound" src="stories/haircut_story/assets/sounds/forest_sound.mp3" type="sound" />
         <media id="tiger_sound" src="stories/haircut_story/assets/sounds/tiger_sound.mp3" type="sound" />
         <media id="teapot_rhyme" src="stories/haircut_story/assets/sounds/teapot_rhyme.wav" type="sound" />
+
+        <media id="cover_sound" src="stories/haircut_story/assets/sounds/scenes/cover.mp3" type="sound" />
+        <media id="scene1_sound" src="stories/haircut_story/assets/sounds/scenes/scene1.mp3" type="sound" />
+        <media id="scene2_sound" src="stories/haircut_story/assets/sounds/scenes/scene2.mp3" type="sound" />
+        <media id="scene3_sound" src="stories/haircut_story/assets/sounds/scenes/scene3.mp3" type="sound" />
+        <media id="scene4_sound" src="stories/haircut_story/assets/sounds/scenes/scene4.mp3" type="sound" />
+        <media id="scene5_sound" src="stories/haircut_story/assets/sounds/scenes/scene5.mp3" type="sound" />
+        <media id="scene6_sound" src="stories/haircut_story/assets/sounds/scenes/scene6.mp3" type="sound" />
+        <media id="scene7_sound" src="stories/haircut_story/assets/sounds/scenes/scene7.mp3" type="sound" />
+        <media id="scene8_sound" src="stories/haircut_story/assets/sounds/scenes/scene8.mp3" type="sound" />
+        <media id="scene9_sound" src="stories/haircut_story/assets/sounds/scenes/scene9.mp3" type="sound" />
+        <media id="scene10_sound" src="stories/haircut_story/assets/sounds/scenes/scene10.mp3" type="sound" />
+        <media id="scene11_sound" src="stories/haircut_story/assets/sounds/scenes/scene11.mp3" type="sound" />
+        <media id="scene12_sound" src="stories/haircut_story/assets/sounds/scenes/scene12.mp3" type="sound" />
+        <media id="scene13_sound" src="stories/haircut_story/assets/sounds/scenes/scene13.mp3" type="sound" />
+        <media id="scene14_sound" src="stories/haircut_story/assets/sounds/scenes/scene14.mp3" type="sound" />
+        <media id="scene15_sound" src="stories/haircut_story/assets/sounds/scenes/scene15.mp3" type="sound" />
+        <media id="scene16_sound" src="stories/haircut_story/assets/sounds/scenes/scene16.mp3" type="sound" />
+        <media id="scene17_sound" src="stories/haircut_story/assets/sounds/scenes/scene17.mp3" type="sound" />
+        <media id="scene18_sound" src="stories/haircut_story/assets/sounds/scenes/scene18.mp3" type="sound" />
+        <media id="scene19_sound" src="stories/haircut_story/assets/sounds/scenes/scene19.mp3" type="sound" />
 
         <media id="A4_sound" src="stories/haircut_story/assets/sounds/xylophone/A4_sound.mp3" type="sound" />
         <media id="A5_sound" src="stories/haircut_story/assets/sounds/xylophone/A5_sound.mp3" type="sound" />
@@ -53,6 +79,7 @@
     </manifest>
     <datasource asset="story_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+        <audio id="cover_sound"/>
         <image asset="page1" x="2" y="2" w="96" h="70"/>
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
         <image asset="level_band" x="2" y="94" w="13" h="5"/>
@@ -76,26 +103,33 @@
             Angie &amp; Upesh
         </text>
         <events>
+            <event on="enter" audio="true" type="play" asset="cover_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
             <event on="next" transition="scene1" effect="scroll" direction="left" ease="linear" duration="1000"/>
         </events>
     </stage>
 
     <stage id="scene1" x="0" y="0" w="100" h="100">
         <audio id="clock_sound"/>
+        <audio id="scene1_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
         <image asset="page2" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene1Sound"/>
         <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true" onclick="toggleClockSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
+            <event on="enter" audio="true" type="play" asset="scene1_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene1Sound" audio="true" type="toggle" asset="scene1_sound" loop="1"/>
             <event on="previous" transition="splash" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene2" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleClockSound" audio="true" type="toggle" asset="clock_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene2" x="0" y="0" w="100" h="100">
+        <audio id="scene2_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <audio id="water_sound"/>
         <audio id="A4_sound"/>
@@ -112,8 +146,9 @@
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri" onclick="moveSringeri"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene2Sound"/>
 
         <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true" onclick="toggleTreeSound"/>
         <shape type="circle" x="58" y="37" w="3.5" h="3.5" hitArea="true" onclick="toggleWaterSound"/>
@@ -164,7 +199,9 @@
             <event on="toggleD5" audio="true" type="toggle" asset="D5_sound" loop="1"/>
 
             <event on="moveSringeri" animate="sringeriWalking" asset="sringeri"/>
+            <event on="enter" audio="true" type="play" asset="scene2_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene2Sound" audio="true" type="toggle" asset="scene2_sound" loop="1"/>
         </events>
         <animate id="sringeriWalking" type="tween">
             <to ease="linear" duration="500"><![CDATA[{"x":20,"y":20}]]></to>
@@ -176,134 +213,100 @@
         </animate>
     </stage>
     <stage id="scene3" x="0" y="0" w="100" h="100">
-        
-        <image asset="page4" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
-        <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
-
+        <audio id="scene3_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
-
-		<g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="150">
-Razor
-	        </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-Razor is used to cut hair
-	        </text>
-        </g>
-
-        <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="125">
-Barber
-	        </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-Barber is cutting hair
-Barber uses Razor and Scissors 
-to Cut hair
-	        </text>
-        </g>
-
-        <shape type="rect" x="63" y="30" w="5" h="13" hitArea="true" onclick="toggleRazorInfo"/>
-        <shape type="rect" x="53" y="45" w="18" h="25" hitArea="true" onclick="toggleBarberInfo"/>
-
+        <image asset="page4" x="2" y="12" w="96" h="86"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene3Sound"/>
+        <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene2" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene4" effect="scroll" direction="left" ease="linear" duration="1000"/>
-            <event on="toggleRazorInfo" container="true" type="toggle" asset="razorInfo" />
-            <event on="toggleBarberInfo" container="true" type="toggle" asset="barberInfo" />
+            <event on="enter" audio="true" type="play" asset="scene3_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene3Sound" audio="true" type="toggle" asset="scene3_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene4" x="0" y="0" w="100" h="100">
+        <audio id="scene4_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
         <image asset="page5" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene4Sound"/>
         <shape type="rect" x="0" y="40" w="23" h="58" hitArea="true" onclick="toggleTreeSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene3" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene5" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleTreeSound" audio="true" type="toggle" asset="tree_frogs_and_birds_sound" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene4_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene4Sound" audio="true" type="toggle" asset="scene4_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene5" x="0" y="0" w="100" h="100">
-        
-        <image asset="page6" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
-
+        <audio id="scene5_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
-
-		<g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="150">
-Knife
-	        </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-Knife is used to cut vegetables
-	        </text>
-        </g>
-
-        <g x="28" y="12" w="30" h="27" id="wifeInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <text x="10" y="20" w="80" h="80" font="Georgia" fontsize="125">
-Sringeri Srinivas's Wife
-	        </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-Wife is cooking food
-Wife uses a Knife to Cut vegetables
-	        </text>
-        </g>
-
-        <shape type="rect" x="20" y="28" w="12" h="22" hitArea="true" onclick="toggleWifeInfo"/>
-        <shape type="rect" x="13" y="20" w="6" h="22" hitArea="true" onclick="toggleKnifeInfo"/>
-
+        <image asset="page6" x="2" y="12" w="96" h="86"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene5Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene4" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene6" effect="scroll" direction="left" ease="linear" duration="1000"/>
-            <event on="toggleWifeInfo" container="true" type="toggle" asset="wifeInfo" />
-            <event on="toggleKnifeInfo" container="true" type="toggle" asset="knifeInfo" />
+            <event on="enter" audio="true" type="play" asset="scene5_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene5Sound" audio="true" type="toggle" asset="scene5_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene6" x="0" y="0" w="100" h="100">
+        <audio id="scene6_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
         <image asset="page7" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene6Sound"/>
         <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true" onclick="toggleTreeSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene5" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene7" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleTreeSound" audio="true" type="toggle" asset="tree_frogs_and_birds_sound" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene6_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene6Sound" audio="true" type="toggle" asset="scene6_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene7" x="0" y="0" w="100" h="100">
+        <audio id="scene7_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8"/>
         <image asset="page8" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene7Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene6" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene8" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene7_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene7Sound" audio="true" type="toggle" asset="scene7_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene8" x="0" y="0" w="100" h="100">
+        <audio id="scene8_sound"/>
         <audio id="cow_sound"/>
         <audio id="teapot_rhyme"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9"/>
         <image asset="page9" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene8Sound"/>
         <g x="18" y="20" w="30" h="27" id="teapotInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
             <placeholder param="kettle_title" x="8" y="17" w="86" h="4" font="Arial" weight="bold" fontsize="128"/>
@@ -322,52 +325,70 @@ Wife uses a Knife to Cut vegetables
             <event on="toggleCowSound" audio="true" type="toggle" asset="cow_sound" loop="1"/>
             <event on="toggleTeapotInfo" container="true" type="toggle" asset="teapotInfo"/>
             <event on="toggleTeapotRhyme" audio="true" type="toggle" asset="teapot_rhyme" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene8_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene8Sound" audio="true" type="toggle" asset="scene8_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene9" x="0" y="0" w="100" h="100">
+        <audio id="scene9_sound"/>
         <audio id="saw_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB"/>
         <image asset="page10" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene9Sound"/>
         <shape type="rect" x="60" y="17" w="10" h="42" hitArea="true" onclick="toggleSawSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene8" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene10" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleSawSound" audio="true" type="toggle" asset="saw_sound" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene9_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene9Sound" audio="true" type="toggle" asset="scene9_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene10" x="0" y="0" w="100" h="100">
+        <audio id="scene10_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page11" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene10Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene9" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene11" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene10_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene10Sound" audio="true" type="toggle" asset="scene10_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene11" x="0" y="0" w="100" h="100">
+        <audio id="scene11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
         <image asset="page12" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene11Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene10" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene12" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene11_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene11Sound" audio="true" type="toggle" asset="scene11_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene12" x="0" y="0" w="100" h="100">
+        <audio id="scene12_sound"/>
         <audio id="forest_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
         <image asset="page13" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene12Sound"/>
         <shape type="rect" x="70" y="12" w="28" h="86" hitArea="true" onclick="toggleForestSound"/>
         <shape type="rect" x="2" y="50" w="23" h="48" hitArea="true" onclick="toggleForestSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -375,87 +396,155 @@ Wife uses a Knife to Cut vegetables
             <event on="previous" transition="scene11" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene13" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleForestSound" audio="true" type="toggle" asset="forest_sound" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene12_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene12Sound" audio="true" type="toggle" asset="scene12_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene13" x="0" y="0" w="100" h="100">
+        <audio id="scene13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
         <image asset="page14" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene13Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene12" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene14" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene13_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene13Sound" audio="true" type="toggle" asset="scene13_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene14" x="0" y="0" w="100" h="100">
+        <audio id="scene14_sound"/>
         <audio id="tiger_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page15" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene14Sound"/>
         <shape type="rect" x="36" y="30" w="62" h="52" hitArea="true" onclick="toggleTigerSound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene13" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene15" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleTigerSound" audio="true" type="toggle" asset="tiger_sound" loop="1"/>
+            <event on="enter" audio="true" type="play" asset="scene14_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene14Sound" audio="true" type="toggle" asset="scene14_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene15" x="0" y="0" w="100" h="100">
+        <audio id="scene15_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page16" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene15Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene14" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene16" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene15_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene15Sound" audio="true" type="toggle" asset="scene15_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene16" x="0" y="0" w="100" h="100">
+        <audio id="scene16_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page17" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene16Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene15" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene17" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene16_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene16Sound" audio="true" type="toggle" asset="scene16_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene17" x="0" y="0" w="100" h="100">
+        <audio id="scene17_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
         <image asset="page18" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene17Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene16" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene18" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene17_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene17Sound" audio="true" type="toggle" asset="scene17_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene18" x="0" y="0" w="100" h="100">
+        <audio id="scene18_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
         <image asset="page19" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene18Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene17" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="scene19" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene18_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene18Sound" audio="true" type="toggle" asset="scene18_sound" loop="1"/>
         </events>
     </stage>
     <stage id="scene19" x="0" y="0" w="100" h="100">
+        <audio id="scene19_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
         <image asset="page20" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <image asset="icon_sound" x="94" y="92" w="3" h="5" onclick="stage:toggleScene19Sound"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene18" effect="scroll" direction="right" ease="linear" duration="1000"/>
+            <event on="next" transition="scene20" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="enter" audio="true" type="play" asset="scene19_sound" loop="1"/>
+            <event on="exit" audio="true" type="stop" loop="1"/>
+            <event on="toggleScene19Sound" audio="true" type="toggle" asset="scene19_sound" loop="1"/>
+        </events>
+    </stage>
+    <stage id="scene20" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="question_block" x="5" y="15" w="9" h="16"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <events>
+            <event on="previous" transition="scene19" effect="scroll" direction="right" ease="linear" duration="1000"/>
+            <event on="next" transition="scene21" effect="scroll" direction="left" ease="linear" duration="1000"/>
+        </events>
+    </stage>
+    <stage id="scene21" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
+        <image asset="question_block" x="5" y="15" w="9" h="16"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <events>
+            <event on="previous" transition="scene20" effect="scroll" direction="right" ease="linear" duration="1000"/>
             <event on="next" transition="splash" effect="scroll" direction="left" ease="linear" duration="1000"/>
         </events>
     </stage>

@@ -43,5 +43,6 @@ Renderer = {
     },
     startCanvas: function() {
         Renderer.theme.render();
+        $('#gameAreaLoad').hide();
     }
 }
