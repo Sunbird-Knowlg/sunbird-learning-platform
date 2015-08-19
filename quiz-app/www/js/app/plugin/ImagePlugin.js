@@ -15,6 +15,8 @@ var ImagePlugin = Plugin.extend({
 	        s.scaleX = dims.w / sb.width;
 	    }
 	    this._self = s;
+	    this._self.origX = dims.x;
+	    this._self.origY = dims.y;
 	    this._self.width=dims.w;
 	    this._self.height=dims.h;
 	    this.animate_on_show = data.animate_on_show;
@@ -40,6 +42,9 @@ var ImagePlugin = Plugin.extend({
 		if(data.type == 'choice') {
 			this._stage._choices.push(this);
 		}
+		if(data.enableDrag) {
+			this.enableDrag(this._self, data.snapTo);
+		}
 		this.render();
 	},
 	getWidthHandler: function() {
@@ -58,6 +63,40 @@ var ImagePlugin = Plugin.extend({
 	},
 	removeShadow: function() {
 		this._self.shadow = undefined;
+	},
+	enableDrag: function(asset, snapTo) {
+		asset.cursor = "pointer";
+        asset.on("mousedown", function(evt) {
+            this.parent.addChild(this);
+            this.offset = {
+                x: this.x - evt.stageX,
+                y: this.y - evt.stageY
+            };
+        });
+        asset.on("pressmove", function(evt) {
+            this.x = evt.stageX + this.offset.x;
+            this.y = evt.stageY + this.offset.y;
+        });
+        if(snapTo) {
+        	asset.on("pressup", function(evt) {
+        		var plugin = pluginManager.getPluginObject(snapTo);
+        		var dims = plugin._dimensions;
+        		var x = dims.x,
+        			y = dims.y,
+        			maxX = dims.x + dims.w,
+        			maxY = dims.y + dims.h;
+        		var snapSuccess = false;
+        		if(this.x >= x && this.x <= maxX) {
+        			if(this.y >= y && this.y <= maxY) {
+        				snapSuccess = true;
+        			}
+        		}
+        		if(!snapSuccess) {
+        			this.x = this.origX;
+        			this.y = this.origY;
+        		}
+        	});
+        }
 	}
 });
 pluginManager.registerPlugin('image', ImagePlugin);

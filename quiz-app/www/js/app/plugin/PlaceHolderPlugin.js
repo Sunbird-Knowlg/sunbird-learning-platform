@@ -8,7 +8,7 @@ var PlaceHolderPlugin = Plugin.extend({
 		if (stageData) {
 			instance.param = stageData.params[data.param];
 			if (instance.param.type == 'gridLayout') {
-				instance.renderGridLayout(instance._parent, instance);
+				instance.renderGridLayout(instance._parent, instance, data);
 			} else if (instance.param.type == 'image') {
 				instance.renderImage(instance);
 			} else if (instance.param.type == 'text') {
@@ -28,7 +28,7 @@ var PlaceHolderPlugin = Plugin.extend({
 		data.asset = param.asset;
 		pluginManager.invoke('image', data, instance._parent, instance._stage, instance._theme);
 	},
-	renderGridLayout: function(parent, instance) {
+	renderGridLayout: function(parent, instance, data) {
 		var computePixel = function(area, repeat) {
         	return Math.floor(Math.sqrt(parseFloat(area / repeat)))
     	}
@@ -46,7 +46,7 @@ var PlaceHolderPlugin = Plugin.extend({
 	        return imgCont;
 	    }
 
-	    var enableDrag = function(asset) {
+	    var enableDrag = function(asset, snapTo) {
 	    	asset.cursor = "pointer";
 	        asset.on("mousedown", function(evt) {
 	            this.parent.addChild(this);
@@ -60,8 +60,26 @@ var PlaceHolderPlugin = Plugin.extend({
 	            this.y = evt.stageY + this.offset.y;
 	            Renderer.update = true;
 	        });
-	        asset.on("pressup", function(evt) {
-	        });
+	        if(snapTo) {
+	        	asset.on("pressup", function(evt) {
+	        		var plugin = pluginManager.getPluginObject(data.snapTo);
+	        		var dims = plugin._dimensions;
+	        		var x = dims.x,
+	        			y = dims.y,
+	        			maxX = dims.x + dims.w,
+	        			maxY = dims.y + dims.h;
+	        		var snapSuccess = false;
+	        		if(this.x >= x && this.x <= maxX) {
+	        			if(this.y >= y && this.y <= maxY) {
+	        				snapSuccess = true;
+	        			}
+	        		}
+	        		if(!snapSuccess) {
+	        			this.x = this.origX;
+	        			this.y = this.origY;
+	        		}
+	        	});
+	        }
 	    }
 
 	    var x = instance.dimensions().x,
@@ -94,9 +112,11 @@ var PlaceHolderPlugin = Plugin.extend({
 	        }
 	        clonedAsset.x = x + pad;
 	        clonedAsset.y = y + pad;
+	        clonedAsset.origX = x + pad;
+	        clonedAsset.origY = y + pad;
 	        x += pixelPerImg;
 	        if (instance._data.enabledrag) {
-	            enableDrag(clonedAsset);
+	            enableDrag(clonedAsset, data.snapTo);
 	        }
 	        parent.addChild(clonedAsset);
 	    }
