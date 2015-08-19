@@ -113,6 +113,11 @@ var Plugin = Class.extend({
 	    			instance._parent.dispatchEvent(arr[1] || arr[0]);
 	    		});
 	    	}
+	    } else if(asset.onclick_command) {
+	    	instance._self.cursor = "pointer";
+	    	instance._self.on('click', function() {
+	    		eval('commandManager.' + asset.onclick_command + '("'+asset.id+'")');
+	    	});
 	    }
 	},
 	containerEvents: function(data) {
