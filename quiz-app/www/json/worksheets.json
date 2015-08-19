@@ -15,19 +15,22 @@
         "name": "Addition through Objects",
         "description": "Addition through Objects",
         "appIcon": "assets/noah.png",
-        "launchUrl": "worksheets/worksheet1/markup.xml"
+        "launchUrl": "worksheets/worksheet1/markup.xml",
+        "loadingMessage": "Loading \"Addition through Objects\" assets..."
       },
       {
         "name": "Counting Numbers",
-        "description": "Counting Numbers",
+        "description": "",
         "appIcon": "assets/kitchensink.jpg",
-        "launchUrl": "worksheets/worksheet2/markup.xml"
+        "launchUrl": "worksheets/worksheet2/markup.xml",
+        "loadingMessage": "Loading \"Counting Numbers\" assets..."
       },
       {
         "name": "Annual Haircut Day",
         "description": "Sringeri Srinivas Annual Haircut Day",
         "appIcon": "assets/haircut.png",
-        "launchUrl": "stories/haircut_story/markup.xml"
+        "launchUrl": "stories/haircut_story/markup.xml",
+        "loadingMessage": "Every great journey starts with a great story..."
       }
     ],
     "ttl": 24
