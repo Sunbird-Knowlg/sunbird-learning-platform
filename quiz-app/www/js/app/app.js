@@ -16,7 +16,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                initBookshelf();
+                // initBookshelf();
             });
         });
     })
@@ -85,7 +85,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
         $scope.loadBookshelf = function() {
-            initBookshelf();
+            initBookshelf($scope);
         };
 
         $scope.getGames = function() {
@@ -157,7 +157,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     });
 
 
-function initBookshelf() {
+function initBookshelf($scope) {
     setTimeout(function() {
         var widthToHeight = 16 / 9;
         var newWidth = window.innerWidth;
@@ -186,5 +186,11 @@ function initBookshelf() {
             'folder': ''
         });
         $(".panel_slider").height($(".view-container").height() - $(".panel_title").height() - $(".panel_bar").height());
-    }, 500); 
+        $scope.$apply(function() {
+            $scope.load = {
+                status: false,
+                message: "Loading..."
+            };
+        });
+    }, 500);
 }
