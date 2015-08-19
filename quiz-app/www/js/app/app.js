@@ -33,7 +33,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentListCtrl'
             })
             .state('playWorksheet', {
-                url: "/play/worksheet/:launchUrl",
+                url: "/play/worksheet/:name/:launchUrl",
                 // templateUrl: "templates/worksheet-template.html",
                 templateUrl: "worksheet1.html",
                 controller: 'WorksheetCtrl'
@@ -122,9 +122,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
         }
 
-        $scope.playWorksheet = function(launchUrl) {
+        $scope.playWorksheet = function(worksheet) {
             $state.go('playWorksheet', {
-                'launchUrl': launchUrl
+                'name': worksheet.name,
+                'launchUrl': worksheet.launchUrl
             });
         }
 
@@ -141,7 +142,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
     }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage, $stateParams) {
-        if ($stateParams.launchUrl) {
+        if ($stateParams.launchUrl && $stateParams.name) {
+            $scope.itemName = $stateParams.name;
             $http.get($stateParams.launchUrl)
                 .then(function(data) {
                     Renderer.init(data.data, 'gameCanvas');
@@ -150,6 +152,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                     $state.go('contentList');
                 });
         } else {
+            alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
 

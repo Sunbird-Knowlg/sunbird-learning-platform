@@ -1,17 +1,12 @@
+<div id="gameAreaLoad" style="margin:auto; position:absolute;width:100%;height:100%;">
+	<div style="margin: auto; width: 100%; position: fixed; text-align: center; top: 50%; font-weight: bold;">
+	    <ion-spinner icon="spiral"></ion-spinner>
+	    <div style="margin: auto; width: 100%; position: fixed; text-align: center; font-weight: bold;">
+			Loading "{{itemName || 'game'}}" assets...
+		</div>
+	</div>
+</div>
+
 <div id="gameArea">
   	<canvas id="gameCanvas" width="1366" height="768"></canvas>
 </div>
-<script>
-// Rules
-// 1. A display object of type Asset cannot contain another asset or container
-// 2. A display object of type container can contain another asset or a container
-// $(document).ready(function() {
-//     $.get('worksheets/worksheet1/markup.json',
-//         function(data) {
-//             Renderer.init(data, 'gameCanvas');
-//         },
-//         'json').fail(function() {
-//     alert( "error" );
-//   });
-// });
-</script>
