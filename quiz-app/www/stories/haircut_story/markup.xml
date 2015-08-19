@@ -518,14 +518,14 @@
     </stage>
     <stage id="scene20" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
-        <shape x="2" y="10.5" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene19" effect="scroll" direction="right" ease="linear" duration="1000"/>
@@ -534,14 +534,14 @@
     </stage>
     <stage id="scene21" x="0" y="0" w="100" h="100">
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
-        <shape x="2" y="10.5" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" onclick_command="toggleShadow" type="choice" shadowColor="#0470D8"/>
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
-        <image asset="next" x="94" y="4" w="3" h="5" onclick="stage:next"/>
-        <image asset="previous" x="3" y="4" w="3" h="5" onclick="stage:previous"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
         <placeholder param="body" x="7" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene20" effect="scroll" direction="right" ease="linear" duration="1000"/>
