@@ -1,5 +1,9 @@
 <theme>
     <manifest>
+        <media id="razor" src="stories/haircut_story/assets/razor.png" type="image"/>
+        <media id="scissors" src="stories/haircut_story/assets/scissors.gif" type="image"/>
+        <media id="saw" src="stories/haircut_story/assets/saw.png" type="image"/>
+        <media id="knife" src="stories/haircut_story/assets/knife.gif" type="image"/>
         <media id="question_block" src="stories/haircut_story/assets/question_b.png" type="image" />
         <media id="barber_img" src="stories/haircut_story/assets/barber.png" type="image" />
         <media id="carpenter_img" src="stories/haircut_story/assets/carpenter.png" type="image" />
@@ -683,11 +687,31 @@ Hint
             <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
         </g>
 
-        <image asset="icon_hint" x="5" y="35" onclick="stage:toggleHint"/>        
+        <image asset="icon_hint" x="5" y="35" onclick="stage:toggleHint"/>
         <events>
-            <event on="previous" transition="scene20" effect="scroll" direction="right" ease="linear" duration="1000"/>
-            <event on="next" transition="splash" effect="scroll" direction="left" ease="linear" duration="1000"/>
+            <event on="previous" transition="scene21" effect="scroll" direction="right" ease="linear" duration="1000"/>
+            <event on="next" transition="scene22" effect="scroll" direction="left" ease="linear" duration="1000"/>
             <event on="toggleHint" container="true" type="toggle" asset="hint" loop="1"/>
+        </events>
+    </stage>
+    <stage id="scene22" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40"/>
+        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40"/>
+        <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40"/>
+        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40"/>
+        <image asset="question_block" x="5" y="15" w="9" h="16"/>
+        <image asset="razor" id="razor" x="5" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img"/>
+        <image asset="scissors" id="scissors" x="5" y="55" w="9" h="16" enableDrag="true" snapTo="tailor_img"/>
+        <image asset="knife" id="knife" x="5" y="70" w="9" h="16" enableDrag="true" snapTo="wife_img"/>
+        <image asset="saw" id="saw" x="5" y="82" w="9" h="16" enableDrag="true" snapTo="carpenter_img"/>
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <events>
+            <event on="previous" transition="scene21" effect="scroll" direction="right" ease="linear" duration="1000"/>
+            <event on="next" transition="splash" effect="scroll" direction="left" ease="linear" duration="1000"/>
         </events>
     </stage>
 </theme>

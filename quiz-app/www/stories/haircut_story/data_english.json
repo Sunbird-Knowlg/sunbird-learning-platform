@@ -194,5 +194,17 @@
 				"asset": "Carpenter has a hammer and nail."
 			}
 		}
+	},
+	"scene22": {
+		"params": {
+			"body" : {
+				"type": "text",
+				"asset": "Match the following."
+			},
+			"hint" : {
+				"type": "text",
+				"asset": "Carpenter has a hammer and nail."
+			}
+		}
 	}
 }
