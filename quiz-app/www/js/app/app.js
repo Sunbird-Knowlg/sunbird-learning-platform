@@ -44,7 +44,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         //     message: "Loading..."
         // };
         setTimeout(function() {
-            if (null == $localstorage.getObject('games')) {
+            if (null == $localstorage.getObject('stories')) {
                 $scope.getGames();
             } else {
                 // $scope.load = {
@@ -54,6 +54,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 $scope.$apply(function() {
                     $scope.games = $localstorage.getObject('games');
                     $scope.screeners = $localstorage.getObject('screeners');
+                    $scope.stories = $localstorage.getObject('stories');
                     // $scope.load = {
                     //     status: false,
                     //     message: "Loading..."
@@ -78,6 +79,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
         $scope.resetGameCache = function() {
             $("#loadingDiv").show();
+            $localstorage.remove('stories');
             $localstorage.remove('games');
             $localstorage.remove('screeners');
             setTimeout(function() {
@@ -102,22 +104,16 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         .then(function(gamesResp) {
                             $localstorage.setObject('games', gamesResp);
                             $scope.games = $localstorage.getObject('games');
-                            // $scope.load = {
-                            //     status: false,
-                            //     message: "Loading..."
-                            // };
-                            $scope.loadBookshelf();
+                            GameService.getGamesLocal('stories.json')
+                                .then(function(storiesResp) {
+                                    $localstorage.setObject('stories', storiesResp);
+                                    $scope.stories = $localstorage.getObject('stories');
+                                    $scope.loadBookshelf();
+                                }, function(err) {
+                                });
                         }, function(err) {
-                            // $scope.load = {
-                            //     status: false,
-                            //     message: "Loading..."
-                            // };
                         });
                 }, function(err) {
-                    // $scope.load = {
-                    //     status: false,
-                    //     message: "Loading..."
-                    // };
                 });
 
         }
