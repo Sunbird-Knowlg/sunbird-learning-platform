@@ -175,7 +175,11 @@
 		"params": {
 			"body" : {
 				"type": "text",
-				"asset": "Find the Barber. Barber has Scissors to Cut hair."
+				"asset": "Find the Barber."
+			},
+			"hint" : {
+				"type": "text",
+				"asset": "Barber has Scissors to Cut hair."
 			}
 		}
 	},
@@ -183,7 +187,11 @@
 		"params": {
 			"body" : {
 				"type": "text",
-				"asset": "Find the Carpenter. Carpenter has a hammer and nail."
+				"asset": "Find the Carpenter."
+			},
+			"hint" : {
+				"type": "text",
+				"asset": "Carpenter has a hammer and nail."
 			}
 		}
 	}
