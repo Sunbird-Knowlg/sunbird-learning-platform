@@ -199,11 +199,23 @@
 		"params": {
 			"body" : {
 				"type": "text",
-				"asset": "Match the tools to the persons."
+				"asset": "Match the tools to the people."
 			},
 			"hint" : {
 				"type": "text",
-				"asset": "Carpenter has a hammer and nail."
+				"asset": "Carpenter uses this to cut wood."
+			}
+		}
+	},
+	"scene23": {
+		"params": {
+			"body" : {
+				"type": "text",
+				"asset": "Take me home. Take each person to their home."
+			},
+			"hint" : {
+				"type": "text",
+				"asset": "The tailor is surrounded by clothers to stitch."
 			}
 		}
 	}

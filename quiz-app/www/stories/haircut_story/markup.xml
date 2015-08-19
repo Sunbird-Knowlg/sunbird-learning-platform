@@ -94,10 +94,17 @@
         <media id="page19" src="stories/haircut_story/assets/scenes/image_19.jpg" type="image" />
         <media id="page20" src="stories/haircut_story/assets/scenes/image_20.jpg" type="image" />
 
+        <media id="t-outer" src="stories/haircut_story/assets/tailor-outer.png" type="image" />
+        <media id="t-inner" src="stories/haircut_story/assets/tailor-inner.png" type="image" />
+        <media id="w-outer" src="stories/haircut_story/assets/wife-outer.png" type="image" />
+        <media id="w-inner" src="stories/haircut_story/assets/wife-inner.png" type="image" />
+        <media id="b-outer" src="stories/haircut_story/assets/barber-outer.png" type="image" />
+        <media id="b-inner" src="stories/haircut_story/assets/barber-inner.png" type="image" />
+
         <media id="story_data" src="stories/haircut_story/data_english.json" type="json" />
     </manifest>
     <datasource asset="story_data"/>
-    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+    <stage start="true" id="splash" x="0" y="0" w="100" h="100">
         <audio id="cover_sound"/>
         <image asset="page1" x="2" y="2" w="96" h="70"/>
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
@@ -785,7 +792,39 @@ Hint
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event on="previous" transition="scene21" effect="scroll" direction="right" ease="linear" duration="500"/>
+            <event on="next" transition="scene23" effect="scroll" direction="left" ease="linear" duration="500"/>
+        </events>
+    </stage>
+    <stage id="scene23" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+
+        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25"/>
+        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25"/>
+        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25"/>
+
+        <image asset="t-inner" id="t-inner" x="70" y="15" w="12" h="20" enableDrag="true" snapTo="t-outer"/>
+        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="20" enableDrag="true" snapTo="b-outer"/>
+        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="20" enableDrag="true" snapTo="w-outer"/>
+
+        <image asset="question_block" x="5" y="15" w="9" h="16"/>
+
+        <image asset="next" x="93" y="3" w="5" h="8.3" onclick="stage:next"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" onclick="stage:previous"/>
+        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+
+        <g x="9" y="17" w="20" h="20" id="hint" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
+Hint
+	        </text>
+            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+        </g>
+        <image asset="icon_hint" x="5" y="35" onclick="showHint"/>
+        <events>
+            <event on="previous" transition="scene22" effect="scroll" direction="right" ease="linear" duration="500"/>
             <event on="next" transition="splash" effect="scroll" direction="left" ease="linear" duration="500"/>
+            <event on="showHint" container="true" type="toggle" asset="hint" loop="1"/>
         </events>
     </stage>
 </theme>
