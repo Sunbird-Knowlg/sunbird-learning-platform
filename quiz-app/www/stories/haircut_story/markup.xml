@@ -249,7 +249,7 @@
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleScene3Sound"/>
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:stopLearning2Sound,stage:hideRazorInfo"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Razor
 	        </text>
@@ -258,7 +258,7 @@ Razor is used to cut hair
 	        </text>
         </g>
         <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:stopLearning1Sound,stage:hideBarberInfo"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="125">
 Barber
 	        </text>
@@ -270,8 +270,6 @@ to Cut hair
         </g>
         <shape type="rect" x="63" y="30" w="5" h="13" hitArea="true" onclick="showRazorInfo,playLearning2Sound"/>
         <shape type="rect" x="53" y="45" w="18" h="25" hitArea="true" onclick="showBarberInfo,playLearning1Sound"/>
-        <shape type="rect" x="65" y="20" w="30" h="27" hitArea="true" onclick="stopLearning1Sound,hideBarberInfo"/>
-        <shape type="rect" x="63" y="15" w="20" h="20" hitArea="true" onclick="stopLearning2Sound,hideRazorInfo"/>
         <events>
             <event on="previous" transition="scene2" effect="scroll" direction="right" ease="linear" duration="500"/>
             <event on="next" transition="scene4" effect="scroll" direction="left" ease="linear" duration="500"/>
@@ -319,7 +317,7 @@ to Cut hair
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideKnifeInfo,stage:stopLearning4Sound"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Knife
             </text>
@@ -329,7 +327,7 @@ Knife is used to cut vegetables
         </g>
 
         <g x="28" y="12" w="30" h="27" id="wifeInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideWifeInfo,stage:stopLearning3Sound"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="125">
 Sringeri Srinivas's Wife
             </text>
@@ -341,8 +339,6 @@ Wife uses a Knife to Cut vegetables
 
         <shape type="rect" x="20" y="28" w="12" h="22" hitArea="true" onclick="showWifeInfo,playLearning3Sound"/>
         <shape type="rect" x="13" y="20" w="6" h="22" hitArea="true" onclick="showKnifeInfo,playLearning4Sound"/>
-        <shape type="rect" x="28" y="12" w="30" h="27" hitArea="true" onclick="hideWifeInfo,stopLearning3Sound"/>
-        <shape type="rect" x="15" y="8" w="20" h="20" hitArea="true" onclick="hideKnifeInfo,stopLearning4Sound"/>
 
         <events>
             <event on="previous" transition="scene4" effect="scroll" direction="right" ease="linear" duration="500"/>
@@ -391,7 +387,7 @@ Wife uses a Knife to Cut vegetables
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleScene7Sound"/>
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="40" y="15" w="30" h="27" id="tailorInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideTailorInfo,stage:stopLearning5Sound"/>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Tailor
             </text>
@@ -403,10 +399,9 @@ Tailor uses Sewing Machine to stitch
             </text>
         </g>
         <shape type="rect" x="30" y="40" w="20" h="34" hitArea="true" onclick="showTailorInfo,playLearning5Sound"/>
-        <shape type="rect" x="40" y="15" w="30" h="27" hitArea="true" onclick="hideTailorInfo,stopLearning5Sound"/>
         
         <g x="50" y="5" w="30" h="27" id="scissorInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideScissorInfo,stage:stopLearning6Sound"/>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Scissor
             </text>
@@ -415,10 +410,9 @@ Tailor uses Sewing Machine to stitch
             </text>
         </g>
         <shape type="rect" x="50" y="30" w="6" h="32" hitArea="true" onclick="showScissorInfo,playLearning6Sound"/>
-        <shape type="rect" x="50" y="5" w="30" h="27" hitArea="true" onclick="hideScissorInfo,stopLearning6Sound"/>
 
         <g x="3" y="40" w="30" h="27" id="sewingMachineInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideSewingMachineInfo,stage:stopLearning7Sound"/>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Sewing Machine
             </text>
@@ -427,7 +421,6 @@ Tailor uses Sewing Machine to stitch
             </text>
         </g>
         <shape type="rect" x="2" y="62" w="20" h="36" hitArea="true" onclick="showSewingMachineInfo,playLearning7Sound"/>
-        <shape type="rect" x="3" y="40" w="30" h="27" hitArea="true" onclick="hideSewingMachineInfo,stopLearning7Sound"/>
 
         <events>
             <event on="previous" transition="scene6" effect="scroll" direction="right" ease="linear" duration="500"/>
@@ -495,7 +488,7 @@ Tailor uses Sewing Machine to stitch
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleScene9Sound"/>
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="72" y="8" w="28" h="27" id="carpenterInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideCarpenterInfo,stage:stopLearning8Sound"/>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Carpenter
             </text>
@@ -505,9 +498,8 @@ Carpenter uses a Saw to Cut wood.
             </text>
         </g>
         <shape type="rect" x="70" y="37" w="25" h="59" hitArea="true" onclick="showCarpenterInfo,playLearning8Sound"/>
-        <shape type="rect" x="72" y="8" w="28" h="27" hitArea="true" onclick="hideCarpenterInfo,stopLearning8Sound"/>
         <g x="56" y="3" w="28" h="27" id="sawInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideSawInfo,stage:stopLearning9Sound"/>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Saw
             </text>
@@ -517,7 +509,6 @@ Carpenter uses a Saw to Cut wood.
             <image asset="icon_sound" x="8" y="50" w="15" h="25" onclick="stage:toggleSawSound"/>
         </g>
         <shape type="rect" x="60" y="17" w="8" h="42" hitArea="true" onclick="showSawInfo,playLearning9Sound"/>
-        <shape type="rect" x="56" y="3" w="28" h="25" hitArea="true" onclick="hideSawInfo,stopLearning9Sound"/>
         <events>
             <event on="previous" transition="scene8" effect="scroll" direction="right" ease="linear" duration="500"/>
             <event on="next" transition="scene10" effect="scroll" direction="left" ease="linear" duration="500"/>
@@ -718,14 +709,13 @@ Carpenter uses a Saw to Cut wood.
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideHint,stage:stopLearning11Sound"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Hint
 	        </text>
             <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
         </g>
         <image asset="icon_hint" x="5" y="35" onclick="showHint,playLearning11Sound"/>
-        <shape type="rect" x="9" y="17" w="20" h="20" hitArea="true" onclick="hideHint,stopLearning11Sound"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleLearning10Sound"/>
         <events>
             <event on="previous" transition="scene19" effect="scroll" direction="right" ease="linear" duration="500"/>
@@ -754,14 +744,13 @@ Hint
         <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" onclick="stage:hideHint,stage:stopLearning13Sound"/>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Hint
 	        </text>
             <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
         </g>
         <image asset="icon_hint" x="5" y="35" onclick="showHint,playLearning13Sound"/>
-        <shape type="rect" x="9" y="17" w="20" h="20" hitArea="true" onclick="hideHint,stopLearning13Sound"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9" onclick="stage:toggleLearning12Sound"/>
         <events>
             <event on="previous" transition="scene20" effect="scroll" direction="right" ease="linear" duration="500"/>

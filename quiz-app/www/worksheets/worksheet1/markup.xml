@@ -61,7 +61,7 @@
         <events>
             <event on="enter" sprite="" animation="" effect=""/>
             <event on="idle" sprite="" animation="" effect=""/>
-            <event on="next" transition="welcome" effect="scroll" direction="top" ease="linear" duration="1000"/>
+            <event on="next" transition="welcome" effect="scroll" direction="top" ease="linear" duration="500"/>
         </events>
     </stage>
     <stage id="welcome" x="0" y="0" w="100" h="100">
@@ -84,7 +84,7 @@ things to my space ship
         </text>
         <shape type="rect" x="67" y="27" w="5" h="10" hitArea="true" rotate="30" onclick="toggleThunder"/>
         <events>
-            <event on="next" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
+            <event on="next" transition="item" effect="scroll" direction="top" ease="linear" duration="500"/>
             <event on="toggleThunder" audio="true" type="toggle" asset="thunder_sound" loop="1"/>
             <event on="exit" audio="true" type="stop" loop="1"/>
         </events>
@@ -144,8 +144,8 @@ things to my space ship
             <event on="correct_answer" show="img_overlay,img_correct_answer,btn_next,sprite_correct_answer" hide="img_wrong_answer,btn_try_again"/>
             <event on="wrong_answer" show="img_overlay,img_wrong_answer,btn_try_again" hide="img_correct_answer,sprite_correct_answer,btn_next"/>
             <event on="try_again" reload="true"/>
-            <event on="paginate_prev" transition="item" effect="scroll" direction="top" ease="linear" duration="1000"/>
-            <event on="next" transition="summary" effect="scroll" direction="top" ease="linear" duration="1000"/>
+            <event on="paginate_prev" transition="item" effect="scroll" direction="top" ease="linear" duration="500"/>
+            <event on="next" transition="summary" effect="scroll" direction="top" ease="linear" duration="500"/>
         </events>
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
