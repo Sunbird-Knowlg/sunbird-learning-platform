@@ -70,7 +70,6 @@ var ThemePlugin = Plugin.extend({
         })
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
-            this.disableInputs();
             this._currentScene.dispatchEvent('exit');
             this._director.replace(child, this.getTransitionEffect(this._animationEffect));
         } else {
@@ -80,6 +79,7 @@ var ThemePlugin = Plugin.extend({
         this._currentScene = childPlugin;
     },
     replaceStage: function(prevStage, stageId, effect) {
+        this.disableInputs();
         this.inputs = [];
         this._animationEffect = effect;
         var stage = _.findWhere(this._data.stage, {id: stageId});
