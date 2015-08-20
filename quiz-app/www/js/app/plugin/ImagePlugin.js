@@ -86,14 +86,21 @@ var ImagePlugin = Plugin.extend({
         			maxX = dims.x + dims.w,
         			maxY = dims.y + dims.h;
         		var snapSuccess = false;
-        		if(this.x >= x && this.x <= maxX) {
-        			if(this.y >= y && this.y <= maxY) {
+        		if(this.x >= x && (this.x + this.width) <= maxX) {
+        			if(this.y >= y && (this.y + this.width) <= maxY) {
         				snapSuccess = true;
         			}
         		}
         		if(!snapSuccess) {
         			this.x = this.origX;
         			this.y = this.origY;
+        		} else {
+        			if(plugin._data.snapX) {
+        				this.x = dims.x + (dims.w * plugin._data.snapX/100);
+        			}
+        			if(plugin._data.snapY) {
+        				this.y = dims.y + (dims.w * plugin._data.snapY/100);
+        			}
         		}
         	});
         }

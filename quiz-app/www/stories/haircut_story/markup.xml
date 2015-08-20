@@ -799,13 +799,13 @@ Hint
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
 
-        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25"/>
-        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25"/>
-        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25"/>
+        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25" snapX="42" snapY="9"/>
+        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25" snapX="10.5" snapY="5"/>
+        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5"/>
 
-        <image asset="t-inner" id="t-inner" x="70" y="15" w="12" h="20" enableDrag="true" snapTo="t-outer"/>
-        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="20" enableDrag="true" snapTo="b-outer"/>
-        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="20" enableDrag="true" snapTo="w-outer"/>
+        <image asset="t-inner" id="t-inner" x="70" y="15" w="10" h="16" enableDrag="true" snapTo="t-outer"/>
+        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="19.5" enableDrag="true" snapTo="b-outer"/>
+        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="22" enableDrag="true" snapTo="w-outer"/>
 
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
 
