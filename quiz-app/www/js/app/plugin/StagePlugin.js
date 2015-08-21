@@ -8,8 +8,12 @@ var StagePlugin = Plugin.extend({
         if (count <= 0) {
             count = 0;
         }
-        this._theme._stageRepeatCount[data.id] = count + 1;
         this.getStageData(data, count);
+        if (this._repeat <= 1) {
+            this._theme._stageRepeatCount[data.id] = 1;    
+        } else {
+            this._theme._stageRepeatCount[data.id] = count + 1;
+        }
         var instance = this;
         this._self = new creatine.Scene();;
         var dims = this.relativeDims();
@@ -62,14 +66,21 @@ var StagePlugin = Plugin.extend({
         if (eventData.transition) {
             instance.on(eventData.on, function(event) {
                 var count = instance._theme._stageRepeatCount[instance._data.id];
-                if (eventData.on == 'paginate_prev') {
-                    count -= 2;
-                    instance._theme._stageRepeatCount[instance._data.id] = count;
-                }
-                if (count >= instance._repeat) {
-                    instance._theme.replaceStage(this._self, eventData.transition, eventData);
+                if (eventData.on == 'previous') {
+                    if (count > 1) {
+                        count -= 2;    
+                        instance._theme._stageRepeatCount[instance._data.id] = count;
+                        instance._theme.replaceStage(this._self, instance._data.id, eventData);
+                    } else {
+                        instance._theme._stageRepeatCount[instance._data.id] = 0;
+                        instance._theme.replaceStage(this._self, eventData.transition, eventData);
+                    }
                 } else {
-                    instance._theme.replaceStage(this._self, instance._data.id, eventData);
+                    if (count < instance._repeat) {
+                        instance._theme.replaceStage(this._self, instance._data.id, eventData);
+                    } else {
+                        instance._theme.replaceStage(this._self, eventData.transition, eventData);
+                    }    
                 }
             });
         } else if (eventData.eval) {

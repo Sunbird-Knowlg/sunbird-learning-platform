@@ -12,7 +12,7 @@ var Plugin = Class.extend({
 		this._theme = theme;
 		this._stage = stage;
 		this._parent = parent;
-	    this._data = this.setPaginationEvents(data);
+	    this._data = data;
 		this.initPlugin(data);
 		if(this._isContainer) {
 			this.containerEvents(data);
@@ -76,21 +76,6 @@ var Plugin = Class.extend({
 	},
 	registerEvent: function(instance, eventData) {
 		throw "Subclasses of plugin should implement this function";
-	},
-	setPaginationEvents: function(data) {
-		if(data.onclick) {
-			var arr = data.onclick.split(':');
-			var action = arr[1] || arr[0];
-	    	if (action == 'paginate_prev') {
-	    		var count = this._theme._stageRepeatCount[this._stage._data.id];
-	    		if (count <= 1) {
-	    			data.hide = true;
-	    		} else {
-	    			data.hide = false;
-	    		}
-	    	}
-		}
-		return data;
 	},
 	assetEvents: function(asset) {
 		var instance = this;
