@@ -1,107 +1,107 @@
 <theme>
     <manifest>
-        <media id="razor" src="stories/haircut_story/assets/razor.png" type="image"/>
-        <media id="scissors" src="stories/haircut_story/assets/scissors.gif" type="image"/>
-        <media id="saw" src="stories/haircut_story/assets/saw.png" type="image"/>
-        <media id="knife" src="stories/haircut_story/assets/knife.gif" type="image"/>
-        <media id="question_block" src="stories/haircut_story/assets/question_b.png" type="image" />
-        <media id="barber_img" src="stories/haircut_story/assets/barber.png" type="image" />
-        <media id="carpenter_img" src="stories/haircut_story/assets/carpenter.png" type="image" />
-        <media id="tailor_img" src="stories/haircut_story/assets/tailor.png" type="image" />
-        <media id="wife_img" src="stories/haircut_story/assets/wife.png" type="image" />
-        <media id="level_band" src="stories/haircut_story/assets/level_band.png" type="image" />
-        <media id="publisher_logo" src="stories/haircut_story/assets/publisher_logo.jpg" type="image" />
-        <media id="previous" src="stories/haircut_story/assets/icon_previous.png" type="image" />
-        <media id="next" src="stories/haircut_story/assets/icon_next.png" type="image" />
-        <media id="icon_sound" src="stories/haircut_story/assets/icon_sound.png" type="image" />
-        <media id="icon_hint" src="stories/haircut_story/assets/icon_hint.png" type="image" />
-        <media id="start" src="stories/haircut_story/assets/start.png" type="image" />
-        <media id="speech_bubble" src="stories/haircut_story/assets/speech_bubble.png" type="image" />
-        <media id="sringeri" src="stories/haircut_story/assets/sringeri.png" type="image" />
-        <media id="clock_sound" src="stories/haircut_story/assets/sounds/clock_sound.mp3" type="sound" />
-        <media id="tree_frogs_and_birds_sound" src="stories/haircut_story/assets/sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
-        <media id="water_sound" src="stories/haircut_story/assets/sounds/water_sound.mp3" type="sound" />
-        <media id="cow_sound" src="stories/haircut_story/assets/sounds/cow_sound.mp3" type="sound" />
-        <media id="saw_sound" src="stories/haircut_story/assets/sounds/saw_sound.mp3" type="sound" />
-        <media id="forest_sound" src="stories/haircut_story/assets/sounds/forest_sound.mp3" type="sound" />
-        <media id="tiger_sound" src="stories/haircut_story/assets/sounds/tiger_sound.mp3" type="sound" />
-        <media id="teapot_rhyme" src="stories/haircut_story/assets/sounds/teapot_rhyme.wav" type="sound" />
+        <media id="razor" src="razor.png" type="image"/>
+        <media id="scissors" src="scissors.gif" type="image"/>
+        <media id="saw" src="saw.png" type="image"/>
+        <media id="knife" src="knife.gif" type="image"/>
+        <media id="question_block" src="question_b.png" type="image" />
+        <media id="barber_img" src="barber.png" type="image" />
+        <media id="carpenter_img" src="carpenter.png" type="image" />
+        <media id="tailor_img" src="tailor.png" type="image" />
+        <media id="wife_img" src="wife.png" type="image" />
+        <media id="level_band" src="level_band.png" type="image" />
+        <media id="publisher_logo" src="publisher_logo.jpg" type="image" />
+        <media id="previous" src="icon_previous.png" type="image" />
+        <media id="next" src="icon_next.png" type="image" />
+        <media id="icon_sound" src="icon_sound.png" type="image" />
+        <media id="icon_hint" src="icon_hint.png" type="image" />
+        <media id="start" src="start.png" type="image" />
+        <media id="speech_bubble" src="speech_bubble.png" type="image" />
+        <media id="sringeri" src="sringeri.png" type="image" />
+        <media id="clock_sound" src="sounds/clock_sound.mp3" type="sound" />
+        <media id="tree_frogs_and_birds_sound" src="sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
+        <media id="water_sound" src="sounds/water_sound.mp3" type="sound" />
+        <media id="cow_sound" src="sounds/cow_sound.mp3" type="sound" />
+        <media id="saw_sound" src="sounds/saw_sound.mp3" type="sound" />
+        <media id="forest_sound" src="sounds/forest_sound.mp3" type="sound" />
+        <media id="tiger_sound" src="sounds/tiger_sound.mp3" type="sound" />
+        <media id="teapot_rhyme" src="sounds/teapot_rhyme.wav" type="sound" />
 
-        <media id="cover_sound" src="stories/haircut_story/assets/sounds/scenes/cover.mp3" type="sound" />
-        <media id="scene1_sound" src="stories/haircut_story/assets/sounds/scenes/scene1.mp3" type="sound" />
-        <media id="scene2_sound" src="stories/haircut_story/assets/sounds/scenes/scene2.mp3" type="sound" />
-        <media id="scene3_sound" src="stories/haircut_story/assets/sounds/scenes/scene3.mp3" type="sound" />
-        <media id="scene4_sound" src="stories/haircut_story/assets/sounds/scenes/scene4.mp3" type="sound" />
-        <media id="scene5_sound" src="stories/haircut_story/assets/sounds/scenes/scene5.mp3" type="sound" />
-        <media id="scene6_sound" src="stories/haircut_story/assets/sounds/scenes/scene6.mp3" type="sound" />
-        <media id="scene7_sound" src="stories/haircut_story/assets/sounds/scenes/scene7.mp3" type="sound" />
-        <media id="scene8_sound" src="stories/haircut_story/assets/sounds/scenes/scene8.mp3" type="sound" />
-        <media id="scene9_sound" src="stories/haircut_story/assets/sounds/scenes/scene9.mp3" type="sound" />
-        <media id="scene10_sound" src="stories/haircut_story/assets/sounds/scenes/scene10.mp3" type="sound" />
-        <media id="scene11_sound" src="stories/haircut_story/assets/sounds/scenes/scene11.mp3" type="sound" />
-        <media id="scene12_sound" src="stories/haircut_story/assets/sounds/scenes/scene12.mp3" type="sound" />
-        <media id="scene13_sound" src="stories/haircut_story/assets/sounds/scenes/scene13.mp3" type="sound" />
-        <media id="scene14_sound" src="stories/haircut_story/assets/sounds/scenes/scene14.mp3" type="sound" />
-        <media id="scene15_sound" src="stories/haircut_story/assets/sounds/scenes/scene15.mp3" type="sound" />
-        <media id="scene16_sound" src="stories/haircut_story/assets/sounds/scenes/scene16.mp3" type="sound" />
-        <media id="scene17_sound" src="stories/haircut_story/assets/sounds/scenes/scene17.mp3" type="sound" />
-        <media id="scene18_sound" src="stories/haircut_story/assets/sounds/scenes/scene18.mp3" type="sound" />
-        <media id="scene19_sound" src="stories/haircut_story/assets/sounds/scenes/scene19.mp3" type="sound" />
+        <media id="cover_sound" src="sounds/scenes/cover.mp3" type="sound" />
+        <media id="scene1_sound" src="sounds/scenes/scene1.mp3" type="sound" />
+        <media id="scene2_sound" src="sounds/scenes/scene2.mp3" type="sound" />
+        <media id="scene3_sound" src="sounds/scenes/scene3.mp3" type="sound" />
+        <media id="scene4_sound" src="sounds/scenes/scene4.mp3" type="sound" />
+        <media id="scene5_sound" src="sounds/scenes/scene5.mp3" type="sound" />
+        <media id="scene6_sound" src="sounds/scenes/scene6.mp3" type="sound" />
+        <media id="scene7_sound" src="sounds/scenes/scene7.mp3" type="sound" />
+        <media id="scene8_sound" src="sounds/scenes/scene8.mp3" type="sound" />
+        <media id="scene9_sound" src="sounds/scenes/scene9.mp3" type="sound" />
+        <media id="scene10_sound" src="sounds/scenes/scene10.mp3" type="sound" />
+        <media id="scene11_sound" src="sounds/scenes/scene11.mp3" type="sound" />
+        <media id="scene12_sound" src="sounds/scenes/scene12.mp3" type="sound" />
+        <media id="scene13_sound" src="sounds/scenes/scene13.mp3" type="sound" />
+        <media id="scene14_sound" src="sounds/scenes/scene14.mp3" type="sound" />
+        <media id="scene15_sound" src="sounds/scenes/scene15.mp3" type="sound" />
+        <media id="scene16_sound" src="sounds/scenes/scene16.mp3" type="sound" />
+        <media id="scene17_sound" src="sounds/scenes/scene17.mp3" type="sound" />
+        <media id="scene18_sound" src="sounds/scenes/scene18.mp3" type="sound" />
+        <media id="scene19_sound" src="sounds/scenes/scene19.mp3" type="sound" />
 
-        <media id="A4_sound" src="stories/haircut_story/assets/sounds/xylophone/A4_sound.mp3" type="sound" />
-        <media id="A5_sound" src="stories/haircut_story/assets/sounds/xylophone/A5_sound.mp3" type="sound" />
-        <media id="Ab4_sound" src="stories/haircut_story/assets/sounds/xylophone/Ab4_sound.mp3" type="sound" />
-        <media id="Ab5_sound" src="stories/haircut_story/assets/sounds/xylophone/Ab5_sound.mp3" type="sound" />
-        <media id="B4_sound" src="stories/haircut_story/assets/sounds/xylophone/B4_sound.mp3" type="sound" />
-        <media id="B5_sound" src="stories/haircut_story/assets/sounds/xylophone/B5_sound.mp3" type="sound" />
-        <media id="Bb4_sound" src="stories/haircut_story/assets/sounds/xylophone/Bb4_sound.mp3" type="sound" />
-        <media id="Bb5_sound" src="stories/haircut_story/assets/sounds/xylophone/Bb5_sound.mp3" type="sound" />
-        <media id="C5_sound" src="stories/haircut_story/assets/sounds/xylophone/C5_sound.mp3" type="sound" />
-        <media id="D5_sound" src="stories/haircut_story/assets/sounds/xylophone/D5_sound.mp3" type="sound" />
+        <media id="A4_sound" src="sounds/xylophone/A4_sound.mp3" type="sound" />
+        <media id="A5_sound" src="sounds/xylophone/A5_sound.mp3" type="sound" />
+        <media id="Ab4_sound" src="sounds/xylophone/Ab4_sound.mp3" type="sound" />
+        <media id="Ab5_sound" src="sounds/xylophone/Ab5_sound.mp3" type="sound" />
+        <media id="B4_sound" src="sounds/xylophone/B4_sound.mp3" type="sound" />
+        <media id="B5_sound" src="sounds/xylophone/B5_sound.mp3" type="sound" />
+        <media id="Bb4_sound" src="sounds/xylophone/Bb4_sound.mp3" type="sound" />
+        <media id="Bb5_sound" src="sounds/xylophone/Bb5_sound.mp3" type="sound" />
+        <media id="C5_sound" src="sounds/xylophone/C5_sound.mp3" type="sound" />
+        <media id="D5_sound" src="sounds/xylophone/D5_sound.mp3" type="sound" />
 
-        <media id="learning1_sound" src="stories/haircut_story/assets/sounds/learning/1.wav" type="sound" />
-        <media id="learning2_sound" src="stories/haircut_story/assets/sounds/learning/2.wav" type="sound" />
-        <media id="learning3_sound" src="stories/haircut_story/assets/sounds/learning/3.wav" type="sound" />
-        <media id="learning4_sound" src="stories/haircut_story/assets/sounds/learning/4.wav" type="sound" />
-        <media id="learning5_sound" src="stories/haircut_story/assets/sounds/learning/5.wav" type="sound" />
-        <media id="learning6_sound" src="stories/haircut_story/assets/sounds/learning/6.wav" type="sound" />
-        <media id="learning7_sound" src="stories/haircut_story/assets/sounds/learning/7.wav" type="sound" />
-        <media id="learning8_sound" src="stories/haircut_story/assets/sounds/learning/8.wav" type="sound" />
-        <media id="learning9_sound" src="stories/haircut_story/assets/sounds/learning/9.wav" type="sound" />
-        <media id="learning10_sound" src="stories/haircut_story/assets/sounds/learning/10.wav" type="sound" />
-        <media id="learning11_sound" src="stories/haircut_story/assets/sounds/learning/11.wav" type="sound" />
-        <media id="learning12_sound" src="stories/haircut_story/assets/sounds/learning/12.wav" type="sound" />
-        <media id="learning13_sound" src="stories/haircut_story/assets/sounds/learning/13.wav" type="sound" />
+        <media id="learning1_sound" src="sounds/learning/1.wav" type="sound" />
+        <media id="learning2_sound" src="sounds/learning/2.wav" type="sound" />
+        <media id="learning3_sound" src="sounds/learning/3.wav" type="sound" />
+        <media id="learning4_sound" src="sounds/learning/4.wav" type="sound" />
+        <media id="learning5_sound" src="sounds/learning/5.wav" type="sound" />
+        <media id="learning6_sound" src="sounds/learning/6.wav" type="sound" />
+        <media id="learning7_sound" src="sounds/learning/7.wav" type="sound" />
+        <media id="learning8_sound" src="sounds/learning/8.wav" type="sound" />
+        <media id="learning9_sound" src="sounds/learning/9.wav" type="sound" />
+        <media id="learning10_sound" src="sounds/learning/10.wav" type="sound" />
+        <media id="learning11_sound" src="sounds/learning/11.wav" type="sound" />
+        <media id="learning12_sound" src="sounds/learning/12.wav" type="sound" />
+        <media id="learning13_sound" src="sounds/learning/13.wav" type="sound" />
 
-        <media id="page1" src="stories/haircut_story/assets/scenes/image_1.jpg" type="image" />
-        <media id="page2" src="stories/haircut_story/assets/scenes/image_2.jpg" type="image" />
-        <media id="page3" src="stories/haircut_story/assets/image_3.png" type="image" />
-        <media id="page4" src="stories/haircut_story/assets/scenes/image_4.jpg" type="image" />
-        <media id="page5" src="stories/haircut_story/assets/scenes/image_5.jpg" type="image" />
-        <media id="page6" src="stories/haircut_story/assets/scenes/image_6.jpg" type="image" />
-        <media id="page7" src="stories/haircut_story/assets/scenes/image_7.jpg" type="image" />
-        <media id="page8" src="stories/haircut_story/assets/scenes/image_8.jpg" type="image" />
-        <media id="page9" src="stories/haircut_story/assets/scenes/image_9.jpg" type="image" />
-        <media id="page10" src="stories/haircut_story/assets/scenes/image_10.jpg" type="image" />
-        <media id="page11" src="stories/haircut_story/assets/scenes/image_11.jpg" type="image" />
-        <media id="page12" src="stories/haircut_story/assets/scenes/image_12.jpg" type="image" />
-        <media id="page13" src="stories/haircut_story/assets/scenes/image_13.jpg" type="image" />
-        <media id="page14" src="stories/haircut_story/assets/scenes/image_14.jpg" type="image" />
-        <media id="page15" src="stories/haircut_story/assets/scenes/image_15.jpg" type="image" />
-        <media id="page16" src="stories/haircut_story/assets/scenes/image_16.jpg" type="image" />
-        <media id="page17" src="stories/haircut_story/assets/scenes/image_17.jpg" type="image" />
-        <media id="page18" src="stories/haircut_story/assets/scenes/image_18.jpg" type="image" />
-        <media id="page19" src="stories/haircut_story/assets/scenes/image_19.jpg" type="image" />
-        <media id="page20" src="stories/haircut_story/assets/scenes/image_20.jpg" type="image" />
+        <media id="page1" src="scenes/image_1.jpg" type="image" />
+        <media id="page2" src="scenes/image_2.jpg" type="image" />
+        <media id="page3" src="image_3.png" type="image" />
+        <media id="page4" src="scenes/image_4.jpg" type="image" />
+        <media id="page5" src="scenes/image_5.jpg" type="image" />
+        <media id="page6" src="scenes/image_6.jpg" type="image" />
+        <media id="page7" src="scenes/image_7.jpg" type="image" />
+        <media id="page8" src="scenes/image_8.jpg" type="image" />
+        <media id="page9" src="scenes/image_9.jpg" type="image" />
+        <media id="page10" src="scenes/image_10.jpg" type="image" />
+        <media id="page11" src="scenes/image_11.jpg" type="image" />
+        <media id="page12" src="scenes/image_12.jpg" type="image" />
+        <media id="page13" src="scenes/image_13.jpg" type="image" />
+        <media id="page14" src="scenes/image_14.jpg" type="image" />
+        <media id="page15" src="scenes/image_15.jpg" type="image" />
+        <media id="page16" src="scenes/image_16.jpg" type="image" />
+        <media id="page17" src="scenes/image_17.jpg" type="image" />
+        <media id="page18" src="scenes/image_18.jpg" type="image" />
+        <media id="page19" src="scenes/image_19.jpg" type="image" />
+        <media id="page20" src="scenes/image_20.jpg" type="image" />
 
-        <media id="t-outer" src="stories/haircut_story/assets/tailor-outer.png" type="image" />
-        <media id="t-inner" src="stories/haircut_story/assets/tailor-inner.png" type="image" />
-        <media id="w-outer" src="stories/haircut_story/assets/wife-outer.png" type="image" />
-        <media id="w-inner" src="stories/haircut_story/assets/wife-inner.png" type="image" />
-        <media id="b-outer" src="stories/haircut_story/assets/barber-outer.png" type="image" />
-        <media id="b-inner" src="stories/haircut_story/assets/barber-inner.png" type="image" />
+        <media id="t-outer" src="tailor-outer.png" type="image" />
+        <media id="t-inner" src="tailor-inner.png" type="image" />
+        <media id="w-outer" src="wife-outer.png" type="image" />
+        <media id="w-inner" src="wife-inner.png" type="image" />
+        <media id="b-outer" src="barber-outer.png" type="image" />
+        <media id="b-inner" src="barber-inner.png" type="image" />
 
-        <media id="story_data" src="stories/haircut_story/data_english.json" type="json" />
+        <media id="story_data" src="data_english.json" type="json" />
     </manifest>
     <datasource asset="story_data"/>
     <stage start="true" id="splash" x="0" y="0" w="100" h="100">

@@ -9,3 +9,4 @@ platform-analytics/metastore_db
 dependency-reduced-pom.xml
 platform-analytics/checkpoint
 platform-modules/analytics/streaming-models/literacy-level-computation/checkpoint
+aws-keys.json

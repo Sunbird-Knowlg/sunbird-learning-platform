@@ -1,24 +1,22 @@
 {
-  "id": "ekstep.lp.game.list",
-  "ver": "1.0",
-  "ts": "2015-08-03T18:22:03ZZ",
-  "params": {
-    "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
-    "msgid": null,
-    "err": null,
-    "status": "successful",
-    "errmsg": null
-  },
-  "result": {
-    "games": [
-      {
-        "name": "Annual Haircut Day",
-        "description": "Sringeri Srinivas Annual Haircut Day",
-        "appIcon": "assets/haircut.png",
-        "launchUrl": "stories/haircut_story/markup.xml",
-        "loadingMessage": "Every great journey starts with a great story..."
-      }
-    ],
-    "ttl": 24
-  }
+    "id": "ekstep.lp.game.list",
+    "ver": "1.0",
+    "ts": "2015-08-03T18:22:03ZZ",
+    "params": {
+        "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
+        "msgid": null,
+        "err": null,
+        "status": "successful",
+        "errmsg": null
+    },
+    "result": {
+        "games": [{
+            "name": "Annual Haircut Day",
+            "description": "Sringeri Srinivas Annual Haircut Day",
+            "appIcon": "assets/haircut.png",
+            "launchPath": "stories/haircut_story",
+            "loadingMessage": "Every great journey starts with a great story..."
+        }],
+        "ttl": 24
+    }
 }

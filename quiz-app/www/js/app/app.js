@@ -139,13 +139,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
-            $http.get($scope.item.launchUrl)
-                .then(function(data) {
-                    Renderer.init(data.data, 'gameCanvas');
-                }, function(err) {
-                    alert("error");
-                    $state.go('contentList');
-                });
+            Renderer.start($scope.item.launchPath, 'gameCanvas');
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');

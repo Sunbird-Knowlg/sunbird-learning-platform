@@ -1,49 +1,49 @@
 <theme>
     <manifest>
-        <media id="bg" src="assets/theme1/bg.png" type="image" />
-        <media id="noah" src="assets/theme1/noah.png" type="image" />
-        <media id="entermission" src="assets/theme1/entermission.png" type="image" />
-        <media id="entermission" src="assets/theme1/entermission.png" type="image" />
-        <media id="blacktint_full" src="assets/theme1/blacktint_full.png" type="image" />
-        <media id="blacktint_square" src="assets/theme1/blacktint_736x648.png" type="image" />
-        <media id="blacktint_rect" src="assets/theme1/blacktint_736x325.png" type="image" />
-        <media id="home_icon" src="assets/theme1/home_icon.png" type="image" />
-        <media id="startnow" src="assets/theme1/startnow.png" type="image" />
-        <media id="speechbubble" src="assets/theme1/speechbubble.png" type="image" />
-        <media id="separator_vertical" src="assets/theme1/separator_vertical.png" type="image" />
-        <media id="separator_horizontal" src="assets/theme1/separator_horizontal.png" type="image" />
-        <media id="plus" src="assets/theme1/operators/operator_plus.png" type="image" />
-        <media id="minus" src="assets/theme1/operators/operator_minus.png" type="image" />
-        <media id="equals" src="assets/theme1/operators/operator_equals.png" type="image" />
-        <media id="hint" src="assets/theme1/icons/icon_hint.png" type="image" />
-        <media id="validate" src="assets/theme1/icons/icon_validate.png" type="image" />
-        <media id="difficulty_high" src="assets/theme1/icons/icon_difficulty_high.png" type="image" />
-        <media id="next" src="assets/theme1/icons/icon_next.png" type="image" />
-        <media id="previous" src="assets/theme1/icons/icon_previous.png" type="image" />
-        <media id="profile" src="assets/theme1/icons/icon_profile.png" type="image" />
+        <media id="bg" src="bg.png" type="image" />
+        <media id="noah" src="noah.png" type="image" />
+        <media id="entermission" src="entermission.png" type="image" />
+        <media id="entermission" src="entermission.png" type="image" />
+        <media id="blacktint_full" src="blacktint_full.png" type="image" />
+        <media id="blacktint_square" src="blacktint_736x648.png" type="image" />
+        <media id="blacktint_rect" src="blacktint_736x325.png" type="image" />
+        <media id="home_icon" src="home_icon.png" type="image" />
+        <media id="startnow" src="startnow.png" type="image" />
+        <media id="speechbubble" src="speechbubble.png" type="image" />
+        <media id="separator_vertical" src="separator_vertical.png" type="image" />
+        <media id="separator_horizontal" src="separator_horizontal.png" type="image" />
+        <media id="plus" src="operators/operator_plus.png" type="image" />
+        <media id="minus" src="operators/operator_minus.png" type="image" />
+        <media id="equals" src="operators/operator_equals.png" type="image" />
+        <media id="hint" src="icons/icon_hint.png" type="image" />
+        <media id="validate" src="icons/icon_validate.png" type="image" />
+        <media id="difficulty_high" src="icons/icon_difficulty_high.png" type="image" />
+        <media id="next" src="icons/icon_next.png" type="image" />
+        <media id="previous" src="icons/icon_previous.png" type="image" />
+        <media id="profile" src="icons/icon_profile.png" type="image" />
 
-        <media id="correct_answer" src="assets/theme1/spaceship_gotitcorrect.png" type="image" />
-        <media id="wrong_answer" src="assets/theme1/spaceship_wronganswer.png" type="image" />
-        <media id="button_next" src="assets/theme1/button_next.png" type="image" />
-        <media id="button_tryagain" src="assets/theme1/button_tryagain.png" type="image" />
+        <media id="correct_answer" src="spaceship_gotitcorrect.png" type="image" />
+        <media id="wrong_answer" src="spaceship_wronganswer.png" type="image" />
+        <media id="button_next" src="button_next.png" type="image" />
+        <media id="button_tryagain" src="button_tryagain.png" type="image" />
 
-        <media id="butterfly_ltgray" src="assets/theme1/characters/character_butterfly_ltgray.png" type="image" /> 
-        <media id="butterfly_midgray" src="assets/theme1/characters/character_butterfly_midgray.png" type="image" />
-        <media id="butterfly_white" src="assets/theme1/characters/character_butterfly_white.png" type="image" />
-        <media id="cat_ltgray" src="assets/theme1/characters/character_cat_ltgray.png" type="image" />
-        <media id="cat_midgray" src="assets/theme1/characters/character_cat_midgray.png" type="image" />
-        <media id="cat_white" src="assets/theme1/characters/character_cat_white.png" type="image" />
-        <media id="deer_ltgray" src="assets/theme1/characters/character_deer_ltgray.png" type="image" />
-        <media id="deer_midgray" src="assets/theme1/characters/character_deer_midgray.png" type="image" />
-        <media id="deer_white" src="assets/theme1/characters/character_deer_white.png" type="image" />
-        <media id="elephant_ltgray" src="assets/theme1/characters/character_elephant_ltgray.png" type="image" />
-        <media id="elephant_midgray" src="assets/theme1/characters/character_elephant_midgray.png" type="image" />
-        <media id="elephant_white" src="assets/theme1/characters/character_elephant_white.png" type="image" />
+        <media id="butterfly_ltgray" src="characters/character_butterfly_ltgray.png" type="image" /> 
+        <media id="butterfly_midgray" src="characters/character_butterfly_midgray.png" type="image" />
+        <media id="butterfly_white" src="characters/character_butterfly_white.png" type="image" />
+        <media id="cat_ltgray" src="characters/character_cat_ltgray.png" type="image" />
+        <media id="cat_midgray" src="characters/character_cat_midgray.png" type="image" />
+        <media id="cat_white" src="characters/character_cat_white.png" type="image" />
+        <media id="deer_ltgray" src="characters/character_deer_ltgray.png" type="image" />
+        <media id="deer_midgray" src="characters/character_deer_midgray.png" type="image" />
+        <media id="deer_white" src="characters/character_deer_white.png" type="image" />
+        <media id="elephant_ltgray" src="characters/character_elephant_ltgray.png" type="image" />
+        <media id="elephant_midgray" src="characters/character_elephant_midgray.png" type="image" />
+        <media id="elephant_white" src="characters/character_elephant_white.png" type="image" />
 
-        <media id="thunder_sound" src="assets/thunder.mp3" type="sound" />
-        <media id="sound_image" src="assets/sound.png" type="image" />
+        <media id="thunder_sound" src="thunder.mp3" type="sound" />
+        <media id="sound_image" src="sound.png" type="image" />
 
-        <media id="worksheet_data" src="worksheets/worksheet1/items.json" type="json" />
+        <media id="worksheet_data" src="items.json" type="json" />
     </manifest>
     <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">

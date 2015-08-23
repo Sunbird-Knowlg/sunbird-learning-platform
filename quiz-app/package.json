@@ -18,10 +18,12 @@
         "grunt": "^0.4.4",
         "grunt-cli": "*",
         "grunt-contrib-copy": "*",
+        "grunt-contrib-compress": "*",
         "grunt-contrib-uglify": "^0.9.1",
         "grunt-string-replace": "*",
         "gulp-util": "^2.2.14",
-        "shelljs": "^0.3.0"
+        "shelljs": "^0.3.0",
+        "grunt-aws-s3": "*"
     },
     "cordovaPlugins": [
         "cordova-plugin-device",

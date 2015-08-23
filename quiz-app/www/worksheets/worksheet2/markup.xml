@@ -1,32 +1,32 @@
 <theme>
     <manifest>
-        <media id="bg1" src="assets/theme2/bg1.png" type="image" />
-        <media id="bg3" src="assets/theme2/bg3.png" type="image" />
-        <media id="bg4" src="assets/theme2/bg4.png" type="image" />
-        <media id="bg5" src="assets/theme2/bg5.png" type="image" />
-        <media id="box" src="assets/theme2/box.png" type="image" />
-        <media id="blacktint_full" src="assets/theme2/blacktint_full.png" type="image" />
-        <media id="next" src="assets/theme2/icon_next.png" type="image" />
-        <media id="previous" src="assets/theme2/icon_previous.png" type="image" />
-        <media id="profile" src="assets/theme2/icon_profile.png" type="image" />
-        <media id="button_next" src="assets/theme2/button_next.png" type="image" />
-        <media id="button_tryagain" src="assets/theme2/button_tryagain.png" type="image" />
-        <media id="home_icon" src="assets/theme2/home_icon.png" type="image" />
+        <media id="bg1" src="bg1.png" type="image" />
+        <media id="bg3" src="bg3.png" type="image" />
+        <media id="bg4" src="bg4.png" type="image" />
+        <media id="bg5" src="bg5.png" type="image" />
+        <media id="box" src="box.png" type="image" />
+        <media id="blacktint_full" src="blacktint_full.png" type="image" />
+        <media id="next" src="icon_next.png" type="image" />
+        <media id="previous" src="icon_previous.png" type="image" />
+        <media id="profile" src="icon_profile.png" type="image" />
+        <media id="button_next" src="button_next.png" type="image" />
+        <media id="button_tryagain" src="button_tryagain.png" type="image" />
+        <media id="home_icon" src="home_icon.png" type="image" />
 
-        <media id="angry_bird" src="assets/theme2/characters/angry-bird.png" type="image" />
-        <media id="apple" src="assets/theme2/characters/apple.png" type="image" />
-        <media id="banana" src="assets/theme2/characters/banana.png" type="image" />
-        <media id="horse" src="assets/theme2/characters/horse.png" type="image" />
-        <media id="mango" src="assets/theme2/characters/mango.png" type="image" />
-        <media id="rabbit" src="assets/theme2/characters/rabbit.png" type="image" />
-        <media id="yellow_bird" src="assets/theme2/characters/yellow_bird.png" type="image" />
+        <media id="angry_bird" src="characters/angry-bird.png" type="image" />
+        <media id="apple" src="characters/apple.png" type="image" />
+        <media id="banana" src="characters/banana.png" type="image" />
+        <media id="horse" src="characters/horse.png" type="image" />
+        <media id="mango" src="characters/mango.png" type="image" />
+        <media id="rabbit" src="characters/rabbit.png" type="image" />
+        <media id="yellow_bird" src="characters/yellow_bird.png" type="image" />
 
-        <media id="start" src="assets/theme2/start.png" type="image" />
-        <media id="correct" src="assets/theme2/correct.png" type="image" />
-        <media id="try_again" src="assets/theme2/try_again.png" type="image" />
-        <media id="grant_sprite" src="assets/theme2/grant_sprite.json" type="spritesheet" />
+        <media id="start" src="start.png" type="image" />
+        <media id="correct" src="correct.png" type="image" />
+        <media id="try_again" src="try_again.png" type="image" />
+        <media id="grant_sprite" src="grant_sprite.json" type="spritesheet" />
 
-        <media id="worksheet_data" src="worksheets/worksheet2/items.json" type="json" />
+        <media id="worksheet_data" src="items.json" type="json" />
     </manifest>
     <datasource asset="worksheet_data"/>
     <stage id="splash" start="true" x="0" y="0" w="100" h="100">
