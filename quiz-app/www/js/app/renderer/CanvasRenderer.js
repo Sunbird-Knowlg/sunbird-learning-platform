@@ -40,7 +40,7 @@ Renderer = {
             Renderer.init(data, canvasId, gameRelPath);
         })
         .fail(function(err) {
-            alert("Unable to render - ", err);
+            alert("Unable to render.", err);
         });
     },
     init: function(data, canvasId, gameRelPath) {
@@ -57,6 +57,7 @@ Renderer = {
         } else {
             Renderer.theme.loader = new createjs.LoadQueue(true);
         }
+        Renderer.theme.loader.setMaxConnections(data.theme.manifest.media.length);
         Renderer.theme.loader.addEventListener("complete", Renderer.startCanvas);
         Renderer.theme.loader.installPlugin(createjs.Sound);
         Renderer.theme.loader.loadManifest(data.theme.manifest.media, true);
