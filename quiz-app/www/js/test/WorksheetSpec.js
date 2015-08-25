@@ -1,8 +1,11 @@
-describe('Worksheet Validations', function() {
+describe('Worksheets and Stories Validations', function() {
     var jsonData;
     // done is called after getting the data. done() - is used to handle asynchronous operations...
     beforeEach(function(done) {
-        $.get('worksheets/worksheet2/markup.xml', function(data) {
+      // worksheets/worksheet2/markup.xml
+      // worksheets/addition_by_grouping/markup.xml
+      // stories/haircut_story/markup.xml
+        $.get('stories/haircut_story/markup.xml', function(data) {
                 if (!$.isPlainObject(data)) {
                     var x2js = new X2JS({
                         attributePrefix: 'none'
@@ -13,6 +16,7 @@ describe('Worksheet Validations', function() {
             })
             .fail(function(err) {
                 alert("Unable to render - ", err);
+                done();
             });
     });
 
@@ -27,7 +31,7 @@ describe('Worksheet Validations', function() {
                 var stageAssetIds = getStageAssetIds(stage);
                 for (key in stageAssetIds) {
                     var id = stageAssetIds[key];
-                    console.log('indexof ' + id + ': ' + _.indexOf(assetIds, id) + ' : ' + (_.indexOf(assetIds, id) >= 0));
+                    console.log('indexof - "' + id + '": ' + _.indexOf(assetIds, id) + ' :: validation: ' + (_.indexOf(assetIds, id) >= 0));
                     var expected = (_.indexOf(assetIds, id) >= 0);
                     expect(true).toEqual(expected);
                 }
