@@ -8,6 +8,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
+            console.log('ionic platform is ready...');
             if (window.cordova && window.cordova.plugins.Keyboard) {
                 cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             }
@@ -84,6 +85,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $localstorage.remove('screeners');
             setTimeout(function() {
                 $scope.getGames();
+                console.log('filewriterService._root:', filewriterService._root);
             }, 100);
         }
 
