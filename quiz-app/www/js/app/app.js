@@ -17,7 +17,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                // initBookshelf();
+                TelemetryService.flush();
             });
         });
     })

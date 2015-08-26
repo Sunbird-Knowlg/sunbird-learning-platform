@@ -1,6 +1,7 @@
 FilewriterService = Class.extend({
-	_root: undefined,
-	init: function() {},
+	init: function() {
+		this.initWriter();
+	},
 	initWriter: function(initObj) {
 		throw "Subclasses of FilewriterService should implement this function";
 	},
@@ -12,5 +13,8 @@ FilewriterService = Class.extend({
     },
     writeFile: function(fileName, data, success, error) {
 		throw "Subclasses of FilewriterService should implement this function";
+    },
+    getFileLength: function(fileName) {
+    	throw "Subclasses of FilewriterService should implement this function";
     }
 });

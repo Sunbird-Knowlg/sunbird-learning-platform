@@ -79,8 +79,7 @@
     </style>
     <script type="text/javascript">
         document.addEventListener("deviceready", function() {
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function (fileSystem) {
-                filewriterService.initWriter(fileSystem);
+            setTimeout(function() {
                 console.log('initializing Telemetry Service...');
                 var user = {
                     "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
@@ -96,13 +95,14 @@
                 *** Will change this if needed.
                 */
                 TelemetryService.init(user, game, null); // params are 1. user, 2. game, 3. config.
-                TelemetryService.start({});
-                TelemetryService.printAll();
+                TelemetryService.startGame({});
+                // TelemetryService.startGame({});
+                // TelemetryService.startGame({});
+                // TelemetryService.startGame({});
                 setTimeout(function() {
                     TelemetryService.flush();
                 }, 2000);
-                console.log('Setting fileSystem.root to local variable...:', filewriterService._root);
-            }, onError);
+            }, 5000);
         });
         function onError(e) {
             console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
