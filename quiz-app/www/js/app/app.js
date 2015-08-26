@@ -85,7 +85,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $localstorage.remove('screeners');
             setTimeout(function() {
                 $scope.getGames();
-                console.log('filewriterService._root:', filewriterService._root);
             }, 100);
         }
 

@@ -192,10 +192,10 @@ TelemetryService = {
         }
     },
     clearEvents: function() {
-        for(eventName : TelemetryService._events) {
+        for(eventName in TelemetryService._events) {
             TelemetryService._events[eventName] = [];
         }
-    }
+    },
     printAll: function() {
         console.log('gameData:', TelemetryService._gameData);
         console.log('user:', TelemetryService._user);
