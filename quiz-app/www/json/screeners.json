@@ -12,17 +12,19 @@
   "result": {
     "games": [
       {
+        "id": "screener.addition.through.objects",
         "name": "Addition through Objects",
         "description": "Addition through Objects",
         "appIcon": "assets/noah.png",
-        "launchUrl": "worksheets/worksheet1/markup.xml",
+        "launchPath": "worksheets/addition_by_grouping",
         "loadingMessage": "Loading \"Addition through Objects\" assets..."
       },
       {
+        "id": "screener.counting.numbers",
         "name": "Counting Numbers",
         "description": "",
         "appIcon": "assets/kitchensink.jpg",
-        "launchUrl": "worksheets/worksheet2/markup.xml",
+        "launchPath": "worksheets/worksheet2",
         "loadingMessage": "Loading \"Counting Numbers\" assets..."
       }
     ],

@@ -11,6 +11,7 @@
     },
     "result": {
         "games": [{
+            "id": "story.anual.haircut.day",
             "name": "Annual Haircut Day",
             "description": "Sringeri Srinivas Annual Haircut Day",
             "appIcon": "assets/haircut.png",

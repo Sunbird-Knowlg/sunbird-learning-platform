@@ -17,7 +17,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                TelemetryService.flush();
+                TelemetryService.endGame();
             });
         });
     })
@@ -85,6 +85,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $localstorage.remove('screeners');
             setTimeout(function() {
                 $scope.getGames();
+                console.log('flushing telemetry in 2sec...');
+                setTimeout(function() {
+                    TelemetryService.flush();
+                }, 2000);
             }, 100);
         }
 
@@ -141,11 +145,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
+            TelemetryService.startGame({"id": $scope.item.id, "ver": 1.0});
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
-
     });
 
 

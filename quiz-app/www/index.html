@@ -52,6 +52,7 @@
     <script src="js/app/plugin/AudioPlugin.js"></script>
     <script src="js/app/renderer/CanvasRenderer.js"></script>
     <script src="js/app/plugin/CommandManager.js"></script>
+    <script src="js/thirdparty/date-format.js"></script>
     <script src="js/app/service/FilewriterService.js"></script>
     <script src="js/app/service/CordovaFilewriterService.js"></script>
     <script src="js/app/service/TelemetryService.js"></script>
@@ -95,10 +96,7 @@
                 *** Will change this if needed.
                 */
                 TelemetryService.init(user, game, null); // params are 1. user, 2. game, 3. config.
-                TelemetryService.startGame({});
-                // TelemetryService.startGame({});
-                // TelemetryService.startGame({});
-                // TelemetryService.startGame({});
+                TelemetryService.startGame();
                 setTimeout(function() {
                     TelemetryService.flush();
                 }, 2000);

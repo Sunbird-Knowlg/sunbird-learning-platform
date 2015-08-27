@@ -52,7 +52,7 @@ TelemetryService = {
     _gameErrorFile: undefined,
     _events: {
         'OE_START': [],
-        'OE_END': undefined,
+        'OE_END': [],
         'OE_ASSESS': [],
         'OE_INTERACT': []
     },
@@ -106,29 +106,33 @@ TelemetryService = {
     startGame: function(game) {
         if (TelemetryService._config.isActive) {
             var eventName = 'OE_START';
-            if(game && game.id && game.ver && game.type) {
+            if(game && game.id && game.ver) {
                 TelemetryService._gameData = game;
             }
             var eventData = {"eks": {},"ext": {}};
             var event = TelemetryService.createEventObject(eventName, eventData);
             TelemetryService._events[eventName].push({"id": TelemetryService._gameData.id, "data": event, "time": new Date().getTime(), "ended": false});
+            console.log('Game: '+ TelemetryService._gameData.id + ' start event created...');
         } else {
             console.log('TelemetryService is inActive.');
         }
     },
-    endGame: function(eventData) {
+    endGame: function() {
         if (TelemetryService._config.isActive) {
             var eventName = 'OE_END';
-            var oeStart = _.findWhere(TelemetryService._events['OE_START'], {"id": TelemetryService._gameData.id, "ended": false});
-            if(oeStart) {
-                var time = new Date().getTime();
-                var length = time - oeStart.time;
-                var eventData = {"eks": {"length": length},"ext": {}};
-                var event = TelemetryService.createEventObject(eventName, eventData);
-                TelemetryService._events[eventName].push(event);
-                var oeStartIndex = _.indexOf(TelemetryService._events['OE_START'], oeStart);
-                TelemetryService._events['OE_START'][oeStartIndex].ended = true;
-                TelemetryService._gameData = TelemetryService._parentGameData;
+            var oeStarts = _.where(TelemetryService._events['OE_START'], {"id": TelemetryService._gameData.id, "ended": false});
+            if(oeStarts && oeStarts.length > 0) {
+                _.each(oeStarts, function(oeStart) {
+                    var time = new Date().getTime();
+                    var length = (time - oeStart.time)/1000;
+                    var eventData = {"eks": {"length": length},"ext": {}};
+                    var event = TelemetryService.createEventObject(eventName, eventData);
+                    TelemetryService._events[eventName].push(event);
+                    var oeStartIndex = _.indexOf(TelemetryService._events['OE_START'], oeStart);
+                    TelemetryService._events['OE_START'][oeStartIndex].ended = true;
+                    console.log('Game: '+ TelemetryService._gameData.id + ' end event created...');
+                    TelemetryService._gameData = TelemetryService._parentGameData;
+                });
             } else {
                 console.log('There is no game to end.');
             }
@@ -157,19 +161,18 @@ TelemetryService = {
     },
     flush: function() {
         var data = _.pluck(_.where(TelemetryService._events['OE_START'], {"ended": true}), 'data');
-        data = _.union(data, TelemetryService._events['OE_END'], TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT']);
+        data = _.union(data, TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT'], TelemetryService._events['OE_END']);
         if(data && data.length > 0) {
             data = JSON.stringify(data);
             data = data.substring(1, data.length - 1);
             filewriterService.getFileLength(TelemetryService._gameOutputFile)
             .then(function(fileSize) {
-                console.log('fileSize:', fileSize);
                 if(fileSize == 0) {
                     data = '{"events":[' + data + ']}';
                 } else {
-                    data = ', ' + data;
+                    data = ', ' + data + ']}';
                 }
-                filewriterService.writeFile(TelemetryService._gameOutputFile, data, 2, function() {
+                filewriterService.writeFile(TelemetryService._gameOutputFile, data, function() {
                     console.log('File write completed...');
                 }, function() {
                     console.log('Error writing file...');
@@ -186,7 +189,11 @@ TelemetryService = {
     },
     clearEvents: function() {
         for(eventName in TelemetryService._events) {
-            TelemetryService._events[eventName] = [];
+            if(eventName == 'OE_START') {
+                TelemetryService._events[eventName] = _.where(TelemetryService._events[eventName], {"ended": false});
+            } else {
+                TelemetryService._events[eventName] = [];
+            }
         }
     },
     printAll: function() {
@@ -204,6 +211,12 @@ TelemetryService = {
         }, 5000);
     }
 }
+
+// use a index to insert relative to the end or middle of the string.
+String.prototype.insert = function (index, string) {
+  var ind = index < 0 ? this.length + index  :  index;
+  return  this.substring(0, ind) + string + this.substring(ind, this.length);
+};
 
 // Generate Genie format ts as per Telemetry wiki
 // https://github.com/ekstep/Common-Design/wiki/Telemetry
