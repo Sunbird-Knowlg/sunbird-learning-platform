@@ -9,7 +9,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
             console.log('ionic platform is ready...');
-            TelemetryService._config.isActive = false;
             if (window.cordova && window.cordova.plugins.Keyboard) {
                 cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             }
@@ -18,7 +17,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                TelemetryService.endGame();
+                // TelemetryService.endGame();
             });
         });
     })
@@ -151,6 +150,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
+        $scope.$on('$destroy', function() {
+            TelemetryService.endGame();
+        });
     });
 
 

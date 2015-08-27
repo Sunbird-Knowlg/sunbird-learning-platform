@@ -53,6 +53,7 @@
     <script src="js/app/renderer/CanvasRenderer.js"></script>
     <script src="js/app/plugin/CommandManager.js"></script>
     <script src="js/thirdparty/date-format.js"></script>
+    <script src="js/app/service/TelemetryServiceUtil.js"></script>
     <script src="js/app/service/FilewriterService.js"></script>
     <script src="js/app/service/CordovaFilewriterService.js"></script>
     <script src="js/app/service/TelemetryService.js"></script>
@@ -95,8 +96,7 @@
                 *** Important: Assuming that game, user data will be read and passed to TelemetryService. 
                 *** Will change this if needed.
                 */
-                TelemetryService._config.isActive = true;
-                TelemetryService.init(user, game, null); // params are 1. user, 2. game, 3. config.
+                TelemetryService.init(user, game); // params are 1. user, 2. game.
                 TelemetryService.startGame();
                 setTimeout(function() {
                     TelemetryService.flush();
