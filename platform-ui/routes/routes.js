@@ -200,7 +200,10 @@ module.exports = function(app, dirname, passport, connectroles) {
 };
 
 function setUser(req, res, next) {
-
+    if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
+        res.locals.contextname = appConfig.CONTEXT_NAME;
+    }
+    
     if (!req.roles) {
         req.roles = ["public"];
     }

@@ -61,6 +61,9 @@
 		</div>
 		<div class="clearfix"></div>
 	</div>
+    <% if(typeof contextname !='undefined') { %>
+        <input type="hidden" id="appContext" value="<%= contextname%>"/>
+    <% } %>
 	<% if(typeof user != 'undefined' ) { %>
 		<input type="hidden" id="loggedUserId" value="<%= user.identifier%>"/>
         <% if(user.metadata && typeof user.metadata.image !='undefined' && user.metadata.organizationCode != 'undefined') { %>

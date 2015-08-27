@@ -38,9 +38,10 @@ appObj.controller('LoginCtrl', function($scope, $rootScope, $http, $location, $w
     }
 
     $scope.signIn = function() {
+        var contextName = ($('#appContext').val())? '/'+$('#appContext').val() : '';
         var request = $http({
             method: "POST", // define the type of HTTP verb we want to use (POST for our form)
-            url: "/private/v1/login/", // the url where we want to POST
+            url: contextName + "/private/v1/login/", // the url where we want to POST
             data: {
                 email: $scope.userName,
                 password: $scope.passWord
@@ -49,7 +50,7 @@ appObj.controller('LoginCtrl', function($scope, $rootScope, $http, $location, $w
         success(function(data) {
             if (data.status == 'success') {
                 $scope.success = 1;
-                $window.location.href = '/private/player';
+                $window.location.href = contextName + '/private/player';
             } else {
                 $scope.success = 0;
             }
