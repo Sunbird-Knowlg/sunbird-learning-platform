@@ -5,7 +5,13 @@ TelemetryServiceUtil = {
 	},
 	initConfig: function() {
 		$.get('json/telemetryConfig.json', {}, function(data) {
-			TelemetryServiceUtil._config = JSON.parse(data);
+			if(data) {
+				if (typeof data === 'string') {
+					TelemetryServiceUtil._config = JSON.parse(data);		
+				} else {
+					TelemetryServiceUtil._config = data;
+				}
+			}
 			console.log('Telemetry Config init completed...');
 		});
 	}
