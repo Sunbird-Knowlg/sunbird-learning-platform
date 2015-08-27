@@ -8,22 +8,28 @@ var Plugin = Class.extend({
 	_index: 0,
 	_self: undefined,
 	_dimensions: undefined,
+	events: [],
+	appEvents: [],
 	init: function(data, parent, stage, theme) {
+		this.events = [];
+		this.appEvents = [];
 		this._theme = theme;
 		this._stage = stage;
 		this._parent = parent;
 	    this._data = data;
 		this.initPlugin(data);
-		if(this._isContainer) {
-			this.containerEvents(data);
-		} else {
-			this.assetEvents(data);
+		if(data.appEvents) {
+			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));
+		}
+		EventManager.registerEvents(this, data);
+		if (data.id) {
+			PluginManager.registerPluginObject(data.id, this);
+		}
+		if (data.visible === false) {
+	    	this._self.visible = false;
 		}
 		if(this._render) {
 			this.render();
-		}
-		if (data.id) {
-			pluginManager.registerPluginObject(data.id, this);
 		}
 	},
 	setIndex: function(idx) {
@@ -72,75 +78,52 @@ var Plugin = Class.extend({
         return relDimensions;
 	},
 	initPlugin: function(data) {
+		PluginManager.addError('Subclasses of plugin should implement this function');
 		throw "Subclasses of plugin should implement this function";
 	},
-	registerEvent: function(instance, eventData) {
-		throw "Subclasses of plugin should implement this function";
+	play: function() {
+		PluginManager.addError('Subclasses of plugin should implement play()');
 	},
-	assetEvents: function(asset) {
-		var instance = this;
-		//console.log('Registering asset events', 'Plugin Type -', instance._type);
-		if(asset.onclick) {
-	    	instance._self.cursor = "pointer";
-	    	var events = asset.onclick.split(',');
-	    	events.forEach(function(ev) {
-	    		var arr = ev.split(':');
-		    	//raise click event
-		    	if(arr[0] == 'theme') {
-		    		instance._self.on('click', function() {
-		    			instance._theme.dispatchEvent(arr[1]);
-		    		});
-		    	} else if(arr[0] == 'stage') {
-		    		instance._self.on('click', function() {
-		    			instance._stage.dispatchEvent(arr[1]);
-		    		});
-		    	} else {
-		    		//default to parent
-		    		instance._self.on('click', function() {
-		    			instance._parent.dispatchEvent(arr[1] || arr[0]);
-		    		});
-		    	}
-	    	});
-	    } else if(asset.onclick_command) {
-	    	instance._self.cursor = "pointer";
-	    	instance._self.on('click', function() {
-	    		eval('commandManager.' + asset.onclick_command + '("'+asset.id+'")');
-	    	});
-	    }
+	pause: function() {
+		PluginManager.addError('Subclasses of plugin should implement pause()');
 	},
-	containerEvents: function(data) {
-		var instance = this;
-		//console.log('Registering container events', 'Plugin Type -', instance._type);
-		if(data.events && data.events.event) {
-            if(_.isArray(data.events.event)) {
-                data.events.event.forEach(function(e) {
-                    instance.registerEvent(instance, e);
-                });
-            } else {
-                instance.registerEvent(instance, data.events.event);
-            }
-        }
+	stop: function() {
+		PluginManager.addError('Subclasses of plugin should implement stop()');
 	},
-	getAnimationFn: function(animate, to) {
-		var instance = this;
-		if(!_.isArray(to)) {
-			to = [to];
+	togglePlay: function() {
+		PluginManager.addError('Subclasses of plugin should implement togglePlay()');
+	},
+	show: function() {
+		if(_.contains(this.events, 'show')) {
+			EventManager.dispatchEvent(this._data.id, 'show');
+		} else {
+			this._self.visible = true;
 		}
-		var fn = '(function() {return function(plugin){';
-		fn += 'createjs.Tween.get(plugin, {override:true})';
-		to.forEach(function(to) {
-			var data = JSON.parse(to.__cdata);
-			var relDims = instance.getRelativeDims(data);
-			data.x = relDims.x;
-			data.y = relDims.y;
-			data.width = relDims.w;
-			data.height = relDims.h;
-			fn += '.to(' + JSON.stringify(data) + ',' + to.duration + ', createjs.Ease.' + to.ease + ')';
-		});
-		if(animate.widthChangeEvent) {
-			fn += '.addEventListener("change", ' + instance.getWidthHandler() + ')';
+	},
+	hide: function() {
+		if(_.contains(this.events, 'hide')) {
+			EventManager.dispatchEvent(this._data.id, 'hide');
+		} else {
+			this._self.visible = false;
 		}
-		fn += '}})()';
-		return fn;
+	},
+	toggleShow: function() {
+		if(_.contains(this.events, 'toggleShow')) {
+			EventManager.dispatchEvent(this._data.id, 'toggleShow');
+		} else {
+			this._self.visible = !this._self.visible;
+		}
+	},
+	transitionTo: function() {
+		PluginManager.addError('Subclasses of plugin should implement transitionTo()');
+	},
+	toggleShadow: function() {
+		PluginManager.addError('Subclasses of plugin should implement toggleShadow()');
+	},
+	evaluate: function() {
+		PluginManager.addError('Subclasses of plugin should implement evaluate()');
+	},
+	reload: function() {
+		PluginManager.addError('Subclasses of plugin should implement reload()');
 	}
 })

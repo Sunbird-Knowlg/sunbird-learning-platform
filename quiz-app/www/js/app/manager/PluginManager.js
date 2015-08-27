@@ -1,15 +1,15 @@
-var PluginManager = Class.extend({
-	_pluginMap: {},
-	_pluginObjMap: {},
-	_errors: [],
-	_defaultResWidth: 1920,
-	_defaultResHeight: 1200,
+PluginManager = {
+	pluginMap: {},
+	pluginObjMap: {},
+	errors: [],
+	defaultResWidth: 1920,
+	defaultResHeight: 1200,
 	registerPlugin: function(id, plugin) {
-		this._pluginMap[id] = plugin;
+		PluginManager.pluginMap[id] = plugin;
 		createjs.EventDispatcher.initialize(plugin.prototype);
 	},
 	isPlugin: function(id) {
-		if(this._pluginMap[id]) {
+		if(PluginManager.pluginMap[id]) {
 			return true;
 		} else {
 			return false;
@@ -17,10 +17,9 @@ var PluginManager = Class.extend({
 	},
 	invoke: function(id, data, parent, stage, theme) {
 		var p,
-			pluginMap = this._pluginMap;
+			pluginMap = PluginManager.pluginMap;
 		if(!pluginMap[id]) {
-			this._errors.push('No plugin found for - ' + id);
-			console.log('No plugin found for - ', id);
+			PluginManager.addError('No plugin found for - ' + id);
 		} else {
 			if(_.isArray(data)) {
 				data.forEach(function(d) {
@@ -33,11 +32,15 @@ var PluginManager = Class.extend({
 		return p;
 	},
 	registerPluginObject: function(id, pluginObj) {
-		this._pluginObjMap[id] = pluginObj;
+		PluginManager.pluginObjMap[id] = pluginObj;
 	},
 	getPluginObject: function(id) {
-		return this._pluginObjMap[id];
+		return PluginManager.pluginObjMap[id];
+	},
+	addError: function(error) {
+		PluginManager.errors.push(error);
+	},
+	getErrors: function() {
+		return PluginManager.errors;
 	}
-});
-
-var pluginManager = new PluginManager();
+}

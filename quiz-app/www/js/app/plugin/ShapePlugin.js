@@ -1,5 +1,6 @@
 var ShapePlugin = Plugin.extend({
 	_isContainer: false,
+    _render: true,
     initPlugin: function(data) {
     	this._self = new createjs.Shape();
     	var graphics = this._self.graphics;
@@ -36,7 +37,6 @@ var ShapePlugin = Plugin.extend({
             this._self.regY = dims.h/2;
             this._self.rotation = data.rotate;
         }
-    	this.render();
     }
 });
-pluginManager.registerPlugin('shape', ShapePlugin);
+PluginManager.registerPlugin('shape', ShapePlugin);

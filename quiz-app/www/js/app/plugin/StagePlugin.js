@@ -1,6 +1,7 @@
 var StagePlugin = Plugin.extend({
     _type: 'stage',
     _repeat: 1,
+    _render: true,
     _stageData: undefined,
     _choices: [],
     initPlugin: function(data) {
@@ -10,7 +11,7 @@ var StagePlugin = Plugin.extend({
         }
         this.getStageData(data, count);
         if (this._repeat <= 1) {
-            this._theme._stageRepeatCount[data.id] = 1;    
+            this._theme._stageRepeatCount[data.id] = 1;
         } else {
             this._theme._stageRepeatCount[data.id] = count + 1;
         }
@@ -19,30 +20,18 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        this._render = true;
-        //this.render();
 
         for (k in data) {
-            if (pluginManager.isPlugin(k)) {
-                pluginManager.invoke(k, data[k], this, this, this._theme);
-            } else {
-                // Handle plugin specific data like animations, events
+            if (PluginManager.isPlugin(k)) {
+                PluginManager.invoke(k, data[k], this, this, this._theme);
             }
         }
-        if(data.animate) {
-            this.animations = {};
-            if(_.isArray(data.animate)) {
-                data.animate.forEach(function(animate) {
-                    this.animations[animate.id] = {};
-                    if(animate.type == 'tween') {
-                        this.animations[animate.id].animateFn = this.getAnimationFn(animate, animate.to);
-                    }
-                })
-            } else {
-                this.animations[data.animate.id] = {};
-                if(data.animate.type == 'tween') {
-                    this.animations[data.animate.id].animateFn = this.getAnimationFn(data.animate, data.animate.to);
-                }
+        if (!this._theme._assessmentData[this._data.id]) {
+            this._theme._assessmentData[this._data.id] = {};
+        }
+        for (var i = 1; i <= this._repeat; i++) {
+            if (!this._theme._assessmentData[this._data.id][i]) {
+                this._theme._assessmentData[this._data.id][i] = 0;
             }
         }
     },
@@ -62,145 +51,40 @@ var StagePlugin = Plugin.extend({
             }
         }
     },
-    registerEvent: function(instance, eventData) {
-        if (eventData.transition) {
-            instance.on(eventData.on, function(event) {
-                var count = instance._theme._stageRepeatCount[instance._data.id];
-                if (eventData.on == 'previous') {
-                    if (count > 1) {
-                        count -= 2;    
-                        instance._theme._stageRepeatCount[instance._data.id] = count;
-                        instance._theme.replaceStage(this._self, instance._data.id, eventData);
+    evaluate: function(action) {
+        var dataItem = this._stageData;
+        var valid = true;
+        var evalFields = action.fields.split(',');
+        evalFields.forEach(function(inputId) {
+            if (valid) {
+                var inputPlugIn = PluginManager.getPluginObject(inputId);
+                if (inputPlugIn) {
+                    var ansParam = inputPlugIn._data.param;
+                    var expected = dataItem.answer[ansParam];
+                    var actual = document.getElementById(inputId).value;
+                    if (_.isObject(expected)) {
+                        valid = _.isEqual(expected, actual);
                     } else {
-                        instance._theme._stageRepeatCount[instance._data.id] = 0;
-                        instance._theme.replaceStage(this._self, eventData.transition, eventData);
+                        valid = (expected == actual);
                     }
                 } else {
-                    if (count < instance._repeat) {
-                        instance._theme.replaceStage(this._self, instance._data.id, eventData);
-                    } else {
-                        instance._theme.replaceStage(this._self, eventData.transition, eventData);
-                    }    
-                }
-            });
-        } else if (eventData.eval) {
-            if (!instance._theme._assessmentData[instance._data.id]) {
-                instance._theme._assessmentData[instance._data.id] = {};
-            }
-            for (var i = 1; i <= instance._repeat; i++) {
-                if (!instance._theme._assessmentData[instance._data.id][i]) {
-                    instance._theme._assessmentData[instance._data.id][i] = 0;
+                    valid = false;
                 }
             }
-            instance.on(eventData.on, function(event) {
-                var dataItem = instance._stageData;
-                var valid = true;
-                var evalFields = eventData.eval.split(',');
-                evalFields.forEach(function(inputId) {
-                    if (valid) {
-                        var inputPlugIn = pluginManager.getPluginObject(inputId);
-                        if (inputPlugIn) {
-                            var ansParam = inputPlugIn._data.param;
-                            var expected = dataItem.answer[ansParam];
-                            var actual = document.getElementById(inputId).value;
-                            if (_.isObject(expected)) {
-                                valid = _.isEqual(expected, actual);
-                            } else {
-                                valid = (expected == actual);
-                            }
-                        } else {
-                            valid = false;
-                        }
-                    }
-                });
-                if (valid) {
-                    instance.dispatchEvent(eventData.success);
-                    var itemIndex = instance._theme._stageRepeatCount[instance._data.id];
-                    instance._theme._assessmentData[instance._data.id][itemIndex] = 1;
-                } else {
-                    instance.dispatchEvent(eventData.failure);
-                }
-            });
-        } else if (eventData.show || eventData.hide) {
-            instance.on(eventData.on, function(event) {
-                instance._theme.disableInputs();
-                var showIds = [];
-                if (eventData.show) {
-                    var showIds = eventData.show.split(",");
-                    showIds.forEach(function(id) {
-                        var plugIn = pluginManager.getPluginObject(id);
-                        if (plugIn) {
-                            if (plugIn.animate_on_show) {
-                                var animationFn = eval(plugIn.animations[plugIn.animate_on_show].animateFn);
-                                animationFn.apply(null, [plugIn._self]);
-                            } else {
-                                plugIn._self.visible = true;
-                            }
-                        }
-                    });
-                }
-                if (eventData.hide) {
-                    var hideIds = eventData.hide.split(",");
-                    hideIds.forEach(function(id) {
-                        var plugIn = pluginManager.getPluginObject(id);
-                        if (plugIn && plugIn._parent) {
-                            plugIn._self.visible = false;
-                        }
-                    });
-                }
-            });
-        } else if (eventData.reload) {
-            instance.on(eventData.on, function(event) {
-                var count = instance._theme._stageRepeatCount[instance._data.id];
-                count -= 1;
-                instance._theme._stageRepeatCount[instance._data.id] = count;
-                instance._theme.replaceStage(this._self, instance._data.id, eventData);
-            });
-        } else if (eventData.start_page) {
-            instance.on(eventData.on, function(event) {
-                instance._theme.startPage();
-            });
-        } else if (eventData.audio) {
-            instance.on(eventData.on, function() {
-                switch(eventData.type) {
-                    case 'play':
-                        commandManager.play(eventData.asset);
-                        break;
-                    case 'pause':
-                        commandManager.pause(eventData.asset);
-                        break;
-                    case 'toggle':
-                        commandManager.toggle(eventData.asset);
-                        break;
-                    case 'stop':
-                        commandManager.stop(eventData.asset);
-                        break;
-                    default:
-                }
-            });
-        } else if (eventData.animate) {
-            //console.log('Registering animation events...');
-            instance.on(eventData.on, function() {
-                //console.log('Receiving animation event - ', eventData);
-                var animationFn = eval(instance.animations[eventData.animate].animateFn);
-                animationFn.apply(null, [pluginManager.getPluginObject(eventData.asset)._self]);
-            });
-        } else if (eventData.container) {
-            instance.on(eventData.on, function() {
-                switch(eventData.type) {
-                    case 'toggle':
-                        commandManager.toggle(eventData.asset);
-                        break;
-                    case 'show':
-                        commandManager.show(eventData.asset);
-                        break;
-                    case 'hide':
-                        commandManager.hide(eventData.asset);
-                        break;
-                    default:
-                }
-            });
+        });
+        if (valid) {
+            this.dispatchEvent(action.success);
+            var itemIndex = this._theme._stageRepeatCount[this._data.id];
+            this._theme._assessmentData[this._data.id][itemIndex] = 1;
+        } else {
+            this.dispatchEvent(action.failure);
         }
+    },
+    reload: function(action) {
+        var count = this._theme._stageRepeatCount[this._data.id];
+        count -= 1;
+        this._theme._stageRepeatCount[this._data.id] = count;
+        this._theme.replaceStage(this._data.id, action);
     }
 });
-pluginManager.registerPlugin('stage', StagePlugin);
+PluginManager.registerPlugin('stage', StagePlugin);

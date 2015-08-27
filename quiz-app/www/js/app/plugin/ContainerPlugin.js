@@ -1,43 +1,17 @@
 var ContainerPlugin = Plugin.extend({
     _type: 'g',
+    _render: true,
 	initPlugin: function(data) {
 		this._self = new createjs.Container();
 		var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        this._self.visible = true;
-        if (data.visible == false) {
-            this._self.visible = false;
-        }
-        this.render();
 
         for(k in data) {
-        	if(pluginManager.isPlugin(k)) {
-        		pluginManager.invoke(k, data[k], this, this._stage, this._theme);
-        	} else {
-        		// Handle plugin specific data like animations, events
+        	if(PluginManager.isPlugin(k)) {
+        		PluginManager.invoke(k, data[k], this, this._stage, this._theme);
         	}
         }
-	},
-    registerEvent: function(instance, eventData) {
-        if(eventData.isTest) {
-            instance.on(eventData.on, function(event) {
-                console.log('Container Event invoked - ', eventData.on);
-            });
-        }
-    },
-    show: function() {
-        this._self.visible = true;
-    },
-    hide: function() {
-        this._self.visible = false;
-    },
-    toggle: function() {
-        if(this._self.visible) {
-            this._self.visible = false;
-        } else {
-            this._self.visible = true;
-        }
-    }
+	}
 });
-pluginManager.registerPlugin('g', ContainerPlugin);
+PluginManager.registerPlugin('g', ContainerPlugin);

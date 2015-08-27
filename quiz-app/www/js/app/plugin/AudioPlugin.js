@@ -3,6 +3,7 @@ var AudioPlugin = Plugin.extend({
     _isContainer: false,
     _id: undefined,
     _state: 'stop',
+    _render: false,
     initPlugin: function(data) {
         this._id = data.id;
     },
@@ -22,7 +23,7 @@ var AudioPlugin = Plugin.extend({
             });
         }
     },
-    toggle: function() {
+    togglePlay: function() {
         if(this._state == 'play') {
             this.pause();
         } else {
@@ -42,4 +43,4 @@ var AudioPlugin = Plugin.extend({
     }
 
 });
-pluginManager.registerPlugin('audio', AudioPlugin);
+PluginManager.registerPlugin('audio', AudioPlugin);

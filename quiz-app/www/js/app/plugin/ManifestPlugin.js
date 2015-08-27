@@ -1,5 +1,6 @@
 var ManifestPlugin = Plugin.extend({
+	_render: false,
 	initPlugin: function(data) {
 	}
 });
-pluginManager.registerPlugin('manifest', ManifestPlugin);
+PluginManager.registerPlugin('manifest', ManifestPlugin);

@@ -1,5 +1,6 @@
 var ThemePlugin = Plugin.extend({
     _type: 'theme',
+    _render: false,
     update: false,
     loader: undefined,
     _director: false,
@@ -46,8 +47,8 @@ var ThemePlugin = Plugin.extend({
             this._themeData = themeData;
         }
         if(this._data.stage) {
-            var stage = _.findWhere(this._data.stage, {start: true});
-            pluginManager.invoke('stage', stage, this, null, this);
+            var stage = _.findWhere(this._data.stage, {id: this._data.startStage});
+            PluginManager.invoke('stage', stage, this, null, this);
         }
         this.update();
     },
@@ -78,18 +79,32 @@ var ThemePlugin = Plugin.extend({
         childPlugin.setIndex(nextIdx);
         this._currentScene = childPlugin;
     },
-    replaceStage: function(prevStage, stageId, effect) {
+    replaceStage: function(stageId, effect) {
         this.disableInputs();
         this.inputs = [];
         this._animationEffect = effect;
         var stage = _.findWhere(this._data.stage, {id: stageId});
-        pluginManager.invoke('stage', stage, this, null, this);
+        PluginManager.invoke('stage', stage, this, null, this);
     },
-    registerEvent: function(instance, eventData) {
-        if(eventData.isTest) {
-            instance.on(eventData.on, function(event) {
-                console.log('Theme Event invoked - ', eventData.on);
-            });
+    transitionTo: function(action) {
+        var stage = this._currentScene;
+        var count = this._stageRepeatCount[stage._data.id];
+
+        if (action.transitionType === 'previous') {
+            if (count > 1) {
+                count -= 2;
+                this._stageRepeatCount[stage._data.id] = count;
+                this.replaceStage(stage._data.id, action);
+            } else {
+                this._stageRepeatCount[stage._data.id] = 0;
+                this.replaceStage(action.value, action);
+            }
+        } else {
+            if (count < stage._repeat) {
+                this.replaceStage(stage._data.id, action);
+            } else {
+                this.replaceStage(action.value, action);
+            }
         }
     },
     disableInputs: function() {
@@ -150,9 +165,6 @@ var ThemePlugin = Plugin.extend({
             return e;
         }
         return eval('createjs.Ease.' + e);
-    },
-    startPage: function() {
-        window.location.href = 'index.html';
     }
 });
-pluginManager.registerPlugin('theme', ThemePlugin);
+PluginManager.registerPlugin('theme', ThemePlugin);
