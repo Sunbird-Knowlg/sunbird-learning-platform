@@ -144,7 +144,7 @@ var StagePlugin = Plugin.extend({
                     hideIds.forEach(function(id) {
                         var plugIn = pluginManager.getPluginObject(id);
                         if (plugIn && plugIn._parent) {
-                            plugIn._parent.removeChild(plugIn._self);
+                            plugIn._self.visible = false;
                         }
                     });
                 }
