@@ -9,6 +9,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
             console.log('ionic platform is ready...');
+            TelemetryService._config.isActive = false;
             if (window.cordova && window.cordova.plugins.Keyboard) {
                 cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             }

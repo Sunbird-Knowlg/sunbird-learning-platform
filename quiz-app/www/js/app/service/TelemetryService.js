@@ -141,50 +141,67 @@ TelemetryService = {
         }
     },
     interact: function(eventData) {
+
     },
-    assess: function(eventData, status) {
+    startAssess: function(eventData) {
+    },
+    endAssess: function(eventData) {
+    },
+    levelSet: function(eventData) {
+
+    },
+    interrupt: function(eventData) {
+
     },
     createFiles: function() {
-        filewriterService.createBaseDirectory(TelemetryService._baseDir, function() {
-            console.log('file creation failed...');
-        });
-        filewriterService.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
-            console.log(fileEntry.name + ' created successfully.');
-        }, function() {
-            console.log('file creation failed...');
-        });
-        filewriterService.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
-            console.log(fileEntry.name + ' created successfully.');
-        }, function() {
-            console.log('file creation failed...');
-        });
-    },
-    flush: function() {
-        var data = _.pluck(_.where(TelemetryService._events['OE_START'], {"ended": true}), 'data');
-        data = _.union(data, TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT'], TelemetryService._events['OE_END']);
-        if(data && data.length > 0) {
-            data = JSON.stringify(data);
-            data = data.substring(1, data.length - 1);
-            filewriterService.getFileLength(TelemetryService._gameOutputFile)
-            .then(function(fileSize) {
-                if(fileSize == 0) {
-                    data = '{"events":[' + data + ']}';
-                } else {
-                    data = ', ' + data + ']}';
-                }
-                filewriterService.writeFile(TelemetryService._gameOutputFile, data, function() {
-                    console.log('File write completed...');
-                }, function() {
-                    console.log('Error writing file...');
-                });
-                TelemetryService.clearEvents();
-                console.log('events after clear: ',TelemetryService._events);
-            })
-            .catch(function(err) {
-                console.log('Error:', err);
+        if (TelemetryService._config.isActive) {
+            filewriterService.createBaseDirectory(TelemetryService._baseDir, function() {
+                console.log('file creation failed...');
+            });
+            filewriterService.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
+                console.log(fileEntry.name + ' created successfully.');
+            }, function() {
+                console.log('file creation failed...');
+            });
+            filewriterService.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
+                console.log(fileEntry.name + ' created successfully.');
+            }, function() {
+                console.log('file creation failed...');
             });
         } else {
-            console.log('No data to write...');
+            console.log('TelemetryService is inActive.');
+        }
+    },
+    flush: function() {
+        if (TelemetryService._config.isActive) {
+            var data = _.pluck(_.where(TelemetryService._events['OE_START'], {"ended": true}), 'data');
+            data = _.union(data, TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT'], TelemetryService._events['OE_END']);
+            if(data && data.length > 0) {
+                data = JSON.stringify(data);
+                data = data.substring(1, data.length - 1);
+                filewriterService.getFileLength(TelemetryService._gameOutputFile)
+                .then(function(fileSize) {
+                    if(fileSize == 0) {
+                        data = '{"events":[' + data + ']}';
+                    } else {
+                        data = ', ' + data + ']}';
+                    }
+                    filewriterService.writeFile(TelemetryService._gameOutputFile, data, function() {
+                        console.log('File write completed...');
+                    }, function() {
+                        console.log('Error writing file...');
+                    });
+                    TelemetryService.clearEvents();
+                    console.log('events after clear: ',TelemetryService._events);
+                })
+                .catch(function(err) {
+                    console.log('Error:', err);
+                });
+            } else {
+                console.log('No data to write...');
+            }
+        } else {
+            console.log('TelemetryService is inActive.');
         }
     },
     clearEvents: function() {

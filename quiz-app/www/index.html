@@ -95,6 +95,7 @@
                 *** Important: Assuming that game, user data will be read and passed to TelemetryService. 
                 *** Will change this if needed.
                 */
+                TelemetryService._config.isActive = true;
                 TelemetryService.init(user, game, null); // params are 1. user, 2. game, 3. config.
                 TelemetryService.startGame();
                 setTimeout(function() {

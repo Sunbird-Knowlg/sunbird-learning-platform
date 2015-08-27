@@ -52,6 +52,7 @@ Renderer = {
         data.theme.canvasId = canvasId;
         Renderer.theme = new ThemePlugin(data.theme);
         Renderer.resizeGame(true);
+        // if(Renderer.theme.loader) Renderer.theme.loader.destroy();
         if(gameRelPath) {
             Renderer.theme.loader = new createjs.LoadQueue(true, gameRelPath + "/assets/");
         } else {
