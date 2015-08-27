@@ -16,10 +16,10 @@ CordovaFilewriterService = FilewriterService.extend({
 	createFile: function(fileName, success, error) {
         _root.getFile(fileName, {create : true}, success, error);
     },
-    writeFile: function(fileName, data, success, error) {
+    writeFile: function(fileName, data, seekDiff, success, error) {
 		_root.getFile(fileName, {create : false}, function(fileEntry) {
 			fileEntry.createWriter(function(fileWriter) {
-				fileWriter.seek(fileWriter.length);
+				if(fileWriter.length > 0 && seekDiff) fileWriter.seek(fileWriter.length - seekDiff);
 				fileWriter.write(data);
 				success();
 			}, error);	

@@ -52,7 +52,7 @@ TelemetryService = {
     _gameErrorFile: undefined,
     _events: {
         'OE_START': [],
-        'OE_END': [],
+        'OE_END': undefined,
         'OE_ASSESS': [],
         'OE_INTERACT': []
     },
@@ -90,54 +90,48 @@ TelemetryService = {
     validateEvent: function(eventStr, eventData) {
         return true;
     },
-    createEventObject: function(eventName, eventData, gameData) {
+    createEventObject: function(eventName, eventData) {
+
         return {
             "eid": eventName.toUpperCase(),
-            "ts": new Date(),
+            "ts": toGenieDateTime(new Date().getTime()),
             "ver": TelemetryService._eventVersion, 
-            "gdata": gameData || TelemetryService._gameData,
+            "gdata": TelemetryService._gameData,
             "sid": TelemetryService._user.sid,
             "uid": TelemetryService._user.uid,
             "did": TelemetryService._user.did,
             "edata": eventData
         }
     },
-    startGame: function(eventData, game) {
+    startGame: function(game) {
         if (TelemetryService._config.isActive) {
             var eventName = 'OE_START';
             if(game && game.id && game.ver && game.type) {
                 TelemetryService._gameData = game;
             }
-            var eventStr = TelemetryService._config.events[eventName.toUpperCase()];
-            if (eventStr) {
-                if (TelemetryService.validateEvent(eventStr, eventData)) {
-                    var event = TelemetryService.createEventObject(eventName, eventData);
-                    TelemetryService._events[eventName].push(event);
-                }
-            } else {
-                console.log('Invalid event:' + eventName);
-            }
+            var eventData = {"eks": {},"ext": {}};
+            var event = TelemetryService.createEventObject(eventName, eventData);
+            TelemetryService._events[eventName].push({"id": TelemetryService._gameData.id, "data": event, "time": new Date().getTime(), "ended": false});
         } else {
             console.log('TelemetryService is inActive.');
         }
     },
-    endGame: function(eventData, game) {
+    endGame: function(eventData) {
         if (TelemetryService._config.isActive) {
             var eventName = 'OE_END';
-            var validGame = null;
-            if(game && game.id && game.ver && game.type) {
-                validGame = game;
-            }
-            var eventStr = TelemetryService._config.events[eventName.toUpperCase()];
-            if (eventStr) {
-                if (TelemetryService.validateEvent(eventStr, eventData)) {
-                    var event = TelemetryService.createEventObject(eventName, eventData, validGame);
-                    TelemetryService._events[eventName].push(event);
-                }
+            var oeStart = _.findWhere(TelemetryService._events['OE_START'], {"id": TelemetryService._gameData.id, "ended": false});
+            if(oeStart) {
+                var time = new Date().getTime();
+                var length = time - oeStart.time;
+                var eventData = {"eks": {"length": length},"ext": {}};
+                var event = TelemetryService.createEventObject(eventName, eventData);
+                TelemetryService._events[eventName].push(event);
+                var oeStartIndex = _.indexOf(TelemetryService._events['OE_START'], oeStart);
+                TelemetryService._events['OE_START'][oeStartIndex].ended = true;
+                TelemetryService._gameData = TelemetryService._parentGameData;
             } else {
-                console.log('Invalid event:' + eventName);
+                console.log('There is no game to end.');
             }
-            TelemetryService._gameData = TelemetryService._parentGameData;
         } else {
             console.log('TelemetryService is inActive.');
         }
@@ -161,8 +155,9 @@ TelemetryService = {
             console.log('file creation failed...');
         });
     },
-    flush: function(exit) {
-        var data = _.union(TelemetryService._events['OE_START'], TelemetryService._events['OE_END'], TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT']);
+    flush: function() {
+        var data = _.pluck(_.where(TelemetryService._events['OE_START'], {"ended": true}), 'data');
+        data = _.union(data, TelemetryService._events['OE_END'], TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT']);
         if(data && data.length > 0) {
             data = JSON.stringify(data);
             data = data.substring(1, data.length - 1);
@@ -170,13 +165,11 @@ TelemetryService = {
             .then(function(fileSize) {
                 console.log('fileSize:', fileSize);
                 if(fileSize == 0) {
-                    data = '{"events":[' + data;
-                    if(exit) data += ']}';
+                    data = '{"events":[' + data + ']}';
                 } else {
                     data = ', ' + data;
-                    if(exit) data += ']}';
                 }
-                filewriterService.writeFile(TelemetryService._gameOutputFile, data, function() {
+                filewriterService.writeFile(TelemetryService._gameOutputFile, data, 2, function() {
                     console.log('File write completed...');
                 }, function() {
                     console.log('Error writing file...');
@@ -210,6 +203,14 @@ TelemetryService = {
             navigator.app.exitApp();
         }, 5000);
     }
+}
+
+// Generate Genie format ts as per Telemetry wiki
+// https://github.com/ekstep/Common-Design/wiki/Telemetry
+// YYYY-MM-DDThh:mm:ss+/-nn:nn
+function toGenieDateTime(ms){
+    var v = dateFormat(new Date(ms), "yyyy-mm-dd'T'HH:MM:ssZ").replace('GMT', '');
+    return v.insert(-2, ':');
 }
 
 var filewriterService = new CordovaFilewriterService();
