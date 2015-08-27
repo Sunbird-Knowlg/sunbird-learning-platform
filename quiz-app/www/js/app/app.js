@@ -8,6 +8,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
+            console.log('ionic platform is ready...');
             if (window.cordova && window.cordova.plugins.Keyboard) {
                 cordova.plugins.Keyboard.hideKeyboardAccessoryBar(true);
             }
@@ -16,7 +17,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                // initBookshelf();
+                // TelemetryService.endGame();
             });
         });
     })
@@ -84,6 +85,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $localstorage.remove('screeners');
             setTimeout(function() {
                 $scope.getGames();
+                console.log('flushing telemetry in 2sec...');
+                setTimeout(function() {
+                    TelemetryService.flush();
+                }, 2000);
             }, 100);
         }
 
@@ -140,11 +145,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
+            TelemetryService.startGame({"id": $scope.item.id, "ver": 1.0});
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
-
+        $scope.$on('$destroy', function() {
+            TelemetryService.endGame();
+        });
     });
 
 
