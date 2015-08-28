@@ -17,7 +17,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                // TelemetryService.endGame();
+                // TelemetryService.end();
             });
         });
     })
@@ -145,16 +145,25 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
-            TelemetryService.startGame({"id": $scope.item.id, "ver": 1.0});
+            TelemetryService.start($scope.item.id, 1.0);
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
         $scope.$on('$destroy', function() {
-            TelemetryService.interact({"eks": {"type": "TOUCH", "id": "story"},"ext": {}});
-            TelemetryService.interact({"eks": {},"ext": {}});
+            TelemetryService.interact("TOUCH", "story", "TOUCH");
+            TelemetryService.startAssess("NUM", "qid", "EASY");
+            TelemetryService.endAssess("qid", 'yes', 1);
+            TelemetryService.startAssess("NUM", "qid", "EASY");
+            TelemetryService.endAssess("qid", 'yes', 1);
+            TelemetryService.startAssess("NUM", "qid", "EASY");
+            TelemetryService.endAssess("qid", 'yes', 1);
+            TelemetryService.startAssess("NUM", "qid", "EASY");
+            TelemetryService.endAssess("qid", 'no', 0);
+            TelemetryService.startAssess("NUM", "qid-2", "EASY");
             setTimeout(function() {
-                TelemetryService.endGame();
+                TelemetryService.endAssess("qid-2", 'yes', 1);
+                TelemetryService.end();
             }, 100);
         });
     });

@@ -56,23 +56,29 @@ TelemetryService = {
         }
         return messages;
     },
-    createEventObject: function(eventName, eventData) {
-        return {
+    createEventObject: function(eventName, eventData, startTime) {
+        var time = new Date().getTime();
+        var event = {
             "eid": eventName.toUpperCase(),
-            "ts": toGenieDateTime(new Date().getTime()),
+            "ts": toGenieDateTime(time),
             "ver": TelemetryService._eventVersion,
             "gdata": TelemetryService._gameData,
             "sid": TelemetryService._user.sid,
             "uid": TelemetryService._user.uid,
             "did": TelemetryService._user.did,
             "edata": eventData
-        }
+        };
+        if (startTime) event.startTime = time;
+        return event;
     },
-    startGame: function(game) {
+    start: function(id, ver) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_START';
-            if (game && game.id && game.ver) {
-                TelemetryService._gameData = game;
+            if (id && ver) {
+                TelemetryService._gameData = {
+                    "id": id,
+                    "ver": ver
+                };
             }
             var eventData = {
                 "eks": {},
@@ -89,7 +95,7 @@ TelemetryService = {
             console.log('TelemetryService is inActive.');
         }
     },
-    endGame: function() {
+    end: function() {
         if (TelemetryService.isActive) {
             var eventName = 'OE_END';
             if (TelemetryService._data[TelemetryService._gameData.id]) {
@@ -116,34 +122,112 @@ TelemetryService = {
             console.log('TelemetryService is inActive.');
         }
     },
-    interact: function(eventData) {
+    interact: function(type, id, extype, url, ext) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_INTERACT';
-            var eventStr = TelemetryService._config.events[eventName];
-            var messages = TelemetryService.validateEvent(eventStr, eventData);
-            if (messages.length == 0) {
-                var event = TelemetryService.createEventObject(eventName, eventData);
-                TelemetryService._data[TelemetryService._gameData.id].data.push(event);
-                console.log('Game: ' + TelemetryService._gameData.id + ' interact event created...');
+            if (type && id && extype) {
+                var eventStr = TelemetryService._config.events[eventName];
+                var eventData = {
+                    "eks": {
+                        "type": type,
+                        "id": id,
+                        "extype": extype
+                    },
+                    "ext": {}
+                };
+                eventData.eks.url = url || "";
+                eventData.ext = ext || {};
+                var messages = TelemetryService.validateEvent(eventStr, eventData);
+                if (messages.length == 0) {
+                    var event = TelemetryService.createEventObject(eventName, eventData);
+                    TelemetryService._data[TelemetryService._gameData.id].data.push(event);
+                    console.log('Game: ' + TelemetryService._gameData.id + ' interact event created...');
+                } else {
+                    TelemetryService.logError(eventName, messages);
+                }
             } else {
+                var messages = ['reqired data is missing to create interact event.'];
                 TelemetryService.logError(eventName, messages);
             }
         } else {
             console.log('TelemetryService is inActive.');
         }
     },
-    startAssess: function(eventData) {
+    startAssess: function(subj, qid, qlevel, qtype, mc, maxscore, exres, exlength) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_ASSESS';
-
+            if (subj && qid && qlevel) {
+                var eventStr = TelemetryService._config.events[eventName];
+                var assessEvents = _.filter(TelemetryService._data[TelemetryService._gameData.id].data, function(event) {
+                    return (event.eid == eventName && event.edata.eks.qid == qid);
+                });
+                var event = null;
+                if (typeof assessEvents == 'undefined' || assessEvents.length == 0) {
+                    var eventData = {
+                        "eks": {
+                            "subj": subj,
+                            "qid": qid,
+                            "qlevel": qlevel,
+                            "qtype": qtype || "",
+                            "mc": mc || [],
+                            "maxscore": maxscore || 0,
+                            "exres": exres || [],
+                            "exlength": exlength || 0,
+                            "length": 0,
+                            "atmpts": 0,
+                            "failedatmpts": 0
+                        },
+                        "ext": {}
+                    };
+                    var messages = TelemetryService.validateEvent(eventStr, eventData);
+                    if (messages.length == 0) {
+                        event = TelemetryService.createEventObject(eventName, eventData, true);
+                        TelemetryService._data[TelemetryService._gameData.id].data.push(event);
+                    } else {
+                        TelemetryService.logError(eventName, messages);
+                    }
+                } else {
+                    event = assessEvents[0];
+                    event.startTime = new Date().getTime();
+                }
+            } else {
+                var messages = ['reqired data is missing to start assess event.'];
+                TelemetryService.logError(eventName, messages);
+            }
         } else {
             console.log('TelemetryService is inActive.');
         }
     },
-    endAssess: function(eventData) {
+    endAssess: function(qid, pass, score, res, uri, mmc, ext) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_ASSESS';
-
+            var messages = [];
+            if((typeof qid != 'undefined') && (typeof pass != 'undefined') && (typeof score != 'undefined')) {
+                var eventStr = TelemetryService._config.events[eventName];
+                var assessEvents = _.filter(TelemetryService._data[TelemetryService._gameData.id].data, function(event) {
+                    return (event.eid == eventName && event.edata.eks.qid == qid);
+                });
+                if(assessEvents && assessEvents.length > 0) {
+                    var event = assessEvents[0];
+                    event.edata.eks.length += Math.round((new Date().getTime() - event.startTime)/1000);
+                    event.edata.eks.atmpts += 1;
+                    if(pass && pass.toUpperCase() == 'YES') {
+                        event.edata.eks.pass = 'Yes';
+                    } else {
+                        event.edata.eks.pass = 'No';
+                        event.edata.eks.failedatmpts += 1;
+                    }
+                    event.edata.eks.res = res || [];
+                    event.edata.eks.uri = uri || "";
+                    event.edata.ext = ext || {};
+                    delete event.startTime;
+                } else {
+                    messages.push('invalid qid to end assess event.');
+                }
+            } else {
+                messages.push('reqired data is missing to end assess event.');
+            }
+            if(messages.length > 0) TelemetryService.logError(eventName, messages);
         } else {
             console.log('TelemetryService is inActive.');
         }
@@ -216,22 +300,26 @@ TelemetryService = {
         TelemetryService._events = [];
     },
     logError: function(eventName, error) {
-        var data = {'eventName': eventName, 'message': error, 'time': toGenieDateTime(new Date().getTime())}
+        var data = {
+            'eventName': eventName,
+            'message': error,
+            'time': toGenieDateTime(new Date().getTime())
+        }
         if (TelemetryService.isActive) {
             filewriterService.getFileLength(TelemetryService._gameErrorFile)
-                    .then(function(fileSize) {
-                        data = JSON.stringify(data);
-                        if (fileSize == 0) {
-                            data = '{"errors":[' + data + ']}';
-                        } else {
-                            data = ', ' + data + ']}';
-                        }
-                        return filewriterService.writeFile(TelemetryService._gameErrorFile, data, 2);
-                    })
-                    .catch(function(err) {
-                        console.log('Error while writing error.json file.');
-                        console.log('Error tried to log:', JSON.stringify(error));
-                    });
+                .then(function(fileSize) {
+                    data = JSON.stringify(data);
+                    if (fileSize == 0) {
+                        data = '{"errors":[' + data + ']}';
+                    } else {
+                        data = ', ' + data + ']}';
+                    }
+                    return filewriterService.writeFile(TelemetryService._gameErrorFile, data, 2);
+                })
+                .catch(function(err) {
+                    console.log('Error while writing error.json file.');
+                    console.log('Error tried to log:', JSON.stringify(error));
+                });
         } else {
             console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
         }

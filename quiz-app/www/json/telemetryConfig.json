@@ -7,7 +7,7 @@
         "OE_ASSESS": {
             "eks": {
                 "subj": {
-                    "required": false,
+                    "required": true,
                     "values": [
                         "NUM",
                         "LIT",
@@ -21,7 +21,7 @@
                     "required": true
                 },
                 "qtype": {
-                    "required": true
+                    "required": false
                 },
                 "qlevel": {
                     "required": true,
@@ -33,16 +33,16 @@
                     ]
                 },
                 "pass": {
-                    "required": true
+                    "required": false
                 },
                 "mmc": {
                     "required": false
                 },
                 "score": {
-                    "required": true
+                    "required": false
                 },
                 "maxscore": {
-                    "required": true
+                    "required": false
                 },
                 "res": {
                     "required": false
@@ -51,16 +51,16 @@
                     "required": false
                 },
                 "length": {
-                    "required": true
+                    "required": false
                 },
                 "exlength": {
-                    "required": true
+                    "required": false
                 },
                 "atmpts": {
-                    "required": true
+                    "required": false
                 },
                 "failedatmpts": {
-                    "required": true
+                    "required": false
                 },
                 "uri": {
                     "required": false
