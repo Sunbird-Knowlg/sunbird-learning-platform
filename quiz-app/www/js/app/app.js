@@ -151,7 +151,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $state.go('contentList');
         }
         $scope.$on('$destroy', function() {
-            TelemetryService.endGame();
+            TelemetryService.interact({"eks": {"type": "TOUCH", "id": "story"},"ext": {}});
+            TelemetryService.interact({"eks": {},"ext": {}});
+            setTimeout(function() {
+                TelemetryService.endGame();
+            }, 100);
         });
     });
 

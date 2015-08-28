@@ -38,7 +38,23 @@ TelemetryService = {
         TelemetryService.exitApp();
     },
     validateEvent: function(eventStr, eventData) {
-        return true;
+        var messages = [];
+        if (eventStr && eventStr.eks && eventData && eventData.eks) {
+            for (key in eventStr.eks) {
+                var def = eventStr.eks[key];
+                if (def.required) {
+                    var val = eventData.eks[key];
+                    if (typeof val == 'undefined' || val == '') {
+                        messages.push('required field ' + key + ' is missing.');
+                    } else if (def.values && (_.indexOf(def.values, val) == -1)) {
+                        messages.push('field ' + key + ' value should be from ' + def.values + ' but given: ' + val);
+                    }
+                }
+            }
+        } else {
+            messages.push('Invalid event data.');
+        }
+        return messages;
     },
     createEventObject: function(eventName, eventData) {
         return {
@@ -104,11 +120,13 @@ TelemetryService = {
         if (TelemetryService.isActive) {
             var eventName = 'OE_INTERACT';
             var eventStr = TelemetryService._config.events[eventName];
-            if (TelemetryService.validateEvent(eventStr, eventData)) {
+            var messages = TelemetryService.validateEvent(eventStr, eventData);
+            if (messages.length == 0) {
                 var event = TelemetryService.createEventObject(eventName, eventData);
                 TelemetryService._data[TelemetryService._gameData.id].data.push(event);
+                console.log('Game: ' + TelemetryService._gameData.id + ' interact event created...');
             } else {
-                console.log('Invalid EventData:', eventData);
+                TelemetryService.logError(eventName, messages);
             }
         } else {
             console.log('TelemetryService is inActive.');
@@ -178,11 +196,9 @@ TelemetryService = {
                         } else {
                             data = ', ' + data + ']}';
                         }
-                        filewriterService.writeFile(TelemetryService._gameOutputFile, data, function() {
-                            console.log('File write completed...');
-                        }, function() {
-                            console.log('Error writing file...');
-                        });
+                        return filewriterService.writeFile(TelemetryService._gameOutputFile, data, 2);
+                    })
+                    .then(function(status) {
                         TelemetryService.clearEvents();
                         console.log('events after clear: ', TelemetryService._events);
                     })
@@ -198,6 +214,27 @@ TelemetryService = {
     },
     clearEvents: function() {
         TelemetryService._events = [];
+    },
+    logError: function(eventName, error) {
+        var data = {'eventName': eventName, 'message': error, 'time': toGenieDateTime(new Date().getTime())}
+        if (TelemetryService.isActive) {
+            filewriterService.getFileLength(TelemetryService._gameErrorFile)
+                    .then(function(fileSize) {
+                        data = JSON.stringify(data);
+                        if (fileSize == 0) {
+                            data = '{"errors":[' + data + ']}';
+                        } else {
+                            data = ', ' + data + ']}';
+                        }
+                        return filewriterService.writeFile(TelemetryService._gameErrorFile, data, 2);
+                    })
+                    .catch(function(err) {
+                        console.log('Error while writing error.json file.');
+                        console.log('Error tried to log:', JSON.stringify(error));
+                    });
+        } else {
+            console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
+        }
     },
     printAll: function() {
         console.log('gameData:', TelemetryService._gameData);
