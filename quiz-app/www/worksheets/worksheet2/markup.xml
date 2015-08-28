@@ -1,4 +1,4 @@
-<theme>
+<theme id="theme" startStage="splash">
     <manifest>
         <media id="bg1" src="bg1.png" type="image" />
         <media id="bg3" src="bg3.png" type="image" />
@@ -29,7 +29,7 @@
         <media id="worksheet_data" src="items.json" type="json" />
     </manifest>
     <datasource asset="worksheet_data"/>
-    <stage id="splash" start="true" x="0" y="0" w="100" h="100">
+    <stage id="splash" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
         <text x="10" y="15" w="30" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Counting Numbers...
@@ -38,11 +38,11 @@
             Counting and number recognition worksheets are among the first math worksheets that preschool and kindergarten children will practice with. Number recognition is a building block to success in math. As preschool and kindergarten children start to recognize their numbers, it is natural for them to begin counting objects.
         </text>
         <sprite asset="grant_sprite" start="run" x="35" y="50"/>
-        
-        <image asset="start" x="40" y="78" w="22" h="22" onclick="stage:next"/>
-        <events>
-            <event on="next" transition="item" effect="moveInLeft"/>
-        </events>
+        <image asset="start" x="40" y="78" w="22" h="22" onclick="stage:next">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" value="item" effect="scroll"/>
+            </event>
+        </image>
     </stage>
     <stage id="item" x="0" y="0" w="100" h="100">
         <placeholder param="var1" x="0" y="0" w="100" h="100"/>
@@ -60,35 +60,67 @@
         <placeholder param="var3" x="79" y="70" w="30" h="5" enabledrag="true" snapTo="snapBox"/>
         <input type="number" class="inputText" x="72" y="72" w="5" h="5" id="text2" param="ans2"/>
 
-        <image asset="blacktint_full" x="0" y="0" w="100" h="100" hide="true" id="img_overlay"/>
-        <sprite asset="grant_sprite" start="jump" x="45" y="45" hide="true" id="sprite_jump"/>
-        <image asset="correct" x="30" y="30" w="40" h="30" hide="true" id="img_correct" onclick="next"/>
-        <image asset="try_again" x="30" y="30" w="40" h="30" hide="true" id="img_try_again" onclick="try_again"/>
+        <image asset="blacktint_full" x="0" y="0" w="100" h="100" visible="false" id="img_overlay"/>
+        <sprite asset="grant_sprite" start="jump" x="45" y="45" visible="false" id="sprite_jump"/>
+        <image asset="correct" x="30" y="30" w="40" h="30" visible="false" id="img_correct">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" value="summary" effect="moveIn" direction="right" ease="linear" duration="500"/>
+            </event>
+        </image>
+        <image asset="try_again" x="30" y="30" w="40" h="30" visible="false" id="img_try_again">
+            <event type="click">
+                <action type="command" command="reload" asset="item" effect="fadeIn" direction="top" ease="linear" duration="1500"/>
+            </event>
+        </image>
 
-        <image asset="previous" x="83" y="1" w="5" h="9" onclick="previous"/>
+        <image asset="previous" x="83" y="1" w="5" h="9">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" value="splash" effect="fadeInOut" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </image>
         <image asset="profile" x="88" y="1" w="5" h="9"/>
-        <image asset="next" x="93" y="1" w="5" h="9" onclick="next"/>
-        <image asset="button_next" x="80" y="90" w="15" h="9" onclick="eval"/>
+        <image asset="next" x="93" y="1" w="5" h="9">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" value="summary" effect="moveIn" direction="right" ease="linear" duration="500"/>
+            </event>
+        </image>
+        <image asset="button_next" x="80" y="90" w="15" h="9">
+            <event type="click">
+                <action type="command" command="eval" asset="item" fields="text1,text2" success="correct_answer" failure="wrong_answer"/>
+            </event>
+        </image>
+        <appEvents list="correct_answer,wrong_answer"/>
         <events>
-            <event on="eval" eval="text1,text2" success="correct_answer" failure="wrong_answer"/>
-            <event on="correct_answer" show="img_overlay,img_correct,sprite_jump" hide="img_try_again"/>
-            <event on="wrong_answer" show="img_overlay,img_try_again" hide="img_correct,sprite_jump"/>
-            <event on="try_again" reload="true" effect="fadeInOut"/>
-            <event on="previous" transition="splash" effect="scaleInOut"/>
-            <event on="next" transition="summary" effect="moveInRight"/>
+            <event type="correct_answer">
+                <action type="command" command="show" asset="img_overlay"/>
+                <action type="command" command="show" asset="img_correct"/>
+                <action type="command" command="show" asset="sprite_jump"/>
+                <action type="command" command="hide" asset="img_try_again"/>
+                <action type="command" command="hide" asset="text1"/>
+                <action type="command" command="hide" asset="text2"/>
+            </event>
+            <event type="wrong_answer">
+                <action type="command" command="show" asset="img_overlay"/>
+                <action type="command" command="show" asset="img_try_again"/>
+                <action type="command" command="hide" asset="img_correct"/>
+                <action type="command" command="hide" asset="sprite_jump"/>
+                <action type="command" command="hide" asset="text1"/>
+                <action type="command" command="hide" asset="text2"/>
+            </event>
         </events>
     </stage>
     <stage id="summary" x="0" y="0" w="100" h="100">
         <image asset="bg5" x="0" y="0" w="100" h="100"/>
-        <image asset="home_icon" x="93" y="1" w="5" h="9" onclick="start_page"/>
+        <image asset="home_icon" x="93" y="1" w="5" h="9">
+            <event type="click">
+                <action type="command" command="windowEvent" asset="theme" href="index.html"/>
+            </event>
+        </image>
         <text x="10" y="15" w="30" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Counting Numbers...
         </text>
         <summary x="40" y="40" w="32" h="40" font="Arial, serif" fontsize="64" width="614" color="#fff" param="summary">
         </summary>
         <sprite asset="grant_sprite" start="jump_run" x="35" y="30"/>
-        <events>
-            <event on="start_page" start_page="index.html"/>
-        </events>
     </stage>
 </theme>
