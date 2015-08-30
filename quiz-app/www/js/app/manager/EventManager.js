@@ -47,6 +47,9 @@ EventManager = {
 		}
 	},
 	handleAction: function(action, plugin) {
+		if(action.param) {
+			action.value = plugin._stage.params[action.param] || '';
+		}
 		if(action.type === 'animation') {
 			AnimationManager.handle(action, plugin);
 		} else {

@@ -47,8 +47,7 @@ var ThemePlugin = Plugin.extend({
             this._themeData = themeData;
         }
         if(this._data.stage) {
-            var stage = _.findWhere(this._data.stage, {id: this._data.startStage});
-            PluginManager.invoke('stage', stage, this, null, this);
+            this.invokeStage(this._data.startStage);
         }
         this.update();
     },
@@ -83,8 +82,34 @@ var ThemePlugin = Plugin.extend({
         this.disableInputs();
         this.inputs = [];
         this._animationEffect = effect;
+        this.invokeStage(stageId);
+    },
+    invokeStage: function(stageId) {
         var stage = _.findWhere(this._data.stage, {id: stageId});
+        if(stage.extends) {
+            baseStage = _.findWhere(this._data.stage, {id: stage.extends});
+            stage = this.mergeStages(stage, baseStage);
+        }
         PluginManager.invoke('stage', stage, this, null, this);
+    },
+    mergeStages: function(stage1, stage2) {
+        for(k in stage2) {
+            if(k === 'id') continue;
+            var attr = stage2[k];
+            if(stage1[k]) {
+                if(!_.isArray(stage1[k])) {
+                    stage1[k] = [stage1[k]];
+                }
+                if(_.isArray(attr)) {
+                    stage1[k].push.apply(stage1[k], attr);
+                } else {
+                    stage1[k].push(attr);
+                }
+            } else {
+                stage1[k] = attr;
+            }
+        }
+        return stage1;
     },
     transitionTo: function(action) {
         var stage = this._currentScene;

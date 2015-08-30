@@ -4,6 +4,7 @@ var StagePlugin = Plugin.extend({
     _render: true,
     _stageData: undefined,
     _choices: [],
+    params: {},
     initPlugin: function(data) {
         var count = this._theme._stageRepeatCount[data.id] || 0;
         if (count <= 0) {
@@ -20,7 +21,18 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-
+        for (k in data) {
+            if(k === 'param') {
+                if(_.isArray(data[k])) {
+                    var instance = this;
+                    data[k].forEach(function(param) {
+                        instance.params[param.name] = param.value;
+                    });
+                } else {
+                    this.params[data[k].name] = data[k].value;
+                }
+            }
+        }
         for (k in data) {
             if (PluginManager.isPlugin(k)) {
                 PluginManager.invoke(k, data[k], this, this, this._theme);

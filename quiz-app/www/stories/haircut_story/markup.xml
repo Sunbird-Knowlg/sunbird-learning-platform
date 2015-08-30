@@ -104,6 +104,19 @@
         <media id="story_data" src="data_english.json" type="json" />
     </manifest>
     <datasource asset="story_data"/>
+    <stage id="baseStage">
+        <image asset="next" x="93" y="3" w="5" h="8.3">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500"/>
+            </event>
+        </image>
+        <image asset="previous" x="2" y="3" w="5" h="8.3">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500"/>
+            </event>
+        </image>
+        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+    </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
         <audio id="cover_sound"/>
         <image asset="page1" x="2" y="2" w="96" h="70"/>
@@ -142,21 +155,13 @@
         </events>
     </stage>
 
-    <stage id="scene1" x="0" y="0" w="100" h="100">
+    <stage id="scene1" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene2"/>
+        <param name="previous" value="splash"/>
         <audio id="clock_sound"/>
         <audio id="scene1_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
         <image asset="page2" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene2" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="splash" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene1_sound"/>
@@ -167,7 +172,6 @@
                 <action type="command" command="togglePlay" asset="clock_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene1_sound" loop="1"/>
@@ -177,7 +181,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene2" x="0" y="0" w="100" h="100">
+    <stage id="scene2" x="0" y="0" w="100" h="100" extends="baseStage">
         <audio id="scene2_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <audio id="water_sound"/>
@@ -191,6 +195,8 @@
         <audio id="Bb5_sound"/>
         <audio id="C5_sound"/>
         <audio id="D5_sound"/>
+        <param name="next" value="scene3"/>
+        <param name="previous" value="scene1"/>
 
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
@@ -204,16 +210,6 @@
                     <to ease="linear" duration="1"><![CDATA[{"x":18,"y": 55, "scaleX": 1}]]></to>
                     <to ease="linear" duration="2000"><![CDATA[{"x":57,"y":55}]]></to>
                 </action>
-            </event>
-        </image>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene3" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene1" effect="scroll" direction="right" ease="linear" duration="500"/>
             </event>
         </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
@@ -360,7 +356,6 @@
             </event>
         </shape>
 
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene2_sound" loop="1"/>
@@ -370,28 +365,19 @@
             </event>
         </events>
     </stage>
-    <stage id="scene3" x="0" y="0" w="100" h="100">
+    <stage id="scene3" x="0" y="0" w="100" h="100" extends="baseStage">
         <audio id="scene3_sound"/>
         <audio id="learning1_sound"/>
         <audio id="learning2_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
         <image asset="page4" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene4" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene2" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
+        <param name="next" value="scene4"/>
+        <param name="previous" value="scene2"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene3_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -443,21 +429,13 @@ to Cut hair
             </event>
         </events>
     </stage>
-    <stage id="scene4" x="0" y="0" w="100" h="100">
+    <stage id="scene4" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene5"/>
+        <param name="previous" value="scene3"/>
         <audio id="scene4_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
         <image asset="page5" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene5" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene3" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene4_sound"/>
@@ -468,7 +446,6 @@ to Cut hair
                 <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene4_sound" loop="1"/>
@@ -478,28 +455,19 @@ to Cut hair
             </event>
         </events>
     </stage>
-    <stage id="scene5" x="0" y="0" w="100" h="100">
+    <stage id="scene5" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene6"/>
+        <param name="previous" value="scene4"/>
         <audio id="scene5_sound"/>
         <audio id="learning3_sound"/>
         <audio id="learning4_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page6" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene6" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene5" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene5_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
@@ -554,21 +522,13 @@ Wife uses a Knife to Cut vegetables
             </event>
         </events>
     </stage>
-    <stage id="scene6" x="0" y="0" w="100" h="100">
+    <stage id="scene6" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene7"/>
+        <param name="previous" value="scene5"/>
         <audio id="scene6_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
         <image asset="page7" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene7" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene5" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene6_sound"/>
@@ -579,7 +539,6 @@ Wife uses a Knife to Cut vegetables
                 <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene6_sound" loop="1"/>
@@ -589,29 +548,20 @@ Wife uses a Knife to Cut vegetables
             </event>
         </events>
     </stage>
-    <stage id="scene7" x="0" y="0" w="100" h="100">
+    <stage id="scene7" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene8"/>
+        <param name="previous" value="scene6"/>
         <audio id="scene7_sound"/>
         <audio id="learning5_sound"/>
         <audio id="learning6_sound"/>
         <audio id="learning7_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8"/>
         <image asset="page8" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene8" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene6" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene7_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="40" y="15" w="30" h="27" id="tailorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -686,22 +636,14 @@ Tailor uses Sewing Machine to stitch
             </event>
         </events>
     </stage>
-    <stage id="scene8" x="0" y="0" w="100" h="100">
+    <stage id="scene8" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene9"/>
+        <param name="previous" value="scene7"/>
         <audio id="scene8_sound"/>
         <audio id="cow_sound"/>
         <audio id="teapot_rhyme"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9"/>
         <image asset="page9" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene9" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene7" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene8_sound"/>
@@ -730,7 +672,6 @@ Tailor uses Sewing Machine to stitch
                 <action type="command" command="togglePlay" asset="cow_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene8_sound" loop="1"/>
@@ -740,29 +681,20 @@ Tailor uses Sewing Machine to stitch
             </event>
         </events>
     </stage>
-    <stage id="scene9" x="0" y="0" w="100" h="100">
+    <stage id="scene9" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene10"/>
+        <param name="previous" value="scene8"/>
         <audio id="scene9_sound"/>
         <audio id="saw_sound"/>
         <audio id="learning8_sound"/>
         <audio id="learning9_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB"/>
         <image asset="page10" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene10" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene8" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene9_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <g x="72" y="8" w="28" h="27" id="carpenterInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -818,26 +750,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene10" x="0" y="0" w="100" h="100">
+    <stage id="scene10" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene11"/>
+        <param name="previous" value="scene9"/>
         <audio id="scene10_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page11" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene11" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene9" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene10_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene10_sound" loop="1"/>
@@ -847,26 +770,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene11" x="0" y="0" w="100" h="100">
+    <stage id="scene11" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene12"/>
+        <param name="previous" value="scene10"/>
         <audio id="scene11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
         <image asset="page12" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene12" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene10" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene11_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene11_sound" loop="1"/>
@@ -876,21 +790,13 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene12" x="0" y="0" w="100" h="100">
+    <stage id="scene12" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene13"/>
+        <param name="previous" value="scene11"/>
         <audio id="scene12_sound"/>
         <audio id="forest_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
         <image asset="page13" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene13" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene11" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene12_sound"/>
@@ -906,7 +812,6 @@ Carpenter uses a Saw to Cut wood.
                 <action type="command" command="togglePlay" asset="forest_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene12_sound" loop="1"/>
@@ -916,26 +821,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene13" x="0" y="0" w="100" h="100">
+    <stage id="scene13" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene14"/>
+        <param name="previous" value="scene12"/>
         <audio id="scene13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
         <image asset="page14" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene14" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene12" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene13_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene13_sound" loop="1"/>
@@ -945,21 +841,13 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene14" x="0" y="0" w="100" h="100">
+    <stage id="scene14" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene15"/>
+        <param name="previous" value="scene13"/>
         <audio id="scene14_sound"/>
         <audio id="tiger_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page15" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene15" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene13" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene14_sound"/>
@@ -970,7 +858,6 @@ Carpenter uses a Saw to Cut wood.
                 <action type="command" command="togglePlay" asset="tiger_sound"/>
             </event>
         </shape>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene14_sound" loop="1"/>
@@ -980,26 +867,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene15" x="0" y="0" w="100" h="100">
+    <stage id="scene15" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene16"/>
+        <param name="previous" value="scene14"/>
         <audio id="scene15_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page16" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene16" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene14" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene15_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene15_sound" loop="1"/>
@@ -1009,26 +887,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene16" x="0" y="0" w="100" h="100">
+    <stage id="scene16" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene17"/>
+        <param name="previous" value="scene15"/>
         <audio id="scene16_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page17" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene17" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene15" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene16_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene16_sound" loop="1"/>
@@ -1038,26 +907,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene17" x="0" y="0" w="100" h="100">
+    <stage id="scene17" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene18"/>
+        <param name="previous" value="scene16"/>
         <audio id="scene17_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
         <image asset="page18" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene18" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene16" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene17_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene17_sound" loop="1"/>
@@ -1067,26 +927,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene18" x="0" y="0" w="100" h="100">
+    <stage id="scene18" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene19"/>
+        <param name="previous" value="scene17"/>
         <audio id="scene18_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
         <image asset="page19" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene19" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene17" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene18_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene18_sound" loop="1"/>
@@ -1096,26 +947,17 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene19" x="0" y="0" w="100" h="100">
+    <stage id="scene19" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene20"/>
+        <param name="previous" value="scene18"/>
         <audio id="scene19_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
         <image asset="page20" x="2" y="12" w="96" h="86"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene20" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene18" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene19_sound"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene19_sound" loop="1"/>
@@ -1125,7 +967,9 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </events>
     </stage>
-    <stage id="scene20" x="0" y="0" w="100" h="100">
+    <stage id="scene20" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene21"/>
+        <param name="previous" value="scene19"/>
         <audio id="learning10_sound"/>
         <audio id="learning11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
@@ -1151,17 +995,6 @@ Carpenter uses a Saw to Cut wood.
             </event>
         </image>
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene21" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene19" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
@@ -1195,7 +1028,9 @@ Hint
             </event>
         </events>
     </stage>
-    <stage id="scene21" x="0" y="0" w="100" h="100">
+    <stage id="scene21" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene22"/>
+        <param name="previous" value="scene20"/>
         <audio id="learning12_sound"/>
         <audio id="learning13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
@@ -1221,17 +1056,6 @@ Hint
             </event>
         </image>
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene22" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene20" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
@@ -1265,7 +1089,9 @@ Hint
             </event>
         </events>
     </stage>
-    <stage id="scene22" x="0" y="0" w="100" h="100">
+    <stage id="scene22" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="scene23"/>
+        <param name="previous" value="scene21"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
         <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40"/>
@@ -1277,19 +1103,10 @@ Hint
         <image asset="razor" id="razor" x="48" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img"/>
         <image asset="scissors" id="scissors" x="48" y="58" w="9" h="16" enableDrag="true" snapTo="tailor_img"/>
         <image asset="saw" id="saw" x="48" y="78" w="9" h="16" enableDrag="true" snapTo="carpenter_img"/>
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene23" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene21" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
     </stage>
-    <stage id="scene23" x="0" y="0" w="100" h="100">
+    <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
+        <param name="next" value="splash"/>
+        <param name="previous" value="scene22"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
 
@@ -1302,18 +1119,6 @@ Hint
         <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="22" enableDrag="true" snapTo="w-outer"/>
 
         <image asset="question_block" x="5" y="15" w="9" h="16"/>
-
-        <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="splash" effect="scroll" direction="left" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="scene22" effect="scroll" direction="right" ease="linear" duration="500"/>
-            </event>
-        </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
 
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
