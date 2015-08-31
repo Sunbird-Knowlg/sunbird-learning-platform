@@ -170,7 +170,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
-            TelemetryService.start($scope.item.id, 1.0);
+            TelemetryService.start($scope.item.id, "1.0");
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');

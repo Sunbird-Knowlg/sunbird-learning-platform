@@ -1,5 +1,6 @@
 TelemetryService = {
     isActive: false,
+    _eventsVersion: "1.0",
     _gameData: undefined,
     _config: undefined,
     _user: undefined,
@@ -61,7 +62,7 @@ TelemetryService = {
         var event = {
             "eid": eventName.toUpperCase(),
             "ts": toGenieDateTime(time),
-            "ver": TelemetryService._eventVersion,
+            "ver": TelemetryService._eventsVersion,
             "gdata": TelemetryService._gameData,
             "sid": TelemetryService._user.sid,
             "uid": TelemetryService._user.uid,
@@ -122,7 +123,7 @@ TelemetryService = {
             console.log('TelemetryService is inActive.');
         }
     },
-    interact: function(type, id, extype, url, ext) {
+    interact: function(type, id, extype, uri, ext) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_INTERACT';
             if (type && id && extype) {
@@ -135,7 +136,7 @@ TelemetryService = {
                     },
                     "ext": {}
                 };
-                eventData.eks.url = url || "";
+                eventData.eks.uri = uri || "";
                 eventData.ext = ext || {};
                 var messages = TelemetryService.validateEvent(eventStr, eventData);
                 if (messages.length == 0) {
@@ -170,6 +171,7 @@ TelemetryService = {
                             "qlevel": qlevel,
                             "qtype": qtype || "",
                             "mc": mc || [],
+                            "score": 0,
                             "maxscore": maxscore || 0,
                             "exres": exres || [],
                             "exlength": exlength || 0,
@@ -211,6 +213,7 @@ TelemetryService = {
                     var event = assessEvents[0];
                     event.edata.eks.length += Math.round((new Date().getTime() - event.startTime)/1000);
                     event.edata.eks.atmpts += 1;
+                    event.edata.eks.score = score || 0;
                     if(pass && pass.toUpperCase() == 'YES') {
                         event.edata.eks.pass = 'Yes';
                     } else {
