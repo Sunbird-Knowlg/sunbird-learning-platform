@@ -284,7 +284,7 @@ TelemetryService = {
                     })
                     .then(function(status) {
                         TelemetryService.clearEvents();
-                        console.log('events after clear: ', TelemetryService._events);
+                        // console.log('events after clear: ', TelemetryService._events);
                     })
                     .catch(function(err) {
                         console.log('Error:', err);

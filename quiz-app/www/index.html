@@ -57,6 +57,7 @@
     <script src="js/thirdparty/date-format.js"></script>
     <script src="js/app/service/TelemetryServiceUtil.js"></script>
     <script src="js/app/service/FilewriterService.js"></script>
+    <script src="js/app/service/ConsolewriterService.js"></script>
     <script src="js/app/service/CordovaFilewriterService.js"></script>
     <script src="js/app/service/TelemetryService.js"></script>
     <style>
@@ -84,7 +85,7 @@
     <script type="text/javascript">
         document.addEventListener("deviceready", function() {
             setTimeout(function() {
-                console.log('initializing Telemetry Service...');
+                console.log('initializing Telemetry Service with CordovaFilewriter...');
                 var user = {
                     "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
                     "uid": "123e4567-e89b-12d3-a456-426655440000",
