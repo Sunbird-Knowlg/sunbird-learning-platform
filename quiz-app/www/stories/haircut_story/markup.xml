@@ -105,12 +105,12 @@
     </manifest>
     <datasource asset="story_data"/>
     <stage id="baseStage">
-        <image asset="next" x="93" y="3" w="5" h="8.3">
+        <image id="next" asset="next" x="93" y="3" w="5" h="8.3">
             <event type="click">
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500"/>
             </event>
         </image>
-        <image asset="previous" x="2" y="3" w="5" h="8.3">
+        <image id="previous" asset="previous" x="2" y="3" w="5" h="8.3">
             <event type="click">
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500"/>
             </event>
@@ -122,7 +122,7 @@
         <image asset="page1" x="2" y="2" w="96" h="70"/>
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
         <image asset="level_band" x="2" y="94" w="13" h="5"/>
-        <image asset="next" x="92" y="80" w="6" h="10">
+        <image id="splash_next" asset="next" x="92" y="80" w="6" h="10">
             <event type="click">
                 <action type="command" command="transitionTo" asset="theme" value="scene1" effect="scroll" direction="left" ease="linear" duration="500"/>
             </event>
@@ -162,12 +162,12 @@
         <audio id="scene1_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
         <image asset="page2" x="2" y="12" w="96" h="86"/>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image id="s1_icon_sound_img" asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene1_sound"/>
             </event>
         </image>
-        <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true">
+        <shape id="clk_area" type="rect" x="2" y="2" w="12" h="48" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="clock_sound"/>
             </event>
@@ -195,8 +195,8 @@
         <audio id="Bb5_sound"/>
         <audio id="C5_sound"/>
         <audio id="D5_sound"/>
-        <param name="next" value="scene3"/>
-        <param name="previous" value="scene1"/>
+        <param id="scene2_next" name="next" value="scene3"/>
+        <param id="scene2_prev" name="previous" value="scene1"/>
 
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
@@ -212,7 +212,7 @@
                 </action>
             </event>
         </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image id="s2_icon_image" asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene2_sound"/>
             </event>
@@ -379,7 +379,7 @@
             </event>
         </image>
         <g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+            <image id="razor_bubble_img" asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
                     <action type="command" command="stop" asset="learning2_sound"/>
                     <action type="command" command="hide" asset="razorInfo"/>
@@ -393,7 +393,7 @@ Razor is used to cut hair
 	        </text>
         </g>
         <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+            <image id="barber_bubble_img" asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
                     <action type="command" command="stop" asset="learning1_sound"/>
                     <action type="command" command="hide" asset="barberInfo"/>
@@ -402,7 +402,7 @@ Razor is used to cut hair
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="125">
 Barber
 	        </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
+            <text id="barber_details" x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
 Barber is cutting hair
 Barber uses Razor and Scissors 
 to Cut hair
