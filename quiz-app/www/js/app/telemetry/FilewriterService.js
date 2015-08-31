@@ -16,5 +16,8 @@ FilewriterService = Class.extend({
     },
     getFileLength: function(fileName) {
     	throw "Subclasses of FilewriterService should implement this function";
+    },
+    getData: function(fileName) {
+    	throw "Subclasses of FilewriterService should implement this function";	
     }
 });

@@ -21,6 +21,11 @@ ConsolewriterService = FilewriterService.extend({
         return new Promise(function(resolve, reject) {
             resolve(_data.length);
         });
+    },
+    getData: function(fileName) {
+      return new Promise(function(resolve, reject) {
+            resolve(_data);
+        });  
     }
 });
 

@@ -34,9 +34,20 @@ describe('Telemetry Service API', function() {
         }, 3000);
     });
 
-    it('Service is Active.', function() {
+    it('service is active.', function() {
         var expected = TelemetryService.isActive;
         expect(true).toEqual(expected);
+    });
+
+    it('events created and flushed.', function(done) {
+        var expected = TelemetryService.isActive;
+        expect(true).toEqual(expected);
+        filewriterService.getData(TelemetryService._gameOutputFile)
+        .then(function(data) {
+            console.log('length:', data.length);
+            expect(data.length).not.toEqual(0);
+            done();
+        });
     });
 });
 
