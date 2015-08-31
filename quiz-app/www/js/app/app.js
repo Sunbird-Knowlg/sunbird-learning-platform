@@ -176,18 +176,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $state.go('contentList');
         }
         $scope.$on('$destroy', function() {
-            TelemetryService.interact("TOUCH", "story", "TOUCH");
-            TelemetryService.startAssess("NUM", "qid", "EASY");
-            TelemetryService.endAssess("qid", 'yes', 1);
-            TelemetryService.startAssess("NUM", "qid", "EASY");
-            TelemetryService.endAssess("qid", 'yes', 1);
-            TelemetryService.startAssess("NUM", "qid", "EASY");
-            TelemetryService.endAssess("qid", 'yes', 1);
-            TelemetryService.startAssess("NUM", "qid", "EASY");
-            TelemetryService.endAssess("qid", 'no', 0);
-            TelemetryService.startAssess("NUM", "qid-2", "EASY");
             setTimeout(function() {
-                TelemetryService.endAssess("qid-2", 'yes', 1);
                 TelemetryService.end();
             }, 100);
         });
