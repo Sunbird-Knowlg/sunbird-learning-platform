@@ -20,29 +20,29 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 // TelemetryService.end();
             });
 
-            setTimeout(function() {
-                if(typeof cordova == 'undefined') {
-                    console.log('Running with node...');
-                    console.log('initializing Telemetry Service with ConsoleFilewriter...');
-                    filewriterService = new ConsolewriterService();
-                    var user = {
-                        "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-                        "uid": "123e4567-e89b-12d3-a456-426655440000",
-                        "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-                    };
-                    var game = {
-                            "id": "com.ilimi.quiz.app",
-                            "ver": "1.0"
-                        };
-                    /*
-                    *** Important: Assuming that game, user data will be read and passed to TelemetryService.
-                    *** Will change this if needed.
-                    */
-                    TelemetryService.init(user, game); // params are 1. user, 2. game.
-                } else {
-                    console.log('Running with ' + cordova.platformId +' device...');
-                }
-            }, 5000)
+            // setTimeout(function() {
+            //     if(typeof cordova == 'undefined') {
+            //         console.log('Running with node...');
+            //         console.log('initializing Telemetry Service with ConsoleFilewriter...');
+            //         filewriterService = new ConsolewriterService();
+            //         var user = {
+            //             "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
+            //             "uid": "123e4567-e89b-12d3-a456-426655440000",
+            //             "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
+            //         };
+            //         var game = {
+            //                 "id": "com.ilimi.quiz.app",
+            //                 "ver": "1.0"
+            //             };
+            //         /*
+            //         *** Important: Assuming that game, user data will be read and passed to TelemetryService.
+            //         *** Will change this if needed.
+            //         */
+            //         TelemetryService.init(user, game); // params are 1. user, 2. game.
+            //     } else {
+            //         console.log('Running with ' + cordova.platformId +' device...');
+            //     }
+            // }, 5000)
 
         });
     })
@@ -65,26 +65,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
     })
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage) {
-        // $scope.load = {
-        //     status: true,
-        //     message: "Loading..."
-        // };
         setTimeout(function() {
             if (null == $localstorage.getObject('stories')) {
                 $scope.getGames();
             } else {
-                // $scope.load = {
-                //     status: true,
-                //     message: "Loading games..."
-                // };
                 $scope.$apply(function() {
                     $scope.games = $localstorage.getObject('games');
                     $scope.screeners = $localstorage.getObject('screeners');
                     $scope.stories = $localstorage.getObject('stories');
-                    // $scope.load = {
-                    //     status: false,
-                    //     message: "Loading..."
-                    // };
                 });
                 $scope.loadBookshelf();
             }

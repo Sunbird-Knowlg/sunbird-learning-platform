@@ -11,10 +11,12 @@ TelemetryService = {
     _data: {},
     mouseEventMapping: {click: 'TOUCH', dblclick: 'CHOOSE', mousedown: 'DROP', pressup: 'DRAG'},
     init: function(user, gameData) {
-        console.log('TelemetryService init called...');
-        TelemetryService._config = TelemetryServiceUtil.getConfig();
-        if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
         if (user && gameData) {
+            if(typeof cordova == 'undefined') {
+                filewriterService = new ConsolewriterService();
+            } else {
+                filewriterService = new CordovaFilewriterService();
+            }
             if (gameData.id && gameData.ver) {
                 TelemetryService._parentGameData = gameData;
                 TelemetryService._gameData = gameData;
@@ -26,9 +28,20 @@ TelemetryService = {
             } else {
                 TelemetryService.exitWithError('Invalid user session data.');
             }
-            TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-            TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-            TelemetryService.createFiles();
+            TelemetryServiceUtil.getConfig()
+            .then(function(config) {
+                TelemetryService._config = config;
+                if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
+                TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                setTimeout(function() {
+                    TelemetryService.createFiles();
+                    console.log('TelemetryService init completed...');
+                }, 5000);
+            })
+            .catch(function(err) {
+                console.log('Error in init of TelemetryService:', err);
+            });
         } else {
             TelemetryService.exitWithError('User or Game data is empty.');
         }
@@ -362,4 +375,4 @@ function toGenieDateTime(ms) {
     return v.insert(-2, ':');
 }
 
-var filewriterService = new CordovaFilewriterService();
+var filewriterService = null;

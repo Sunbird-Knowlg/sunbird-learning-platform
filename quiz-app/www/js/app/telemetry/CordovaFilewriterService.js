@@ -4,7 +4,6 @@ CordovaFilewriterService = FilewriterService.extend({
         document.addEventListener("deviceready", function() {
             window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
                 _root = fileSystem.root;
-                console.log('this._root:', _root);
             }, onRequestFileSystemError);
         });
     },
