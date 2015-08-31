@@ -1,10 +1,21 @@
 CordovaFilewriterService = FilewriterService.extend({
     _root: undefined,
     initWriter: function() {
-        document.addEventListener("deviceready", function() {
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
-                _root = fileSystem.root;
-            }, onRequestFileSystemError);
+        var _resolve;
+        var _reject;
+        return new Promise(function(resolve, reject) {
+            _resolve = resolve;
+            _reject = reject;
+            document.addEventListener("deviceready", function() {
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
+                    _root = fileSystem.root;
+                    _resolve(fileSystem.root);
+                }, function(e) {
+                    console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
+                    console.log(JSON.stringify(e));
+                    _reject(e);
+                });
+            });
         });
     },
     createBaseDirectory: function(dirName, error) {
@@ -58,8 +69,3 @@ CordovaFilewriterService = FilewriterService.extend({
         });
     }
 });
-
-function onRequestFileSystemError(e) {
-    console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
-    console.log(JSON.stringify(e));
-};

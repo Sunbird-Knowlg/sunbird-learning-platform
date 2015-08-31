@@ -2,7 +2,7 @@ FilewriterService = Class.extend({
 	init: function() {
 		this.initWriter();
 	},
-	initWriter: function(initObj) {
+	initWriter: function() {
 		throw "Subclasses of FilewriterService should implement this function";
 	},
 	createBaseDirectory: function(dirName, error) {

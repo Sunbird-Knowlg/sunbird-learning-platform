@@ -3,6 +3,9 @@ ConsolewriterService = FilewriterService.extend({
     _data: "",
     initWriter: function() {
         _data = "";
+        return new Promise(function(resolve, reject) {
+            resolve(true);
+        });
     },
     createBaseDirectory: function(dirName, error) {
     },

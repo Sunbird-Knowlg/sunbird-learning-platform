@@ -12,14 +12,15 @@ TelemetryServiceUtil = {
 						} else {
 							TelemetryServiceUtil._config = data;
 						}
+						console.log('Telemetry Config init completed...');
 						resolve(TelemetryServiceUtil._config);
 					} else {
 						reject(null);
 					}
-					console.log('Telemetry Config init completed...');
 				})
 				.error(function(err) {
 					console.log('Error:', err);
+					reject(err);
 				});
 			}
 		});

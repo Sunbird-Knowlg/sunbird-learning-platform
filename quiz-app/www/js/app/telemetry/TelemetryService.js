@@ -11,40 +11,47 @@ TelemetryService = {
     _data: {},
     mouseEventMapping: {click: 'TOUCH', dblclick: 'CHOOSE', mousedown: 'DROP', pressup: 'DRAG'},
     init: function(user, gameData) {
-        if (user && gameData) {
-            if(typeof cordova == 'undefined') {
-                filewriterService = new ConsolewriterService();
-            } else {
-                filewriterService = new CordovaFilewriterService();
-            }
-            if (gameData.id && gameData.ver) {
-                TelemetryService._parentGameData = gameData;
-                TelemetryService._gameData = gameData;
-            } else {
-                TelemetryService.exitWithError('Invalid game data.');
-            }
-            if (user.sid && user.uid && user.did) {
-                TelemetryService._user = user;
-            } else {
-                TelemetryService.exitWithError('Invalid user session data.');
-            }
-            TelemetryServiceUtil.getConfig()
-            .then(function(config) {
-                TelemetryService._config = config;
-                if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
-                TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-                TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-                setTimeout(function() {
+        return new Promise(function(resolve, reject) {
+            if (user && gameData) {
+                if(typeof cordova == 'undefined') {
+                    filewriterService = new ConsolewriterService();
+                } else {
+                    filewriterService = new CordovaFilewriterService();
+                }
+                if (gameData.id && gameData.ver) {
+                    TelemetryService._parentGameData = gameData;
+                    TelemetryService._gameData = gameData;
+                } else {
+                    reject('Invalid game data.');
+                }
+                if (user.sid && user.uid && user.did) {
+                    TelemetryService._user = user;
+                } else {
+                    reject('Invalid user session data.');
+                }
+                filewriterService.initWriter()
+                .then(function(root) {
+                    return TelemetryServiceUtil.getConfig();
+                })
+                .then(function(config) {
+                    TelemetryService._config = config;
+                    if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
+                    TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                    TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                })
+                .then(function(status) {
                     TelemetryService.createFiles();
                     console.log('TelemetryService init completed...');
-                }, 5000);
-            })
-            .catch(function(err) {
-                console.log('Error in init of TelemetryService:', err);
-            });
-        } else {
-            TelemetryService.exitWithError('User or Game data is empty.');
-        }
+                    resolve(true);
+                })
+                .catch(function(err) {
+                    console.log('Error in init of TelemetryService:', err);
+                    reject(err);
+                });
+            } else {
+                reject('User or Game data is empty.');
+            }
+        });
     },
     exitWithError: function(error) {
         var message = 'Telemetry Service initialization faild. Please contact game developer.';
