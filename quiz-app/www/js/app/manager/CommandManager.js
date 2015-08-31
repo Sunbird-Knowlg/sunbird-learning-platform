@@ -9,29 +9,30 @@ CommandManager = {
 		}
 		switch(action.command) {
 			case 'play':
-				plugin.play();
+				plugin.play(action);
 				break;
 			case 'pause':
-				plugin.pause();
+				plugin.pause(action);
 				break;
 			case 'stop':
 				if(action.sound === true) {
 					createjs.Sound.stop();
+					EventManager.processAppTelemetry(action, 'STOP_ALL_SOUNDS', plugin);
 				} else {
-					plugin.stop();
+					plugin.stop(action);
 				}
 				break;
 			case 'togglePlay':
-				plugin.togglePlay();
+				plugin.togglePlay(action);
 				break;
 			case 'show':
-				plugin.show();
+				plugin.show(action);
 				break;
 			case 'hide':
-				plugin.hide();
+				plugin.hide(action);
 				break;
 			case 'toggleShow':
-				plugin.toggleShow();
+				plugin.toggleShow(action);
 				break;
 			case 'transitionTo':
 				plugin.transitionTo(action);

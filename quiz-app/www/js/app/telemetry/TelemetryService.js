@@ -9,6 +9,7 @@ TelemetryService = {
     _gameErrorFile: undefined,
     _events: [],
     _data: {},
+    mouseEventMapping: {click: 'TOUCH', dblclick: 'CHOOSE', mousedown: 'DROP', pressup: 'DRAG'},
     init: function(user, gameData) {
         console.log('TelemetryService init called...');
         TelemetryService._config = TelemetryServiceUtil.getConfig();
@@ -125,19 +126,23 @@ TelemetryService = {
     },
     interact: function(type, id, extype, uri, ext) {
         if (TelemetryService.isActive) {
+            ext = ext || {};
             var eventName = 'OE_INTERACT';
             if (type && id && extype) {
                 var eventStr = TelemetryService._config.events[eventName];
+                if(!_.contains(eventStr.eks.type.values, type)) {
+                    ext.type = type;
+                    type = 'OTHER';
+                }
                 var eventData = {
                     "eks": {
                         "type": type,
                         "id": id,
                         "extype": extype
                     },
-                    "ext": {}
+                    "ext": ext
                 };
                 eventData.eks.uri = uri || "";
-                eventData.ext = ext || {};
                 var messages = TelemetryService.validateEvent(eventStr, eventData);
                 if (messages.length == 0) {
                     var event = TelemetryService.createEventObject(eventName, eventData);

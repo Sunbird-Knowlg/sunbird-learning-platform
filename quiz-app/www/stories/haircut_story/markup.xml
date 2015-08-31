@@ -106,12 +106,12 @@
     <datasource asset="story_data"/>
     <stage id="baseStage">
         <image asset="next" x="93" y="3" w="5" h="8.3">
-            <event type="click">
+            <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500"/>
             </event>
         </image>
         <image asset="previous" x="2" y="3" w="5" h="8.3">
-            <event type="click">
+            <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500"/>
             </event>
         </image>
@@ -123,7 +123,7 @@
         <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
         <image asset="level_band" x="2" y="94" w="13" h="5"/>
         <image asset="next" x="92" y="80" w="6" h="10">
-            <event type="click">
+            <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" value="scene1" effect="scroll" direction="left" ease="linear" duration="500"/>
             </event>
         </image>
@@ -147,10 +147,10 @@
         </text>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="cover_sound" loop="1"/>
+                <action type="command" command="play" asset="cover_sound" loop="1" telemetry="true"/>
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="cover_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="cover_sound" audio="true" loop="1" telemetry="true"/>
             </event>
         </events>
     </stage>

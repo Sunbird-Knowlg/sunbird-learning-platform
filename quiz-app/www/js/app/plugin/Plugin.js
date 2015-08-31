@@ -93,26 +93,29 @@ var Plugin = Class.extend({
 	togglePlay: function() {
 		PluginManager.addError('Subclasses of plugin should implement togglePlay()');
 	},
-	show: function() {
+	show: function(action) {
 		if(_.contains(this.events, 'show')) {
 			EventManager.dispatchEvent(this._data.id, 'show');
 		} else {
 			this._self.visible = true;
 		}
+		EventManager.processAppTelemetry(action, 'SHOW', this);
 	},
-	hide: function() {
+	hide: function(action) {
 		if(_.contains(this.events, 'hide')) {
 			EventManager.dispatchEvent(this._data.id, 'hide');
 		} else {
 			this._self.visible = false;
 		}
+		EventManager.processAppTelemetry(action, 'HIDE', this);
 	},
-	toggleShow: function() {
+	toggleShow: function(action) {
 		if(_.contains(this.events, 'toggleShow')) {
 			EventManager.dispatchEvent(this._data.id, 'toggleShow');
 		} else {
 			this._self.visible = !this._self.visible;
 		}
+		EventManager.processAppTelemetry(action, this._self.visible ? 'SHOW': 'HIDE', this);
 	},
 	transitionTo: function() {
 		PluginManager.addError('Subclasses of plugin should implement transitionTo()');
