@@ -6,6 +6,7 @@ var ThemePlugin = Plugin.extend({
     _director: false,
     _stageRepeatCount: undefined,
     _currentScene: undefined,
+    _currentStage: undefined,
     _canvasId: undefined,
     inputs: [],
     _animationEffect: {effect:'moveOut'},
@@ -36,6 +37,13 @@ var ThemePlugin = Plugin.extend({
             h: this._self.canvas.height
         }
     },
+    start: function(basePath) {
+        var instance = this;
+        AssetManager.init(this._data, basePath);
+        AssetManager.initStage(this._data.startStage, null, null, function() {
+            instance.render();
+        });
+    },
     render: function() {
         if (this._data.datasource) {
             var themeData = undefined;
@@ -50,6 +58,7 @@ var ThemePlugin = Plugin.extend({
             this.invokeStage(this._data.startStage);
         }
         this.update();
+        $('#gameAreaLoad').hide();
     },
     reRender: function() {
         this._self.clear();
@@ -60,23 +69,25 @@ var ThemePlugin = Plugin.extend({
         this._self.update();
     },
     getAsset: function(aid) {
-        return this.loader.getResult(aid);
+        return AssetManager.getAsset(this._currentStage, aid);
     },
     addChild: function(child, childPlugin) {
         var instance = this;
         child.on('sceneenter', function() {
             instance.enableInputs();
             childPlugin.dispatchEvent('enter');
-        })
+            instance.preloadStages();
+        });
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
             this._currentScene.dispatchEvent('exit');
+            this._currentScene = childPlugin;
             this._director.replace(child, this.getTransitionEffect(this._animationEffect));
         } else {
+            this._currentScene = childPlugin;
             this._director.replace(child);
         }
         childPlugin.setIndex(nextIdx);
-        this._currentScene = childPlugin;
     },
     replaceStage: function(stageId, effect) {
         this.disableInputs();
@@ -90,7 +101,12 @@ var ThemePlugin = Plugin.extend({
             baseStage = _.findWhere(this._data.stage, {id: stage.extends});
             stage = this.mergeStages(stage, baseStage);
         }
+        this._currentStage = stageId;
         PluginManager.invoke('stage', stage, this, null, this);
+    },
+    preloadStages: function() {
+        var stagesToLoad = this.getStagesToPreLoad(this._currentScene._data);
+        AssetManager.initStage(stagesToLoad.stage, stagesToLoad.next, stagesToLoad.prev);
     },
     mergeStages: function(stage1, stage2) {
         for(k in stage2) {
@@ -190,6 +206,16 @@ var ThemePlugin = Plugin.extend({
             return e;
         }
         return eval('createjs.Ease.' + e);
+    },
+    getStagesToPreLoad: function(stageData) {
+        var params = stageData.param;
+        if(!_.isArray(params)) params = [params];
+        var next = _.findWhere(params, {name: 'next'}),
+            prev = _.findWhere(params, {name: 'previous'});
+        var nextStageId = undefined, prevStageId = undefined;
+        if(next) nextStageId = next.value;
+        if(prev) prevStageId = prev.value;
+        return {stage: stageData.id, next: nextStageId, prev: prevStageId};
     }
 });
 PluginManager.registerPlugin('theme', ThemePlugin);

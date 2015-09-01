@@ -5,7 +5,7 @@ var AudioPlugin = Plugin.extend({
     _state: 'stop',
     _render: false,
     initPlugin: function(data) {
-        this._id = data.id;
+        this._id = data.asset;
     },
     play: function(action) {
         EventManager.processAppTelemetry(action, 'LISTEN', this);

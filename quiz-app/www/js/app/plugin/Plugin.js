@@ -8,6 +8,7 @@ var Plugin = Class.extend({
 	_index: 0,
 	_self: undefined,
 	_dimensions: undefined,
+	_id: undefined,
 	events: [],
 	appEvents: [],
 	init: function(data, parent, stage, theme) {
@@ -22,9 +23,8 @@ var Plugin = Class.extend({
 			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));
 		}
 		EventManager.registerEvents(this, data);
-		if (data.id) {
-			PluginManager.registerPluginObject(data.id, this);
-		}
+		this._id = data.id || data.asset || _.uniqueId('plugin');
+		PluginManager.registerPluginObject(this);
 		if (data.visible === false) {
 	    	this._self.visible = false;
 		}

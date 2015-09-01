@@ -31,8 +31,8 @@ PluginManager = {
 		}
 		return p;
 	},
-	registerPluginObject: function(id, pluginObj) {
-		PluginManager.pluginObjMap[id] = pluginObj;
+	registerPluginObject: function(pluginObj) {
+		PluginManager.pluginObjMap[pluginObj._id] = pluginObj;
 	},
 	getPluginObject: function(id) {
 		return PluginManager.pluginObjMap[id];
