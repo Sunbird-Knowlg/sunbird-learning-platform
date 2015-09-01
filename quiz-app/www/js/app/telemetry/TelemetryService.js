@@ -1,6 +1,6 @@
 TelemetryService = {
     isActive: false,
-    ws: undefined,
+    ws: new ConsolewriterService(),
     _eventsVersion: "1.0",
     _gameData: undefined,
     _config: undefined,
@@ -84,186 +84,37 @@ TelemetryService = {
         }
         return messages;
     },
-    createEventObject: function(eventName, eventData, startTime) {
-        var time = new Date().getTime();
-        var event = {
-            "eid": eventName.toUpperCase(),
-            "ts": toGenieDateTime(time),
-            "ver": TelemetryService._eventsVersion,
-            "gdata": TelemetryService._gameData,
-            "sid": TelemetryService._user.sid,
-            "uid": TelemetryService._user.uid,
-            "did": TelemetryService._user.did,
-            "edata": eventData
-        };
-        if (startTime) event.startTime = time;
-        return event;
-    },
     start: function(id, ver) {
         if (TelemetryService.isActive) {
-            var eventName = 'OE_START';
-            if (id && ver) {
-                TelemetryService._gameData = {
-                    "id": id,
-                    "ver": ver
-                };
-            }
-            var eventData = {
-                "eks": {},
-                "ext": {}
-            };
-            var event = TelemetryService.createEventObject(eventName, eventData);
-            TelemetryService._data[TelemetryService._gameData.id] = {
-                "data": [],
-                "time": new Date().getTime()
-            };
-            TelemetryService._data[TelemetryService._gameData.id].data.push(event);
-            console.log('Game: ' + TelemetryService._gameData.id + ' start event created...');
+            return new StartEvent(id, ver);
         } else {
-            // console.log('TelemetryService is inActive.');
+            return new InActiveEvent();
         }
     },
     end: function() {
         if (TelemetryService.isActive) {
-            var eventName = 'OE_END';
-            if (TelemetryService._data[TelemetryService._gameData.id]) {
-                var startTime = TelemetryService._data[TelemetryService._gameData.id].time;
-                var time = new Date().getTime();
-                var length = Math.round((time - startTime) / 1000);
-                var eventData = {
-                    "eks": {
-                        "length": length
-                    },
-                    "ext": {}
-                };
-                var event = TelemetryService.createEventObject(eventName, eventData);
-                TelemetryService._data[TelemetryService._gameData.id].data.push(event);
-                TelemetryService._events = _.union(TelemetryService._events, TelemetryService._data[TelemetryService._gameData.id].data);
-                delete TelemetryService._data[TelemetryService._gameData.id];
-                console.log('Game: ' + TelemetryService._gameData.id + ' end event created...');
-                TelemetryService._gameData = TelemetryService._parentGameData;
-                TelemetryService.flush();
-            } else {
-                console.log('There is no game to end.');
-            }
+            return new EndEvent();
         } else {
-            // console.log('TelemetryService is inActive.');
+            return new InActiveEvent();
         }
     },
-    interact: function(type, id, extype, uri, ext) {
+    interact: function(type, id, extype) {
         if (TelemetryService.isActive) {
-            ext = ext || {};
-            var eventName = 'OE_INTERACT';
-            if (type && id && extype) {
-                var eventStr = TelemetryService._config.events[eventName];
-                if (!_.contains(eventStr.eks.type.values, type)) {
-                    ext.type = type;
-                    type = 'OTHER';
-                }
-                var eventData = {
-                    "eks": {
-                        "type": type,
-                        "id": id,
-                        "extype": extype
-                    },
-                    "ext": ext
-                };
-                eventData.eks.uri = uri || "";
-                var messages = TelemetryService.validateEvent(eventStr, eventData);
-                if (messages.length == 0) {
-                    var event = TelemetryService.createEventObject(eventName, eventData);
-                    TelemetryService._data[TelemetryService._gameData.id].data.push(event);
-                    console.log('Game: ' + TelemetryService._gameData.id + ' interact event created...');
-                } else {
-                    TelemetryService.logError(eventName, messages);
-                }
-            } else {
-                var messages = ['reqired data is missing to create interact event.'];
-                TelemetryService.logError(eventName, messages);
-            }
+            return new InteractEvent(type, id, extype);
         } else {
-            // console.log('TelemetryService is inActive.');
+            return new InActiveEvent();
         }
     },
-    startAssess: function(subj, qid, qlevel, qtype, mc, maxscore, exres, exlength) {
+    assess: function(qid, subj, qlevel) {
         if (TelemetryService.isActive) {
-            var eventName = 'OE_ASSESS';
-            if (subj && qid && qlevel) {
-                var eventStr = TelemetryService._config.events[eventName];
-                var assessEvents = _.filter(TelemetryService._data[TelemetryService._gameData.id].data, function(event) {
-                    return (event.eid == eventName && event.edata.eks.qid == qid);
-                });
-                var event = null;
-                if (typeof assessEvents == 'undefined' || assessEvents.length == 0) {
-                    var eventData = {
-                        "eks": {
-                            "subj": subj,
-                            "qid": qid,
-                            "qlevel": qlevel,
-                            "qtype": qtype || "",
-                            "mc": mc || [],
-                            "score": 0,
-                            "maxscore": maxscore || 0,
-                            "exres": exres || [],
-                            "exlength": exlength || 0,
-                            "length": 0,
-                            "atmpts": 0,
-                            "failedatmpts": 0
-                        },
-                        "ext": {}
-                    };
-                    var messages = TelemetryService.validateEvent(eventStr, eventData);
-                    if (messages.length == 0) {
-                        event = TelemetryService.createEventObject(eventName, eventData, true);
-                        TelemetryService._data[TelemetryService._gameData.id].data.push(event);
-                    } else {
-                        TelemetryService.logError(eventName, messages);
-                    }
-                } else {
-                    event = assessEvents[0];
-                    event.startTime = new Date().getTime();
-                }
+            var eventObj = _.findWhere(TelemetryService._data[TelemetryService._gameData.id], {"qid": qid});
+            if(eventObj) {
+                return eventObj;
             } else {
-                var messages = ['reqired data is missing to start assess event.'];
-                TelemetryService.logError(eventName, messages);
+                return new AssessEvent(qid, subj, qlevel);
             }
         } else {
-            // console.log('TelemetryService is inActive.');
-        }
-    },
-    endAssess: function(qid, pass, score, res, uri, mmc, ext) {
-        if (TelemetryService.isActive) {
-            var eventName = 'OE_ASSESS';
-            var messages = [];
-            if ((typeof qid != 'undefined') && (typeof pass != 'undefined') && (typeof score != 'undefined')) {
-                var eventStr = TelemetryService._config.events[eventName];
-                var assessEvents = _.filter(TelemetryService._data[TelemetryService._gameData.id].data, function(event) {
-                    return (event.eid == eventName && event.edata.eks.qid == qid);
-                });
-                if (assessEvents && assessEvents.length > 0) {
-                    var event = assessEvents[0];
-                    event.edata.eks.length += Math.round((new Date().getTime() - event.startTime) / 1000);
-                    event.edata.eks.atmpts += 1;
-                    event.edata.eks.score = score || 0;
-                    if (pass && pass.toUpperCase() == 'YES') {
-                        event.edata.eks.pass = 'Yes';
-                    } else {
-                        event.edata.eks.pass = 'No';
-                        event.edata.eks.failedatmpts += 1;
-                    }
-                    event.edata.eks.res = res || [];
-                    event.edata.eks.uri = uri || "";
-                    event.edata.ext = ext || {};
-                    delete event.startTime;
-                } else {
-                    messages.push('invalid qid to end assess event.');
-                }
-            } else {
-                messages.push('reqired data is missing to end assess event.');
-            }
-            if (messages.length > 0) TelemetryService.logError(eventName, messages);
-        } else {
-            // console.log('TelemetryService is inActive.');
+            return new InActiveEvent();
         }
     },
     levelSet: function(eventData) {
@@ -355,33 +206,10 @@ TelemetryService = {
             // console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
         }
     },
-    printAll: function() {
-        console.log('gameData:', TelemetryService._gameData);
-        console.log('user:', TelemetryService._user);
-        console.log('_gameOutputFile:', TelemetryService._gameOutputFile);
-        console.log('_gameErrorFile:', TelemetryService._gameErrorFile);
-        console.log('config:', TelemetryService._config);
-        console.log('events config (name):', Object.keys(TelemetryService._config.events));
-        console.log('events data: ', TelemetryService._events);
-    },
     exitApp: function() {
         setTimeout(function() {
             navigator.app.exitApp();
         }, 5000);
     }
-}
-
-// use a index to insert relative to the end or middle of the string.
-String.prototype.insert = function(index, string) {
-    var ind = index < 0 ? this.length + index : index;
-    return this.substring(0, ind) + string + this.substring(ind, this.length);
-};
-
-// Generate Genie format ts as per Telemetry wiki
-// https://github.com/ekstep/Common-Design/wiki/Telemetry
-// YYYY-MM-DDThh:mm:ss+/-nn:nn
-function toGenieDateTime(ms) {
-    var v = dateFormat(new Date(ms), "yyyy-mm-dd'T'HH:MM:ssZ").replace('GMT', '');
-    return v.insert(-2, ':');
 }
 

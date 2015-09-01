@@ -16,17 +16,17 @@ describe('Telemetry Service API', function() {
         .then(function() {
             TelemetryService.start();
             TelemetryService.interact("TOUCH", "id", "TOUCH");
-            TelemetryService.startAssess("NUM", "qid", "MEDIUM");
-            TelemetryService.endAssess("qid", "yes", 1);
-            TelemetryService.startAssess("NUM", "qid", "MEDIUM");
-            TelemetryService.endAssess("qid", "no", 1);
-            TelemetryService.startAssess("NUM", "qid", "MEDIUM");
-            TelemetryService.endAssess("qid", "yes", 1);
-            TelemetryService.startAssess("NUM", "qid", "MEDIUM");
-            TelemetryService.endAssess("qid", "yes", 1);
+            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+            TelemetryService.assess("qid").end("yes", 1);
+            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+            TelemetryService.assess("qid").end("no", 0);
+            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+            TelemetryService.assess("qid").end("yes", 1);
+            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+            TelemetryService.assess("qid").end("yes", 1);
 
-            TelemetryService.startAssess("NUM", "qid1", "MEDIUM");
-            TelemetryService.endAssess("qid1", "yes", 1);
+            TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
+            TelemetryService.assess("qid1").end("yes", 1);
             TelemetryService.end();
             setTimeout(function() {
                 done();
