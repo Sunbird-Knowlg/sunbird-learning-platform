@@ -46,7 +46,7 @@ describe('Telemetry Service API', function() {
         it('events created and flushed.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
                 expect(data.length).not.toEqual(0);
                 done();
@@ -55,7 +55,7 @@ describe('Telemetry Service API', function() {
         it('count of the events.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
                 var dataObj = JSON.parse( data );
                 expect(5).toEqual(dataObj.events.length);
@@ -65,7 +65,7 @@ describe('Telemetry Service API', function() {
         it('validate structure of each event.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
                 expect(true).toEqual(isValidJson(data));
                 done();
@@ -78,7 +78,7 @@ describe('Telemetry Service API', function() {
         it('validate attempts.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
             var dataObj = JSON.parse( data );
             expect(4).toEqual(dataObj.events[2].edata.eks.atmpts);
@@ -89,7 +89,7 @@ describe('Telemetry Service API', function() {
         it('validate failed attempts.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
             var dataObj = JSON.parse( data );
             expect(1).toEqual(dataObj.events[2].edata.eks.failedatmpts);
@@ -100,7 +100,7 @@ describe('Telemetry Service API', function() {
         it('validate final pass and score values.', function(done) {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-            filewriterService.getData(TelemetryService._gameOutputFile)
+            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
             .then(function(data) {
                 var dataObj = JSON.parse( data );
                 expect("Yes").toMatch(dataObj.events[2].edata.eks.pass);

@@ -30,7 +30,7 @@ CordovaFilewriterService = FilewriterService.extend({
             create: true
         }, success, error);
     },
-    writeFile: function(fileName, data, revSeek) {
+    write: function(fileName, data, revSeek) {
         return new Promise(function(resolve, reject) {
             _root.getFile(fileName, {
                 create: false
@@ -53,7 +53,7 @@ CordovaFilewriterService = FilewriterService.extend({
             });
         });
     },
-    getFileLength: function(fileName) {
+    length: function(fileName) {
         return new Promise(function(resolve, reject) {
             _root.getFile(fileName, {
                 create: false
@@ -65,6 +65,25 @@ CordovaFilewriterService = FilewriterService.extend({
                 });
             }, function() {
                 reject('Error while getting file.');
+            });
+        });
+    },
+    getData: function(fileName) {
+        return new Promise(function(resolve, reject) {
+            _root.getFile(fileName, {}, function(fileEntry) {
+                fileEntry.file(function(file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function(e) {
+                        console.log('this.result:', this.result);
+                        resolve(this.result);
+                    };
+                    reader.readAsText(file);
+                }, function() {
+                    reject('Error while reading file.')
+                });
+
+            }, function() {
+                reject('Error while reading file.')
             });
         });
     }
