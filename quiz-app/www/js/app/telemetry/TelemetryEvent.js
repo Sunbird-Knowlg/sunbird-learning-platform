@@ -30,6 +30,6 @@ TelemetryEvent = Class.extend({
 	    		this.event.edata.ext = ext;
 	    	}	
     	}
-    	
+    	return this;
     }
 });

@@ -53,11 +53,13 @@ AssessEvent = TelemetryEvent.extend({
             this.event.edata.eks.res = res || [];
             this.event.edata.eks.uri = uri || "";
             this._isStarted = false;
+            return this;
     	} else {
     		throw "can't end assess event without starting.";
     	}
     },
     mmc: function(mmc) {
     	this.event.edata.eks.mmc = mmc;
+        return this;
     }
 })
