@@ -52,6 +52,7 @@ AssetManager = {
 		if(AssetManager.loaders[stageId]) asset = AssetManager.loaders[stageId].getResult(assetId);
 		if(!asset) asset = AssetManager.commonLoader.getResult(assetId);
 		if(!asset) {
+			console.error('Asset not found. Returning - ', (AssetManager.basePath + AssetManager.assetMap[assetId].src));
 			return AssetManager.basePath + AssetManager.assetMap[assetId].src;
 		};
 		return asset;
