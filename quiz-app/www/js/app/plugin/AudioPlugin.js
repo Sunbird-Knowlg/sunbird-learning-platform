@@ -26,9 +26,9 @@ var AudioPlugin = Plugin.extend({
     },
     togglePlay: function(action) {
         if(this._state == 'play') {
-            this.pause();
+            this.pause(action);
         } else {
-            this.play();
+            this.play(action);
         }
     },
     pause: function(action) {

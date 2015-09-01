@@ -114,7 +114,7 @@ TelemetryService = {
             TelemetryService._data[TelemetryService._gameData.id].data.push(event);
             console.log('Game: ' + TelemetryService._gameData.id + ' start event created...');
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     end: function() {
@@ -141,7 +141,7 @@ TelemetryService = {
                 console.log('There is no game to end.');
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     interact: function(type, id, extype, uri, ext) {
@@ -176,7 +176,7 @@ TelemetryService = {
                 TelemetryService.logError(eventName, messages);
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     startAssess: function(subj, qid, qlevel, qtype, mc, maxscore, exres, exlength) {
@@ -222,7 +222,7 @@ TelemetryService = {
                 TelemetryService.logError(eventName, messages);
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     endAssess: function(qid, pass, score, res, uri, mmc, ext) {
@@ -257,7 +257,7 @@ TelemetryService = {
             }
             if(messages.length > 0) TelemetryService.logError(eventName, messages);
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     levelSet: function(eventData) {
@@ -291,7 +291,7 @@ TelemetryService = {
                 console.log('file creation failed...');
             });
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     flush: function() {
@@ -321,7 +321,7 @@ TelemetryService = {
                 console.log('No data to write...');
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     clearEvents: function() {
@@ -349,7 +349,7 @@ TelemetryService = {
                     console.log('Error tried to log:', JSON.stringify(error));
                 });
         } else {
-            console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
+            // console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
         }
     },
     printAll: function() {

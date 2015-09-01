@@ -41,26 +41,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     })
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $q, $localstorage) {
 
-        new Promise(function(resolve, reject) {
-            resolve(TelemetryService._gameData);
-        })
-        .then(function(game) {
-            if(!game) {
-                var user = {
-                    "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-                    "uid": "123e4567-e89b-12d3-a456-426655440000",
-                    "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-                };
-                var game = {
-                    "id": "com.ilimi.quiz.app",
-                    "ver": "1.0"
-                };
-                return TelemetryService.init(user, game);
-            } else {
-                return true;
-            }
-        })
-        .then(function() {
+        setTimeout(function() {
             if (null == $localstorage.getObject('stories')) {
                 $scope.getGames();
             } else {
@@ -71,10 +52,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 });
                 $scope.loadBookshelf();
             }
-        })
-        .catch(function(error) {
-            TelemetryService.exitWithError(error);
-        });
+        }, 1000);
 
         $ionicPopover.fromTemplateUrl('templates/main-menu.html', {
             scope: $scope
