@@ -1,7 +1,7 @@
 describe('Telemetry Service API', function() {
     jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
     
-    beforeEach(function(done) {
+    beforeAll(function(done) {
         // done is called after getting the data. done() - is used to handle asynchronous operations...
         var user = {
             "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
@@ -12,12 +12,8 @@ describe('Telemetry Service API', function() {
                 "id": "com.ilimi.quiz.app",
                 "ver": "1.0"
             };
-        /*
-        *** Important: Assuming that game, user data will be read and passed to TelemetryService.
-        *** Will change this if needed.
-        */
-        TelemetryService.init(user, game);
-        setTimeout(function() {
+        TelemetryService.init(user, game)
+        .then(function() {
             TelemetryService.start();
             TelemetryService.interact("TOUCH", "id", "TOUCH");
             TelemetryService.startAssess("NUM", "qid", "MEDIUM");
@@ -26,35 +22,130 @@ describe('Telemetry Service API', function() {
             TelemetryService.endAssess("qid", "no", 1);
             TelemetryService.startAssess("NUM", "qid", "MEDIUM");
             TelemetryService.endAssess("qid", "yes", 1);
+            TelemetryService.startAssess("NUM", "qid", "MEDIUM");
+            TelemetryService.endAssess("qid", "yes", 1);
+
+            TelemetryService.startAssess("NUM", "qid1", "MEDIUM");
+            TelemetryService.endAssess("qid1", "yes", 1);
             TelemetryService.end();
             setTimeout(function() {
                 done();
-                console.log('beforeEach called...');    
-            }, 3000);
-        }, 3000);
+            }, 2000);
+        });
     });
 
-    it('service is active.', function() {
-        var expected = TelemetryService.isActive;
-        expect(true).toEqual(expected);
+    describe('Telemetry Service initialization', function() {
+        it('service is active.', function() {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+        });
+    });
+    
+
+    describe('Testcases for events data validation', function() {
+        it('events created and flushed.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+                expect(data.length).not.toEqual(0);
+                done();
+            });
+        });
+        it('count of the events.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+                var dataObj = JSON.parse( data );
+                expect(5).toEqual(dataObj.events.length);
+                done();
+            });
+        });
+        it('validate structure of each event.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+                expect(true).toEqual(isValidJson(data));
+                done();
+            });
+        });
+
     });
 
-    it('events created and flushed.', function(done) {
-        var expected = TelemetryService.isActive;
-        expect(true).toEqual(expected);
-        filewriterService.getData(TelemetryService._gameOutputFile)
-        .then(function(data) {
-            console.log('length:', data.length);
-            expect(data.length).not.toEqual(0);
+    describe('Testcases for "Assess event"', function() {
+        it('validate attempts.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+            var dataObj = JSON.parse( data );
+            expect(4).toEqual(dataObj.events[2].edata.eks.atmpts);
             done();
+        });
+        });
+        
+        it('validate failed attempts.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+            var dataObj = JSON.parse( data );
+            expect(1).toEqual(dataObj.events[2].edata.eks.failedatmpts);
+            done();
+        });
+        });
+
+        it('validate final pass and score values.', function(done) {
+            var expected = TelemetryService.isActive;
+            expect(true).toEqual(expected);
+            filewriterService.getData(TelemetryService._gameOutputFile)
+            .then(function(data) {
+                var dataObj = JSON.parse( data );
+                expect("Yes").toMatch(dataObj.events[2].edata.eks.pass);
+                expect(1).toEqual(dataObj.events[2].edata.eks.score);
+                done();
+            });
         });
     });
 });
 
-function pausecomp(millis)
- {
-  var date = new Date();
-  var curDate = null;
-  do { curDate = new Date(); }
-  while(curDate-date < millis);
+function isValidJson(str) {
+    try {
+        var properties = ["eid", "ts", "ver", "gdata", "sid", "uid", "did", "edata"];
+        var requiredPropAssess = ["subj", "qlevel", "qid"];
+        var requiredPropInteract = ["type"];
+
+        var dataObj = JSON.parse(str);
+        var events = dataObj.events;
+        // json properties validation  
+        for(var i = 0 ; i < events.length; i++) {
+            for(key in properties) {
+                var property = properties[key];
+                if(dataObj.events[i][property] == null || dataObj.events[i][property] == undefined){
+                    return false;
+                }
+                // OE_ASSESS required properties validation
+                if(property == "OE_ASSESS"){
+                    for(key in requiredPropAssess){
+                        var property = requiredPropAssess[key];
+                        if(dataObj.events[i].edata.eks[property] == null || dataObj.events[i].edata.eks[property] == undefined)
+                            return false;
+                        }
+                }
+                // OE_INTERACT required properties validation
+                if(property == "OE_INTERACT"){
+                    for(key in requiredPropAssess){
+                        var property = requiredPropInteract[key];
+                        if(dataObj.events[i].edata.eks[property] == null || dataObj.events[i].edata.eks[property] == undefined)
+                            return false;
+                        }
+                }
+            }
+        }
+    } catch (e) {
+        return false;
+    }
+    return true;
 }
