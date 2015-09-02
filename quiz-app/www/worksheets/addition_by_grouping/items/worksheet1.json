@@ -1,0 +1,77 @@
+{
+	"identifier": "",
+	"title": "Addition by grouping",
+	"total_items": 2,
+	"item_sets": [
+		{
+			"id": "set_1",
+        	"count": 2
+		}
+	],
+	"items": {
+		"set_1" : [
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "butterfly_ltgray",
+						"count": 5
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "butterfly_white",
+						"count": 4
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "butterfly_white",
+						"count": 9
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 5, "score": 1},
+					"ans2" : {"value" : 4, "score": 1},
+					"ans3" : {"value" : 9, "score": 1}
+				},
+				"score": 3,
+				"partial_scoring": true,
+				"feedback": "",
+			},
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "cat_ltgray",
+						"count": 2
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "cat_white",
+						"count": 6
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "cat_white",
+						"count": 8
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 2, "score": 1},
+					"ans2" : {"value" : 6, "score": 1},
+					"ans3" : {"value" : 8, "score": 1}
+				},
+				"score": 3,
+				"partial_scoring": true,
+				"feedback": "",
+			}
+		]
+	}
+}
