@@ -30,8 +30,16 @@ var Plugin = Class.extend({
 		}
 		if(this._render) {
 			this.render();
-			//this._self.cache();
+			if(this._isContainer && this._type == 'stage') {
+				this.cache();
+			}
 		}
+	},
+	cache: function() {
+		this._self.cache(this._dimensions.x, this._dimensions.y, this._dimensions.w, this._dimensions.h);
+	},
+	uncache: function() {
+		this._self.uncache();
 	},
 	setIndex: function(idx) {
 		this._index = idx;

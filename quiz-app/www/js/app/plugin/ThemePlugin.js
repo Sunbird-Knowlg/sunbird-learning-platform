@@ -12,6 +12,7 @@ var ThemePlugin = Plugin.extend({
     _animationEffect: {effect:'moveOut'},
     _themeData: undefined,
     _assessmentData: {},
+    _isContainer: false,
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
@@ -78,6 +79,7 @@ var ThemePlugin = Plugin.extend({
             childPlugin.dispatchEvent('enter');
             instance.preloadStages();
             Renderer.update = true;
+            childPlugin.uncache();
         });
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
