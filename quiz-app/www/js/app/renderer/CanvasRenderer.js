@@ -1,7 +1,7 @@
 Renderer = {
     loader: undefined,
     theme: undefined,
-    update: false,
+    update: true,
     gdata: undefined,
     resizeGame: function(disableDraw) {
         var gameArea = document.getElementById('gameArea');
@@ -54,7 +54,10 @@ Renderer = {
         Renderer.resizeGame(true);
         Renderer.theme.start(gameRelPath + "/assets/");
         createjs.Ticker.addEventListener("tick", function() {
-            Renderer.theme.update();
+            if(Renderer.update) {
+                Renderer.theme.update();
+                Renderer.update = false;
+            }
         });
     }
 }

@@ -30,6 +30,7 @@ var Plugin = Class.extend({
 		}
 		if(this._render) {
 			this.render();
+			//this._self.cache();
 		}
 	},
 	setIndex: function(idx) {
@@ -100,6 +101,7 @@ var Plugin = Class.extend({
 			this._self.visible = true;
 		}
 		EventManager.processAppTelemetry(action, 'SHOW', this);
+		Renderer.update = true;
 	},
 	hide: function(action) {
 		if(_.contains(this.events, 'hide')) {
@@ -108,6 +110,7 @@ var Plugin = Class.extend({
 			this._self.visible = false;
 		}
 		EventManager.processAppTelemetry(action, 'HIDE', this);
+		Renderer.update = true;
 	},
 	toggleShow: function(action) {
 		if(_.contains(this.events, 'toggleShow')) {
@@ -116,6 +119,7 @@ var Plugin = Class.extend({
 			this._self.visible = !this._self.visible;
 		}
 		EventManager.processAppTelemetry(action, this._self.visible ? 'SHOW': 'HIDE', this);
+		Renderer.update = true;
 	},
 	transitionTo: function() {
 		PluginManager.addError('Subclasses of plugin should implement transitionTo()');

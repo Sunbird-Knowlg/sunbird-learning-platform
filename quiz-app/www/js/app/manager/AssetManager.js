@@ -28,7 +28,6 @@ AssetManager = {
 			AssetManager.commonAssets.push.apply(AssetManager.commonAssets, AssetManager.stageManifests.baseStage);
 		}
 		AssetManager.loadCommonAssets();
-		console.info('AssetManager.stageManifests', AssetManager.stageManifests);
 	},
 	populateAssets: function(data, stageId) {
 		for (k in data) {
@@ -58,7 +57,6 @@ AssetManager = {
 		return asset;
 	},
 	initStage: function(stageId, nextStageId, prevStageId, cb) {
-		//console.info('AssetManager.initStage() - ', stageId, nextStageId, prevStageId);
 		AssetManager.loadStage(stageId, cb);
 		if(nextStageId) {
 			AssetManager.loadStage(nextStageId, function() {
@@ -81,9 +79,7 @@ AssetManager = {
 		AssetManager.loaders = _.pick(AssetManager.loaders, stageId, nextStageId, prevStageId);
 	},
 	loadStage: function(stageId, cb) {
-		//console.info('AssetManager.loadStage() - ', stageId);
 		if(!AssetManager.loaders[stageId]) {
-			//console.info('Preloading stage - ', stageId);
 			var loader = undefined;
 			if(AssetManager.basePath) {
 	            loader = new createjs.LoadQueue(true, AssetManager.basePath);

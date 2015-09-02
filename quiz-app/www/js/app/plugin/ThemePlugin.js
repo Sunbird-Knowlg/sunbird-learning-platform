@@ -77,6 +77,7 @@ var ThemePlugin = Plugin.extend({
             instance.enableInputs();
             childPlugin.dispatchEvent('enter');
             instance.preloadStages();
+            Renderer.update = true;
         });
         var nextIdx = this._currIndex++;
         if(this._currentScene) {
