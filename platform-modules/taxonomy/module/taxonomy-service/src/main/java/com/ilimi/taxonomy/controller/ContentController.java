@@ -1,9 +1,12 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -22,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -31,10 +35,10 @@ import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Controller
-@RequestMapping("/worksheet")
-public class WorksheetController extends BaseController {
+@RequestMapping("/content")
+public class ContentController extends BaseController {
     
-    private static Logger LOGGER = LogManager.getLogger(WorksheetController.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(ContentController.class.getName());
     
     @Autowired
     private IContentManager contentManager;
@@ -42,35 +46,44 @@ public class WorksheetController extends BaseController {
     @Autowired
     IAuditLogManager auditLogManager;
     
-    private static final String objectType = "Worksheet";
-    
+    private static List<String> objectTypes = Arrays.asList("game", "worksheet", "story");
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "type", required = true) String objectType,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.create";
-        Request request = getRequestObject(map);
-        LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
-        try {
-            Response response = contentManager.create(taxonomyId, objectType, request);
-            LOGGER.info("Create | Response: " + response);
-            AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
-                    (String) map.get("COMMENT"));
-            auditLogManager.saveAuditRecord(audit);
-            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        } catch (Exception e) {
-            LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        objectType = objectType.toLowerCase();
+        String apiId = "content.create";
+        if(objectTypes.indexOf(objectType) >= 0) {
+            apiId = "content."+objectType+".create";
+            objectType = StringUtils.capitalize(objectType);
+            Request request = getRequestObject(map, objectType);
+            LOGGER.info("Create | TaxonomyId: " + taxonomyId + " | Request: " + request + " | user-id: " + userId);
+            try {
+                Response response = contentManager.create(taxonomyId, objectType, request);
+                LOGGER.info("Create | Response: " + response);
+                AuditRecord audit = new AuditRecord(taxonomyId, null, "CREATE", response.getParams(), userId, map.get("request").toString(),
+                        (String) map.get("COMMENT"));
+                auditLogManager.saveAuditRecord(audit);
+                return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            } catch (Exception e) {
+                LOGGER.error("Create | Exception: " + e.getMessage(), e);
+                return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            }
+        } else {
+            return getExceptionResponseEntity(new ClientException("ERR_INVALID_CONTENT_TYPE", "ObjectType is invalid."), apiId, null);
         }
+        
     }
     
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestParam(value = "type", required = true) String objectType,
+            @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.update";
-        Request request = getRequestObject(map);
+        String apiId = "content.update";
+        Request request = getRequestObject(map, objectType);
         LOGGER.info("Update | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
         try {
             Response response = contentManager.update(id, taxonomyId, objectType, request);
@@ -89,8 +102,9 @@ public class WorksheetController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "type", required = true) String objectType,
             @RequestParam(value = "fields", required = false) String[] fields, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.find";
+        String apiId = "content.find";
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response findResp = contentManager.find(id, taxonomyId, objectType, fields);
@@ -112,10 +126,11 @@ public class WorksheetController extends BaseController {
     @RequestMapping(value = "", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> findAll(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "type", required = true) String objectType,
             @RequestParam(value = "offset", required = false) Integer offset,
             @RequestParam(value = "limit", required = false) Integer limit,
             @RequestParam(value = "fields", required = false) String[] fields, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.findall";
+        String apiId = "content.findall";
         LOGGER.info("FindAll | TaxonomyId: " + taxonomyId + " | fields: " + fields
                 + " | user-id: " + userId);
         try {
@@ -137,8 +152,10 @@ public class WorksheetController extends BaseController {
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.delete";
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, 
+            @RequestParam(value = "type", required = true) String objectType, 
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.delete";
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
             Response response = contentManager.delete(id, taxonomyId);
@@ -152,16 +169,16 @@ public class WorksheetController extends BaseController {
     
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> list(@RequestBody Map<String, Object> map) {
-        String apiId = "worksheet.list";
+    public ResponseEntity<Response> list(@RequestParam(value = "type", required = true) String objectType, @RequestBody Map<String, Object> map) {
+        String apiId = "content.list";
         Request request = getListRequestObject(map);
-        LOGGER.info("List Worksheets | Request: " + request);
+        LOGGER.info("List | Request: " + request);
         try {
             Response response = contentManager.listContents(objectType, request);
-            LOGGER.info("List Worksheets | Response: " + response);
+            LOGGER.info("List | Response: " + response);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
-            LOGGER.error("List Worksheets | Exception: " + e.getMessage(), e);
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
@@ -169,8 +186,9 @@ public class WorksheetController extends BaseController {
     @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> upload(@PathVariable(value = "id") String id, @RequestParam(value = "file", required = true) MultipartFile file,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "worksheet.upload";
+            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestParam(value = "type", required = true) String objectType, 
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.upload";
         LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
             String name = FilenameUtils.getBaseName(file.getOriginalFilename())+"_"+System.currentTimeMillis()+"."+FilenameUtils.getExtension(file.getOriginalFilename());
@@ -205,16 +223,16 @@ public class WorksheetController extends BaseController {
         return request;
     }
     
-    private Request getRequestObject(Map<String, Object> requestMap) {
+    private Request getRequestObject(Map<String, Object> requestMap, String objectType) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
         ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
-                Object objWorksheet = map.get(ContentAPIParams.worksheet.name());
-                if (null != objWorksheet) {
-                    Node worksheet = (Node) mapper.convertValue(objWorksheet, Node.class);
-                    request.put(ContentAPIParams.content.name(), worksheet);
+                Object obj = map.get(ContentAPIParams.content.name());
+                if (null != obj) {
+                    Node content = (Node) mapper.convertValue(obj, Node.class);
+                    request.put(ContentAPIParams.content.name(), content);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

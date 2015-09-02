@@ -66,14 +66,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(objectType)) 
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "ObjectType is blank");
-        Node item = (Node) request.get(ContentAPIParams.worksheet.name());
+        Node item = (Node) request.get(ContentAPIParams.content.name());
         if (null == item)
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), objectType+" Object is blank");
         item.setObjectType(objectType);
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
-        // TODO: check whether do we need content level validation.
         if(checkError(validateRes)) {
             return validateRes;
         } else {
@@ -158,7 +157,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Content Object Id is blank");
         if (StringUtils.isBlank(objectType)) 
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "ObjectType is blank");        
-        Node item = (Node) request.get(ContentAPIParams.worksheet.name());
+        Node item = (Node) request.get(ContentAPIParams.content.name());
         if (null == item)
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), objectType+" Object is blank");
         item.setIdentifier(id);
@@ -166,7 +165,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
-        // TODO: check whether do we need content level validation.        
         if(checkError(validateRes)) {
             return validateRes;
         } else {

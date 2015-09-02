@@ -11,16 +11,19 @@ public class GraphImportDataProvider {
                 {"literacy", "game_definitions.json", "Literacy Game Definition"},
                 {"literacy", "assessment_definitions.json", "Literacy Assessments Definition"},
                 {"literacy", "worksheet_definitions.json", "Literacy Worksheet Definition"},
+                {"literacy", "story_definitions.json", "Literacy Story Definition"},
                 
                 {"literacy_v2", "taxonomy_definitions.json", "Literacy V2 Subject Definition"},
                 {"literacy_v2", "game_definitions.json", "Literacy V2 Game Definition"},
                 {"literacy_v2", "assessment_definitions.json", "Literacy V2 Assessments Definition"},
                 {"literacy_v2", "worksheet_definitions.json", "Literacy V2 Worksheet Definition"},
+                {"literacy_v2", "story_definitions.json", "Literacy V2 Story Definition"},
                 
                 {"numeracy", "taxonomy_definitions.json", "Numeracy Subject Definition"},
                 {"numeracy", "game_definitions.json", "Numeracy Game Definition"},
                 {"numeracy", "assessment_definitions.json", "Numeracy Assessments Definition"},
-                {"numeracy", "worksheet_definitions.json", "Numeracy Worksheet Definition"}
+                {"numeracy", "worksheet_definitions.json", "Numeracy Worksheet Definition"},
+                {"numeracy", "story_definitions.json", "Numeracy Story Definition"},
        };
     }
     
