@@ -1,6 +1,42 @@
+describe('Telemetry Service API - inActive', function() {
+    beforeAll(function(done) {
+        // done is called after getting the data. done() - is used to handle asynchronous operations...
+        TelemetryService.start();
+        TelemetryService.interact("TOUCH", "id", "TOUCH");
+        TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+        TelemetryService.assess("qid").end("no", 0);
+        TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid", "NUM", "MEDIUM").start();
+        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
+        TelemetryService.assess("qid1").end("yes", 1).mmc(["mmc1", "mmc2"]);
+        TelemetryService.end();
+        setTimeout(function() {
+            done();
+        }, 2000);
+    });
+
+    it('service is inactive.', function() {
+        var expected = TelemetryService.isActive;
+        expect(false).toEqual(expected);
+    });
+
+    it('events should not create and output data should be empty.', function(done) {
+        var expected = TelemetryService.isActive;
+        TelemetryService.ws.getData(TelemetryService._gameOutputFile)
+        .then(function(data) {
+            expect(data.length).toEqual(0);
+            done();
+        });
+    });
+
+})
+
 describe('Telemetry Service API', function() {
-    jasmine.DEFAULT_TIMEOUT_INTERVAL = 20000;
-    
+
     beforeAll(function(done) {
         // done is called after getting the data. done() - is used to handle asynchronous operations...
         var user = {
@@ -26,7 +62,7 @@ describe('Telemetry Service API', function() {
             TelemetryService.assess("qid").end("yes", 1);
 
             TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid1").end("yes", 1);
+            TelemetryService.assess("qid1").end("yes", 1).mmc(["mmc1", "mmc2"]);
             TelemetryService.end();
             setTimeout(function() {
                 done();
