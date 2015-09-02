@@ -1,9 +1,9 @@
 <theme startStage="splash" id="theme">
     <manifest>
-        <media id="razor" src="razor.png" type="image"/>
-        <media id="scissors" src="scissors.gif" type="image"/>
-        <media id="saw" src="saw.png" type="image"/>
-        <media id="knife" src="knife.gif" type="image"/>
+        <media id="razor" src="razor.png" type="image" />
+        <media id="scissors" src="scissors.gif" type="image" />
+        <media id="saw" src="saw.png" type="image" />
+        <media id="knife" src="knife.gif" type="image" />
         <media id="question_block" src="question_b.png" type="image" />
         <media id="barber_img" src="barber.png" type="image" />
         <media id="carpenter_img" src="carpenter.png" type="image" />
@@ -18,61 +18,6 @@
         <media id="start" src="start.png" type="image" />
         <media id="speech_bubble" src="speech_bubble.png" type="image" />
         <media id="sringeri" src="sringeri.png" type="image" />
-        <media id="clock_sound" src="sounds/clock_sound.mp3" type="sound" />
-        <media id="tree_frogs_and_birds_sound" src="sounds/tree_frogs_and_birds_sound.mp3" type="sound" />
-        <media id="water_sound" src="sounds/water_sound.mp3" type="sound" />
-        <media id="cow_sound" src="sounds/cow_sound.mp3" type="sound" />
-        <media id="saw_sound" src="sounds/saw_sound.mp3" type="sound" />
-        <media id="forest_sound" src="sounds/forest_sound.mp3" type="sound" />
-        <media id="tiger_sound" src="sounds/tiger_sound.mp3" type="sound" />
-        <media id="teapot_rhyme" src="sounds/teapot_rhyme.wav" type="sound" />
-
-        <media id="cover_sound" src="sounds/scenes/cover.mp3" type="sound" />
-        <media id="scene1_sound" src="sounds/scenes/scene1.mp3" type="sound" />
-        <media id="scene2_sound" src="sounds/scenes/scene2.mp3" type="sound" />
-        <media id="scene3_sound" src="sounds/scenes/scene3.mp3" type="sound" />
-        <media id="scene4_sound" src="sounds/scenes/scene4.mp3" type="sound" />
-        <media id="scene5_sound" src="sounds/scenes/scene5.mp3" type="sound" />
-        <media id="scene6_sound" src="sounds/scenes/scene6.mp3" type="sound" />
-        <media id="scene7_sound" src="sounds/scenes/scene7.mp3" type="sound" />
-        <media id="scene8_sound" src="sounds/scenes/scene8.mp3" type="sound" />
-        <media id="scene9_sound" src="sounds/scenes/scene9.mp3" type="sound" />
-        <media id="scene10_sound" src="sounds/scenes/scene10.mp3" type="sound" />
-        <media id="scene11_sound" src="sounds/scenes/scene11.mp3" type="sound" />
-        <media id="scene12_sound" src="sounds/scenes/scene12.mp3" type="sound" />
-        <media id="scene13_sound" src="sounds/scenes/scene13.mp3" type="sound" />
-        <media id="scene14_sound" src="sounds/scenes/scene14.mp3" type="sound" />
-        <media id="scene15_sound" src="sounds/scenes/scene15.mp3" type="sound" />
-        <media id="scene16_sound" src="sounds/scenes/scene16.mp3" type="sound" />
-        <media id="scene17_sound" src="sounds/scenes/scene17.mp3" type="sound" />
-        <media id="scene18_sound" src="sounds/scenes/scene18.mp3" type="sound" />
-        <media id="scene19_sound" src="sounds/scenes/scene19.mp3" type="sound" />
-
-        <media id="A4_sound" src="sounds/xylophone/A4_sound.mp3" type="sound" />
-        <media id="A5_sound" src="sounds/xylophone/A5_sound.mp3" type="sound" />
-        <media id="Ab4_sound" src="sounds/xylophone/Ab4_sound.mp3" type="sound" />
-        <media id="Ab5_sound" src="sounds/xylophone/Ab5_sound.mp3" type="sound" />
-        <media id="B4_sound" src="sounds/xylophone/B4_sound.mp3" type="sound" />
-        <media id="B5_sound" src="sounds/xylophone/B5_sound.mp3" type="sound" />
-        <media id="Bb4_sound" src="sounds/xylophone/Bb4_sound.mp3" type="sound" />
-        <media id="Bb5_sound" src="sounds/xylophone/Bb5_sound.mp3" type="sound" />
-        <media id="C5_sound" src="sounds/xylophone/C5_sound.mp3" type="sound" />
-        <media id="D5_sound" src="sounds/xylophone/D5_sound.mp3" type="sound" />
-
-        <media id="learning1_sound" src="sounds/learning/1.wav" type="sound" />
-        <media id="learning2_sound" src="sounds/learning/2.wav" type="sound" />
-        <media id="learning3_sound" src="sounds/learning/3.wav" type="sound" />
-        <media id="learning4_sound" src="sounds/learning/4.wav" type="sound" />
-        <media id="learning5_sound" src="sounds/learning/5.wav" type="sound" />
-        <media id="learning6_sound" src="sounds/learning/6.wav" type="sound" />
-        <media id="learning7_sound" src="sounds/learning/7.wav" type="sound" />
-        <media id="learning8_sound" src="sounds/learning/8.wav" type="sound" />
-        <media id="learning9_sound" src="sounds/learning/9.wav" type="sound" />
-        <media id="learning10_sound" src="sounds/learning/10.wav" type="sound" />
-        <media id="learning11_sound" src="sounds/learning/11.wav" type="sound" />
-        <media id="learning12_sound" src="sounds/learning/12.wav" type="sound" />
-        <media id="learning13_sound" src="sounds/learning/13.wav" type="sound" />
-
         <media id="page1" src="scenes/image_1.jpg" type="image" />
         <media id="page2" src="scenes/image_2.jpg" type="image" />
         <media id="page3" src="image_3.png" type="image" />
@@ -93,39 +38,178 @@
         <media id="page18" src="scenes/image_18.jpg" type="image" />
         <media id="page19" src="scenes/image_19.jpg" type="image" />
         <media id="page20" src="scenes/image_20.jpg" type="image" />
-
         <media id="t-outer" src="tailor-outer.png" type="image" />
         <media id="t-inner" src="tailor-inner.png" type="image" />
         <media id="w-outer" src="wife-outer.png" type="image" />
         <media id="w-inner" src="wife-inner.png" type="image" />
         <media id="b-outer" src="barber-outer.png" type="image" />
         <media id="b-inner" src="barber-inner.png" type="image" />
-
+        <media src="sounds/scene17.ogg" id="scene17_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene17_sound" startTime="0" duration="3944.4897959183672"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene11.ogg" id="scene11_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene11_sound" startTime="0" duration="3996.734693877551"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene16.ogg" id="scene16_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene16_sound" startTime="0" duration="5355.102040816327"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/splash.ogg" id="splash_audio" type="audiosprite">
+            <data>
+                <audioSprite id="cover_sound" startTime="0" duration="7131.428571428572"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene20.ogg" id="scene20_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning10_sound" startTime="0" duration="2821.2244897959185"></audioSprite>
+                <audioSprite id="learning11_sound" startTime="4000" duration="4040.2721088435383"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene13.ogg" id="scene13_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene13_sound" startTime="0" duration="7732.244897959184"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene21.ogg" id="scene21_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning12_sound" startTime="0" duration="3355.283446712018"></audioSprite>
+                <audioSprite id="learning13_sound" startTime="5000" duration="3837.0975056689344"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene10.ogg" id="scene10_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene10_sound" startTime="0" duration="8019.591836734694"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene14.ogg" id="scene14_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene14_sound" startTime="0" duration="7000.816326530612"></audioSprite>
+                <audioSprite id="tiger_sound" startTime="9000" duration="2000"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene19.ogg" id="scene19_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene19_sound" startTime="0" duration="12303.673469387755"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene18.ogg" id="scene18_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene18_sound" startTime="0" duration="12512.653061224491"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene15.ogg" id="scene15_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene15_sound" startTime="0" duration="17998.367346938776"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene3.ogg" id="scene3_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning1_sound" startTime="10000" duration="7575.510204081631"></audioSprite>
+                <audioSprite id="learning2_sound" startTime="19000" duration="4144.761904761904"></audioSprite>
+                <audioSprite id="scene3_sound" startTime="0" duration="8960"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene5.ogg" id="scene5_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning3_sound" startTime="14000" duration="8533.333333333332"></audioSprite>
+                <audioSprite id="learning4_sound" startTime="24000" duration="4632.380952380952"></audioSprite>
+                <audioSprite id="scene5_sound" startTime="0" duration="12199.183673469388"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene8.ogg" id="scene8_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene8_sound" startTime="0" duration="17266.938775510203"></audioSprite>
+                <audioSprite id="cow_sound" startTime="19000" duration="2111.473922902494"></audioSprite>
+                <audioSprite id="teapot_rhyme" startTime="23000" duration="7021.496598639455"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene1.ogg" id="scene1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="clock_sound" startTime="0" duration="23337.95918367347"></audioSprite>
+                <audioSprite id="scene1_sound" startTime="25000" duration="5746.938775510202"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene7.ogg" id="scene7_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning5_sound" startTime="7000" duration="14872.38095238095"></audioSprite>
+                <audioSprite id="learning6_sound" startTime="23000" duration="5642.448979591837"></audioSprite>
+                <audioSprite id="learning7_sound" startTime="30000" duration="5456.689342403628"></audioSprite>
+                <audioSprite id="scene7_sound" startTime="0" duration="5982.04081632653"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene9.ogg" id="scene9_audio" type="audiosprite">
+            <data>
+                <audioSprite id="learning8_sound" startTime="23000" duration="8695.873015873016"></audioSprite>
+                <audioSprite id="learning9_sound" startTime="33000" duration="4643.990929705218"></audioSprite>
+                <audioSprite id="scene9_sound" startTime="0" duration="7131.428571428572"></audioSprite>
+                <audioSprite id="saw_sound" startTime="9000" duration="12443.42403628118"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene6.ogg" id="scene6_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene6_sound" startTime="0" duration="13844.897959183674"></audioSprite>
+                <audioSprite id="tree_frogs_and_birds_sound" startTime="15000" duration="41239.38775510204"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene4.ogg" id="scene4_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene4_sound" startTime="0" duration="18625.30612244898"></audioSprite>
+                <audioSprite id="tree_frogs_and_birds_sound" startTime="20000" duration="41239.38775510204"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene12.ogg" id="scene12_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene12_sound" startTime="0" duration="8986.122448979591"></audioSprite>
+                <audioSprite id="forest_sound" startTime="10000" duration="61335.464852607714"></audioSprite>
+            </data>
+        </media>
+        <media src="sounds/scene2.ogg" id="scene2_audio" type="audiosprite">
+            <data>
+                <audioSprite id="scene2_sound" startTime="0" duration="14602.448979591836"></audioSprite>
+                <audioSprite id="tree_frogs_and_birds_sound" startTime="16000" duration="41239.38775510204"></audioSprite>
+                <audioSprite id="water_sound" startTime="59000" duration="10997.551020408167"></audioSprite>
+                <audioSprite id="A4_sound" startTime="71000" duration="1202.6984126984103"></audioSprite>
+                <audioSprite id="A5_sound" startTime="74000" duration="628.0045351473973"></audioSprite>
+                <audioSprite id="Ab4_sound" startTime="76000" duration="1228.8208616780025"></audioSprite>
+                <audioSprite id="Ab5_sound" startTime="79000" duration="628.0045351473973"></audioSprite>
+                <audioSprite id="B4_sound" startTime="81000" duration="941.4739229024889"></audioSprite>
+                <audioSprite id="B5_sound" startTime="83000" duration="497.39229024943654"></audioSprite>
+                <audioSprite id="Bb4_sound" startTime="85000" duration="1385.5555555555554"></audioSprite>
+                <audioSprite id="Bb5_sound" startTime="88000" duration="575.759637188213"></audioSprite>
+                <audioSprite id="C5_sound" startTime="90000" duration="1176.5759637188182"></audioSprite>
+                <audioSprite id="D5_sound" startTime="93000" duration="784.7392290249502"></audioSprite>
+            </data>
+        </media>
         <media id="story_data" src="data_english.json" type="json" />
     </manifest>
-    <datasource asset="story_data"/>
+    <datasource asset="story_data" />
     <stage id="baseStage">
         <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false">
             <event type="click" telemetry="true">
-                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500"/>
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
             </event>
         </image>
         <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false">
             <event type="click" telemetry="true">
-                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500"/>
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" />
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42" />
     </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
-        <param name="next" value="scene1"/>
-        <audio asset="cover_sound"/>
-        <image asset="page1" x="2" y="2" w="96" h="70"/>
-        <image asset="publisher_logo" x="2" y="75" w="13" h="17"/>
-        <image asset="level_band" x="2" y="94" w="13" h="5"/>
+        <param name="next" value="scene1" />
+        <audio asset="splash_audio" />
+        <image asset="page1" x="2" y="2" w="96" h="70" />
+        <image asset="publisher_logo" x="2" y="75" w="13" h="17" />
+        <image asset="level_band" x="2" y="94" w="13" h="5" />
         <image asset="next" x="92" y="80" w="6" h="10" id="next">
             <event type="click" telemetry="true">
-                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500"/>
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
             </event>
         </image>
         <text x="35" y="80" w="25" h="5" font="Arial" fontsize="48">
@@ -138,7 +222,7 @@
             Rohini Nilekani
         </text>
         <text x="35" y="90" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
-            Illustrator: 
+            Illustrator:
         </text>
         <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
             Angie &amp; Upesh
@@ -148,449 +232,423 @@
         </text>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="cover_sound" loop="1" telemetry="true"/>
+                <action type="command" command="play" asset="cover_sound" loop="1" telemetry="true" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="cover_sound" audio="true" loop="1" telemetry="true"/>
+                <action type="command" command="stop" asset="cover_sound" audio="true" loop="1" telemetry="true" />
             </event>
         </events>
     </stage>
-
     <stage id="scene1" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene2"/>
-        <param name="previous" value="splash"/>
-        <audio asset="clock_sound"/>
-        <audio asset="scene1_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
-        <image asset="page2" x="2" y="12" w="96" h="86"/>
+        <audio asset="scene1_audio" />
+        <param name="next" value="scene2" />
+        <param name="previous" value="splash" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE" />
+        <image asset="page2" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene1_sound"/>
+                <action type="command" command="togglePlay" asset="scene1_sound" />
             </event>
         </image>
         <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="clock_sound"/>
+                <action type="command" command="togglePlay" asset="clock_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene1_sound" loop="1"/>
+                <action type="command" command="play" asset="scene1_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene1_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene1_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene2" x="0" y="0" w="100" h="100" extends="baseStage">
-        <audio asset="scene2_sound"/>
-        <audio asset="tree_frogs_and_birds_sound"/>
-        <audio asset="water_sound"/>
-        <audio asset="A4_sound"/>
-        <audio asset="A5_sound"/>
-        <audio asset="Ab4_sound"/>
-        <audio asset="Ab5_sound"/>
-        <audio asset="B4_sound"/>
-        <audio asset="B5_sound"/>
-        <audio asset="Bb4_sound"/>
-        <audio asset="Bb5_sound"/>
-        <audio asset="C5_sound"/>
-        <audio asset="D5_sound"/>
-        <param name="next" value="scene3"/>
-        <param name="previous" value="scene1"/>
-
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
-        <image asset="page3" x="2" y="12" w="96" h="86"/>
+        <audio asset="scene2_audio" />
+        <param name="next" value="scene3" />
+        <param name="previous" value="scene1" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <image asset="page3" x="2" y="12" w="96" h="86" />
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri">
             <event type="click">
                 <action type="animation" id="sringeriWalking">
-                    <to ease="linear" duration="500"><![CDATA[{"x":20,"y":20}]]></to>
-                    <to ease="quadOut" duration="2000"><![CDATA[{"x":55,"y":0}]]></to>
-                    <to ease="linear" duration="1"><![CDATA[{"x":75,"y":0, "scaleX": -1}]]></to>
-                    <to ease="linear" duration="2000"><![CDATA[{"x":40,"y":55}]]></to>
-                    <to ease="linear" duration="1"><![CDATA[{"x":18,"y": 55, "scaleX": 1}]]></to>
-                    <to ease="linear" duration="2000"><![CDATA[{"x":57,"y":55}]]></to>
+                    <to ease="linear" duration="500">
+                        <![CDATA[{"x":20,"y":20}]]>
+                    </to>
+                    <to ease="quadOut" duration="2000">
+                        <![CDATA[{"x":55,"y":0}]]>
+                    </to>
+                    <to ease="linear" duration="1">
+                        <![CDATA[{"x":75,"y":0, "scaleX": -1}]]>
+                    </to>
+                    <to ease="linear" duration="2000">
+                        <![CDATA[{"x":40,"y":55}]]>
+                    </to>
+                    <to ease="linear" duration="1">
+                        <![CDATA[{"x":18,"y": 55, "scaleX": 1}]]>
+                    </to>
+                    <to ease="linear" duration="2000">
+                        <![CDATA[{"x":57,"y":55}]]>
+                    </to>
                 </action>
             </event>
         </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene2_sound"/>
+                <action type="command" command="togglePlay" asset="scene2_sound" />
             </event>
         </image>
         <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound"/>
+                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
             </event>
         </shape>
         <shape type="circle" x="58" y="37" w="3.5" h="3.5" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="water_sound"/>
+                <action type="command" command="togglePlay" asset="water_sound" />
             </event>
         </shape>
-
         <shape type="rect" x="41" y="40" w="3" h="5" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A4_sound"/>
+                <action type="command" command="togglePlay" asset="A4_sound" />
             </event>
         </shape>
         <shape type="rect" x="44" y="36" w="3" h="5" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A5_sound"/>
+                <action type="command" command="togglePlay" asset="A5_sound" />
             </event>
         </shape>
         <shape type="rect" x="46.5" y="32" w="2" h="4" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Ab4_sound"/>
+                <action type="command" command="togglePlay" asset="Ab4_sound" />
             </event>
         </shape>
         <shape type="rect" x="49" y="27" w="3" h="7" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Ab5_sound"/>
+                <action type="command" command="togglePlay" asset="Ab5_sound" />
             </event>
         </shape>
         <shape type="rect" x="52.5" y="21" w="3.5" h="11" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B4_sound"/>
+                <action type="command" command="togglePlay" asset="B4_sound" />
             </event>
         </shape>
         <shape type="rect" x="57" y="20" w="3" h="11" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B5_sound"/>
+                <action type="command" command="togglePlay" asset="B5_sound" />
             </event>
         </shape>
         <shape type="rect" x="60.5" y="20" w="3" h="10" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Bb4_sound"/>
+                <action type="command" command="togglePlay" asset="Bb4_sound" />
             </event>
         </shape>
         <shape type="rect" x="64" y="22" w="2.3" h="8" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Bb5_sound"/>
+                <action type="command" command="togglePlay" asset="Bb5_sound" />
             </event>
         </shape>
         <shape type="rect" x="66.5" y="25" w="4" h="10" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="C5_sound"/>
+                <action type="command" command="togglePlay" asset="C5_sound" />
             </event>
         </shape>
         <shape type="rect" x="64.5" y="36" w="7" h="4" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="D5_sound"/>
+                <action type="command" command="togglePlay" asset="D5_sound" />
             </event>
         </shape>
-
         <shape type="rect" x="61.5" y="40.5" w="5" h="7" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A4_sound"/>
+                <action type="command" command="togglePlay" asset="A4_sound" />
             </event>
         </shape>
         <shape type="rect" x="57.5" y="44" w="4.5" h="7" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A5_sound"/>
+                <action type="command" command="togglePlay" asset="A5_sound" />
             </event>
         </shape>
         <shape type="rect" x="53" y="45" w="4" h="9" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Ab4_sound"/>
+                <action type="command" command="togglePlay" asset="Ab4_sound" />
             </event>
         </shape>
         <shape type="rect" x="46.5" y="47" w="6" h="15" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B4_sound"/>
+                <action type="command" command="togglePlay" asset="B4_sound" />
             </event>
         </shape>
         <shape type="rect" x="39.5" y="52" w="6.5" h="15" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B5_sound"/>
+                <action type="command" command="togglePlay" asset="B5_sound" />
             </event>
         </shape>
         <shape type="rect" x="35" y="59" w="4" h="11" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Bb4_sound"/>
+                <action type="command" command="togglePlay" asset="Bb4_sound" />
             </event>
         </shape>
         <shape type="rect" x="28.5" y="65" w="6" h="13" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Bb5_sound"/>
+                <action type="command" command="togglePlay" asset="Bb5_sound" />
             </event>
         </shape>
         <shape type="rect" x="28.5" y="79" w="7.5" h="11" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="C5_sound"/>
+                <action type="command" command="togglePlay" asset="C5_sound" />
             </event>
         </shape>
         <shape type="rect" x="36.5" y="81" w="3" h="9" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A5_sound"/>
+                <action type="command" command="togglePlay" asset="A5_sound" />
             </event>
         </shape>
         <shape type="rect" x="40.5" y="78" w="3.5" h="13" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="D5_sound"/>
+                <action type="command" command="togglePlay" asset="D5_sound" />
             </event>
         </shape>
-
         <shape type="rect" x="46" y="78" w="3.5" h="13" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A4_sound"/>
+                <action type="command" command="togglePlay" asset="A4_sound" />
             </event>
         </shape>
         <shape type="rect" x="50" y="80" w="3" h="10" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="A5_sound"/>
+                <action type="command" command="togglePlay" asset="A5_sound" />
             </event>
         </shape>
         <shape type="rect" x="54" y="81" w="2" h="8" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="Ab4_sound"/>
+                <action type="command" command="togglePlay" asset="Ab4_sound" />
             </event>
         </shape>
         <shape type="rect" x="57" y="82" w="1.2" h="7" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B4_sound"/>
+                <action type="command" command="togglePlay" asset="B4_sound" />
             </event>
         </shape>
         <shape type="rect" x="59" y="82" w="1" h="7" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="B5_sound"/>
+                <action type="command" command="togglePlay" asset="B5_sound" />
             </event>
         </shape>
-
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene2_sound" loop="1"/>
+                <action type="command" command="play" asset="scene2_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene2_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene2_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene3" x="0" y="0" w="100" h="100" extends="baseStage">
-        <audio asset="scene3_sound"/>
-        <audio asset="learning1_sound"/>
-        <audio asset="learning2_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB"/>
-        <image asset="page4" x="2" y="12" w="96" h="86"/>
-        <param name="next" value="scene4"/>
-        <param name="previous" value="scene2"/>
+        <audio asset="scene3_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB" />
+        <image asset="page4" x="2" y="12" w="96" h="86" />
+        <param name="next" value="scene4" />
+        <param name="previous" value="scene2" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene3_sound"/>
+                <action type="command" command="togglePlay" asset="scene3_sound" />
             </event>
         </image>
         <g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning2_sound"/>
-                    <action type="command" command="hide" asset="razorInfo"/>
+                    <action type="command" command="stop" asset="learning2_sound" />
+                    <action type="command" command="hide" asset="razorInfo" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-Razor
-	        </text>
+                Razor
+            </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-Razor is used to cut hair
-	        </text>
+                Razor is used to cut hair
+            </text>
         </g>
         <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning1_sound"/>
-                    <action type="command" command="hide" asset="barberInfo"/>
+                    <action type="command" command="stop" asset="learning1_sound" />
+                    <action type="command" command="hide" asset="barberInfo" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="125">
-Barber
-	        </text>
+                Barber
+            </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-Barber is cutting hair
-Barber uses Razor and Scissors 
-to Cut hair
-	        </text>
+                Barber is cutting hair Barber uses Razor and Scissors to Cut hair
+            </text>
         </g>
         <shape type="rect" x="63" y="30" w="5" h="13" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning2_sound"/>
-                <action type="command" command="show" asset="razorInfo"/>
+                <action type="command" command="play" asset="learning2_sound" />
+                <action type="command" command="show" asset="razorInfo" />
             </event>
         </shape>
         <shape type="rect" x="53" y="45" w="18" h="25" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning1_sound"/>
-                <action type="command" command="show" asset="barberInfo"/>
+                <action type="command" command="play" asset="learning1_sound" />
+                <action type="command" command="show" asset="barberInfo" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene3_sound" loop="1"/>
+                <action type="command" command="play" asset="scene3_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene3_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene3_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene4" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene5"/>
-        <param name="previous" value="scene3"/>
-        <audio asset="scene4_sound"/>
-        <audio asset="tree_frogs_and_birds_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
-        <image asset="page5" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene5" />
+        <param name="previous" value="scene3" />
+        <audio asset="scene4_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2" />
+        <image asset="page5" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene4_sound"/>
+                <action type="command" command="togglePlay" asset="scene4_sound" />
             </event>
         </image>
         <shape type="rect" x="0" y="40" w="23" h="58" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound"/>
+                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene4_sound" loop="1"/>
+                <action type="command" command="play" asset="scene4_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene4_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene4_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene5" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene6"/>
-        <param name="previous" value="scene4"/>
-        <audio asset="scene5_sound"/>
-        <audio asset="learning3_sound"/>
-        <audio asset="learning4_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
-        <image asset="page6" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene6" />
+        <param name="previous" value="scene4" />
+        <audio asset="scene5_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
+        <image asset="page6" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene5_sound"/>
+                <action type="command" command="togglePlay" asset="scene5_sound" />
             </event>
         </image>
-
         <g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning4_sound"/>
-                    <action type="command" command="hide" asset="knifeInfo"/>
+                    <action type="command" command="stop" asset="learning4_sound" />
+                    <action type="command" command="hide" asset="knifeInfo" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-Knife
+                Knife
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-Knife is used to cut vegetables
+                Knife is used to cut vegetables
             </text>
         </g>
-
         <g x="28" y="12" w="30" h="27" id="wifeInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning3_sound"/>
-                    <action type="command" command="hide" asset="wifeInfo"/>
+                    <action type="command" command="stop" asset="learning3_sound" />
+                    <action type="command" command="hide" asset="wifeInfo" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="125">
-Sringeri Srinivas's Wife
+                Sringeri Srinivas's Wife
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-Wife is cooking food
-Wife uses a Knife to Cut vegetables
+                Wife is cooking food Wife uses a Knife to Cut vegetables
             </text>
         </g>
-
         <shape type="rect" x="20" y="28" w="12" h="22" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning3_sound"/>
-                <action type="command" command="show" asset="wifeInfo"/>
+                <action type="command" command="play" asset="learning3_sound" />
+                <action type="command" command="show" asset="wifeInfo" />
             </event>
         </shape>
         <shape type="rect" x="13" y="20" w="6" h="22" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning4_sound"/>
-                <action type="command" command="show" asset="knifeInfo"/>
+                <action type="command" command="play" asset="learning4_sound" />
+                <action type="command" command="show" asset="knifeInfo" />
             </event>
         </shape>
-
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene5_sound" loop="1"/>
+                <action type="command" command="play" asset="scene5_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene5_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene5_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene6" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene7"/>
-        <param name="previous" value="scene5"/>
-        <audio asset="scene6_sound"/>
-        <audio asset="tree_frogs_and_birds_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
-        <image asset="page7" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene7" />
+        <param name="previous" value="scene5" />
+        <audio asset="scene6_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800" />
+        <image asset="page7" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene6_sound"/>
+                <action type="command" command="togglePlay" asset="scene6_sound" />
             </event>
         </image>
         <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound"/>
+                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene6_sound" loop="1"/>
+                <action type="command" command="play" asset="scene6_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene6_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene6_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene7" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene8"/>
-        <param name="previous" value="scene6"/>
-        <audio asset="scene7_sound"/>
-        <audio asset="learning5_sound"/>
-        <audio asset="learning6_sound"/>
-        <audio asset="learning7_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8"/>
-        <image asset="page8" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene8" />
+        <param name="previous" value="scene6" />
+        <audio asset="scene7_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8" />
+        <image asset="page8" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene7_sound"/>
+                <action type="command" command="togglePlay" asset="scene7_sound" />
             </event>
         </image>
         <g x="40" y="15" w="30" h="27" id="tailorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning5_sound"/>
-                    <action type="command" command="hide" asset="tailorInfo"/>
+                    <action type="command" command="stop" asset="learning5_sound" />
+                    <action type="command" command="hide" asset="tailorInfo" />
                 </event>
             </image>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Tailor
             </text>
             <text x="8" y="32" w="86" font="Georgia" fontsize="90">
-                Tailor stitches clothes
-Tailor uses Tape to measure cloth
-Tailor uses Scissors to cut cloth
-Tailor uses Sewing Machine to stitch
+                Tailor stitches clothes Tailor uses Tape to measure cloth Tailor uses Scissors to cut cloth Tailor uses Sewing Machine to stitch
             </text>
         </g>
         <shape type="rect" x="30" y="40" w="20" h="34" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning5_sound"/>
-                <action type="command" command="show" asset="tailorInfo"/>
+                <action type="command" command="play" asset="learning5_sound" />
+                <action type="command" command="show" asset="tailorInfo" />
             </event>
         </shape>
         <g x="50" y="5" w="30" h="27" id="scissorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning6_sound"/>
-                    <action type="command" command="hide" asset="scissorInfo"/>
+                    <action type="command" command="stop" asset="learning6_sound" />
+                    <action type="command" command="hide" asset="scissorInfo" />
                 </event>
             </image>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
@@ -602,16 +660,15 @@ Tailor uses Sewing Machine to stitch
         </g>
         <shape type="rect" x="50" y="30" w="6" h="32" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning6_sound"/>
-                <action type="command" command="show" asset="scissorInfo"/>
+                <action type="command" command="play" asset="learning6_sound" />
+                <action type="command" command="show" asset="scissorInfo" />
             </event>
         </shape>
-
         <g x="3" y="40" w="30" h="27" id="sewingMachineInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning7_sound"/>
-                    <action type="command" command="hide" asset="sewingMachineInfo"/>
+                    <action type="command" command="stop" asset="learning7_sound" />
+                    <action type="command" command="hide" asset="sewingMachineInfo" />
                 </event>
             </image>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
@@ -623,105 +680,98 @@ Tailor uses Sewing Machine to stitch
         </g>
         <shape type="rect" x="2" y="62" w="20" h="36" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning7_sound"/>
-                <action type="command" command="show" asset="sewingMachineInfo"/>
+                <action type="command" command="play" asset="learning7_sound" />
+                <action type="command" command="show" asset="sewingMachineInfo" />
             </event>
         </shape>
-
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene7_sound" loop="1"/>
+                <action type="command" command="play" asset="scene7_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene7_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene7_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene8" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene9"/>
-        <param name="previous" value="scene7"/>
-        <audio asset="scene8_sound"/>
-        <audio asset="cow_sound"/>
-        <audio asset="teapot_rhyme"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9"/>
-        <image asset="page9" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene9" />
+        <param name="previous" value="scene7" />
+        <audio asset="scene8_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9" />
+        <image asset="page9" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene8_sound"/>
+                <action type="command" command="togglePlay" asset="scene8_sound" />
             </event>
         </image>
         <g x="18" y="20" w="30" h="27" id="teapotInfo" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <placeholder param="kettle_title" x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128"/>
-            <placeholder param="kettle_synonyms" x="8" y="32" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_hindi" x="8" y="44" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_usage" x="8" y="56" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_rhyme" x="8" y="72" w="86" font="Georgia" fontsize="72" color="#004389"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" />
+            <placeholder param="kettle_title" x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128" />
+            <placeholder param="kettle_synonyms" x="8" y="32" w="86" font="Georgia" fontsize="90" />
+            <placeholder param="kettle_hindi" x="8" y="44" w="86" font="Georgia" fontsize="90" />
+            <placeholder param="kettle_usage" x="8" y="56" w="86" font="Georgia" fontsize="90" />
+            <placeholder param="kettle_rhyme" x="8" y="72" w="86" font="Georgia" fontsize="72" color="#004389" />
             <shape type="rect" x="8" y="64" w="86" h="15" hitArea="true">
                 <event type="click">
-                    <action type="command" command="togglePlay" asset="teapot_rhyme"/>
+                    <action type="command" command="togglePlay" asset="teapot_rhyme" />
                 </event>
             </shape>
         </g>
         <shape type="rect" x="11" y="42" w="12" h="12" hitArea="true">
             <event type="click">
-                <action type="command" command="toggleShow" asset="teapotInfo"/>
+                <action type="command" command="toggleShow" asset="teapotInfo" />
             </event>
         </shape>
         <shape type="rect" x="84" y="65" w="14" h="30" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="cow_sound"/>
+                <action type="command" command="togglePlay" asset="cow_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene8_sound" loop="1"/>
+                <action type="command" command="play" asset="scene8_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene8_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene8_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene9" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene10"/>
-        <param name="previous" value="scene8"/>
-        <audio asset="scene9_sound"/>
-        <audio asset="saw_sound"/>
-        <audio asset="learning8_sound"/>
-        <audio asset="learning9_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB"/>
-        <image asset="page10" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene10" />
+        <param name="previous" value="scene8" />
+        <audio asset="scene9_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB" />
+        <image asset="page10" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene9_sound"/>
+                <action type="command" command="togglePlay" asset="scene9_sound" />
             </event>
         </image>
         <g x="72" y="8" w="28" h="27" id="carpenterInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning8_sound"/>
-                    <action type="command" command="hide" asset="carpenterInfo"/>
+                    <action type="command" command="stop" asset="learning8_sound" />
+                    <action type="command" command="hide" asset="carpenterInfo" />
                 </event>
             </image>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
                 Carpenter
             </text>
             <text x="8" y="32" w="86" font="Georgia" fontsize="90">
-                Carpenter makes furniture from wood.
-Carpenter uses a Saw to Cut wood.
+                Carpenter makes furniture from wood. Carpenter uses a Saw to Cut wood.
             </text>
         </g>
         <shape type="rect" x="70" y="37" w="25" h="59" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning8_sound"/>
-                <action type="command" command="show" asset="carpenterInfo"/>
+                <action type="command" command="play" asset="learning8_sound" />
+                <action type="command" command="show" asset="carpenterInfo" />
             </event>
         </shape>
         <g x="56" y="3" w="28" h="27" id="sawInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning9_sound"/>
-                    <action type="command" command="hide" asset="sawInfo"/>
+                    <action type="command" command="stop" asset="learning9_sound" />
+                    <action type="command" command="hide" asset="sawInfo" />
                 </event>
             </image>
             <text x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128">
@@ -732,405 +782,395 @@ Carpenter uses a Saw to Cut wood.
             </text>
             <image asset="icon_sound" x="8" y="50" w="15" h="25">
                 <event type="click">
-                    <action type="command" command="togglePlay" asset="saw_sound"/>
+                    <action type="command" command="togglePlay" asset="saw_sound" />
                 </event>
             </image>
         </g>
         <shape type="rect" x="60" y="17" w="8" h="42" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="learning9_sound"/>
-                <action type="command" command="show" asset="sawInfo"/>
+                <action type="command" command="play" asset="learning9_sound" />
+                <action type="command" command="show" asset="sawInfo" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene9_sound" loop="1"/>
+                <action type="command" command="play" asset="scene9_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene9_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene9_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene10" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene11"/>
-        <param name="previous" value="scene9"/>
-        <audio asset="scene10_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
-        <image asset="page11" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene11" />
+        <param name="previous" value="scene9" />
+        <audio asset="scene10_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
+        <image asset="page11" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene10_sound"/>
+                <action type="command" command="togglePlay" asset="scene10_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene10_sound" loop="1"/>
+                <action type="command" command="play" asset="scene10_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene10_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene10_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene11" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene12"/>
-        <param name="previous" value="scene10"/>
-        <audio asset="scene11_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
-        <image asset="page12" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene12" />
+        <param name="previous" value="scene10" />
+        <audio asset="scene11_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA" />
+        <image asset="page12" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene11_sound"/>
+                <action type="command" command="togglePlay" asset="scene11_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene11_sound" loop="1"/>
+                <action type="command" command="play" asset="scene11_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene11_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene11_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene12" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene13"/>
-        <param name="previous" value="scene11"/>
-        <audio asset="scene12_sound"/>
-        <audio asset="forest_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
-        <image asset="page13" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene13" />
+        <param name="previous" value="scene11" />
+        <audio asset="scene12_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332" />
+        <image asset="page13" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene12_sound"/>
+                <action type="command" command="togglePlay" asset="scene12_sound" />
             </event>
         </image>
         <shape type="rect" x="70" y="12" w="28" h="86" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="forest_sound"/>
+                <action type="command" command="togglePlay" asset="forest_sound" />
             </event>
         </shape>
         <shape type="rect" x="2" y="50" w="23" h="48" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="forest_sound"/>
+                <action type="command" command="togglePlay" asset="forest_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene12_sound" loop="1"/>
+                <action type="command" command="play" asset="scene12_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene12_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene12_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene13" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene14"/>
-        <param name="previous" value="scene12"/>
-        <audio asset="scene13_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
-        <image asset="page14" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene14" />
+        <param name="previous" value="scene12" />
+        <audio asset="scene13_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7" />
+        <image asset="page14" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene13_sound"/>
+                <action type="command" command="togglePlay" asset="scene13_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene13_sound" loop="1"/>
+                <action type="command" command="play" asset="scene13_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene13_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene13_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene14" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene15"/>
-        <param name="previous" value="scene13"/>
-        <audio asset="scene14_sound"/>
-        <audio asset="tiger_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
-        <image asset="page15" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene15" />
+        <param name="previous" value="scene13" />
+        <audio asset="scene14_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
+        <image asset="page15" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene14_sound"/>
+                <action type="command" command="togglePlay" asset="scene14_sound" />
             </event>
         </image>
         <shape type="rect" x="36" y="30" w="62" h="52" hitArea="true">
             <event type="click">
-                <action type="command" command="togglePlay" asset="tiger_sound"/>
+                <action type="command" command="togglePlay" asset="tiger_sound" />
             </event>
         </shape>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene14_sound" loop="1"/>
+                <action type="command" command="play" asset="scene14_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene14_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene14_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene15" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene16"/>
-        <param name="previous" value="scene14"/>
-        <audio asset="scene15_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
-        <image asset="page16" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene16" />
+        <param name="previous" value="scene14" />
+        <audio asset="scene15_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
+        <image asset="page16" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene15_sound"/>
+                <action type="command" command="togglePlay" asset="scene15_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene15_sound" loop="1"/>
+                <action type="command" command="play" asset="scene15_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene15_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene15_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene16" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene17"/>
-        <param name="previous" value="scene15"/>
-        <audio asset="scene16_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
-        <image asset="page17" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene17" />
+        <param name="previous" value="scene15" />
+        <audio asset="scene16_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
+        <image asset="page17" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene16_sound"/>
+                <action type="command" command="togglePlay" asset="scene16_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene16_sound" loop="1"/>
+                <action type="command" command="play" asset="scene16_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene16_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene16_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene17" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene18"/>
-        <param name="previous" value="scene16"/>
-        <audio asset="scene17_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
-        <image asset="page18" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene18" />
+        <param name="previous" value="scene16" />
+        <audio asset="scene17_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0" />
+        <image asset="page18" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene17_sound"/>
+                <action type="command" command="togglePlay" asset="scene17_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene17_sound" loop="1"/>
+                <action type="command" command="play" asset="scene17_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene17_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene17_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene18" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene19"/>
-        <param name="previous" value="scene17"/>
-        <audio asset="scene18_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
-        <image asset="page19" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene19" />
+        <param name="previous" value="scene17" />
+        <audio asset="scene18_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264" />
+        <image asset="page19" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene18_sound"/>
+                <action type="command" command="togglePlay" asset="scene18_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene18_sound" loop="1"/>
+                <action type="command" command="play" asset="scene18_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene18_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene18_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene19" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene20"/>
-        <param name="previous" value="scene18"/>
-        <audio asset="scene19_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
-        <image asset="page20" x="2" y="12" w="96" h="86"/>
+        <param name="next" value="scene20" />
+        <param name="previous" value="scene18" />
+        <audio asset="scene19_audio" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59" />
+        <image asset="page20" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="scene19_sound"/>
+                <action type="command" command="togglePlay" asset="scene19_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="scene19_sound" loop="1"/>
+                <action type="command" command="play" asset="scene19_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="scene19_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="scene19_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene20" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene21"/>
-        <param name="previous" value="scene19"/>
-        <audio asset="learning10_sound"/>
-        <audio asset="learning11_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <audio asset="scene20_audio" />
+        <param name="next" value="scene21" />
+        <param name="previous" value="scene19" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="barber_img"/>
+                <action type="command" command="toggleShadow" asset="barber_img" />
             </event>
         </image>
         <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="carpenter_img"/>
+                <action type="command" command="toggleShadow" asset="carpenter_img" />
             </event>
         </image>
         <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="tailor_img"/>
+                <action type="command" command="toggleShadow" asset="tailor_img" />
             </event>
         </image>
         <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="wife_img"/>
+                <action type="command" command="toggleShadow" asset="wife_img" />
             </event>
         </image>
-        <image asset="question_block" x="5" y="15" w="9" h="16"/>
-
+        <image asset="question_block" x="5" y="15" w="9" h="16" />
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning11_sound"/>
-                    <action type="command" command="toggleShow" asset="hint"/>
+                    <action type="command" command="stop" asset="learning11_sound" />
+                    <action type="command" command="toggleShow" asset="hint" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-Hint
-	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+                Hint
+            </text>
+            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint" />
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
-                <action type="command" command="togglePlay" asset="learning11_sound"/>
-                <action type="command" command="toggleShow" asset="hint"/>
+                <action type="command" command="togglePlay" asset="learning11_sound" />
+                <action type="command" command="toggleShow" asset="hint" />
             </event>
         </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="learning10_sound"/>
+                <action type="command" command="togglePlay" asset="learning10_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="learning10_sound" loop="1"/>
+                <action type="command" command="play" asset="learning10_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="learning10_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="learning10_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene21" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene22"/>
-        <param name="previous" value="scene20"/>
-        <audio asset="learning12_sound"/>
-        <audio asset="learning13_sound"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
+        <audio asset="scene21_audio" />
+        <param name="next" value="scene22" />
+        <param name="previous" value="scene20" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="barber_img"/>
+                <action type="command" command="toggleShadow" asset="barber_img" />
             </event>
         </image>
         <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="carpenter_img"/>
+                <action type="command" command="toggleShadow" asset="carpenter_img" />
             </event>
         </image>
         <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="tailor_img"/>
+                <action type="command" command="toggleShadow" asset="tailor_img" />
             </event>
         </image>
         <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
             <event type="click">
-                <action type="command" command="toggleShadow" asset="wife_img"/>
+                <action type="command" command="toggleShadow" asset="wife_img" />
             </event>
         </image>
-        <image asset="question_block" x="5" y="15" w="9" h="16"/>
-
+        <image asset="question_block" x="5" y="15" w="9" h="16" />
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning13_sound"/>
-                    <action type="command" command="hide" asset="hint"/>
+                    <action type="command" command="stop" asset="learning13_sound" />
+                    <action type="command" command="hide" asset="hint" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-Hint
-	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+                Hint
+            </text>
+            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint" />
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
-                <action type="command" command="play" asset="learning13_sound"/>
-                <action type="command" command="show" asset="hint"/>
+                <action type="command" command="play" asset="learning13_sound" />
+                <action type="command" command="show" asset="hint" />
             </event>
         </image>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
-                <action type="command" command="togglePlay" asset="learning12_sound"/>
+                <action type="command" command="togglePlay" asset="learning12_sound" />
             </event>
         </image>
         <events>
             <event type="enter">
-                <action type="command" command="play" asset="learning12_sound" loop="1"/>
+                <action type="command" command="play" asset="learning12_sound" loop="1" />
             </event>
             <event type="exit">
-                <action type="command" command="stop" asset="learning12_sound" audio="true" loop="1"/>
+                <action type="command" command="stop" asset="learning12_sound" audio="true" loop="1" />
             </event>
         </events>
     </stage>
     <stage id="scene22" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene23"/>
-        <param name="previous" value="scene21"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
-        <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40"/>
-        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40"/>
-        <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40"/>
-        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40"/>
-        <image asset="question_block" x="5" y="15" w="9" h="16"/>
-        <image asset="knife" id="knife" x="48" y="18" w="9" h="16" enableDrag="true" snapTo="wife_img"/>
-        <image asset="razor" id="razor" x="48" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img"/>
-        <image asset="scissors" id="scissors" x="48" y="58" w="9" h="16" enableDrag="true" snapTo="tailor_img"/>
-        <image asset="saw" id="saw" x="48" y="78" w="9" h="16" enableDrag="true" snapTo="carpenter_img"/>
+        <param name="next" value="scene23" />
+        <param name="previous" value="scene21" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
+        <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40" />
+        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" />
+        <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40" />
+        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" />
+        <image asset="question_block" x="5" y="15" w="9" h="16" />
+        <image asset="knife" id="knife" x="48" y="18" w="9" h="16" enableDrag="true" snapTo="wife_img" />
+        <image asset="razor" id="razor" x="48" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img" />
+        <image asset="scissors" id="scissors" x="48" y="58" w="9" h="16" enableDrag="true" snapTo="tailor_img" />
+        <image asset="saw" id="saw" x="48" y="78" w="9" h="16" enableDrag="true" snapTo="carpenter_img" />
     </stage>
     <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="splash"/>
-        <param name="previous" value="scene22"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
-
-        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25" snapX="42" snapY="9"/>
-        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25" snapX="10.5" snapY="5"/>
-        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5"/>
-
-        <image asset="t-inner" id="t-inner" x="70" y="15" w="10" h="16" enableDrag="true" snapTo="t-outer"/>
-        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="19.5" enableDrag="true" snapTo="b-outer"/>
-        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="22" enableDrag="true" snapTo="w-outer"/>
-
-        <image asset="question_block" x="5" y="15" w="9" h="16"/>
-
+        <param name="next" value="splash" />
+        <param name="previous" value="scene22" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
+        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25" snapX="42" snapY="9" />
+        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25" snapX="10.5" snapY="5" />
+        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5" />
+        <image asset="t-inner" id="t-inner" x="70" y="15" w="10" h="16" enableDrag="true" snapTo="t-outer" />
+        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="19.5" enableDrag="true" snapTo="b-outer" />
+        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="22" enableDrag="true" snapTo="w-outer" />
+        <image asset="question_block" x="5" y="15" w="9" h="16" />
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" />
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-Hint
-	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+                Hint
+            </text>
+            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint" />
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
-                <action type="command" command="toggleShow" asset="hint"/>
+                <action type="command" command="toggleShow" asset="hint" />
             </event>
         </image>
     </stage>
