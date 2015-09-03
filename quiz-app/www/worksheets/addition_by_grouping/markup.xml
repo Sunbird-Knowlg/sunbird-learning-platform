@@ -44,6 +44,18 @@
         <media id="sound_image" src="sound.png" type="image" />
     </manifest>
     <controller name="ws1" type="items" id="addition"/>
+    <template id="vertical_add" var="item">
+        <placeholder model="item.param1" x="5" y="15" w="25" h="25"/>
+        <input type="number" class="inputText" x="14" y="57" w="7" h="7" id="text1" model="item.ans1"/>
+        <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
+        <placeholder model="item.param2" x="37" y="15" w="25" h="25"/>
+        <input type="number" class="inputText" x="43" y="57" w="7" h="7" id="text2" model="item.ans2"/>
+        <image asset="separator_horizontal" x="2" y="65" w="58" h="1"/>
+        <placeholder model="item.param3" x="2" y="66" w="80" h="15"/>
+        <input type="number" class="inputText" x="28" y="90" w="7" h="7" id="text3" model="item.ans3"/>
+        <image asset="plus" x="30.7" y="33" w="3" h="3"/>
+        <image asset="equals" x="30.7" y="64" w="3" h="3"/>
+    </template>
     <stage id="baseStage">
         <image asset="butterfly_ltgray"/>
         <image asset="butterfly_midgray"/>
@@ -114,18 +126,7 @@
             <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff">
                 ADDITION - By Grouping
             </text>
-            <template id="vertical_add">
-                <placeholder model="item.param1" x="5" y="15" w="25" h="25"/>
-                <input type="number" class="inputText" x="14" y="57" w="7" h="7" id="text1" model="item.ans1"/>
-                <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
-                <placeholder model="item.param2" x="37" y="15" w="25" h="25"/>
-                <input type="number" class="inputText" x="43" y="57" w="7" h="7" id="text2" model="item.ans2"/>
-                <image asset="separator_horizontal" x="2" y="65" w="58" h="1"/>
-                <placeholder model="item.param3" x="2" y="66" w="80" h="15"/>
-                <input type="number" class="inputText" x="28" y="90" w="7" h="7" id="text3" model="item.ans3"/>
-                <image asset="plus" x="30.7" y="33" w="3" h="3"/>
-                <image asset="equals" x="30.7" y="64" w="3" h="3"/>
-            </template>
+            <embed object="template"/>
             <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
             <image asset="previous" x="83" y="1" w="5" h="9" visible="false">
                 <event type="click">
