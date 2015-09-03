@@ -38,6 +38,7 @@ var ImagePlugin = Plugin.extend({
         } else {
             this._self.shadow = new createjs.Shadow(this._data.shadowColor, 0, 0, 30);
         }
+        Renderer.update = true;
     },
     removeShadow: function() {
         this._self.shadow = undefined;
@@ -54,6 +55,7 @@ var ImagePlugin = Plugin.extend({
         asset.on("pressmove", function(evt) {
             this.x = evt.stageX + this.offset.x;
             this.y = evt.stageY + this.offset.y;
+            Renderer.update = true;
         });
         if (snapTo) {
             asset.on("pressup", function(evt) {
@@ -80,6 +82,7 @@ var ImagePlugin = Plugin.extend({
                         this.y = dims.y + (dims.w * plugin._data.snapY / 100);
                     }
                 }
+                Renderer.update = true;
             });
         }
     }

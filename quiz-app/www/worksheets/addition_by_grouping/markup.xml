@@ -44,7 +44,22 @@
         <media id="sound_image" src="sound.png" type="image" />
     </manifest>
     <controller name="ws1" type="items" id="addition"/>
+    <stage id="baseStage">
+        <image asset="butterfly_ltgray"/>
+        <image asset="butterfly_midgray"/>
+        <image asset="butterfly_white"/>
+        <image asset="cat_ltgray"/>
+        <image asset="cat_midgray"/>
+        <image asset="cat_white"/>
+        <image asset="deer_ltgray"/>
+        <image asset="deer_midgray"/>
+        <image asset="deer_white"/>
+        <image asset="elephant_ltgray"/>
+        <image asset="elephant_midgray"/>
+        <image asset="elephant_white"/>
+    </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
+        <param name="next" value="welcome"/>
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="50"/>
         <!-- fontsize is the expected font size of text in 1920 x 1200 resolution -->
@@ -55,20 +70,21 @@
             Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
         </text>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
-        <image asset="entermission" x="30" y="78" w="22" h="22">
+        <image asset="entermission" x="30" y="78" w="22" h="22" id="next">
             <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="welcome" effect="scroll" direction="top" ease="linear" duration="500"/>
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="top" ease="linear" duration="500"/>
             </event>
         </image>
     </stage>
     <stage id="welcome" x="0" y="0" w="100" h="100">
         <controller name="welcome" type="data" id="welcome"/>
+        <param name="next" value="item"/>
         <audio id="thunder_sound"/>
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="blacktint_square" x="4" y="34" w="38" h="30"/>
-        <image asset="startnow" x="4" y="65" w="35" h="30">
+        <image asset="startnow" x="4" y="65" w="35" h="30" id="next">
             <event type="click">
-                <action type="command" command="transitionTo" asset="theme" value="item" effect="scroll" direction="top" ease="linear" duration="500"/>
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="top" ease="linear" duration="500"/>
             </event>
         </image>
         <image asset="noah" x="60" y="10" w="20" h="65"/>
@@ -89,6 +105,8 @@
         </events>
     </stage>
     <stage id="item" x="0" y="0" w="100" h="100" repeat="item in ws1">
+        <param name="next" value="summary"/>
+        <param name="previous" value="welcome"/>
         <g x="0" y="0" w="100" h="100">
             <image asset="bg" x="0" y="0" w="100" h="100"/>
             <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
@@ -109,13 +127,13 @@
                 <image asset="equals" x="30.7" y="64" w="3" h="3"/>
             </template>
             <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
-            <image asset="previous" x="83" y="1" w="5" h="9">
+            <image asset="previous" x="83" y="1" w="5" h="9" visible="false">
                 <event type="click">
                     <action type="command" command="transitionTo" asset="theme" value="welcome" effect="scroll" direction="bottom" ease="linear" duration="500" transitionType="previous"/>
                 </event>
             </image>
             <image asset="profile" x="88" y="1" w="5" h="9"/>
-            <image asset="next" x="93" y="1" w="5" h="9">
+            <image asset="next" x="93" y="1" w="5" h="9" visible="false">
                 <event type="click">
                     <action type="command" command="transitionTo" asset="theme" value="summary" effect="scroll" direction="top" ease="linear" duration="500"/>
                 </event>

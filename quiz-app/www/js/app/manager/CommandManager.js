@@ -1,7 +1,8 @@
 CommandManager = {
+	audioActions: ['play', 'pause', 'stop', 'togglePlay'],
 	handle: function(action) {
 		var plugin = PluginManager.getPluginObject(action.asset);
-		if(action.command !== 'stop' || action.sound !== true) {
+		if(!_.contains(CommandManager.audioActions, action.command)) {
 			if(!plugin) {
 				PluginManager.addError('Plugin not found for action - ' + JSON.stringify(action));
 				return;
@@ -9,21 +10,20 @@ CommandManager = {
 		}
 		switch(action.command) {
 			case 'play':
-				plugin.play(action);
+				AudioManager.play(action);
 				break;
 			case 'pause':
-				plugin.pause(action);
+				AudioManager.pause(action);
 				break;
 			case 'stop':
 				if(action.sound === true) {
-					createjs.Sound.stop();
-					EventManager.processAppTelemetry(action, 'STOP_ALL_SOUNDS', plugin);
+					AudioManager.stopAll(action);
 				} else {
-					plugin.stop(action);
+					AudioManager.stop(action);
 				}
 				break;
 			case 'togglePlay':
-				plugin.togglePlay(action);
+				AudioManager.togglePlay(action);
 				break;
 			case 'show':
 				plugin.show(action);

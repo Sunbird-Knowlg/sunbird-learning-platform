@@ -70,6 +70,9 @@ EventManager = {
 		if(!plugin) {
 			plugin = {_data: {id: '', asset: ''}};
 		}
+		if(!action) {
+			action = {telemetry: false};
+		}
 		if(action.telemetry === true) {
 			if(type) {
 				TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext);
