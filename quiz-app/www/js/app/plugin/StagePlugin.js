@@ -12,16 +12,13 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        if (data.repeat) {
-            var tokens = data.repeat.split(' in ');
-            if (tokens.length == 2) {
-                var controllerName = tokens[0].trim();
-                var stageController = this._theme._controllerMap[tokens[1].trim()];
-                if (stageController) {
-                    this._stageControllerName = controllerName;
-                    this._stageController = stageController;
-                    this._stageController.next();
-                }
+        if (data.iterate && data.var) {
+            var controllerName = data.var.trim();
+            var stageController = this._theme._controllerMap[data.iterate.trim()];
+            if (stageController) {
+                this._stageControllerName = controllerName;
+                this._stageController = stageController;
+                this._stageController.next();
             }
         }
         for (k in data) {
@@ -29,10 +26,10 @@ var StagePlugin = Plugin.extend({
                 if(_.isArray(data[k])) {
                     var instance = this;
                     data[k].forEach(function(param) {
-                        instance.params[param.name] = param.value;
+                        instance.setParamValue(param);
                     });
                 } else {
-                    this.params[data[k].name] = data[k].value;
+                    this.setParamValue(data[k]);
                 }
             } else if (k === 'controller') {
                 if(_.isArray(data[k])) {
@@ -48,6 +45,13 @@ var StagePlugin = Plugin.extend({
             if (PluginManager.isPlugin(k)) {
                 PluginManager.invoke(k, data[k], this, this, this._theme);
             }
+        }
+    },
+    setParamValue: function(p) {
+        if (p.value) {
+            this.params[p.name] = p.value;
+        } else if (p.model) {
+            this.params[p.name] = this.getModelValue(p.model);
         }
     },
     addController: function(p) {
@@ -94,9 +98,12 @@ var StagePlugin = Plugin.extend({
         }
     },
     evaluate: function(action) {
-        var valid = true;
+        var valid = false;
         if (this._stageController) {
-            this._stageController.evalItem();
+            var result = this._stageController.evalItem();
+            if (result) {
+                valid = result.pass;    
+            }
         }
         if (valid) {
             this.dispatchEvent(action.success);
@@ -105,8 +112,8 @@ var StagePlugin = Plugin.extend({
         }
     },
     reload: function(action) {
-        if (stage._stageController) {
-            stage._stageController.decrIndex(1);
+        if (this._stageController) {
+            this._stageController.decrIndex(1);
         }
         this._theme.replaceStage(this._data.id, action);
     }

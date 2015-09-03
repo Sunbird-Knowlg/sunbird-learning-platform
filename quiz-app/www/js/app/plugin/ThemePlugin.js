@@ -193,7 +193,6 @@ var ThemePlugin = Plugin.extend({
     enableInputs: function() {
         this.inputs.forEach(function(inputId) {
             document.getElementById(inputId).style.display = 'block';
-            document.getElementById(inputId).value = undefined;
         })
     },
     getTransitionEffect: function(animation) {

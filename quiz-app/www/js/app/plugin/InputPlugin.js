@@ -18,11 +18,15 @@ var InputPlugin = Plugin.extend({
         var instance = this;
         var val;
         if (data.model) {
-            var model = this.resolveParams(data.model);
+            var model = data.model;
+            val = this._stage.getModelValue(model);
             input.onblur = function() {
                 instance._stage.setModelValue(model, this.value);
             };
+        } else if (data.param) {
+            val = this._stage.params[data.param.trim()];
         }
+        input.value = val;
         var div = document.getElementById('gameArea');
         div.insertBefore(input, div.childNodes[0]);
         this._self = new createjs.DOMElement(input);

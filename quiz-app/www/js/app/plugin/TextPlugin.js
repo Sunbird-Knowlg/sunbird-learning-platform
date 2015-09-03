@@ -21,8 +21,9 @@ var TextPlugin = Plugin.extend({
         if (data.$t || data.__text) {
             textStr = (data.$t || data.__text);
         } else if (data.model) {
-            var model = this.resolveParams(data.model);
-            textStr = (this._stage.getModelValue(model) || '');
+            textStr = (this._stage.getModelValue(data.model) || '');
+        } else if (data.param) {
+            textStr = (this._stage.params[data.param.trim()] || '');
         }
         var text = new createjs.Text(textStr, font, data.color || '#000000');
         text.x = dims.x;

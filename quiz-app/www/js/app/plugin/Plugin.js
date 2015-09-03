@@ -86,28 +86,6 @@ var Plugin = Class.extend({
         }
         return relDimensions;
 	},
-	resolveParams: function(str) {
-		var val;
-		if (str) {
-			var tokens = str.split('.');
-	        val = '';
-	        for (var i=0; i<tokens.length; i++) {
-	            if (tokens[i].trim().startsWith('#')) {
-	                if (this._stage.params[tokens[i].trim().substring(1)]) {
-	                    val += this._stage.params[tokens[i].trim().substring(1)];     
-	                } else {
-	                    val += tokens[i];     
-	                }
-	            } else {
-	                val += tokens[i]; 
-	            }
-	            if (i < tokens.length - 1) {
-	                val += '.';
-	            }
-	        }
-		}
-		return val;
-	},
 	initPlugin: function(data) {
 		PluginManager.addError('Subclasses of plugin should implement this function');
 		throw "Subclasses of plugin should implement this function";
