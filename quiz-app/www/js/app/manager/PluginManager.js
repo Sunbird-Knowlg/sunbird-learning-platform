@@ -42,5 +42,9 @@ PluginManager = {
 	},
 	getErrors: function() {
 		return PluginManager.errors;
+	},
+	cleanUp: function() {
+		PluginManager.pluginObjMap = {};
+		PluginManager.errors = [];
 	}
 }
