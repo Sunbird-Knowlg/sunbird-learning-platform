@@ -198,7 +198,7 @@
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" />
             </event>
         </image>
-        <text model="storyData.#body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <text param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
     </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
         <param name="next" value="scene1" />
@@ -242,7 +242,7 @@
         <audio asset="scene1_audio" />
         <param name="next" value="scene2" />
         <param name="previous" value="splash" />
-        <param name="body" value="scene1_body"/>
+        <param name="body" model="storyData.scene1_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE" />
         <image asset="page2" x="2" y="12" w="96" h="86" />
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
@@ -268,7 +268,7 @@
         <audio asset="scene2_audio" />
         <param name="next" value="scene3" />
         <param name="previous" value="scene1" />
-        <param name="body" value="scene2_body"/>
+        <param name="body" model="storyData.scene2_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <image asset="page3" x="2" y="12" w="96" h="86" />
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri">
@@ -450,7 +450,7 @@
         <image asset="page4" x="2" y="12" w="96" h="86" />
         <param name="next" value="scene4" />
         <param name="previous" value="scene2" />
-        <param name="body" value="scene3_body"/>
+        <param name="body" model="storyData.scene3_body"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene3_sound" />
@@ -508,7 +508,7 @@
     <stage id="scene4" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene5" />
         <param name="previous" value="scene3" />
-        <param name="body" value="scene4_body"/>
+        <param name="body" model="storyData.scene4_body"/>
         <audio asset="scene4_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2" />
         <image asset="page5" x="2" y="12" w="96" h="86" />
@@ -534,7 +534,7 @@
     <stage id="scene5" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene6" />
         <param name="previous" value="scene4" />
-        <param name="body" value="scene5_body"/>
+        <param name="body" model="storyData.scene5_body"/>
         <audio asset="scene5_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
         <image asset="page6" x="2" y="12" w="96" h="86" />
@@ -595,7 +595,7 @@
     <stage id="scene6" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene7" />
         <param name="previous" value="scene5" />
-        <param name="body" value="scene6_body"/>
+        <param name="body" model="storyData.scene6_body"/>
         <audio asset="scene6_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800" />
         <image asset="page7" x="2" y="12" w="96" h="86" />
@@ -621,7 +621,7 @@
     <stage id="scene7" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene8" />
         <param name="previous" value="scene6" />
-        <param name="body" value="scene7_body"/>
+        <param name="body" model="storyData.scene7_body"/>
         <audio asset="scene7_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8" />
         <image asset="page8" x="2" y="12" w="96" h="86" />
@@ -702,7 +702,7 @@
     <stage id="scene8" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene9" />
         <param name="previous" value="scene7" />
-        <param name="body" value="scene8_body"/>
+        <param name="body" model="storyData.scene8_body"/>
         <audio asset="scene8_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9" />
         <image asset="page9" x="2" y="12" w="96" h="86" />
@@ -746,7 +746,7 @@
     <stage id="scene9" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene10" />
         <param name="previous" value="scene8" />
-        <param name="body" value="scene9_body"/>
+        <param name="body" model="storyData.scene9_body"/>
         <audio asset="scene9_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB" />
         <image asset="page10" x="2" y="12" w="96" h="86" />
@@ -812,7 +812,7 @@
     <stage id="scene10" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene11" />
         <param name="previous" value="scene9" />
-        <param name="body" value="scene10_body"/>
+        <param name="body" model="storyData.scene10_body"/>
         <audio asset="scene10_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
         <image asset="page11" x="2" y="12" w="96" h="86" />
@@ -833,7 +833,7 @@
     <stage id="scene11" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene12" />
         <param name="previous" value="scene10" />
-        <param name="body" value="scene11_body"/>
+        <param name="body" model="storyData.scene11_body"/>
         <audio asset="scene11_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA" />
         <image asset="page12" x="2" y="12" w="96" h="86" />
@@ -854,7 +854,7 @@
     <stage id="scene12" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene13" />
         <param name="previous" value="scene11" />
-        <param name="body" value="scene12_body"/>
+        <param name="body" model="storyData.scene12_body"/>
         <audio asset="scene12_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332" />
         <image asset="page13" x="2" y="12" w="96" h="86" />
@@ -885,7 +885,7 @@
     <stage id="scene13" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene14" />
         <param name="previous" value="scene12" />
-        <param name="body" value="scene13_body"/>
+        <param name="body" model="storyData.scene13_body"/>
         <audio asset="scene13_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7" />
         <image asset="page14" x="2" y="12" w="96" h="86" />
@@ -906,7 +906,7 @@
     <stage id="scene14" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene15" />
         <param name="previous" value="scene13" />
-        <param name="body" value="scene14_body"/>
+        <param name="body" model="storyData.scene14_body"/>
         <audio asset="scene14_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page15" x="2" y="12" w="96" h="86" />
@@ -932,7 +932,7 @@
     <stage id="scene15" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene16" />
         <param name="previous" value="scene14" />
-        <param name="body" value="scene15_body"/>
+        <param name="body" model="storyData.scene15_body"/>
         <audio asset="scene15_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page16" x="2" y="12" w="96" h="86" />
@@ -953,7 +953,7 @@
     <stage id="scene16" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene17" />
         <param name="previous" value="scene15" />
-        <param name="body" value="scene16_body"/>
+        <param name="body" model="storyData.scene16_body"/>
         <audio asset="scene16_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page17" x="2" y="12" w="96" h="86" />
@@ -974,7 +974,7 @@
     <stage id="scene17" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene18" />
         <param name="previous" value="scene16" />
-        <param name="body" value="scene17_body"/>
+        <param name="body" model="storyData.scene17_body"/>
         <audio asset="scene17_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0" />
         <image asset="page18" x="2" y="12" w="96" h="86" />
@@ -995,7 +995,7 @@
     <stage id="scene18" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene19" />
         <param name="previous" value="scene17" />
-        <param name="body" value="scene18_body"/>
+        <param name="body" model="storyData.scene18_body"/>
         <audio asset="scene18_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264" />
         <image asset="page19" x="2" y="12" w="96" h="86" />
@@ -1016,7 +1016,7 @@
     <stage id="scene19" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene20" />
         <param name="previous" value="scene18" />
-        <param name="body" value="scene19_body"/>
+        <param name="body" model="storyData.scene19_body"/>
         <audio asset="scene19_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59" />
         <image asset="page20" x="2" y="12" w="96" h="86" />
@@ -1038,7 +1038,7 @@
         <audio asset="scene20_audio" />
         <param name="next" value="scene21" />
         <param name="previous" value="scene19" />
-        <param name="body" value="scene20_body"/>
+        <param name="body" model="storyData.scene20_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
@@ -1098,7 +1098,7 @@
         <audio asset="scene21_audio" />
         <param name="next" value="scene22" />
         <param name="previous" value="scene20" />
-        <param name="body" value="scene21_body"/>
+        <param name="body" model="storyData.scene21_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
@@ -1157,7 +1157,7 @@
     <stage id="scene22" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene23" />
         <param name="previous" value="scene21" />
-        <param name="body" value="scene22_body"/>
+        <param name="body" model="storyData.scene22_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40" />
@@ -1173,7 +1173,7 @@
     <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="splash" />
         <param name="previous" value="scene22" />
-        <param name="body" value="scene23_body"/>
+        <param name="body" model="storyData.scene23_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
         <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25" snapX="42" snapY="9" />

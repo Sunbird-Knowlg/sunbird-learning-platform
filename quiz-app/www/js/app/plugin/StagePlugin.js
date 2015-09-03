@@ -26,10 +26,10 @@ var StagePlugin = Plugin.extend({
                 if(_.isArray(data[k])) {
                     var instance = this;
                     data[k].forEach(function(param) {
-                        instance.params[param.name] = param.value;
+                        instance.setParamValue(param);
                     });
                 } else {
-                    this.params[data[k].name] = data[k].value;
+                    this.setParamValue(data[k]);
                 }
             } else if (k === 'controller') {
                 if(_.isArray(data[k])) {
@@ -45,6 +45,13 @@ var StagePlugin = Plugin.extend({
             if (PluginManager.isPlugin(k)) {
                 PluginManager.invoke(k, data[k], this, this, this._theme);
             }
+        }
+    },
+    setParamValue: function(p) {
+        if (p.value) {
+            this.params[p.name] = p.value;
+        } else if (p.model) {
+            this.params[p.name] = this.getModelValue(p.model);
         }
     },
     addController: function(p) {

@@ -4,7 +4,7 @@ var SummaryPlugin = Plugin.extend({
     _render: false,
     initPlugin: function(data) {
         if (data.controller) {
-            var controller = this.resolveParams(data.controller);
+            var controller = data.controller;
             var message;
             if (this._theme._controllerMap[controller]) {
                 message = this._theme._controllerMap[controller].feedback();

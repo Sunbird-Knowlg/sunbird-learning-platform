@@ -6,16 +6,17 @@ var PlaceHolderPlugin = Plugin.extend({
         var dims = this.relativeDims();
         var instance = this;
         if (data.model) {
-            var model = this.resolveParams(data.model);
-            instance.param = this._stage.getModelValue(model);
-            if (instance.param) {
-                if (instance.param.type == 'gridLayout') {
-                    instance.renderGridLayout(instance._parent, instance, data);
-                } else if (instance.param.type == 'image') {
-                    instance.renderImage(instance);
-                } else if (instance.param.type == 'text') {
-                    instance.renderText(instance);
-                }
+            instance.param = this._stage.getModelValue(data.model);
+        } else if (data.param) {
+            instance.param = this._stage.params[data.param.trim()];
+        }
+        if (instance.param) {
+            if (instance.param.type == 'gridLayout') {
+                instance.renderGridLayout(instance._parent, instance, data);
+            } else if (instance.param.type == 'image') {
+                instance.renderImage(instance);
+            } else if (instance.param.type == 'text') {
+                instance.renderText(instance);
             }
         }
     },
