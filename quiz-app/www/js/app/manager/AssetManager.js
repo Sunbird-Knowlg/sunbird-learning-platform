@@ -1,5 +1,4 @@
 AssetManager = {
-    basePath: undefined,
     assetMap: {},
     commonAssets: [],
     loaders: {},
@@ -11,12 +10,11 @@ AssetManager = {
         createjs.Sound.registerPlugins([createjs.CordovaAudioPlugin, createjs.WebAudioPlugin, createjs.HTMLAudioPlugin]);
         createjs.Sound.alternateExtensions = ["mp3"];
         AssetManager.destroy();
-        AssetManager.basePath = basePath;
         if (themeData.manifest.media) {
             if (!_.isArray(themeData.manifest.media)) themeData.manifest.media = [themeData.manifest.media];
         }
         themeData.manifest.media.forEach(function(media) {
-            media.src = AssetManager.basePath + media.src;
+            media.src = basePath + media.src;
             if(createjs.CordovaAudioPlugin.isSupported()) { // Only supported in mobile
                 if(media.type === 'sound' || media.type === 'audiosprite') {
                     media.src = '/android_asset/www/' + media.src;
@@ -48,7 +46,7 @@ AssetManager = {
         for (k in data) {
             var plugins = data[k];
             if (!_.isArray(plugins)) plugins = [plugins];
-            if (PluginManager.isPlugin(k) && k == 'g') {
+            if (PluginManager.isPlugin(k) && (k == 'g' || k == 'template')) {
                 plugins.forEach(function(plugin) {
                     AssetManager.populateAssets(plugin, stageId);
                 });
@@ -67,8 +65,8 @@ AssetManager = {
         if (AssetManager.loaders[stageId]) asset = AssetManager.loaders[stageId].getResult(assetId);
         if (!asset) asset = AssetManager.commonLoader.getResult(assetId);
         if (!asset) {
-            console.error('Asset not found. Returning - ', (AssetManager.basePath + AssetManager.assetMap[assetId].src));
-            return AssetManager.basePath + AssetManager.assetMap[assetId].src;
+            console.error('Asset not found. Returning - ', (AssetManager.assetMap[assetId].src));
+            return AssetManager.assetMap[assetId].src;
         };
         return asset;
     },
