@@ -219,6 +219,10 @@ var ThemePlugin = Plugin.extend({
         if(next) nextStageId = next.value;
         if(prev) prevStageId = prev.value;
         return {stage: stageData.id, next: nextStageId, prev: prevStageId};
+    },
+    cleanUp: function() {
+        createjs.Ticker.removeAllEventListeners();
+        createjs.Touch.disable(this._self);
     }
 });
 PluginManager.registerPlugin('theme', ThemePlugin);
