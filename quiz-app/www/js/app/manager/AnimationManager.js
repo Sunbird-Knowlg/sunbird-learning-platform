@@ -24,20 +24,19 @@ AnimationManager = {
 				data.height = relDims.h;
 				fn += '.to(' + JSON.stringify(data) + ',' + to.duration + ', createjs.Ease.' + to.ease + ')';
 			});
+			fn += '.addEventListener("change", function(event) {Renderer.update = true;';
 			if(action.widthChangeEvent) {
-				fn += '.addEventListener("change", ' + AnimationManager.getWidthHandler() + ')';
+				fn += 'AnimationManager.widthHandler(event, plugin);';
 			}
-			fn += '}})()';
+			fn += '})}})()';
 			AnimationManager.animationsCache[action.id] = fn;
 		}
 		var animationFn = eval(fn);
         animationFn.apply(null, [instance._self]);
 	},
-	getWidthHandler: function() {
-		return function(event) {
-			var sb = plugin.getBounds();
-	    	plugin.scaleY = plugin.height / sb.height;
-	    	plugin.scaleX = plugin.width / sb.width;
-		}
+	widthHandler: function(event, plugin) {
+		var sb = plugin.getBounds();
+    	plugin.scaleY = plugin.height / sb.height;
+    	plugin.scaleX = plugin.width / sb.width;
 	}
 }

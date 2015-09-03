@@ -8,6 +8,7 @@ var Plugin = Class.extend({
 	_index: 0,
 	_self: undefined,
 	_dimensions: undefined,
+	_id: undefined,
 	events: [],
 	appEvents: [],
 	init: function(data, parent, stage, theme) {
@@ -22,15 +23,23 @@ var Plugin = Class.extend({
 			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));
 		}
 		EventManager.registerEvents(this, data);
-		if (data.id) {
-			PluginManager.registerPluginObject(data.id, this);
-		}
+		this._id = data.id || data.asset || _.uniqueId('plugin');
+		PluginManager.registerPluginObject(this);
 		if (data.visible === false) {
 	    	this._self.visible = false;
 		}
 		if(this._render) {
 			this.render();
+			if(this._isContainer && this._type == 'stage') {
+				this.cache();
+			}
 		}
+	},
+	cache: function() {
+		this._self.cache(this._dimensions.x, this._dimensions.y, this._dimensions.w, this._dimensions.h);
+	},
+	uncache: function() {
+		this._self.uncache();
 	},
 	setIndex: function(idx) {
 		this._index = idx;
@@ -93,26 +102,32 @@ var Plugin = Class.extend({
 	togglePlay: function() {
 		PluginManager.addError('Subclasses of plugin should implement togglePlay()');
 	},
-	show: function() {
+	show: function(action) {
 		if(_.contains(this.events, 'show')) {
 			EventManager.dispatchEvent(this._data.id, 'show');
 		} else {
 			this._self.visible = true;
 		}
+		EventManager.processAppTelemetry(action, 'SHOW', this);
+		Renderer.update = true;
 	},
-	hide: function() {
+	hide: function(action) {
 		if(_.contains(this.events, 'hide')) {
 			EventManager.dispatchEvent(this._data.id, 'hide');
 		} else {
 			this._self.visible = false;
 		}
+		EventManager.processAppTelemetry(action, 'HIDE', this);
+		Renderer.update = true;
 	},
-	toggleShow: function() {
+	toggleShow: function(action) {
 		if(_.contains(this.events, 'toggleShow')) {
 			EventManager.dispatchEvent(this._data.id, 'toggleShow');
 		} else {
 			this._self.visible = !this._self.visible;
 		}
+		EventManager.processAppTelemetry(action, this._self.visible ? 'SHOW': 'HIDE', this);
+		Renderer.update = true;
 	},
 	transitionTo: function() {
 		PluginManager.addError('Subclasses of plugin should implement transitionTo()');

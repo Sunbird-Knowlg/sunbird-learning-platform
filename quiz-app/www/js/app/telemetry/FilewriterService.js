@@ -2,7 +2,7 @@ FilewriterService = Class.extend({
 	init: function() {
 		this.initWriter();
 	},
-	initWriter: function(initObj) {
+	initWriter: function() {
 		throw "Subclasses of FilewriterService should implement this function";
 	},
 	createBaseDirectory: function(dirName, error) {
@@ -11,10 +11,13 @@ FilewriterService = Class.extend({
 	createFile: function(fileName, success, error) {
         throw "Subclasses of FilewriterService should implement this function";
     },
-    writeFile: function(fileName, data, success, error) {
+    write: function(fileName, data, success, error) {
 		throw "Subclasses of FilewriterService should implement this function";
     },
-    getFileLength: function(fileName) {
+    length: function(fileName) {
     	throw "Subclasses of FilewriterService should implement this function";
+    },
+    getData: function(fileName) {
+    	throw "Subclasses of FilewriterService should implement this function";	
     }
 });

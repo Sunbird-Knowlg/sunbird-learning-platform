@@ -24,7 +24,8 @@ EventManager = {
 			});
 		} else { // Handle mouse events
 			plugin._self.cursor = 'pointer';
-			plugin._self.on(evt.type, function() {
+			plugin._self.on(evt.type, function(event) {
+				EventManager.processMouseTelemetry(evt, event, plugin);
 				EventManager.handleActions(evt, plugin);
 			});
 		}
@@ -54,6 +55,28 @@ EventManager = {
 			AnimationManager.handle(action, plugin);
 		} else {
 			CommandManager.handle(action);
+		}
+	},
+	processMouseTelemetry: function(action, event, plugin) {
+		var ext = {
+			type: event.type,
+			x: event.stageX,
+			y: event.stageY
+		}
+		var type = TelemetryService.mouseEventMapping[action.type];
+		EventManager.processAppTelemetry(action, type, plugin, ext);
+	},
+	processAppTelemetry: function(action, type, plugin, ext) {
+		if(!plugin) {
+			plugin = {_data: {id: '', asset: ''}};
+		}
+		if(!action) {
+			action = {telemetry: false};
+		}
+		if(action.telemetry === true) {
+			if(type) {
+				TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type, undefined, ext);
+			}
 		}
 	}
 }

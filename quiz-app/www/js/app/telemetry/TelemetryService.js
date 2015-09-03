@@ -1,5 +1,6 @@
 TelemetryService = {
     isActive: false,
+    ws: undefined,
     _eventsVersion: "1.0",
     _gameData: undefined,
     _config: undefined,
@@ -9,28 +10,54 @@ TelemetryService = {
     _gameErrorFile: undefined,
     _events: [],
     _data: {},
+    mouseEventMapping: {
+        click: 'TOUCH',
+        dblclick: 'CHOOSE',
+        mousedown: 'DROP',
+        pressup: 'DRAG'
+    },
     init: function(user, gameData) {
-        console.log('TelemetryService init called...');
-        TelemetryService._config = TelemetryServiceUtil.getConfig();
-        if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
-        if (user && gameData) {
-            if (gameData.id && gameData.ver) {
-                TelemetryService._parentGameData = gameData;
-                TelemetryService._gameData = gameData;
+        return new Promise(function(resolve, reject) {
+            if (user && gameData) {
+                if (typeof cordova == 'undefined') {
+                    TelemetryService.ws = new ConsolewriterService();
+                } else {
+                    TelemetryService.ws = new CordovaFilewriterService();
+                }
+                if (gameData.id && gameData.ver) {
+                    TelemetryService._parentGameData = gameData;
+                    TelemetryService._gameData = gameData;
+                } else {
+                    reject('Invalid game data.');
+                }
+                if (user.sid && user.uid && user.did) {
+                    TelemetryService._user = user;
+                } else {
+                    reject('Invalid user session data.');
+                }
+                TelemetryService.ws.initWriter()
+                    .then(function(root) {
+                        return TelemetryServiceUtil.getConfig();
+                    })
+                    .then(function(config) {
+                        TelemetryService._config = config;
+                        if (TelemetryService._config.isActive) TelemetryService.isActive = TelemetryService._config.isActive;
+                        TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                        TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
+                    })
+                    .then(function(status) {
+                        TelemetryService.createFiles();
+                        console.log('TelemetryService init completed...');
+                        resolve(true);
+                    })
+                    .catch(function(err) {
+                        console.log('Error in init of TelemetryService:', err);
+                        reject(err);
+                    });
             } else {
-                TelemetryService.exitWithError('Invalid game data.');
+                reject('User or Game data is empty.');
             }
-            if (user.sid && user.uid && user.did) {
-                TelemetryService._user = user;
-            } else {
-                TelemetryService.exitWithError('Invalid user session data.');
-            }
-            TelemetryService._gameOutputFile = TelemetryService._baseDir + '/' + TelemetryService._config.outputFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-            TelemetryService._gameErrorFile = TelemetryService._baseDir + '/' + TelemetryService._config.errorFile.replace(TelemetryService._config.nameResetKey, gameData.id);
-            TelemetryService.createFiles();
-        } else {
-            TelemetryService.exitWithError('User or Game data is empty.');
-        }
+        });
     },
     exitWithError: function(error) {
         var message = 'Telemetry Service initialization faild. Please contact game developer.';
@@ -93,7 +120,7 @@ TelemetryService = {
             TelemetryService._data[TelemetryService._gameData.id].data.push(event);
             console.log('Game: ' + TelemetryService._gameData.id + ' start event created...');
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     end: function() {
@@ -120,24 +147,28 @@ TelemetryService = {
                 console.log('There is no game to end.');
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     interact: function(type, id, extype, uri, ext) {
         if (TelemetryService.isActive) {
+            ext = ext || {};
             var eventName = 'OE_INTERACT';
             if (type && id && extype) {
                 var eventStr = TelemetryService._config.events[eventName];
+                if (!_.contains(eventStr.eks.type.values, type)) {
+                    ext.type = type;
+                    type = 'OTHER';
+                }
                 var eventData = {
                     "eks": {
                         "type": type,
                         "id": id,
                         "extype": extype
                     },
-                    "ext": {}
+                    "ext": ext
                 };
                 eventData.eks.uri = uri || "";
-                eventData.ext = ext || {};
                 var messages = TelemetryService.validateEvent(eventStr, eventData);
                 if (messages.length == 0) {
                     var event = TelemetryService.createEventObject(eventName, eventData);
@@ -151,7 +182,7 @@ TelemetryService = {
                 TelemetryService.logError(eventName, messages);
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     startAssess: function(subj, qid, qlevel, qtype, mc, maxscore, exres, exlength) {
@@ -197,24 +228,24 @@ TelemetryService = {
                 TelemetryService.logError(eventName, messages);
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     endAssess: function(qid, pass, score, res, uri, mmc, ext) {
         if (TelemetryService.isActive) {
             var eventName = 'OE_ASSESS';
             var messages = [];
-            if((typeof qid != 'undefined') && (typeof pass != 'undefined') && (typeof score != 'undefined')) {
+            if ((typeof qid != 'undefined') && (typeof pass != 'undefined') && (typeof score != 'undefined')) {
                 var eventStr = TelemetryService._config.events[eventName];
                 var assessEvents = _.filter(TelemetryService._data[TelemetryService._gameData.id].data, function(event) {
                     return (event.eid == eventName && event.edata.eks.qid == qid);
                 });
-                if(assessEvents && assessEvents.length > 0) {
+                if (assessEvents && assessEvents.length > 0) {
                     var event = assessEvents[0];
-                    event.edata.eks.length += Math.round((new Date().getTime() - event.startTime)/1000);
+                    event.edata.eks.length += Math.round((new Date().getTime() - event.startTime) / 1000);
                     event.edata.eks.atmpts += 1;
                     event.edata.eks.score = score || 0;
-                    if(pass && pass.toUpperCase() == 'YES') {
+                    if (pass && pass.toUpperCase() == 'YES') {
                         event.edata.eks.pass = 'Yes';
                     } else {
                         event.edata.eks.pass = 'No';
@@ -230,9 +261,9 @@ TelemetryService = {
             } else {
                 messages.push('reqired data is missing to end assess event.');
             }
-            if(messages.length > 0) TelemetryService.logError(eventName, messages);
+            if (messages.length > 0) TelemetryService.logError(eventName, messages);
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     levelSet: function(eventData) {
@@ -252,42 +283,39 @@ TelemetryService = {
     },
     createFiles: function() {
         if (TelemetryService.isActive) {
-            filewriterService.createBaseDirectory(TelemetryService._baseDir, function() {
+            TelemetryService.ws.createBaseDirectory(TelemetryService._baseDir, function() {
                 console.log('file creation failed...');
             });
-            filewriterService.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
+            TelemetryService.ws.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');
             });
-            filewriterService.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
+            TelemetryService.ws.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');
             });
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     flush: function() {
         if (TelemetryService.isActive) {
-            // var data = _.pluck(_.where(TelemetryService._events['OE_START'], {"ended": true}), 'data');
-            // data = _.union(data, TelemetryService._events['OE_ASSESS'], TelemetryService._events['OE_INTERACT'], TelemetryService._events['OE_END']);
             if (TelemetryService._events && TelemetryService._events.length > 0) {
                 var data = JSON.stringify(TelemetryService._events);
                 data = data.substring(1, data.length - 1);
-                filewriterService.getFileLength(TelemetryService._gameOutputFile)
+                TelemetryService.ws.length(TelemetryService._gameOutputFile)
                     .then(function(fileSize) {
                         if (fileSize == 0) {
                             data = '{"events":[' + data + ']}';
                         } else {
                             data = ', ' + data + ']}';
                         }
-                        return filewriterService.writeFile(TelemetryService._gameOutputFile, data, 2);
+                        return TelemetryService.ws.write(TelemetryService._gameOutputFile, data, 2);
                     })
                     .then(function(status) {
                         TelemetryService.clearEvents();
-                        // console.log('events after clear: ', TelemetryService._events);
                     })
                     .catch(function(err) {
                         console.log('Error:', err);
@@ -296,7 +324,7 @@ TelemetryService = {
                 console.log('No data to write...');
             }
         } else {
-            console.log('TelemetryService is inActive.');
+            // console.log('TelemetryService is inActive.');
         }
     },
     clearEvents: function() {
@@ -309,7 +337,7 @@ TelemetryService = {
             'time': toGenieDateTime(new Date().getTime())
         }
         if (TelemetryService.isActive) {
-            filewriterService.getFileLength(TelemetryService._gameErrorFile)
+            TelemetryService.ws.length(TelemetryService._gameErrorFile)
                 .then(function(fileSize) {
                     data = JSON.stringify(data);
                     if (fileSize == 0) {
@@ -317,14 +345,14 @@ TelemetryService = {
                     } else {
                         data = ', ' + data + ']}';
                     }
-                    return filewriterService.writeFile(TelemetryService._gameErrorFile, data, 2);
+                    return TelemetryService.ws.write(TelemetryService._gameErrorFile, data, 2);
                 })
                 .catch(function(err) {
                     console.log('Error while writing error.json file.');
                     console.log('Error tried to log:', JSON.stringify(error));
                 });
         } else {
-            console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
+            // console.log('TelemetryService is inActive. Error:', JSON.stringify(error));
         }
     },
     printAll: function() {
@@ -357,4 +385,3 @@ function toGenieDateTime(ms) {
     return v.insert(-2, ':');
 }
 
-var filewriterService = new CordovaFilewriterService();

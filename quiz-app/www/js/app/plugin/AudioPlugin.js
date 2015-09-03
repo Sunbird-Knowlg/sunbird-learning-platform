@@ -5,9 +5,10 @@ var AudioPlugin = Plugin.extend({
     _state: 'stop',
     _render: false,
     initPlugin: function(data) {
-        this._id = data.id;
+        this._id = data.asset;
     },
-    play: function() {
+    play: function(action) {
+        EventManager.processAppTelemetry(action, 'LISTEN', this);
         if(this._state == 'paused') {
             this._self.paused = false;
             this._state = 'play';
@@ -23,22 +24,24 @@ var AudioPlugin = Plugin.extend({
             });
         }
     },
-    togglePlay: function() {
+    togglePlay: function(action) {
         if(this._state == 'play') {
-            this.pause();
+            this.pause(action);
         } else {
-            this.play();
+            this.play(action);
         }
     },
-    pause: function() {
+    pause: function(action) {
         if(this._state == 'play') {
             this._self.paused = true;
             this._state = 'paused';
+            EventManager.processAppTelemetry(action, 'PAUSE_LISTENING', this);
         }
     },
-    stop: function() {
+    stop: function(action) {
         if(this._state == 'play') {
             this._self.stop();
+            EventManager.processAppTelemetry(action, 'STOP_LISTENING', this);
         }
     }
 

@@ -1,7 +1,7 @@
 Renderer = {
     loader: undefined,
     theme: undefined,
-    update: false,
+    update: true,
     gdata: undefined,
     resizeGame: function(disableDraw) {
         var gameArea = document.getElementById('gameArea');
@@ -52,22 +52,12 @@ Renderer = {
         data.theme.canvasId = canvasId;
         Renderer.theme = new ThemePlugin(data.theme);
         Renderer.resizeGame(true);
-        // if(Renderer.theme.loader) Renderer.theme.loader.destroy();
-        if(gameRelPath) {
-            Renderer.theme.loader = new createjs.LoadQueue(true, gameRelPath + "/assets/");
-        } else {
-            Renderer.theme.loader = new createjs.LoadQueue(true);
-        }
-        Renderer.theme.loader.setMaxConnections(data.theme.manifest.media.length);
-        Renderer.theme.loader.addEventListener("complete", Renderer.startCanvas);
-        Renderer.theme.loader.installPlugin(createjs.Sound);
-        Renderer.theme.loader.loadManifest(data.theme.manifest.media, true);
+        Renderer.theme.start(gameRelPath + "/assets/");
         createjs.Ticker.addEventListener("tick", function() {
-            Renderer.theme.update();
+            if(Renderer.update) {
+                Renderer.theme.update();
+                Renderer.update = false;
+            }
         });
-    },
-    startCanvas: function() {
-        Renderer.theme.render();
-        $('#gameAreaLoad').hide();
     }
 }

@@ -1,11 +1,21 @@
 CordovaFilewriterService = FilewriterService.extend({
     _root: undefined,
     initWriter: function() {
-        document.addEventListener("deviceready", function() {
-            window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
-                _root = fileSystem.root;
-                console.log('this._root:', _root);
-            }, onRequestFileSystemError);
+        var _resolve;
+        var _reject;
+        return new Promise(function(resolve, reject) {
+            _resolve = resolve;
+            _reject = reject;
+            document.addEventListener("deviceready", function() {
+                window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
+                    _root = fileSystem.root;
+                    _resolve(fileSystem.root);
+                }, function(e) {
+                    console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
+                    console.log(JSON.stringify(e));
+                    _reject(e);
+                });
+            });
         });
     },
     createBaseDirectory: function(dirName, error) {
@@ -20,7 +30,7 @@ CordovaFilewriterService = FilewriterService.extend({
             create: true
         }, success, error);
     },
-    writeFile: function(fileName, data, revSeek) {
+    write: function(fileName, data, revSeek) {
         return new Promise(function(resolve, reject) {
             _root.getFile(fileName, {
                 create: false
@@ -43,7 +53,7 @@ CordovaFilewriterService = FilewriterService.extend({
             });
         });
     },
-    getFileLength: function(fileName) {
+    length: function(fileName) {
         return new Promise(function(resolve, reject) {
             _root.getFile(fileName, {
                 create: false
@@ -57,10 +67,24 @@ CordovaFilewriterService = FilewriterService.extend({
                 reject('Error while getting file.');
             });
         });
+    },
+    getData: function(fileName) {
+        return new Promise(function(resolve, reject) {
+            _root.getFile(fileName, {}, function(fileEntry) {
+                fileEntry.file(function(file) {
+                    var reader = new FileReader();
+                    reader.onloadend = function(e) {
+                        console.log('this.result:', this.result);
+                        resolve(this.result);
+                    };
+                    reader.readAsText(file);
+                }, function() {
+                    reject('Error while reading file.')
+                });
+
+            }, function() {
+                reject('Error while reading file.')
+            });
+        });
     }
 });
-
-function onRequestFileSystemError(e) {
-    console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
-    console.log(JSON.stringify(e));
-};

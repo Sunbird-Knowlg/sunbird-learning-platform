@@ -41,6 +41,8 @@
     <script src="js/app/manager/EventManager.js"></script>
     <script src="js/app/manager/CommandManager.js"></script>
     <script src="js/app/manager/AnimationManager.js"></script>
+    <script src="js/app/manager/AudioManager.js"></script>
+    <script src="js/app/manager/AssetManager.js"></script>
     <script src="js/app/plugin/Plugin.js"></script>
     <script src="js/app/plugin/ContainerPlugin.js"></script>
     <script src="js/app/plugin/ThemePlugin.js"></script>
@@ -84,35 +86,6 @@
             text-align: center;
         }
     </style>
-    <script type="text/javascript">
-        document.addEventListener("deviceready", function() {
-            setTimeout(function() {
-                console.log('initializing Telemetry Service with CordovaFilewriter...');
-                var user = {
-                    "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-                    "uid": "123e4567-e89b-12d3-a456-426655440000",
-                    "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-                };
-                var game = {
-                        "id": "com.ilimi.quiz.app",
-                        "ver": "1.0"
-                    };
-                /*
-                *** Important: Assuming that game, user data will be read and passed to TelemetryService.
-                *** Will change this if needed.
-                */
-                TelemetryService.init(user, game); // params are 1. user, 2. game.
-                TelemetryService.start();
-                setTimeout(function() {
-                    TelemetryService.flush();
-                }, 2000);
-            }, 5000);
-        });
-        function onError(e) {
-            console.log('[ERROR] Problem setting up root filesystem for running! Error to follow.');
-            console.log(JSON.stringify(e));
-        };
-    </script>
   </head>
   <body>
     <ion-nav-view></ion-nav-view>
