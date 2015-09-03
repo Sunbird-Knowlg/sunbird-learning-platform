@@ -59,5 +59,10 @@ Renderer = {
                 Renderer.update = false;
             }
         });
+    },
+    cleanUp: function() {
+        PluginManager.cleanUp();
+        AssetManager.destroy();
+        Renderer.theme.cleanUp();
     }
 }

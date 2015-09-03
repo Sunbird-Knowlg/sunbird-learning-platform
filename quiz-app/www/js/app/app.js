@@ -164,6 +164,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.$on('$destroy', function() {
             setTimeout(function() {
                 TelemetryService.end();
+                Renderer.cleanUp();
             }, 100);
         });
     });
