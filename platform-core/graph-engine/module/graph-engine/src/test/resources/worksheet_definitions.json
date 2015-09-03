@@ -82,7 +82,33 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
-          "propertyName": "worksheetIcon",
+          "propertyName": "launchUrl",
+          "title": "Launch Url",
+          "description": "URL to launch the worksheet",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "loadingMessage",
+          "title": "Loading Message",
+          "description": "Loading Message",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "appIcon",
           "title": "WorkSheet Icon",
           "description": "",
           "category": "general",
@@ -95,7 +121,7 @@
           "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
         },
         {
-          "propertyName": "grayScaleWorksheetIcon",
+          "propertyName": "grayScaleAppIcon",
           "title": "GrayScale Worksheet Icon",
           "description": "",
           "category": "general",
@@ -578,7 +604,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "worksheetIcon", "grayScaleWorksheetIcon", "downloadUrl"],
+      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "loadingMessage"],
       	"status": ["Live"]
       }
     }
