@@ -1,4 +1,5 @@
 AssetManager = {
+    isMobile: false,
     basePath: undefined,
     assetMap: {},
     commonAssets: [],
@@ -6,7 +7,7 @@ AssetManager = {
     commonLoader: undefined,
     stageManifests: {},
     init: function(themeData, basePath) {
-        createjs.Sound.initializeDefaultPlugins();
+        createjs.Sound.registerPlugins([createjs.CordovaAudioPlugin, createjs.WebAudioPlugin, createjs.HTMLAudioPlugin]);
         createjs.Sound.alternateExtensions = ["mp3"];
         AssetManager.destroy();
         AssetManager.basePath = basePath;
@@ -14,6 +15,13 @@ AssetManager = {
             if (!_.isArray(themeData.manifest.media)) themeData.manifest.media = [themeData.manifest.media];
         }
         themeData.manifest.media.forEach(function(media) {
+            media.src = AssetManager.basePath + media.src;
+            if(AssetManager.isMobile) {
+                if(media.type === 'sound' || media.type === 'audiosprite') {
+                    media.src = '/android_asset/www/' + media.src;
+                }
+            }
+
             if (media.type == 'json') {
                 AssetManager.commonAssets.push(media);
             } else {
@@ -85,12 +93,7 @@ AssetManager = {
     },
     loadStage: function(stageId, cb) {
         if (!AssetManager.loaders[stageId]) {
-            var loader = undefined;
-            if (AssetManager.basePath) {
-                loader = new createjs.LoadQueue(true, AssetManager.basePath);
-            } else {
-                loader = new createjs.LoadQueue(true);
-            }
+            var loader = new createjs.LoadQueue(true);
             loader.setMaxConnections(AssetManager.stageManifests[stageId].length);
             if (cb) {
                 loader.addEventListener("complete", cb);
@@ -109,12 +112,7 @@ AssetManager = {
         }
     },
     loadCommonAssets: function() {
-        var loader = undefined;
-        if (AssetManager.basePath) {
-            loader = new createjs.LoadQueue(true, AssetManager.basePath);
-        } else {
-            loader = new createjs.LoadQueue(true);
-        }
+        var loader = new createjs.LoadQueue(true);
         loader.setMaxConnections(AssetManager.commonAssets.length);
         loader.installPlugin(createjs.Sound);
         loader.loadManifest(AssetManager.commonAssets, true);
