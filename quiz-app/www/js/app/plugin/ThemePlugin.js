@@ -2,20 +2,19 @@ var ThemePlugin = Plugin.extend({
     _type: 'theme',
     _render: false,
     update: false,
+    baseDir: '',
     loader: undefined,
     _director: false,
-    _stageRepeatCount: undefined,
     _currentScene: undefined,
     _canvasId: undefined,
     inputs: [],
     _animationEffect: {effect:'moveOut'},
     _themeData: undefined,
-    _assessmentData: {},
+    _controllerMap: {},
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
         this._director = new creatine.Director(this._self);
-        this._stageRepeatCount = {};
         this._dimensions = {
             x:0,
             y: 0,
@@ -37,6 +36,7 @@ var ThemePlugin = Plugin.extend({
         }
     },
     render: function() {
+        var instance = this;
         if (this._data.datasource) {
             var themeData = undefined;
             if (_.isArray(this._data.datasource)) {
@@ -46,10 +46,45 @@ var ThemePlugin = Plugin.extend({
             }
             this._themeData = themeData;
         }
+        if (this._data.controller) {
+            if (_.isArray(this._data.controller)) {
+                this._data.controller.forEach(function(p) {
+                    instance.addController(p);
+                });
+            } else {
+                instance.addController(this._data.controller);
+            }
+        }
         if(this._data.stage) {
+            if (_.isArray(this._data.stage)) {
+                this._data.stage.forEach(function(s) {
+                    instance.initStageControllers(s);    
+                });
+            } else {
+                instance.initStageControllers(this._data.stage);
+            }
             this.invokeStage(this._data.startStage);
         }
         this.update();
+    },
+    addController: function(p) {
+        var id = p.type + '.' + p.id;
+        var controller = ControllerManager.get(id, this.baseDir);
+        if (controller) {
+            this._controllerMap[p.name] = controller;
+        }
+    },
+    initStageControllers: function(stage) {
+        if (stage.controller) {
+            if (_.isArray(stage.controller)) {
+                stage.controller.forEach(function(p) {
+                    ControllerManager.get(p.type + '.' + p.id, this.baseDir);    
+                });
+            } else {
+                var id = stage.controller.type + '.' + stage.controller.id;
+                ControllerManager.get(id, this.baseDir);
+            }
+        }
     },
     reRender: function() {
         this._self.clear();
@@ -113,19 +148,18 @@ var ThemePlugin = Plugin.extend({
     },
     transitionTo: function(action) {
         var stage = this._currentScene;
-        var count = this._stageRepeatCount[stage._data.id];
-
         if (action.transitionType === 'previous') {
-            if (count > 1) {
-                count -= 2;
-                this._stageRepeatCount[stage._data.id] = count;
+            if (stage._stageController && stage._stageController.hasPrevious()) {
+                stage._stageController.decrIndex(2);
                 this.replaceStage(stage._data.id, action);
             } else {
-                this._stageRepeatCount[stage._data.id] = 0;
+                if (stage._stageController) {
+                    stage._stageController.setIndex(-1);
+                }
                 this.replaceStage(action.value, action);
             }
         } else {
-            if (count < stage._repeat) {
+            if (stage._stageController && stage._stageController.hasNext()) {
                 this.replaceStage(stage._data.id, action);
             } else {
                 this.replaceStage(action.value, action);

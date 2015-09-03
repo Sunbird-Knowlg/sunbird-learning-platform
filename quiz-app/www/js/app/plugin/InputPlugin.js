@@ -15,6 +15,14 @@ var InputPlugin = Plugin.extend({
         input.style.height = dims.h + 'px';
         input.className = data.class;
         input.style.display = 'none';
+        var instance = this;
+        var val;
+        if (data.model) {
+            var model = this.resolveParams(data.model);
+            input.onblur = function() {
+                instance._stage.setModelValue(model, this.value);
+            };
+        }
         var div = document.getElementById('gameArea');
         div.insertBefore(input, div.childNodes[0]);
         this._self = new createjs.DOMElement(input);

@@ -54,6 +54,7 @@ Renderer = {
         Renderer.resizeGame(true);
         // if(Renderer.theme.loader) Renderer.theme.loader.destroy();
         if(gameRelPath) {
+            Renderer.theme.baseDir = gameRelPath;
             Renderer.theme.loader = new createjs.LoadQueue(true, gameRelPath + "/assets/");
         } else {
             Renderer.theme.loader = new createjs.LoadQueue(true);

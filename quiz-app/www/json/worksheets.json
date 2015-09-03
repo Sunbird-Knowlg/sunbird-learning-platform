@@ -17,13 +17,6 @@
             "appIcon": "assets/noah.png",
             "launchPath": "worksheets/addition_by_grouping",
             "loadingMessage": "Loading \"Addition through Objects\" assets..."
-        }, {
-            "id": "worksheet.counting.numbers",
-            "name": "Counting Numbers",
-            "description": "",
-            "appIcon": "assets/kitchensink.jpg",
-            "launchPath": "worksheets/worksheet2",
-            "loadingMessage": "Loading \"Counting Numbers\" assets..."
         }],
         "ttl": 24
     }

@@ -17,7 +17,14 @@ var TextPlugin = Plugin.extend({
         if (data.weight) {
             font = data.weight + ' ' + font;
         }
-        var text = new createjs.Text((data.$t || data.__text) || '', font, data.color || '#000000');
+        var textStr = '';
+        if (data.$t || data.__text) {
+            textStr = (data.$t || data.__text);
+        } else if (data.model) {
+            var model = this.resolveParams(data.model);
+            textStr = (this._stage.getModelValue(model) || '');
+        }
+        var text = new createjs.Text(textStr, font, data.color || '#000000');
         text.x = dims.x;
         text.y = dims.y;
         text.lineWidth = dims.w;

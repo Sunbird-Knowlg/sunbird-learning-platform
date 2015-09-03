@@ -100,10 +100,8 @@
         <media id="w-inner" src="wife-inner.png" type="image" />
         <media id="b-outer" src="barber-outer.png" type="image" />
         <media id="b-inner" src="barber-inner.png" type="image" />
-
-        <media id="story_data" src="data_english.json" type="json" />
     </manifest>
-    <datasource asset="story_data"/>
+    <controller name="storyData" type="data" id="story_data"/>
     <stage id="baseStage">
         <image asset="next" x="93" y="3" w="5" h="8.3">
             <event type="click" telemetry="true">
@@ -115,7 +113,7 @@
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500"/>
             </event>
         </image>
-        <placeholder param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <text model="storyData.#body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
     </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
         <audio id="cover_sound"/>
@@ -158,6 +156,7 @@
     <stage id="scene1" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene2"/>
         <param name="previous" value="splash"/>
+        <param name="body" value="scene1_body"/>
         <audio id="clock_sound"/>
         <audio id="scene1_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE"/>
@@ -197,6 +196,7 @@
         <audio id="D5_sound"/>
         <param name="next" value="scene3"/>
         <param name="previous" value="scene1"/>
+        <param name="body" value="scene2_body"/>
 
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <image asset="page3" x="2" y="12" w="96" h="86"/>
@@ -373,6 +373,7 @@
         <image asset="page4" x="2" y="12" w="96" h="86"/>
         <param name="next" value="scene4"/>
         <param name="previous" value="scene2"/>
+        <param name="body" value="scene3_body"/>
         <image asset="icon_sound" x="93" y="88" w="5" h="9">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene3_sound"/>
@@ -432,6 +433,7 @@ to Cut hair
     <stage id="scene4" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene5"/>
         <param name="previous" value="scene3"/>
+        <param name="body" value="scene4_body"/>
         <audio id="scene4_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2"/>
@@ -458,6 +460,7 @@ to Cut hair
     <stage id="scene5" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene6"/>
         <param name="previous" value="scene4"/>
+        <param name="body" value="scene5_body"/>
         <audio id="scene5_sound"/>
         <audio id="learning3_sound"/>
         <audio id="learning4_sound"/>
@@ -525,6 +528,7 @@ Wife uses a Knife to Cut vegetables
     <stage id="scene6" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene7"/>
         <param name="previous" value="scene5"/>
+        <param name="body" value="scene6_body"/>
         <audio id="scene6_sound"/>
         <audio id="tree_frogs_and_birds_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800"/>
@@ -551,6 +555,7 @@ Wife uses a Knife to Cut vegetables
     <stage id="scene7" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene8"/>
         <param name="previous" value="scene6"/>
+        <param name="body" value="scene7_body"/>
         <audio id="scene7_sound"/>
         <audio id="learning5_sound"/>
         <audio id="learning6_sound"/>
@@ -639,6 +644,7 @@ Tailor uses Sewing Machine to stitch
     <stage id="scene8" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene9"/>
         <param name="previous" value="scene7"/>
+        <param name="body" value="scene8_body"/>
         <audio id="scene8_sound"/>
         <audio id="cow_sound"/>
         <audio id="teapot_rhyme"/>
@@ -651,11 +657,11 @@ Tailor uses Sewing Machine to stitch
         </image>
         <g x="18" y="20" w="30" h="27" id="teapotInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
-            <placeholder param="kettle_title" x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128"/>
-            <placeholder param="kettle_synonyms" x="8" y="32" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_hindi" x="8" y="44" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_usage" x="8" y="56" w="86" font="Georgia" fontsize="90"/>
-            <placeholder param="kettle_rhyme" x="8" y="72" w="86" font="Georgia" fontsize="72" color="#004389"/>
+            <text model="storyData.kettle_title" x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128"/>
+            <text model="storyData.kettle_synonyms" x="8" y="32" w="86" font="Georgia" fontsize="90"/>
+            <text model="storyData.kettle_hindi" x="8" y="44" w="86" font="Georgia" fontsize="90"/>
+            <text model="storyData.kettle_usage" x="8" y="56" w="86" font="Georgia" fontsize="90"/>
+            <text model="storyData.kettle_rhyme" x="8" y="72" w="86" font="Georgia" fontsize="72" color="#004389"/>
             <shape type="rect" x="8" y="64" w="86" h="15" hitArea="true">
                 <event type="click">
                     <action type="command" command="togglePlay" asset="teapot_rhyme"/>
@@ -684,6 +690,7 @@ Tailor uses Sewing Machine to stitch
     <stage id="scene9" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene10"/>
         <param name="previous" value="scene8"/>
+        <param name="body" value="scene9_body"/>
         <audio id="scene9_sound"/>
         <audio id="saw_sound"/>
         <audio id="learning8_sound"/>
@@ -753,6 +760,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene10" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene11"/>
         <param name="previous" value="scene9"/>
+        <param name="body" value="scene10_body"/>
         <audio id="scene10_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9"/>
         <image asset="page11" x="2" y="12" w="96" h="86"/>
@@ -773,6 +781,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene11" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene12"/>
         <param name="previous" value="scene10"/>
+        <param name="body" value="scene11_body"/>
         <audio id="scene11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA"/>
         <image asset="page12" x="2" y="12" w="96" h="86"/>
@@ -793,6 +802,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene12" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene13"/>
         <param name="previous" value="scene11"/>
+        <param name="body" value="scene12_body"/>
         <audio id="scene12_sound"/>
         <audio id="forest_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332"/>
@@ -824,6 +834,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene13" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene14"/>
         <param name="previous" value="scene12"/>
+        <param name="body" value="scene13_body"/>
         <audio id="scene13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7"/>
         <image asset="page14" x="2" y="12" w="96" h="86"/>
@@ -844,6 +855,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene14" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene15"/>
         <param name="previous" value="scene13"/>
+        <param name="body" value="scene14_body"/>
         <audio id="scene14_sound"/>
         <audio id="tiger_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
@@ -870,6 +882,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene15" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene16"/>
         <param name="previous" value="scene14"/>
+        <param name="body" value="scene15_body"/>
         <audio id="scene15_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page16" x="2" y="12" w="96" h="86"/>
@@ -890,6 +903,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene16" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene17"/>
         <param name="previous" value="scene15"/>
+        <param name="body" value="scene16_body"/>
         <audio id="scene16_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F"/>
         <image asset="page17" x="2" y="12" w="96" h="86"/>
@@ -910,6 +924,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene17" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene18"/>
         <param name="previous" value="scene16"/>
+        <param name="body" value="scene17_body"/>
         <audio id="scene17_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0"/>
         <image asset="page18" x="2" y="12" w="96" h="86"/>
@@ -930,6 +945,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene18" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene19"/>
         <param name="previous" value="scene17"/>
+        <param name="body" value="scene18_body"/>
         <audio id="scene18_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264"/>
         <image asset="page19" x="2" y="12" w="96" h="86"/>
@@ -950,6 +966,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene19" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene20"/>
         <param name="previous" value="scene18"/>
+        <param name="body" value="scene19_body"/>
         <audio id="scene19_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59"/>
         <image asset="page20" x="2" y="12" w="96" h="86"/>
@@ -970,6 +987,7 @@ Carpenter uses a Saw to Cut wood.
     <stage id="scene20" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene21"/>
         <param name="previous" value="scene19"/>
+        <param name="body" value="scene20_body"/>
         <audio id="learning10_sound"/>
         <audio id="learning11_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
@@ -1006,7 +1024,7 @@ Carpenter uses a Saw to Cut wood.
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Hint
 	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene20_hint"/>
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
@@ -1031,6 +1049,7 @@ Hint
     <stage id="scene21" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene22"/>
         <param name="previous" value="scene20"/>
+        <param name="body" value="scene21_body"/>
         <audio id="learning12_sound"/>
         <audio id="learning13_sound"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
@@ -1067,7 +1086,7 @@ Hint
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Hint
 	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene21_hint"/>
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
@@ -1092,6 +1111,7 @@ Hint
     <stage id="scene22" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="scene23"/>
         <param name="previous" value="scene21"/>
+        <param name="body" value="scene22_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
         <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40"/>
@@ -1107,6 +1127,7 @@ Hint
     <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="splash"/>
         <param name="previous" value="scene22"/>
+        <param name="body" value="scene23_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E"/>
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E"/>
 
@@ -1125,7 +1146,7 @@ Hint
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
 Hint
 	        </text>
-            <placeholder x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" param="hint"/>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene23_hint"/>
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">

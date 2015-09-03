@@ -5,15 +5,17 @@ var PlaceHolderPlugin = Plugin.extend({
     initPlugin: function(data) {
         var dims = this.relativeDims();
         var instance = this;
-        var stageData = this._stage._stageData;
-        if (stageData) {
-            instance.param = stageData.params[data.param];
-            if (instance.param.type == 'gridLayout') {
-                instance.renderGridLayout(instance._parent, instance, data);
-            } else if (instance.param.type == 'image') {
-                instance.renderImage(instance);
-            } else if (instance.param.type == 'text') {
-                instance.renderText(instance);
+        if (data.model) {
+            var model = this.resolveParams(data.model);
+            instance.param = this._stage.getModelValue(model);
+            if (instance.param) {
+                if (instance.param.type == 'gridLayout') {
+                    instance.renderGridLayout(instance._parent, instance, data);
+                } else if (instance.param.type == 'image') {
+                    instance.renderImage(instance);
+                } else if (instance.param.type == 'text') {
+                    instance.renderText(instance);
+                }
             }
         }
     },

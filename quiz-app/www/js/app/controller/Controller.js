@@ -1,10 +1,10 @@
-var BaseDataProvider = Class.extend({
+var Controller = Class.extend({
 	_baseDir: '',
 	_id: '',
 	_folder: '',
 	_data: undefined,
 	_model: undefined,
-	_repeat: 1,
+	_repeat: 0,
 	_index: -1,
 	_loaded: false,
 	_error: false,
@@ -14,32 +14,59 @@ var BaseDataProvider = Class.extend({
 		var tokens = id.split('.');
 		this._folder = tokens[0];
 		this._fileName = tokens[1] + ".json";
-		$.get(this._baseDir + '/' + this._folder + '/' + this._fileName, function(data) {
-			if (data) {
-				this.initDataProvider(data);
-			} else {
-				this._error = true;
-            	DataProviderManager.addError('Unable to load file: ' + id);
-			}
-        })
-        .fail(function(err) {
-        	this._error = true;
-            DataProviderManager.addError('Unable to load file: ' + id);
-        });
+        var instance = this;
+        ControllerManager.loadFile(this._baseDir, this._folder, this._fileName, instance);
 	},
-	initDataProvider: function(data) {
-		DataProviderManager.addError('Subclasses of DataProvider should implement initDataProvider()');
+	initController: function(data) {
+		ControllerManager.addError('Subclasses of Controller should implement initController()');
 	},
+    setIndex: function(idx) {
+        if (this._loaded) {
+            if (idx) {
+                this._index = idx;    
+            }
+            if (this._index < -1) {
+                this._index = -1;
+            }
+            if (this._index >= this._repeat) {
+                this._index = (this._repeat-1);
+            }
+        }
+    },
+    incrIndex: function(incr) {
+        if (this._loaded) {
+            if (!incr) {
+                incr = 1;
+            }
+            this._index = this._index + incr;
+            if (this._index >= this._repeat) {
+                this._index = (this._repeat-1);
+            }
+        }
+    },
+    decrIndex: function(decr) {
+        if (this._loaded) {
+            if (!decr) {
+                decr = 1;
+            }
+            this._index = this._index - decr;
+            if (this._index < -1) {
+                this._index = -1;
+            }
+        }
+    },
 	getModel: function() {
+        var m;
 		if (_.isArray(this._model)) {
 			var index = this._index;
 			if (index < 0) {
 				index = 0;
 			}
-			return this._model[index];
+			m = this._model[index];
 		} else {
-			return this._model;
+			m = this._model;
 		}
+        return m;
     },
     getTemplate: function() {
     	var t;
@@ -86,18 +113,26 @@ var BaseDataProvider = Class.extend({
     	return this._repeat;
     },
     hasNext: function() {
-    	if (this._index < (this._repeat-1)) {
-    		return true;
-    	} else {
-    		return false;
-    	}
+        if (this._loaded) {
+            if (this._index < (this._repeat-1)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     },
     hasPrevious: function() {
-    	if (this._index > 0) {
-    		return true;
-    	} else {
-    		return false;
-    	}
+        if (this._loaded) {
+            if (this._index > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     },
     next: function() {
     	var d;
@@ -117,16 +152,16 @@ var BaseDataProvider = Class.extend({
     },
     current: function() {
     	var d;
-    	if (this._index >= 0 && this._index <= (this._repeat - 1)) {
+    	if (this._loaded && this._index >= 0 && this._index <= (this._repeat - 1)) {
     		d = this._getCurrentModelItem();
     	}
     	return d;
     },
     evalItem: function() {
-		DataProviderManager.addError('evalItem() is not supported by this DataProvider');
+		ControllerManager.addError('evalItem() is not supported by this Controller');
 	},
-	eval: function() {
-		DataProviderManager.addError('eval() is not supported by this DataProvider');
+	feedback: function() {
+		ControllerManager.addError('feedback() is not supported by this Controller');
 	},
 	_getCurrentModelItem: function() {
 		var item;
