@@ -1,12 +1,13 @@
 AssetManager = {
-    isMobile: false,
     basePath: undefined,
     assetMap: {},
     commonAssets: [],
     loaders: {},
     commonLoader: undefined,
     stageManifests: {},
+    stageAudios: {},
     init: function(themeData, basePath) {
+        console.info('createjs.CordovaAudioPlugin.isSupported()', createjs.CordovaAudioPlugin.isSupported());
         createjs.Sound.registerPlugins([createjs.CordovaAudioPlugin, createjs.WebAudioPlugin, createjs.HTMLAudioPlugin]);
         createjs.Sound.alternateExtensions = ["mp3"];
         AssetManager.destroy();
@@ -16,14 +17,14 @@ AssetManager = {
         }
         themeData.manifest.media.forEach(function(media) {
             media.src = AssetManager.basePath + media.src;
-            if(AssetManager.isMobile) {
+            if(createjs.CordovaAudioPlugin.isSupported()) { // Only supported in mobile
                 if(media.type === 'sound' || media.type === 'audiosprite') {
                     media.src = '/android_asset/www/' + media.src;
                 }
             }
 
             if (media.type == 'json') {
-                AssetManager.commonAssets.push(media);
+                AssetManager.commonAssets.push(_.clone(media));
             } else {
                 if(media.type == 'audiosprite') {
                     if(!_.isArray(media.data.audioSprite)) media.data.audioSprite = [media.data.audioSprite];
@@ -35,6 +36,7 @@ AssetManager = {
         if (!_.isArray(stages)) stages = [stages];
         stages.forEach(function(stage) {
             AssetManager.stageManifests[stage.id] = [];
+            AssetManager.stageAudios[stage.id] = [];
             AssetManager.populateAssets(stage, stage.id);
         });
         if (AssetManager.stageManifests.baseStage && AssetManager.stageManifests.baseStage.length > 0) {
@@ -52,10 +54,11 @@ AssetManager = {
                 });
             } else {
                 plugins.forEach(function(plugin) {
-                    if (AssetManager.assetMap[plugin.asset]) {
-                        AssetManager.stageManifests[stageId].push(_.clone(AssetManager.assetMap[plugin.asset]));
+                    var asset = AssetManager.assetMap[plugin.asset];
+                    if (asset) {
+                        AssetManager.stageManifests[stageId].push(_.clone(asset));
                     }
-                })
+                });
             }
         }
     },
@@ -86,7 +89,7 @@ AssetManager = {
         var deleteStages = _.difference(_.keys(AssetManager.loaders), [stageId, nextStageId, prevStageId]);
         if (deleteStages.length > 0) {
             deleteStages.forEach(function(stageId) {
-                AssetManager.clearStage(stageId);
+                AssetManager.destroyStage(stageId);
             })
         }
         AssetManager.loaders = _.pick(AssetManager.loaders, stageId, nextStageId, prevStageId);
@@ -120,15 +123,22 @@ AssetManager = {
     },
     destroy: function() {
         for (k in AssetManager.loaders) {
-            AssetManager.clearStage(k);
+            AssetManager.destroyStage(k);
         }
         AssetManager.assetMap = {};
         AssetManager.loaders = {};
         AssetManager.stageManifests = {};
+        AssetManager.stageAudios = {};
     },
-    clearStage: function(stageId) {
+    destroyStage: function(stageId) {
         if (AssetManager.loaders[stageId]) {
             AssetManager.loaders[stageId].destroy();
+            AssetManager.stageAudios[stageId].forEach(function(audioAsset) {
+                AudioManager.destroy(audioAsset);
+            });
         }
+    },
+    addStageAudio: function(stageId, audioId) {
+        AssetManager.stageAudios[stageId].push(audioId);
     }
 }
