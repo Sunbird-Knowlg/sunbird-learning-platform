@@ -25,7 +25,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.dto.WorksheetDTO;
+import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -99,7 +99,7 @@ public class WorksheetController extends BaseController {
                 return getResponseEntity(findResp, apiId, null);
             }
             Node node = (Node) findResp.get(GraphDACParams.node.name());
-            WorksheetDTO worksheet = new WorksheetDTO(node);
+            ContentDTO worksheet = new ContentDTO(node);
             response.put(ContentAPIParams.worksheet.name(), worksheet);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response, apiId, null);
@@ -157,7 +157,7 @@ public class WorksheetController extends BaseController {
         Request request = getListRequestObject(map);
         LOGGER.info("List Worksheets | Request: " + request);
         try {
-            Response response = contentManager.listContents(objectType, request);
+            Response response = contentManager.listContents(objectType, request, "worksheets");
             LOGGER.info("List Worksheets | Response: " + response);
             return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
@@ -177,7 +177,7 @@ public class WorksheetController extends BaseController {
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
             
-            Response response = contentManager.upload(id, taxonomyId, uploadedFile);
+            Response response = contentManager.upload(id, taxonomyId, objectType, uploadedFile);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

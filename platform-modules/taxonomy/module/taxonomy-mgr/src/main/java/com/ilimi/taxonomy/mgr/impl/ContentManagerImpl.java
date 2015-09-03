@@ -58,7 +58,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
     
     private static final String bucketName = "ekstep-public";
-    private static final String folderName = "worksheets";
+    private static final String folderName = "content";
     
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
@@ -188,7 +188,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     
 
     @Override
-    public Response upload(String id, String taxonomyId, File uploadedFile) {
+    public Response upload(String id, String taxonomyId, String objectType, File uploadedFile) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
         if (StringUtils.isBlank(id))
@@ -208,6 +208,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             return response;
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+        if(!node.getObjectType().equals(objectType))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(), "Invalid objectType for the given id.");
         String[] urlArray = new String[]{};
         try {
             urlArray = AWSUploader.uploadFile(bucketName, folderName, uploadedFile);
@@ -226,7 +228,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     
     @SuppressWarnings("unchecked")
     @Override
-    public Response listContents(String objectType, Request request) {
+    public Response listContents(String objectType, Request request, String returnKey) {
         String taxonomyId = (String) request.get(PARAM_SUBJECT);
         LOGGER.info("List Contents : " + taxonomyId);
         Map<String, DefinitionDTO> definitions = new HashMap<String, DefinitionDTO>();
@@ -262,12 +264,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     }
                 }
             }
-            String returnKey = ContentAPIParams.contents.name();
-            if("Worksheet".equals(objectType)) {
-                returnKey = ContentAPIParams.worksheets.name();
-            } else if("Game".equals(objectType)) {
-                returnKey = ContentAPIParams.games.name();
-            }
+            if(StringUtils.isBlank(returnKey)) returnKey = ContentAPIParams.contents.name();
             listRes.put(returnKey, contents);
             Integer ttl = null;
             if (null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0]) && null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0]).getMetadata())

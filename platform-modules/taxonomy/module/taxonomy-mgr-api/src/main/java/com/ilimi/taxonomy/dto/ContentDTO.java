@@ -15,20 +15,20 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
-public class WorksheetDTO extends Node {
+public class ContentDTO extends Node {
 
     private static final long serialVersionUID = -4400561249191832076L;
     private List<NodeDTO> concepts;
     private NodeDTO questionnaire;
     
-    public WorksheetDTO() {
+    public ContentDTO() {
     }
 
-    public WorksheetDTO(Node node) {
+    public ContentDTO(Node node) {
         this(node, null);
     }
 
-    public WorksheetDTO(Node node, String[] wfields) {
+    public ContentDTO(Node node, String[] wfields) {
         if (null != node) {
             setGraphId(node.getGraphId());
             setIdentifier(node.getIdentifier());
