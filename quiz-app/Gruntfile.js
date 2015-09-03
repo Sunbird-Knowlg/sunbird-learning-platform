@@ -78,9 +78,62 @@ module.exports = function(grunt) {
                     dest: 'samples/'
                 }]
             }
+        },
+        cordovacli: {
+            options: {
+                path: 'www',
+                cli: 'cordova'  // cca or cordova
+            },
+            add_plugins: {
+                options: {
+                    command: 'plugin',
+                    action: 'add',
+                    plugins: [
+                        'device',
+                        'file',
+                        'media',
+                        'splashscreen',
+                        'com.ionic.keyboard',
+                        'console',
+                        'cordova-plugin-whitelist',
+                        'cordova-plugin-crosswalk-webview'
+                    ]
+                }
+            },
+            add_xwalk: {
+                options: {
+                    command: 'plugin',
+                    action: 'add',
+                    plugins: [
+                        'cordova-plugin-crosswalk-webview'
+                    ]
+                }
+            },
+            rm_xwalk: {
+                options: {
+                    command: 'plugin',
+                    action: 'rm',
+                    plugins: [
+                        'cordova-plugin-crosswalk-webview'
+                    ]
+                }
+            },
+            build_android: {
+                options: {
+                    command: 'build',
+                    platforms: ['android']
+                }
+            },
+            run_android_: {
+                options: {
+                    command: 'run',
+                    platforms: ['android']
+                }
+            }
         }
     });
 
+    grunt.loadNpmTasks('grunt-cordovacli');
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-aws-s3');
