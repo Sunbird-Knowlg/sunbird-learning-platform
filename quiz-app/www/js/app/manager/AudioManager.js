@@ -16,6 +16,7 @@ AudioManager = {
             });
             instance._data = {id: action.asset};
             AudioManager.instances[action.asset] = instance;
+            AssetManager.addStageAudio(Renderer.theme._currentStage, action.asset);
         }
         EventManager.processAppTelemetry(action, 'LISTEN', instance);
     },
@@ -45,5 +46,13 @@ AudioManager = {
     stopAll: function(action) {
     	createjs.Sound.stop();
 		EventManager.processAppTelemetry(action, 'STOP_ALL_SOUNDS');
+    },
+    destroy: function(soundId) {
+        var instance = AudioManager.instances[soundId] || {};
+        if(instance.object) {
+            instance.object.destroy();
+            instance.object = undefined;
+            instance.state = undefined;
+        }
     }
 }
