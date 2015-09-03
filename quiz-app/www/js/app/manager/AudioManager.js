@@ -10,7 +10,7 @@ AudioManager = {
             instance.object.play();
         } else {
             instance.state = 'play';
-            instance.object = createjs.Sound.play(action.asset);
+            instance.object = createjs.Sound.play(action.asset, {interrupt:createjs.Sound.INTERRUPT_ANY});
             instance.object.on("complete", function() {
                 instance.state = 'stop';
             });
