@@ -24,8 +24,15 @@ var ItemController = DataController.extend({
     	}
 	},
 	evalItem: function() {
-		// call evaluator to evaluate the current Item
-		console.log(this.getModel());
+		var item = this.getModel();
+		var result;
+		if (item.type == 'ftb') {
+			result = FTBEvaluator.evaluate(item);
+		}
+		if (result && result.score) {
+			item.score = result.score;
+		}
+		return result;
     },
     feedback: function() {
     	var message;

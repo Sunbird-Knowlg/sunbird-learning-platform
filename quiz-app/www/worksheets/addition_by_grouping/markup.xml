@@ -104,7 +104,7 @@
             </event>
         </events>
     </stage>
-    <stage id="item" x="0" y="0" w="100" h="100" repeat="item in ws1">
+    <stage id="item" x="0" y="0" w="100" h="100" iterate="ws1" var="item">
         <param name="next" value="summary"/>
         <param name="previous" value="welcome"/>
         <g x="0" y="0" w="100" h="100">

@@ -12,16 +12,13 @@ var StagePlugin = Plugin.extend({
         var dims = this.relativeDims();
         this._self.x = dims.x;
         this._self.y = dims.y;
-        if (data.repeat) {
-            var tokens = data.repeat.split(' in ');
-            if (tokens.length == 2) {
-                var controllerName = tokens[0].trim();
-                var stageController = this._theme._controllerMap[tokens[1].trim()];
-                if (stageController) {
-                    this._stageControllerName = controllerName;
-                    this._stageController = stageController;
-                    this._stageController.next();
-                }
+        if (data.iterate && data.var) {
+            var controllerName = data.var.trim();
+            var stageController = this._theme._controllerMap[data.iterate.trim()];
+            if (stageController) {
+                this._stageControllerName = controllerName;
+                this._stageController = stageController;
+                this._stageController.next();
             }
         }
         for (k in data) {
@@ -94,9 +91,12 @@ var StagePlugin = Plugin.extend({
         }
     },
     evaluate: function(action) {
-        var valid = true;
+        var valid = false;
         if (this._stageController) {
-            this._stageController.evalItem();
+            var result = this._stageController.evalItem();
+            if (result) {
+                valid = result.pass;    
+            }
         }
         if (valid) {
             this.dispatchEvent(action.success);
@@ -105,8 +105,8 @@ var StagePlugin = Plugin.extend({
         }
     },
     reload: function(action) {
-        if (stage._stageController) {
-            stage._stageController.decrIndex(1);
+        if (this._stageController) {
+            this._stageController.decrIndex(1);
         }
         this._theme.replaceStage(this._data.id, action);
     }
