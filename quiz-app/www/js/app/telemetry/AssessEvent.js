@@ -42,7 +42,7 @@ AssessEvent = TelemetryEvent.extend({
     		this.event.edata.eks.length += Math.round((new Date().getTime() - this.startTime) / 1000);
             this.event.edata.eks.atmpts += 1;
             this.event.edata.eks.score = score || 0;
-            if (pass && pass.toUpperCase() == 'YES') {
+            if (pass || pass.toUpperCase() == 'YES') {
                 this.event.edata.eks.pass = 'Yes';
                 this.event.edata.eks.mmc = [];
             } else {

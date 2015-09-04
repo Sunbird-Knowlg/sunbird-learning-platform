@@ -13,15 +13,41 @@ var ItemController = DataController.extend({
 			this._error = true;
 		}
 	},
+	next: function() {
+		var d;
+    	if (this.hasNext()) {
+    		this._index += 1;
+    		var item = this._model[this._index];
+    		if (item) {
+    			d = item.model;
+    			try {
+    				TelemetryService.assess(item.identifier, this._data.subject, item.qlevel).start();	
+    			} catch(e) {
+    				ControllerManager.addError('ItemController.next() - OE_ASSESS_START error: ' + e);
+    			}
+			}
+    	}
+    	return d;
+	},
 	evalItem: function() {
 		var item = this.getModel();
 		var result;
+		var pass = false;
 		if (item.type == 'ftb') {
 			result = FTBEvaluator.evaluate(item);
 		}
-		if (result && result.score) {
+		if (result) {
+			pass = result.pass;
 			item.score = result.score;
 		}
+		try {
+    		var assessEnd = TelemetryService.assess(item.identifier).end(pass, item.score);
+			if (_.isArray(item.mmc)) {
+				assessEnd.mmc(item.mmc);
+			}
+    	} catch(e) {
+    		ControllerManager.addError('ItemController.evalItem() - OE_ASSESS_END error: ' + e);
+    	}
 		return result;
     },
     feedback: function() {

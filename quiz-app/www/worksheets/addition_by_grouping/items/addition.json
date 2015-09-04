@@ -1,8 +1,9 @@
 {
-	"identifier": "",
+	"identifier": "ws_addition_1",
 	"title": "Addition by grouping",
 	"total_items": 5,
 	"max_score": 15,
+	"subject": "NUM",
 	"item_sets": [
 		{
 			"id": "set_1",
@@ -16,10 +17,11 @@
 	"items": {
 		"set_1" : [
 			{
-				"identifier": "",
+				"identifier": "ws1_set_1_1",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -47,10 +49,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_1_2",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -78,10 +81,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_1_3",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -109,10 +113,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_1_4",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -140,10 +145,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_1_5",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "DIFFICULT",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -173,10 +179,11 @@
 		],
 		"set_2" : [
 			{
-				"identifier": "",
+				"identifier": "ws1_set_2_1",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -204,10 +211,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_2_2",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "EASY",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -235,10 +243,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_2_3",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "MEDIUM",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
@@ -266,10 +275,11 @@
 				"feedback": ""
 			},
 			{
-				"identifier": "",
+				"identifier": "ws1_set_2_4",
 				"template": "vertical_add",
 				"type": "ftb",
 				"num_answers": 3,
+				"qlevel": "EASY",
 				"model": {
 					"param1": {
 						"type": "gridLayout",
