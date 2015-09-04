@@ -4,26 +4,26 @@ module.exports = function(grunt) {
         uglify: {
             js: {
                 files: {
-                    'www/js/app/quizapp-0.1.min.js': [
-                        'www/js/thirdparty/exclude/xml2json.js',
-                        'www/js/thirdparty/exclude/createjs-2015.05.21.min.js',
-                        'www/js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js',
-                        'www/js/thirdparty/exclude/creatine-1.0.0.min.js',
-                        'www/js/thirdparty/exclude/Class.js',
-                        'www/js/app/controller/Controller.js',
-                        'www/js/app/plugin/Plugin.js',
-                        'www/js/app/manager/*.js',
-                        'www/js/app/controller/*Controller.js',
-                        'www/js/app/generator/*.js',
-                        'www/js/app/evaluator/*.js',
-                        'www/js/app/plugin/*Plugin.js',
-                        'www/js/app/renderer/*.js'
+                    'public/js/app/quizapp-0.1.min.js': [
+                        'public/js/thirdparty/exclude/xml2json.js',
+                        'public/js/thirdparty/exclude/createjs-2015.05.21.min.js',
+                        'public/js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js',
+                        'public/js/thirdparty/exclude/creatine-1.0.0.min.js',
+                        'public/js/thirdparty/exclude/Class.js',
+                        'public/js/app/controller/Controller.js',
+                        'public/js/app/plugin/Plugin.js',
+                        'public/js/app/manager/*.js',
+                        'public/js/app/controller/*Controller.js',
+                        'public/js/app/generator/*.js',
+                        'public/js/app/evaluator/*.js',
+                        'public/js/app/plugin/*Plugin.js',
+                        'public/js/app/renderer/*.js'
                     ],
-                    'www/js/app/telemetry-lib-0.1.min.js': [
-                        'www/js/thirdparty/exclude/date-format.js',
-                        'www/js/app/telemetry/TelemetryEvent.js',
-                        'www/js/app/telemetry/FilewriterService.js',
-                        'www/js/app/telemetry/*.js'
+                    'public/js/app/telemetry-lib-0.1.min.js': [
+                        'public/js/thirdparty/exclude/date-format.js',
+                        'public/js/app/telemetry/TelemetryEvent.js',
+                        'public/js/app/telemetry/FilewriterService.js',
+                        'public/js/app/telemetry/*.js'
                     ]
                 }
             }
@@ -33,20 +33,21 @@ module.exports = function(grunt) {
                 files: [
                     {
                         expand: true,
-                        cwd: 'www/',
-                        src: ['**', '!**/controller/**', '!**/evaluator/**', '!**/manager/**', '!**/plugin/**', '!**/renderer/**', '!**/telemetry/**', '!**/test/**', '!**/libs/**', '!**/jasmine-2.3.4/**', '!**/exclude/**'],
-                        dest: 'public/'
+                        cwd: 'public/',
+                        src: ['**', '!**/controller/**', '!**/evaluator/**', '!**/manager/**', '!**/plugin/**', '!**/renderer/**', '!**/generator/**', '!**/telemetry/**', '!**/test/**', '!**/libs/**', '!**/jasmine-2.3.4/**', '!**/exclude/**'],
+                        dest: 'www/'
                     }
                 ]
             }
         },
-        remove: {
-            fileList: ['public/index.html', 'public/TelemetrySpecRunner.html', 'public/WorksheetSpecRunner.html']
+        clean: {
+            before: ["public", "platforms/android/assets/www", "platforms/android/build"],
+            after: ["www/TelemetrySpecRunner.html", "www/WorksheetSpecRunner.html"]
         },
         rename: {
             main: {
-                src: 'public/index_min.html',
-                dest: 'public/index.html'
+                src: 'www/index_min.html',
+                dest: 'www/index.html'
             }
         },
         compress: {
@@ -56,7 +57,7 @@ module.exports = function(grunt) {
                 },
                 filter: 'isFile',
                 expand: true,
-                cwd: 'www/stories/haircut_story/',
+                cwd: 'public/stories/haircut_story/',
                 src: ['**/*'],
                 dest: '/'
             },
@@ -66,7 +67,7 @@ module.exports = function(grunt) {
                 },
                 filter: 'isFile',
                 expand: true,
-                cwd: 'www/worksheets/addition_by_grouping/',
+                cwd: 'public/worksheets/addition_by_grouping/',
                 src: ['**/*'],
                 dest: '/'
             }
@@ -84,12 +85,12 @@ module.exports = function(grunt) {
                 options: {
                     bucket: 'ekstep-public',
                     mime: {
-                        'www/js/app/quizapp-0.1.min.js': 'application/javascript'
+                        'public/js/app/quizapp-0.1.min.js': 'application/javascript'
                     }
                 },
                 files: [{
                     expand: true,
-                    cwd: 'www/js/app',
+                    cwd: 'public/js/app',
                     src: ['quizapp-0.1.min.js'],
                     dest: 'js/'
                 }]
@@ -169,11 +170,13 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-aws-s3');
-    grunt.loadNpmTasks('grunt-remove');
+    grunt.loadNpmTasks('grunt-contrib-clean');
     grunt.loadNpmTasks('grunt-rename');
 
     grunt.registerTask('default', ['uglify:js']);
     grunt.registerTask('build-all', ['uglify:js', 'compress:story', 'compress:worksheet', 'aws_s3:uploadJS', 'aws_s3:uploadSamples']);
     grunt.registerTask('build-js', ['uglify:js', 'aws_s3:uploadJS']);
     grunt.registerTask('build-samples', ['compress:story', 'compress:worksheet', 'aws_s3:uploadSamples']);
+    grunt.registerTask('build-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:build_android']);
+    grunt.registerTask('build-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:build_android']);
 };

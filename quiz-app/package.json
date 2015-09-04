@@ -24,7 +24,7 @@
         "grunt-cli": "*",
         "grunt-contrib-compress": "*",
         "grunt-contrib-copy": "*",
-        "grunt-remove": "*",
+        "grunt-contrib-clean": "*",
         "grunt-rename": "*",
         "grunt-contrib-uglify": "^0.9.1",
         "grunt-cordovacli": "*",
