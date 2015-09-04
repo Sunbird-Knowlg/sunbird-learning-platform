@@ -5,20 +5,24 @@ module.exports = function(grunt) {
             js: {
                 files: {
                     'www/js/app/quizapp-0.1.min.js': [
-                        'www/js/thirdparty/xml2json.js',
-                        'www/js/thirdparty/createjs-2015.05.21.min.js',
-                        'www/js/thirdparty/cordovaaudioplugin-0.6.1',
-                        'www/js/thirdparty/creatine-1.0.0.min.js',
-                        'www/js/thirdparty/Class.js',
-                        'www/js/app/manager/*.js',
-                        'www/js/app/controller/*.js',
-                        'www/js/app/evaluator/*.js',
+                        'www/js/thirdparty/exclude/xml2json.js',
+                        'www/js/thirdparty/exclude/createjs-2015.05.21.min.js',
+                        'www/js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js',
+                        'www/js/thirdparty/exclude/creatine-1.0.0.min.js',
+                        'www/js/thirdparty/exclude/Class.js',
+                        'www/js/app/controller/Controller.js',
                         'www/js/app/plugin/Plugin.js',
+                        'www/js/app/manager/*.js',
+                        'www/js/app/controller/*Controller.js',
+                        'www/js/app/generator/*.js',
+                        'www/js/app/evaluator/*.js',
                         'www/js/app/plugin/*Plugin.js',
                         'www/js/app/renderer/*.js'
                     ],
                     'www/js/app/telemetry-lib-0.1.min.js': [
-                        'www/js/thirdparty/date-format.js',
+                        'www/js/thirdparty/exclude/date-format.js',
+                        'www/js/app/telemetry/TelemetryEvent.js',
+                        'www/js/app/telemetry/FilewriterService.js',
                         'www/js/app/telemetry/*.js'
                     ]
                 }
