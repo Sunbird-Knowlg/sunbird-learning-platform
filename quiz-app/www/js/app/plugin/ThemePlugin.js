@@ -253,6 +253,7 @@ var ThemePlugin = Plugin.extend({
     },
     getStagesToPreLoad: function(stageData) {
         var params = stageData.param;
+        if(!params) params = [];
         if(!_.isArray(params)) params = [params];
         var next = _.findWhere(params, {name: 'next'}),
             prev = _.findWhere(params, {name: 'previous'});

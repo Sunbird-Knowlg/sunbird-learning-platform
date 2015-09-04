@@ -1,6 +1,6 @@
 TelemetryService = {
     isActive: false,
-    ws: new ConsolewriterService(),
+    ws: undefined,
     _eventsVersion: "1.0",
     _gameData: undefined,
     _config: undefined,

@@ -35,7 +35,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             })
             .state('playWorksheet', {
                 url: "/play/worksheet/:item",
-                templateUrl: "worksheet1.html",
+                templateUrl: "templates/renderer.html",
                 controller: 'WorksheetCtrl'
             });
     })
