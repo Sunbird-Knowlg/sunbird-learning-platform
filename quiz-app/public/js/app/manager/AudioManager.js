@@ -50,7 +50,11 @@ AudioManager = {
     destroy: function(soundId) {
         var instance = AudioManager.instances[soundId] || {};
         if(instance.object) {
-            instance.object.destroy();
+            try {
+                instance.object.destroy();
+            } catch(err) {
+                console.log('Error', err);
+            }
             instance.object = undefined;
             instance.state = undefined;
         }
