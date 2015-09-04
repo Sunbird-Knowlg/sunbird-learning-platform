@@ -56,8 +56,7 @@ var StagePlugin = Plugin.extend({
         }
     },
     addController: function(p) {
-        var id = p.type + '.' + p.id;
-        var controller = ControllerManager.get(id, this._theme.baseDir);
+        var controller = ControllerManager.get(p.type, p.id, this._theme.baseDir);
         if (controller) {
             this._controllerMap[p.name] = controller;
         }

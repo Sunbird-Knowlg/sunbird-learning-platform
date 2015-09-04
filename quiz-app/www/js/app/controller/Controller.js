@@ -1,25 +1,21 @@
 var Controller = Class.extend({
-	_baseDir: '',
 	_id: '',
-	_folder: '',
 	_data: undefined,
 	_model: undefined,
 	_repeat: 0,
 	_index: -1,
 	_loaded: false,
 	_error: false,
-	init: function(baseDir, id) {
-		this._baseDir = baseDir;
-		this._id = id;
-		var tokens = id.split('.');
-		this._folder = tokens[0];
-		this._fileName = tokens[1] + ".json";
-        var instance = this;
-        ControllerManager.loadFile(this._baseDir, this._folder, this._fileName, instance);
+	init: function(baseDir, type, id) {
+		this._id = type + '.' + id;
+        this.initController(baseDir, type, id);
 	},
-	initController: function(data) {
+	initController: function(baseDir, type, id) {
 		ControllerManager.addError('Subclasses of Controller should implement initController()');
 	},
+    onLoad: function(data, model) {
+        ControllerManager.addError('Subclasses of Controller should implement onLoad()');
+    },
     setIndex: function(idx) {
         if (this._loaded) {
             if (idx) {

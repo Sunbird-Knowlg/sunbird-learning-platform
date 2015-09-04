@@ -6,6 +6,10 @@
 	"item_sets": [
 		{
 			"id": "set_1",
+        	"count": 3
+		},
+		{
+			"id": "set_2",
         	"count": 2
 		}
 	],
@@ -161,6 +165,132 @@
 					"ans1" : {"value" : 8, "score": 1},
 					"ans2" : {"value" : 9, "score": 1},
 					"ans3" : {"value" : 17, "score": 1}
+				},
+				"max_score": 3,
+				"partial_scoring": true,
+				"feedback": ""
+			}
+		],
+		"set_2" : [
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "cat_ltgray",
+						"count": 7
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "cat_white",
+						"count": 7
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "cat_midgray",
+						"count": 14
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 7, "score": 1},
+					"ans2" : {"value" : 7, "score": 1},
+					"ans3" : {"value" : 14, "score": 1}
+				},
+				"max_score": 3,
+				"partial_scoring": true,
+				"feedback": ""
+			},
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "butterfly_ltgray",
+						"count": 4
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "butterfly_white",
+						"count": 4
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "butterfly_midgray",
+						"count": 8
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 4, "score": 1},
+					"ans2" : {"value" : 4, "score": 1},
+					"ans3" : {"value" : 8, "score": 1}
+				},
+				"max_score": 3,
+				"partial_scoring": true,
+				"feedback": ""
+			},
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "elephant_ltgray",
+						"count": 5
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "elephant_white",
+						"count": 5
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "elephant_midgray",
+						"count": 10
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 5, "score": 1},
+					"ans2" : {"value" : 5, "score": 1},
+					"ans3" : {"value" : 10, "score": 1}
+				},
+				"max_score": 3,
+				"partial_scoring": true,
+				"feedback": ""
+			},
+			{
+				"identifier": "",
+				"template": "vertical_add",
+				"type": "ftb",
+				"num_answers": 3,
+				"model": {
+					"param1": {
+						"type": "gridLayout",
+						"asset": "deer_ltgray",
+						"count": 3
+					},
+					"param2": {
+						"type": "gridLayout",
+						"asset": "deer_white",
+						"count": 3
+					},
+					"param3": {
+						"type": "gridLayout",
+						"asset": "deer_midgray",
+						"count": 6
+					}
+				},
+				"answer": {
+					"ans1" : {"value" : 3, "score": 1},
+					"ans2" : {"value" : 3, "score": 1},
+					"ans3" : {"value" : 6, "score": 1}
 				},
 				"max_score": 3,
 				"partial_scoring": true,

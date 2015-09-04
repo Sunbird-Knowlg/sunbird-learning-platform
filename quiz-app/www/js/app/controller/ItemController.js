@@ -1,27 +1,17 @@
 var ItemController = DataController.extend({
-    initController: function(data) {
-    	if (data) {
-    		ControllerManager.registerControllerInstance(this._id, this);
+    initController: function(baseDir, type, id) {
+    	ItemDataGenerator.loadData(baseDir, type, id, this);
+	},
+	onLoad: function(data, model) {
+		if (_.isObject(data) && _.isArray(model)) {
+			ControllerManager.registerControllerInstance(this._id, this);
 			this._data = data;
 			this._loaded = true;
-			var items = data.items;
-			var model = [];
-			if (items && _.isObject(items)) {
-				for (var setId in items) {
-					var set = items[setId];
-					if (_.isArray(set)) {
-						model = _.union(model, set);	
-					}
-				}
-			}
-			if (data.total_items && model.length > data.total_items) {
-				model = _.first(model, data.total_items);
-			}
 			this._model = model;
-			this._repeat = this._model.length;	
-    	} else {
-    		this._error = true;
-    	}
+			this._repeat = this._model.length;		
+		} else {
+			this._error = true;
+		}
 	},
 	evalItem: function() {
 		var item = this.getModel();
