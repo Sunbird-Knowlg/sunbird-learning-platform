@@ -13,6 +13,7 @@ var ThemePlugin = Plugin.extend({
     _themeData: undefined,
     _controllerMap: {},
     _isContainer: false,
+    _templateMap: {},
     initPlugin: function(data) {
         this._canvasId = data.canvasId;
         this._self = new createjs.Stage(data.canvasId);
@@ -62,6 +63,15 @@ var ThemePlugin = Plugin.extend({
                 });
             } else {
                 instance.addController(this._data.controller);
+            }
+        }
+        if (this._data.template) {
+            if (_.isArray(this._data.template)) {
+                this._data.template.forEach(function(t) {
+                    this._templateMap[t.id] = t;
+                });
+            } else {
+                this._templateMap[this._data.template.id] = this._data.template;
             }
         }
         if(this._data.stage) {

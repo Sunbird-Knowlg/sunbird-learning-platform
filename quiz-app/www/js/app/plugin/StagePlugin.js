@@ -5,6 +5,7 @@ var StagePlugin = Plugin.extend({
     params: {},
     _stageController: undefined,
     _stageControllerName: undefined,
+    _templateVar: undefined,
     _controllerMap: {},
     initPlugin: function(data) {
         var instance = this;
@@ -69,7 +70,7 @@ var StagePlugin = Plugin.extend({
                 var controller = tokens[0].trim();
                 var idx = param.indexOf('.');
                 var paramName = param.substring(idx+1);
-                if (this._stageControllerName === controller) {
+                if (this._stageControllerName === controller || this._templateVar === controller) {
                     val = this._stageController.getModelValue(paramName);
                 } else if (this._controllerMap[controller]) {
                     val = this._controllerMap[controller].getModelValue(paramName);
@@ -87,7 +88,7 @@ var StagePlugin = Plugin.extend({
                 var controller = tokens[0].trim();
                 var idx = param.indexOf('.');
                 var paramName = param.substring(idx+1);
-                if (this._stageControllerName === controller) {
+                if (this._stageControllerName === controller || this._templateVar === controller) {
                     val = this._stageController.setModelValue(paramName, val);
                 } else if (this._controllerMap[controller]) {
                     val = this._controllerMap[controller].setModelValue(paramName, val);

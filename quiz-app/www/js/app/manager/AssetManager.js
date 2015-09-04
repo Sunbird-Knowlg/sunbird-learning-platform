@@ -1,8 +1,10 @@
 AssetManager = {
     assetMap: {},
     commonAssets: [],
+    templateAssets: [],
     loaders: {},
     commonLoader: undefined,
+    templateLoader: undefined,
     stageManifests: {},
     stageAudios: {},
     init: function(themeData, basePath) {
@@ -41,12 +43,19 @@ AssetManager = {
             AssetManager.commonAssets.push.apply(AssetManager.commonAssets, AssetManager.stageManifests.baseStage);
         }
         AssetManager.loadCommonAssets();
+
+        var templates = themeData.template;
+        if (!_.isArray(templates)) templates = [templates];
+        templates.forEach(function(template) {
+            AssetManager.populateTemplateAssets(template);
+        });
+        AssetManager.loadTemplateAssets();
     },
     populateAssets: function(data, stageId) {
         for (k in data) {
             var plugins = data[k];
             if (!_.isArray(plugins)) plugins = [plugins];
-            if (PluginManager.isPlugin(k) && (k == 'g' || k == 'template')) {
+            if (PluginManager.isPlugin(k) && k == 'g') {
                 plugins.forEach(function(plugin) {
                     AssetManager.populateAssets(plugin, stageId);
                 });
@@ -60,10 +69,29 @@ AssetManager = {
             }
         }
     },
+    populateTemplateAssets: function(data) {
+        for (k in data) {
+            var plugins = data[k];
+            if (!_.isArray(plugins)) plugins = [plugins];
+            if (PluginManager.isPlugin(k) && k == 'g') {
+                plugins.forEach(function(plugin) {
+                    AssetManager.populateTemplateAssets(plugin);
+                });
+            } else {
+                plugins.forEach(function(plugin) {
+                    var asset = AssetManager.assetMap[plugin.asset];
+                    if (asset) {
+                        AssetManager.templateAssets.push(_.clone(asset));
+                    }
+                });
+            }
+        }
+    },
     getAsset: function(stageId, assetId) {
         var asset = undefined;
         if (AssetManager.loaders[stageId]) asset = AssetManager.loaders[stageId].getResult(assetId);
         if (!asset) asset = AssetManager.commonLoader.getResult(assetId);
+        if (!asset) asset = AssetManager.templateLoader.getResult(assetId);
         if (!asset) {
             console.error('Asset not found. Returning - ', (AssetManager.assetMap[assetId].src));
             return AssetManager.assetMap[assetId].src;
@@ -118,6 +146,13 @@ AssetManager = {
         loader.installPlugin(createjs.Sound);
         loader.loadManifest(AssetManager.commonAssets, true);
         AssetManager.commonLoader = loader;
+    },
+    loadTemplateAssets: function() {
+        var loader = new createjs.LoadQueue(true);
+        loader.setMaxConnections(AssetManager.templateAssets.length);
+        loader.installPlugin(createjs.Sound);
+        loader.loadManifest(AssetManager.templateAssets, true);
+        AssetManager.templateLoader = loader;
     },
     destroy: function() {
         for (k in AssetManager.loaders) {
