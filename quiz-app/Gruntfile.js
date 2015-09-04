@@ -4,18 +4,45 @@ module.exports = function(grunt) {
         uglify: {
             js: {
                 files: {
-                    'www/js/quizapp.min.js': [
+                    'www/js/app/quizapp-0.1.min.js': [
                         'www/js/thirdparty/xml2json.js',
                         'www/js/thirdparty/createjs-2015.05.21.min.js',
+                        'www/js/thirdparty/cordovaaudioplugin-0.6.1',
                         'www/js/thirdparty/creatine-1.0.0.min.js',
                         'www/js/thirdparty/Class.js',
-                        'www/js/app/plugin/PluginManager.js',
-                        'www/js/app/plugin/CommandManager.js',
+                        'www/js/app/manager/*.js',
+                        'www/js/app/controller/*.js',
+                        'www/js/app/evaluator/*.js',
                         'www/js/app/plugin/Plugin.js',
                         'www/js/app/plugin/*Plugin.js',
                         'www/js/app/renderer/*.js'
+                    ],
+                    'www/js/app/telemetry-lib-0.1.min.js': [
+                        'www/js/thirdparty/date-format.js',
+                        'www/js/app/telemetry/*.js'
                     ]
                 }
+            }
+        },
+        copy: {
+            main: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'www/',
+                        src: ['**', '!**/controller/**', '!**/evaluator/**', '!**/manager/**', '!**/plugin/**', '!**/renderer/**', '!**/telemetry/**', '!**/test/**', '!**/libs/**', '!**/jasmine-2.3.4/**', '!**/exclude/**'],
+                        dest: 'public/'
+                    }
+                ]
+            }
+        },
+        remove: {
+            fileList: ['public/index.html', 'public/TelemetrySpecRunner.html', 'public/WorksheetSpecRunner.html']
+        },
+        rename: {
+            main: {
+                src: 'public/index_min.html',
+                dest: 'public/index.html'
             }
         },
         compress: {
@@ -40,8 +67,8 @@ module.exports = function(grunt) {
                 dest: '/'
             }
         },
-        aws: grunt.file.readJSON('aws-keys.json'),
         aws_s3: {
+            aws: grunt.file.readJSON('aws-keys.json'),
             options: {
                 accessKeyId: '<%= aws.AWSAccessKeyId %>', // Use the variables
                 secretAccessKey: '<%= aws.AWSSecretKey %>', // You can also use env variables
@@ -53,13 +80,13 @@ module.exports = function(grunt) {
                 options: {
                     bucket: 'ekstep-public',
                     mime: {
-                        'www/js/quizapp.min.js': 'application/javascript'
+                        'www/js/app/quizapp-0.1.min.js': 'application/javascript'
                     }
                 },
                 files: [{
                     expand: true,
-                    cwd: 'www/js/',
-                    src: ['quizapp.min.js'],
+                    cwd: 'www/js/app',
+                    src: ['quizapp-0.1.min.js'],
                     dest: 'js/'
                 }]
             },
@@ -124,7 +151,7 @@ module.exports = function(grunt) {
                     platforms: ['android']
                 }
             },
-            run_android_: {
+            run_android: {
                 options: {
                     command: 'run',
                     platforms: ['android']
@@ -135,8 +162,12 @@ module.exports = function(grunt) {
 
     grunt.loadNpmTasks('grunt-cordovacli');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-compress');
     grunt.loadNpmTasks('grunt-aws-s3');
+    grunt.loadNpmTasks('grunt-remove');
+    grunt.loadNpmTasks('grunt-rename');
+
     grunt.registerTask('default', ['uglify:js']);
     grunt.registerTask('build-all', ['uglify:js', 'compress:story', 'compress:worksheet', 'aws_s3:uploadJS', 'aws_s3:uploadSamples']);
     grunt.registerTask('build-js', ['uglify:js', 'aws_s3:uploadJS']);
