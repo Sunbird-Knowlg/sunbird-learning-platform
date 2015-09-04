@@ -41,7 +41,7 @@ module.exports = function(grunt) {
             }
         },
         clean: {
-            before: ["public", "platforms/android/assets/www", "platforms/android/build"],
+            before: ["www", "platforms/android/assets/www", "platforms/android/build"],
             after: ["www/TelemetrySpecRunner.html", "www/WorksheetSpecRunner.html"]
         },
         rename: {
