@@ -4,15 +4,15 @@ describe('Telemetry Service API - inActive', function() {
         TelemetryService.start();
         TelemetryService.interact("TOUCH", "id", "TOUCH");
         TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid").end(true, 1);
         TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid").end("no", 0);
+        TelemetryService.assess("qid").end(false, 0);
         TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid").end(true, 1);
         TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid").end("yes", 1);
+        TelemetryService.assess("qid").end(true, 1);
         TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid1").end("yes", 1).mmc(["mmc1", "mmc2"]);
+        TelemetryService.assess("qid1").end(true, 1).mmc(["mmc1", "mmc2"]);
         TelemetryService.end();
         setTimeout(function() {
             done();
@@ -24,13 +24,8 @@ describe('Telemetry Service API - inActive', function() {
         expect(false).toEqual(expected);
     });
 
-    it('events should not create and output data should be empty.', function(done) {
-        var expected = TelemetryService.isActive;
-        TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-        .then(function(data) {
-            expect(data.length).toEqual(0);
-            done();
-        });
+    it('events should not create and output data should be empty.', function() {
+        expect('undefined').toEqual((typeof TelemetryService.ws));
     });
 
 })
@@ -53,16 +48,16 @@ describe('Telemetry Service API', function() {
             TelemetryService.start();
             TelemetryService.interact("TOUCH", "id", "TOUCH");
             TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end("yes", 1);
+            TelemetryService.assess("qid").end(true, 1);
             TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end("no", 0);
+            TelemetryService.assess("qid").end(false, 0);
             TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end("yes", 1);
+            TelemetryService.assess("qid").end(true, 1);
             TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end("yes", 1);
+            TelemetryService.assess("qid").end(true, 1);
 
             TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid1").end("yes", 1).mmc(["mmc1", "mmc2"]);
+            TelemetryService.assess("qid1").end(true, 1).mmc(["mmc1", "mmc2"]);
             TelemetryService.end();
             setTimeout(function() {
                 done();
