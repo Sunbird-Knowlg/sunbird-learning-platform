@@ -4,35 +4,27 @@ angular.module('quiz.services', ['ngResource'])
             getGamesLocal: function(jsonFile) {
                 var deferred = $q.defer();
                 $http.get('json/' + jsonFile)
-                .then(function(data) {
-                    // console.log('data:',data.data);
-                    deferred.resolve(data.data.result.games);  
-                }, function(err) {
-                    deferred.reject(err);
-                });
+                    .then(function(data) {
+                        // console.log('data:',data.data);
+                        deferred.resolve(data.data.result.games);
+                    }, function(err) {
+                        deferred.reject(err);
+                    });
                 return deferred.promise;
             },
             getGames: function() {
                 var deferred = $q.defer();
-                var req = {
-                    method: 'POST',
-                    url: 'http://lp-sandbox.ekstep.org:8080/taxonomy-service/v1/game/list',
-                    headers: {
-                        "user-id": "mahesh",
-                        "content-type": "application/json"
-                    },
-                    data: {
-                        'request': {}
-                    }
+                if (typeof GenieServicePlugin == 'undefined') {
+                    deferred.reject('GenieServicePlugin is undefined.'); 
+                } else {
+                   GenieServicePlugin.getContentList()
+                        .then(function(data) {
+                            deferred.resolve(data);
+                        })
+                        .catch(function(err) {
+                            deferred.reject(err);
+                        });
                 }
-                $http(req).then(function(resp) {
-                    if(resp.data.params.status == 'successful')
-                        deferred.resolve(resp.data.result.games);
-                    else
-                        deferred.reject(resp.data.params);
-                }, function(err) {
-                    deferred.reject(err);
-                });
                 return deferred.promise;
             }
         }
@@ -50,9 +42,9 @@ angular.module('quiz.services', ['ngResource'])
             },
             getObject: function(key) {
                 var data = $window.localStorage[key];
-                if(null != data)
+                if (null != data)
                     return JSON.parse(data);
-                else 
+                else
                     return null;
             },
             remove: function(key) {

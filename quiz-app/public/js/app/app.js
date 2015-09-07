@@ -24,10 +24,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .config(function($stateProvider, $urlRouterProvider) {
         $urlRouterProvider.otherwise("/content/list");
         $stateProvider
-            .state('loading', {
-                url: "/loading",
-                templateUrl: "templates/loading.html"
-            })
             .state('contentList', {
                 url: "/content/list",
                 templateUrl: "templates/content-list.html",
@@ -108,11 +104,22 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         };
 
         $scope.getGames = function() {
-            // $scope.load = {
-            //     status: true,
-            //     message: "Loading games..."
-            // };
-            GameService.getGamesLocal('screeners.json')
+            GameService.getGames()
+            .then(function(contents) {
+                if(contents.stories) {
+                    var stories = JSON.parse(contents.stories);
+                    $localstorage.setObject('stories', stories.result.games);
+                    $scope.stories = $localstorage.getObject('stories');
+                }
+                if(contents.worksheets) {
+                    var worksheets = JSON.parse(contents.worksheets);
+                    $localstorage.setObject('games', worksheets.result.games);
+                    $scope.games = $localstorage.getObject('games');
+                }
+                $scope.loadBookshelf();
+            })
+            .catch(function(err) {
+                GameService.getGamesLocal('screeners.json')
                 .then(function(resp) {
                     $localstorage.setObject('screeners', resp);
                     $scope.screeners = $localstorage.getObject('screeners');
@@ -131,7 +138,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         });
                 }, function(err) {
                 });
-
+            });
         }
 
         $scope.playWorksheet = function(worksheet) {
@@ -182,7 +189,7 @@ function initBookshelf($scope) {
             newHeight = newWidth / widthToHeight;
         }
         $.bookshelfSlider('#bookshelf_slider', {
-            'item_width': newWidth, 
+            'item_width': newWidth,
             'item_height': newHeight,
             'products_box_margin_left': 30,
             'product_title_textcolor': '#ffffff',
