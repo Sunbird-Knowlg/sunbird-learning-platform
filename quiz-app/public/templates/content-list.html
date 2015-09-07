@@ -4,7 +4,7 @@
 
             <div class="panel_title">
                 <div class="selected_title_box"><div class="selected_title">Selected Title</div></div>
-                <button ng-click="resetGameCache()" class="button button-clear icon ion-android-refresh" style="float:right; color:#000;"></button>
+                <button ng-click="resetContentListCache()" class="button button-clear icon ion-android-refresh" style="float:right; color:#000;"></button>
             </div><!-- .panel_title -->
             
             <div class="panel_slider">
@@ -12,7 +12,7 @@
 
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_1">
-                            <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories" ng-click="playWorksheet(story);">
+                            <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories" ng-click="playContent(story);">
                                 <img ng-src="{{story.appIcon}}" alt="" width="100" height="105" />
                             </div>
                         </div>
@@ -20,8 +20,8 @@
 
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_2">
-                            <div class="product" data-type="" title="{{game.name}}" ng-repeat="game in games" ng-click="playWorksheet(game);">
-                                <img ng-src="{{game.appIcon}}" alt="" width="100" height="105" />
+                            <div class="product" data-type="" title="{{worksheet.name}}" ng-repeat="worksheet in worksheets" ng-click="playContent(worksheet);">
+                                <img ng-src="{{worksheet.appIcon}}" alt="" width="100" height="105" />
                             </div>
                         </div>
                     </div>

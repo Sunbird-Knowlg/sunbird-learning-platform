@@ -4,7 +4,7 @@
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
-    .run(function($ionicPlatform, $cordovaFile, $cordovaToast, GameService, $localstorage) {
+    .run(function($ionicPlatform, $cordovaFile, $cordovaToast, GameService, ContentService) {
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
@@ -29,137 +29,108 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 templateUrl: "templates/content-list.html",
                 controller: 'ContentListCtrl'
             })
-            .state('playWorksheet', {
-                url: "/play/worksheet/:item",
+            .state('playContent', {
+                url: "/play/content/:item",
                 templateUrl: "templates/renderer.html",
-                controller: 'WorksheetCtrl'
+                controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $q, $localstorage) {
+    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $q, ContentService) {
 
         new Promise(function(resolve, reject) {
-            resolve(TelemetryService._gameData);
-        })
-        .then(function(game) {
-            if(!game) {
-                var user = {
-                    "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-                    "uid": "123e4567-e89b-12d3-a456-426655440000",
-                    "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-                };
-                var game = {
-                    "id": "com.ilimi.quiz.app",
-                    "ver": "1.0"
-                };
-                return TelemetryService.init(user, game);
-            } else {
-                return true;
-            }
-        })
-        .then(function() {
-            if (null == $localstorage.getObject('stories')) {
-                $scope.getGames();
-            } else {
+                // TODO: remove ContentService.clear();
+                ContentService.clear();
+                ContentService.init();
+                resolve(TelemetryService._gameData);
+            })
+            .then(function(game) {
+                if (!game) {
+                    var user = {
+                        "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
+                        "uid": "123e4567-e89b-12d3-a456-426655440000",
+                        "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
+                    };
+                    var game = {
+                        "id": "com.ilimi.quiz.app",
+                        "ver": "1.0"
+                    };
+                    return TelemetryService.init(user, game);
+                } else {
+                    return true;
+                }
+            })
+            .then(function() {
+                if (ContentService.getContent().length == 0) {
+                    return $scope.getContentList();
+                } else {
+                    return true;
+                }
+            })
+            .then(function() {
                 $scope.$apply(function() {
-                    $scope.games = $localstorage.getObject('games');
-                    $scope.screeners = $localstorage.getObject('screeners');
-                    $scope.stories = $localstorage.getObject('stories');
+                    $scope.loadBookshelf();
                 });
-                $scope.loadBookshelf();
-            }
-        })
-        .catch(function(error) {
-            TelemetryService.exitWithError(error);
-        });
+            })
+            .catch(function(error) {
+                TelemetryService.exitWithError(error);
+            });
 
-        $ionicPopover.fromTemplateUrl('templates/main-menu.html', {
-            scope: $scope
-        }).then(function(popover) {
-            $scope.mainmenu = popover;
-        });
+        // $ionicPopover.fromTemplateUrl('templates/main-menu.html', {
+        //     scope: $scope
+        // }).then(function(popover) {
+        //     $scope.mainmenu = popover;
+        // });
 
-        $scope.openMainMenu = function($event) {
-            $scope.mainmenu.show($event);
-        };
-        $scope.closeMainMenu = function() {
-            $scope.mainmenu.hide();
-        };
+        // $scope.openMainMenu = function($event) {
+        //     $scope.mainmenu.show($event);
+        // };
+        // $scope.closeMainMenu = function() {
+        //     $scope.mainmenu.hide();
+        // };
 
-        $scope.resetGameCache = function() {
+        $scope.resetContentListCache = function() {
             $("#loadingDiv").show();
-            $localstorage.remove('stories');
-            $localstorage.remove('games');
-            $localstorage.remove('screeners');
             setTimeout(function() {
-                $scope.getGames();
-                console.log('flushing telemetry in 2sec...');
-                setTimeout(function() {
-                    TelemetryService.flush();
-                }, 2000);
+                $scope.getContentList()
+                    .then(function() {
+                        $scope.loadBookshelf();
+                        console.log('flushing telemetry in 2sec...');
+                        setTimeout(function() {
+                            TelemetryService.flush();
+                        }, 2000);
+                    });
             }, 100);
         }
 
         $scope.loadBookshelf = function() {
-            initBookshelf($scope);
+            $scope.worksheets = ContentService.getContent('worksheet');
+            console.log("$scope.worksheets:", $scope.worksheets);
+            $scope.stories = ContentService.getContent('story');
+            console.log("$scope.stories:", $scope.stories);
+            initBookshelf();
         };
 
-        $scope.getGames = function() {
+        $scope.getContentList = function() {
+            var deferred = $q.defer();
             GameService.getGames()
-            .then(function(contents) {
-                if(contents.stories) {
-                    var stories = JSON.parse(contents.stories);
-                    $localstorage.setObject('stories', stories.result.games);
-                    $scope.stories = $localstorage.getObject('stories');
-                }
-                if(contents.worksheets) {
-                    var worksheets = JSON.parse(contents.worksheets);
-                    $localstorage.setObject('games', worksheets.result.games);
-                    $scope.games = $localstorage.getObject('games');
-                }
-                $scope.loadBookshelf();
-            })
-            .catch(function(err) {
-                GameService.getGamesLocal('screeners.json')
-                .then(function(resp) {
-                    $localstorage.setObject('screeners', resp);
-                    $scope.screeners = $localstorage.getObject('screeners');
-                    GameService.getGamesLocal('worksheets.json')
-                        .then(function(gamesResp) {
-                            $localstorage.setObject('games', gamesResp);
-                            $scope.games = $localstorage.getObject('games');
-                            GameService.getGamesLocal('stories.json')
-                                .then(function(storiesResp) {
-                                    $localstorage.setObject('stories', storiesResp);
-                                    $scope.stories = $localstorage.getObject('stories');
-                                    $scope.loadBookshelf();
-                                }, function(err) {
-                                });
-                        }, function(err) {
-                        });
-                }, function(err) {
+                .then(function(contents) {
+                    ContentService.setContentList(contents);
+                    deferred.resolve(true);
+                })
+                .catch(function(err) {
+                    console.log("Error while fetching content list: ", err);
+                    deferred.reject("Error while fetching content list: " + err);
                 });
+            return deferred.promise;
+        }
+
+        $scope.playContent = function(content) {
+            $state.go('playContent', {
+                'item': JSON.stringify(content)
             });
         }
 
-        $scope.playWorksheet = function(worksheet) {
-            $state.go('playWorksheet', {
-                'item': JSON.stringify(worksheet)
-            });
-        }
-
-        $scope.gameClick = function(game) {
-            window.location.href = game.launchUrl;
-        }
-
-        $scope.updateLog = function(game) {
-            var logData = {
-                identifier: game.identifier,
-                name: game.name,
-                timestamp: new Date()
-            };
-        }
-
-    }).controller('WorksheetCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $localstorage, $stateParams) {
+    }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
@@ -177,7 +148,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     });
 
 
-function initBookshelf($scope) {
+function initBookshelf() {
     setTimeout(function() {
         var widthToHeight = 16 / 9;
         var newWidth = window.innerWidth;
