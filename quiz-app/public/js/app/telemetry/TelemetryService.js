@@ -138,11 +138,13 @@ TelemetryService = {
                 console.log('file creation failed...');
             });
             TelemetryService.ws.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
+                console.log("fileEntry.toURL(): ", fileEntry.toURL());
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');
             });
             TelemetryService.ws.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
+                console.log("fileEntry.toURL(): ", fileEntry.toURL());
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');

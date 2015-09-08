@@ -1,5 +1,5 @@
 angular.module('quiz.services', ['ngResource'])
-    .factory('GameService', function($q, $timeout, $http, $resource) {
+    .factory('PlatformServiceUtil', function($q, $timeout, $http, $resource) {
         return {
             getGamesLocal: function(jsonFile) {
                 var deferred = $q.defer();
@@ -11,9 +11,9 @@ angular.module('quiz.services', ['ngResource'])
                     });
                 return deferred.promise;
             },
-            getGames: function() {
+            getContentList: function() {
                 var deferred = $q.defer();
-                if (typeof GenieServicePlugin == 'undefined') {
+                if (typeof PlatformService == 'undefined') {
                     var content = {};
                     var service = this;
                     service.getGamesLocal('stories.json')
@@ -32,7 +32,7 @@ angular.module('quiz.services', ['ngResource'])
                             deferred.reject('Error while getting local data.');
                         });
                 } else {
-                    GenieServicePlugin.getContentList()
+                    PlatformService.getContentList()
                         .then(function(data) {
                             deferred.resolve(data);
                         })
@@ -45,7 +45,7 @@ angular.module('quiz.services', ['ngResource'])
         }
     })
     .factory('ContentService', ['$window', function($window) {
-        // Content status values: "created", "updated", "processing", "ready".
+        // Content status values: "created", "updated", "processing", "ready", "error".
         var setObject = function(key, value) {
             $window.localStorage[key] = JSON.stringify(value);
         };
@@ -76,7 +76,8 @@ angular.module('quiz.services', ['ngResource'])
                     stories = stories.result.games;
                     for (key in stories) {
                         var story = stories[key];
-                        this.setContentObject(story, "story");
+                        story.type = "story";
+                        this.saveContent(story);
                     }
                 }
                 if (contents.worksheets) {
@@ -84,46 +85,31 @@ angular.module('quiz.services', ['ngResource'])
                     worksheets = worksheets.result.games;
                     for (key in worksheets) {
                         var worksheet = worksheets[key];
-                        this.setContentObject(worksheet, "worksheet");
+                        worksheet.type = "worksheet";
+                        this.saveContent(worksheet);
                     }
                 }
             },
-            setContentObject: function(content, contentType) {
-                content.type = contentType;
-                if (this.contentList[content.id]) {
-                    if (this.contentList[content.id].status == "ready" && this.contentList[content.id].pkgVersion == content.pkgVersion) {
-                        story.status = "ready";
-                    } else {
-                        content.status = "updated";
-                    }
-                } else {
-                    content.status = "created";
-                }
+            saveContent: function(content) {
                 this.contentList[content.id] = content;
                 this.commit();
             },
-            getContent: function(type) {
+            getContentList: function(type) {
                 if (type) {
                     var list = _.where(_.values(this.contentList), {
                         "type": type,
-                        "status": "updated"
+                        "status": "ready"
                     });
-                    if (list.length == 0)
-                        list = _.where(_.values(this.contentList), {
-                            "type": type,
-                            "status": "created"
-                        });
                     return list;
                 } else {
                     var list = _.where(_.values(this.contentList), {
-                        "status": "updated"
+                        "status": "ready"
                     });
-                    if (list.length == 0)
-                        list = _.where(_.values(this.contentList), {
-                            "status": "created"
-                        });
                     return list;
                 }
+            },
+            getContent: function(id) {
+                return this.contentList[id];
             },
             remove: function(key) {
                 $window.localStorage.removeItem(key);
@@ -132,4 +118,16 @@ angular.module('quiz.services', ['ngResource'])
                 $window.localStorage.clear();
             }
         };
-    }]);
+    }])
+    .factory('DownloaderServiceUtil', function($q, $timeout, $http, $resource, ContentService) {
+        return {
+            process: function(content) {
+                content.status = "processing";
+                ContentService.saveContent(content);
+                // TODO use DownloaderServie
+                content.status = "ready";
+                content.baseDir = content.launchPath;
+                ContentService.saveContent(content);
+            }
+        }
+    });

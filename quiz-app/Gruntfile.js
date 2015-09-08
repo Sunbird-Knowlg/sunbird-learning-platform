@@ -129,7 +129,7 @@ module.exports = function(grunt) {
                         'console',
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
-                        '../GenieServicePlugin/'
+                        '../cordova-plugins/PlatformService/'
                     ]
                 }
             },
