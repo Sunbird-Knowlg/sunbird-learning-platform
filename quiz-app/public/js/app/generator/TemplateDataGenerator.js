@@ -16,7 +16,7 @@ var TemplateDataGenerator = {
     	}		
 		return list;
 	},
-	_selectTemplate: function(id, count, items, list) {
+	_selectTemplate:  function(id, count, items, list) {
 		var set = items[id];
 		if(set.length == count)	{
 			for(var i = 0; i < count; i++)
@@ -54,30 +54,30 @@ var TemplateDataGenerator = {
 				}	
 				if(itemArr[i].model){
 					var length = itemArr[i].model.length;			
-					_.map(itemArr[i].model, function(num, key) {
-						_.map(itemArr[i].model[key], function(num, key1){
+					_.map(itemArr[i].model, function(param, key) {
+						_.map(itemArr[i].model[key], function(obj, key1){
 							var values = [];						
-					    	if(_.isObject(num)){
+					    	if(_.isObject(obj)){
 					    		var j = 0;
-					    		_.map(num, function(value, key2){	
+					    		_.map(obj, function(value, key2){	
 					    			values[j++] = value;
 					    		});	
 					    		var temp =  _.random(values[0], values[1]);
 					    		itemArr[i].model[key][key1] = temp;	
 					    	}
-					    	if(_.isString(num)){				    		
-					    		if(num.substring(0,1) == '$')
-				    				itemArr[i].model[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);
+					    	if(_.isString(obj)){				    		
+					    		if(obj.substring(0,1) == '$')
+				    				itemArr[i].model[key][key1] = TemplateDataGenerator._computeExpression(obj, itemArr, i);
 					    	}
 					 	});
 					    
 					});				
 				}
-				_.map(itemArr[i].answer, function(num, key) {
-					_.map(itemArr[i].answer[key], function(num, key1){					
-				    	if(_.isString(num)){				    		
-				    		if(num.substring(0,1) == '$') 		
-				    			itemArr[i].answer[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);
+				_.map(itemArr[i].answer, function(param, key) {
+					_.map(itemArr[i].answer[key], function(obj, key1){					
+				    	if(_.isString(obj)){				    		
+				    		if(obj.substring(0,1) == '$') 		
+				    			itemArr[i].answer[key][key1] = TemplateDataGenerator._computeExpression(obj, itemArr, i);
 				    	}
 				 	});
 				    
