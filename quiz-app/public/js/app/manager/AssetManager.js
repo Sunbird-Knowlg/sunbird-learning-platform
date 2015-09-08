@@ -100,6 +100,12 @@ AssetManager = {
     },
     initStage: function(stageId, nextStageId, prevStageId, cb) {
         AssetManager.loadStage(stageId, cb);
+        var deleteStages = _.difference(_.keys(AssetManager.loaders), [stageId, nextStageId, prevStageId]);
+        if (deleteStages.length > 0) {
+            deleteStages.forEach(function(stageId) {
+                AssetManager.destroyStage(stageId);
+            })
+        }
         if (nextStageId) {
             AssetManager.loadStage(nextStageId, function() {
                 var plugin = PluginManager.getPluginObject('next');
@@ -111,12 +117,6 @@ AssetManager = {
                 var plugin = PluginManager.getPluginObject('previous');
                 plugin.show();
             });
-        }
-        var deleteStages = _.difference(_.keys(AssetManager.loaders), [stageId, nextStageId, prevStageId]);
-        if (deleteStages.length > 0) {
-            deleteStages.forEach(function(stageId) {
-                AssetManager.destroyStage(stageId);
-            })
         }
         AssetManager.loaders = _.pick(AssetManager.loaders, stageId, nextStageId, prevStageId);
     },
