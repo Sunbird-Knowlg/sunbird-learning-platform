@@ -5,12 +5,16 @@ var TemplateDataGenerator = {
     		var total_items = data.total_items;
 			var item_sets = data.item_sets;
 			var items = data.items;
-			item_sets.forEach(function(map) {
-				list = TemplateDataGenerator._selectTemplate(map.id, map.count, items);
-			});
+			if (item_sets && items) {
+				item_sets.forEach(function(map) {
+					list = TemplateDataGenerator._selectTemplate(map.id, map.count, items, list);
+				});
+				if (total_items && list.length > total_items) {
+					list = _.first(list, total_items);
+				}
+			}
     	}		
 		return list;
-		
 	},
 	_selectTemplate: function(id, count, items, list) {
 		var set = items[id];
@@ -42,7 +46,12 @@ var TemplateDataGenerator = {
 				itemArr[i] = JSON.stringify(pick);
 			for(var i = 0; i < count; i++)
 				itemArr[i] = JSON.parse(itemArr[i]);
-			for(var i = 0; i < count; i++) {		
+			for(var i = 0; i < count; i++) {	
+				if(itemArr[i].restrictions) {
+					_.each(itemArr[i].restrictions, function(str) {
+
+					});
+				}	
 				if(itemArr[i].model){
 					var length = itemArr[i].model.length;			
 					_.map(itemArr[i].model, function(num, key) {
@@ -57,20 +66,18 @@ var TemplateDataGenerator = {
 					    		itemArr[i].model[key][key1] = temp;	
 					    	}
 					    	if(_.isString(num)){				    		
-					    		if(num.substring(0,1) == '$') {
-				    			itemArr[i].model[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);
-					    		}
+					    		if(num.substring(0,1) == '$')
+				    				itemArr[i].model[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);
 					    	}
 					 	});
 					    
 					});				
 				}
-				_.map(itemArr[i].answer, function(num, key){
+				_.map(itemArr[i].answer, function(num, key) {
 					_.map(itemArr[i].answer[key], function(num, key1){					
 				    	if(_.isString(num)){				    		
-				    		if(num.substring(0,1) == '$') {			
-				    			itemArr[i].answer[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);;
-				    		}
+				    		if(num.substring(0,1) == '$') 		
+				    			itemArr[i].answer[key][key1] = TemplateDataGenerator._computeExpression(num, itemArr, i);
 				    	}
 				 	});
 				    
@@ -93,7 +100,7 @@ var TemplateDataGenerator = {
 	},
 	_splitByOperator: function(str){  
 		var matchPattern = /[^\s()*/%+-]+/g;  
-		var splitPattern = /[\s()*/%+-]+/g;  		   
+		//var splitPattern = /[\s()*/%+-]+/g;  		   
 		var temp =  str.match(matchPattern); 
 		var tempArr = [];
 		for(var i = 0; i < temp.length ; i++){
