@@ -1,51 +1,5 @@
 angular.module('quiz.services', ['ngResource'])
-    .factory('PlatformServiceUtil', function($q, $timeout, $http, $resource) {
-        return {
-            getGamesLocal: function(jsonFile) {
-                var deferred = $q.defer();
-                $http.get('json/' + jsonFile)
-                    .then(function(data) {
-                        deferred.resolve(data.data);
-                    }, function(err) {
-                        deferred.reject(err);
-                    });
-                return deferred.promise;
-            },
-            getContentList: function() {
-                var deferred = $q.defer();
-                if (typeof PlatformService == 'undefined') {
-                    var content = {};
-                    var service = this;
-                    service.getGamesLocal('stories.json')
-                        .then(function(stories) {
-                            content.stories = stories;
-                        })
-                        .then(function() {
-                            return service.getGamesLocal('worksheets.json');
-                        })
-                        .then(function(worksheets) {
-                            content.worksheets = worksheets;
-                            console.log("Getting data from local...")
-                            deferred.resolve(content);
-                        })
-                        .catch(function(err) {
-                            deferred.reject('Error while getting local data.');
-                        });
-                } else {
-                    PlatformService.getContentList()
-                        .then(function(data) {
-                            deferred.resolve(data);
-                        })
-                        .catch(function(err) {
-                            deferred.reject(err);
-                        });
-                }
-                return deferred.promise;
-            }
-        }
-    })
     .factory('ContentService', ['$window', function($window) {
-        // Content status values: "created", "updated", "processing", "ready", "error".
         var setObject = function(key, value) {
             $window.localStorage[key] = JSON.stringify(value);
         };
@@ -118,16 +72,4 @@ angular.module('quiz.services', ['ngResource'])
                 $window.localStorage.clear();
             }
         };
-    }])
-    .factory('DownloaderServiceUtil', function($q, $timeout, $http, $resource, ContentService) {
-        return {
-            process: function(content) {
-                content.status = "processing";
-                ContentService.saveContent(content);
-                // TODO use DownloaderServie
-                content.status = "ready";
-                content.baseDir = content.launchPath;
-                ContentService.saveContent(content);
-            }
-        }
-    });
+    }]);
