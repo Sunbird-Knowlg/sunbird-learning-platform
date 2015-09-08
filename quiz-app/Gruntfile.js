@@ -128,7 +128,8 @@ module.exports = function(grunt) {
                         'com.ionic.keyboard',
                         'console',
                         'cordova-plugin-whitelist',
-                        'cordova-plugin-crosswalk-webview'
+                        'cordova-plugin-crosswalk-webview',
+                        '../GenieServicePlugin/'
                     ]
                 }
             },
