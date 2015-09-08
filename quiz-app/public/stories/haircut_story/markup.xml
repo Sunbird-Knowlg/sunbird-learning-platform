@@ -189,15 +189,19 @@
     <controller name="storyData" type="data" id="story_data"/>
     <stage id="baseStage">
         <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false">
+        </image>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
             <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
             </event>
-        </image>
+        </shape>
         <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false">
+        </image>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
             <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" />
             </event>
-        </image>
+        </shape>
         <text param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
     </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">

@@ -110,12 +110,20 @@ AssetManager = {
             AssetManager.loadStage(nextStageId, function() {
                 var plugin = PluginManager.getPluginObject('next');
                 plugin.show();
+                var nextContainer = PluginManager.getPluginObject('nextContainer');
+                if (nextContainer) {
+                    nextContainer.show();
+                }
             });
         }
         if (prevStageId) {
             AssetManager.loadStage(prevStageId, function() {
                 var plugin = PluginManager.getPluginObject('previous');
                 plugin.show();
+                var previousContainer = PluginManager.getPluginObject('previousContainer');
+                if (previousContainer) {
+                    previousContainer.show();
+                }
             });
         }
         AssetManager.loaders = _.pick(AssetManager.loaders, stageId, nextStageId, prevStageId);
