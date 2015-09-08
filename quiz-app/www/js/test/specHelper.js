@@ -4,11 +4,17 @@ function clickOnObject(id) {
 	obj._self.dispatchEvent('click');
 }
 
+function getText(id){
+	var obj = PluginManager.getPluginObject(id);
+	return obj._self.text;
+
+}
+
 function getOriginalXY(id){
 	var obj = PluginManager.getPluginObject(id);
 	origX = obj._self.getOrigX;
 	origY = obj._self.getOrigY;
-	return origX, origY;
+	//return origX, origY;
 }
 
 function isDisplayed(id){
