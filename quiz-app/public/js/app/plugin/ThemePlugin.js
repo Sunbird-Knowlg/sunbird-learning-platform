@@ -74,14 +74,11 @@ var ThemePlugin = Plugin.extend({
                 this._templateMap[this._data.template.id] = this._data.template;
             }
         }
+        if (!_.isArray(this._data.stage)) this._data.stage = [this._data.stage];
         if(this._data.stage) {
-            if (_.isArray(this._data.stage)) {
-                this._data.stage.forEach(function(s) {
-                    instance.initStageControllers(s);    
-                });
-            } else {
-                instance.initStageControllers(this._data.stage);
-            }
+            this._data.stage.forEach(function(s) {
+                instance.initStageControllers(s);
+            });
             this.invokeStage(this._data.startStage);
         }
         this.update();
@@ -97,7 +94,7 @@ var ThemePlugin = Plugin.extend({
         if (stage.controller) {
             if (_.isArray(stage.controller)) {
                 stage.controller.forEach(function(p) {
-                    ControllerManager.get(p.type, p.id, this.baseDir);    
+                    ControllerManager.get(p.type, p.id, this.baseDir);
                 });
             } else {
                 ControllerManager.get(stage.controller.type, stage.controller.id, this.baseDir);
