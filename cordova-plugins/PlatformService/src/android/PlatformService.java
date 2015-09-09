@@ -43,7 +43,7 @@ public class PlatformService extends CordovaPlugin {
         } else if(action.equals("getContentList")) {
             JSONObject contentList = getContentList(args);
             String message = "Fetching content list from server...";
-            showToast(message, Toast.LENGTH_SHORT);
+            // showToast(message, Toast.LENGTH_SHORT);
             callbackContext.success(contentList);
         }
         return true;
