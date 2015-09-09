@@ -1184,10 +1184,10 @@
         <param name="body" model="storyData.scene22_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
-        <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40" />
-        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" />
-        <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40" />
-        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" />
+        <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40" snapX="45" snapY="35"/>
+        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" snapX="45" snapY="35"/>
+        <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40" snapX="45" snapY="35"/>
+        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" snapX="45" snapY="35"/>
         <image asset="question_block" x="5" y="15" w="9" h="16" />
         <image asset="knife" id="knife" x="48" y="18" w="9" h="16" enableDrag="true" snapTo="wife_img" />
         <image asset="razor" id="razor" x="48" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img" />
