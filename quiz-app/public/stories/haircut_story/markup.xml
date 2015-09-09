@@ -188,15 +188,13 @@
     </manifest>
     <controller name="storyData" type="data" id="story_data"/>
     <stage id="baseStage">
-        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false">
-        </image>
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
         <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
             <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
             </event>
         </shape>
-        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false">
-        </image>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
         <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
             <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" />
@@ -210,11 +208,12 @@
         <image asset="page1" x="2" y="2" w="96" h="70" />
         <image asset="publisher_logo" x="2" y="75" w="13" h="17" />
         <image asset="level_band" x="2" y="94" w="13" h="5" />
-        <image asset="next" x="92" y="80" w="6" h="10" id="next">
+        <image asset="next" x="92" y="80" w="6" h="10" id="next"/>
+        <shape id="nextContainer" type="rect" x="87" y="75" w="13" h="20" visible="false" hitArea="true">
             <event type="click" telemetry="true">
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
             </event>
-        </image>
+        </shape>
         <text x="35" y="80" w="25" h="5" font="Arial" fontsize="48">
             Annual Haircut Day
         </text>
@@ -249,11 +248,12 @@
         <param name="body" model="storyData.scene1_body"/>
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F3CCDE" />
         <image asset="page2" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene1_sound" />
             </event>
-        </image>
+        </shape>
         <shape type="rect" x="2" y="2" w="12" h="48" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="clock_sound" />
@@ -299,11 +299,12 @@
                 </action>
             </event>
         </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene2_sound" />
             </event>
-        </image>
+        </shape>
         <shape type="rect" x="5" y="50" w="15" h="44" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
@@ -455,11 +456,12 @@
         <param name="next" value="scene4" />
         <param name="previous" value="scene2" />
         <param name="body" model="storyData.scene3_body"/>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene3_sound" />
             </event>
-        </image>
+        </shape>
         <g x="63" y="15" w="20" h="20" id="razorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -516,11 +518,12 @@
         <audio asset="scene4_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2" />
         <image asset="page5" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene4_sound" />
             </event>
-        </image>
+        </shape>
         <shape type="rect" x="0" y="40" w="23" h="58" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
@@ -542,11 +545,12 @@
         <audio asset="scene5_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
         <image asset="page6" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene5_sound" />
             </event>
-        </image>
+        </shape>
         <g x="15" y="8" w="20" h="20" id="knifeInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -603,11 +607,12 @@
         <audio asset="scene6_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800" />
         <image asset="page7" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene6_sound" />
             </event>
-        </image>
+        </shape>
         <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
@@ -629,11 +634,12 @@
         <audio asset="scene7_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8" />
         <image asset="page8" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene7_sound" />
             </event>
-        </image>
+        </shape>
         <g x="40" y="15" w="30" h="27" id="tailorInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -710,11 +716,12 @@
         <audio asset="scene8_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9" />
         <image asset="page9" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene8_sound" />
             </event>
-        </image>
+        </shape>
         <g x="18" y="20" w="30" h="27" id="teapotInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100"/>
             <text model="storyData.kettle_title" x="8" y="17" w="86" h="4" font="Georgia" weight="bold" fontsize="128"/>
@@ -722,7 +729,7 @@
             <text model="storyData.kettle_hindi" x="8" y="44" w="86" font="Georgia" fontsize="90"/>
             <text model="storyData.kettle_usage" x="8" y="56" w="86" font="Georgia" fontsize="90"/>
             <text model="storyData.kettle_rhyme" x="8" y="72" w="86" font="Georgia" fontsize="72" color="#004389"/>
-            <shape type="rect" x="8" y="64" w="86" h="15" hitArea="true">
+            <shape type="rect" x="2" y="60" w="90" h="30" hitArea="true">
                 <event type="click">
                     <action type="command" command="togglePlay" asset="teapot_rhyme" />
                 </event>
@@ -733,7 +740,7 @@
                 <action type="command" command="toggleShow" asset="teapotInfo" />
             </event>
         </shape>
-        <shape type="rect" x="84" y="65" w="14" h="30" hitArea="true">
+        <shape type="rect" x="84" y="65" w="14" h="15" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="cow_sound" />
             </event>
@@ -754,11 +761,12 @@
         <audio asset="scene9_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB" />
         <image asset="page10" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene9_sound" />
             </event>
-        </image>
+        </shape>
         <g x="72" y="8" w="28" h="27" id="carpenterInfo" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
@@ -773,7 +781,7 @@
                 Carpenter makes furniture from wood. Carpenter uses a Saw to Cut wood.
             </text>
         </g>
-        <shape type="rect" x="70" y="37" w="25" h="59" hitArea="true">
+        <shape type="rect" x="70" y="37" w="25" h="44" hitArea="true">
             <event type="click">
                 <action type="command" command="play" asset="learning8_sound" />
                 <action type="command" command="show" asset="carpenterInfo" />
@@ -820,11 +828,12 @@
         <audio asset="scene10_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" />
         <image asset="page11" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene10_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene10_sound" loop="1" />
@@ -841,11 +850,12 @@
         <audio asset="scene11_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#8AACDA" />
         <image asset="page12" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene11_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene11_sound" loop="1" />
@@ -862,12 +872,13 @@
         <audio asset="scene12_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#4CA332" />
         <image asset="page13" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene12_sound" />
             </event>
-        </image>
-        <shape type="rect" x="70" y="12" w="28" h="86" hitArea="true">
+        </shape>
+        <shape type="rect" x="70" y="12" w="28" h="59" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="forest_sound" />
             </event>
@@ -893,11 +904,12 @@
         <audio asset="scene13_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A0A4A7" />
         <image asset="page14" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene13_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene13_sound" loop="1" />
@@ -914,11 +926,12 @@
         <audio asset="scene14_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page15" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene14_sound" />
             </event>
-        </image>
+        </shape>
         <shape type="rect" x="36" y="30" w="62" h="52" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="tiger_sound" />
@@ -940,11 +953,12 @@
         <audio asset="scene15_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page16" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene15_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene15_sound" loop="1" />
@@ -961,11 +975,12 @@
         <audio asset="scene16_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#A4978F" />
         <image asset="page17" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene16_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene16_sound" loop="1" />
@@ -982,11 +997,12 @@
         <audio asset="scene17_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FBF9E0" />
         <image asset="page18" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene17_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene17_sound" loop="1" />
@@ -1003,11 +1019,12 @@
         <audio asset="scene18_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#F19264" />
         <image asset="page19" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene18_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene18_sound" loop="1" />
@@ -1024,11 +1041,12 @@
         <audio asset="scene19_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#BB6D59" />
         <image asset="page20" x="2" y="12" w="96" h="86" />
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene19_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene19_sound" loop="1" />
@@ -1084,11 +1102,12 @@
                 <action type="command" command="toggleShow" asset="hint" />
             </event>
         </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="learning10_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="learning10_sound" loop="1" />
@@ -1144,11 +1163,12 @@
                 <action type="command" command="show" asset="hint" />
             </event>
         </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9">
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="learning12_sound" />
             </event>
-        </image>
+        </shape>
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="learning12_sound" loop="1" />
