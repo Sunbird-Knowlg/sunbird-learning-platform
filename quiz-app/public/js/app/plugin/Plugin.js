@@ -19,6 +19,19 @@ var Plugin = Class.extend({
 		this._parent = parent;
 	    this._data = data;
 		this.initPlugin(data);
+		var dims = this.relativeDims();
+		if (dims && this._self) {
+			this._self.origX = dims.x;
+        	this._self.origY = dims.y;
+        	this._self.width = dims.w;
+        	this._self.height = dims.h;	
+		}
+        if (data.type == 'choice') {
+            this._stage._choices.push(this);
+        }
+        if (data.enableDrag) {
+            this.enableDrag(this._self, data.snapTo);
+        }
 		if(data.appEvents) {
 			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));
 		}
@@ -67,13 +80,15 @@ var Plugin = Class.extend({
 		return this._dimensions;
 	},
 	relativeDims: function() {
-		var parentDims = this._parent.dimensions();
-		this._dimensions = {
-            x: parseFloat(parentDims.w * (this._data.x || 0)/100),
-            y: parseFloat(parentDims.h * (this._data.y || 0)/100),
-            w: parseFloat(parentDims.w * (this._data.w || 0)/100),
-            h: parseFloat(parentDims.h * (this._data.h || 0)/100)
-        }
+		if (this._parent) {
+			var parentDims = this._parent.dimensions();
+			this._dimensions = {
+	            x: parseFloat(parentDims.w * (this._data.x || 0)/100),
+	            y: parseFloat(parentDims.h * (this._data.y || 0)/100),
+	            w: parseFloat(parentDims.w * (this._data.w || 0)/100),
+	            h: parseFloat(parentDims.h * (this._data.h || 0)/100)
+	        }
+		}
         return this._dimensions;
 	},
 	getRelativeDims: function(data) {
@@ -129,11 +144,69 @@ var Plugin = Class.extend({
 		EventManager.processAppTelemetry(action, this._self.visible ? 'SHOW': 'HIDE', this);
 		Renderer.update = true;
 	},
+	toggleShadow: function() {
+        if (this._stage._choices) {
+            this._stage._choices.forEach(function(choice) {
+                choice.removeShadow();
+            });
+        }
+        if (this._self.shadow) {
+            this._self.shadow = undefined;
+        } else {
+            this._self.shadow = new createjs.Shadow(this._data.shadowColor, 0, 0, 30);
+        }
+        Renderer.update = true;
+    },
+    removeShadow: function() {
+        this._self.shadow = undefined;
+    },
+    enableDrag: function(asset, snapTo) {
+        asset.cursor = "pointer";
+        asset.on("mousedown", function(evt) {
+            this.parent.addChild(this);
+            this.offset = {
+                x: this.x - evt.stageX,
+                y: this.y - evt.stageY
+            };
+        });
+        asset.on("pressmove", function(evt) {
+            this.x = evt.stageX + this.offset.x;
+            this.y = evt.stageY + this.offset.y;
+            Renderer.update = true;
+        });
+        if (snapTo) {
+            asset.on("pressup", function(evt) {
+                var plugin = PluginManager.getPluginObject(snapTo);
+                var dims = plugin._dimensions;
+                var xFactor = parseFloat(this.width * (50/100));
+                var yFactor = parseFloat(this.height * (50/100));
+                var x = dims.x - xFactor,
+                    y = dims.y - yFactor,
+                    maxX = dims.x + dims.w + xFactor,
+                    maxY = dims.y + dims.h + yFactor;
+                var snapSuccess = false;
+                if (this.x >= x && (this.x + this.width) <= maxX) {
+                    if (this.y >= y && (this.y + this.height) <= maxY) {
+                        snapSuccess = true;
+                    }
+                }
+                if (!snapSuccess) {
+                    this.x = this.origX;
+                    this.y = this.origY;
+                } else {
+                    if (plugin._data.snapX) {
+                        this.x = dims.x + (dims.w * plugin._data.snapX / 100);
+                    }
+                    if (plugin._data.snapY) {
+                        this.y = dims.y + (dims.w * plugin._data.snapY / 100);
+                    }
+                }
+                Renderer.update = true;
+            });
+        }
+    },
 	transitionTo: function() {
 		PluginManager.addError('Subclasses of plugin should implement transitionTo()');
-	},
-	toggleShadow: function() {
-		PluginManager.addError('Subclasses of plugin should implement toggleShadow()');
 	},
 	evaluate: function() {
 		PluginManager.addError('Subclasses of plugin should implement evaluate()');
