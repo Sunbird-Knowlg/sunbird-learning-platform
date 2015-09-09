@@ -60,8 +60,8 @@ TelemetryService = {
         });
     },
     exitWithError: function(error) {
-        var message = 'Telemetry Service initialization faild. Please contact game developer.';
-        if (error) message += ' Error: ' + error;
+        var message = '';
+        if (error) message += ' Error: ' + JSON.stringify(error);
         alert(message);
         TelemetryService.exitApp();
     },
@@ -138,11 +138,13 @@ TelemetryService = {
                 console.log('file creation failed...');
             });
             TelemetryService.ws.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
+                console.log("fileEntry.toURL(): ", fileEntry.toURL());
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');
             });
             TelemetryService.ws.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
+                console.log("fileEntry.toURL(): ", fileEntry.toURL());
                 console.log(fileEntry.name + ' created successfully.');
             }, function() {
                 console.log('file creation failed...');

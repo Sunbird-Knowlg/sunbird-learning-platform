@@ -78,7 +78,7 @@
         <text x="10" y="15" w="22" h="23" font="Arial" weight="bold" fontsize="96" color="#fff">
             Noah's Ark...
         </text>
-        <text x="7" y="40" w="32" h="49" font="Arial, serif" fontsize="48" color="#fff">
+        <text id="noah" x="7" y="40" w="32" h="49" font="Arial, serif" fontsize="48" color="#fff">
             Noah, an alien from Mars is on a mission to take some living beings from Earth to Mars. He has come with a space ship to Earth. He wants collect the following beings. Help him to add and get the required number of items.
         </text>
         <image asset="noah" x="48" y="10" w="20" h="65"/>
@@ -129,16 +129,20 @@
             <embed object="template"/>
             <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
             <image asset="previous" x="83" y="1" w="5" h="9" visible="false">
+            </image>
+            <shape id="previousContainer" type="rect" x="80" y="1" w="8" h="12" visible="false" hitArea="true">
                 <event type="click">
                     <action type="command" command="transitionTo" asset="theme" value="welcome" effect="scroll" direction="bottom" ease="linear" duration="500" transitionType="previous"/>
                 </event>
-            </image>
+            </shape>
             <image asset="profile" x="88" y="1" w="5" h="9"/>
             <image asset="next" x="93" y="1" w="5" h="9" visible="false">
+            </image>
+            <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="12" visible="false" hitArea="true">
                 <event type="click">
                     <action type="command" command="transitionTo" asset="theme" value="summary" effect="scroll" direction="top" ease="linear" duration="500"/>
                 </event>
-            </image>
+            </shape>
             <image asset="hint" x="93" y="20" w="5" h="9"/>
             <image asset="validate" x="93" y="30" w="5" h="9">
                 <event type="click">

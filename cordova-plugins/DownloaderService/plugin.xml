@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.ekstep.downloader.service.plugin"
+    version="0.0.1">
+    <name>Downloader Service</name>
+    <description>Downloader Service Plugin to download and extract zip.</description>
+    <license>Apache 2.0</license>
+    <keywords>Downloader Service Plugin</keywords>
+    <repo></repo>
+    <issue></issue>
+    <js-module src="www/DownloaderService.js" name="DownloaderService">
+        <clobbers target="DownloaderService" />
+    </js-module>
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="DownloaderService" >
+                <param name="android-package" value="DownloaderService"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/DownloaderService.java" target-dir="src/" />
+    </platform>
+</plugin>

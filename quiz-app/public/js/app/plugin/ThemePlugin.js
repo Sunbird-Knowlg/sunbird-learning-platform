@@ -260,7 +260,6 @@ var ThemePlugin = Plugin.extend({
         return {stage: stageData.id, next: nextStageId, prev: prevStageId};
     },
     cleanUp: function() {
-        createjs.Ticker.removeAllEventListeners();
         createjs.Touch.disable(this._self);
     }
 });

@@ -4,7 +4,7 @@
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
-    .run(function($ionicPlatform, $cordovaFile, $cordovaToast, GameService, ContentService) {
+    .run(function($ionicPlatform, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
@@ -35,7 +35,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, $q, ContentService) {
+    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         new Promise(function(resolve, reject) {
                 // TODO: remove ContentService.clear();
@@ -60,11 +60,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             })
             .then(function() {
-                if (ContentService.getContent().length == 0) {
-                    return $scope.getContentList();
-                } else {
-                    return true;
-                }
+                return $scope.getContentList();
             })
             .then(function() {
                 $scope.$apply(function() {
@@ -103,18 +99,66 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
         $scope.loadBookshelf = function() {
-            $scope.worksheets = ContentService.getContent('worksheet');
+            $scope.worksheets = ContentService.getContentList('worksheet');
             console.log("$scope.worksheets:", $scope.worksheets);
-            $scope.stories = ContentService.getContent('story');
+            $scope.stories = ContentService.getContentList('story');
             console.log("$scope.stories:", $scope.stories);
             initBookshelf();
         };
 
+        $scope.processContent = function(content) {
+            var processContent = function(content) {
+                DownloaderService.process(content)
+                    .then(function(data) {
+                        for (key in data) {
+                            content[key] = data[key];
+                        }
+                        ContentService.saveContent(content);
+                    })
+                    .catch(function(data) {
+                        for (key in data) {
+                            content[key] = data[key];
+                        }
+                        ContentService.saveContent(content);
+                    });
+            };
+            var localContent = ContentService.getContent(content.id);
+            if (localContent) {
+                if ((localContent.status == "ready" && localContent.pkgVersion != content.pkgVersion) || (localContent.status == "error")) {
+                    processContent(content);
+                } else {
+                    if (localContent.status == "ready")
+                        console.log("content: " + localContent.id + " is at status: " + localContent.status + " and there is no chane in pkgVersion.");
+                    else
+                        console.log("content: " + localContent.id + " is at status: " + localContent.status);
+                }
+            } else {
+                processContent(content);
+            }
+        }
+
         $scope.getContentList = function() {
             var deferred = $q.defer();
-            GameService.getGames()
+            PlatformService.getContentList()
                 .then(function(contents) {
-                    ContentService.setContentList(contents);
+                    if (contents.stories) {
+                        var stories = (_.isString(contents.stories)) ? JSON.parse(contents.stories) : contents.stories;
+                        stories = stories.result.games;
+                        for (key in stories) {
+                            var story = stories[key];
+                            story.type = "story";
+                            $scope.processContent(story);
+                        }
+                    }
+                    if (contents.worksheets) {
+                        var worksheets = (_.isString(contents.worksheets)) ? JSON.parse(contents.worksheets) : contents.worksheets;
+                        worksheets = worksheets.result.games;
+                        for (key in worksheets) {
+                            var worksheet = worksheets[key];
+                            worksheet.type = "worksheet";
+                            $scope.processContent(worksheet);
+                        }
+                    }
                     deferred.resolve(true);
                 })
                 .catch(function(err) {
@@ -130,7 +174,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
         }
 
-    }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, GameService, ContentService, $stateParams) {
+    }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
             Renderer.start($scope.item.launchPath, 'gameCanvas');
@@ -150,6 +194,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
 function initBookshelf() {
     setTimeout(function() {
+        $(".product_title").remove();
+        $(".fx_shadow").remove();
         var widthToHeight = 16 / 9;
         var newWidth = window.innerWidth;
         var newHeight = window.innerHeight;

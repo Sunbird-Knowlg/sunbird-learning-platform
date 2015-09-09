@@ -61,13 +61,15 @@ var ImagePlugin = Plugin.extend({
             asset.on("pressup", function(evt) {
                 var plugin = PluginManager.getPluginObject(snapTo);
                 var dims = plugin._dimensions;
-                var x = dims.x,
-                    y = dims.y,
-                    maxX = dims.x + dims.w,
-                    maxY = dims.y + dims.h;
+                var xFactor = parseFloat(this.width * (50/100));
+                var yFactor = parseFloat(this.height * (50/100));
+                var x = dims.x - xFactor,
+                    y = dims.y - yFactor,
+                    maxX = dims.x + dims.w + xFactor,
+                    maxY = dims.y + dims.h + yFactor;
                 var snapSuccess = false;
                 if (this.x >= x && (this.x + this.width) <= maxX) {
-                    if (this.y >= y && (this.y + this.width) <= maxY) {
+                    if (this.y >= y && (this.y + this.height) <= maxY) {
                         snapSuccess = true;
                     }
                 }

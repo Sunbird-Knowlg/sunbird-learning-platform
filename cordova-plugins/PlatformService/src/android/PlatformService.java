@@ -13,15 +13,15 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 
-public class GenieServicePlugin extends CordovaPlugin {
-    public static final String TAG = "Genie Service Plugin";
+public class PlatformService extends CordovaPlugin {
+    public static final String TAG = "Platform Service Plugin";
     Map<String, String> contentMap;
     /**
      * Constructor.
      */
-    public GenieServicePlugin() {
+    public PlatformService() {
         contentMap = new HashMap<String, String>();
-        contentMap.put("stories", "{\"id\":\"ekstep.lp.game.list\",\"ver\":\"1.0\",\"ts\":\"2015-08-03T18:22:03ZZ\",\"params\":{\"resmsgid\":\"bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b\",\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"result\":{\"games\":[{\"id\":\"story.anual.haircut.day\",\"name\":\"Annual Haircut Day\",\"description\":\"Sringeri Srinivas Annual Haircut Day\",\"appIcon\":\"assets/haircut.png\",\"launchPath\":\"stories/haircut_story\",\"loadingMessage\":\"Every great journey starts with a great story...\"}],\"ttl\":24}}");
+        contentMap.put("stories", "{\"id\":\"ekstep.lp.game.list\",\"ver\":\"1.0\",\"ts\":\"2015-08-03T18:22:03ZZ\",\"params\":{\"resmsgid\":\"bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b\",\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"result\":{\"games\":[{\"id\":\"story.annual.haircut.day\",\"name\":\"Annual Haircut Day\",\"description\":\"Sringeri Srinivas Annual Haircut Day\",\"appIcon\":\"assets/haircut.png\",\"launchPath\":\"stories/haircut_story\",\"loadingMessage\":\"Every great journey starts with a great story...\"}],\"ttl\":24}}");
         contentMap.put("worksheets", "{\"id\":\"ekstep.lp.game.list\",\"ver\":\"1.0\",\"ts\":\"2015-08-03T18:22:03ZZ\",\"params\":{\"resmsgid\":\"bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b\",\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"result\":{\"games\":[{\"id\":\"worksheet.addition.through.objects\",\"name\":\"Addition through Objects\",\"description\":\"Addition through Objects\",\"appIcon\":\"assets/noah.png\",\"launchPath\":\"worksheets/addition_by_grouping\",\"loadingMessage\":\"Loading Addition through Objects assets...\"}],\"ttl\":24}}");
     }
         /**
@@ -33,10 +33,10 @@ public class GenieServicePlugin extends CordovaPlugin {
          */
     public void initialize(CordovaInterface cordova, CordovaWebView webView) {
         super.initialize(cordova, webView);
-        Log.v(TAG, "Init GenieServicePlugin");
+        Log.v(TAG, "Init PlatformService");
     }
     public boolean execute(final String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
-        Log.v(TAG, "GenieServicePlugin received:" + action);
+        Log.v(TAG, "PlatformService received:" + action);
         if(action.equals("showToast")) {
             showToast(args.getString(0), Toast.LENGTH_SHORT);
             callbackContext.success(args.getString(0));
