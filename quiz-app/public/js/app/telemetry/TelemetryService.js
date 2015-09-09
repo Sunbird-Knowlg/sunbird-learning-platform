@@ -60,8 +60,8 @@ TelemetryService = {
         });
     },
     exitWithError: function(error) {
-        var message = 'Telemetry Service initialization faild. Please contact game developer.';
-        if (error) message += ' Error: ' + error;
+        var message = '';
+        if (error) message += ' Error: ' + JSON.stringify(error);
         alert(message);
         TelemetryService.exitApp();
     },
