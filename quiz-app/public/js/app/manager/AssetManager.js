@@ -107,6 +107,7 @@ AssetManager = {
             })
         }
         if (nextStageId) {
+            AssetManager.pauseStageAudio(nextStageId);
             AssetManager.loadStage(nextStageId, function() {
                 var plugin = PluginManager.getPluginObject('next');
                 plugin.show();
@@ -117,6 +118,7 @@ AssetManager = {
             });
         }
         if (prevStageId) {
+            AssetManager.pauseStageAudio(prevStageId);
             AssetManager.loadStage(prevStageId, function() {
                 var plugin = PluginManager.getPluginObject('previous');
                 plugin.show();
@@ -176,6 +178,14 @@ AssetManager = {
             AssetManager.loaders[stageId].destroy();
             AssetManager.stageAudios[stageId].forEach(function(audioAsset) {
                 AudioManager.destroy(audioAsset);
+            });
+        }
+    },
+    pauseStageAudio: function(stageId) {
+        if(AssetManager.stageAudios[stageId] && AssetManager.stageAudios[stageId].length > 0) {
+            console.info('Pausing stage audios', stageId);
+            AssetManager.stageAudios[stageId].forEach(function(audioAsset) {
+                AudioManager.pause({asset:audioAsset});
             });
         }
     },

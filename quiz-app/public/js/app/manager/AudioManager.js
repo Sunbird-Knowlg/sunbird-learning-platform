@@ -2,12 +2,14 @@ AudioManager = {
 	instances: {},
 	play: function(action, instance) {
 		instance = instance || AudioManager.instances[action.asset] || {};
-        if(instance.state == 'paused') {
-            instance.object.paused = false;
-            instance.state = 'play';
-        } else if(instance.object) {
-            instance.state = 'play';
-            instance.object.play();
+        if(instance.object) {
+            if(instance.state == 'paused') {
+                instance.object.paused = false;
+                instance.state = 'play';
+            } else {
+                instance.state = 'play';
+                instance.object.play();
+            }
         } else {
             instance.state = 'play';
             instance.object = createjs.Sound.play(action.asset, {interrupt:createjs.Sound.INTERRUPT_ANY});
@@ -30,7 +32,7 @@ AudioManager = {
     },
     pause: function(action, instance) {
     	instance = instance || AudioManager.instances[action.asset];
-        if(instance.state == 'play') {
+        if(instance.state == 'play' && instance.object) {
             instance.object.paused = true;
             instance.state = 'paused';
             EventManager.processAppTelemetry(action, 'PAUSE_LISTENING', instance);
@@ -38,7 +40,7 @@ AudioManager = {
     },
     stop: function(action) {
     	var instance = AudioManager.instances[action.asset] || {};
-        if(instance.state == 'play') {
+        if(instance.state == 'play' && instance.object) {
             instance.object.stop();
             EventManager.processAppTelemetry(action, 'STOP_LISTENING', instance);
         }
