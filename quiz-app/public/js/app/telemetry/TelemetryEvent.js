@@ -16,7 +16,6 @@ TelemetryEvent = Class.extend({
             }
         };
         this.event.gdata = TelemetryService._gameData;
-        console.log('TelemetryEvent init called...');
     },
     flush: function() {
         TelemetryService._data[TelemetryService._gameData.id].push(this);

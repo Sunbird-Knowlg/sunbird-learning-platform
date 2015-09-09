@@ -60,7 +60,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             })
             .then(function() {
-                return $scope.getContentList();
+                return ContentService.sync();
             })
             .then(function() {
                 $scope.$apply(function() {
@@ -87,7 +87,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.resetContentListCache = function() {
             $("#loadingDiv").show();
             setTimeout(function() {
-                $scope.getContentList()
+                ContentService.sync()
                     .then(function() {
                         $scope.loadBookshelf();
                         console.log('flushing telemetry in 2sec...');
@@ -105,68 +105,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             console.log("$scope.stories:", $scope.stories);
             initBookshelf();
         };
-
-        $scope.processContent = function(content) {
-            var processContent = function(content) {
-                DownloaderService.process(content)
-                    .then(function(data) {
-                        for (key in data) {
-                            content[key] = data[key];
-                        }
-                        ContentService.saveContent(content);
-                    })
-                    .catch(function(data) {
-                        for (key in data) {
-                            content[key] = data[key];
-                        }
-                        ContentService.saveContent(content);
-                    });
-            };
-            var localContent = ContentService.getContent(content.id);
-            if (localContent) {
-                if ((localContent.status == "ready" && localContent.pkgVersion != content.pkgVersion) || (localContent.status == "error")) {
-                    processContent(content);
-                } else {
-                    if (localContent.status == "ready")
-                        console.log("content: " + localContent.id + " is at status: " + localContent.status + " and there is no chane in pkgVersion.");
-                    else
-                        console.log("content: " + localContent.id + " is at status: " + localContent.status);
-                }
-            } else {
-                processContent(content);
-            }
-        }
-
-        $scope.getContentList = function() {
-            var deferred = $q.defer();
-            PlatformService.getContentList()
-                .then(function(contents) {
-                    if (contents.stories) {
-                        var stories = (_.isString(contents.stories)) ? JSON.parse(contents.stories) : contents.stories;
-                        stories = stories.result.games;
-                        for (key in stories) {
-                            var story = stories[key];
-                            story.type = "story";
-                            $scope.processContent(story);
-                        }
-                    }
-                    if (contents.worksheets) {
-                        var worksheets = (_.isString(contents.worksheets)) ? JSON.parse(contents.worksheets) : contents.worksheets;
-                        worksheets = worksheets.result.games;
-                        for (key in worksheets) {
-                            var worksheet = worksheets[key];
-                            worksheet.type = "worksheet";
-                            $scope.processContent(worksheet);
-                        }
-                    }
-                    deferred.resolve(true);
-                })
-                .catch(function(err) {
-                    console.log("Error while fetching content list: ", err);
-                    deferred.reject("Error while fetching content list: " + err);
-                });
-            return deferred.promise;
-        }
 
         $scope.playContent = function(content) {
             $state.go('playContent', {

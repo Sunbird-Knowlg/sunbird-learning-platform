@@ -10,7 +10,22 @@ angular.module('quiz.services', ['ngResource'])
             else
                 return null;
         };
-        return {
+        var processContent = function(content) {
+            DownloaderService.process(content)
+                .then(function(data) {
+                    for (key in data) {
+                        content[key] = data[key];
+                    }
+                    returnObject.saveContent(content);
+                })
+                .catch(function(data) {
+                    for (key in data) {
+                        content[key] = data[key];
+                    }
+                    returnObject.saveContent(content);
+                });
+        };
+        var returnObject = {
             contentKey: "quizapp-content",
             contentList: {},
             init: function() {
@@ -23,26 +38,6 @@ angular.module('quiz.services', ['ngResource'])
             },
             commit: function() {
                 setObject(this.contentKey, this.contentList);
-            },
-            setContentList: function(contents) {
-                if (contents.stories) {
-                    var stories = (_.isString(contents.stories)) ? JSON.parse(contents.stories) : contents.stories;
-                    stories = stories.result.games;
-                    for (key in stories) {
-                        var story = stories[key];
-                        story.type = "story";
-                        this.saveContent(story);
-                    }
-                }
-                if (contents.worksheets) {
-                    var worksheets = (_.isString(contents.worksheets)) ? JSON.parse(contents.worksheets) : contents.worksheets;
-                    worksheets = worksheets.result.games;
-                    for (key in worksheets) {
-                        var worksheet = worksheets[key];
-                        worksheet.type = "worksheet";
-                        this.saveContent(worksheet);
-                    }
-                }
             },
             saveContent: function(content) {
                 this.contentList[content.id] = content;
@@ -65,6 +60,51 @@ angular.module('quiz.services', ['ngResource'])
             getContent: function(id) {
                 return this.contentList[id];
             },
+            processContent: function(content) {
+                var localContent = returnObject.getContent(content.id);
+                if (localContent) {
+                    if ((localContent.status == "ready" && localContent.pkgVersion != content.pkgVersion) || (localContent.status == "error")) {
+                        processContent(content);
+                    } else {
+                        if (localContent.status == "ready")
+                            console.log("content: " + localContent.id + " is at status: " + localContent.status + " and there is no change in pkgVersion.");
+                        else
+                            console.log("content: " + localContent.id + " is at status: " + localContent.status);
+                    }
+                } else {
+                    processContent(content);
+                }
+            },
+            sync: function() {
+                return new Promise(function(resolve, reject) {
+                    PlatformService.getContentList()
+                    .then(function(contents) {
+                        if (contents.stories) {
+                            var stories = (_.isString(contents.stories)) ? JSON.parse(contents.stories) : contents.stories;
+                            stories = stories.result.games;
+                            for (key in stories) {
+                                var story = stories[key];
+                                story.type = "story";
+                                returnObject.processContent(story);
+                            }
+                        }
+                        if (contents.worksheets) {
+                            var worksheets = (_.isString(contents.worksheets)) ? JSON.parse(contents.worksheets) : contents.worksheets;
+                            worksheets = worksheets.result.games;
+                            for (key in worksheets) {
+                                var worksheet = worksheets[key];
+                                worksheet.type = "worksheet";
+                                returnObject.processContent(worksheet);
+                            }
+                        }
+                        resolve(true);
+                    })
+                    .catch(function(err) {
+                        console.log("Error while fetching content list: ", err);
+                        reject("Error while fetching content list: " + err);
+                    });
+                });
+            },
             remove: function(key) {
                 $window.localStorage.removeItem(key);
             },
@@ -72,4 +112,5 @@ angular.module('quiz.services', ['ngResource'])
                 $window.localStorage.clear();
             }
         };
+        return returnObject;
     }]);

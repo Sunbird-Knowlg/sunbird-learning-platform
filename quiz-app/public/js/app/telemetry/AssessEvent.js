@@ -27,7 +27,6 @@ AssessEvent = TelemetryEvent.extend({
         if (messages.length == 0) {
         	this._isStarted = true;
             this.flush();
-            console.log('Game: ' + TelemetryService._gameData.id + ' assess event created...');
         } else {
             TelemetryService.logError(this.name, messages);
             throw 'validation failed: ' + JSON.stringify(messages);

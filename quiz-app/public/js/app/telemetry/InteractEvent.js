@@ -15,7 +15,6 @@ InteractEvent = TelemetryEvent.extend({
         var messages = TelemetryService.validateEvent(eventStr, this.event.edata);
         if (messages.length == 0) {
             this.flush();
-            console.log('Game: ' + TelemetryService._gameData.id + ' interact event created...');
         } else {
             TelemetryService.logError(this.name, messages);
             throw 'validation failed: ' + JSON.stringify(messages);

@@ -17,7 +17,8 @@ module.exports = function(grunt) {
                         'public/js/app/generator/*.js',
                         'public/js/app/evaluator/*.js',
                         'public/js/app/plugin/*Plugin.js',
-                        'public/js/app/renderer/*.js'
+                        'public/js/app/renderer/*.js',
+                        'public/js/app/cordova-plugin/DownloaderService.js'
                     ],
                     'public/js/app/telemetry-lib-0.1.min.js': [
                         'public/js/thirdparty/exclude/date-format.js',
@@ -129,6 +130,8 @@ module.exports = function(grunt) {
                         'console',
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
+                        'cordova-plugin-file-transfer',
+                        'cordova-plugin-zip',
                         '../cordova-plugins/PlatformService/',
                         '../cordova-plugins/DownloaderService/'
                     ]
