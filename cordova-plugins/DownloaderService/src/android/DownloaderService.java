@@ -38,7 +38,7 @@ public class DownloaderService extends CordovaPlugin {
             callbackContext.success(args.getString(0));
         } else if(action.equals("process")) {
             String message = "downloading and extracting zip file.";
-            showToast(message, Toast.LENGTH_SHORT);
+            // showToast(message, Toast.LENGTH_SHORT);
             callbackContext.success(new JSONObject().put("status", "ready").put("baseDir", args.getString(0)).put("error", ""));
         }
         return true;
