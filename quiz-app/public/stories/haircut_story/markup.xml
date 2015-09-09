@@ -1189,10 +1189,18 @@
         <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40" snapX="45" snapY="35"/>
         <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" snapX="45" snapY="35"/>
         <image asset="question_block" x="5" y="15" w="9" h="16" />
-        <image asset="knife" id="knife" x="48" y="18" w="9" h="16" enableDrag="true" snapTo="wife_img" />
-        <image asset="razor" id="razor" x="48" y="38" w="9" h="15" enableDrag="true" snapTo="barber_img" />
-        <image asset="scissors" id="scissors" x="48" y="58" w="9" h="16" enableDrag="true" snapTo="tailor_img" />
-        <image asset="saw" id="saw" x="48" y="78" w="9" h="16" enableDrag="true" snapTo="carpenter_img" />
+        <g x="45" y="20" w="15" h="20" enableDrag="true" snapTo="wife_img" hitArea="true">
+            <image asset="knife" id="knife" x="18" y="15" w="60" h="80"/>
+        </g>
+        <g x="45" y="37" w="15" h="20" enableDrag="true" snapTo="barber_img" hitArea="true">
+            <image asset="razor" id="razor" x="20" y="15" w="60" h="80"/>
+        </g>
+        <g x="45" y="59" w="15" h="20" enableDrag="true" snapTo="tailor_img" hitArea="true">
+            <image asset="scissors" id="scissors" x="20" y="15" w="60" h="80"/>
+        </g>
+        <g x="45" y="80" w="15" h="20" enableDrag="true" snapTo="carpenter_img" hitArea="true">
+            <image asset="saw" id="saw" x="20" y="15" w="60" h="80"/>
+        </g>
     </stage>
     <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
         <param name="next" value="splash" />
