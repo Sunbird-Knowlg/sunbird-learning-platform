@@ -23,7 +23,7 @@ var TemplateDataGenerator = {
 			var randNum = _.random(0, set.length - 1);
 			list = TemplateDataGenerator._generateItems(set[randNum], list)
 		}
-	// if want to take some assumptions
+	// select randombly with some assumptions
 		// if(set.length == count)	{
 		// 	for(var i = 0; i < count; i++)
 		// 		list = TemplateDataGenerator._generateItems(set[i], list);
