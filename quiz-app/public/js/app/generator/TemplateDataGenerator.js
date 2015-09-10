@@ -68,7 +68,8 @@ var TemplateDataGenerator = {
 				    
 				});
 			}
-		}				
+		}
+		delete item["restrictions"];
 		list.push(item);
 		return list;
 	},	
