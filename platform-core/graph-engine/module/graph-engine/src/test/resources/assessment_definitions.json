@@ -56,8 +56,34 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
         },
         {
+          "propertyName": "template",
+          "title": "Template",
+          "description": "Template/Layout used to render this item",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+        },
+        {
           "propertyName": "body",
           "title": "Question",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "model",
+          "title": "Model",
           "description": "",
           "category": "general",
           "dataType": "JSON",
@@ -87,7 +113,7 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
@@ -100,7 +126,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": ""
         },
         {
@@ -113,7 +139,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
         },
         {
@@ -126,7 +152,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
         },
         {
@@ -139,7 +165,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'number', 'order': 19 }"
         },
         {
@@ -152,7 +178,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
         },
         {
@@ -165,8 +191,26 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "qlevel",
+          "title": "Question Level",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "EASY",
+            "MEDIUM",
+            "DIFFICULT",
+            "RARE"
+          ],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
           "propertyName": "difficulty_level",
@@ -179,10 +223,10 @@
             "medium",
             "high"
           ],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -213,7 +257,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
         },
         {
@@ -231,7 +275,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -247,20 +291,20 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
-          "propertyName": "score",
-          "title": "Score",
-          "description": "",
+          "propertyName": "max_score",
+          "title": "Maximum Score",
+          "description": "Maximum possible score for this item",
           "category": "general",
           "dataType": "Number",
           "range": [],
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
         },
         {
@@ -268,15 +312,11 @@
           "title": "Partial Scoring",
           "description": "",
           "category": "general",
-          "dataType": "Select",
-          "range": [
-            "YES",
-            "NO"
-          ],
+          "dataType": "Boolean",
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
         },
         {
@@ -289,7 +329,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
         },
         {
@@ -302,7 +342,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
         },
         {
@@ -321,7 +361,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
         },
         {
@@ -334,7 +374,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": ""
         },
         {
@@ -353,7 +393,7 @@
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
@@ -606,7 +646,7 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
@@ -619,7 +659,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Hidden",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": ""
         },
         {
@@ -636,7 +676,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -667,7 +707,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
         },
         {
@@ -685,7 +725,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -701,7 +741,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -720,7 +760,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
         },
         {
@@ -739,7 +779,7 @@
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
@@ -986,7 +1026,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
         },
         {
@@ -999,8 +1039,25 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "subject",
+          "title": "Subject",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "NUM",
+            "LIT",
+            "COG"
+          ],
+          "required": true,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
           "propertyName": "used_for",
@@ -1015,7 +1072,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
         },
         {
@@ -1054,7 +1111,7 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
         },
         {
@@ -1067,7 +1124,20 @@
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "feedback",
+          "title": "Feedback",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
         },
         {
@@ -1106,7 +1176,7 @@
           "required": true,
           "indexed": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
         },
         {
@@ -1125,7 +1195,7 @@
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
         },
         {
