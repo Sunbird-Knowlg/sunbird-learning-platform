@@ -115,7 +115,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
-            Renderer.start($scope.item.baseDir, 'gameCanvas');
+            Renderer.start($scope.item.baseDir.replace('file:///', ''), 'gameCanvas');
             TelemetryService.start($scope.item.id, "1.0");
         } else {
             alert('Name or Launch URL not found.');

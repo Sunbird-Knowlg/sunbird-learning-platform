@@ -18,8 +18,8 @@ AssetManager = {
         themeData.manifest.media.forEach(function(media) {
             media.src = basePath + media.src;
             if(createjs.CordovaAudioPlugin.isSupported()) { // Only supported in mobile
-                if(media.type === 'sound' || media.type === 'audiosprite') {
-                    media.src = '/android_asset/www/' + media.src;
+                if(media.type !== 'sound' && media.type !== 'audiosprite') {
+                    media.src = 'file:///' + media.src;
                 }
             }
 
@@ -132,7 +132,7 @@ AssetManager = {
     },
     loadStage: function(stageId, cb) {
         if (!AssetManager.loaders[stageId]) {
-            var loader = new createjs.LoadQueue(true);
+            var loader = new createjs.LoadQueue(false);
             loader.setMaxConnections(AssetManager.stageManifests[stageId].length);
             if (cb) {
                 loader.addEventListener("complete", cb);
@@ -151,14 +151,14 @@ AssetManager = {
         }
     },
     loadCommonAssets: function() {
-        var loader = new createjs.LoadQueue(true);
+        var loader = new createjs.LoadQueue(false);
         loader.setMaxConnections(AssetManager.commonAssets.length);
         loader.installPlugin(createjs.Sound);
         loader.loadManifest(AssetManager.commonAssets, true);
         AssetManager.commonLoader = loader;
     },
     loadTemplateAssets: function() {
-        var loader = new createjs.LoadQueue(true);
+        var loader = new createjs.LoadQueue(false);
         loader.setMaxConnections(AssetManager.templateAssets.length);
         loader.installPlugin(createjs.Sound);
         loader.loadManifest(AssetManager.templateAssets, true);
