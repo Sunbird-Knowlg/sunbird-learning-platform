@@ -80,7 +80,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
                             if (node.getMetadata().get("identifier") == null) {
-                                node.getMetadata().put("identifier", node.getMetadata().get("code"));
+                                node.getMetadata().put("identifier", node.getIdentifier());
                             }
                             games.add(node.getMetadata());
                         }
