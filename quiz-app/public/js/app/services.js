@@ -85,7 +85,11 @@ angular.module('quiz.services', ['ngResource'])
                             for (key in stories) {
                                 var story = stories[key];
                                 story.type = "story";
-                                returnObject.processContent(story);
+                                story.status = "ready";
+                                story.baseDir = story.launchPath;
+                                returnObject.saveContent(story);
+                                // TODO: we will enable processContent call after backend integration.
+                                // returnObject.processContent(story);
                             }
                         }
                         if (contents.worksheets) {
@@ -94,7 +98,11 @@ angular.module('quiz.services', ['ngResource'])
                             for (key in worksheets) {
                                 var worksheet = worksheets[key];
                                 worksheet.type = "worksheet";
-                                returnObject.processContent(worksheet);
+                                worksheet.status = "ready";
+                                worksheet.baseDir = worksheet.launchPath;
+                                returnObject.saveContent(worksheet);
+                                // TODO: we will enable processContent call after backend integration.
+                                // returnObject.processContent(worksheet);
                             }
                         }
                         resolve(true);

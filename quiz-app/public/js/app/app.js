@@ -38,8 +38,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         new Promise(function(resolve, reject) {
-                // TODO: remove ContentService.clear();
-                ContentService.clear();
                 ContentService.init();
                 resolve(TelemetryService._gameData);
             })
