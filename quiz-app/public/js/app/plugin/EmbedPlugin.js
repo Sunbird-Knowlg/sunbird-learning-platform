@@ -4,17 +4,22 @@ var EmbedPlugin = Plugin.extend({
     _render: false,
     initPlugin: function(data) {
         var instance = this;
-        if (data.object) {
-            if (data.object == 'template' && this._stage._stageController) {
-                var templateId = this._stage._stageController.getTemplate();   
-                var template = this._theme._templateMap[templateId];
-                if (template && template.var && template.var != '') {
-                    this._stage._templateVar = template.var;
-                    for (k in template) {
-                        if (PluginManager.isPlugin(k)) {
-                            PluginManager.invoke(k, template[k], this._parent, this._stage, this._theme);
-                        }
-                    }   
+        if (data.template) {
+            var templateId = this._stage.getTemplate(data.template);
+            var template = this._theme._templateMap[templateId];
+            if (template) {
+                for (var k in data) {
+                    if (k === 'template') continue;
+                    if (k.startsWith('var-')) {
+                        this._stage._templateVars[k.substring(4)] = data[k];
+                    } else {
+                        this._stage._templateVars[k] = data[k];
+                    }
+                }
+                for (k in template) {
+                    if (PluginManager.isPlugin(k)) {
+                        PluginManager.invoke(k, template[k], this._parent, this._stage, this._theme);
+                    }
                 }
             }
         }

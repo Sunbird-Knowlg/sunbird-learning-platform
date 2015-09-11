@@ -5,7 +5,7 @@ var StagePlugin = Plugin.extend({
     params: {},
     _stageController: undefined,
     _stageControllerName: undefined,
-    _templateVar: undefined,
+    _templateVars: {},
     _controllerMap: {},
     initPlugin: function(data) {
         var instance = this;
@@ -61,20 +61,39 @@ var StagePlugin = Plugin.extend({
             this._controllerMap[p.name] = controller;
         }
     },
+    getController: function(name) {
+        var c;
+        if (this._templateVars[name]) {
+            name = this._templateVars[name];
+        }
+        if (this._stageControllerName === name) {
+            c = this._stageController;
+        } else if (this._controllerMap[name]) {
+            c = this._controllerMap[name];
+        } else if (this._theme._controllerMap[name]) {
+            c = this._theme._controllerMap[name];
+        }
+        return c;
+    },
+    getTemplate: function(controller) {
+        var c = this.getController(controller);
+        var t;
+        if (c) {
+            t = c.getTemplate();   
+        }
+        return t;
+    },
     getModelValue: function(param) {
         var val;
         if (param) {
             var tokens = param.split('.');
             if (tokens.length >= 2) {
-                var controller = tokens[0].trim();
+                var name = tokens[0].trim();
                 var idx = param.indexOf('.');
                 var paramName = param.substring(idx+1);
-                if (this._stageControllerName === controller || this._templateVar === controller) {
-                    val = this._stageController.getModelValue(paramName);
-                } else if (this._controllerMap[controller]) {
-                    val = this._controllerMap[controller].getModelValue(paramName);
-                } else if (this._theme._controllerMap[controller]) {
-                    val = this._theme._controllerMap[controller].getModelValue(paramName);
+                var controller = this.getController(name);
+                if (controller) {
+                    val = controller.getModelValue(paramName);
                 }
             }
         }
@@ -84,15 +103,12 @@ var StagePlugin = Plugin.extend({
         if (param) {
             var tokens = param.split('.');
             if (tokens.length >= 2) {
-                var controller = tokens[0].trim();
+                var name = tokens[0].trim();
                 var idx = param.indexOf('.');
                 var paramName = param.substring(idx+1);
-                if (this._stageControllerName === controller || this._templateVar === controller) {
-                    val = this._stageController.setModelValue(paramName, val);
-                } else if (this._controllerMap[controller]) {
-                    val = this._controllerMap[controller].setModelValue(paramName, val);
-                } else if (this._theme._controllerMap[controller]) {
-                    val = this._theme._controllerMap[controller].setModelValue(paramName, val);
+                var controller = this.getController(name);
+                if (controller) {
+                    val = controller.setModelValue(paramName, val);
                 }
             }
         }
