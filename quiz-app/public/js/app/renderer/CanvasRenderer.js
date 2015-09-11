@@ -38,7 +38,7 @@ Renderer = {
     initByXML: function(gameRelPath, canvasId) {
         $.get(gameRelPath + '/markup.xml', function(data) {
             Renderer.init(data, canvasId, gameRelPath);
-        })
+        },null, 'xml')
         .fail(function(err) {
             alert("Unable to render.", err);
         });
