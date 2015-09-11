@@ -44,7 +44,9 @@
         <media id="sound_image" src="sound.png" type="image" />
     </manifest>
     <controller name="ws1" type="items" id="addition"/>
-    <template id="vertical_add" var="item">
+    <controller name="ws_data" type="data" id="data"/>
+    <template id="vertical_add">
+        <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff" model="data.item_title"/>
         <placeholder model="item.param1" x="5" y="15" w="25" h="25"/>
         <input type="number" class="inputText" x="14" y="57" w="7" h="7" id="text1" model="item.ans1"/>
         <image asset="separator_vertical" x="32" y="10" w="0.5" h="50"/>
@@ -89,7 +91,6 @@
         </image>
     </stage>
     <stage id="welcome" x="0" y="0" w="100" h="100">
-        <controller name="welcome" type="data" id="welcome"/>
         <param name="next" value="item"/>
         <audio id="thunder_sound"/>
         <image asset="bg" x="0" y="0" w="100" h="100"/>
@@ -102,9 +103,9 @@
         <image asset="noah" x="60" y="10" w="20" h="65"/>
         <image asset="speechbubble" x="35" y="17" w="32" h="19"/>
         <!-- fontsize is the expected font size of text in 1920 x 1200 resolution -->
-        <text x="10" y="15" w="22" h="23" font="Arial" weight="bold" fontsize="96" color="#fff" model="welcome.title"/>
-        <text x="7" y="40" w="32" h="40" font="Arial" fontsize="48" color="#fff" model="welcome.description"/>
-        <text x="38" y="22" w="28" h="16" font="Arial, serif" fontsize="32" color="#000" model="welcome.message"/>
+        <text x="10" y="15" w="22" h="23" font="Arial" weight="bold" fontsize="96" color="#fff" model="ws_data.title"/>
+        <text x="7" y="40" w="32" h="40" font="Arial" fontsize="48" color="#fff" model="ws_data.description"/>
+        <text x="38" y="22" w="28" h="16" font="Arial, serif" fontsize="32" color="#000" model="ws_data.message"/>
         <shape type="rect" x="67" y="27" w="5" h="10" hitArea="true" rotate="30">
             <event type="click">
                 <action type="command" command="togglePlay" asset="thunder_sound" loop="1"/>
@@ -123,10 +124,7 @@
             <image asset="bg" x="0" y="0" w="100" h="100"/>
             <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>
             <image asset="blacktint_rect" x="-2" y="0" w="40" h="10"/>
-            <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff">
-                ADDITION - By Grouping
-            </text>
-            <embed object="template"/>
+            <embed template="item" var-item="item" var-data="ws_data"/>
             <image asset="noah" x="62" y="5" w="15" h="50" id="img_noah"/>
             <image asset="previous" x="83" y="1" w="5" h="9" visible="false">
             </image>

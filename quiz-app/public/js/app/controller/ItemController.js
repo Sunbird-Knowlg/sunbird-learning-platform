@@ -1,4 +1,4 @@
-var ItemController = DataController.extend({
+var ItemController = Controller.extend({
     initController: function(baseDir, type, id) {
     	ItemDataGenerator.loadData(baseDir, type, id, this);
 	},
