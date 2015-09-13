@@ -38,6 +38,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         new Promise(function(resolve, reject) {
+                // ContentService.clear();
                 ContentService.init();
                 resolve(TelemetryService._gameData);
             })
@@ -113,7 +114,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
-            Renderer.start($scope.item.baseDir.replace('file:///', ''), 'gameCanvas');
+            Renderer.start($scope.item.baseDir, 'gameCanvas');
             TelemetryService.start($scope.item.id, "1.0");
         } else {
             alert('Name or Launch URL not found.');

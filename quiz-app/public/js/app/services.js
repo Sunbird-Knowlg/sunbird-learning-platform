@@ -11,6 +11,8 @@ angular.module('quiz.services', ['ngResource'])
                 return null;
         };
         var processContent = function(content) {
+            content.status = "processing";
+            returnObject.saveContent(content);
             DownloaderService.process(content)
                 .then(function(data) {
                     for (key in data) {

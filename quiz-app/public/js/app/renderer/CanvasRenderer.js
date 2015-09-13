@@ -53,7 +53,7 @@ Renderer = {
         Renderer.theme = new ThemePlugin(data.theme);
         Renderer.resizeGame(true);
         Renderer.theme.baseDir = gameRelPath;
-        Renderer.theme.start(gameRelPath + "/assets/");
+        Renderer.theme.start(gameRelPath.replace('file:///', '') + "/assets/");
         createjs.Ticker.addEventListener("tick", function() {
             if(Renderer.update) {
                 Renderer.theme.update();

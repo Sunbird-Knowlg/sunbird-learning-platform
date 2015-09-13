@@ -8,7 +8,7 @@ var DataGenerator = {
 		if (loaderMap[baseDir]) {
 			loader = loaderMap[baseDir];
 		} else {
-			loader = new createjs.LoadQueue(true, baseDir + "/" + folder + "/");
+			loader = new createjs.LoadQueue(false, baseDir + "/" + folder + "/");
 			loaderMap[baseDir] = loader;
 		}
 		if (!loader.getResult(filename)) {
