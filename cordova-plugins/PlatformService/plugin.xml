@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.ekstep.platform.service.plugin"
+    version="0.0.1">
+    <name>Platform Service</name>
+    <description>Platform Service Plugin to work with Genie Service SDK</description>
+    <license>Apache 2.0</license>
+    <keywords>Platform Service Plugin</keywords>
+    <repo></repo>
+    <issue></issue>
+    <js-module src="www/PlatformService.js" name="PlatformService">
+        <clobbers target="PlatformService" />
+    </js-module>
+    <!-- android -->
+    <platform name="android">
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="PlatformService" >
+                <param name="android-package" value="PlatformService"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/PlatformService.java" target-dir="src/" />
+    </platform>
+</plugin>

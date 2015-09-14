@@ -1,0 +1,71 @@
+
+/* ------- panel title ------- */
+
+.panel_title { 
+	background:#93643a url(../assets/bookshelf_skin01_top_bg.jpg) repeat; color:#e4b173; width:960px; height:54px; text-align:center; margin:0 auto; overflow: hidden;
+	box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -moz-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -webkit-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3);
+}
+.selected_title { 
+	color:#e4b173; padding:2px 8px; background:#000; border:#444 solid 1px; font-size:16px; font-family:Arial, Helvetica, sans-serif; 
+	height:20px; line-height:20px; margin-top:15px; margin-left:15px; display:block; float:left;
+	border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px; border:#555 solid 1px;
+}
+
+/* menu top */
+.menu_top { float:right; font-family:Arial, Helvetica, sans-serif; font-size:12px; line-height:12px; margin:15px 15px 0px auto; letter-spacing:1px; }
+.menu_top ul { list-style:none; margin:0; padding:0; margin-top:0px; margin-left:10px; }
+.menu_top ul li { 
+	list-style:none; margin:0; padding:0; display:block; float:left; margin-right:5px; 
+	display:block; padding:4px 8px; outline:none; background:transparent url(../assets/menutopli_bg.png) repeat;
+	border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px; border:#d39e6b solid 1px;
+	box-shadow:1px 1px 4px rgba(0, 0, 0, 0.4); -moz-box-shadow:1px 1px 4px rgba(0, 0, 0, 0.4); -webkit-box-shadow: 1px 1px 4px rgba(0, 0, 0, 0.4);
+	}
+
+.menu_top ul li a { 
+	color:#f5c994 !important; text-decoration:none; display:block; padding:2px 2px; outline:none; text-shadow:1px 1px 1px #000;
+}
+.menu_top ul li a:hover { 
+	color:#f5c994 !important; text-decoration:none; display:block; padding:2px 2px; outline:none; text-shadow:1px 1px 1px #000;
+}
+
+
+/* ------- panel slider ------- */
+
+.panel_slider {
+	position:relative; border-bottom:1px solid #333; border-bottom-color:#aa7f55; width:960px; height:360px; margin:auto; padding-top:0px; overflow: hidden;
+	box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -moz-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -webkit-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3);
+	background:#93643a url(../assets/bookshelf_skin01_bg.jpg) repeat; background-position:0 30px;
+}
+
+
+/* ------- panel bar ------- */
+
+.panel_bar { 
+	background:#93643a url(../assets/bookshelf_skin01_bottom_bg.jpg) repeat-x left bottom; width:960px; height:60px; text-align:center; margin:0 auto; overflow: hidden;
+	border-top:none; font-size:12px; font-family:Arial, Helvetica, sans-serif; letter-spacing:1px;
+	box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -moz-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3); -webkit-box-shadow:0px 1px 2px rgba(0, 0, 0, 0.3);
+}
+.button_items { margin-top:10px; position:relative; height:20px; }
+.button_bar { margin-left:10px; float:left; cursor:pointer; display:block; }
+.button_bar a { text-decoration:none; color:#f5cc9a; text-shadow:1px 1px 1px #000; outline:none; }
+
+
+/* ------- slides ------- */
+
+.slide_animate { position:relative; margin:0; padding:0; left:0px; top:0px; float:left; background:url(../assets/bookshelf_skin01_bg.jpg) repeat; background-position:0 30px; display:block; }
+.slide_animate img { display:block; }
+
+
+/* ------- arrows navigate ------- */
+
+#more_minus_box {
+	z-index:1; position:absolute; bottom:50px; right:10px; width:24px; height:50px; background:url(../assets/nav_bg.png) repeat; padding:2px; opacity:0;
+	box-shadow:0px 0px 8px rgba(0, 0, 0, 0.7); -moz-box-shadow:0px 0px 8px rgba(0, 0, 0, 0.7); -webkit-box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.7);
+}
+
+#icon_minus {
+	background:#000; width:24px; height:24px; border:none; background:transparent url(../assets/icon_minus.png) no-repeat; cursor:pointer; display:block; margin-bottom:2px;
+}
+#icon_more {
+	background:#000; width:24px; height:24px; border:none; background:transparent url(../assets/icon_more.png) no-repeat; cursor:pointer; display:block;
+}

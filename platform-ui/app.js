@@ -205,6 +205,8 @@ function registerMiddlewaresAndListen(app, sessionStore) {
         });
     });
 
+    // process.env.AWS_ACCESSKEYID = "AKIAJSHAOKZ7KUZN6DEQ";
+    // process.env.AWS_SECRETACCESSKEY = "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";
 
     // Workers can share any TCP connection
     // In this case its a HTTP server

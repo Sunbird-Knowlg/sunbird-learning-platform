@@ -1,12 +1,12 @@
 var app = angular.module('playerApp', ['ui.router', 'readableTime', 'truncate', 'ngSanitize', 'sunburst.services', 'sunburst.directives', 'd3', 'file-model']);
-
+var contextPath = $('#contextPath').val() || '';
 app.config(function($stateProvider) {
     $stateProvider
     .state('learningMap', {
         url: "/learningMap/:id",
         views: {
             "contentSection": {
-                templateUrl: "/templates/player/learningMap.html",
+                templateUrl: contextPath + "/templates/player/learningMap.html",
                 controller: 'LearningMapController'
             },
         },
@@ -24,7 +24,7 @@ app.config(function($stateProvider) {
         url: "/gameList/:id",
         views: {
             "contentSection": {
-                templateUrl: "/templates/player/gameList.html",
+                templateUrl: contextPath + "/templates/player/gameList.html",
                 controller: 'GameListController'
             },
         },
@@ -40,7 +40,7 @@ app.config(function($stateProvider) {
         url: "/gamePage/:id",
         views: {
             "contentSection": {
-                templateUrl: "/templates/player/game.html",
+                templateUrl: contextPath + "/templates/player/game.html",
                 controller: 'GameController'
             },
         },
@@ -58,7 +58,7 @@ app.config(function($stateProvider) {
         url: "/games/coverage/:tid",
         views: {
             "contentSection": {
-                templateUrl: "/templates/player/gameVisualization.html",
+                templateUrl: contextPath + "/templates/player/gameVisualization.html",
                 controller: 'GameVisualizationController'
             }
         },
@@ -78,10 +78,9 @@ app.config(function($stateProvider) {
 app.service('PlayerService', ['$http', '$q', function($http, $q) {
 
     this.rhsSectionObjectsLimit = 5;
-
     this.postToService = function(url, data) {
         var deferred = $q.defer();
-        $http.post(url, data).success(function(resp) {
+        $http.post(contextPath + url, data).success(function(resp) {
             if (!resp.error)
                 deferred.resolve(resp);
             else{
@@ -95,7 +94,7 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
 
     this.getFromService = function(url, data) {
         var deferred = $q.defer();
-        $http.get(url, data).success(function(resp) {
+        $http.get(contextPath + url, data).success(function(resp) {
             if (!resp.error)
                 deferred.resolve(resp);
             else

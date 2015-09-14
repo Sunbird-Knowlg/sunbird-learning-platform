@@ -1,0 +1,53 @@
+<ion-pane>
+    <ion-content>
+        <div id="bookshelf_slider" class="bookshelf_slider">
+
+            <div class="panel_title">
+                <div class="selected_title_box"><div class="selected_title">Selected Title</div></div>
+                <button ng-click="resetContentListCache()" class="button button-clear icon ion-android-refresh" style="float:right; color:#000;"></button>
+            </div><!-- .panel_title -->
+            
+            <div class="panel_slider">
+                <div class="panel_items">
+
+                    <div class="slide_animate">
+                        <div class="products_box" id="products_box_1">
+                            <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories" ng-click="playContent(story);">
+                                <img data-ng-src="{{story.appIcon}}" alt="" width="100" height="105" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="slide_animate">
+                        <div class="products_box" id="products_box_2">
+                            <div class="product" data-type="" title="{{worksheet.name}}" ng-repeat="worksheet in worksheets" ng-click="playContent(worksheet);">
+                                <img data-ng-src="{{worksheet.appIcon}}" alt="" width="100" height="105" />
+                            </div>
+                        </div>
+                    </div>
+                    
+                </div><!-- panel_items -->
+            </div><!-- panel_slider -->
+            
+            <div class="panel_bar">
+                <div class='buttons_container'>
+                    <div id="arrow_box"><div id="arrow_menu"></div></div>
+                    <div class="button_items">
+                        <div id="btn1" class="button_bar"><a href="#">Stories</a></div>
+                        <div id="btn2" class="button_bar"><a href="#">Worksheets</a></div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+    </ion-content>
+</ion-pane>
+<div id="loadingDiv" style="margin:auto; position:absolute;width:100%;height:100%; background-color: #fff; z-index: 1000;">
+    <div style="margin: auto; width: 100%; position: fixed; text-align: center; top: 50%; font-weight: bold;">
+        <ion-spinner icon="bubbles"></ion-spinner>
+        <div style="margin: auto; width: 100%; position: fixed; text-align: center; font-weight: bold;">
+            Loading...
+        </div>
+    </div>
+</div>

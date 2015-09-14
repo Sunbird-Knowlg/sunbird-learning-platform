@@ -15,6 +15,7 @@ import org.apache.spark.SparkContext
 import org.ekstep.ilimi.analytics.streaming.EventDecoder
 import org.ekstep.ilimi.analytics.streaming.LevelAgg
 import org.ekstep.ilimi.analytics.streaming.LitScreenerLevelComputation
+import org.ekstep.ilimi.analytics.conf.AppConf
 
 object EventSessionization extends Application with Serializable {
 
@@ -22,10 +23,10 @@ object EventSessionization extends Application with Serializable {
 
         val ssc = CommonUtil.getSparkStreamingContext("EventSessionization", Seconds(10));
 
-        val loltMapping = broadcastMapping("src/main/resources/lo_lt_mapping.csv", ssc.sparkContext);
-        val ldloMapping = broadcastMapping("src/main/resources/ld_lo_mapping.csv", ssc.sparkContext);
-        val compldMapping = broadcastMapping("src/main/resources/composite_ld_mapping.csv", ssc.sparkContext);
-        val litLevelsMap = broadcastLevelRanges("src/main/resources/lit_scr_level_ranges.csv", ssc.sparkContext);
+        val loltMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/lo_lt_mapping.csv", ssc.sparkContext);
+        val ldloMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/ld_lo_mapping.csv", ssc.sparkContext);
+        val compldMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/composite_ld_mapping.csv", ssc.sparkContext);
+        val litLevelsMap = broadcastLevelRanges(AppConf.getConfig("mapping_file_location") + "/lit_scr_level_ranges.csv", ssc.sparkContext);
 
         val resultOutput = output.getOrElse("console");
 
@@ -42,7 +43,7 @@ object EventSessionization extends Application with Serializable {
         completedSessions.foreachRDD(rdd => {
             rdd.collect().foreach(f => {
                 val res = LitScreenerLevelComputation.compute(f._2._1, loltMapping, ldloMapping, compldMapping, litLevelsMap);
-                LitScreenerLevelComputation.sendOutput(res._1, res._2, resultOutput, of, kt, brokerList)
+                LitScreenerLevelComputation.sendOutput(res._1, res._2, res._3, resultOutput, of, kt, brokerList)
             });
         });
 
@@ -94,7 +95,7 @@ object EventSessionization extends Application with Serializable {
                     prevEvents ++= x;
                 }
             };
-            if (prevEvents.last.eid.equals("GE_SESSION_END")) {
+            if (prevEvents.last.eid.getOrElse("").equals("GE_SESSION_END")) {
                 Some(prevEvents, true);
             } else {
                 Some(prevEvents, false);

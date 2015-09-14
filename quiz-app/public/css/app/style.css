@@ -1,0 +1,18 @@
+ion-popover-view.fit {
+  height: auto !important;
+  width: auto !important;
+}
+
+ion-popover-view.fit ion-content {
+  position: relative !important;
+}
+
+.platform-android ion-popover-view.fit {
+  margin-top: 10px !important;
+}
+
+.menu-item {
+	font-size: 25px !important;
+	margin: -8px !important;
+    padding: 18px !important;
+}

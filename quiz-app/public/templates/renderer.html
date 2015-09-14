@@ -1,0 +1,15 @@
+<div id="gameAreaLoad" style="margin:auto; position:absolute;width:100%;height:100%;">
+	<div style="margin: auto; width: 100%; position: fixed; text-align: center; top: 40%;">
+	    <div style="margin-bottom: 2%;">
+	    	<ion-spinner icon="bubbles"></ion-spinner>
+	    </div>
+	    <div style="margin: auto; width: 100%; position: fixed; text-align: center;">
+			<div style="font-weight: bold; font-size: 40px;margin-bottom:3%;">Loading...</div>
+			<div style="font-size: 30px; color: gray;" ng-if="item.loadingMessage">{{item.loadingMessage}}</div>
+		</div>
+	</div>
+</div>
+
+<div id="gameArea">
+  	<canvas id="gameCanvas" width="1366" height="768"></canvas>
+</div>

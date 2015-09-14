@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html ng-app="quiz">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <meta http-equiv="Content-Security-Policy" content="default-src *; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; media-src *">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/app/style.css" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="css/thirdparty/bookshelf_slider.css" />
+    <link rel="stylesheet" type="text/css" href="css/thirdparty/skin01.css" />
+
+    <script type="text/javascript" src="js/thirdparty/jquery.min.js"></script>
+    <script type="text/javascript" src="js/thirdparty/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="js/thirdparty/jquery.bookshelfslider.min.js"></script>
+    <script type="text/javascript" src="js/thirdparty/exclude/xml2json.min.js"></script>
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.min.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="lib/ngCordova/dist/ng-cordova.min.js"></script>
+
+    <script src="lib/angular-resource/angular-resource.min.js"></script>
+    <script src="js/app/cordova-plugin/PlatformService.js"></script>
+    <script src="js/app/cordova-plugin/DownloaderService.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app/app.js"></script>
+    <script src="js/app/services.js"></script>
+    <script src="js/thirdparty/exclude/createjs-2015.05.21.min.js"></script>
+    <script src="js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js"></script>
+    <script src="js/thirdparty/underscore.js"></script>
+    <script src="js/thirdparty/exclude/Class.js"></script>
+    <script src="js/thirdparty/exclude/creatine-1.0.0.min.js"></script>
+    <script src="js/app/manager/PluginManager.js"></script>
+    <script src="js/app/manager/EventManager.js"></script>
+    <script src="js/app/manager/CommandManager.js"></script>
+    <script src="js/app/manager/AnimationManager.js"></script>
+    <script src="js/app/manager/ControllerManager.js"></script>
+    <script src="js/app/manager/AudioManager.js"></script>
+    <script src="js/app/manager/AssetManager.js"></script>
+    <script src="js/app/plugin/Plugin.js"></script>
+    <script src="js/app/plugin/ContainerPlugin.js"></script>
+    <script src="js/app/plugin/ThemePlugin.js"></script>
+    <script src="js/app/plugin/StagePlugin.js"></script>
+    <script src="js/app/plugin/ShapePlugin.js"></script>
+    <script src="js/app/plugin/ImagePlugin.js"></script>
+    <script src="js/app/plugin/TextPlugin.js"></script>
+    <script src="js/app/plugin/InputPlugin.js"></script>
+    <script src="js/app/plugin/SummaryPlugin.js"></script>
+    <script src="js/app/plugin/PlaceHolderPlugin.js"></script>
+    <script src="js/app/plugin/SpritePlugin.js"></script>
+    <script src="js/app/plugin/AudioPlugin.js"></script>
+    <script src="js/app/plugin/EmbedPlugin.js"></script>
+    <script src="js/app/renderer/CanvasRenderer.js"></script>
+    <script src="js/thirdparty/exclude/date-format.js"></script>
+    <script src="js/app/telemetry/TelemetryServiceUtil.js"></script>
+    <script src="js/app/telemetry/FilewriterService.js"></script>
+    <script src="js/app/telemetry/ConsolewriterService.js"></script>
+    <script src="js/app/telemetry/CordovaFilewriterService.js"></script>
+    <script src="js/app/telemetry/TelemetryService.js"></script>
+    <script src="js/app/telemetry/InActiveEvent.js"></script>
+    <script src="js/app/telemetry/TelemetryEvent.js"></script>
+    <script src="js/app/telemetry/StartEvent.js"></script>
+    <script src="js/app/telemetry/InteractEvent.js"></script>
+    <script src="js/app/telemetry/AssessEvent.js"></script>
+    <script src="js/app/telemetry/EndEvent.js"></script>
+    <script src="js/app/controller/Controller.js"></script>
+    <script src="js/app/controller/DataController.js"></script>
+    <script src="js/app/controller/ItemController.js"></script>
+    <script src="js/app/evaluator/FTBEvaluator.js"></script>
+    <script src="js/app/generator/DataGenerator.js"></script>
+    <script src="js/app/generator/ItemDataGenerator.js"></script>
+    <script src="js/test/specHelper.js"></script>
+
+    <style>
+        #gameArea {
+            position: absolute;
+            left:     50%;
+            top:      50%;
+        }
+        #gameCanvas {
+            width: 100%;
+            height: 100%;
+        }
+        .inputText {
+            -moz-border-radius: 15px;
+            border-radius: 15px;
+            border:solid 2px black !important;
+            font-size: 15px !important;
+            padding-left: 10px !important;
+            font-weight: bold !important;
+            padding-right: 5px;
+            z-index: 1000;
+            text-align: center;
+        }
+    </style>
+  </head>
+  <body>
+    <ion-nav-view></ion-nav-view>
+  </body>
+</html>

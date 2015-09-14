@@ -111,31 +111,31 @@ function generateOEEvents(did, uid1, uid2, sid1, sid2, gid) {
 	appendEvent({eventId: 'GE_LAUNCH_GAME', tmin: getRandomInt(0, 30), dt: 'sec', did: did, uid: uid2, sid: sid2, eksData: {gid: gid, err: ''}});
 	var t1 = baseDate.getTime();
 	for(var i=1; i <=20; i++) {
-		addOEAssessEvent(i, 'LT1', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT01', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=70; i++) {
-		addOEAssessEvent(i, 'LT2', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT02', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=5; i++) {
-		addOEAssessEvent(i, 'LT3', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT03', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=20; i++) {
-		addOEAssessEvent(i, 'LT4', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT04', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=80; i++) {
-		addOEAssessEvent(i, 'LT5', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT05', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=20; i++) {
-		addOEAssessEvent(i, 'LT6', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT06', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=72; i++) {
-		addOEAssessEvent(i, 'LT7', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT07', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=5; i++) {
-		addOEAssessEvent(i, 'LT8', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT08', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=10; i++) {
-		addOEAssessEvent(i, 'LT9', did, uid1, uid2, sid1, sid2, gid);
+		addOEAssessEvent(i, 'LT09', did, uid1, uid2, sid1, sid2, gid);
 	}
 	for(var i=1; i <=5; i++) {
 		addOEAssessEvent(i, 'LT10', did, uid1, uid2, sid1, sid2, gid);
@@ -155,31 +155,33 @@ function generateOEEvents(did, uid1, uid2, sid1, sid2, gid) {
 }
 
 function addOEAssessEvent(idx, ltCode, did, uid1, uid2, sid1, sid2, gid) {
+	var score = getRandomInt(0, 1);
 	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid1, sid: sid1, gid:gid, eksData: {
 		subj: 'LIT',
 		"mc": ["C:2"],
         "qid": 'EK.L.KAN.' + ltCode + '.Q' + idx,
         "qtype": "WORD_PROBLEM",
         "qlevel": qlevels[getRandomInt(0, 2)],
-        "pass": passArr[getRandomInt(0, 1)],
+        "pass": passArr[score],
         "mmc": [],
-        "score": getRandomInt(1, 9),
-        "maxscore": 10,
+        "score": score,
+        "maxscore": 1,
         "length": getRandomInt(10, 20),
         "exlength": 13,
         "atmpts": getRandomInt(1, 5),
         "failedatmpts": getRandomInt(0, 2)
 	}});
+	score = getRandomInt(0, 1);
 	appendEvent({eventId: 'OE_ASSESS', tmin: getRandomInt(1, 60), dt: 'sec', did: did, uid: uid2, sid: sid2, gid:gid, eksData: {
 		subj: 'LIT',
 		"mc": ["C:2"],
         "qid": 'EK.L.KAN.' + ltCode + '.Q' + idx,
         "qtype": "WORD_PROBLEM",
         "qlevel": qlevels[getRandomInt(0, 2)],
-        "pass": passArr[getRandomInt(0, 1)],
+        "pass": passArr[score],
         "mmc": [],
-        "score": getRandomInt(1, 9),
-        "maxscore": 10,
+        "score": score,
+        "maxscore": 1,
         "length": getRandomInt(10, 20),
         "exlength": 13,
         "atmpts": getRandomInt(1, 5),
@@ -217,7 +219,7 @@ function pushEventsToKafka() {
 	console.log(' Current Time - ', new Date());
 	events.forEach(function(event, idx) {
 		setTimeout(function() {
-			kafkaUtil.send([event]);
+			kafkaUtil.send([event], 'sandbox.telemetry.raw');
 		}, idx * 100);
 	});
 	console.log("### Completed telemetry data simulation ###");

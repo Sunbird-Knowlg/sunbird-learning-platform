@@ -1,0 +1,127 @@
+{
+    "isActive": true,
+    "outputFile": "genie_PACKAGE_output.json",
+    "errorFile": "PACKAGE_error.json",
+    "nameResetKey": "PACKAGE",
+    "events": {
+        "OE_ASSESS": {
+            "eks": {
+                "subj": {
+                    "required": true,
+                    "values": [
+                        "NUM",
+                        "LIT",
+                        "COG"
+                    ]
+                },
+                "mc": {
+                    "required": false
+                },
+                "qid": {
+                    "required": true
+                },
+                "qtype": {
+                    "required": false
+                },
+                "qlevel": {
+                    "required": true,
+                    "values": [
+                        "EASY",
+                        "MEDIUM",
+                        "DIFFICULT",
+                        "RARE"
+                    ]
+                },
+                "pass": {
+                    "required": false
+                },
+                "mmc": {
+                    "required": false
+                },
+                "score": {
+                    "required": false
+                },
+                "maxscore": {
+                    "required": false
+                },
+                "res": {
+                    "required": false
+                },
+                "exres": {
+                    "required": false
+                },
+                "length": {
+                    "required": false
+                },
+                "exlength": {
+                    "required": false
+                },
+                "atmpts": {
+                    "required": false
+                },
+                "failedatmpts": {
+                    "required": false
+                },
+                "uri": {
+                    "required": false
+                }
+            },
+            "ext": {}
+        },
+        "OE_INTERACT": {
+            "eks": {
+                "type": {
+                    "required": true,
+                    "values": [
+                        "TOUCH",
+                        "DRAG",
+                        "DROP",
+                        "PINCH",
+                        "ZOOM",
+                        "SHAKE",
+                        "ROTATE",
+                        "SPEAK",
+                        "LISTEN",
+                        "WRITE",
+                        "DRAW",
+                        "START",
+                        "END",
+                        "CHOOSE",
+                        "ACTIVATE",
+                        "OTHER"
+                    ]
+                },
+                "extype": {
+                    "required": false
+                },
+                "id": {
+                    "required": false
+                },
+                "uri": {
+                    "required": false
+                }
+            },
+            "ext": {}
+        },
+        "OE_LEVEL_SET": {
+            "eks": {},
+            "ext": {}
+        },
+        "OE_INTERRUPT": {
+            "eks": {},
+            "ext": {}
+        },
+        "OE_LEARN": {
+            "eks": {},
+            "ext": {}
+        },
+        "OE_MISC": {
+            "eks": {},
+            "ext": {}
+        }
+    },
+    "timeout": 2000,
+    "retryLimit": 10,
+    "minDataToWrite": 10,
+    "_eventVersion": 1.0
+}
