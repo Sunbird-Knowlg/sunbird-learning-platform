@@ -16,6 +16,9 @@ var Controller = Class.extend({
     onLoad: function(data, model) {
         ControllerManager.addError('Subclasses of Controller should implement onLoad()');
     },
+    reset: function() {
+        this._index = -1;
+    },
     setIndex: function(idx) {
         if (this._loaded) {
             if (idx) {

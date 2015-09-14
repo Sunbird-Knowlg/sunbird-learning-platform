@@ -47,15 +47,7 @@ var ThemePlugin = Plugin.extend({
     },
     render: function() {
         var instance = this;
-        if (this._data.datasource) {
-            var themeData = undefined;
-            if (_.isArray(this._data.datasource)) {
-                themeData = this.getAsset(this._data.datasource[0].asset);
-            } else {
-                themeData = this.getAsset(this._data.datasource.asset);
-            }
-            this._themeData = themeData;
-        }
+        ControllerManager.reset();
         if (this._data.controller) {
             if (_.isArray(this._data.controller)) {
                 this._data.controller.forEach(function(p) {

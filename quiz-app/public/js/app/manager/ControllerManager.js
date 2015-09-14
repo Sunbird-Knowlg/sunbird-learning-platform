@@ -2,6 +2,9 @@ ControllerManager = {
 	controllerMap: {},
 	instanceMap: {},
 	errors: [],
+	reset: function() {
+		ControllerManager.instanceMap = {};
+	},
 	registerController: function(type, controller) {
 		ControllerManager.controllerMap[type] = controller;
 	},
