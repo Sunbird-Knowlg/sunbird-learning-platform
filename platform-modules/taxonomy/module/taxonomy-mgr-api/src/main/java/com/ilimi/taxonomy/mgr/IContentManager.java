@@ -17,7 +17,7 @@ public interface IContentManager {
 
     Response delete(String id, String taxonomyId);
 
-    Response listContents(String objectType, Request request, String returnKey);
+    Response listContents(String objectType, Request request);
 
     Response upload(String id, String taxonomyId, String objectType, File uploadedFile);
 

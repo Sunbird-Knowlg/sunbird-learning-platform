@@ -237,7 +237,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     
     @SuppressWarnings("unchecked")
     @Override
-    public Response listContents(String objectType, Request request, String returnKey) {
+    public Response listContents(String objectType, Request request) {
         String taxonomyId = (String) request.get(PARAM_SUBJECT);
         LOGGER.info("List Contents : " + taxonomyId);
         Map<String, DefinitionDTO> definitions = new HashMap<String, DefinitionDTO>();
@@ -273,7 +273,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     }
                 }
             }
-            if(StringUtils.isBlank(returnKey)) returnKey = ContentAPIParams.contents.name();
+            String returnKey = ContentAPIParams.content.name();
             listRes.put(returnKey, contents);
             Integer ttl = null;
             if (null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0]) && null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0]).getMetadata())

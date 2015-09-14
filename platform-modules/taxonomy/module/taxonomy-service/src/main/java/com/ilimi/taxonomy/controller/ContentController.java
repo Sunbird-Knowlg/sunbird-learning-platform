@@ -210,7 +210,7 @@ public class ContentController extends BaseController {
             Request request = getListRequestObject(map);
             LOGGER.info("List | Request: " + request);
             try {
-                Response response = contentManager.listContents(objectType, request, objectTypeMap.get(objectType.toLowerCase()));
+                Response response = contentManager.listContents(objectType, request);
                 LOGGER.info("List | Response: " + response);
                 return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
             } catch (Exception e) {

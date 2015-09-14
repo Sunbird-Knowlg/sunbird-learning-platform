@@ -47,8 +47,8 @@ public class ContentDTO extends Node {
             } else {
                 setMetadata(node.getMetadata());
             }
-            setInRelations(node.getInRelations());
-            setOutRelations(node.getOutRelations());
+            //setInRelations(node.getInRelations());
+            //setOutRelations(node.getOutRelations());
             setTags(node.getTags());
 
             if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
