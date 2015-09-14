@@ -13,11 +13,15 @@ import java.io.FileWriter
 import java.util.Date
 import org.ekstep.ilimi.analytics.util.S3Util
 import java.io.File
+import org.ekstep.ilimi.analytics.conf.AppConf
 
-case class Events(events: Array[Event]);
+case class Data(events: Array[Event]);
+case class Events(data: Data);
 
 object LitScreenerLevelModel extends Serializable {
 
+    private val litScreenerIds = AppConf.getConfig("literacy_screener_games").split(',');
+    
     def compute(input: String, output: Option[String], outputDir: Option[String], location: String, parallelization: Int) {
 
         val validEvents = Array("OE_ASSESS", "OE_INTERACT");
@@ -40,14 +44,14 @@ object LitScreenerLevelModel extends Serializable {
                 implicit val formats = DefaultFormats;
                 parse(line).extract[Events]
             }
-        }.map { le => le.events }.reduce((a, b) => a ++ b);
+        }.map { le => le.data.events }.reduce((a, b) => a ++ b);
 
         events.groupBy { event => event.uid.get }.foreach(f => {
             val events = f._2.toBuffer;
             val res = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap);
-            val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && x.gdata.id.equals("org.ekstep.lit.scrnr.kan.basic")) };
+            val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && litScreenerIds.contains(x.gdata.id)) };
             val uid = userMapping.getOrElse(f._1, f._1);
-            LitScreenerLevelComputation.sendOutput(uid, res._2, res._3, resultOutput, null, null, "");
+            // LitScreenerLevelComputation.sendOutput(uid, res._2, res._3, resultOutput, null, null, "");
             // Write to CSV & upload to S3
             filterEvents.foreach { event =>
                 var ltCode = "";
