@@ -44,7 +44,7 @@
         <media id="sound_image" src="sound.png" type="image" />
     </manifest>
     <controller name="ws1" type="items" id="addition"/>
-    <controller name="ws_data" type="data" id="data"/>
+    <controller name="ws_data" type="data" id="ws_data"/>
     <template id="vertical_add">
         <text x="6" y="5" w="40" h="10" font="Arial" fontsize="48" color="#fff" model="data.item_title"/>
         <placeholder model="item.param1" x="5" y="15" w="25" h="25"/>
