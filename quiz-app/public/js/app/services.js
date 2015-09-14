@@ -45,6 +45,12 @@ angular.module('quiz.services', ['ngResource'])
                 this.contentList[content.id] = content;
                 this.commit();
             },
+            getProcessCount: function() {
+                var list = _.where(_.values(this.contentList), {
+                        "status": "processing"
+                    });
+                return list.length;
+            },
             getContentList: function(type) {
                 if (type) {
                     var list = _.where(_.values(this.contentList), {
@@ -87,11 +93,12 @@ angular.module('quiz.services', ['ngResource'])
                             for (key in stories) {
                                 var story = stories[key];
                                 story.type = "story";
-                                story.status = "ready";
-                                story.baseDir = story.launchPath;
-                                returnObject.saveContent(story);
                                 // TODO: we will enable processContent call after backend integration.
-                                // returnObject.processContent(story);
+                                returnObject.processContent(story);
+                                
+                                // story.status = "ready";
+                                // story.baseDir = story.launchPath;
+                                // returnObject.saveContent(story);
                             }
                         }
                         if (contents.worksheets) {
@@ -100,11 +107,13 @@ angular.module('quiz.services', ['ngResource'])
                             for (key in worksheets) {
                                 var worksheet = worksheets[key];
                                 worksheet.type = "worksheet";
-                                worksheet.status = "ready";
-                                worksheet.baseDir = worksheet.launchPath;
-                                returnObject.saveContent(worksheet);
                                 // TODO: we will enable processContent call after backend integration.
-                                // returnObject.processContent(worksheet);
+                                returnObject.processContent(worksheet);
+
+                                // worksheet.status = "ready";
+                                // worksheet.baseDir = worksheet.launchPath;
+                                // returnObject.saveContent(worksheet);
+
                             }
                         }
                         resolve(true);

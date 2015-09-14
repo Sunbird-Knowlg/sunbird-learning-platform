@@ -17,6 +17,7 @@
             "description": "Addition through Objects",
             "appIcon": "assets/noah.png",
             "launchPath": "worksheets/addition_by_grouping",
+            "downloadUrl": "https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYdmFUUDlpWmpFTTg&export=download",
             "loadingMessage": "Loading \"Addition through Objects\" assets..."
         }],
         "ttl": 24

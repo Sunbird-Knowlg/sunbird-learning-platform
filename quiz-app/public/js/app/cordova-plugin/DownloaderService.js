@@ -39,7 +39,7 @@ DownloaderService = {
                 var contentId = content.id;
                 var basePath = DownloaderService.appDataDirectory;
                 var downloadUrl = content.downloadUrl || "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/addition_by_grouping_1441865816499.zip";
-                var zipName = downloadUrl.substring(downloadUrl.lastIndexOf("/")+1, downloadUrl.length);
+                var zipName = contentId +".zip"; // downloadUrl.substring(downloadUrl.lastIndexOf("/")+1, downloadUrl.length);
                 var expZipPath = basePath.replace(DownloaderService._root.nativeURL, "") + zipName;
                 DownloaderService._root.getFile(expZipPath, {create: false}, function(fileEntry) {
                     console.log("fileEntry: ", fileEntry);
@@ -65,7 +65,7 @@ DownloaderService = {
                 if(status == 0) {
                     console.log("unzip successful.");
                     resolve({"status": "ready", "baseDir": extractPath, "error": "", "appIcon": extractPath + "/logo.png"});
-                    zipFile.remove();
+                    // zipFile.remove();
                 } else if(stauts == -1) {
                     console.log("error while unzipping.");
                     resolve({"status": "error", "baseDir": "", "error": "error while unzipping."});

@@ -11,12 +11,13 @@
     },
     "result": {
         "games": [{
-            "id": "story.anual.haircut.day",
+            "id": "story.annual.haircut.day",
             "pkgVersion": "0.1",
             "name": "Annual Haircut Day",
             "description": "Sringeri Srinivas Annual Haircut Day",
             "appIcon": "assets/haircut.png",
             "launchPath": "stories/haircut_story",
+            "downloadUrl": "https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYaHNDaTlTMjduTWs&export=download",
             "loadingMessage": "Every great journey starts with a great story..."
         }],
         "ttl": 24

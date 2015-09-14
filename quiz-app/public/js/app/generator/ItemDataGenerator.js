@@ -3,25 +3,14 @@ var ItemDataGenerator = {
 	loadData: function(baseDir, type, id, controller) {
 		var folder = type;
 		var filename = id + '.json';
-		var loaderMap = ItemDataGenerator._loaderMap;
-		var loader;
-		if (loaderMap[baseDir]) {
-			loader = loaderMap[baseDir];
-		} else {
-			loader = new createjs.LoadQueue(false, baseDir + "/" + folder + "/");
-			loaderMap[baseDir] = loader;
-		}
-		if (!loader.getResult(filename)) {
-			loader.loadManifest({"id": filename, "src" : filename, "type": "json"}, true);
-			loader.addEventListener("complete", function() {
-				ItemDataGenerator._onLoad(loader, filename, controller);
-			});
-		} else {
-			ItemDataGenerator._onLoad(loader, filename, controller);
-		}
+		var fullPath = baseDir + "/" + folder + "/" + filename;
+		$.getJSON(fullPath, function(data) {
+			ItemDataGenerator._onLoad(data, controller);
+		}).fail(function() {
+			console.log("error while fetching json: "+ fullPath);
+		});
 	},
-	_onLoad: function(loader, filename, controller) {
-		var data = loader.getResult(filename);
+	_onLoad: function(data, controller) {
 		var model = ItemDataGenerator._getItems(data);
 		data = _.omit(data, 'items');
 		controller.onLoad(data, model);

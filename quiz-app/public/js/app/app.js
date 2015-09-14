@@ -62,6 +62,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 return ContentService.sync();
             })
             .then(function() {
+                var processing = ContentService.getProcessCount();
+                if(processing > 0) {
+                    PlatformService.showToast(processing +" stories/worksheets in processing...");
+                }
                 $scope.$apply(function() {
                     $scope.loadBookshelf();
                 });
@@ -88,6 +92,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             setTimeout(function() {
                 ContentService.sync()
                     .then(function() {
+                        var processing = ContentService.getProcessCount();
+                        if(processing > 0) {
+                            PlatformService.showToast(processing +" stories/worksheets in processing...");
+                        }
                         $scope.loadBookshelf();
                         console.log('flushing telemetry in 2sec...');
                         setTimeout(function() {
