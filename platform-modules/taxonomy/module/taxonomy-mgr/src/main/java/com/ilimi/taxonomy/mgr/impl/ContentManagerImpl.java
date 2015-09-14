@@ -218,6 +218,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
+        
+        Integer pkgVersion = (Integer) node.getMetadata().get("pkgVersion");
+        if (null == pkgVersion || pkgVersion.intValue() < 1) {
+        	pkgVersion = 1;
+        } else {
+        	pkgVersion += 1;
+        }
+        node.getMetadata().put("pkgVersion", pkgVersion);
+        
         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
         updateReq.put(GraphDACParams.node.name(), node);
         updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
