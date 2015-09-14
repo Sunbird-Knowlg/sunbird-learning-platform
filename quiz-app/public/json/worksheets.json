@@ -15,7 +15,7 @@
             "pkgVersion": "0.1",
             "name": "Addition through Objects",
             "description": "Addition through Objects",
-            "appIcon": "assets/noah.png",
+            "appIcon": "worksheets/addition_by_grouping/logo.png",
             "launchPath": "worksheets/addition_by_grouping",
             "downloadUrl": "https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYdmFUUDlpWmpFTTg&export=download",
             "loadingMessage": "Loading \"Addition through Objects\" assets..."
