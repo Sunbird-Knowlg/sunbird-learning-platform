@@ -122,7 +122,8 @@ module.exports = function(grunt) {
                     command: 'plugin',
                     action: 'rm',
                     plugins: [
-                        'org.ekstep.platform.service.plugin'
+                        'org.ekstep.platform.service.plugin',
+                        'org.ekstep.downloader.service.plugin'
                     ]
                 }
             },
@@ -140,8 +141,8 @@ module.exports = function(grunt) {
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
                         'cordova-plugin-file-transfer',
-                        'cordova-plugin-zip',
-                        '../cordova-plugins/PlatformService/'
+                        '../cordova-plugins/PlatformService/',
+                        '../cordova-plugins/DownloaderService/'
                     ]
                 }
             },

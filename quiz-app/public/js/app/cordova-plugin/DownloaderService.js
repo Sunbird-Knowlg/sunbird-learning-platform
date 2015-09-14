@@ -18,60 +18,74 @@ DownloaderService = {
                 resolve({"status": "ready", "baseDir": content.launchPath, "error": ""});
             });
         } else {
-            console.log("progress content:", content);
             return new Promise(function(resolve, reject) {
-                DownloaderService.getZipFile(content)
-                .then(function(data) {
-                    if(data.status = "success") {
-                        return DownloaderService.extract(data.zipFile, DownloaderService.appDataDirectory + content.id);
+                DownloaderService.checkFile(content.id)
+                .then(function(file) {
+                    if(file) {
+                        return file;
                     } else {
-                        return data;
+                        return DownloaderService.download(content);
                     }
+                })
+                .then(function(file) {
+                    return DownloaderService.extract(file, DownloaderService.appDataDirectory + content.id);
                 })
                 .then(function(data) {
                     resolve(data);
+                })
+                .catch(function(data) {
+                    resolve(data);  
                 });
             });
         }
 	},
-    getZipFile: function(content) {
+    download: function(content) {
         return new Promise(function(resolve, reject) {
                 var contentId = content.id;
                 var basePath = DownloaderService.appDataDirectory;
                 var downloadUrl = content.downloadUrl || "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/addition_by_grouping_1441865816499.zip";
-                var zipName = contentId +".zip"; // downloadUrl.substring(downloadUrl.lastIndexOf("/")+1, downloadUrl.length);
-                var expZipPath = basePath.replace(DownloaderService._root.nativeURL, "") + zipName;
-                DownloaderService._root.getFile(expZipPath, {create: false}, function(fileEntry) {
-                    console.log("fileEntry: ", fileEntry);
-                    resolve({"status": "success", "zipFile": fileEntry, "error": ""});
-                }, function(err) {
-                    console.log("zip file not found at "+ expZipPath + ". So, downloading...");
-                    var fileTransfer = new FileTransfer();
-                    var downloadPath = basePath + contentId + '.zip';
-                    console.log("started downloading to "+ downloadPath);
-                    fileTransfer.download(downloadUrl, downloadPath, function(theFile) {
-                        console.log("download complete: " + theFile.toURL());
-                        resolve({"status": "success", "zipFile": theFile, "error": ""});
-                    }, function(error) {
-                        console.log("download error: ", JSON.stringify(error));
-                        resolve({"status": "error", "zipFilePath": "", "error": "error while downloading: error:"+ JSON.stringify(error)});
-                    }, true);
-                });
+                
+                var fileTransfer = new FileTransfer();
+                var downloadPath = basePath + contentId + '.zip';
+                console.log("started downloading to "+ downloadPath);
+                fileTransfer.download(downloadUrl, downloadPath, function(theFile) {
+                    console.log("download complete: " + theFile.toURL());
+                    resolve(theFile);
+                }, function(error) {
+                    console.log("download error: ", JSON.stringify(error));
+                    reject({"status": "error", "file": "", "error": "error while downloading: error:"+ JSON.stringify(error)});
+                }, true);
             });
     },
-    extract: function(zipFile, extractPath) {
+    checkFile: function(contentId) {
         return new Promise(function(resolve, reject) {
-            zip.unzip(zipFile.toURL(), extractPath, function(status) {
-                if(status == 0) {
+            var basePath = DownloaderService.appDataDirectory;
+            var expZipPath = basePath.replace(DownloaderService._root.nativeURL, "") + contentId + ".zip";
+            DownloaderService._root.getFile(expZipPath, {create: false}, function(zipFile) {
+                console.log("zip file already exist: "+ zipFile.fullPath);
+                resolve(zipFile);
+            }, function(zipErr) {
+                expZipPath = basePath.replace(DownloaderService._root.nativeURL, "") + contentId + ".tar.gz";
+                DownloaderService._root.getFile(expZipPath, {create: false}, function(tarFile) {
+                    console.log("tar file already exist: "+ tarFile.fullPath);
+                    resolve(tarFile);
+                }, function(tarErr) {
+                    resolve();
+                });
+            });
+        })
+    },
+    extract: function(file, extractPath) {
+        return new Promise(function(resolve, reject) {
+            Extractor.extract(file.toURL(), extractPath, function(status) {
+                if(status == "success") {
                     console.log("unzip successful.");
                     resolve({"status": "ready", "baseDir": extractPath, "error": "", "appIcon": extractPath + "/logo.png"});
-                    // zipFile.remove();
-                } else if(stauts == -1) {
-                    console.log("error while unzipping.");
+                    // file.remove();
+                } else {
+                    console.log("error while unzipping:", status);
                     resolve({"status": "error", "baseDir": "", "error": "error while unzipping."});
                 }
-            }, function (progressEvent) {
-              // console.log(progressEvent.loaded + " of " + progressEvent.total);
             });
         });
     }
