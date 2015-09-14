@@ -66,7 +66,6 @@ public class AssessmentValidator extends BaseManager {
                 if (numAnswers != map.size())
                     errorMessages.add("num_answers is not equals to no. of correct answer.");
             } catch (Exception e) {
-                e.printStackTrace();
                 errorMessages.add("answer value is invalid");
             }
         }
