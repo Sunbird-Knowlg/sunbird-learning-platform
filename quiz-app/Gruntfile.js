@@ -117,7 +117,7 @@ module.exports = function(grunt) {
                 path: 'www',
                 cli: 'cordova'  // cca or cordova
             },
-            rm_localplugins: {
+            rm_custom_plugins: {
                 options: {
                     command: 'plugin',
                     action: 'rm',
@@ -140,7 +140,15 @@ module.exports = function(grunt) {
                         'console',
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
-                        'cordova-plugin-file-transfer',
+                        'cordova-plugin-file-transfer'
+                    ]
+                }
+            },
+            add_custom_plugins: {
+                options: {
+                    command: 'plugin',
+                    action: 'add',
+                    plugins: [
                         '../cordova-plugins/PlatformService/',
                         '../cordova-plugins/DownloaderService/'
                     ]
@@ -191,8 +199,11 @@ module.exports = function(grunt) {
     grunt.registerTask('build-all', ['uglify:js', 'compress:story', 'compress:worksheet', 'aws_s3:uploadJS', 'aws_s3:uploadSamples']);
     grunt.registerTask('build-js', ['uglify:js', 'aws_s3:uploadJS']);
     grunt.registerTask('build-samples', ['compress:story', 'compress:worksheet', 'aws_s3:uploadSamples']);
-    grunt.registerTask('build-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:rm_localplugins', 'cordovacli:add_plugins', 'cordovacli:build_android']);
-    grunt.registerTask('build-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:rm_localplugins', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:build_android']);
-    grunt.registerTask('install-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:rm_localplugins', 'cordovacli:add_plugins', 'cordovacli:run_android']);
-    grunt.registerTask('install-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:rm_localplugins', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:run_android']);
+    grunt.registerTask('build-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:build_android']);
+    grunt.registerTask('build-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:build_android']);
+    grunt.registerTask('install-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:run_android']);
+    grunt.registerTask('install-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:run_android']);
+    grunt.registerTask('rm_custom_plugins', ['cordovacli:rm_custom_plugins']);
+    grunt.registerTask('add_custom_plugins', ['cordovacli:add_custom_plugins']);
+    grunt.registerTask('update_custom_plugins', ['cordovacli:rm_custom_plugins', 'cordovacli:add_custom_plugins']);
 };
