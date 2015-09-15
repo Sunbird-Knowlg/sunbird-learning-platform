@@ -34,7 +34,7 @@ import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Controller
-@RequestMapping("/content")
+@RequestMapping("/v1/content")
 public class ContentController extends BaseController {
     
     private static Logger LOGGER = LogManager.getLogger(ContentController.class.getName());
