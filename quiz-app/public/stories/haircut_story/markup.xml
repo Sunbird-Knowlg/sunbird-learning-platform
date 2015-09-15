@@ -277,25 +277,27 @@
         <image asset="page3" x="2" y="12" w="96" h="86" />
         <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri">
             <event type="click">
-                <action type="animation" id="sringeriWalking">
-                    <to ease="linear" duration="500">
-                        <![CDATA[{"x":20,"y":20}]]>
-                    </to>
-                    <to ease="quadOut" duration="2000">
-                        <![CDATA[{"x":55,"y":0}]]>
-                    </to>
-                    <to ease="linear" duration="1">
-                        <![CDATA[{"x":75,"y":0, "scaleX": -1}]]>
-                    </to>
-                    <to ease="linear" duration="2000">
-                        <![CDATA[{"x":40,"y":55}]]>
-                    </to>
-                    <to ease="linear" duration="1">
-                        <![CDATA[{"x":18,"y": 55, "scaleX": 1}]]>
-                    </to>
-                    <to ease="linear" duration="2000">
-                        <![CDATA[{"x":57,"y":55}]]>
-                    </to>
+                <action type="animation">
+                    <tween id="sringeriWalking">
+                        <to ease="linear" duration="500">
+                            <![CDATA[{"x":20,"y":20}]]>
+                        </to>
+                        <to ease="quadOut" duration="2000">
+                            <![CDATA[{"x":55,"y":0}]]>
+                        </to>
+                        <to ease="linear" duration="1">
+                            <![CDATA[{"x":75,"y":0, "scaleX": -1}]]>
+                        </to>
+                        <to ease="linear" duration="2000">
+                            <![CDATA[{"x":40,"y":55}]]>
+                        </to>
+                        <to ease="linear" duration="1">
+                            <![CDATA[{"x":18,"y": 55, "scaleX": 1}]]>
+                        </to>
+                        <to ease="linear" duration="2000">
+                            <![CDATA[{"x":57,"y":55}]]>
+                        </to>
+                    </tween>
                 </action>
             </event>
         </image>

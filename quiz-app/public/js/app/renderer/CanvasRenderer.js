@@ -63,6 +63,7 @@ Renderer = {
     },
     cleanUp: function() {
         PluginManager.cleanUp();
+        AnimationManager.cleanUp();
         AssetManager.destroy();
         Renderer.theme.cleanUp();
     }

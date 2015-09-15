@@ -151,26 +151,32 @@
         <image asset="blacktint_full" x="0" y="0" w="100" h="100" visible="false" id="img_overlay"/>
         <image asset="correct_answer" x="100" y="0" w="5" h="5" visible="false" id="img_correct_answer">
             <event type="show">
-                <action type="animation" id="spaceShip" widthChangeEvent="true">
-                    <to ease="linear" duration="10"><![CDATA[{"x":100,"y":0,"visible":true}]]></to>
-                    <to ease="quartIn" duration="1000"><![CDATA[{"x":0,"y":10,"w":45,"h":45}]]></to>
-                    <to ease="circOut" duration="500"><![CDATA[{"x":15,"y":15,"w":70,"h":70}]]></to>
+                <action type="animation">
+                    <tween id="spaceShipC" widthChangeEvent="true">
+                        <to ease="linear" duration="10"><![CDATA[{"x":100,"y":0,"visible":true}]]></to>
+                        <to ease="quartIn" duration="1000"><![CDATA[{"x":0,"y":10,"w":45,"h":45}]]></to>
+                        <to ease="circOut" duration="500"><![CDATA[{"x":15,"y":15,"w":70,"h":70}]]></to>
+                    </tween>
                 </action>
             </event>
         </image>
         <image asset="wrong_answer" x="15" y="15" w="70" h="70" visible="false" id="img_wrong_answer">
             <event type="show">
-                <action type="animation" id="spaceShip" widthChangeEvent="true">
-                    <to ease="linear" duration="10"><![CDATA[{"x":100,"y":0,"visible":true}]]></to>
-                    <to ease="quartIn" duration="1000"><![CDATA[{"x":0,"y":10,"w":45,"h":45}]]></to>
-                    <to ease="circOut" duration="500"><![CDATA[{"x":15,"y":15,"w":70,"h":70}]]></to>
+                <action type="animation">
+                    <tween id="spaceShipW" widthChangeEvent="true">
+                        <to ease="linear" duration="10"><![CDATA[{"x":100,"y":0,"visible":true}]]></to>
+                        <to ease="quartIn" duration="1000"><![CDATA[{"x":0,"y":10,"w":45,"h":45}]]></to>
+                        <to ease="circOut" duration="500"><![CDATA[{"x":15,"y":15,"w":70,"h":70}]]></to>
+                    </tween>
                 </action>
             </event>
         </image>
         <image asset="button_next" x="43" y="45" w="15" h="5" visible="false" id="btn_next">
             <event type="show">
-                <action type="animation" id="delayedShow">
-                    <to duration="1500" ease="linear"><![CDATA[{"x":43,"y":45,"visible":true}]]></to>
+                <action type="animation">
+                    <tween id="delayedShowN">
+                        <to duration="1500" ease="linear"><![CDATA[{"x":43,"y":45,"visible":true}]]></to>
+                    </tween>
                 </action>
             </event>
             <event type="click">
@@ -179,8 +185,10 @@
         </image>
         <image asset="button_tryagain" x="43" y="45" w="15" h="5" visible="false" id="btn_try_again">
             <event type="show">
-                <action type="animation" id="delayedShow">
-                    <to duration="1500" ease="linear"><![CDATA[{"x":43,"y":45,"visible":true}]]></to>
+                <action type="animation">
+                    <tween id="delayedShowT">
+                        <to duration="1500" ease="linear"><![CDATA[{"x":43,"y":45,"visible":true}]]></to>
+                    </tween>
                 </action>
             </event>
             <event type="click">
