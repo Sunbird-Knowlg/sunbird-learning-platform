@@ -44,9 +44,11 @@ DownloaderService = {
                 var contentId = content.id;
                 var basePath = DownloaderService.appDataDirectory;
                 var downloadUrl = content.downloadUrl || "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/addition_by_grouping_1441865816499.zip";
-                
+                var urlExt = downloadUrl.substring(downloadUrl.lastIndexOf(".")+1, downloadUrl.length);
+                var extension = ".zip";
+                if(urlExt == "gz") extension = ".tar.gz"; 
                 var fileTransfer = new FileTransfer();
-                var downloadPath = basePath + contentId + '.zip';
+                var downloadPath = basePath + contentId + extension;
                 console.log("started downloading to "+ downloadPath);
                 fileTransfer.download(downloadUrl, downloadPath, function(theFile) {
                     console.log("download complete: " + theFile.toURL());
