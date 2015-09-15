@@ -19,7 +19,7 @@ DownloaderService = {
             });
         } else {
             return new Promise(function(resolve, reject) {
-                DownloaderService.checkFile(content.id)
+                DownloaderService.checkFile(content.identifier)
                 .then(function(file) {
                     if(file) {
                         return file;
@@ -28,7 +28,7 @@ DownloaderService = {
                     }
                 })
                 .then(function(file) {
-                    return DownloaderService.extract(file, DownloaderService.appDataDirectory + content.id);
+                    return DownloaderService.extract(file, DownloaderService.appDataDirectory + content.identifier);
                 })
                 .then(function(data) {
                     resolve(data);
@@ -41,9 +41,9 @@ DownloaderService = {
 	},
     download: function(content) {
         return new Promise(function(resolve, reject) {
-                var contentId = content.id;
+                var contentId = content.identifier;
                 var basePath = DownloaderService.appDataDirectory;
-                var downloadUrl = content.downloadUrl || "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/addition_by_grouping_1441865816499.zip";
+                var downloadUrl = content.downloadUrl;
                 var urlExt = downloadUrl.substring(downloadUrl.lastIndexOf(".")+1, downloadUrl.length);
                 var extension = ".zip";
                 if(urlExt == "gz") extension = ".tar.gz"; 

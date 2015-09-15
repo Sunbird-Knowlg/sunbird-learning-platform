@@ -42,7 +42,7 @@ angular.module('quiz.services', ['ngResource'])
                 setObject(this.contentKey, this.contentList);
             },
             saveContent: function(content) {
-                this.contentList[content.id] = content;
+                this.contentList[content.identifier] = content;
                 this.commit();
             },
             getProcessCount: function() {
@@ -69,15 +69,15 @@ angular.module('quiz.services', ['ngResource'])
                 return this.contentList[id];
             },
             processContent: function(content) {
-                var localContent = returnObject.getContent(content.id);
+                var localContent = returnObject.getContent(content.identifier);
                 if (localContent) {
                     if ((localContent.status == "ready" && localContent.pkgVersion != content.pkgVersion) || (localContent.status == "error")) {
                         processContent(content);
                     } else {
                         if (localContent.status == "ready")
-                            console.log("content: " + localContent.id + " is at status: " + localContent.status + " and there is no change in pkgVersion.");
+                            console.log("content: " + localContent.identifier + " is at status: " + localContent.status + " and there is no change in pkgVersion.");
                         else
-                            console.log("content: " + localContent.id + " is at status: " + localContent.status);
+                            console.log("content: " + localContent.identifier + " is at status: " + localContent.status);
                     }
                 } else {
                     processContent(content);
@@ -87,9 +87,9 @@ angular.module('quiz.services', ['ngResource'])
                 return new Promise(function(resolve, reject) {
                     PlatformService.getContentList()
                     .then(function(contents) {
-                        if (contents.stories) {
-                            var stories = (_.isString(contents.stories)) ? JSON.parse(contents.stories) : contents.stories;
-                            stories = stories.result.games;
+                        if (contents['Story']) {
+                            var stories = (_.isString(contents['Story'])) ? JSON.parse(contents['Story']) : contents['Story'];
+                            stories = stories.result.content;
                             for (key in stories) {
                                 var story = stories[key];
                                 story.type = "story";
@@ -101,9 +101,9 @@ angular.module('quiz.services', ['ngResource'])
                                 // returnObject.saveContent(story);
                             }
                         }
-                        if (contents.worksheets) {
-                            var worksheets = (_.isString(contents.worksheets)) ? JSON.parse(contents.worksheets) : contents.worksheets;
-                            worksheets = worksheets.result.games;
+                        if (contents['Worksheet']) {
+                            var worksheets = (_.isString(contents['Worksheet'])) ? JSON.parse(contents['Worksheet']) : contents['Worksheet'];
+                            worksheets = worksheets.result.content;
                             for (key in worksheets) {
                                 var worksheet = worksheets[key];
                                 worksheet.type = "worksheet";
@@ -123,6 +123,12 @@ angular.module('quiz.services', ['ngResource'])
                         reject("Error while fetching content list: " + err);
                     });
                 });
+            },
+            setContentVersion: function(ver) {
+                $window.localStorage["quizapp-contentversion"] = ver;
+            },
+            getContentVersion: function() {
+                return $window.localStorage["quizapp-contentversion"];
             },
             remove: function(key) {
                 $window.localStorage.removeItem(key);

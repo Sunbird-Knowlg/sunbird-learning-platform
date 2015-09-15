@@ -21,8 +21,6 @@ public class PlatformService extends CordovaPlugin {
      */
     public PlatformService() {
         contentMap = new HashMap<String, String>();
-        contentMap.put("stories", "{\"id\":\"ekstep.lp.game.list\",\"ver\":\"1.0\",\"ts\":\"2015-08-03T18:22:03ZZ\",\"params\":{\"resmsgid\":\"bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b\",\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"result\":{\"games\":[{\"id\":\"story.annual.haircut.day\",\"name\":\"Annual Haircut Day\",\"description\":\"Sringeri Srinivas Annual Haircut Day\",\"appIcon\":\"stories/haircut_story/logo.png\",\"launchPath\":\"stories/haircut_story\",\"loadingMessage\":\"Every great journey starts with a great story...\", \"downloadUrl\": \"https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYN3Z3TzFMVkV2TU0&export=download\"}],\"ttl\":24}}");
-        contentMap.put("worksheets", "{\"id\":\"ekstep.lp.game.list\",\"ver\":\"1.0\",\"ts\":\"2015-08-03T18:22:03ZZ\",\"params\":{\"resmsgid\":\"bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b\",\"msgid\":null,\"err\":null,\"status\":\"successful\",\"errmsg\":null},\"result\":{\"games\":[{\"id\":\"worksheet.addition.through.objects\",\"name\":\"Addition through Objects\",\"description\":\"Addition through Objects\",\"appIcon\":\"worksheets/addition_by_grouping/logo.png\",\"launchPath\":\"worksheets/addition_by_grouping\",\"loadingMessage\":\"Loading Addition through Objects assets...\", \"downloadUrl\": \"https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYdmFUUDlpWmpFTTg&export=download\"}],\"ttl\":24}}");
     }
         /**
          * Sets the context of the Command. This can then be used to do things like
@@ -42,8 +40,6 @@ public class PlatformService extends CordovaPlugin {
             callbackContext.success(args.getString(0));
         } else if(action.equals("getContentList")) {
             JSONObject contentList = getContentList(args);
-            String message = "Fetching content list from server...";
-            // showToast(message, Toast.LENGTH_SHORT);
             callbackContext.success(contentList);
         }
         return true;
@@ -59,7 +55,29 @@ public class PlatformService extends CordovaPlugin {
     }
 
     private JSONObject getContentList(JSONArray types) {
-        JSONObject obj = new JSONObject(contentMap);
+        JSONObject obj = new JSONObject();
+        try {
+            Map<String, String> result = new HashMap<String, String>();
+            if(types != null) {
+                for(int i=0;i<types.length();i++) {
+                    String type = types.getString(i);
+                    result.put(type, getContent(type));
+                }
+            }
+            obj = new JSONObject(result);
+            return obj;
+        } catch(Exception e) {
+
+        }
         return obj;
+    }
+
+    private String getContent(String type) {
+        String data = contentMap.get(type);
+        if(data == null || data == "") {
+            data = RESTUtil.post("/v1/content/list?type="+type, "{  \"request\": {}}");
+            contentMap.put(type, data);
+        }
+        return data;
     }
 }

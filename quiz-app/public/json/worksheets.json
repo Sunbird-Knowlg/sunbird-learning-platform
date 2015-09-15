@@ -1,24 +1,34 @@
 {
-    "id": "ekstep.lp.game.list",
+    "id": "ekstep.lp.content.worksheet.list",
     "ver": "1.0",
-    "ts": "2015-08-03T18:22:03ZZ",
+    "ts": "2015-09-15T17:47:06ZZ",
     "params": {
-        "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
+        "resmsgid": "23813e86-e3bb-423f-8773-d6dc938fb077",
         "msgid": null,
         "err": null,
         "status": "successful",
         "errmsg": null
     },
+    "responseCode": "OK",
     "result": {
-        "games": [{
-            "id": "worksheet.addition.through.objects",
-            "pkgVersion": "0.1",
-            "name": "Addition through Objects",
-            "description": "Addition through Objects",
+        "content": [{
+            "questionnaire": null,
             "appIcon": "worksheets/addition_by_grouping/logo.png",
+            "subject": "numeracy",
+            "description": "Addition By Grouping worksheet",
+            "name": "Addition By Grouping",
             "launchPath": "worksheets/addition_by_grouping",
-            "downloadUrl": "https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYdmFUUDlpWmpFTTg&export=download",
-            "loadingMessage": "Loading \"Addition through Objects\" assets..."
+            "downloadUrl": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/WS_1_1442334881705.zip",
+            "checksum": null,
+            "loadingMessage": "Loading \"Addition through Objects\" assets...",
+            "concepts": [{
+                "identifier": "Num:C3:SC1:MC12",
+                "name": "Two digit numbers, addition upto 99 (grouping)",
+                "objectType": "Concept"
+            }],
+            "identifier": "WS_1",
+            "grayScaleAppIcon": null,
+            "pkgVersion": 1
         }],
         "ttl": 24
     }

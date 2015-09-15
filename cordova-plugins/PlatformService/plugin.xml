@@ -20,5 +20,6 @@
             </feature>
         </config-file>
         <source-file src="src/android/PlatformService.java" target-dir="src/" />
+        <source-file src="src/android/RESTUtil.java" target-dir="src/" />
     </platform>
 </plugin>

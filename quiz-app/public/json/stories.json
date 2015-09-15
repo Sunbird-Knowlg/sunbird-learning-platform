@@ -1,24 +1,34 @@
 {
-    "id": "ekstep.lp.game.list",
+    "id": "ekstep.lp.content.story.list",
     "ver": "1.0",
-    "ts": "2015-08-03T18:22:03ZZ",
+    "ts": "2015-09-15T16:56:46ZZ",
     "params": {
-        "resmsgid": "bac97dd6-1aeb-4b2c-8202-f8cb3f1b879b",
+        "resmsgid": "4f78fae1-a796-4be8-9ddb-d9e206b0594b",
         "msgid": null,
         "err": null,
         "status": "successful",
         "errmsg": null
     },
+    "responseCode": "OK",
     "result": {
-        "games": [{
-            "id": "story.annual.haircut.day",
-            "pkgVersion": "0.1",
-            "name": "Annual Haircut Day",
-            "description": "Sringeri Srinivas Annual Haircut Day",
+        "content": [{
+            "questionnaire": null,
             "appIcon": "stories/haircut_story/logo.png",
+            "subject": "literacy_v2",
+            "description": "Haircut Story",
+            "name": "Haircut Story",
             "launchPath": "stories/haircut_story",
-            "downloadUrl": "https://docs.google.com/uc?authuser=0&id=0B2sqDKltUopYN3Z3TzFMVkV2TU0&export=download",
-            "loadingMessage": "Every great journey starts with a great story..."
+            "downloadUrl": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/STORY_1_1442335816604.zip",
+            "checksum": null,
+            "loadingMessage": "Every great journey starts with a great story...",
+            "concepts": [{
+                "identifier": "LO1",
+                "name": "Receptive Vocabulary",
+                "objectType": "Concept"
+            }],
+            "identifier": "STORY_1",
+            "grayScaleAppIcon": null,
+            "pkgVersion": 1
         }],
         "ttl": 24
     }
