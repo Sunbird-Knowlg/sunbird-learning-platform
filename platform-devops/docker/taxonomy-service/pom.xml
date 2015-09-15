@@ -21,7 +21,7 @@
 	<dependencies>
 		<dependency>
 			<groupId>com.ilimi</groupId>
-			<artifactId>taxonomy-service</artifactId>
+			<artifactId>ekstep-service</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>war</type>			
 		</dependency>
@@ -66,7 +66,7 @@
 					  <artifactItems>
 						<artifactItem>
 						  <groupId>com.ilimi</groupId>
-						  <artifactId>taxonomy-service</artifactId>
+						  <artifactId>ekstep-service</artifactId>
 						  <version>1.0-SNAPSHOT</version>
 						  <type>war</type>
 						  <overWrite>true</overWrite>
