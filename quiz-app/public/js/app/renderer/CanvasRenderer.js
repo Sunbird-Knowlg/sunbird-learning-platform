@@ -66,5 +66,14 @@ Renderer = {
         AnimationManager.cleanUp();
         AssetManager.destroy();
         Renderer.theme.cleanUp();
+        Renderer.theme = undefined;
+    },
+    pause: function() {
+        if(Renderer.theme)
+            Renderer.theme.pause();
+    },
+    resume: function() {
+        if(Renderer.theme)
+            Renderer.theme.resume();
     }
 }

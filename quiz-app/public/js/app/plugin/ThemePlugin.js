@@ -253,6 +253,14 @@ var ThemePlugin = Plugin.extend({
     },
     cleanUp: function() {
         createjs.Touch.disable(this._self);
+    },
+    pause: function() {
+        if(this._currentStage) {
+            AssetManager.stopStageAudio(this._currentStage);
+        }
+    },
+    resume: function() {
+        //TODO: Do something here...
     }
 });
 PluginManager.registerPlugin('theme', ThemePlugin);
