@@ -38,20 +38,20 @@ public class RESTUtil {
             } else if(conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                 result.put("status", "error");
                 result.put("msg", "HTTP_NOT_FOUND");
-                result.put("error", "Unable to connect to the content repository. Please check your internet connectivity and try again.");
+                result.put("error", "Unable to connect to the content repository.<br/>Please check your internet connectivity and try again.");
             }
             return result;
         } catch (UnknownHostException e) {
             e.printStackTrace();
             result.put("status", "error");
             result.put("msg", "UnknownHostException");
-            result.put("error", "Unable to connect to the content repository. Please check your internet connectivity and try again.");
+            result.put("error", "Unable to connect to the content repository.<br/>Please check your internet connectivity and try again.");
         }
         catch (Exception e) {
             e.printStackTrace();
             result.put("status", "error");
             result.put("msg", "Exception");
-            result.put("error", "Something went wrong. Please try again later or contact helpdesk if issue persists.");
+            result.put("error", "Something went wrong.<br/>Please try again later or contact helpdesk if issue persists.");
         }
         return result;
     }

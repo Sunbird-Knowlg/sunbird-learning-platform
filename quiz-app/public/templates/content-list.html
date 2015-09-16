@@ -49,10 +49,9 @@
         </div>
     </div>
 </div>
-<div id="errorDiv" style="margin:auto; position:absolute;width:100%;height:20%; bottom:105px; z-index: 1000; display:none;">
+<div id="errorDiv" style="margin:auto; position:absolute;width:100%;height:20%; bottom:105px; z-index: 1000;" ng-show="showMessage">
     <div style="margin: auto; width: 100%; position: fixed; text-align: center; bottom:105px; font-weight: bold;">
-        <div style="margin: auto; width: 100%; position: fixed; text-align: center; font-weight: bold;">
-            Unable to connect to the content repository.<br/> Please check your internet connectivity and try again.
+        <div ng-bind-html="message" style="margin: auto; width: 100%; position: fixed; text-align: center; font-weight: bold;">
         </div>
     </div>
 </div>

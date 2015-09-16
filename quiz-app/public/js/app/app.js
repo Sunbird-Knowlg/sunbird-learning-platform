@@ -35,9 +35,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
+    .controller('ContentListCtrl', function($scope, $rootScope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
-        var currentContentVersion = "0.1";
+        var currentContentVersion = "0.2";
 
         new Promise(function(resolve, reject) {
                 if(currentContentVersion != ContentService.getContentVersion()) {
@@ -70,7 +70,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             .then(function() {
                 var processing = ContentService.getProcessCount();
                 if(processing > 0) {
-                    PlatformService.showToast(processing +" stories/worksheets in processing...");
+                    $rootScope.$broadcast('show-message', {
+                        "message": processing +" stories/worksheets in processing...",
+                    });
                 }
                 $scope.$apply(function() {
                     $scope.loadBookshelf();
@@ -93,14 +95,39 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         //     $scope.mainmenu.hide();
         // };
 
+        $scope.showMessage = false;
+        $scope.$on('show-message', function(event, data) {
+            $scope.$apply(function() {
+                $scope.showMessage = true;
+                $scope.message = data.message;
+            });
+            if(data.timeout) {
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.showMessage = false;
+                    });
+                }, data.timeout);
+            }
+            if(data.reload) {
+                $scope.$apply(function() {
+                    $scope.loadBookshelf();
+                });
+            }
+        });
+
         $scope.resetContentListCache = function() {
             $("#loadingDiv").show();
             setTimeout(function() {
+                $scope.$apply(function() {
+                    $scope.showMessage = false;
+                });
                 ContentService.sync()
                     .then(function() {
                         var processing = ContentService.getProcessCount();
                         if(processing > 0) {
-                            PlatformService.showToast(processing +" stories/worksheets in processing...");
+                            $rootScope.$broadcast('show-message', {
+                                "message": processing +" stories/worksheets in processing...",
+                            });
                         }
                         $scope.loadBookshelf();
                         console.log('flushing telemetry in 2sec...');
