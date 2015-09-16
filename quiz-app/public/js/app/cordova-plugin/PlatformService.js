@@ -10,18 +10,26 @@ PlatformService = {
 		});
 	},
 	getContentList: function() {
-		var content = {};
+		var result = {"data": []};
 		return new Promise(function(resolve, reject) {
 			PlatformService.getJSON('stories.json')
 			.then(function(stories) {
-				content['Story'] = stories;
+				for(i=0;i < stories.result.content.length; i++) {
+                    var item = stories.result.content[i];
+                    item.type = 'story';
+                    result.data.push(item);
+                }
 			})
 			.then(function() {
 				return PlatformService.getJSON('worksheets.json')
 			})
 			.then(function(worksheets) {
-				content['Worksheet'] = worksheets;
-				resolve(content);
+				for(i=0;i<worksheets.result.content.length; i++) {
+                    var item = worksheets.result.content[i];
+                    item.type = 'worksheet';
+                    result.data.push(item);
+                }
+				resolve(result);
 			})
 			.catch(function(err) {
 				reject(err);

@@ -15,12 +15,12 @@ import java.util.HashMap;
 
 public class PlatformService extends CordovaPlugin {
     public static final String TAG = "Platform Service Plugin";
-    Map<String, String> contentMap;
+    Map<String, Map<String, Object>> contentMap;
     /**
      * Constructor.
      */
     public PlatformService() {
-        contentMap = new HashMap<String, String>();
+        contentMap = new HashMap<String, Map<String, Object>>();
     }
         /**
          * Sets the context of the Command. This can then be used to do things like
@@ -57,7 +57,7 @@ public class PlatformService extends CordovaPlugin {
     private JSONObject getContentList(JSONArray types) {
         JSONObject obj = new JSONObject();
         try {
-            Map<String, String> result = new HashMap<String, String>();
+            Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
             if(types != null) {
                 for(int i=0;i<types.length();i++) {
                     String type = types.getString(i);
@@ -72,12 +72,12 @@ public class PlatformService extends CordovaPlugin {
         return obj;
     }
 
-    private String getContent(String type) {
-        String data = contentMap.get(type);
-        if(data == null || data == "") {
-            data = RESTUtil.post("/v1/content/list?type="+type, "{  \"request\": {}}");
-            contentMap.put(type, data);
+    private Map<String, Object> getContent(String type) {
+        Map<String, Object> content = contentMap.get(type);
+        if(content == null || content.get("status") == "error") {
+            content = RESTUtil.post("/v1/content/list?type="+type, "{  \"request\": {}}");
+            contentMap.put(type, content);
         }
-        return data;
+        return content;
     }
 }

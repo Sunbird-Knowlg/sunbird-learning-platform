@@ -87,35 +87,44 @@ angular.module('quiz.services', ['ngResource'])
                 return new Promise(function(resolve, reject) {
                     PlatformService.getContentList()
                     .then(function(contents) {
-                        if (contents['Story']) {
-                            var stories = (_.isString(contents['Story'])) ? JSON.parse(contents['Story']) : contents['Story'];
-                            stories = stories.result.content;
-                            for (key in stories) {
-                                var story = stories[key];
-                                story.type = "story";
-                                // TODO: we will enable processContent call after backend integration.
-                                returnObject.processContent(story);
-                                
-                                // story.status = "ready";
-                                // story.baseDir = story.launchPath;
-                                // returnObject.saveContent(story);
+
+                        if(contents.data) {
+                            for (key in contents.data) {
+                                var content = contents.data[key];
+                                returnObject.processContent(content);
                             }
                         }
-                        if (contents['Worksheet']) {
-                            var worksheets = (_.isString(contents['Worksheet'])) ? JSON.parse(contents['Worksheet']) : contents['Worksheet'];
-                            worksheets = worksheets.result.content;
-                            for (key in worksheets) {
-                                var worksheet = worksheets[key];
-                                worksheet.type = "worksheet";
-                                // TODO: we will enable processContent call after backend integration.
-                                returnObject.processContent(worksheet);
 
-                                // worksheet.status = "ready";
-                                // worksheet.baseDir = worksheet.launchPath;
-                                // returnObject.saveContent(worksheet);
-
-                            }
+                        if(contents.error) {
+                            // TODO: handle error.
                         }
+
+                        // var storyResponse =contents['Story'];
+                        // if (storyResponse.status == "success") {
+                        //     var stories = (_.isString(storyResponse.data)) ? JSON.parse(storyResponse.data) : storyResponse.data;
+                        //     stories = stories.result.content;
+                        //     for (key in stories) {
+                        //         var story = stories[key];
+                        //         story.type = "story";
+                        //         returnObject.processContent(story);
+                        //     }
+                        // } else {
+                        //     // TODO: handle error.
+                        //     console.log("Story error:", storyResponse);
+                        // }
+                        // var worksheetResponse = contents['Worksheet'];
+                        // if (worksheetResponse.status == "success") {
+                        //     var worksheets = (_.isString(worksheetResponse.data)) ? JSON.parse(worksheetResponse.data) : worksheetResponse.data;
+                        //     worksheets = worksheets.result.content;
+                        //     for (key in worksheets) {
+                        //         var worksheet = worksheets[key];
+                        //         worksheet.type = "worksheet";
+                        //         returnObject.processContent(worksheet);
+                        //     }
+                        // } else {
+                        //     // TODO: handle error.
+                        //     console.log("Worksheet error:", worksheetResponse);
+                        // }
                         resolve(true);
                     })
                     .catch(function(err) {
