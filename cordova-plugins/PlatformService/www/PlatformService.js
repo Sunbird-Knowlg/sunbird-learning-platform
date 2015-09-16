@@ -16,10 +16,12 @@ PlatformService.prototype.showToast = function(aString) {
 PlatformService.prototype.getContentList = function() {
     return new Promise(function(resolve, reject) {
         exec(function(result) {
+            console.log("REST result:", result);
             resolve(result);
         }, function(error) {
+            console.log("REST error:", result);
             reject(error);
-        }, "PlatformService", "getContentList", ["stories", "worksheets"]);
+        }, "PlatformService", "getContentList", ["Story", "Worksheet"]);
     });
 }
 

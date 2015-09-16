@@ -43,8 +43,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     })
     .controller('ContentListCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
+        var currentContentVersion = "0.1";
+
         new Promise(function(resolve, reject) {
-                // ContentService.clear();
+                if(currentContentVersion != ContentService.getContentVersion()) {
+                    console.log("Clearing ContentService cache.");
+                    ContentService.clear();
+                    ContentService.setContentVersion(currentContentVersion);
+                }
                 ContentService.init();
                 resolve(TelemetryService._gameData);
             })

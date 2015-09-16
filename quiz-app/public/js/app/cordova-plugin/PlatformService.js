@@ -14,13 +14,13 @@ PlatformService = {
 		return new Promise(function(resolve, reject) {
 			PlatformService.getJSON('stories.json')
 			.then(function(stories) {
-				content.stories = stories;
+				content['Story'] = stories;
 			})
 			.then(function() {
 				return PlatformService.getJSON('worksheets.json')
 			})
 			.then(function(worksheets) {
-				content.worksheets = worksheets;
+				content['Worksheet'] = worksheets;
 				resolve(content);
 			})
 			.catch(function(err) {
