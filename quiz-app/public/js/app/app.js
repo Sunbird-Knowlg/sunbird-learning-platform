@@ -20,10 +20,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 // TelemetryService.end();
             });
             $ionicPlatform.on("pause", function() {
-                console.info("Quizapp is paused");
+                Renderer.pause();
             });
             $ionicPlatform.on("resume", function() {
-                console.info("Quizapp is resumed");
+                Renderer.resume();
             });
         });
     })

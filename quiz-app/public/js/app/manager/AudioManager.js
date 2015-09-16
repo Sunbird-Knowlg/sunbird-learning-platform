@@ -3,19 +3,13 @@ AudioManager = {
 	play: function(action, instance) {
 		instance = instance || AudioManager.instances[action.asset] || {};
         if(instance.object) {
-            if(instance.state == 'paused') {
+            if(instance.object.paused) {
                 instance.object.paused = false;
-                instance.state = 'play';
-            } else {
-                instance.state = 'play';
+            } else if([createjs.Sound.PLAY_FINISHED, createjs.Sound.PLAY_INTERRUPTED, createjs.Sound.PLAY_FAILED].indexOf(instance.object.playState) !== -1) {
                 instance.object.play();
             }
         } else {
-            instance.state = 'play';
             instance.object = createjs.Sound.play(action.asset, {interrupt:createjs.Sound.INTERRUPT_ANY});
-            instance.object.on("complete", function() {
-                instance.state = 'stop';
-            });
             instance._data = {id: action.asset};
             AudioManager.instances[action.asset] = instance;
             AssetManager.addStageAudio(Renderer.theme._currentStage, action.asset);
@@ -24,23 +18,26 @@ AudioManager = {
     },
     togglePlay: function(action) {
     	var instance = AudioManager.instances[action.asset] || {};
-        if(instance.state == 'play') {
-            AudioManager.pause(action, instance);
+        if(instance.object) {
+            if(instance.object.playState === createjs.Sound.PLAY_FINISHED || instance.object.paused) {
+                AudioManager.play(action, instance);    
+            } else if (!instance.object.paused) {
+                AudioManager.pause(action, instance);
+            }
         } else {
             AudioManager.play(action, instance);
         }
     },
     pause: function(action, instance) {
     	instance = instance || AudioManager.instances[action.asset];
-        if(instance.state == 'play' && instance.object) {
+        if(instance.object && instance.object.playState === createjs.Sound.PLAY_SUCCEEDED) {
             instance.object.paused = true;
-            instance.state = 'paused';
             EventManager.processAppTelemetry(action, 'PAUSE_LISTENING', instance);
         }
     },
     stop: function(action) {
     	var instance = AudioManager.instances[action.asset] || {};
-        if(instance.state == 'play' && instance.object) {
+        if(instance.object && instance.object.playState !== createjs.Sound.PLAY_FINISHED) {
             instance.object.stop();
             EventManager.processAppTelemetry(action, 'STOP_LISTENING', instance);
         }

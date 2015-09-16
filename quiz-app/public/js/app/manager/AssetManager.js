@@ -8,6 +8,12 @@ AssetManager = {
         return AssetManager.strategy.getAsset(stageId, assetId);
     },
     initStage: function(stageId, nextStageId, prevStageId, cb) {
+        if (nextStageId) {
+            AssetManager.stopStageAudio(nextStageId);
+        }
+        if (prevStageId) {
+            AssetManager.stopStageAudio(prevStageId);
+        }
         AssetManager.strategy.initStage(stageId, nextStageId, prevStageId, cb);
     },
     destroy: function() {
@@ -15,11 +21,10 @@ AssetManager = {
         AssetManager.strategy = undefined;
         AssetManager.stageAudios = {};
     },
-    pauseStageAudio: function(stageId) {
+    stopStageAudio: function(stageId) {
         if(AssetManager.stageAudios[stageId] && AssetManager.stageAudios[stageId].length > 0) {
-            console.info('Pausing stage audios', stageId);
             AssetManager.stageAudios[stageId].forEach(function(audioAsset) {
-                AudioManager.pause({asset:audioAsset});
+                AudioManager.stop({asset:audioAsset});
             });
         }
     },
