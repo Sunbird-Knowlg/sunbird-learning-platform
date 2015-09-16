@@ -15,7 +15,23 @@ PlatformService.prototype.showToast = function(aString) {
 
 PlatformService.prototype.getContentList = function() {
     return new Promise(function(resolve, reject) {
-        exec(function(result) {
+        exec(function(resp) {
+            console.log("REST response:", resp);
+            var result = {};
+            for(key in resp) {
+                var contentResponse = resp[key];
+                if(contentResponse.status == "success") {
+                    var data = (typeof contentResponse.data == 'string') ? JSON.parse(contentResponse.data) : contentResponse.data;
+                    if(result.data == null) result.data = [];
+                    for(i=0;i<data.result.content.length; i++) {
+                        var item = data.result.content[i];
+                        item.type = key.toLowerCase();
+                        result.data.push(item);
+                    }
+                } else {
+                    result["error"] = contentResponse.error;
+                }
+            }
             console.log("REST result:", result);
             resolve(result);
         }, function(error) {

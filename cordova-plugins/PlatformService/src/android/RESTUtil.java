@@ -3,17 +3,19 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RESTUtil {
 
     private static String host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
 
-    public static String post(String api, String request) {
-        String result = "";
+    public static Map<String, Object> post(String api, String request) {
+        Map<String, Object> result = new HashMap<String, Object>();
         try {
             URL url = getURL(api);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setConnectTimeout(2000);
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -22,7 +24,7 @@ public class RESTUtil {
             OutputStream os = conn.getOutputStream();
             os.write(request.getBytes());
             os.flush();
-
+            result.put("code", conn.getResponseCode());
             if (conn.getResponseCode() == HttpURLConnection.HTTP_OK) {
                 BufferedReader br = new BufferedReader(new InputStreamReader((conn.getInputStream())));
                 String line;
@@ -30,11 +32,26 @@ public class RESTUtil {
                 while ((line = br.readLine()) != null) {
                     sb.append(line);
                 }
-                result = sb.toString();
+                result.put("status", "success");
+                result.put("msg", "all ok");
+                result.put("data", sb.toString());
+            } else if(conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
+                result.put("status", "error");
+                result.put("msg", "HTTP_NOT_FOUND");
+                result.put("error", "Unable to connect to the content repository. Please check your internet connectivity and try again.");
             }
             return result;
-        } catch (Exception e) {
+        } catch (UnknownHostException e) {
             e.printStackTrace();
+            result.put("status", "error");
+            result.put("msg", "UnknownHostException");
+            result.put("error", "Unable to connect to the content repository. Please check your internet connectivity and try again.");
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            result.put("status", "error");
+            result.put("msg", "Exception");
+            result.put("error", "Something went wrong. Please try again later or contact helpdesk if issue persists.");
         }
         return result;
     }
