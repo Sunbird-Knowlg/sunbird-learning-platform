@@ -19,6 +19,12 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $ionicPlatform.onHardwareBackButton(function() {
                 // TelemetryService.end();
             });
+            $ionicPlatform.on("pause", function() {
+                console.info("Quizapp is paused");
+            });
+            $ionicPlatform.on("resume", function() {
+                console.info("Quizapp is resumed");
+            });
         });
     })
     .config(function($stateProvider, $urlRouterProvider) {
