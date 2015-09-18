@@ -28,7 +28,7 @@ Renderer = {
         Renderer.initByJSON(gameRelPath, canvasId);
     },
     initByJSON: function(gameRelPath, canvasId) {
-        $.get(gameRelPath + '/markup.json', function(data) {
+        $.get(gameRelPath + '/index.json', function(data) {
             Renderer.init(data, canvasId, gameRelPath);
         })
         .fail(function() {
@@ -36,7 +36,7 @@ Renderer = {
         });
     },
     initByXML: function(gameRelPath, canvasId) {
-        $.get(gameRelPath + '/markup.xml', function(data) {
+        $.get(gameRelPath + '/index.ecml', function(data) {
             Renderer.init(data, canvasId, gameRelPath);
         },null, 'xml')
         .fail(function(err) {

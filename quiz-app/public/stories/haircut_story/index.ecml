@@ -1,4 +1,4 @@
-<theme startStage="splash" id="theme">
+<theme startStage="splash" id="theme" ver="0.2">
     <manifest>
         <media id="razor" src="razor.png" type="image" />
         <media id="scissors" src="scissors.gif" type="image" />
@@ -187,7 +187,26 @@
         </media>
     </manifest>
     <controller name="storyData" type="data" id="story_data"/>
-    <stage id="baseStage">
+    <controller name="assessment" type="items" id="assessment"/>
+    <stage id="baseStage" preload="true">
+        <image asset="carpenter_img"/>
+        <image asset="barber_img"/>
+        <image asset="tailor_img"/>
+        <image asset="wife_img"/>
+        <image asset="knife"/>
+        <image asset="razor"/>
+        <image asset="scissors"/>
+        <image asset="saw"/>
+        <image asset="b-outer"/>
+        <image asset="w-outer"/>
+        <image asset="t-outer"/>
+        <image asset="b-inner"/>
+        <image asset="w-inner"/>
+        <image asset="t-inner"/>
+        <audio asset="scene20_audio" />
+        <audio asset="scene21_audio" />
+    </stage>
+    <stage id="storyBaseStage" preload="true">
         <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
         <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
             <event type="click">
@@ -196,8 +215,8 @@
         </shape>
         <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
         <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
-            <event type="click" disableTelemetry="true">
-                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" />
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
             </event>
         </shape>
         <text param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
@@ -241,7 +260,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene1" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene1" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <audio asset="scene1_audio" />
         <param name="next" value="scene2" />
         <param name="previous" value="splash" />
@@ -268,7 +287,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene2" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene2" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <audio asset="scene2_audio" />
         <param name="next" value="scene3" />
         <param name="previous" value="scene1" />
@@ -451,7 +470,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene3" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene3" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <audio asset="scene3_audio" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB" />
         <image asset="page4" x="2" y="12" w="96" h="86" />
@@ -513,7 +532,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene4" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene4" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene5" />
         <param name="previous" value="scene3" />
         <param name="body" model="storyData.scene4_body"/>
@@ -540,7 +559,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene5" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene5" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene6" />
         <param name="previous" value="scene4" />
         <param name="body" model="storyData.scene5_body"/>
@@ -602,7 +621,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene6" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene6" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene7" />
         <param name="previous" value="scene5" />
         <param name="body" model="storyData.scene6_body"/>
@@ -629,7 +648,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene7" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene7" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene8" />
         <param name="previous" value="scene6" />
         <param name="body" model="storyData.scene7_body"/>
@@ -711,7 +730,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene8" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene8" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene9" />
         <param name="previous" value="scene7" />
         <param name="body" model="storyData.scene8_body"/>
@@ -756,7 +775,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene9" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene9" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene10" />
         <param name="previous" value="scene8" />
         <param name="body" model="storyData.scene9_body"/>
@@ -823,7 +842,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene10" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene10" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene11" />
         <param name="previous" value="scene9" />
         <param name="body" model="storyData.scene10_body"/>
@@ -845,7 +864,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene11" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene11" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene12" />
         <param name="previous" value="scene10" />
         <param name="body" model="storyData.scene11_body"/>
@@ -867,7 +886,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene12" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene12" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene13" />
         <param name="previous" value="scene11" />
         <param name="body" model="storyData.scene12_body"/>
@@ -899,7 +918,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene13" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene13" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene14" />
         <param name="previous" value="scene12" />
         <param name="body" model="storyData.scene13_body"/>
@@ -921,7 +940,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene14" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene14" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene15" />
         <param name="previous" value="scene13" />
         <param name="body" model="storyData.scene14_body"/>
@@ -948,7 +967,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene15" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene15" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene16" />
         <param name="previous" value="scene14" />
         <param name="body" model="storyData.scene15_body"/>
@@ -970,7 +989,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene16" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene16" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene17" />
         <param name="previous" value="scene15" />
         <param name="body" model="storyData.scene16_body"/>
@@ -992,7 +1011,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene17" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene17" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene18" />
         <param name="previous" value="scene16" />
         <param name="body" model="storyData.scene17_body"/>
@@ -1014,7 +1033,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene18" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene18" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene19" />
         <param name="previous" value="scene17" />
         <param name="body" model="storyData.scene18_body"/>
@@ -1036,7 +1055,7 @@
             </event>
         </events>
     </stage>
-    <stage id="scene19" x="0" y="0" w="100" h="100" extends="baseStage">
+    <stage id="scene19" x="0" y="0" w="100" h="100" extends="storyBaseStage">
         <param name="next" value="scene20" />
         <param name="previous" value="scene18" />
         <param name="body" model="storyData.scene19_body"/>
@@ -1058,176 +1077,101 @@
             </event>
         </events>
     </stage>
-    <stage id="scene20" x="0" y="0" w="100" h="100" extends="baseStage">
-        <audio asset="scene20_audio" />
-        <param name="next" value="scene21" />
-        <param name="previous" value="scene19" />
-        <param name="body" model="storyData.scene20_body"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
-        <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="barber_img" />
-            </event>
-        </image>
-        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="carpenter_img" />
-            </event>
-        </image>
-        <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="tailor_img" />
-            </event>
-        </image>
-        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="wife_img" />
-            </event>
-        </image>
-        <image asset="question_block" x="5" y="15" w="9" h="16" />
+    <template id="mcq_template_1">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mcq multi_select="false" model="item">
+            <options layout="table" x="20" y="15" w="70" h="85" cols="2" marginX="10" marginY="5" options="options"/>
+        </mcq>
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
-                    <action type="command" command="stop" asset="learning11_sound" />
+                    <action type="command" command="stop" asset_model="item.hints[0].asset" />
                     <action type="command" command="toggleShow" asset="hint" />
                 </event>
             </image>
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
                 Hint
             </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene20_hint"/>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="item.hints[1].asset"/>
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
-                <action type="command" command="togglePlay" asset="learning11_sound" />
+                <action type="command" command="togglePlay" asset_model="item.hints[0].asset" />
                 <action type="command" command="toggleShow" asset="hint" />
             </event>
         </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
-        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
-            <event type="click">
-                <action type="command" command="togglePlay" asset="learning10_sound" />
-            </event>
-        </shape>
-        <events>
-            <event type="enter">
-                <action type="command" command="play" asset="learning10_sound" loop="1" />
-            </event>
-            <event type="exit">
-                <action type="command" command="stop" asset="learning10_sound" audio="true" loop="1" />
-            </event>
-        </events>
-    </stage>
-    <stage id="scene21" x="0" y="0" w="100" h="100" extends="baseStage">
-        <audio asset="scene21_audio" />
-        <param name="next" value="scene22" />
-        <param name="previous" value="scene20" />
-        <param name="body" model="storyData.scene21_body"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
-        <image asset="barber_img" id="barber_img" x="20" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="barber_img" />
-            </event>
-        </image>
-        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="carpenter_img" />
-            </event>
-        </image>
-        <image asset="tailor_img" id="tailor_img" x="20" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="tailor_img" />
-            </event>
-        </image>
-        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" type="choice" shadowColor="#0470D8">
-            <event type="click">
-                <action type="command" command="toggleShadow" asset="wife_img" />
-            </event>
-        </image>
-        <image asset="question_block" x="5" y="15" w="9" h="16" />
-        <g x="9" y="17" w="20" h="20" id="hint" visible="false">
-            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
-                <event type="click">
-                    <action type="command" command="stop" asset="learning13_sound" />
-                    <action type="command" command="hide" asset="hint" />
-                </event>
-            </image>
-            <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
-                Hint
-            </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene21_hint"/>
-        </g>
-        <image asset="icon_hint" x="5" y="35">
-            <event type="click">
-                <action type="command" command="play" asset="learning13_sound" />
-                <action type="command" command="show" asset="hint" />
-            </event>
-        </image>
-        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
-        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
-            <event type="click">
-                <action type="command" command="togglePlay" asset="learning12_sound" />
-            </event>
-        </shape>
-        <events>
-            <event type="enter">
-                <action type="command" command="play" asset="learning12_sound" loop="1" />
-            </event>
-            <event type="exit">
-                <action type="command" command="stop" asset="learning12_sound" audio="true" loop="1" />
-            </event>
-        </events>
-    </stage>
-    <stage id="scene22" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="scene23" />
-        <param name="previous" value="scene21" />
-        <param name="body" model="storyData.scene22_body"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
-        <image asset="barber_img" id="barber_img" x="15" y="15" w="30" h="40" snapX="45" snapY="35"/>
-        <image asset="carpenter_img" id="carpenter_img" x="60" y="15" w="30" h="40" snapX="45" snapY="35"/>
-        <image asset="tailor_img" id="tailor_img" x="15" y="60" w="30" h="40" snapX="45" snapY="35"/>
-        <image asset="wife_img" id="wife_img" x="60" y="60" w="30" h="40" snapX="45" snapY="35"/>
-        <image asset="question_block" x="5" y="15" w="9" h="16" />
-        <g x="45" y="20" w="15" h="20" enableDrag="true" snapTo="wife_img" hitArea="true">
-            <image asset="knife" id="knife" x="18" y="15" w="60" h="80"/>
-        </g>
-        <g x="45" y="37" w="15" h="20" enableDrag="true" snapTo="barber_img" hitArea="true">
-            <image asset="razor" id="razor" x="20" y="15" w="60" h="80"/>
-        </g>
-        <g x="45" y="59" w="15" h="20" enableDrag="true" snapTo="tailor_img" hitArea="true">
-            <image asset="scissors" id="scissors" x="20" y="15" w="60" h="80"/>
-        </g>
-        <g x="45" y="80" w="15" h="20" enableDrag="true" snapTo="carpenter_img" hitArea="true">
-            <image asset="saw" id="saw" x="20" y="15" w="60" h="80"/>
-        </g>
-    </stage>
-    <stage id="scene23" x="0" y="0" w="100" h="100" extends="baseStage">
-        <param name="next" value="splash" />
-        <param name="previous" value="scene22" />
-        <param name="body" model="storyData.scene23_body"/>
-        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
-        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
-        <image asset="b-outer" id="b-outer" x="20" y="15" w="30" h="25" snapX="42" snapY="9" />
-        <image asset="w-outer" id="w-outer" x="20" y="43" w="30" h="25" snapX="10.5" snapY="5" />
-        <image asset="t-outer" id="t-outer" x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5" />
-        <image asset="t-inner" id="t-inner" x="70" y="15" w="10" h="16" enableDrag="true" snapTo="t-outer" />
-        <image asset="b-inner" id="b-inner" x="70" y="43" w="10" h="19.5" enableDrag="true" snapTo="b-outer" />
-        <image asset="w-inner" id="w-inner" x="70" y="71" w="12" h="22" enableDrag="true" snapTo="w-outer" />
-        <image asset="question_block" x="5" y="15" w="9" h="16" />
+    </template>
+    <template id="mtf_template_1">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mtf model="item">
+            <options layout="table" x="15" y="15" w="75" h="85" cols="2" marginX="15" marginY="5" snapX="45" snapY="35" options="lhs_options"/>
+
+            <option x="45" y="20" w="15" h="20" padX="20" padY="10" option="rhs_options[0]"/>
+            <option x="45" y="37" w="15" h="20" padX="20" padY="10" option="rhs_options[1]"/>
+            <option x="45" y="59" w="15" h="20" padX="20" padY="10" option="rhs_options[2]"/>
+            <option x="45" y="80" w="15" h="20" padX="20" padY="10" option="rhs_options[3]"/>
+        </mtf>
+    </template>
+    <template id="mtf_template_2">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mtf model="item" force="true">
+            <option x="20" y="15" w="30" h="25" snapX="42" snapY="9" option="lhs_options[0]"/>
+            <option x="20" y="43" w="30" h="25" snapX="10.5" snapY="5" option="lhs_options[1]"/>
+            <option x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5" option="lhs_options[2]"/>
+
+            <option x="70" y="15" w="10" h="16" option="rhs_options[0]"/>
+            <option x="70" y="43" w="10" h="19.5" option="rhs_options[1]"/>
+            <option x="70" y="71" w="12" h="22" option="rhs_options[2]"/>
+        </mtf>
         <g x="9" y="17" w="20" h="20" id="hint" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100" />
             <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
                 Hint
             </text>
-            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="storyData.scene23_hint"/>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="item.hints[0].asset"/>
         </g>
         <image asset="icon_hint" x="5" y="35">
             <event type="click">
                 <action type="command" command="toggleShow" asset="hint" />
             </event>
         </image>
+    </template>
+    <stage id="scene20" x="0" y="0" w="100" h="100" iterate="assessment" var="item">
+        <param name="next" value="splash" />
+        <param name="previous" value="scene19" />
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click" disableTelemetry="true">
+                <action type="command" command="eval" asset="scene20" success="next_item" failure="next_item"/>
+            </event>
+        </shape>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape>
+        <embed template="item" var-item="item"/>
+        <image asset="question_block" x="5" y="15" w="9" h="16" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset_model="item.title_audio.asset" />
+            </event>
+        </shape>
+        <appEvents list="next_item"/>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset_model="item.title_audio.asset" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset_model="item.title_audio.asset" audio="true" loop="1" />
+            </event>
+            <event type="next_item">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </events>
     </stage>
 </theme>

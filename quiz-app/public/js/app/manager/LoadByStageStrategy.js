@@ -37,11 +37,8 @@ LoadByStageStrategy = Class.extend({
         stages.forEach(function(stage) {
             instance.stageManifests[stage.id] = [];
             AssetManager.stageAudios[stage.id] = [];
-            instance.populateAssets(stage, stage.id);
+            instance.populateAssets(stage, stage.id, stage.preload);
         });
-        if (instance.stageManifests.baseStage && instance.stageManifests.baseStage.length > 0) {
-            instance.commonAssets.push.apply(instance.commonAssets, instance.stageManifests.baseStage);
-        }
         instance.loadCommonAssets();
 
         var templates = themeData.template;
@@ -51,20 +48,24 @@ LoadByStageStrategy = Class.extend({
         });
         instance.loadTemplateAssets();
     },
-    populateAssets: function(data, stageId) {
+    populateAssets: function(data, stageId, preload) {
         var instance = this;
         for (k in data) {
             var plugins = data[k];
             if (!_.isArray(plugins)) plugins = [plugins];
             if (PluginManager.isPlugin(k) && k == 'g') {
                 plugins.forEach(function(plugin) {
-                    instance.populateAssets(plugin, stageId);
+                    instance.populateAssets(plugin, stageId, preload);
                 });
             } else {
                 plugins.forEach(function(plugin) {
                     var asset = instance.assetMap[plugin.asset];
                     if (asset) {
-                        instance.stageManifests[stageId].push(_.clone(asset));
+                        if (preload === true) {
+                            instance.commonAssets.push(_.clone(asset));
+                        } else {
+                            instance.stageManifests[stageId].push(_.clone(asset));
+                        }
                     }
                 });
             }
