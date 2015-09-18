@@ -222,7 +222,7 @@
         <text param="body" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
     </stage>
     <stage id="splash" x="0" y="0" w="100" h="100">
-        <param name="next" value="scene20" />
+        <param name="next" value="scene1" />
         <audio asset="splash_audio" />
         <image asset="page1" x="2" y="2" w="96" h="70" />
         <image asset="publisher_logo" x="2" y="75" w="13" h="17" />
