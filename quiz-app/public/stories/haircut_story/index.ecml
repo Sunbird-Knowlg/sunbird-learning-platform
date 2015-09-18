@@ -1170,7 +1170,7 @@
                 <action type="command" command="stop" asset_model="item.title_audio.asset" audio="true" loop="1" />
             </event>
             <event type="next_item">
-                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" reset="true" />
             </event>
         </events>
     </stage>
