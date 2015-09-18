@@ -39,7 +39,6 @@ LoadByStageStrategy = Class.extend({
             AssetManager.stageAudios[stage.id] = [];
             instance.populateAssets(stage, stage.id);
         });
-        console.info("Instance", instance);
         if (instance.stageManifests.baseStage && instance.stageManifests.baseStage.length > 0) {
             instance.commonAssets.push.apply(instance.commonAssets, instance.stageManifests.baseStage);
         }
