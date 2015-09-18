@@ -91,9 +91,9 @@ TelemetryService = {
             return new InActiveEvent();
         }
     },
-    end: function() {
+    end: function(gameId) {
         if (TelemetryService.isActive) {
-            return new EndEvent();
+            return new EndEvent(gameId);
         } else {
             return new InActiveEvent();
         }

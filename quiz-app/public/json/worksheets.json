@@ -26,7 +26,7 @@
                 "name": "Two digit numbers, addition upto 99 (grouping)",
                 "objectType": "Concept"
             }],
-            "identifier": "WS_1",
+            "identifier": "org.ekstep.num.addition.by.grouping",
             "grayScaleAppIcon": null,
             "pkgVersion": 1
         }],

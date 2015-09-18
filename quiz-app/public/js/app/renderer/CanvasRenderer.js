@@ -3,6 +3,7 @@ Renderer = {
     theme: undefined,
     update: true,
     gdata: undefined,
+    running: false,
     resizeGame: function(disableDraw) {
         var gameArea = document.getElementById('gameArea');
         var widthToHeight = 16 / 9;
@@ -24,7 +25,9 @@ Renderer = {
         Renderer.theme.updateCanvas(newWidth, newHeight);
         if(!disableDraw) Renderer.theme.reRender();
     },
-    start: function(gameRelPath, canvasId) {
+    start: function(gameRelPath, canvasId, gameId) {
+        Renderer.running = true;
+        TelemetryService.start(gameId, "1.0");
         Renderer.initByJSON(gameRelPath, canvasId);
     },
     initByJSON: function(gameRelPath, canvasId) {
@@ -62,11 +65,13 @@ Renderer = {
         });
     },
     cleanUp: function() {
+        Renderer.running = false;
         PluginManager.cleanUp();
         AnimationManager.cleanUp();
         AssetManager.destroy();
         Renderer.theme.cleanUp();
         Renderer.theme = undefined;
+        TelemetryService.end();
     },
     pause: function() {
         if(Renderer.theme)

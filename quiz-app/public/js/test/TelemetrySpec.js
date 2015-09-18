@@ -40,7 +40,7 @@ describe('Telemetry Service API', function() {
             "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
         };
         var game = {
-                "id": "com.ilimi.quiz.app",
+                "id": "com.ekstep.quiz.app",
                 "ver": "1.0"
             };
         TelemetryService.init(user, game)

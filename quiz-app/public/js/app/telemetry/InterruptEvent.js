@@ -9,7 +9,7 @@ InterruptEvent = TelemetryEvent.extend({
         }
         this.event.edata.eks = {
             "type": type,
-            "id": id
+            "id": id || ''
         };
         var messages = TelemetryService.validateEvent(eventStr, this.event.edata);
         if (messages.length == 0) {

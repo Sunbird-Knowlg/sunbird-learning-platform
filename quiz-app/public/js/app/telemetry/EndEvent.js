@@ -1,5 +1,9 @@
 EndEvent = TelemetryEvent.extend({
-    init: function() {
+    init: function(gameId, ver) {
+        if (gameId && ver) TelemetryService._gameData = {
+            "id": gameId,
+            "ver": ver
+        };
         this._super();
         this.event.eid = this.name = "OE_END";
         var startEvent = _.findWhere(TelemetryService._data[TelemetryService._gameData.id], {

@@ -3,6 +3,11 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
+function backbuttonPressed() {
+    if(!Renderer.running) {
+        TelemetryService.end("org.ekstep.quiz.app", "1.0");
+    }
+}
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .run(function($ionicPlatform, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
@@ -17,13 +22,16 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                // TelemetryService.end();
+                backbuttonPressed();
             });
             $ionicPlatform.on("pause", function() {
                 Renderer.pause();
             });
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
+            });
+            $ionicPlatform.on("backbutton", function() {
+                backbuttonPressed();
             });
         });
     })
@@ -62,7 +70,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
                     };
                     var game = {
-                        "id": "com.ilimi.quiz.app",
+                        "id": "org.ekstep.quiz.app",
                         "ver": "1.0"
                     };
                     return TelemetryService.init(user, game);
@@ -71,6 +79,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             })
             .then(function() {
+                TelemetryService.start();
                 return ContentService.sync();
             })
             .then(function() {
@@ -158,18 +167,20 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
         }
 
+        $scope.$on('$destroy', function() {
+            console.info("Destroy content list page");
+        });
+
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
-            Renderer.start($scope.item.baseDir, 'gameCanvas');
-            TelemetryService.start($scope.item.id, "1.0");
+            Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
         } else {
             alert('Name or Launch URL not found.');
             $state.go('contentList');
         }
         $scope.$on('$destroy', function() {
             setTimeout(function() {
-                TelemetryService.end();
                 Renderer.cleanUp();
             }, 100);
         });

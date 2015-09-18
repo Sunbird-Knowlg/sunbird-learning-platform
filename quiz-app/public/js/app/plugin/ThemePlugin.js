@@ -261,7 +261,7 @@ var ThemePlugin = Plugin.extend({
         TelemetryService.interrupt("BACKGROUND", this._currentStage);
     },
     resume: function() {
-        //TODO: Do something here...
+        TelemetryService.interrupt("RESUME", this._currentStage);
     }
 });
 PluginManager.registerPlugin('theme', ThemePlugin);
