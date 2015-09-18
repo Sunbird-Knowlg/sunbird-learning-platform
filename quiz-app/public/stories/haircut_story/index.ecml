@@ -1,4 +1,4 @@
-<theme startStage="splash" id="theme">
+<theme startStage="splash" id="theme" ver="0.2">
     <manifest>
         <media id="razor" src="razor.png" type="image" />
         <media id="scissors" src="scissors.gif" type="image" />

@@ -1,4 +1,4 @@
-<theme id="theme" startStage="splash">
+<theme id="theme" startStage="splash" ver="0.2">
     <manifest>
         <media id="bg" src="bg.png" type="image" />
         <media id="noah" src="noah.png" type="image" />
