@@ -137,7 +137,7 @@ var OptionPlugin = Plugin.extend({
                     if (plugin._data.snapY) {
                         this.y = dims.y + (dims.w * plugin._data.snapY / 100);
                     }
-                    instance._parent.setAnswer(instance, snapTo._index);
+                    instance._parent.setAnswer(instance, plugin._index);
                 }
                 var ext = {
                     type: evt.type,
