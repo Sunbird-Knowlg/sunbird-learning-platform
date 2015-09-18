@@ -31,7 +31,7 @@ LogLevel = require('./commons/LogLevel');
 var appUtil = require('./commons/AppUtil');
 EventHelper = require('./commons/EventHelper');
 var RBACUtil = require('./commons/RBACUtil');
-ClusterHub = require('clusterhub');
+//ClusterHub = require('clusterhub');
 http.globalAgent.maxSockets = 100000;
 
 if (cluster.isMaster) {
@@ -53,9 +53,9 @@ if (cluster.isMaster) {
     MongoHelper = require('./commons/MongoHelper');
     appUtil.initializeListeners();
 
-    ClusterHub.on('event', function(data) {
+    /*ClusterHub.on('event', function(data) {
         appUtil.processClusterHubEvent(data);
-    });
+    });*/
 
     var app = express();
     if(appConfig.SESSION_STORE_TYPE == 'Mongo') {
