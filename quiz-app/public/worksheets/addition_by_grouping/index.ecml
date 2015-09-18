@@ -223,7 +223,7 @@
         <image asset="bg" x="0" y="0" w="100" h="100"/>
         <image asset="home_icon" x="93" y="1" w="5" h="9">
             <event type="click">
-                <action type="command" command="windowEvent" asset="theme" href="index.html"/>
+                <action type="command" command="windowEvent" asset="theme" href="#/content/list"/>
             </event>
         </image>
         <image asset="difficulty_high" x="1" y="1" w="5" h="9"/>

@@ -26,6 +26,9 @@ Renderer = {
         if(!disableDraw) Renderer.theme.reRender();
     },
     start: function(gameRelPath, canvasId, gameId) {
+        if(Renderer.running) {
+            Renderer.cleanUp();
+        }
         Renderer.running = true;
         TelemetryService.start(gameId, "1.0");
         Renderer.initByJSON(gameRelPath, canvasId);
