@@ -7,7 +7,6 @@ EventManager = {
 		} else {
 			events = data.event;
 		}
-
 		if(_.isArray(events)) {
 			events.forEach(function(e) {
 				EventManager.registerEvent(e, plugin);
@@ -48,8 +47,19 @@ EventManager = {
 		}
 	},
 	handleAction: function(action, plugin) {
-		if(action.param) {
-			action.value = plugin._stage.params[action.param] || '';
+		var stage = plugin._stage;
+		if (!stage || stage == null) {
+			stage = plugin;
+		}
+		if (stage && stage._type === 'stage') {
+			if(action.param) {
+				action.value = stage.params[action.param] || '';
+			}
+			if (action.asset_param) {
+				action.asset = stage.params[action.asset_param] || '';
+			} else if (action.asset_model) {
+				action.asset = stage.getModelValue(action.asset_model) || '';
+			}
 		}
 		if(action.type === 'animation') {
 			AnimationManager.handle(action, plugin);

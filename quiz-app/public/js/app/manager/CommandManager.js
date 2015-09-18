@@ -26,31 +26,31 @@ CommandManager = {
 				AudioManager.togglePlay(action);
 				break;
 			case 'show':
-				plugin.show(action);
+				if (plugin) plugin.show(action);
 				break;
 			case 'hide':
-				plugin.hide(action);
+				if (plugin) plugin.hide(action);
 				break;
 			case 'toggleShow':
-				plugin.toggleShow(action);
+				if (plugin) plugin.toggleShow(action);
 				break;
 			case 'transitionTo':
-				plugin.transitionTo(action);
+				if (plugin) plugin.transitionTo(action);
 				break;
 			case 'event':
 				EventManager.dispatchEvent(action.asset, action.value);
 				break;
 			case 'toggleShadow':
-				plugin.toggleShadow();
+				if (plugin) plugin.toggleShadow();
 				break;
 			case 'windowEvent':
 				window.location.href = action.href;
 				break;
 			case 'eval':
-				plugin.evaluate(action);
+				if (plugin) plugin.evaluate(action);
 				break;
 			case 'reload':
-				plugin.reload(action);
+				if (plugin) plugin.reload(action);
 				break;
 			default:
 		}

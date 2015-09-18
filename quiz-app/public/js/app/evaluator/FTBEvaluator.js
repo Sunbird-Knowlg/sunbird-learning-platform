@@ -24,4 +24,4 @@ FTBEvaluator = {
 		result.score = score;
 		return result;
 	}
-}
+};

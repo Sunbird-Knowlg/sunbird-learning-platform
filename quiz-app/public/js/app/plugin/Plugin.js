@@ -26,17 +26,15 @@ var Plugin = Class.extend({
         	this._self.width = dims.w;
         	this._self.height = dims.h;	
 		}
-        if (data.type == 'choice') {
-            this._stage._choices.push(this);
-        }
         if (data.enableDrag) {
             this.enableDrag(this._self, data.snapTo);
         }
+        var instance = this;
 		if(data.appEvents) {
-			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));
+			this.appEvents.push.apply(this.appEvents, data.appEvents.list.split(','));	
 		}
 		EventManager.registerEvents(this, data);
-		this._id = data.id || data.asset || _.uniqueId('plugin');
+		this._id = this._data.id || this._data.asset || _.uniqueId('plugin');
 		PluginManager.registerPluginObject(this);
 		if (data.visible === false) {
 	    	this._self.visible = false;
@@ -145,11 +143,6 @@ var Plugin = Class.extend({
 		Renderer.update = true;
 	},
 	toggleShadow: function() {
-        if (this._stage._choices) {
-            this._stage._choices.forEach(function(choice) {
-                choice.removeShadow();
-            });
-        }
         if (this._self.shadow) {
             this._self.shadow = undefined;
         } else {

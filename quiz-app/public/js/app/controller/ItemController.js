@@ -35,6 +35,10 @@ var ItemController = Controller.extend({
 		var pass = false;
 		if (item.type == 'ftb') {
 			result = FTBEvaluator.evaluate(item);
+		} else if (item.type == 'mcq' || item.type == 'mmcq') {
+			result = MCQEvaluator.evaluate(item);
+		} else if (item.type == 'mtf') {
+			result = MTFEvaluator.evaluate(item);
 		}
 		if (result) {
 			pass = result.pass;

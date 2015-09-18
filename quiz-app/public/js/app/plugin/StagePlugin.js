@@ -1,7 +1,6 @@
 var StagePlugin = Plugin.extend({
     _type: 'stage',
     _render: true,
-    _choices: [],
     params: {},
     _stageController: undefined,
     _stageControllerName: undefined,

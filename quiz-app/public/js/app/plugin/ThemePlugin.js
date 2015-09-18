@@ -60,10 +60,10 @@ var ThemePlugin = Plugin.extend({
         if (this._data.template) {
             if (_.isArray(this._data.template)) {
                 this._data.template.forEach(function(t) {
-                    this._templateMap[t.id] = t;
+                    instance._templateMap[t.id] = t;
                 });
             } else {
-                this._templateMap[this._data.template.id] = this._data.template;
+                instance._templateMap[this._data.template.id] = this._data.template;
             }
         }
         if (!_.isArray(this._data.stage)) this._data.stage = [this._data.stage];

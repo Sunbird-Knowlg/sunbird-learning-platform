@@ -82,31 +82,40 @@ var Controller = Class.extend({
     	if (this._model && param) {
     		var m = this.getModel();
     		if (m) {
-    			if (m.model) {
-					m = m.model;
-				}
-	    		var tokens = param.split('.');
-				val = m[tokens[0]];
-				if (val) {
-					for (var i=1; i<tokens.length; i++) {
-	  					val = val[tokens[i]];
-					}
-				}
+                try {
+                    val = eval('m.' + param);
+                } catch(e) {
+                }
+                if (!val && m.model) {
+                    m = m.model;
+                    try {
+                        val = eval('m.' + param);    
+                    } catch(e) {
+                    }
+                }
     		}
     	}
     	return val;
     },
-    setModelValue: function(param, val) {
-    	if (this._model && param) {
-    		var m = this.getModel();
-    		if (m) {
-    			if (m.model) {
-					m = m.model;
-				}
-	    		var expr = 'm.' + param + '=' + JSON.stringify(val);
-	    		eval(expr);
-    		}
-    	}
+    setModelValue: function(name, val, param) {
+        if (name) {
+            var m = this.getModel();
+            if (m) {
+                var o = eval('m.' + name);
+                if (!o && m.model) {
+                    m = m.model;
+                }
+                var expr = 'm.' + name;
+                if (param) {
+                    expr += '.' + param;    
+                }
+                expr += ' = ' + JSON.stringify(val);
+                try {
+                    eval(expr);
+                } catch(e) {
+                }
+            }   
+        }
     },
     getCount: function() {
     	return this._repeat;

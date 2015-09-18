@@ -1,0 +1,170 @@
+{
+	"identifier": "haircut_story_1",
+	"title": "Haircut Story Assessment",
+	"total_items": 4,
+	"max_score": 9,
+	"subject": "LIT",
+	"item_sets": [
+		{
+			"id": "set_1",
+        	"count": 4
+		}
+	],
+	"items": {
+		"set_1" : [
+			{
+				"identifier": "hs1_set_1_1",
+				"type": "mcq",
+				"num_answers": 1,
+				"template": "mcq_template_1",
+				"qlevel": "MEDIUM",
+				"title": "Find the Barber.",
+				"options": [
+					{
+						"value": {"type": "image", "asset": "carpenter_img"}
+					},
+					{
+						"value": {"type": "image", "asset": "barber_img"},
+						"answer": true
+					},
+					{
+						"value": {"type": "image", "asset": "tailor_img"}
+					},
+					{
+						"value": {"type": "image", "asset": "wife_img"}
+					}
+				],
+				"model" : {
+					"title_audio" : {"asset": "learning10_sound", "type": "audio"}
+				},
+				"hints": [
+					{"asset": "learning11_sound", "type": "audio"},
+					{"asset": "Barber has Scissors to Cut hair.", "type": "text"}
+				],
+				"max_score": 1,
+				"partial_scoring": false,
+				"feedback": ""
+			},
+			{
+				"identifier": "hs1_set_1_2",
+				"type": "mcq",
+				"num_answers": 1,
+				"template": "mcq_template_1",
+				"qlevel": "MEDIUM",
+				"title": "Find the Carpenter.",
+				"options": [
+					{
+						"value": {"type": "image", "asset": "wife_img"}
+					},
+					{
+						"value": {"type": "image", "asset": "tailor_img"}
+					},
+					{
+						"value": {"type": "image", "asset": "carpenter_img"},
+						"answer": true
+					},
+					{
+						"value": {"type": "image", "asset": "barber_img"}
+					}
+				],
+				"model" : {
+					"title_audio" : {"asset": "learning12_sound", "type": "audio"}
+				},
+				"hints": [
+					{"asset": "learning13_sound", "type": "audio"},
+					{"asset": "Carpenter has a hammer and nail.", "type": "text"}
+				],
+				"max_score": 1,
+				"partial_scoring": false,
+				"feedback": ""
+			},
+			{
+				"identifier": "hs1_set_1_3",
+				"type": "mtf",
+				"template": "mtf_template_1",
+				"qlevel": "MEDIUM",
+				"title": "Match the tools to the people.",
+				"lhs_options": [
+					{
+						"value": {"type": "image", "asset": "barber_img"},
+						"index": 0
+					},
+					{
+						"value": {"type": "image", "asset": "carpenter_img"},
+						"index": 1
+					},
+					{
+						"value": {"type": "image", "asset": "tailor_img"},
+						"index": 2
+					},
+					{
+						"value": {"type": "image", "asset": "wife_img"},
+						"index": 3
+					}
+				],
+				"rhs_options": [
+					{
+						"value": {"type": "image", "asset": "knife"},
+						"answer": 3
+					},
+					{
+						"value": {"type": "image", "asset": "razor"},
+						"answer": 0
+					},
+					{
+						"value": {"type": "image", "asset": "scissors"},
+						"answer": 2
+					},
+					{
+						"value": {"type": "image", "asset": "saw"},
+						"answer": 1
+					}
+				],
+				"max_score": 4,
+				"partial_scoring": true,
+				"feedback": ""
+			},
+			{
+				"identifier": "hs1_set_1_4",
+				"type": "mtf",
+				"template": "mtf_template_2",
+				"qlevel": "MEDIUM",
+				"title": "Take me home. Take each person to their home.",
+				"lhs_options": [
+					{
+						"value": {"type": "image", "asset": "b-outer"},
+						"index": 0
+					},
+					{
+						"value": {"type": "image", "asset": "w-outer"},
+						"index": 1
+					},
+					{
+						"value": {"type": "image", "asset": "t-outer"},
+						"index": 2
+					}
+				],
+				"rhs_options": [
+					{
+						"value": {"type": "image", "asset": "t-inner"},
+						"answer": 2
+					},
+					{
+						"value": {"type": "image", "asset": "b-inner"},
+						"answer": 0
+					},
+					{
+						"value": {"type": "image", "asset": "w-inner"},
+						"answer": 1
+					}
+				],
+				"hints": [
+					{"asset": "The tailor is surrounded by clothers to stitch.", "type": "text"}
+				],
+				"max_score": 3,
+				"partial_scoring": true,
+				"feedback": ""
+			}
+		]
+	}
+}
