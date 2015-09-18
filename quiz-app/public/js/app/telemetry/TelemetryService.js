@@ -124,12 +124,11 @@ TelemetryService = {
             console.log('TelemetryService is inActive.');
         }
     },
-    interrupt: function(eventData) {
+    interrupt: function(type, id) {
         if (TelemetryService.isActive) {
-            var eventName = 'OE_INTERRUPT';
-
+            return new InterruptEvent(type, id);
         } else {
-            console.log('TelemetryService is inActive.');
+            return new InActiveEvent();
         }
     },
     createFiles: function() {

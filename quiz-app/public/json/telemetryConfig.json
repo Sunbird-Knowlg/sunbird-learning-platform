@@ -108,7 +108,23 @@
             "ext": {}
         },
         "OE_INTERRUPT": {
-            "eks": {},
+            "eks": {
+                "type": {
+                    "required": true,
+                    "values": [
+                        "BACKGROUND",
+                        "IDLE",
+                        "SLEEP",
+                        "CALL",
+                        "SWITCH",
+                        "LOCK",
+                        "OTHER"
+                    ]
+                },
+                "id": {
+                    "required": false
+                }
+            },
             "ext": {}
         },
         "OE_LEARN": {

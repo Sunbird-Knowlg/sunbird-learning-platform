@@ -258,6 +258,7 @@ var ThemePlugin = Plugin.extend({
         if(this._currentStage) {
             AssetManager.stopStageAudio(this._currentStage);
         }
+        TelemetryService.interrupt("BACKGROUND", this._currentStage);
     },
     resume: function() {
         //TODO: Do something here...
