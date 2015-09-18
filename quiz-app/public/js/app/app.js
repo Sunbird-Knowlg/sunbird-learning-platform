@@ -167,10 +167,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
         }
 
-        $scope.$on('$destroy', function() {
-            console.info("Destroy content list page");
-        });
-
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {
             $scope.item = JSON.parse($stateParams.item);
