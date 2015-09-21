@@ -62,7 +62,7 @@ TelemetryService = {
     exitWithError: function(error) {
         var message = '';
         if (error) message += ' Error: ' + JSON.stringify(error);
-        alert(message);
+        //alert(message);
         TelemetryService.exitApp();
     },
     validateEvent: function(eventStr, eventData) {

@@ -12,6 +12,7 @@ angular.module('quiz.services', ['ngResource'])
         };
         var processContent = function(content) {
             content.status = "processing";
+            content.processingStart = (new Date()).getTime();
             returnObject.saveContent(content);
             return new Promise(function(resolve, reject) {
                 DownloaderService.process(content)
@@ -20,6 +21,11 @@ angular.module('quiz.services', ['ngResource'])
                         content[key] = data[key];
                     }
                     returnObject.saveContent(content);
+                    if (content.status == 'ready') {
+                        $rootScope.$broadcast('show-message', {
+                            "reload": true
+                        });
+                    }
                     resolve(content);
                 })
                 .catch(function(data) {
@@ -36,7 +42,7 @@ angular.module('quiz.services', ['ngResource'])
             contentList: {},
             init: function() {
                 var data = getObject(this.contentKey);
-                if (data) {
+                if (data && data != null) {
                     this.contentList = data;
                 } else {
                     this.commit();
@@ -69,6 +75,14 @@ angular.module('quiz.services', ['ngResource'])
                     return list;
                 }
             },
+            getContentCount: function(type) {
+                var list = returnObject.getContentList(type);
+                if (_.isArray(list)) {
+                    return list.length;
+                } else {
+                    return 0;
+                }
+            },
             getContent: function(id) {
                 return this.contentList[id];
             },
@@ -76,6 +90,15 @@ angular.module('quiz.services', ['ngResource'])
                 var promise = {};
                 var localContent = returnObject.getContent(content.identifier);
                 if (localContent) {
+                    if (localContent.status == 'processing') {
+                        var processStart = localContent.processingStart;
+                        if (processStart) {
+                            var timeLapse = (new Date()).getTime() - processStart;
+                            if (timeLapse/60000 > AppConfig.PROCESSING_TIMEOUT) {
+                                localContent.status = "error";
+                            }
+                        }
+                    }
                     if ((localContent.status == "ready" && localContent.pkgVersion != content.pkgVersion) || (localContent.status == "error")) {
                         promise = processContent(content);
                     } else {
@@ -94,42 +117,43 @@ angular.module('quiz.services', ['ngResource'])
                     PlatformService.getContentList()
                     .then(function(contents) {
                         var promises = [];
-                        if(contents.data) {
-                            for (key in contents.data) {
-                                var content = contents.data[key];
-                                promises.push(returnObject.processContent(content));
+                        if (contents.status == 'error') {
+                            var errorCode = contents.errorCode;
+                            var errorParam = contents.errorParam;
+                            var errMsg = AppMessage[errorCode];
+                            if (errorParam && errorParam != '') {
+                                errMsg = errMsg.replace('{0}', errorParam);
                             }
-                        }
-                        Promise.all(promises)
-                        .then(function(result) {
-                            console.log("result:", result);
-                            var message = "";
-                            var storiesCount = _.where(result, {"type": "story", "status": "ready"}).length;
-                            if(storiesCount > 0) message += storiesCount + " stories";
-                            var worksheetCount = _.where(result, {"type": "worksheet", "status": "ready"}).length;
-                            if(worksheetCount > 0) {
-                                if(message.length > 0) message += " and ";
-                                message += worksheetCount + " worksheets";
+                            $rootScope.$broadcast('show-message', {
+                                message: errMsg,
+                                "timeout": 10000
+                            });
+                        } else {
+                            if(contents.data) {
+                                for (key in contents.data) {
+                                    var content = contents.data[key];
+                                    promises.push(returnObject.processContent(content));
+                                }
                             }
-                            if(message.length > 0) message += " updated successfully";
-                            var errorCount = _.where(result, {"status": "error"}).length;
-                            if(errorCount > 0) {
-                                if(message.length > 0) message += ", and";
-                                message += errorCount + " items failed.";
-                            }
-                            if(message) {
+                            Promise.all(promises)
+                            .then(function(result) {
+                                var count = 0;
+                                var storiesCount = returnObject.getContentCount("story");
+                                if(_.isFinite(storiesCount) && storiesCount > 0) {
+                                    count += storiesCount;
+                                }
+                                var worksheetCount = returnObject.getContentCount("worksheet");
+                                if(_.isFinite(worksheetCount) && worksheetCount > 0) {
+                                    count += worksheetCount;
+                                }
+
+                                var message = AppMessages.CONTENT_LOAD_MSG.replace('{0}', count);
                                 $rootScope.$broadcast('show-message', {
                                     "message": message,
                                     "reload": true,
                                     "timeout": 10000
                                 });
-                            }
-                        });
-                        if(contents.error) {
-                            $rootScope.$broadcast('show-message', {
-                                message: contents.error,
-                                "timeout": 10000
-                            });
+                            });    
                         }
                         resolve(true);
                     })
@@ -154,3 +178,4 @@ angular.module('quiz.services', ['ngResource'])
         };
         return returnObject;
     }]);
+
