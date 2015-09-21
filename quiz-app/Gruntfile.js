@@ -151,8 +151,8 @@ module.exports = function(grunt) {
                     command: 'plugin',
                     action: 'add',
                     plugins: [
-                        '../cordova-plugins/PlatformService/',
-                        '../cordova-plugins/DownloaderService/'
+                        'custom-plugins/PlatformService/',
+                        'custom-plugins/DownloaderService/'
                     ]
                 }
             },

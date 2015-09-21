@@ -22,8 +22,11 @@ angular.module('quiz.services', ['ngResource'])
                     }
                     returnObject.saveContent(content);
                     if (content.status == 'ready') {
+                        var message = AppMessages.CONTENT_LOAD_MSG.replace("{0}", "1 " + content.type);
                         $rootScope.$broadcast('show-message', {
-                            "reload": true
+                            "message": message,
+                            "reload": true,
+                            "timeout": 2000
                         });
                     }
                     resolve(content);
@@ -57,9 +60,12 @@ angular.module('quiz.services', ['ngResource'])
             },
             getProcessCount: function() {
                 var list = _.where(_.values(this.contentList), {
-                        "status": "processing"
-                    });
-                return list.length;
+                    "status": "processing"
+                });
+                if (_.isArray(list)) {
+                    return list.length;
+                }
+                return 0;
             },
             getContentList: function(type) {
                 if (type) {
@@ -113,6 +119,7 @@ angular.module('quiz.services', ['ngResource'])
                 return promise;
             },
             sync: function() {
+                returnObject.setSyncStart();
                 return new Promise(function(resolve, reject) {
                     PlatformService.getContentList()
                     .then(function(contents) {
@@ -120,10 +127,11 @@ angular.module('quiz.services', ['ngResource'])
                         if (contents.status == 'error') {
                             var errorCode = contents.errorCode;
                             var errorParam = contents.errorParam;
-                            var errMsg = AppMessage[errorCode];
+                            var errMsg = AppMessages[errorCode];
                             if (errorParam && errorParam != '') {
                                 errMsg = errMsg.replace('{0}', errorParam);
                             }
+                            returnObject.resetSyncStart();
                             $rootScope.$broadcast('show-message', {
                                 message: errMsg,
                                 "timeout": 10000
@@ -137,27 +145,13 @@ angular.module('quiz.services', ['ngResource'])
                             }
                             Promise.all(promises)
                             .then(function(result) {
-                                var count = 0;
-                                var storiesCount = returnObject.getContentCount("story");
-                                if(_.isFinite(storiesCount) && storiesCount > 0) {
-                                    count += storiesCount;
-                                }
-                                var worksheetCount = returnObject.getContentCount("worksheet");
-                                if(_.isFinite(worksheetCount) && worksheetCount > 0) {
-                                    count += worksheetCount;
-                                }
-
-                                var message = AppMessages.CONTENT_LOAD_MSG.replace('{0}', count);
-                                $rootScope.$broadcast('show-message', {
-                                    "message": message,
-                                    "reload": true,
-                                    "timeout": 10000
-                                });
+                                returnObject.resetSyncStart();
                             });    
                         }
                         resolve(true);
                     })
                     .catch(function(err) {
+                        returnObject.resetSyncStart();
                         console.log("Error while fetching content list: ", err);
                         reject("Error while fetching content list: " + err);
                     });
@@ -168,6 +162,15 @@ angular.module('quiz.services', ['ngResource'])
             },
             getContentVersion: function() {
                 return $window.localStorage["quizapp-contentversion"];
+            },
+            setSyncStart: function() {
+                $window.localStorage["quizapp-syncstart"] = (new Date()).getTime();
+            },
+            getSyncStart: function() {
+                return $window.localStorage["quizapp-syncstart"];
+            },
+            resetSyncStart: function() {
+                $window.localStorage["quizapp-syncstart"] = undefined;
             },
             remove: function(key) {
                 $window.localStorage.removeItem(key);

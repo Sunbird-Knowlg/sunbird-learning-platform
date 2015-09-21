@@ -74,8 +74,12 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 return true;
             })
             .then(function() {
-                $scope.loadBookshelf();
-                $scope.checkContentCount();
+                $scope.$apply(function() {
+                    $scope.loadBookshelf();
+                });
+                setTimeout(function() {
+                    $scope.checkContentCount();
+                }, 100);
             })
             .catch(function(error) {
                 TelemetryService.exitWithError(error);
@@ -107,7 +111,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                     $scope.$apply(function() {
                         $scope.showMessage = false;
                     });
-                    console.log('callback');
                     if (data.callback) {
                         data.callback();
                     }
@@ -121,32 +124,54 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         });
 
         $scope.resetContentListCache = function() {
-            $("#loadingDiv").show();
-            setTimeout(function() {
-                $scope.$apply(function() {
-                    $scope.showMessage = false;
-                });
-                ContentService.sync()
-                    .then(function() {
-                        var processing = ContentService.getProcessCount();
-                        if(processing > 0) {
-                            $rootScope.$broadcast('show-message', {
-                                "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
-                            });
-                        } else {
-                            $rootScope.$broadcast('show-message', {
-                                "message": AppMessages.NO_NEW_CONTENT,
-                                "timeout": 3000,
-                                "callback": $scope.checkContentCount
-                            });
-                        }
-                        $scope.loadBookshelf();
-                        console.log('flushing telemetry in 2sec...');
-                        setTimeout(function() {
-                            TelemetryService.flush();
-                        }, 2000);
+            var syncStart = ContentService.getSyncStart();
+            var reload = true;
+            if (syncStart) {
+                var timeLapse = (new Date()).getTime() - syncStart;
+                if (timeLapse/60000 < 10) {
+                    reload = false;
+                }
+            }
+            if (reload) {
+                $("#loadingDiv").show();
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.showMessage = false;
                     });
-            }, 100);
+                    ContentService.sync()
+                        .then(function() {
+                            var processing = ContentService.getProcessCount();
+                            if(processing > 0) {
+                                $rootScope.$broadcast('show-message', {
+                                    "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
+                                });
+                            } else {
+                                $rootScope.$broadcast('show-message', {
+                                    "message": AppMessages.NO_NEW_CONTENT,
+                                    "timeout": 3000,
+                                    "callback": $scope.checkContentCount
+                                });
+                            }
+                            $scope.loadBookshelf();
+                            console.log('flushing telemetry in 2sec...');
+                            setTimeout(function() {
+                                TelemetryService.flush();
+                            }, 2000);
+                        });
+                }, 100);   
+            } else {
+                setTimeout(function() {
+                    $scope.$apply(function() {
+                        $scope.showMessage = false;
+                    });
+                    var processing = ContentService.getProcessCount();
+                    if(processing > 0) {
+                        $rootScope.$broadcast('show-message', {
+                            "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
+                        });
+                    }
+                }, 100);
+            }
         }
 
         $scope.loadBookshelf = function() {
