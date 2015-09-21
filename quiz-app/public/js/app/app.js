@@ -64,34 +64,18 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             })
             .then(function(game) {
                 if (!game) {
-                    var user = {
-                        "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-                        "uid": "123e4567-e89b-12d3-a456-426655440000",
-                        "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-                    };
-                    var game = {
-                        "id": "org.ekstep.quiz.app",
-                        "ver": "1.0"
-                    };
-                    return TelemetryService.init(user, game);
+                    return GlobalContext.init("org.ekstep.quiz.app", currentContentVersion);
                 } else {
                     return true;
                 }
             })
             .then(function() {
                 TelemetryService.start();
-                return ContentService.sync();
+                return true;
             })
             .then(function() {
-                var processing = ContentService.getProcessCount();
-                if(processing > 0) {
-                    $rootScope.$broadcast('show-message', {
-                        "message": processing +" stories/worksheets in processing...",
-                    });
-                }
-                $scope.$apply(function() {
-                    $scope.loadBookshelf();
-                });
+                $scope.loadBookshelf();
+                $scope.checkContentCount();
             })
             .catch(function(error) {
                 TelemetryService.exitWithError(error);
@@ -112,15 +96,21 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
         $scope.showMessage = false;
         $scope.$on('show-message', function(event, data) {
-            $scope.$apply(function() {
-                $scope.showMessage = true;
-                $scope.message = data.message;
-            });
+            if (data.message && data.message != '') {
+                $scope.$apply(function() {
+                    $scope.showMessage = true;
+                    $scope.message = data.message;
+                });
+            }
             if(data.timeout) {
                 setTimeout(function() {
                     $scope.$apply(function() {
                         $scope.showMessage = false;
                     });
+                    console.log('callback');
+                    if (data.callback) {
+                        data.callback();
+                    }
                 }, data.timeout);
             }
             if(data.reload) {
@@ -141,7 +131,13 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         var processing = ContentService.getProcessCount();
                         if(processing > 0) {
                             $rootScope.$broadcast('show-message', {
-                                "message": processing +" stories/worksheets in processing...",
+                                "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
+                            });
+                        } else {
+                            $rootScope.$broadcast('show-message', {
+                                "message": AppMessages.NO_NEW_CONTENT,
+                                "timeout": 3000,
+                                "callback": $scope.checkContentCount
                             });
                         }
                         $scope.loadBookshelf();
@@ -161,11 +157,20 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             initBookshelf();
         };
 
+        $scope.checkContentCount = function() {
+            var count = ContentService.getContentCount();
+            if(count <= 0) {
+                $rootScope.$broadcast('show-message', {
+                    "message": AppMessages.NO_CONTENT_FOUND
+                });
+            }
+        };
+
         $scope.playContent = function(content) {
             $state.go('playContent', {
                 'item': JSON.stringify(content)
             });
-        }
+        };
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {

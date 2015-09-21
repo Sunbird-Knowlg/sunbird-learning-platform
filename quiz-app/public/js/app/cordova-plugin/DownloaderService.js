@@ -15,7 +15,7 @@ DownloaderService = {
 	process: function(content) {
 		if(typeof cordova == 'undefined') {
             return new Promise(function(resolve, reject) {
-                resolve({"status": "ready", "baseDir": content.launchPath, "error": ""});
+                resolve({"status": "ready", "baseDir": content.launchPath, "errorCode": ""});
             });
         } else {
             return new Promise(function(resolve, reject) {
@@ -55,7 +55,7 @@ DownloaderService = {
                     resolve(theFile);
                 }, function(error) {
                     console.log("download error: ", JSON.stringify(error));
-                    reject({"status": "error", "file": "", "error": "error while downloading: error:"+ JSON.stringify(error)});
+                    reject({"status": "error", "file": "", "errorCode": "DOWNLOAD_ERROR", "errorParam": JSON.stringify(error)});
                 }, true);
             });
     },
@@ -79,14 +79,14 @@ DownloaderService = {
     },
     extract: function(file, extractPath) {
         return new Promise(function(resolve, reject) {
-            Extractor.extract(file.toURL(), extractPath, function(status) {
-                if(status == "success") {
+            Extractor.extract(file.toURL(), extractPath, function(result) {
+                if(result == "success") {
                     console.log("unzip successful.");
-                    resolve({"status": "ready", "baseDir": extractPath, "error": "", "appIcon": extractPath + "/logo.png"});
+                    resolve({"status": "ready", "baseDir": extractPath, "appIcon": extractPath + "/logo.png"});
                     // file.remove();
                 } else {
-                    console.log("error while unzipping:", status);
-                    resolve({"status": "error", "baseDir": "", "error": "error while unzipping."});
+                    console.log("error while unzipping:", result);
+                    resolve({"status": "error", "baseDir": "", "errorCode": result.errorCode, "errorParam": result.errorParam});
                 }
             });
         });

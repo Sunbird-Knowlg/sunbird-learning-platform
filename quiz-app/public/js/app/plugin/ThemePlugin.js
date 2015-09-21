@@ -171,6 +171,9 @@ var ThemePlugin = Plugin.extend({
             } else {
                 if (stage._stageController) {
                     stage._stageController.setIndex(-1);
+                    if (action.reset == true) {
+                        stage._stageController.reset();
+                    }
                 }
                 this.replaceStage(action.value, action);
             }
@@ -178,6 +181,9 @@ var ThemePlugin = Plugin.extend({
             if (stage._stageController && stage._stageController.hasNext()) {
                 this.replaceStage(stage._data.id, action);
             } else {
+                if (stage._stageController && action.reset == true) {
+                    stage._stageController.reset();
+                }
                 this.replaceStage(action.value, action);
             }
         }
