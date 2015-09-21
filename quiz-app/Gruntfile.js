@@ -202,6 +202,7 @@ module.exports = function(grunt) {
     grunt.registerTask('build-samples', ['compress:story', 'compress:worksheet', 'aws_s3:uploadSamples']);
     grunt.registerTask('build-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'cordovacli:add_plugins', 'cordovacli:build_android']);
     grunt.registerTask('build-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'clean:samples', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:build_android']);
+    grunt.registerTask('build-apk-quick', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'clean:samples', 'cordovacli:build_android']);
     grunt.registerTask('install-apk-xwalk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'clean:samples', 'cordovacli:add_plugins', 'cordovacli:run_android']);
     grunt.registerTask('install-apk', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'clean:samples', 'cordovacli:add_plugins', 'cordovacli:rm_xwalk', 'cordovacli:run_android']);
     grunt.registerTask('install-apk-quick', ['uglify:js', 'clean:before', 'copy', 'rename', 'clean:after', 'clean:samples', 'cordovacli:run_android']);

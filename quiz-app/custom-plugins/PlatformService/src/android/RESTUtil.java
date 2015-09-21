@@ -54,6 +54,12 @@ public class RESTUtil {
         return result;
     }
 
+    public static void setAPIEndpoint(String api) {
+        if (null != api && api.length() > 0) {
+            RESTUtil.host = api;
+        }
+    }
+
     private static URL getURL(String api) throws Exception {
         return new URL(host + api);
     }

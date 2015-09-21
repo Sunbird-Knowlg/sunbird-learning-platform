@@ -9,7 +9,7 @@ function backbuttonPressed() {
     }
 }
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
-    .run(function($ionicPlatform, $cordovaFile, $cordovaToast, ContentService) {
+    .run(function($ionicPlatform, $ionicModal, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
             // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
             // for form inputs)
@@ -49,9 +49,22 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $rootScope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
+    .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         var currentContentVersion = "0.2";
+
+        $ionicModal.fromTemplateUrl('about.html', {
+            scope: $scope,
+            animation: 'slide-in-up'
+        }).then(function(modal) {
+            $scope.aboutModal = modal;
+        });
+
+        $scope.environmentList = [
+            { text: "Sandbox", value: "API_SANDBOX" },
+            { text: "Production", value: "API_PRODUCTION" }
+        ];
+        $scope.selectedEnvironment = {value: "API_SANDBOX"};
 
         new Promise(function(resolve, reject) {
                 if(currentContentVersion != ContentService.getContentVersion()) {
@@ -190,6 +203,18 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 'item': JSON.stringify(content)
             });
         };
+
+        $scope.showAboutUsPage = function() {
+            $scope.aboutModal.show();
+        };
+
+        $scope.changeEnvironment = function(item) {
+            console.log('Env changed:' + $scope.selectedEnvironment.value);
+            var env = AppConfig[$scope.selectedEnvironment.value];
+            if (_.isString(env) && env.length > 0) {
+                PlatformService.setAPIEndpoint(env);
+            }
+        }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.item) {

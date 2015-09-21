@@ -41,8 +41,16 @@ public class PlatformService extends CordovaPlugin {
         } else if(action.equals("getContentList")) {
             JSONObject contentList = getContentList(args);
             callbackContext.success(contentList);
+        } else if(action.equals("setAPIEndpoint")) {
+            String endpoint = args.getString(0);
+            setAPIEndpoint(endpoint);
+            callbackContext.success(endpoint);
         }
         return true;
+    }
+
+    private void setAPIEndpoint(String endpoint) {
+        RESTUtil.setAPIEndpoint(endpoint);
     }
 
     private void showToast(final String message, final int duration) {

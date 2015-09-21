@@ -9,6 +9,9 @@ PlatformService = {
 			});
 		});
 	},
+	setAPIEndpoint: function(endpoint) {
+		return endpoint;
+	},
 	getContentList: function() {
 		var result = {"data": []};
 		return new Promise(function(resolve, reject) {
