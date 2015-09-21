@@ -26,7 +26,15 @@ angular.module('quiz.services', ['ngResource'])
                         $rootScope.$broadcast('show-message', {
                             "message": message,
                             "reload": true,
-                            "timeout": 2000
+                            "timeout": 3000,
+                            "callback": function() {
+                                var processing = returnObject.getProcessCount();
+                                if(processing > 0) {
+                                    $rootScope.$broadcast('show-message', {
+                                        "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
+                                    });
+                                }
+                            }
                         });
                     }
                     resolve(content);
@@ -133,8 +141,7 @@ angular.module('quiz.services', ['ngResource'])
                             }
                             returnObject.resetSyncStart();
                             $rootScope.$broadcast('show-message', {
-                                message: errMsg,
-                                "timeout": 10000
+                                "message": errMsg
                             });
                         } else {
                             if(contents.data) {

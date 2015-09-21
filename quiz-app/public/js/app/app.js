@@ -145,12 +145,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                                 $rootScope.$broadcast('show-message', {
                                     "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
                                 });
-                            } else {
-                                $rootScope.$broadcast('show-message', {
-                                    "message": AppMessages.NO_NEW_CONTENT,
-                                    "timeout": 3000,
-                                    "callback": $scope.checkContentCount
-                                });
                             }
                             $scope.loadBookshelf();
                             console.log('flushing telemetry in 2sec...');
