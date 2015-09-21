@@ -60,5 +60,9 @@ AssessEvent = TelemetryEvent.extend({
     mmc: function(mmc) {
     	this.event.edata.eks.mmc = mmc;
         return this;
+    },
+    maxscore: function(maxscore) {
+        this.event.edata.eks.maxscore = maxscore;
+        return this;  
     }
 })
