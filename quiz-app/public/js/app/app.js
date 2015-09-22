@@ -3,11 +3,14 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
+var packageName = "org.ekstep.quiz.app";
+var version = "1.0";
+
 function backbuttonPressed() {
     if(Renderer.running) {
         initBookshelf();
     } else {
-        TelemetryService.end("org.ekstep.quiz.app", "1.0");
+        TelemetryService.end(packageName, version);
     }
 }
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
@@ -35,6 +38,13 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
             $ionicPlatform.on("backbutton", function() {
                 backbuttonPressed();
+            });
+
+            GlobalContext.init(packageName, version).then(function() {
+                if (!TelemetryService._gameData) {
+                    TelemetryService.init(GlobalContext.user, GlobalContext.game);
+                    TelemetryService.start();
+                }
             });
         });
     })
@@ -76,18 +86,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                     ContentService.setContentVersion(currentContentVersion);
                 }
                 ContentService.init();
-                resolve(TelemetryService._gameData);
-            })
-            .then(function(game) {
-                if (!game) {
-                    return GlobalContext.init("org.ekstep.quiz.app", currentContentVersion);
-                } else {
-                    return true;
-                }
-            })
-            .then(function() {
-                TelemetryService.start();
-                return true;
+                resolve(true);
             })
             .then(function() {
                 $rootScope.$apply(function() {
