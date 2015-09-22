@@ -54,7 +54,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
-        var currentContentVersion = "0.3";
+        var currentContentVersion = "0.2";
 
         $ionicModal.fromTemplateUrl('about.html', {
             scope: $scope,
@@ -70,7 +70,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.selectedEnvironment = {value: "API_SANDBOX"};
 
         new Promise(function(resolve, reject) {
-                ContentService.clear();
                 if(currentContentVersion != ContentService.getContentVersion()) {
                     console.log("Clearing ContentService cache.");
                     ContentService.clear();
@@ -151,10 +150,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
             if (reload) {
                 $("#loadingDiv").show();
+                $rootScope.showMessage = false;
+                $rootScope.message = "";
                 setTimeout(function() {
-                    $rootScope.$apply(function() {
-                        $rootScope.showMessage = false;
-                    });
                     ContentService.sync()
                         .then(function() {
                             var processing = ContentService.getProcessCount();
