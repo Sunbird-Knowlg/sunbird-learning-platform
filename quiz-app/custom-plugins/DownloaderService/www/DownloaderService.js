@@ -10,7 +10,7 @@ exports.extract = function(fileName, outputDirectory, callback) {
     var fail = function(result) {
         console.log("extract fail:", result);
         if(callback) {
-            callback("error: "+result);
+            callback(result);
         }
     }
     exec(win, fail, 'DownloaderService', 'extract', [fileName, outputDirectory]);

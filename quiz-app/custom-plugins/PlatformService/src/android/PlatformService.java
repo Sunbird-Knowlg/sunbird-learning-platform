@@ -41,8 +41,16 @@ public class PlatformService extends CordovaPlugin {
         } else if(action.equals("getContentList")) {
             JSONObject contentList = getContentList(args);
             callbackContext.success(contentList);
+        } else if(action.equals("setAPIEndpoint")) {
+            String endpoint = args.getString(0);
+            setAPIEndpoint(endpoint);
+            callbackContext.success(endpoint);
         }
         return true;
+    }
+
+    private void setAPIEndpoint(String endpoint) {
+        RESTUtil.setAPIEndpoint(endpoint);
     }
 
     private void showToast(final String message, final int duration) {
@@ -57,17 +65,20 @@ public class PlatformService extends CordovaPlugin {
     private JSONObject getContentList(JSONArray types) {
         JSONObject obj = new JSONObject();
         try {
-            Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+            Map<String, JSONObject> result = new HashMap<String, JSONObject>();
             if(types != null) {
                 for(int i=0;i<types.length();i++) {
                     String type = types.getString(i);
-                    result.put(type, getContent(type));
+                    Map<String, Object> contentObj = getContent(type);
+                    if (null != contentObj) {
+                        JSONObject contentJSONObj = new JSONObject(contentObj);
+                        result.put(type, contentJSONObj);
+                    }
                 }
             }
             obj = new JSONObject(result);
             return obj;
         } catch(Exception e) {
-
         }
         return obj;
     }

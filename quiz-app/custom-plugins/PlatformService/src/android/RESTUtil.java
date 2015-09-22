@@ -38,22 +38,26 @@ public class RESTUtil {
             } else if(conn.getResponseCode() == HttpURLConnection.HTTP_NOT_FOUND) {
                 result.put("status", "error");
                 result.put("msg", "HTTP_NOT_FOUND");
-                result.put("error", "Unable to connect to the content repository.<br/>Please check your internet connectivity and try again.");
+                result.put("errorCode", "NO_CONNECTION_ERROR");
             }
             return result;
         } catch (UnknownHostException e) {
-            e.printStackTrace();
             result.put("status", "error");
             result.put("msg", "UnknownHostException");
-            result.put("error", "Unable to connect to the content repository.<br/>Please check your internet connectivity and try again.");
+            result.put("errorCode", "NO_CONNECTION_ERROR");
         }
         catch (Exception e) {
-            e.printStackTrace();
             result.put("status", "error");
             result.put("msg", "Exception");
-            result.put("error", "Something went wrong.<br/>Please try again later or contact helpdesk if issue persists.");
+            result.put("errorCode", "INTERNAL_ERROR");
         }
         return result;
+    }
+
+    public static void setAPIEndpoint(String api) {
+        if (null != api && api.length() > 0) {
+            RESTUtil.host = api;
+        }
     }
 
     private static URL getURL(String api) throws Exception {

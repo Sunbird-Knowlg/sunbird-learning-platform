@@ -4,7 +4,11 @@
 
             <div class="panel_title">
                 <div class="selected_title_box"><div class="selected_title">Selected Title</div></div>
+                <a href="javascript:void(0)" ng-click="showAboutUsPage()" class="button button-clear" style="float: right; color: #000">
+                    <i class="icon ion-information-circled"></i>
+                </a>
                 <button ng-click="resetContentListCache()" class="button button-clear icon ion-android-refresh" style="float:right; color:#000;"></button>
+
             </div><!-- .panel_title -->
             
             <div class="panel_slider">
@@ -31,8 +35,8 @@
                 <div class='buttons_container'>
                     <div id="arrow_box"><div id="arrow_menu"></div></div>
                     <div class="button_items">
-                        <div id="btn1" class="button_bar"><a href="#">Stories</a></div>
-                        <div id="btn2" class="button_bar"><a href="#">Worksheets</a></div>
+                        <div id="btn1" class="button_bar"><a href="#"><div style="height: 65px; width:45px;">Stories</div></a></div>
+                        <div id="btn2" class="button_bar"><a href="#"><div style="height: 65px; width:75px;">Worksheets</div></a></div>
                     </div>
                 </div>
             </div>
@@ -41,6 +45,49 @@
 
     </ion-content>
 </ion-pane>
+
+<script id="about.html" type="text/ng-template">
+  <ion-modal-view>
+    <ion-header-bar>
+        <h1 class="title">EkStep Content App</h1>
+    </ion-header-bar>
+    <ion-content padding="true">
+        <div class="item item-text-wrap">
+            EkStep Content App can be used to play any content whose narrative and interactivity is governed by the EkStep Content Markup Language (ECML).
+        </div>
+        <div class="item">
+            <div style="float: left; width: 50%">
+                Version: 0.2
+            </div>
+            <div style="float: left; width: 50%">
+                Updated: September 21, 2015
+            </div>
+        </div>
+        <div class="item">
+            <div style="float: left; width: 50%">
+                <b>Offered By:</b><br/>
+                EkStep<br/>
+            </div>
+            <div style="float: left; width: 50%">
+                <b>Contact:</b><br/>
+                Email: contact@ekstep.org<br/>
+                Phone: 9611995838
+            </div>
+        </div>
+        <div class="item">
+            <b>Environment</b>
+            <ion-radio ng-repeat="item in environmentList"
+                   ng-value="item.value"
+                   ng-model="selectedEnvironment.value"
+                   ng-change="changeEnvironment(item)"
+                   name="selected-environment">
+                {{item.text}}
+            </ion-radio>
+        </div>
+    </ion-content>
+  </ion-modal-view>
+</script>
+
 <div id="loadingDiv" style="margin:auto; position:absolute;width:100%;height:100%; background-color: #fff; z-index: 1000;">
     <div style="margin: auto; width: 100%; position: fixed; text-align: center; top: 50%; font-weight: bold;">
         <ion-spinner icon="bubbles"></ion-spinner>

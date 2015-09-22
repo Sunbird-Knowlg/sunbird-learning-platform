@@ -46,7 +46,7 @@ public class TarUtils {
                     new TarArchiveInputStream(new BufferedInputStream(fileInputStream), BUFFER_SIZE);
             untar(tarArchiveInputStream, outputDir, callbackContext);
         } catch (IOException e) {
-            callbackContext.error("Error:" + e.getMessage());
+            callbackContext.error(DownloaderService.getErrorJSONObject("SYSTEM_ERROR", e.getMessage()));
         } finally {
             if (tarArchiveInputStream != null) {
                 try {
@@ -101,7 +101,7 @@ public class TarUtils {
             }
             callbackContext.success("OK");
         } catch (IOException e) {
-            callbackContext.error("Error:" + e.getMessage());
+            callbackContext.error(DownloaderService.getErrorJSONObject("SYSTEM_ERROR", e.getMessage()));
         }
     }
 

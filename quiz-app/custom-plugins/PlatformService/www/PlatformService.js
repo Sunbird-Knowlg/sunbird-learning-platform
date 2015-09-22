@@ -13,6 +13,17 @@ PlatformService.prototype.showToast = function(aString) {
         "PlatformService", "showToast", [aString]);
 }
 
+PlatformService.prototype.setAPIEndpoint = function(aString) {
+    console.log("PlatformService.js: setAPIEndpoint");
+    exec(function(result) {
+            console.log("OK: " + result);
+        },
+        function(error) {
+            console.log("Error: " + error);
+        },
+        "PlatformService", "setAPIEndpoint", [aString]);
+}
+
 PlatformService.prototype.getContentList = function() {
     return new Promise(function(resolve, reject) {
         exec(function(resp) {
@@ -20,6 +31,8 @@ PlatformService.prototype.getContentList = function() {
             var result = {};
             for(key in resp) {
                 var contentResponse = resp[key];
+                console.log("contentResponse response:", contentResponse);
+                console.log("contentResponse status:", contentResponse.status);
                 if(contentResponse.status == "success") {
                     var data = (typeof contentResponse.data == 'string') ? JSON.parse(contentResponse.data) : contentResponse.data;
                     if(result.data == null) result.data = [];
@@ -29,7 +42,9 @@ PlatformService.prototype.getContentList = function() {
                         result.data.push(item);
                     }
                 } else {
-                    result["error"] = contentResponse.error;
+                    result["status"] = "error";
+                    result["errorCode"] = contentResponse.errorCode;
+                    result["errorParam"] = contentResponse.errorParam;
                 }
             }
             console.log("REST result:", result);

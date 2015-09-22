@@ -1,6 +1,6 @@
 AppMessages = {
 	NO_CONTENT_FOUND: "No downloaded content available. Please sync to download the content",
-	CONTENT_LOAD_MSG: "{0} content items downloaded to the bookshelf",
+	CONTENT_LOAD_MSG: "{0} downloaded to bookshelf",
 	NO_NEW_CONTENT: "No new content available in the repository",
 	DOWNLOADING_MSG: "Downloading {0} content items",
 	NO_CONNECTION_ERROR: "Unable to connect to the content repository.<br/>Please check your internet connectivity and try again.",

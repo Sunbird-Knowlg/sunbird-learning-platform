@@ -76,15 +76,15 @@ public class DownloaderService extends CordovaPlugin {
                         File zipFile = resourceApi.mapUriToFile(zipUri);
                         File outputDir = resourceApi.mapUriToFile(outputUri);
                         if(zipFile == null) {
-                            callbackContext.error("zip file not found at :" + zipFileName);
+                            callbackContext.error(DownloaderService.getErrorJSONObject("EXTRACT_FILE_NOT_FOUND", zipFileName));
                         } else if(outputDir == null ) {
-                            callbackContext.error("invalid outputdir :" + outputDirectory);
+                            callbackContext.error(DownloaderService.getErrorJSONObject("EXTRACT_INVALID_OUPUT_DIR", outputDirectory));
                         } else {
                             TarUtils.untarFile(zipFile, outputDir, true, callbackContext);
                         }
                     }
                 } catch(Exception e) {
-                    callbackContext.error("Error:" + e.getMessage());
+                    callbackContext.error(DownloaderService.getErrorJSONObject("SYSTEM_ERROR", e.getMessage()));
                 }
             }
         });
@@ -106,7 +106,7 @@ public class DownloaderService extends CordovaPlugin {
             File tempFile = resourceApi.mapUriToFile(zipUri);
             if (tempFile == null || !tempFile.exists()) {
                 String errorMessage = "Zip file does not exist";
-                callbackContext.error(errorMessage);
+                callbackContext.error(DownloaderService.getErrorJSONObject("EXTRACT_FILE_NOT_FOUND", zipFileName));
                 Log.e(LOG_TAG, errorMessage);
                 return;
             }
@@ -116,7 +116,7 @@ public class DownloaderService extends CordovaPlugin {
             outputDirectory += outputDirectory.endsWith(File.separator) ? "" : File.separator;
             if (outputDir == null || (!outputDir.exists() && !outputDir.mkdirs())){
                 String errorMessage = "Could not create output directory";
-                callbackContext.error(errorMessage);
+                callbackContext.error(DownloaderService.getErrorJSONObject("EXTRACT_INVALID_OUPUT_DIR", outputDirectory));
                 Log.e(LOG_TAG, errorMessage);
                 return;
             }
@@ -181,10 +181,10 @@ public class DownloaderService extends CordovaPlugin {
             if (anyEntries)
                 callbackContext.success();
             else
-                callbackContext.error("Bad zip file");
+                callbackContext.error(DownloaderService.getErrorJSONObject("EXTRACT_INVALID_ARCHIVE", null));
         } catch (Exception e) {
             String errorMessage = "An error occurred while unzipping.";
-            callbackContext.error(errorMessage);
+            callbackContext.error(DownloaderService.getErrorJSONObject("SYSTEM_ERROR", e.getMessage()));
             Log.e(LOG_TAG, errorMessage, e);
         } finally {
             if (inputStream != null) {
@@ -210,4 +210,19 @@ public class DownloaderService extends CordovaPlugin {
         return resourceApi.remapUri(
                 tmpTarget.getScheme() != null ? tmpTarget : Uri.fromFile(new File(arg)));
     }
+
+    protected static JSONObject getErrorJSONObject(String errorCode, String errorParam) {
+        Map<String, Object> error = new HashMap<String, Object>();
+        error.put("status", "error");
+        JSONObject obj = new JSONObject(error);
+        try {
+            error.put("errorCode", errorCode);
+            if (null != errorParam)
+                error.put("errorParam", errorParam);
+            obj = new JSONObject(error);
+        } catch(Exception e) {
+        }
+        return obj;
+    }
 }
+
