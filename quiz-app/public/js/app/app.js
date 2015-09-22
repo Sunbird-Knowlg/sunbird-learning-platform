@@ -231,6 +231,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.$on('$destroy', function() {
             setTimeout(function() {
                 Renderer.cleanUp();
+                initBookshelf();
             }, 100);
         });
     });
