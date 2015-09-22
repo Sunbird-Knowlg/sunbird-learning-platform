@@ -65,17 +65,20 @@ public class PlatformService extends CordovaPlugin {
     private JSONObject getContentList(JSONArray types) {
         JSONObject obj = new JSONObject();
         try {
-            Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+            Map<String, JSONObject> result = new HashMap<String, JSONObject>();
             if(types != null) {
                 for(int i=0;i<types.length();i++) {
                     String type = types.getString(i);
-                    result.put(type, getContent(type));
+                    Map<String, Object> contentObj = getContent(type);
+                    if (null != contentObj) {
+                        JSONObject contentJSONObj = new JSONObject(contentObj);
+                        result.put(type, contentJSONObj);
+                    }
                 }
             }
             obj = new JSONObject(result);
             return obj;
         } catch(Exception e) {
-
         }
         return obj;
     }
