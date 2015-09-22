@@ -4,7 +4,9 @@
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 function backbuttonPressed() {
-    if(!Renderer.running) {
+    if(Renderer.running) {
+        initBookshelf();
+    } else {
         TelemetryService.end("org.ekstep.quiz.app", "1.0");
     }
 }
@@ -29,6 +31,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
+                initBookshelf();
             });
             $ionicPlatform.on("backbutton", function() {
                 backbuttonPressed();
@@ -51,7 +54,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
-        var currentContentVersion = "0.2";
+        var currentContentVersion = "0.3";
 
         $ionicModal.fromTemplateUrl('about.html', {
             scope: $scope,
@@ -67,6 +70,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.selectedEnvironment = {value: "API_SANDBOX"};
 
         new Promise(function(resolve, reject) {
+                ContentService.clear();
                 if(currentContentVersion != ContentService.getContentVersion()) {
                     console.log("Clearing ContentService cache.");
                     ContentService.clear();
@@ -87,8 +91,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 return true;
             })
             .then(function() {
-                $scope.$apply(function() {
-                    $scope.loadBookshelf();
+                $rootScope.$apply(function() {
+                    $rootScope.loadBookshelf();
                 });
                 setTimeout(function() {
                     $scope.checkContentCount();
@@ -111,18 +115,18 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         //     $scope.mainmenu.hide();
         // };
 
-        $scope.showMessage = false;
-        $scope.$on('show-message', function(event, data) {
+        $rootScope.showMessage = false;
+        $rootScope.$on('show-message', function(event, data) {
             if (data.message && data.message != '') {
-                $scope.$apply(function() {
-                    $scope.showMessage = true;
-                    $scope.message = data.message;
+                $rootScope.$apply(function() {
+                    $rootScope.showMessage = true;
+                    $rootScope.message = data.message;
                 });
             }
             if(data.timeout) {
                 setTimeout(function() {
-                    $scope.$apply(function() {
-                        $scope.showMessage = false;
+                    $rootScope.$apply(function() {
+                        $rootScope.showMessage = false;
                     });
                     if (data.callback) {
                         data.callback();
@@ -130,8 +134,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }, data.timeout);
             }
             if(data.reload) {
-                $scope.$apply(function() {
-                    $scope.loadBookshelf();
+                $rootScope.$apply(function() {
+                    $rootScope.loadBookshelf();
                 });
             }
         });
@@ -148,8 +152,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             if (reload) {
                 $("#loadingDiv").show();
                 setTimeout(function() {
-                    $scope.$apply(function() {
-                        $scope.showMessage = false;
+                    $rootScope.$apply(function() {
+                        $rootScope.showMessage = false;
                     });
                     ContentService.sync()
                         .then(function() {
@@ -159,7 +163,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                                     "message": AppMessages.DOWNLOADING_MSG.replace('{0}', processing)
                                 });
                             }
-                            $scope.loadBookshelf();
+                            $rootScope.loadBookshelf();
                             console.log('flushing telemetry in 2sec...');
                             setTimeout(function() {
                                 TelemetryService.flush();
@@ -168,8 +172,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }, 100);   
             } else {
                 setTimeout(function() {
-                    $scope.$apply(function() {
-                        $scope.showMessage = false;
+                    $rootScope.$apply(function() {
+                        $rootScope.showMessage = false;
                     });
                     var processing = ContentService.getProcessCount();
                     if(processing > 0) {
@@ -181,11 +185,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
         }
 
-        $scope.loadBookshelf = function() {
-            $scope.worksheets = ContentService.getContentList('worksheet');
-            console.log("$scope.worksheets:", $scope.worksheets);
-            $scope.stories = ContentService.getContentList('story');
-            console.log("$scope.stories:", $scope.stories);
+        $rootScope.loadBookshelf = function() {
+            $rootScope.worksheets = ContentService.getContentList('worksheet');
+            console.log("$scope.worksheets:", $rootScope.worksheets);
+            $rootScope.stories = ContentService.getContentList('story');
+            console.log("$scope.stories:", $rootScope.stories);
             initBookshelf();
         };
 
