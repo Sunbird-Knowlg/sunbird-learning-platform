@@ -18,10 +18,8 @@ EndEvent = TelemetryEvent.extend({
     },
     flush: function() {
         this._super();
-        TelemetryService._events = _.union(TelemetryService._events, _.pluck(TelemetryService._data[TelemetryService._gameData.id], "event"));
         delete TelemetryService._data[TelemetryService._gameData.id];
         console.log('Game: ' + TelemetryService._gameData.id + ' end event created...');
         TelemetryService._gameData = TelemetryService._parentGameData;
-        TelemetryService.flush();
     }
 })

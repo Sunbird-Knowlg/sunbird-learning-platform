@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    id="org.ekstep.genie.service.plugin"
+    version="0.0.1">
+    <name>Genie Service</name>
+    <description>Plugin to call Genie Services SDK.</description>
+    <license>Apache 2.0</license>
+    <keywords>Genie Services Plugin</keywords>
+    <repo></repo>
+    <issue></issue>
+    <js-module src="www/GenieService.js" name="GenieService">
+        <clobbers target="GenieService" />
+    </js-module>
+    <!-- android -->
+    <platform name="android">
+        <framework src="src/android/genieService.gradle" custom="true" type="gradleReference" />
+        <config-file target="res/xml/config.xml" parent="/*">
+            <feature name="GenieService" >
+                <param name="android-package" value="GenieService"/>
+            </feature>
+        </config-file>
+        <source-file src="src/android/GenieService.java" target-dir="src/" />
+        <source-file src="src/android/TelemetryResponse.java" target-dir="src/" />
+        <resource-file src="libs/aidls-release.aar" target="libs" />
+        <resource-file src="libs/sdks-debug.aar" target="libs" />
+    </platform>
+</plugin>

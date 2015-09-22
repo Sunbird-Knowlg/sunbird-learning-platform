@@ -45,10 +45,11 @@ var ItemController = Controller.extend({
 			item.score = result.score;
 		}
 		try {
-    		var assessEnd = TelemetryService.assess(item.identifier).end(pass, item.score);
+    		var assessEnd = TelemetryService.assess(item.identifier);
 			if (_.isArray(item.mmc)) {
 				assessEnd.mmc(item.mmc);
 			}
+			assessEnd.end(pass, item.score);
     	} catch(e) {
     		ControllerManager.addError('ItemController.evalItem() - OE_ASSESS_END error: ' + e);
     	}

@@ -23,7 +23,6 @@ module.exports = function(grunt) {
                     'public/js/app/telemetry-lib-0.2.min.js': [
                         'public/js/thirdparty/exclude/date-format.js',
                         'public/js/app/telemetry/TelemetryEvent.js',
-                        'public/js/app/telemetry/FilewriterService.js',
                         'public/js/app/telemetry/*.js'
                     ]
                 }
@@ -124,7 +123,8 @@ module.exports = function(grunt) {
                     action: 'rm',
                     plugins: [
                         'org.ekstep.platform.service.plugin',
-                        'org.ekstep.downloader.service.plugin'
+                        'org.ekstep.downloader.service.plugin',
+                        'org.ekstep.genie.service.plugin'
                     ]
                 }
             },
@@ -152,7 +152,8 @@ module.exports = function(grunt) {
                     action: 'add',
                     plugins: [
                         'custom-plugins/PlatformService/',
-                        'custom-plugins/DownloaderService/'
+                        'custom-plugins/DownloaderService/',
+                        'custom-plugins/GenieService/'
                     ]
                 }
             },

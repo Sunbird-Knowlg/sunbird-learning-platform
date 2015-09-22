@@ -7,7 +7,6 @@ AssessEvent = TelemetryEvent.extend({
         this.event.eid = this.name = "OE_ASSESS";
         this.qid = qid;
         this.startTime = this.createdTime;
-        var eventStr = TelemetryService._config.events[this.name];
         this.event.edata.eks = {
             "subj": subj,
             "qid": qid,
@@ -23,14 +22,8 @@ AssessEvent = TelemetryEvent.extend({
             "atmpts": 0,
             "failedatmpts": 0
         };
-        var messages = TelemetryService.validateEvent(eventStr, this.event.edata);
-        if (messages.length == 0) {
-        	this._isStarted = true;
-            this.flush();
-        } else {
-            TelemetryService.logError(this.name, messages);
-            throw 'validation failed: ' + JSON.stringify(messages);
-        }
+        this._isStarted = true;
+        TelemetryService._data[TelemetryService._gameData.id].push(this);
     },
     start: function() {
     	this._isStarted = true;
@@ -52,6 +45,7 @@ AssessEvent = TelemetryEvent.extend({
             this.event.edata.eks.res = res || [];
             this.event.edata.eks.uri = uri || "";
             this._isStarted = false;
+            this.flush();
             return this;
     	} else {
     		throw "can't end assess event without starting.";

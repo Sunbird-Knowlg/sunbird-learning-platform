@@ -34,7 +34,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
-                initBookshelf();
+                if(!Renderer.running) {
+                    initBookshelf();
+                }
             });
             $ionicPlatform.on("backbutton", function() {
                 backbuttonPressed();
@@ -42,8 +44,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
-                    TelemetryService.init(GlobalContext.user, GlobalContext.game);
-                    TelemetryService.start();
+                    TelemetryService.init(GlobalContext.user, GlobalContext.game).then(function() {
+                        TelemetryService.start();    
+                    }).catch(function(error) {
+                        console.log('TelemetryService init failed');
+                    });
                 }
             });
         });
@@ -161,10 +166,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                                 });
                             }
                             $rootScope.loadBookshelf();
-                            console.log('flushing telemetry in 2sec...');
-                            setTimeout(function() {
-                                TelemetryService.flush();
-                            }, 2000);
                         });
                 }, 100);   
             } else {

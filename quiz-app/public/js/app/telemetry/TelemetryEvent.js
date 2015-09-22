@@ -18,7 +18,13 @@ TelemetryEvent = Class.extend({
         this.event.gdata = TelemetryService._gameData;
     },
     flush: function() {
-        TelemetryService._data[TelemetryService._gameData.id].push(this);
+        if (this.event) {
+            GenieService.sendTelemetry(JSON.stringify(this.event)).then(function() {
+                
+            }).catch(function(err) {
+                TelemetryService.logError(this.name, err);
+            });
+        }
     },
     ext: function(ext) {
     	if(_.isObject(ext)) {
