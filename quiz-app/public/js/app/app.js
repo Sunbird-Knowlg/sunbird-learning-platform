@@ -50,6 +50,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                         console.log('TelemetryService init failed');
                     });
                 }
+            }).catch(function(error) {
+                alert('Please open this app from Genie.');
+                navigator.app.exitApp();
             });
         });
     })

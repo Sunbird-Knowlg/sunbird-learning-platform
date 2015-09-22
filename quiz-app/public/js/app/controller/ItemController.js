@@ -8,7 +8,7 @@ var ItemController = Controller.extend({
 			this._data = data;
 			this._loaded = true;
 			this._model = model;
-			this._repeat = this._model.length;		
+			this._repeat = this._model.length;
 		} else {
 			this._error = true;
 		}
@@ -21,7 +21,11 @@ var ItemController = Controller.extend({
     		if (item) {
     			d = item.model;
     			try {
-    				TelemetryService.assess(item.identifier, this._data.subject, item.qlevel).start();	
+    				var assessStart = TelemetryService.assess(item.identifier, this._data.subject, item.qlevel).start();
+    				if(item.max_score) {
+    					assessStart.maxscore(item.max_score);
+    				}
+
     			} catch(e) {
     				ControllerManager.addError('ItemController.next() - OE_ASSESS_START error: ' + e);
     			}
