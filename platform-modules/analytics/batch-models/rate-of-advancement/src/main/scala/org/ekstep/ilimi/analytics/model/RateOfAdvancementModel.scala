@@ -18,7 +18,7 @@ case class GameOutput(gameId: String, levels: Int, time_taken: Float, roa_ratio:
 case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]) extends Output;
 
 object RateOfAdvancementModel extends BaseModel {
-    
+
     @transient val df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss+z");
 
     def compute(input: String, output: String, location: String, parallelization: Int) {
@@ -28,7 +28,7 @@ object RateOfAdvancementModel extends BaseModel {
         Console.println("### Computing rate of advancement stats ###");
         val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));
         val userScores = userPairs.reduceByKey((a, b) => a ++ b).mapValues(events => {
-            events.map(event => (event.gdata.id, event.ts, event.edata.eks.current.get.toInt, event.edata.eks.max.get.toInt))
+            events.map(event => (CommonUtil.getGameId(event), event.ts, event.edata.eks.current.get.toInt, event.edata.eks.max.get.toInt))
                 .groupBy { x => x._1 }
                 .mapValues { x =>
                     {

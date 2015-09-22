@@ -36,23 +36,23 @@ object LitScreenerLevelComputation extends Serializable {
         val ldloMap = ldloMapping.value;
         val compldMap = compldMapping.value;
         val levelMap = litLevelsMap.value;
-        val oeAssesEvents = events.filter { x => (x.eid.get.equals("OE_ASSESS") && litScreenerIds.contains(x.gdata.id)) }.map { x =>
+        val oeAssesEvents = events.filter { x => (x.eid.get.equals("OE_ASSESS") && litScreenerIds.contains(CommonUtil.getGameId(x))) }.map { x =>
             {
                 val qids = x.edata.eks.qid.get.split('.');
-                (x.edata.eks.qid.get, x.uid.get, if ("Yes".equalsIgnoreCase(x.edata.eks.pass.get)) 1 else 0, qids(3), x.edata.eks.maxscore.getOrElse(1), x.gdata.id);
+                (x.edata.eks.qid.get, x.uid.get, if ("Yes".equalsIgnoreCase(x.edata.eks.pass.get)) 1 else 0, qids(3), x.edata.eks.maxscore.getOrElse(1), CommonUtil.getGameId(x));
             }
         };
         val distinctEvents = oeAssesEvents.distinct;
         Console.println("Before Count - " + oeAssesEvents.size + " | After count - " + distinctEvents.size);
-        if(distinctEvents.size == 0) {
+        if (distinctEvents.size == 0) {
             return (null, null, result);
         }
         val uid = distinctEvents.last._2;
         val gid = distinctEvents.last._6;
 
-        val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => (f._3, f._5))).mapValues( x => {
-            x.reduce((a,b) => (a._1 + b._1, a._2 + b._2))
-        } ).toMap;
+        val ltScores = distinctEvents.groupBy(f => f._4).mapValues(f => f.map(f => (f._3, f._5))).mapValues(x => {
+            x.reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+        }).toMap;
         val loScores = getCodeMap(loltMap, ltScores);
         val ldScores = getCodeMap(ldloMap, loScores);
         val compositeScores = getCodeMap(compldMap, ldScores);
@@ -71,17 +71,19 @@ object LitScreenerLevelComputation extends Serializable {
 
     def getEventOutput(event: (String, String, Int, Int, String, String), gid: String): EventOutput = {
         val edata = Map[String, AnyRef]("score" -> event._3.asInstanceOf[AnyRef], "maxscore" -> event._4.asInstanceOf[AnyRef], "current_level" -> event._5);
-        EventOutput("ME_USER_GAME_LEVEL", CommonUtil.formatEventDate(new DateTime), "1.0", Some(event._1), Some(event._2), Some(event._6), Some(Gdata(gid, screenerVersion)),
+        EventOutput("ME_USER_GAME_LEVEL", CommonUtil.formatEventDate(new DateTime), "1.0", Some(event._1), Some(event._2), Some(event._6), Some(Gdata(Option(gid), Option(screenerVersion))),
             Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), Edata2(edata));
     }
 
     def getCodeMap(codeMap: Map[String, Array[(String, String)]], valueMap: Map[String, (Int, Int)]): Map[String, (Int, Int)] = {
-        codeMap.mapValues(f => { f.map(f => valueMap.getOrElse(f._2, (0, 0))) }).mapValues { x => {
-            x.reduce((a,b) => (a._1 + b._1, a._2 + b._2))
-        } }.toMap;
+        codeMap.mapValues(f => { f.map(f => valueMap.getOrElse(f._2, (0, 0))) }).mapValues { x =>
+            {
+                x.reduce((a, b) => (a._1 + b._1, a._2 + b._2))
+            }
+        }.toMap;
     }
-    
-    def mergeMapsByKey(map1: Map[String, Int], map2: Map[String, Int]) : Map[String, (Int, Int)] = {
+
+    def mergeMapsByKey(map1: Map[String, Int], map2: Map[String, Int]): Map[String, (Int, Int)] = {
         map1.map(f => {
             (f._1, (f._2, map2.getOrElse(f._1, f._2)))
         })
@@ -112,7 +114,7 @@ object LitScreenerLevelComputation extends Serializable {
                 var resultEvents = Buffer[EventOutput]();
                 result.foreach(f => resultEvents += getEventOutput(f, gid));
                 resultEvents.foreach { x => Console.println(CommonUtil.jsonToString(x)) };
-                //result.foreach { x => Console.println(x) };
+            //result.foreach { x => Console.println(x) };
             case "csv-file" =>
                 Console.println("## Printing output to csv ##");
                 val filePath = outputFile.getOrElse(CommonUtil.getTempPath(currDate) + "/" + uid + ".csv");

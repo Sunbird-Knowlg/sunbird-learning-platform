@@ -14,6 +14,7 @@ import org.ekstep.ilimi.analytics.util.Application
 import org.ekstep.ilimi.analytics.util.CommonUtil
 import kafka.serializer.StringDecoder
 import org.ekstep.ilimi.analytics.dao.GameLevel
+import org.ekstep.ilimi.analytics.model.Gdata
 
 object AssessmentsPipeline extends Application {
 
@@ -39,7 +40,7 @@ object AssessmentsPipeline extends Application {
                     msg._2;
                 })
                     .filter { e => validEvents.contains(e.eid) }
-                    .map(event => (event.uid.get, Buffer(GameLevel(event.gdata.id, event.edata.eks.current.get.toInt))))
+                    .map(event => (event.uid.get, Buffer(GameLevel(CommonUtil.getGameId(event), event.edata.eks.current.get.toInt))))
                     .reduceByKey((a, b) => a ++ b).mapValues(events => {
                         events.map(event => (event.gid, event.level))
                             .groupBy { x => x._1 }

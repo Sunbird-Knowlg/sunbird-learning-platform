@@ -21,7 +21,7 @@ case class Events(data: Data);
 object LitScreenerLevelModel extends Serializable {
 
     private val litScreenerIds = AppConf.getConfig("literacy_screener_games").split(',');
-    
+
     def compute(input: String, output: Option[String], outputDir: Option[String], location: String, parallelization: Int) {
 
         val validEvents = Array("OE_ASSESS", "OE_INTERACT");
@@ -46,10 +46,10 @@ object LitScreenerLevelModel extends Serializable {
             }
         }.map { le => le.data.events }.reduce((a, b) => a ++ b);
 
-        events.groupBy { event => event.uid.get }.foreach(f => {
+        events.groupBy { event => CommonUtil.getUserId(event) }.foreach(f => {
             val events = f._2.toBuffer;
             val res = LitScreenerLevelComputation.compute(events, loltMapping, ldloMapping, compldMapping, litLevelsMap);
-            val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && litScreenerIds.contains(x.gdata.id)) };
+            val filterEvents = events.distinct.filter { x => (validEvents.contains(x.eid.get) && litScreenerIds.contains(CommonUtil.getGameId(x))) };
             val uid = userMapping.getOrElse(f._1, f._1);
             // LitScreenerLevelComputation.sendOutput(uid, res._2, res._3, resultOutput, null, null, "");
             // Write to CSV & upload to S3
@@ -57,7 +57,7 @@ object LitScreenerLevelModel extends Serializable {
                 var ltCode = "";
                 var loCode = "";
                 var ldCode = "";
-                event.eid.getOrElse("") match {
+                CommonUtil.getEventId(event) match {
                     case "OE_ASSESS" =>
                         ltCode = getString(event.edata.eks.qid.get.split('.')(3));
                         loCode = ltloMapping.value.getOrElse(ltCode, "").toString();
@@ -69,8 +69,8 @@ object LitScreenerLevelModel extends Serializable {
                     f._1,
                     getString(uid),
                     "",
-                    getString(event.eid),
-                    getString(event.gdata.id),
+                    getString(CommonUtil.getEventId(event)),
+                    getString(CommonUtil.getGameId(event)),
                     getString(event.edata.eks.subj),
                     getString(ldCode),
                     getStringFromArray(event.edata.eks.mc),
@@ -129,7 +129,7 @@ object LitScreenerLevelModel extends Serializable {
         sendOutput(records, output.getOrElse("csv-file"), outputDir);
     }
 
-    def getHeader() : Array[String] = {
+    def getHeader(): Array[String] = {
         Array(
             "Uid",
             "Child Genie id",

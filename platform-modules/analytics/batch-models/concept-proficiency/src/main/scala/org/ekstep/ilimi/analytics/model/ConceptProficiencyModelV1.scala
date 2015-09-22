@@ -31,11 +31,11 @@ object ConceptProficiencyModelV1 extends Serializable {
         val validGames = Array(beforeScreener, afterScreener);
         val validEvents = Array("OE_ASSESS");
 
-        val baseRDD = CommonUtil.loadData(sc, input, location, parallelization, x => validEvents.contains(x.eid) && validGames.contains(x.gdata.id));
+        val baseRDD = CommonUtil.loadData(sc, input, location, parallelization, x => validEvents.contains(x.eid) && validGames.contains(CommonUtil.getGameId(x)));
         Console.println("### Computing concept improvement stats ###");
         val userPairs = baseRDD.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));
         val userScores = userPairs.reduceByKey((a, b) => a ++ b).mapValues(events => {
-            val gameMap = events.map(event => (event.gdata.id, (event.edata.eks.score.get.floatValue() / event.edata.eks.maxscore.get.floatValue()) * 100))
+            val gameMap = events.map(event => (CommonUtil.getGameId(event), (event.edata.eks.score.get.floatValue() / event.edata.eks.maxscore.get.floatValue()) * 100))
                 .groupBy { x => x._1 }
                 .mapValues { x => x.map(f => f._2) }.mapValues { x => x.reduce(_ + _) / x.size }
                 .toMap;

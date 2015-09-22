@@ -21,6 +21,7 @@ object EventSessionization extends Application with Serializable {
 
     def main(brokerList: String, topic: String, output: Option[String], of: Option[String], kt: Option[String]) {
 
+        val validEvents = Array("GE_SESSION_START", "GE_SESSION_END", "OE_ASSESS", "OE_INTERACT");
         val ssc = CommonUtil.getSparkStreamingContext("EventSessionization", Seconds(10));
 
         val loltMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/lo_lt_mapping.csv", ssc.sparkContext);
@@ -35,8 +36,7 @@ object EventSessionization extends Application with Serializable {
         val kafkaParams = Map[String, String]("metadata.broker.list" -> brokerList);
         val messages = KafkaUtils.createDirectStream[String, Event, StringDecoder, EventDecoder](ssc, kafkaParams, Set(topic));
         Console.println("## Started spark kafka consumer ##");
-
-        val events = messages.map[(String, Buffer[Event])](e => (e._2.sid.get, Buffer(e._2)));
+        val events = messages.filter(x => validEvents.contains(x._2.eid.getOrElse(""))).map[(String, Buffer[Event])](e => (e._2.sid.get, Buffer(e._2)));
         val latestSessionEvents = events.reduceByKey((a, b) => a ++ b).updateStateByKey(updatePreviousSessions);
         val completedSessions = latestSessionEvents.filter(f => f._2._2);
 
@@ -60,7 +60,7 @@ object EventSessionization extends Application with Serializable {
         }.collect().groupBy { x => x._1 }.toMap;
         sc.broadcast(config);
     }
-    
+
     def reverseBroadcastMapping(file: String, sc: SparkContext): Broadcast[Map[String, String]] = {
         val config = sc.textFile(file, 1).map { x =>
             {
@@ -95,7 +95,7 @@ object EventSessionization extends Application with Serializable {
                     prevEvents ++= x;
                 }
             };
-            if (prevEvents.last.eid.getOrElse("").equals("GE_SESSION_END")) {
+            if (CommonUtil.getEventId(prevEvents.last).equals("GE_SESSION_END")) {
                 Some(prevEvents, true);
             } else {
                 Some(prevEvents, false);

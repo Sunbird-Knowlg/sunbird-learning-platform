@@ -23,12 +23,13 @@ import org.json4s.string2JsonInput
 import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
+import org.ekstep.ilimi.analytics.model.Gdata
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
     @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
-    @transient val df3:DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ssZZ");
+    @transient val df3: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ssZZ");
 
     def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
@@ -190,6 +191,18 @@ object CommonUtil {
 
     def main(args: Array[String]): Unit = {
         Console.println(formatEventDate(new DateTime));
+    }
+
+    def getEventId(event: Event): String = {
+        event.eid.getOrElse("");
+    }
+
+    def getGameId(event: Event): String = {
+        event.gdata.getOrElse(Gdata(Option(""), Option(""))).id.getOrElse("");
+    }
+
+    def getUserId(event: Event): String = {
+        event.uid.getOrElse("");
     }
 
 }
