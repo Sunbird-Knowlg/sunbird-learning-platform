@@ -494,7 +494,7 @@
                 Razor
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-                Razor is used to cut hair
+                Razor is used to cut hair.
             </text>
         </g>
         <g x="65" y="20" w="30" h="27" id="barberInfo" visible="false">
@@ -508,7 +508,8 @@
                 Barber
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-                Barber is cutting hair Barber uses Razor and Scissors to Cut hair
+                Barber is cutting hair.
+Barber uses razor and scissors to cut hair.
             </text>
         </g>
         <shape type="rect" x="63" y="30" w="5" h="13" hitArea="true">
@@ -583,7 +584,7 @@
                 Knife
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120">
-                Knife is used to cut vegetables
+                Knife is used to cut vegetables.
             </text>
         </g>
         <g x="28" y="12" w="30" h="27" id="wifeInfo" visible="false">
@@ -597,7 +598,8 @@
                 Sringeri Srinivas's Wife
             </text>
             <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="90">
-                Wife is cooking food Wife uses a Knife to Cut vegetables
+                Wife is cooking food.
+Wife uses a knife to Cut vegetables.
             </text>
         </g>
         <shape type="rect" x="20" y="28" w="12" h="22" hitArea="true">
@@ -672,7 +674,10 @@
                 Tailor
             </text>
             <text x="8" y="32" w="86" font="Georgia" fontsize="90">
-                Tailor stitches clothes Tailor uses Tape to measure cloth Tailor uses Scissors to cut cloth Tailor uses Sewing Machine to stitch
+                Tailor stitches clothes.
+Tailor uses tape to measure cloth.
+Tailor uses scissors to cut cloth.
+Tailor uses sewing machine to stitch.
             </text>
         </g>
         <shape type="rect" x="30" y="40" w="20" h="34" hitArea="true">
@@ -799,7 +804,8 @@
                 Carpenter
             </text>
             <text x="8" y="32" w="86" font="Georgia" fontsize="90">
-                Carpenter makes furniture from wood. Carpenter uses a Saw to Cut wood.
+                Carpenter makes furniture from wood.
+Carpenter uses a saw to cut wood.
             </text>
         </g>
         <shape type="rect" x="70" y="37" w="25" h="44" hitArea="true">
@@ -819,7 +825,7 @@
                 Saw
             </text>
             <text x="8" y="32" w="86" font="Georgia" fontsize="90">
-                Saw is used to Cut Wood.
+                Saw is used to cut wood.
             </text>
             <image asset="icon_sound" x="8" y="50" w="15" h="25">
                 <event type="click">
