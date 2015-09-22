@@ -16,13 +16,26 @@ import org.ekstep.ilimi.analytics.streaming.EventDecoder
 import org.ekstep.ilimi.analytics.streaming.LevelAgg
 import org.ekstep.ilimi.analytics.streaming.LitScreenerLevelComputation
 import org.ekstep.ilimi.analytics.conf.AppConf
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.Duration
 
 object EventSessionization extends Application with Serializable {
+    
+    def getSparkStreamingContext(appName: String, duration: Duration): StreamingContext = {
+        val conf = new SparkConf().setAppName(appName);
+        val master = conf.getOption("spark.master");
+        if (master.isEmpty) {
+            Console.println("### Master not found. Setting it to local[*] ###");
+            conf.setMaster("local[*]");
+        }
+        new StreamingContext(conf, duration);
+    }
 
     def main(brokerList: String, topic: String, output: Option[String], of: Option[String], kt: Option[String]) {
 
         val validEvents = Array("GE_SESSION_START", "GE_SESSION_END", "OE_ASSESS", "OE_INTERACT");
-        val ssc = CommonUtil.getSparkStreamingContext("EventSessionization", Seconds(10));
+        val ssc = getSparkStreamingContext("EventSessionization", Seconds(10));
 
         val loltMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/lo_lt_mapping.csv", ssc.sparkContext);
         val ldloMapping = broadcastMapping(AppConf.getConfig("mapping_file_location") + "/ld_lo_mapping.csv", ssc.sparkContext);
