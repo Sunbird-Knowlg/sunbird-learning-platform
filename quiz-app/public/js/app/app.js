@@ -42,9 +42,15 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
-                    TelemetryService.init(GlobalContext.user, GlobalContext.game);
-                    TelemetryService.start();
+                    TelemetryService.init(GlobalContext.user, GlobalContext.game).then(function() {
+                        TelemetryService.start();    
+                    }).catch(function(error) {
+                        console.log('TelemetryService init failed');
+                    });
                 }
+            }).catch(function(error) {
+                alert('Please open this app from Genie.');
+                navigator.app.exitApp();
             });
         });
     })
