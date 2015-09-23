@@ -103,8 +103,13 @@ var ThemePlugin = Plugin.extend({
     },
     restart: function() {
         var gameId = TelemetryService._gameData.id;
-        console.log('restart game: ', gameId);
-        window.location.hash = '#/replay/content/' + gameId;
+        var version = TelemetryService._gameData.ver;
+        var instance = this;
+        TelemetryService.end();
+        AssetManager.initStage(this._data.startStage, null, null, function() {
+            TelemetryService.start(gameId, version);
+            instance.render();
+        });
     },
     getAsset: function(aid) {
         return AssetManager.getAsset(this._currentStage, aid);
