@@ -18,17 +18,17 @@ function exitApp(closeApp) {
     if (TelemetryService._gameData) {
         TelemetryService.end(packageName, version);
     }
-    TelemetryService.sendIntentResult().then(function() {
+    TelemetryService.writeFile().then(function() {
         console.log('Telemetry data sent');
-        if (closeApp) {
-            if(navigator.app)
-                navigator.app.exitApp();
-            if(navigator.device)
-                navigator.device.exitApp();
-            if(window)
-                window.close();        
+        if(navigator.app) {
+            navigator.app.exitApp();
         }
-        
+        if(navigator.device) {
+            navigator.device.exitApp();
+        }
+        if(window) {
+            window.close();
+        }
     });
 }
 

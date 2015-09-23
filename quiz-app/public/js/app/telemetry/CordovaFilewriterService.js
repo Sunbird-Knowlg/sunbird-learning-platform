@@ -27,8 +27,24 @@ CordovaFilewriterService = FilewriterService.extend({
     },
     createFile: function(fileName, success, error) {
         _root.getFile(fileName, {
-            create: true
-        }, success, error);
+            create: false
+        }, function(fileEntry) {
+            if (fileEntry) {
+                fileEntry.remove(function() {
+                    _root.getFile(fileName, {
+                        create: true
+                    }, success, error);
+                }, error);
+            } else {
+                _root.getFile(fileName, {
+                    create: true
+                }, success, error);
+            }
+        } , function() {
+            _root.getFile(fileName, {
+                create: true
+            }, success, error);
+        });
     },
     write: function(fileName, data, revSeek) {
         return new Promise(function(resolve, reject) {

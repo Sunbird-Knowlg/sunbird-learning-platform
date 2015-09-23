@@ -5,7 +5,7 @@ TelemetryService = {
     _gameData: undefined,
     _config: undefined,
     _user: undefined,
-    _baseDir: 'QuizApp',
+    _baseDir: 'EkStep Content App',
     _gameOutputFile: undefined,
     _gameErrorFile: undefined,
     _events: [],
@@ -176,6 +176,31 @@ TelemetryService = {
         } else {
             // console.log('TelemetryService is inActive.');
         }
+    },
+    writeFile: function() {
+        return new Promise(function(resolve, reject) {
+            if (TelemetryService.isActive) {
+                if (TelemetryService._events && TelemetryService._events.length > 0) {
+                    var data = JSON.stringify(TelemetryService._events);
+                    data = data.substring(1, data.length - 1);
+                    data = '{"events":[' + data + ']}';
+                    TelemetryService.ws.write(TelemetryService._gameOutputFile, data)
+                    .then(function(status) {
+                        TelemetryService.clearEvents();
+                        resolve(true);
+                    })
+                    .catch(function(err) {
+                        console.log('Error:', err);
+                        resolve(true);
+                    });
+                } else {
+                    resolve(true);
+                }
+            } else {
+                resolve(true);
+            }
+        });
+        
     },
     sendIntentResult: function() {
         return new Promise(function(resolve, reject) {
