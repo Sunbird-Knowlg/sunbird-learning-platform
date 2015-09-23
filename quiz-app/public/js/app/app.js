@@ -10,9 +10,28 @@ function backbuttonPressed() {
     if(Renderer.running) {
         initBookshelf();
     } else {
-        TelemetryService.end(packageName, version);
+        exitApp();
     }
 }
+
+function exitApp(closeApp) {
+    if (TelemetryService._gameData) {
+        TelemetryService.end(packageName, version);
+    }
+    TelemetryService.sendIntentResult().then(function() {
+        console.log('Telemetry data sent');
+        if (closeApp) {
+            if(navigator.app)
+                navigator.app.exitApp();
+            if(navigator.device)
+                navigator.device.exitApp();
+            if(window)
+                window.close();        
+        }
+        
+    });
+}
+
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .run(function($ionicPlatform, $ionicModal, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
@@ -47,7 +66,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             }).catch(function(error) {
                 alert('Please open this app from Genie.');
-                navigator.app.exitApp();
+                exitApp(true);
             });
         });
     })
@@ -228,13 +247,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
         };
         $scope.exitApp = function(){
-            console.log("Enter");
-            if(navigator.app)
-                navigator.app.exitApp();
-            if(navigator.device)
-                navigator.device.exitApp();
-            if(window)
-                window.close();
+            console.log("Exit");
+            exitApp();
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {

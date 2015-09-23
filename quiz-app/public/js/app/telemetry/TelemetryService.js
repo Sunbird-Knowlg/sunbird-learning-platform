@@ -177,6 +177,26 @@ TelemetryService = {
             // console.log('TelemetryService is inActive.');
         }
     },
+    sendIntentResult: function() {
+        return new Promise(function(resolve, reject) {
+            if (TelemetryService.isActive) {
+                if (TelemetryService._events && TelemetryService._events.length > 0) {
+                    var data = JSON.stringify(TelemetryService._events);
+                    IntentService.sendTelemetryEvents(data).then(function() {
+                        resolve(true);
+                    }).catch(function(err) {
+                        console.log('Error:', err);
+                        resolve(true);
+                    });
+                } else {
+                    resolve(true);
+                }
+            } else {
+                resolve(true);
+            }
+        });
+        
+    },
     clearEvents: function() {
         TelemetryService._events = [];
     },
