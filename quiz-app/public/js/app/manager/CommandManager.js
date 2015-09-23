@@ -52,6 +52,9 @@ CommandManager = {
 			case 'reload':
 				if (plugin) plugin.reload(action);
 				break;
+			case 'restart':
+				if (plugin) plugin.restart(action);
+				break;
 			default:
 		}
 	}

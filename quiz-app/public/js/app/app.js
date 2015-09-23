@@ -63,6 +63,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 url: "/play/content/:item",
                 templateUrl: "templates/renderer.html",
                 controller: 'ContentCtrl'
+            })
+            .state('replayContent', {
+                url: "/replay/content/:itemId",
+                templateUrl: "templates/renderer.html",
+                controller: 'ReplayContentCtrl'
             });
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
@@ -237,6 +242,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 initBookshelf();
             }, 100);
         });
+    }).controller('ReplayContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
+        var content = ContentService.getContent($stateParams.itemId);
+        if (content) {
+            $scope.item = content;
+            Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
+        } else {
+            $state.go('contentList');
+        }
     });
 
 

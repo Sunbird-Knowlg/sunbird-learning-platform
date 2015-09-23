@@ -101,6 +101,11 @@ var ThemePlugin = Plugin.extend({
     update: function() {
         this._self.update();
     },
+    restart: function() {
+        var gameId = TelemetryService._gameData.id;
+        console.log('restart game: ', gameId);
+        window.location.hash = '#/replay/content/' + gameId;
+    },
     getAsset: function(aid) {
         return AssetManager.getAsset(this._currentStage, aid);
     },
