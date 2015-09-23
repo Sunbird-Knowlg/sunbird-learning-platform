@@ -1,0 +1,484 @@
+<theme startStage="splash" id="theme" ver="0.2">
+    <manifest>
+		<media id="grey" src="mtf1/grey.png" type="image" />
+		<media id="old" src="mtf1/tree.png" type="image" />
+		<media id="new" src="mtf1/cap.png" type="image" />
+		<media id="day" src="mtf1/sun.png" type="image" />
+		<media id="night" src="mtf1/moon.png" type="image" />
+        <media id="level_band" src="level_band.png" type="image" />
+        <media id="publisher_logo" src="publisher_logo.jpg" type="image" />
+        <media id="previous" src="icon_previous.png" type="image" />
+        <media id="next" src="icon_next.png" type="image" />
+        <media id="icon_sound" src="icon_sound.png" type="image" />
+        <media id="icon_hint" src="icon_hint.png" type="image" />
+        <media id="start" src="start.png" type="image" />
+        <media id="page1" src="scenes/image_1.jpg" type="image" />
+        <media id="page2" src="scenes/image_2.jpg" type="image" />
+        <media id="page3" src="scenes/image_3.jpg" type="image" />
+        <media id="page4" src="scenes/image_4.jpg" type="image" />
+        <media id="page5" src="scenes/image_5.jpg" type="image" />
+        <media id="page6" src="scenes/image_6.jpg" type="image" />
+        <media id="page7" src="scenes/image_7.jpg" type="image" />
+        <media id="page8" src="scenes/image_8.jpg" type="image" />
+        <media id="page9" src="scenes/image_9.jpg" type="image" />
+        <media id="page10" src="scenes/image_10.jpg" type="image" />
+        <media id="page11" src="scenes/image_11.jpg" type="image" />
+        
+		<media src="sounds/dialogues.mp3" id="scene_audio" type="audiosprite">
+            <data>
+                <audioSprite id="splash_sound" startTime="880" duration="1972.0"></audioSprite>
+                <audioSprite id="scene1_sound" startTime="4197" duration="3034.0"></audioSprite>
+                <audioSprite id="scene2_sound" startTime="8064" duration="9328.0"></audioSprite>
+                <audioSprite id="scene3_sound" startTime="18177" duration="6851.0"></audioSprite>
+                <audioSprite id="scene4_sound" startTime="26393" duration="5435.0"></audioSprite>
+                <audioSprite id="scene5_sound" startTime="33016" duration="4222.0"></audioSprite>
+                <audioSprite id="scene6_sound" startTime="38274" duration="7382.0"></audioSprite>
+                <audioSprite id="scene7_sound" startTime="46642" duration="7382.0"></audioSprite>
+                <audioSprite id="scene8_sound" startTime="54808" duration="8570.0"></audioSprite>
+                <audioSprite id="scene9_sound" startTime="64515" duration="7635.0"></audioSprite>
+                <audioSprite id="scene10_sound" startTime="73490" duration="2654.0"></audioSprite>
+            </data>
+        </media>
+		
+		<media src="sounds/Q1.mp3" id="Q1_audio" type="audiosprite">
+            <data>
+                <audioSprite id="Q1_sound" startTime="0" duration="3000.0"></audioSprite>
+            </data>
+        </media>
+		
+    </manifest>
+    <controller name="storyData" type="data" id="Moonandthecap"/>
+    <controller name="assessment" type="items" id="assessment"/>
+    <stage id="baseStage" preload="true">
+        <image asset = "new"/>
+		<image asset = "old"/>
+		<image asset = "day"/>
+		<image asset = "night"/>
+		<image asset = "grey"/>
+		<image asset = "previous"/>
+		<image asset = "next"/>
+    </stage>
+    <stage id="storyBaseStage" preload="true">
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </shape>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape>
+        <text param="body" x="9" y="5" w="86" h="4" font="Georgia" fontsize="42"/>
+    </stage>
+    <stage id="splash" x="0" y="0" w="100" h="100">
+        <param name="next" value="scene1" />
+        <audio asset="scene_audio" />
+        <image asset="page1" x="2" y="2" w="96" h="70" />
+        <image asset="publisher_logo" x="2" y="75" w="13" h="17" />
+        <image asset="level_band" x="2" y="94" w="13" h="5" />
+        <image asset="next" x="92" y="80" w="6" h="10" id="next"/>
+        <shape id="nextContainer" type="rect" x="87" y="75" w="13" h="20" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </shape>
+        <text x="35" y="80" w="35" h="5" font="Arial" fontsize="48">
+            The Moon And The Cap
+        </text>
+        <text x="35" y="86" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Author:
+        </text>
+        <text x="41" y="86" w="20" h="5" font="Georgia" fontsize="28">
+            Rohini Nilekani
+        </text>
+        <text x="35" y="90" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Illustrator:
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="splash_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="splash_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene1" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <param name="next" value="scene2" />
+        <param name="previous" value="splash" />
+        <param name="body" model="storyData.scene1_body"/>
+        <!-- <shape x="2" y="90" w="96" h="10.5" type="rect" fill="#F3CCDE" /> -->
+        <image asset="page2" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene1_sound" />
+            </event>
+        </shape>
+        <!--<shape type="rect" x="2" y="2" w="12" h="48" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="clock_sound" />
+            </event>
+        </shape>-->
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene1_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene1_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene2" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <param name="next" value="scene3" />
+        <param name="previous" value="scene1" />
+        <param name="body" model="storyData.scene2_body"/>
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" /> -->
+        <image asset="page3" x="2" y="12" w="96" h="86" />
+        <!-- <image asset="sringeri" x="11.5" y="19" w="20" h="36" id="sringeri">
+            <event type="click">
+                <action type="animation">
+                    <tween id="sringeriWalking">
+                        <to ease="linear" duration="500">
+                            <![CDATA[{"x":20,"y":20}]]>
+                        </to>
+                        <to ease="quadOut" duration="2000">
+                            <![CDATA[{"x":55,"y":0}]]>
+                        </to>
+                        <to ease="linear" duration="1">
+                            <![CDATA[{"x":75,"y":0, "scaleX": -1}]]>
+                        </to>
+                        <to ease="linear" duration="2000">
+                            <![CDATA[{"x":40,"y":55}]]>
+                        </to>
+                        <to ease="linear" duration="1">
+                            <![CDATA[{"x":18,"y": 55, "scaleX": 1}]]>
+                        </to>
+                        <to ease="linear" duration="2000">
+                            <![CDATA[{"x":57,"y":55}]]>
+                        </to>
+                    </tween>
+                </action>
+            </event>
+        </image> -->
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+       <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene2_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene2_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene2_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene3" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#E5F4FB" /> -->
+        <image asset="page4" x="2" y="12" w="96" h="86" />
+        <param name="next" value="scene4" />
+        <param name="previous" value="scene2" />
+        <param name="body" model="storyData.scene3_body"/>
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene3_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene3_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene3_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene4" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene5" />
+        <param name="previous" value="scene3" />
+        <param name="body" model="storyData.scene4_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86CFF2" /> -->
+        <image asset="page5" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene4_sound" />
+            </event>
+        </shape>
+         <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene4_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene4_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene5" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene6" />
+        <param name="previous" value="scene4" />
+        <param name="body" model="storyData.scene5_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" /> -->
+        <image asset="page6" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene5_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene5_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene5_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene6" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene7" />
+        <param name="previous" value="scene5" />
+        <param name="body" model="storyData.scene6_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FAB800" /> -->
+        <image asset="page7" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene6_sound" />
+            </event>
+        </shape>
+       <!--  <shape type="rect" x="82" y="25" w="16" h="38" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="tree_frogs_and_birds_sound" />
+            </event>
+        </shape> -->
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene6_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene6_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene7" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene8" />
+        <param name="previous" value="scene6" />
+        <param name="body" model="storyData.scene7_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#86C8E8" /> -->
+        <image asset="page8" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene7_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene7_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene7_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene8" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene9" />
+        <param name="previous" value="scene7" />
+        <param name="body" model="storyData.scene8_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#95B1D9" /> -->
+        <image asset="page9" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene8_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene8_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene8_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene9" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene10" />
+        <param name="previous" value="scene8" />
+        <param name="body" model="storyData.scene9_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#D1E6EB" /> -->
+        <image asset="page10" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene9_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene9_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene9_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <stage id="scene10" x="0" y="0" w="100" h="100" extends="storyBaseStage">
+        <param name="next" value="scene21" />
+        <param name="previous" value="scene9" />
+        <param name="body" model="storyData.scene10_body"/>
+        <audio asset="scene_audio" />
+        <!-- <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#DEA6C9" /> -->
+        <image asset="page11" x="2" y="12" w="96" h="86" />
+        <image asset="icon_sound" x="93" y="88" w="5" h="9"/>
+        <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
+            <event type="click">
+                <action type="command" command="togglePlay" asset="scene10_sound" />
+            </event>
+        </shape>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset="scene10_sound" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset="scene10_sound" audio="true" loop="1" />
+            </event>
+        </events>
+    </stage>
+    <template id="mcq_template_1">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mcq multi_select="false" model="item">
+            <options layout="table" x="20" y="15" w="70" h="85" cols="2" marginX="10" marginY="5" options="options"/>
+        </mcq>
+        <g x="9" y="17" w="20" h="20" id="hint" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100">
+                <event type="click">
+                    <action type="command" command="stop" asset_model="item.hints[0].asset" />
+                    <action type="command" command="toggleShow" asset="hint" />
+                </event>
+            </image>
+            <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
+                Hint
+            </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="item.hints[1].asset"/>
+        </g>
+        <image asset="icon_hint" x="5" y="35">
+            <event type="click">
+                <action type="command" command="togglePlay" asset_model="item.hints[0].asset" />
+                <action type="command" command="toggleShow" asset="hint" />
+            </event>
+        </image>
+    </template>
+    <template id="mtf_template_1">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mtf model="item">
+            <options layout="table" x="15" y="15" w="75" h="85" cols="2" marginX="15" marginY="5" snapX="45" snapY="35" options="lhs_options"/>
+
+            <option x="45" y="20" w="15" h="20" padX="20" padY="10" option="rhs_options[0]"/>
+            <option x="45" y="37" w="15" h="20" padX="20" padY="10" option="rhs_options[1]"/>
+            <option x="45" y="59" w="15" h="20" padX="20" padY="10" option="rhs_options[2]"/>
+            <option x="45" y="80" w="15" h="20" padX="20" padY="10" option="rhs_options[3]"/>
+        </mtf>
+    </template>
+    <template id="mtf_template_2">
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="42"/>
+        <mtf model="item" force="true">
+            <option x="20" y="15" w="30" h="25" snapX="42" snapY="9" option="lhs_options[0]"/>
+            <option x="20" y="43" w="30" h="25" snapX="10.5" snapY="5" option="lhs_options[1]"/>
+            <option x="20" y="71" w="30" h="25" snapX="27.5" snapY="8.5" option="lhs_options[2]"/>
+
+            <option x="70" y="15" w="10" h="16" option="rhs_options[0]"/>
+            <option x="70" y="43" w="10" h="19.5" option="rhs_options[1]"/>
+            <option x="70" y="71" w="12" h="22" option="rhs_options[2]"/>
+        </mtf>
+        <g x="9" y="17" w="20" h="20" id="hint" visible="false">
+            <image asset="speech_bubble" x="0" y="0" w="100" h="100" />
+            <text x="10" y="20" w="80" h="80" font="Georgia" weight="bold" fontsize="150">
+                Hint
+            </text>
+            <text x="10" y="40" w="80" h="80" font="Georgia" fontsize="120" model="item.hints[0].asset"/>
+        </g>
+        <image asset="icon_hint" x="5" y="35">
+            <event type="click">
+                <action type="command" command="toggleShow" asset="hint" />
+            </event>
+        </image>
+    </template>
+	<template id="mtf_template_3">
+		<shape x="2" y="14" w="100" h="100" type="rect" fill="#FFF16E" />
+        <text model="item.title" x="9" y="7" w="86" h="4" font="Georgia" fontsize="52"/>
+		<text model="item.lhs_options[0].sub_title" x="18" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[1].sub_title" x="37" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[2].sub_title" x="58" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+		<text model="item.lhs_options[3].sub_title" x="77" y="25" w="86" h="4" font="Georgia" fontsize="42"/>
+			
+        <mtf model="item" force="true">
+			
+            <option x="12" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[0]"/>
+            <option x="32" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[1]"/>
+            <option x="52" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[2]"/>
+            <option x="72" y="30" w="15" h="25.5" snapX="0.1" snapY="0.1" option="lhs_options[3]"/>
+
+            <option x="12" y="60" w="15" h="25.5" option="rhs_options[0]"/>
+            <option x="32" y="60" w="15" h="25.5" option="rhs_options[1]"/>
+            <option x="52" y="60" w="15" h="25.5" option="rhs_options[2]"/>
+            <option x="72" y="60" w="15" h="25.5" option="rhs_options[3]"/>
+        </mtf>
+        
+    </template>
+    
+	<stage id="scene21" x="0" y="0" w="100" h="100" iterate="assessment" var="item">
+        <param name="next" value="splash" />
+        <param name="previous" value="scene10" />
+        <image asset="next" x="93" y="3" w="5" h="8.3" id="next" visible="false"/>
+        <image asset="previous" x="2" y="3" w="5" h="8.3" id="previous" visible="false"/>
+        <shape id="nextContainer" type="rect" x="90" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click" disableTelemetry="true">
+                <action type="command" command="eval" asset="scene21" success="next_item" failure="next_item"/>
+            </event>
+        </shape>
+        <shape id="previousContainer" type="rect" x="1" y="1" w="10" h="15" visible="false" hitArea="true">
+            <event type="click">
+                <action type="command" command="transitionTo" asset="theme" param="previous" effect="scroll" direction="right" ease="linear" duration="500" transitionType="previous"/>
+            </event>
+        </shape>
+		
+		<audio asset="Q1_audio" />
+        <embed template="item" var-item="item"/>
+        <appEvents list="next_item"/>
+        <events>
+            <event type="enter">
+                <action type="command" command="play" asset_model="item.title_audio.asset" loop="1" />
+            </event>
+            <event type="exit">
+                <action type="command" command="stop" asset_model="item.title_audio.asset" audio="true" loop="1" />
+            </event>
+            <event type="next_item">
+                <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" />
+            </event>
+        </events>
+    </stage>
+</theme>

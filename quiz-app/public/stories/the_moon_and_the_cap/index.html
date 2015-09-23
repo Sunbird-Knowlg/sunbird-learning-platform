@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Ekstep Quiz App</title>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+    <script src="https://s3-ap-southeast-1.amazonaws.com/ekstep-public/js/quizapp-0.2.min.js"></script>
+    <script src="https://s3-ap-southeast-1.amazonaws.com/ekstep-public/js/telemetry-lib-0.2.min.js"></script>
+    <style>
+    	#gameArea {
+		  	position: absolute;
+		  	left:     50%;
+		  	top:      50%;
+		}
+		#gameCanvas {
+  			width: 100%;
+  			height: 100%;
+		}
+        .inputText {
+            -moz-border-radius: 15px;
+            border-radius: 15px;
+            border:solid 2px black !important;
+            font-weight: bold !important;
+            padding-left: 10px !important;
+            padding-right: 5px;
+            z-index: 1000;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body style="background-color: #fff">
+	<div id="gameArea"> <!-- Keep the id enclosing div as "gameArea" only. Do not change  -->
+  		<canvas id="gameCanvas"></canvas>
+	</div>
+</body>
+
+</html>
+<script>
+$(document).ready(function() {
+    Renderer.start(window.location.pathname.replace("/index.html", ""), 'gameCanvas');
+});
+</script>

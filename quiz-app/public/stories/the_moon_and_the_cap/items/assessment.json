@@ -1,0 +1,73 @@
+{
+	"identifier": "haircut_story_1",
+	"title": "Haircut Story Assessment",
+	"total_items": 1,
+	"max_score": 4,
+	"subject": "LIT",
+	"item_sets": [
+		{
+			"id": "set_1",
+        	"count": 1	
+		}
+	],
+	"items": {
+		"set_1" : [
+			{
+				"identifier": "hs1_set_1_1",
+				"type": "mtf",
+				"template": "mtf_template_3",
+				"qlevel": "MEDIUM",
+				"title": "Old and New, Day and Night",
+				"lhs_options": [
+					{
+						"value": {"type": "image", "asset": "grey"},
+						"index": 0,
+						"sub_title":"Old"
+					},
+					{
+						"value": {"type": "image", "asset": "grey"},
+						"index": 1,
+						"sub_title":"New"
+					},
+					{
+						"value": {"type": "image", "asset": "grey"},
+						"index": 2,
+						"sub_title":"Day"
+					},
+					{
+						"value": {"type": "image", "asset": "grey"},
+						"index": 3,
+						"sub_title":"Night"
+					}
+				],
+				"rhs_options": [
+					{
+						"value": {"type": "image", "asset": "old"},
+						"answer": 0
+					},
+					{
+						"value": {"type": "image", "asset": "new"},
+						"answer": 1
+					},
+					{
+						"value": {"type": "image", "asset": "day"},
+						"answer": 2
+					},
+					{
+						"value": {"type": "image", "asset": "night"},
+						"answer": 3
+					}
+				],
+				"model" : {
+					"title_audio" : {"asset": "Q1_sound", "type": "audio"}
+				},
+				"hints": [
+					{"asset": "The tailor is surrounded by clothers to stitch.", "type": "text"}
+				],
+				"max_score": 4,
+				"partial_scoring": true,
+				"feedback": ""
+			}
+		]
+	}
+}

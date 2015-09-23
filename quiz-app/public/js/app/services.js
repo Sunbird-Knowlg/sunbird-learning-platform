@@ -75,6 +75,15 @@ angular.module('quiz.services', ['ngResource'])
                 }
                 return 0;
             },
+            getProcessList: function() {
+                var list = _.where(_.values(this.contentList), {
+                    "status": "processing"
+                });
+                if (_.isArray(list)) {
+                    return list;
+                }
+                return [];
+            },
             getContentList: function(type) {
                 if (type) {
                     var list = _.where(_.values(this.contentList), {
