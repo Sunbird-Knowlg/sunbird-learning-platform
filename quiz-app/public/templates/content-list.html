@@ -48,12 +48,13 @@
 
 <script id="about.html" type="text/ng-template">
   <ion-modal-view>
-    <ion-header-bar>
+    <ion-header-bar class="bar-energized">
         <h1 class="title">EkStep Content App</h1>
     </ion-header-bar>
     <ion-content padding="true">
         <div class="item item-text-wrap">
-            EkStep Content App can be used to play any content whose narrative and interactivity is governed by the EkStep Content Markup Language (ECML).
+            <div><img src="assets/about_us_banner.jpg" style="width: 200px;"/></div>
+            <div>EkStep Content App can be used to play any content whose narrative and interactivity is governed by the EkStep Content Markup Language (ECML).</div>
         </div>
         <div class="item">
             <div style="float: left; width: 50%">
@@ -70,12 +71,16 @@
             </div>
             <div style="float: left; width: 50%">
                 <b>Contact:</b><br/>
-                Email: contact@ekstep.org<br/>
-                Phone: 9611995838
+                Email: contact@ekstep.org
             </div>
         </div>
         <div class="item">
-            <b>Environment</b>
+            <div><img src="assets/privacy.png" style="width: 150px;" /></div>
+            <div>5+ years old</div>
+        </div>
+        <div class="item">
+            <div style="margin-bottom: 5px;"><b>Environment</b></div>
+            <div>
             <ion-radio ng-repeat="item in environmentList"
                    ng-value="item.value"
                    ng-model="selectedEnvironment.value"
@@ -83,6 +88,7 @@
                    name="selected-environment">
                 {{item.text}}
             </ion-radio>
+            </div>
         </div>
     </ion-content>
   </ion-modal-view>
