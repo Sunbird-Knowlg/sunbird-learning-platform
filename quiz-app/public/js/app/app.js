@@ -221,6 +221,15 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             if (_.isString(env) && env.length > 0) {
                 PlatformService.setAPIEndpoint(env);
             }
+        };
+        $scope.exitApp = function(){
+            TelemetryService.end();
+            if(navigator.app)
+                navigator.app.exitApp();
+            if(navigator.device)
+                navigator.device.exitApp();
+            if(window)
+                window.close();
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
