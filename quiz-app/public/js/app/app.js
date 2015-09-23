@@ -53,7 +53,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             });
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
-                initBookshelf();
+                if(!Renderer.running) {
+                    initBookshelf();
+                }
             });
 
             GlobalContext.init(packageName, version).then(function() {

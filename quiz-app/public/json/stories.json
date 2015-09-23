@@ -29,6 +29,25 @@
             "identifier": "org.ekstep.lit.haircut.story",
             "grayScaleAppIcon": null,
             "pkgVersion": 1
+        },
+        {
+            "questionnaire": null,
+            "appIcon": "stories/the_moon_and_the_cap/logo.png",
+            "subject": "literacy_v2",
+            "description": "The Moon and the Cap",
+            "name": "The Moon and the Cap",
+            "launchPath": "stories/the_moon_and_the_cap",
+            "downloadUrl": "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/STORY_2_1442335816604.zip",
+            "checksum": null,
+            "loadingMessage": "Every great journey starts with a great story...",
+            "concepts": [{
+                "identifier": "LO1",
+                "name": "Receptive Vocabulary",
+                "objectType": "Concept"
+            }],
+            "identifier": "org.ekstep.lit.moon_cap.story",
+            "grayScaleAppIcon": null,
+            "pkgVersion": 1
         }],
         "ttl": 24
     }
