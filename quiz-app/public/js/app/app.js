@@ -36,9 +36,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 Renderer.resume();
                 initBookshelf();
             });
-            $ionicPlatform.on("backbutton", function() {
-                backbuttonPressed();
-            });
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
