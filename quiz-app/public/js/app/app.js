@@ -20,6 +20,7 @@ function exitApp(closeApp) {
     }
     TelemetryService.writeFile().then(function() {
         console.log('Telemetry data sent');
+        ContentService.resetSyncStart();
         if(navigator.app) {
             navigator.app.exitApp();
         }
