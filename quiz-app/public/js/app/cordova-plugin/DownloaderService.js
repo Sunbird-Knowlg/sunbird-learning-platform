@@ -83,11 +83,11 @@ DownloaderService = {
                 if(result == "success") {
                     console.log("unzip successful.");
                     resolve({"status": "ready", "baseDir": extractPath, "appIcon": extractPath + "/logo.png"});
-                    // file.remove();
                 } else {
                     console.log("error while unzipping:", result);
                     resolve({"status": "error", "baseDir": "", "errorCode": result.errorCode, "errorParam": result.errorParam});
                 }
+                file.remove();
             });
         });
     }

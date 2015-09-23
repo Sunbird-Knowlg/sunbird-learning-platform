@@ -3,11 +3,14 @@
 // angular.module is a global place for creating, registering and retrieving Angular modules
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
+var packageName = "org.ekstep.quiz.app";
+var version = "1.0";
+
 function backbuttonPressed() {
     if(Renderer.running) {
         initBookshelf();
     } else {
-        TelemetryService.end("org.ekstep.quiz.app", "1.0");
+        TelemetryService.end(packageName, version);
     }
 }
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
@@ -36,6 +39,19 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $ionicPlatform.on("backbutton", function() {
                 backbuttonPressed();
             });
+
+            GlobalContext.init(packageName, version).then(function() {
+                if (!TelemetryService._gameData) {
+                    TelemetryService.init(GlobalContext.user, GlobalContext.game).then(function() {
+                        TelemetryService.start();    
+                    }).catch(function(error) {
+                        console.log('TelemetryService init failed');
+                    });
+                }
+            }).catch(function(error) {
+                alert('Please open this app from Genie.');
+                navigator.app.exitApp();
+            });
         });
     })
     .config(function($stateProvider, $urlRouterProvider) {
@@ -54,7 +70,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
-        var currentContentVersion = "0.3";
+        var currentContentVersion = "0.2";
 
         $ionicModal.fromTemplateUrl('about.html', {
             scope: $scope,
@@ -70,25 +86,13 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.selectedEnvironment = {value: "API_SANDBOX"};
 
         new Promise(function(resolve, reject) {
-                ContentService.clear();
                 if(currentContentVersion != ContentService.getContentVersion()) {
                     console.log("Clearing ContentService cache.");
                     ContentService.clear();
                     ContentService.setContentVersion(currentContentVersion);
                 }
                 ContentService.init();
-                resolve(TelemetryService._gameData);
-            })
-            .then(function(game) {
-                if (!game) {
-                    return GlobalContext.init("org.ekstep.quiz.app", currentContentVersion);
-                } else {
-                    return true;
-                }
-            })
-            .then(function() {
-                TelemetryService.start();
-                return true;
+                resolve(true);
             })
             .then(function() {
                 $rootScope.$apply(function() {
@@ -151,10 +155,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
             if (reload) {
                 $("#loadingDiv").show();
+                $rootScope.showMessage = false;
+                $rootScope.message = "";
                 setTimeout(function() {
-                    $rootScope.$apply(function() {
-                        $rootScope.showMessage = false;
-                    });
                     ContentService.sync()
                         .then(function() {
                             var processing = ContentService.getProcessCount();

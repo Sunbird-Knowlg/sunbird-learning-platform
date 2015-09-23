@@ -35,6 +35,7 @@ AssessEvent = TelemetryEvent.extend({
     start: function() {
     	this._isStarted = true;
     	this.startTime = new Date().getTime();
+        return this;
     },
     end: function(pass, score, res, uri) {
     	if(this._isStarted) {

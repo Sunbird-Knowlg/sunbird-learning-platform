@@ -141,7 +141,8 @@ module.exports = function(grunt) {
                         'console',
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
-                        'cordova-plugin-file-transfer'
+                        'cordova-plugin-file-transfer',
+                        'https://github.com/Initsogar/cordova-webintent.git'
                     ]
                 }
             },
