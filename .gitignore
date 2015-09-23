@@ -13,3 +13,4 @@ platform-modules/analytics/streaming-models/literacy-level-computation/checkpoin
 quiz-app/resources
 quiz-app/www
 .classpath
+.cache-main
