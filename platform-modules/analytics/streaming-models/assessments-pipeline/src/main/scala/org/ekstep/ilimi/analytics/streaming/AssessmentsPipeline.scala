@@ -15,13 +15,26 @@ import org.ekstep.ilimi.analytics.util.CommonUtil
 import kafka.serializer.StringDecoder
 import org.ekstep.ilimi.analytics.dao.GameLevel
 import org.ekstep.ilimi.analytics.model.Gdata
+import org.apache.spark.streaming.StreamingContext
+import org.apache.spark.SparkConf
+import org.apache.spark.streaming.Duration
 
 object AssessmentsPipeline extends Application {
 
     @transient val logger = LogManager.getLogger(AssessmentsPipeline.getClass);
+    
+    def getSparkStreamingContext(appName: String, duration: Duration): StreamingContext = {
+        val conf = new SparkConf().setAppName(appName);
+        val master = conf.getOption("spark.master");
+        if (master.isEmpty) {
+            Console.println("### Master not found. Setting it to local[*] ###");
+            conf.setMaster("local[*]");
+        }
+        new StreamingContext(conf, duration);
+    }
 
     def main(brokerList: String, topic: String) {
-        val ssc = CommonUtil.getSparkStreamingContext("AssessmentsPipeline", Seconds(10));
+        val ssc = getSparkStreamingContext("AssessmentsPipeline", Seconds(10));
         Console.println("## Started spark streaming context ##");
         val kafkaParams = Map[String, String]("metadata.broker.list" -> brokerList);
         val messages = KafkaUtils.createDirectStream[String, Event, StringDecoder, EventDecoder](ssc, kafkaParams, Set(topic));

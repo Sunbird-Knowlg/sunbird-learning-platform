@@ -55,16 +55,6 @@ object CommonUtil {
         sc;
     }
 
-    def getSparkStreamingContext(appName: String, duration: Duration): StreamingContext = {
-        val conf = new SparkConf().setAppName(appName);
-        val master = conf.getOption("spark.master");
-        if (master.isEmpty) {
-            Console.println("### Master not found. Setting it to local[*] ###");
-            conf.setMaster("local[*]");
-        }
-        new StreamingContext(conf, duration);
-    }
-
     def closeSparkContext(sc: SparkContext) {
         sc.stop();
     }

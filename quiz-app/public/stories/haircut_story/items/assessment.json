@@ -159,7 +159,7 @@
 					}
 				],
 				"hints": [
-					{"asset": "The tailor is surrounded by clothers to stitch.", "type": "text"}
+					{"asset": "Tailor is surrounded by clothes to stitch.", "type": "text"}
 				],
 				"max_score": 3,
 				"partial_scoring": true,
