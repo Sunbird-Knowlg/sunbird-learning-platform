@@ -214,6 +214,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.showAboutUsPage = function() {
             $scope.aboutModal.show();
         };
+        $scope.hideAboutUsPage = function() {
+            $scope.aboutModal.hide();
+        };
 
         $scope.changeEnvironment = function(item) {
             console.log('Env changed:' + $scope.selectedEnvironment.value);
