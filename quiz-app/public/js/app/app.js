@@ -10,9 +10,28 @@ function backbuttonPressed() {
     if(Renderer.running) {
         initBookshelf();
     } else {
-        TelemetryService.end(packageName, version);
+        exitApp();
     }
 }
+
+function exitApp(closeApp) {
+    if (TelemetryService._gameData) {
+        TelemetryService.end(packageName, version);
+    }
+    TelemetryService.sendIntentResult().then(function() {
+        console.log('Telemetry data sent');
+        if (closeApp) {
+            if(navigator.app)
+                navigator.app.exitApp();
+            if(navigator.device)
+                navigator.device.exitApp();
+            if(window)
+                window.close();        
+        }
+        
+    });
+}
+
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .run(function($ionicPlatform, $ionicModal, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
@@ -36,9 +55,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 Renderer.resume();
                 initBookshelf();
             });
-            $ionicPlatform.on("backbutton", function() {
-                backbuttonPressed();
-            });
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
@@ -50,7 +66,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             }).catch(function(error) {
                 alert('Please open this app from Genie.');
-                navigator.app.exitApp();
+                exitApp(true);
             });
         });
     })
@@ -66,6 +82,11 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 url: "/play/content/:item",
                 templateUrl: "templates/renderer.html",
                 controller: 'ContentCtrl'
+            })
+            .state('replayContent', {
+                url: "/replay/content/:itemId",
+                templateUrl: "templates/renderer.html",
+                controller: 'ReplayContentCtrl'
             });
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
@@ -214,6 +235,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.showAboutUsPage = function() {
             $scope.aboutModal.show();
         };
+        $scope.hideAboutUsPage = function() {
+            $scope.aboutModal.hide();
+        };
 
         $scope.changeEnvironment = function(item) {
             console.log('Env changed:' + $scope.selectedEnvironment.value);
@@ -221,6 +245,10 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             if (_.isString(env) && env.length > 0) {
                 PlatformService.setAPIEndpoint(env);
             }
+        };
+        $scope.exitApp = function(){
+            console.log("Exit");
+            exitApp();
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
@@ -237,6 +265,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 initBookshelf();
             }, 100);
         });
+    }).controller('ReplayContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
+        var content = ContentService.getContent($stateParams.itemId);
+        if (content) {
+            $scope.item = content;
+            Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
+        } else {
+            $state.go('contentList');
+        }
     });
 
 

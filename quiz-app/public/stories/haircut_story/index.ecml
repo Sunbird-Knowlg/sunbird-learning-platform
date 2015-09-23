@@ -15,6 +15,8 @@
         <media id="next" src="icon_next.png" type="image" />
         <media id="icon_sound" src="icon_sound.png" type="image" />
         <media id="icon_hint" src="icon_hint.png" type="image" />
+        <media id="icon_home" src="icon_home.png" type="image" />
+        <media id="icon_reload" src="icon_reload.png" type="image" />
         <media id="start" src="start.png" type="image" />
         <media id="speech_bubble" src="speech_bubble.png" type="image" />
         <media id="sringeri" src="sringeri.png" type="image" />
@@ -1143,7 +1145,7 @@ Carpenter uses a saw to cut wood.
         </image>
     </template>
     <stage id="scene20" x="0" y="0" w="100" h="100" iterate="assessment" var="item">
-        <param name="next" value="splash" />
+        <param name="next" value="scene21" />
         <param name="previous" value="scene19" />
         <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
         <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
@@ -1179,5 +1181,54 @@ Carpenter uses a saw to cut wood.
                 <action type="command" command="transitionTo" asset="theme" param="next" effect="scroll" direction="left" ease="linear" duration="500" reset="true" />
             </event>
         </events>
+    </stage>
+    <stage id="scene21" x="0" y="0" w="100" h="100">
+        <shape x="2" y="2" w="96" h="10.5" type="rect" fill="#FFF16E" />
+        <shape x="2" y="12" w="96" h="89.5" type="rect" fill="#FFF16E" />
+        <text x="38" y="15" w="30" h="8" font="Georgia" fontsize="96">
+            Thank you
+        </text>
+        
+        <image asset="icon_reload" x="30" y="35" w="15" h="20" />
+        <text x="33" y="57" w="15" h="5" font="Arial" fontsize="48">
+            Replay
+        </text>
+        <shape type="rect" x="30" y="35" w="15" h="30" hitArea="true">
+            <event type="click">
+                <action type="command" command="restart" asset="theme"/>
+            </event>
+        </shape>
+
+        <image asset="icon_home" x="55" y="35" w="15" h="20" />
+        <text x="58" y="57" w="15" h="5" font="Arial" fontsize="48">
+            Home
+        </text>
+        <shape type="rect" x="55" y="35" w="15" h="30" hitArea="true">
+            <event type="click">
+                <action type="command" command="windowEvent" asset="theme" href="#/content/list"/>
+            </event>
+        </shape>
+        
+        <image asset="publisher_logo" x="5" y="75" w="13" h="17" />
+        <image asset="level_band" x="5" y="94" w="13" h="5" />
+        <text x="35" y="80" w="25" h="5" font="Arial" fontsize="48">
+            Annual Haircut Day
+        </text>
+        <text x="35" y="86" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Author:
+        </text>
+        <text x="41" y="86" w="20" h="5" font="Georgia" fontsize="28">
+            Rohini Nilekani
+        </text>
+        <text x="35" y="90" w="20" h="5" font="Georgia" weight="bold" fontsize="28">
+            Illustrator:
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        <text x="43.5" y="90" w="20" h="5" font="Georgia" fontsize="28">
+            Angie &amp; Upesh
+        </text>
+        
     </stage>
 </theme>

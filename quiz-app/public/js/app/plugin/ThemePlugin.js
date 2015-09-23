@@ -101,6 +101,16 @@ var ThemePlugin = Plugin.extend({
     update: function() {
         this._self.update();
     },
+    restart: function() {
+        var gameId = TelemetryService._gameData.id;
+        var version = TelemetryService._gameData.ver;
+        var instance = this;
+        TelemetryService.end();
+        AssetManager.initStage(this._data.startStage, null, null, function() {
+            TelemetryService.start(gameId, version);
+            instance.render();
+        });
+    },
     getAsset: function(aid) {
         return AssetManager.getAsset(this._currentStage, aid);
     },

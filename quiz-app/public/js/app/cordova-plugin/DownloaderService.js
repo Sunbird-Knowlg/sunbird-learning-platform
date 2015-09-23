@@ -19,7 +19,9 @@ DownloaderService = {
             });
         } else {
             return new Promise(function(resolve, reject) {
-                DownloaderService.checkFile(content.identifier)
+                var contentId = content.identifier;
+                if(content.pkgVersion) contentId += "."+ content.pkgVersion;
+                DownloaderService.checkFile(contentId)
                 .then(function(file) {
                     if(file) {
                         return file;
@@ -42,6 +44,7 @@ DownloaderService = {
     download: function(content) {
         return new Promise(function(resolve, reject) {
                 var contentId = content.identifier;
+                if(content.pkgVersion) contentId += "."+ content.pkgVersion;
                 var basePath = DownloaderService.appDataDirectory;
                 var downloadUrl = content.downloadUrl;
                 var urlExt = downloadUrl.substring(downloadUrl.lastIndexOf(".")+1, downloadUrl.length);

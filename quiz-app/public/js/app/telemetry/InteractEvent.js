@@ -10,7 +10,8 @@ InteractEvent = TelemetryEvent.extend({
         this.event.edata.eks = {
             "type": type,
             "id": id,
-            "extype": extype
+            "extype": extype,
+            "uri": ""
         };
         var messages = TelemetryService.validateEvent(eventStr, this.event.edata);
         if (messages.length == 0) {

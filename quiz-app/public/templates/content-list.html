@@ -4,6 +4,9 @@
 
             <div class="panel_title">
                 <div class="selected_title_box"><div class="selected_title">Selected Title</div></div>
+                <a href="javascript:void(0)" ng-click="exitApp()" class="button button-clear" style="float: right; color: #000">
+                    <i class="icon ion-close-circled"></i>
+                </a>
                 <a href="javascript:void(0)" ng-click="showAboutUsPage()" class="button button-clear" style="float: right; color: #000">
                     <i class="icon ion-information-circled"></i>
                 </a>
@@ -16,7 +19,7 @@
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_1">
                             <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories" ng-click="playContent(story);">
-                                <img data-ng-src="{{story.appIcon}}" alt="" width="100" height="105" />
+                                <img data-ng-src="{{story.appIcon}}" alt="" width="120" height="130" />
                             </div>
                         </div>
                     </div>
@@ -24,7 +27,7 @@
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_2">
                             <div class="product" data-type="" title="{{worksheet.name}}" ng-repeat="worksheet in worksheets" ng-click="playContent(worksheet);">
-                                <img data-ng-src="{{worksheet.appIcon}}" alt="" width="100" height="105" />
+                                <img data-ng-src="{{worksheet.appIcon}}" alt="" width="120" height="130" />
                             </div>
                         </div>
                     </div>
@@ -50,6 +53,7 @@
   <ion-modal-view>
     <ion-header-bar class="bar-energized">
         <h1 class="title">EkStep Content App</h1>
+        <button class="button button-clear icon ion-ios-home" ng-click="hideAboutUsPage()"></button>
     </ion-header-bar>
     <ion-content padding="true">
         <div class="item item-text-wrap">
@@ -58,10 +62,12 @@
         </div>
         <div class="item">
             <div style="float: left; width: 50%">
-                Version: 0.2
+                <b>Version:</b><br/>
+                0.2
             </div>
             <div style="float: left; width: 50%">
-                Updated: September 21, 2015
+                <b>Age:</b><br/>
+                5+ Years
             </div>
         </div>
         <div class="item">
@@ -73,10 +79,6 @@
                 <b>Contact:</b><br/>
                 Email: contact@ekstep.org
             </div>
-        </div>
-        <div class="item">
-            <div><img src="assets/privacy.png" style="width: 150px;" /></div>
-            <div>5+ years old</div>
         </div>
         <div class="item">
             <div style="margin-bottom: 5px;"><b>Environment</b></div>
