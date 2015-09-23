@@ -60,14 +60,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentListCtrl'
             })
             .state('playContent', {
-                url: "/play/content/:item",
+                url: "/play/content/:itemId",
                 templateUrl: "templates/renderer.html",
                 controller: 'ContentCtrl'
-            })
-            .state('replayContent', {
-                url: "/replay/content/:itemId",
-                templateUrl: "templates/renderer.html",
-                controller: 'ReplayContentCtrl'
             });
     })
     .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
@@ -209,7 +204,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
         $scope.playContent = function(content) {
             $state.go('playContent', {
-                'item': JSON.stringify(content)
+                'itemId': content.identifier
             });
         };
 
@@ -229,8 +224,8 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
-        if ($stateParams.item) {
-            $scope.item = JSON.parse($stateParams.item);
+        if ($stateParams.itemId) {
+            $scope.item = ContentService.getContent($stateParams.itemId);
             Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
         } else {
             alert('Name or Launch URL not found.');
@@ -242,14 +237,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 initBookshelf();
             }, 100);
         });
-    }).controller('ReplayContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
-        var content = ContentService.getContent($stateParams.itemId);
-        if (content) {
-            $scope.item = content;
-            Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
-        } else {
-            $state.go('contentList');
-        }
     });
 
 
