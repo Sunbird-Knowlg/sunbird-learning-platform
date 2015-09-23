@@ -228,7 +228,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
         };
         $scope.exitApp = function(){
-            console.log("Enter");
+            TelemetryService.end();
             if(navigator.app)
                 navigator.app.exitApp();
             if(navigator.device)
