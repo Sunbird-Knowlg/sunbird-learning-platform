@@ -175,6 +175,15 @@ angular.module('quiz.services', ['ngResource'])
                                     var content = contents.data[key];
                                     promises.push(returnObject.processContent(content));
                                 }
+                                var localContentIds = _.keys(returnObject.contentList);
+                                var remoteContentIds = _.pluck(contents.data, 'identifier');
+                                var removingContentIds = _.difference(localContentIds, remoteContentIds);
+                                if(removingContentIds.length > 0) {
+                                    _.each(removingContentIds, function(id) {
+                                        delete returnObject.contentList[id];
+                                        console.log('Deleted content from bookshelf: ', id);
+                                    });
+                                }
                             }
                             Promise.all(promises)
                             .then(function(result) {
