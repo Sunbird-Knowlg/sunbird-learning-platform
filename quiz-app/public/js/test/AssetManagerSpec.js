@@ -44,4 +44,8 @@ describe('Asset manager test cases', function() {
         expect(abuff.duration).toEqual(9.000022675736961);            
     });
 
+    xit('Test Asset manager add stage audio');
+    xit('Test Asset manager stop stage audio');
+    xit('Test Asset manager cleanup');
+
 });

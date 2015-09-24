@@ -45,4 +45,8 @@ describe('Plugin manager test cases', function() {
         expect(this.pluginInstance).toEqual(pluginObj);
     });
 
+    xit('Plugin manager add error');
+    xit('Plugin manager get errors');
+    xit('Plugin manager cleanup');
+
 });
