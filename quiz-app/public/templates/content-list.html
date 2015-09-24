@@ -18,7 +18,7 @@
                 <div class="panel_items">
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_1">
-                            <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories" ng-click="playContent(story);">
+                            <div class="product" data-type="" title="{{story.name}}" ng-repeat="story in stories track by $index" ng-click="playContent(story);">
                                 <img data-ng-src="{{story.appIcon}}" alt="" width="120" height="130" />
                             </div>
                         </div>
@@ -26,7 +26,7 @@
 
                     <div class="slide_animate">
                         <div class="products_box" id="products_box_2">
-                            <div class="product" data-type="" title="{{worksheet.name}}" ng-repeat="worksheet in worksheets" ng-click="playContent(worksheet);">
+                            <div class="product" data-type="" title="{{worksheet.name}}" ng-repeat="worksheet in worksheets track by $index" ng-click="playContent(worksheet);">
                                 <img data-ng-src="{{worksheet.appIcon}}" alt="" width="120" height="130" />
                             </div>
                         </div>

@@ -42,20 +42,20 @@
 				],
 				"rhs_options": [
 					{
-						"value": {"type": "image", "asset": "old"},
-						"answer": 0
+						"value": {"type": "image", "asset": "night"},
+						"answer": 3
 					},
 					{
 						"value": {"type": "image", "asset": "new"},
 						"answer": 1
 					},
 					{
-						"value": {"type": "image", "asset": "day"},
-						"answer": 2
+						"value": {"type": "image", "asset": "old"},
+						"answer": 0
 					},
 					{
-						"value": {"type": "image", "asset": "night"},
-						"answer": 3
+						"value": {"type": "image", "asset": "day"},
+						"answer": 2
 					}
 				],
 				"model" : {
