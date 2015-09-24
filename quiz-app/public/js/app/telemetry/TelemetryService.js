@@ -10,6 +10,7 @@ TelemetryService = {
     _gameErrorFile: undefined,
     _events: [],
     _data: {},
+    _assessData: {},
     mouseEventMapping: {
         click: 'TOUCH',
         dblclick: 'CHOOSE',
@@ -107,7 +108,7 @@ TelemetryService = {
     },
     assess: function(qid, subj, qlevel) {
         if (TelemetryService.isActive) {
-            var eventObj = _.findWhere(TelemetryService._data[TelemetryService._gameData.id], {"qid": qid});
+            var eventObj = TelemetryService._assessData[TelemetryService._gameData.id][qid];
             if(eventObj) {
                 return eventObj;
             } else {

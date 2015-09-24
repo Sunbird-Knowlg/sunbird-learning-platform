@@ -10,6 +10,7 @@ StartEvent = TelemetryEvent.extend({
     },
     flush: function() {
     	TelemetryService._data[TelemetryService._gameData.id] = [];
+        TelemetryService._assessData[TelemetryService._gameData.id] = {};
     	TelemetryService._data[TelemetryService._gameData.id].push(this);
     }
 })
