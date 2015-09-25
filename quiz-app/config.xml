@@ -22,24 +22,24 @@
         <param name="ios-package" onload="true" value="CDVStatusBar" />
     </feature>
     <platform name="android">
-        <icon density="ldpi" src="www/img/icons/quiz-icon.png" />
-        <icon density="mdpi" src="www/img/icons/quiz-icon.png" />
-        <icon density="hdpi" src="www/img/icons/quiz-icon.png" />
-        <icon density="xhdpi" src="www/img/icons/quiz-icon.png" />
-        <icon density="xxhdpi" src="www/img/icons/quiz-icon.png" />
-        <icon density="xxxhdpi" src="www/img/icons/quiz-icon.png" />
-        <splash density="land-ldpi" src="www/img/icons/splash1.png" />
-        <splash density="land-mdpi" src="www/img/icons/splash1.png" />
-        <splash density="land-hdpi" src="www/img/icons/splash1.png" />
-        <splash density="land-xhdpi" src="www/img/icons/splash1.png" />
-        <splash density="land-xxhdpi" src="www/img/icons/splash1.png" />
-        <splash density="land-xxxhdpi" src="www/img/icons/splash1.png" />
-        <splash density="port-ldpi" src="www/img/icons/splash1.png" />
-        <splash density="port-mdpi" src="www/img/icons/splash1.png" />
-        <splash density="port-hdpi" src="www/img/icons/splash1.png" />
-        <splash density="port-xhdpi" src="www/img/icons/splash1.png" />
-        <splash density="port-xxhdpi" src="www/img/icons/splash1.png" />
-        <splash density="port-xxxhdpi" src="www/img/icons/splash1.png" />
+        <icon src="www/img/icons/app-icon.png" density="ldpi" />
+        <icon src="www/img/icons/app-icon.png" density="mdpi" />
+        <icon src="www/img/icons/app-icon.png" density="hdpi" />
+        <icon src="www/img/icons/app-icon.png" density="xhdpi" />
+        <icon src="www/img/icons/app-icon.png" density="xxhdpi" />
+        <icon src="www/img/icons/app-icon.png" density="xxxhdpi" />
+        <splash src="www/img/icons/splash.png" density="land-ldpi" />
+        <splash src="www/img/icons/splash.png" density="land-mdpi" />
+        <splash src="www/img/icons/splash.png" density="land-hdpi" />
+        <splash src="www/img/icons/splash.png" density="land-xhdpi" />
+        <splash src="www/img/icons/splash.png" density="land-xxhdpi" />
+        <splash src="www/img/icons/splash.png" density="land-xxxhdpi" />
+        <splash src="www/img/icons/splash.png" density="port-ldpi" />
+        <splash src="www/img/icons/splash.png" density="port-mdpi" />
+        <splash src="www/img/icons/splash.png" density="port-hdpi" />
+        <splash src="www/img/icons/splash.png" density="port-xhdpi" />
+        <splash src="www/img/icons/splash.png" density="port-xxhdpi" />
+        <splash src="www/img/icons/splash.png" density="port-xxxhdpi" />
     </platform>
     <platform name="ios">
         <icon height="57" src="resources/ios/icon/icon.png" width="57" />

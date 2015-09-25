@@ -206,5 +206,8 @@ var Plugin = Class.extend({
 	},
 	reload: function() {
 		PluginManager.addError('Subclasses of plugin should implement reload()');
+	},
+	restart: function() {
+		PluginManager.addError('Subclasses of plugin should implement reload()');
 	}
 })

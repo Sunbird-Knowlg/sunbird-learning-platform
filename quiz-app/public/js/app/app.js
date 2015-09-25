@@ -6,13 +6,43 @@
 var packageName = "org.ekstep.quiz.app";
 var version = "1.0";
 
-function backbuttonPressed() {
+function backbuttonPressed(cs) {
     if(Renderer.running) {
         initBookshelf();
     } else {
-        TelemetryService.end(packageName, version);
+        exitApp(cs);
     }
 }
+
+function exitApp(cs) {
+    if(cs) {
+        cs.resetSyncStart();
+        if(cs.getProcessCount() > 0) {
+            var processing = cs.getProcessList();
+            for(key in processing) {
+                var item = processing[key];
+                item.status = "error";
+                cs.saveContent(item);
+            }
+        }
+    }
+    if (TelemetryService._gameData) {
+        TelemetryService.end(packageName, version);
+    }
+    TelemetryService.writeFile().then(function() {
+        console.log('Telemetry data sent');
+        if(navigator.app) {
+            navigator.app.exitApp();
+        }
+        if(navigator.device) {
+            navigator.device.exitApp();
+        }
+        if(window) {
+            window.close();
+        }
+    });
+}
+
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
     .run(function($ionicPlatform, $ionicModal, $cordovaFile, $cordovaToast, ContentService) {
         $ionicPlatform.ready(function() {
@@ -27,7 +57,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             }
 
             $ionicPlatform.onHardwareBackButton(function() {
-                backbuttonPressed();
+                backbuttonPressed(ContentService);
             });
             $ionicPlatform.on("pause", function() {
                 Renderer.pause();
@@ -37,9 +67,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 if(!Renderer.running) {
                     initBookshelf();
                 }
-            });
-            $ionicPlatform.on("backbutton", function() {
-                backbuttonPressed();
             });
 
             GlobalContext.init(packageName, version).then(function() {
@@ -52,7 +79,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 }
             }).catch(function(error) {
                 alert('Please open this app from Genie.');
-                navigator.app.exitApp();
+                exitApp();
             });
         });
     })
@@ -65,7 +92,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentListCtrl'
             })
             .state('playContent', {
-                url: "/play/content/:item",
+                url: "/play/content/:itemId",
                 templateUrl: "templates/renderer.html",
                 controller: 'ContentCtrl'
             });
@@ -205,12 +232,15 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
         $scope.playContent = function(content) {
             $state.go('playContent', {
-                'item': JSON.stringify(content)
+                'itemId': content.identifier
             });
         };
 
         $scope.showAboutUsPage = function() {
             $scope.aboutModal.show();
+        };
+        $scope.hideAboutUsPage = function() {
+            $scope.aboutModal.hide();
         };
 
         $scope.changeEnvironment = function(item) {
@@ -219,11 +249,15 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             if (_.isString(env) && env.length > 0) {
                 PlatformService.setAPIEndpoint(env);
             }
+        };
+        $scope.exitApp = function(){
+            console.log("Exit");
+            exitApp(ContentService);
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
-        if ($stateParams.item) {
-            $scope.item = JSON.parse($stateParams.item);
+        if ($stateParams.itemId) {
+            $scope.item = ContentService.getContent($stateParams.itemId);
             Renderer.start($scope.item.baseDir, 'gameCanvas', $scope.item.identifier);
         } else {
             alert('Name or Launch URL not found.');

@@ -4,7 +4,12 @@ TelemetryService = {
     _config: undefined,
     _gameData: undefined,
     _user: undefined,
+    _baseDir: 'EkStep Content App',
+    _gameOutputFile: undefined,
+    _gameErrorFile: undefined,
+    _events: [],
     _data: {},
+    _assessData: {},
     mouseEventMapping: {
         click: 'TOUCH',
         dblclick: 'CHOOSE',
@@ -67,7 +72,7 @@ TelemetryService = {
     },
     assess: function(qid, subj, qlevel) {
         if (TelemetryService.isActive) {
-            var eventObj = _.findWhere(TelemetryService._data[TelemetryService._gameData.id], {"qid": qid});
+            var eventObj = TelemetryService._assessData[TelemetryService._gameData.id][qid];
             if(eventObj) {
                 return eventObj;
             } else {
@@ -90,6 +95,100 @@ TelemetryService = {
         } else {
             return new InActiveEvent();
         }
+    },
+    createFiles: function() {
+        if (TelemetryService.isActive) {
+            TelemetryService.ws.createBaseDirectory(TelemetryService._baseDir, function() {
+                console.log('file creation failed...');
+            });
+            TelemetryService.ws.createFile(TelemetryService._gameOutputFile, function(fileEntry) {
+                console.log(fileEntry.name + ' created successfully.');
+            }, function() {
+                console.log('file creation failed...');
+            });
+            TelemetryService.ws.createFile(TelemetryService._gameErrorFile, function(fileEntry) {
+                console.log(fileEntry.name + ' created successfully.');
+            }, function() {
+                console.log('file creation failed...');
+            });
+        } else {
+            // console.log('TelemetryService is inActive.');
+        }
+    },
+    flush: function() {
+        if (TelemetryService.isActive) {
+            if (TelemetryService._events && TelemetryService._events.length > 0) {
+                var data = JSON.stringify(TelemetryService._events);
+                data = data.substring(1, data.length - 1);
+                TelemetryService.ws.length(TelemetryService._gameOutputFile)
+                    .then(function(fileSize) {
+                        if (fileSize == 0) {
+                            data = '{"events":[' + data + ']}';
+                        } else {
+                            data = ', ' + data + ']}';
+                        }
+                        return TelemetryService.ws.write(TelemetryService._gameOutputFile, data, 2);
+                    })
+                    .then(function(status) {
+                        TelemetryService.clearEvents();
+                    })
+                    .catch(function(err) {
+                        console.log('Error:', err);
+                    });
+            } else {
+                console.log('No data to write...');
+            }
+        } else {
+            // console.log('TelemetryService is inActive.');
+        }
+    },
+    writeFile: function() {
+        return new Promise(function(resolve, reject) {
+            if (TelemetryService.isActive) {
+                if (TelemetryService._events && TelemetryService._events.length > 0) {
+                    var data = JSON.stringify(TelemetryService._events);
+                    data = data.substring(1, data.length - 1);
+                    data = '{"events":[' + data + ']}';
+                    TelemetryService.ws.write(TelemetryService._gameOutputFile, data)
+                    .then(function(status) {
+                        TelemetryService.clearEvents();
+                        resolve(true);
+                    })
+                    .catch(function(err) {
+                        console.log('Error:', err);
+                        resolve(true);
+                    });
+                } else {
+                    resolve(true);
+                }
+            } else {
+                resolve(true);
+            }
+        });
+        
+    },
+    sendIntentResult: function() {
+        return new Promise(function(resolve, reject) {
+            if (TelemetryService.isActive) {
+                if (TelemetryService._events && TelemetryService._events.length > 0) {
+                    var data = JSON.stringify(TelemetryService._events);
+                    IntentService.sendTelemetryEvents(data).then(function() {
+                        resolve(true);
+                    }).catch(function(err) {
+                        console.log('Error:', err);
+                        resolve(true);
+                    });
+                } else {
+                    resolve(true);
+                }
+            } else {
+                resolve(true);
+            }
+        });
+        
+    },
+    clearEvents: function() {
+        TelemetryService._events = [];
     },
     logError: function(eventName, error) {
         var data = {

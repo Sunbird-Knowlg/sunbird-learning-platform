@@ -44,13 +44,16 @@ CommandManager = {
 				if (plugin) plugin.toggleShadow();
 				break;
 			case 'windowEvent':
-				window.location.href = action.href;
+				window.location.hash = action.href;
 				break;
 			case 'eval':
 				if (plugin) plugin.evaluate(action);
 				break;
 			case 'reload':
 				if (plugin) plugin.reload(action);
+				break;
+			case 'restart':
+				if (plugin) plugin.restart(action);
 				break;
 			default:
 		}

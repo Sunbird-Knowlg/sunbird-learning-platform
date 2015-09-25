@@ -101,6 +101,16 @@ var ThemePlugin = Plugin.extend({
     update: function() {
         this._self.update();
     },
+    restart: function() {
+        var gameId = TelemetryService._gameData.id;
+        var version = TelemetryService._gameData.ver;
+        var instance = this;
+        TelemetryService.end();
+        AssetManager.initStage(this._data.startStage, null, null, function() {
+            TelemetryService.start(gameId, version);
+            instance.render();
+        });
+    },
     getAsset: function(aid) {
         return AssetManager.getAsset(this._currentStage, aid);
     },
@@ -264,10 +274,10 @@ var ThemePlugin = Plugin.extend({
         if(this._currentStage) {
             AssetManager.stopStageAudio(this._currentStage);
         }
-        TelemetryService.interrupt("BACKGROUND", this._currentStage);
+        TelemetryService.interrupt("IDLE", this._currentStage);
     },
     resume: function() {
-        TelemetryService.interrupt("RESUME", this._currentStage);
+        //TelemetryService.interrupt("RESUME", this._currentStage);
     }
 });
 PluginManager.registerPlugin('theme', ThemePlugin);

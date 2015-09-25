@@ -13,6 +13,11 @@ var TemplateDataGenerator = {
 					list = _.first(list, total_items);
 				}
 			}
+			if(list.length != total_items) {
+				console.log("list contains insufficent number of items.")
+				list = [];
+				return list;
+			}
     	}		
 		return list;
 	},
@@ -54,9 +59,17 @@ var TemplateDataGenerator = {
 			tempItem = JSON.parse(tempItem);
 			if(item.model)						
 				item = TemplateDataGenerator._getParamsData(item, tempItem);
-			if(item.restrictions)
-				while(!(TemplateDataGenerator._applyRestrictions(item)))
+			var count = 0;
+			if(item.restrictions) {
+				while(!(TemplateDataGenerator._applyRestrictions(item))) {
 					item = TemplateDataGenerator._getParamsData(item, tempItem);
+					count++;
+					if(count > 25) {
+						console.log("Unable to satisfy restrictions. Check restriction conditions.");
+						return list;
+					}						
+				}
+			}
 			if(item.answer) {
 				_.map(item.answer, function(param, key) {
 					_.map(item.answer[key], function(obj, key1){					
@@ -69,7 +82,8 @@ var TemplateDataGenerator = {
 				});
 			}
 		}
-		delete item["restrictions"];
+		if(item.restrictions)
+			delete item["restrictions"];
 		list.push(item);
 		return list;
 	},	

@@ -36,6 +36,23 @@ angular.module('quiz.services', ['ngResource'])
                                 }
                             }
                         });
+                    } else if(content.status == 'error') {
+                        var message = "";
+                        if(content.errorCode == 'DOWNLOAD_ERROR') {
+                            message = AppMessages.DOWNLOAD_ERROR.replace("{0}", content.name);
+                        } else if(content.errorCode == 'EXTRACT_FILE_NOT_FOUND') {
+                            message = AppMessages.EXTRACT_FILE_NOT_FOUND.replace("{0}", content.name);
+                        } else if(content.errorCode == 'EXTRACT_INVALID_OUPUT_DIR') {
+                            message = AppMessages.EXTRACT_INVALID_OUPUT_DIR.replace("{0}", content.name);
+                        } else if(content.errorCode == 'EXTRACT_INVALID_ARCHIVE') {
+                            message = AppMessages.EXTRACT_INVALID_ARCHIVE;
+                        } else if(content.errorCode == 'SYSTEM_ERROR') {
+                            message = AppMessages.SYSTEM_ERROR.replace("{0}", content.name);
+                        }
+                        $rootScope.$broadcast('show-message', {
+                            "message": message,
+                            "timeout": 3000
+                        });
                     }
                     resolve(content);
                 })
@@ -74,6 +91,15 @@ angular.module('quiz.services', ['ngResource'])
                     return list.length;
                 }
                 return 0;
+            },
+            getProcessList: function() {
+                var list = _.where(_.values(this.contentList), {
+                    "status": "processing"
+                });
+                if (_.isArray(list)) {
+                    return list;
+                }
+                return [];
             },
             getContentList: function(type) {
                 if (type) {
@@ -148,6 +174,15 @@ angular.module('quiz.services', ['ngResource'])
                                 for (key in contents.data) {
                                     var content = contents.data[key];
                                     promises.push(returnObject.processContent(content));
+                                }
+                                var localContentIds = _.keys(returnObject.contentList);
+                                var remoteContentIds = _.pluck(contents.data, 'identifier');
+                                var removingContentIds = _.difference(localContentIds, remoteContentIds);
+                                if(removingContentIds.length > 0) {
+                                    _.each(removingContentIds, function(id) {
+                                        delete returnObject.contentList[id];
+                                        console.log('Deleted content from bookshelf: ', id);
+                                    });
                                 }
                             }
                             Promise.all(promises)

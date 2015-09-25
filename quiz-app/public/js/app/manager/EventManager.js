@@ -85,7 +85,13 @@ EventManager = {
 		}
 		if(action.disableTelemetry !== true) {
 			if(type) {
-				TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext);
+				var id = plugin._data.id || plugin._data.asset;
+				if (!id) {
+					id = action.asset;
+				}
+				if (id) {
+					TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext);
+				}
 			}
 		}
 	}

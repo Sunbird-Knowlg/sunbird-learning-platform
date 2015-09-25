@@ -1,0 +1,16 @@
+android {
+    packagingOptions {
+        exclude 'META-INF/NOTICE.txt'
+        exclude 'META-INF/LICENSE.txt'
+    }
+
+    defaultConfig {
+        versionName "0.2"
+        setProperty("archivesBaseName", "quizapp-v$versionName-"+ getTimestamp())
+    }
+}
+
+def getTimestamp() {
+    def time = System.currentTimeMillis();
+    return String.format("%tF", time);
+}

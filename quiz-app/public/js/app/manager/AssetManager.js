@@ -29,6 +29,8 @@ AssetManager = {
         }
     },
     addStageAudio: function(stageId, audioId) {
-        AssetManager.stageAudios[stageId].push(audioId);
+        if(AssetManager.stageAudios[stageId]) {
+            AssetManager.stageAudios[stageId].push(audioId);
+        }
     }
 }

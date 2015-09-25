@@ -34,8 +34,14 @@ module.exports = function(grunt) {
                     {
                         expand: true,
                         cwd: 'public/',
-                        src: ['**', '!**/controller/**', '!**/evaluator/**', '!**/manager/**', '!**/plugin/**', '!**/renderer/**', '!**/generator/**', '!**/telemetry/**', '!**/test/**', '!**/libs/**', '!**/jasmine-2.3.4/**', '!**/exclude/**'],
+                        src: ['**', '!**/controller/**', '!**/evaluator/**', '!**/manager/**', '!**/plugin/**', '!**/renderer/**', '!**/generator/**', '!**/telemetry/**', '!**/test/**', '!**/tests/**', '!**/libs/**', '!**/jasmine-2.3.4/**', '!**/exclude/**'],
                         dest: 'www/'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'public/',
+                        src: 'build-extras.gradle',
+                        dest: 'platforms/android/'
                     }
                 ]
             }
