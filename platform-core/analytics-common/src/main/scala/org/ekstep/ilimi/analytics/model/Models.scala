@@ -26,14 +26,20 @@ case class Gdata(id: Option[String], ver: Option[String])
 case class Event(eid: Option[String], ts: Option[String], ver: Option[String], gdata: Option[Gdata], sid: Option[String], uid: Option[String], did: Option[String], edata: Edata)
 
 case class Pdata(id: String, mod: String, ver: String)
-case class Edata2(eks: Map[String, AnyRef])
-case class EventOutput(eid: String, ts: String, ver: String, uid: Option[String], cid: Option[String], ctype: Option[String], gdata: Option[Gdata], pdata: Option[Pdata], edata: Edata2)
+case class EventData(eks: Map[String, AnyRef])
+case class EventOutput(eid: String, ts: String, ver: String, uid: Option[String], cid: Option[String], ctype: Option[String], gdata: Option[Gdata], pdata: Option[Pdata], edata: EventData)
 case class LineData(id: Option[String], ver: Option[String], ts: Option[String], events: Array[Event]);
 case class SyncEvent(apiType: Option[String], level: Option[String], msg: Option[String], time: Option[String], data: Option[LineData]);
 
 case class User(encoded_id: String, ekstep_id: String, gender: String, dob: Date, language_id: Int);
 
+case class Filter(contentId: Option[String]);
+case class Sort(by: Option[String], order: Option[String]);
+case class DateFilter(from: Option[String], to: Option[String]);
+case class Query(dateFilter: Option[DateFilter]);
+case class Job(query: Query, filter: Option[Filter], sort: Option[Sort], rscript: String, config: Option[Map[String, String]]);
+
 
 trait Output {}
 
-abstract class BaseModel extends Serializable {}
+class Models extends Serializable {}
