@@ -24,12 +24,17 @@ import org.joda.time.format.DateTimeFormatter
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.DateTime
 import org.ekstep.ilimi.analytics.model.Gdata
+import org.joda.time.LocalDate
+import org.joda.time.Days
+import java.util.Calendar
+import scala.collection.mutable.ListBuffer
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
     @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
     @transient val df3: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ssZZ");
+    @transient val df4: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     def getParallelization(parallelization: Int): Int = {
         if (parallelization == 0) {
@@ -164,7 +169,7 @@ object CommonUtil {
 
         }
     }
-
+    
     def getInputPaths(input: String): String = {
         val arr = input.split(',');
         arr.map { x => getInputPath(x, null) }.mkString(",");
@@ -173,6 +178,34 @@ object CommonUtil {
     def getInputPaths(input: String, suffix: String): String = {
         val arr = input.split(',');
         arr.map { x => getInputPath(x, suffix) }.mkString(",");
+    }
+    
+    def datesBetween(from: LocalDate, to: LocalDate): IndexedSeq[LocalDate] = {
+        val numberOfDays = Days.daysBetween(from, to).getDays()
+        for (f <- 0 to numberOfDays) yield from.plusDays(f)
+    }
+    
+    def getDatesBetween(fromDate: String, toDate: Option[String]): Array[String] = {
+        var to = LocalDate.fromDateFields(new Date);
+        if(toDate.nonEmpty) {
+            to = df4.parseLocalDate(toDate.get);
+        }
+        val from = df4.parseLocalDate(fromDate);
+        val dates = datesBetween(from, to);
+        dates.map { x => df4.print(x) }.toArray;
+    }
+    
+    def getInputPaths(input: String, suffix: String, fromDate: Option[String], toDate: Option[String]): Array[String] = {
+        if(fromDate.nonEmpty) {
+            val dates = getDatesBetween(fromDate.get, toDate);
+            var paths = ListBuffer[String]();
+            dates.foreach { x => {
+                paths ++= getInputPath(input, suffix + x).split(',');
+            } }
+            paths.toArray;
+        } else {
+            getInputPath(input, suffix).split(',');
+        }
     }
 
     def formatEventDate(date: DateTime): String = {
@@ -193,6 +226,18 @@ object CommonUtil {
 
     def getUserId(event: Event): String = {
         event.uid.getOrElse("");
+    }
+
+    def getParallelization(config: Option[Map[String, String]]): Int = {
+        getParallelization(config.getOrElse(Map[String, String]()));
+    }
+    
+    def getParallelization(config: Map[String, String]): Int = {
+        var parallelization = AppConf.getConfig("default.parallelization");
+        if (config != null && config.nonEmpty) {
+            parallelization = config.getOrElse("parallelization", parallelization);
+        }
+        parallelization.toInt;
     }
 
 }
