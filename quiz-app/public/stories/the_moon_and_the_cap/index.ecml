@@ -71,15 +71,15 @@
             </data>
         </media>
 		
-		<media src="sounds/ambient/leaves_rustling.mp3" id="leaves_audio" type="audiosprite">
+		<media src="sounds/ambient/leaves_rustling_delayed.mp3" id="leaves_audio" type="audiosprite">
             <data>
-                <audioSprite id="leaves_sound" startTime="21037" duration="2891.0"></audioSprite>
+                <audioSprite id="leaves_sound" startTime="0" duration="9272.0"></audioSprite>
             </data>
         </media>
 		
-		<media src="sounds/ambient/child_crying.mp3" id="crying_audio" type="audiosprite">
+		<media src="sounds/ambient/child_crying_delayed.mp3" id="crying_audio" type="audiosprite">
             <data>
-                <audioSprite id="crying_sound" startTime="7053" duration="2601.0"></audioSprite>
+                <audioSprite id="crying_sound" startTime="0" duration="6885.0"></audioSprite>
             </data>
         </media>
 		<media src="sounds/ambient/warm_evening.mp3" id="evening_audio" type="audiosprite">
@@ -184,7 +184,7 @@
                 <action type="command" command="toggleShow" asset="definition" />
             </event>
         </shape>
-		<g x="37" y="12" w="30" h="40"  id="definition" visible="false">
+		<g x="37" y="12" w="50" h="60"  id="definition" visible="false">
             <image asset="speech_bubble" x="0" y="0" w="100" h="100">
                 <event type="click">
                     <action type="command" command="toggleShow" asset="definition" />
@@ -246,36 +246,34 @@
         <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene3_sound" />
-                <action type="command" command="togglePlay" asset="wind_sound" />
+                <!-- <action type="command" command="togglePlay" asset="wind_sound" /> -->
             </event>
         </shape>
 		
 		<!-- Animation -->
 		<image asset="flying_cap2" x="34" y="10" w="23" h="28" id="flying_cap2" visible="false"/>
-		
-		 <image asset="flying_cap1" x="34" y="10" w="20" h="26" id="flying_cap1">
-            <event type="click">
-				<action type="command" command="hide" asset="flying_cap1" />
-				<action type="command" command="show" asset="flying_cap2" />
-                <action type="command" command="play" asset="wind_sound" loop="1" />
-				<action type="animation" asset="flying_cap2">
-                    <tween id="flyingCap123">
-                        <to ease="quadOut" duration="300">
-                            <![CDATA[{"x":60,"y":30, "rotation":30}]]>
-                        </to>
-						<to ease="quadOut" duration="400">
-                            <![CDATA[{"x":90,"y":50, "rotation":180}]]>
-                        </to>
-					</tween>
-                </action>
-				
-            </event>
+		<image asset="flying_cap1" x="34" y="10" w="20" h="26" id="flying_cap1">
+            <!-- <event type="click">
+            </event> -->
         </image>
 		
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene3_sound" loop="1" />
                 <action type="command" command="play" asset="wind_sound" loop="1" />
+				<action type="command" command="hide" asset="flying_cap1" />
+                <action type="command" command="show" asset="flying_cap2" />
+				<action type="animation" asset="flying_cap2">
+                    <tween id="flyingCap2">
+						<to ease="quadOut" duration="300">
+                            <![CDATA[{"x":60,"y":30, "rotation":30}]]>
+                        </to>
+						<to ease="quadOut" duration="400">
+                            <![CDATA[{"x":90,"y":50, "rotation":180}]]>
+                        </to>
+					</tween>
+                </action> 
+				
             </event>
             <event type="exit">
                 <action type="command" command="stop" asset="scene3_sound" audio="true" loop="1" />
@@ -296,21 +294,23 @@
         <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene4_sound" />
+                <!-- <action type="command" command="togglePlay" asset="leaves_sound" /> -->
             </event>
         </shape>
 		
-		<shape type="rect" x="35" y="0" w="50" h="60" hitArea="true">
+		<!-- <shape type="rect" x="35" y="0" w="50" h="60" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="leaves_sound" loop = "1"/>
             </event>
         </shape>
-		
+		 -->
          <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene4_sound" loop="1" />
+                <action type="command" command="play" asset="leaves_sound" loop = "1"/>
             </event>
             <event type="exit">
                 <action type="command" command="stop" asset="scene4_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="leaves_sound" audio = "true" loop = "1"/>
             </event>
         </events>
     </stage>
@@ -326,20 +326,22 @@
         <shape type="rect" x="87" y="82" w="13" h="18" hitArea="true">
             <event type="click">
                 <action type="command" command="togglePlay" asset="scene5_sound" />
+                <!-- <action type="command" command="togglePlay" asset="crying_sound" /> -->
             </event>
         </shape>
-		<shape type="rect" x="52" y="30" w="20" h="30" hitArea="true">
+		<!-- <shape type="rect" x="52" y="30" w="20" h="30" hitArea="true">
             <event type="click">
-                <action type="command" command="play" asset="crying_sound" />
             </event>
-        </shape>
+        </shape> -->
 		
         <events>
             <event type="enter">
                 <action type="command" command="play" asset="scene5_sound" loop="1" />
+                <action type="command" command="play" asset="crying_sound" />
             </event>
             <event type="exit">
                 <action type="command" command="stop" asset="scene5_sound" audio="true" loop="1" />
+                <action type="command" command="stop" asset="crying_sound" audio="true" loop="1"/>
             </event>
         </events>
     </stage>
