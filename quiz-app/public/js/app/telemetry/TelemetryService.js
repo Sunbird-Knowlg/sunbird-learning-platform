@@ -72,7 +72,7 @@ TelemetryService = {
     },
     assess: function(qid, subj, qlevel) {
         if (TelemetryService.isActive) {
-            var eventObj = TelemetryService._assessData[TelemetryService._gameData.id][qid];
+            var eventObj = TelemetryService._data[TelemetryService._gameData.id][qid];
             if(eventObj) {
                 return eventObj;
             } else {

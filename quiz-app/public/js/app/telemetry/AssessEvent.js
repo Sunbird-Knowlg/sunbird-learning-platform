@@ -23,7 +23,7 @@ AssessEvent = TelemetryEvent.extend({
             "failedatmpts": 0
         };
         this._isStarted = true;
-        TelemetryService._data[TelemetryService._gameData.id].push(this);
+        TelemetryService._data[TelemetryService._gameData.id][qid] = this;
     },
     start: function() {
     	this._isStarted = true;
@@ -46,16 +46,11 @@ AssessEvent = TelemetryEvent.extend({
             this.event.edata.eks.res = res || [];
             this.event.edata.eks.uri = uri || "";
             this._isStarted = false;
-            //this.flush(); - this line is from genie-services branch.
-            TelemetryService._data[TelemetryService._gameData.id].push(this);
-            delete TelemetryService._assessData[TelemetryService._gameData.id][this.qid];
-            return this;
+            this.flush();
+            delete TelemetryService._data[TelemetryService._gameData.id][qid];
     	} else {
     		throw "can't end assess event without starting.";
     	}
-    },
-    flush: function() {
-        TelemetryService._assessData[TelemetryService._gameData.id][this.qid] = this;
     },
     mmc: function(mmc) {
     	this.event.edata.eks.mmc = mmc;

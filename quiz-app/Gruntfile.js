@@ -22,6 +22,7 @@ module.exports = function(grunt) {
                     ],
                     'public/js/app/telemetry-lib-0.2.min.js': [
                         'public/js/thirdparty/exclude/date-format.js',
+                        'public/js/app/telemetry/FilewriterService.js',
                         'public/js/app/telemetry/TelemetryEvent.js',
                         'public/js/app/telemetry/*.js'
                     ]
