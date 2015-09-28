@@ -65,7 +65,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
                 if(!Renderer.running) {
-                    initBookshelf();
+                    setTimeout(function() {
+                        initBookshelf();
+                    }, 500);                    
                 }
             });
 
@@ -257,7 +259,14 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.exitApp = function(){
             console.log("Exit");
             exitApp(ContentService);
-        }
+        };
+        // $scope.clearAllData = function() {
+        //     $cordovaFile.removeDir(cordova.file.dataDirectory, "/files").then(function (success) {
+        //         console.log("Deleted Successfully..");
+        //     }, function (error) {
+        //         console.log("Error in deletion..")
+        //     });
+        // }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.itemId) {
