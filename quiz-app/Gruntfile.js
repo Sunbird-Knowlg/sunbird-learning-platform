@@ -131,7 +131,8 @@ module.exports = function(grunt) {
                     plugins: [
                         'org.ekstep.platform.service.plugin',
                         'org.ekstep.downloader.service.plugin',
-                        'org.ekstep.genie.service.plugin'
+                        'org.ekstep.genie.service.plugin',
+                        'org.ekstep.intent.service.plugin'
                     ]
                 }
             },
@@ -160,7 +161,8 @@ module.exports = function(grunt) {
                     plugins: [
                         'custom-plugins/PlatformService/',
                         'custom-plugins/DownloaderService/',
-                        'custom-plugins/GenieService/'
+                        'custom-plugins/GenieService/',
+                        'custom-plugins/IntentService/'
                     ]
                 }
             },

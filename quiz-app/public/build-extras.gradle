@@ -1,4 +1,10 @@
+ext {
+    apply from: 'CordovaLib/cordova.gradle'
+    cdvMinSdkVersion = 17
+}
+
 android {
+
     packagingOptions {
         exclude 'META-INF/NOTICE.txt'
         exclude 'META-INF/LICENSE.txt'
