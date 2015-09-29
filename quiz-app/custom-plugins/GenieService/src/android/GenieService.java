@@ -2,8 +2,11 @@ import android.util.Log;
 import org.apache.cordova.CordovaActivity;
 import org.apache.cordova.CordovaPlugin;
 import org.apache.cordova.CallbackContext;
+import org.apache.cordova.CordovaWebView;
+import org.apache.cordova.CordovaInterface;
 
 import org.ekstep.genieservices.sdks.Telemetry;
+import org.ekstep.genieservices.sdks.UserProfile;
 import org.ekstep.genieservices.sdks.response.IResponseHandler;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,17 +20,28 @@ public class GenieService extends CordovaPlugin {
 	public static final String TAG = "Genie Service Plugin";
 
 	private Telemetry telemetry;
+    private UserProfile userProfile;
 
 	public GenieService() {
 		System.out.println("Genie Service Constructor..........");
     }
 
+    public void initialize(CordovaInterface cordova, CordovaWebView webView) {
+        super.initialize(cordova, webView);
+        
+    }
+
     public boolean execute(final String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
+        CordovaActivity activity = (CordovaActivity) this.cordova.getActivity();
+        System.out.println("Genie Service execute...........");
         if (null == telemetry) {
-            System.out.println("Genie Service execute...........");
-            CordovaActivity activity = (CordovaActivity) this.cordova.getActivity();
             if (null != activity) {
                 telemetry = new Telemetry(activity);
+            }
+        }
+        if(null == userProfile) {
+            if (null != activity) {
+                userProfile = new UserProfile(activity);    
             }
         }
         Log.v(TAG, "GenieService received:" + action);
@@ -39,6 +53,8 @@ public class GenieService extends CordovaPlugin {
 			}
             String data = args.getString(0);
             sendTelemetry(data, callbackContext);
+        } else if(action.equals("getCurrentUser")) {
+            userProfile.getCurrentUser(new UserProfileResponse(callbackContext));
         }
         return true;
     }

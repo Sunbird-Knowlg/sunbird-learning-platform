@@ -29,18 +29,15 @@ function exitApp(cs) {
     if (TelemetryService._gameData) {
         TelemetryService.end(packageName, version);
     }
-    TelemetryService.writeFile().then(function() {
-        console.log('Telemetry data sent');
-        if(navigator.app) {
-            navigator.app.exitApp();
-        }
-        if(navigator.device) {
-            navigator.device.exitApp();
-        }
-        if(window) {
-            window.close();
-        }
-    });
+    if(navigator.app) {
+        navigator.app.exitApp();
+    }
+    if(navigator.device) {
+        navigator.device.exitApp();
+    }
+    if(window) {
+        window.close();
+    }
 }
 
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
@@ -71,7 +68,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
-                    TelemetryService.init(GlobalContext.user, GlobalContext.game).then(function() {
+                    TelemetryService.init(GlobalContext.game).then(function() {
                         TelemetryService.start();    
                     }).catch(function(error) {
                         console.log('TelemetryService init failed');

@@ -3,32 +3,24 @@ TelemetryService = {
     _eventsVersion: "1.0",
     _config: undefined,
     _gameData: undefined,
-    _user: undefined,
     _baseDir: 'EkStep Content App',
     _gameOutputFile: undefined,
     _gameErrorFile: undefined,
-    _events: [],
     _data: {},
-    _assessData: {},
     mouseEventMapping: {
         click: 'TOUCH',
         dblclick: 'CHOOSE',
         mousedown: 'DROP',
         pressup: 'DRAG'
     },
-    init: function(user, gameData) {
+    init: function(gameData) {
         return new Promise(function(resolve, reject) {
-            if (user && gameData) {
+            if (gameData) {
                 if (gameData.id && gameData.ver) {
                     TelemetryService._parentGameData = gameData;
                     TelemetryService._gameData = gameData;
                 } else {
                     reject('Invalid game data.');
-                }
-                if (user.sid && user.uid && user.did) {
-                    TelemetryService._user = user;
-                } else {
-                    reject('Invalid user session data.');
                 }
                 TelemetryServiceUtil.getConfig().then(function(config) {
                     TelemetryService._config = config;
@@ -40,7 +32,7 @@ TelemetryService = {
                 });
 
             } else {
-                reject('User or Game data is empty.');
+                reject('Game data is empty.');
             }
         });
     },
@@ -114,81 +106,6 @@ TelemetryService = {
         } else {
             // console.log('TelemetryService is inActive.');
         }
-    },
-    flush: function() {
-        if (TelemetryService.isActive) {
-            if (TelemetryService._events && TelemetryService._events.length > 0) {
-                var data = JSON.stringify(TelemetryService._events);
-                data = data.substring(1, data.length - 1);
-                TelemetryService.ws.length(TelemetryService._gameOutputFile)
-                    .then(function(fileSize) {
-                        if (fileSize == 0) {
-                            data = '{"events":[' + data + ']}';
-                        } else {
-                            data = ', ' + data + ']}';
-                        }
-                        return TelemetryService.ws.write(TelemetryService._gameOutputFile, data, 2);
-                    })
-                    .then(function(status) {
-                        TelemetryService.clearEvents();
-                    })
-                    .catch(function(err) {
-                        console.log('Error:', err);
-                    });
-            } else {
-                console.log('No data to write...');
-            }
-        } else {
-            // console.log('TelemetryService is inActive.');
-        }
-    },
-    writeFile: function() {
-        return new Promise(function(resolve, reject) {
-            if (TelemetryService.isActive) {
-                if (TelemetryService._events && TelemetryService._events.length > 0) {
-                    var data = JSON.stringify(TelemetryService._events);
-                    data = data.substring(1, data.length - 1);
-                    data = '{"events":[' + data + ']}';
-                    TelemetryService.ws.write(TelemetryService._gameOutputFile, data)
-                    .then(function(status) {
-                        TelemetryService.clearEvents();
-                        resolve(true);
-                    })
-                    .catch(function(err) {
-                        console.log('Error:', err);
-                        resolve(true);
-                    });
-                } else {
-                    resolve(true);
-                }
-            } else {
-                resolve(true);
-            }
-        });
-        
-    },
-    sendIntentResult: function() {
-        return new Promise(function(resolve, reject) {
-            if (TelemetryService.isActive) {
-                if (TelemetryService._events && TelemetryService._events.length > 0) {
-                    var data = JSON.stringify(TelemetryService._events);
-                    IntentService.sendTelemetryEvents(data).then(function() {
-                        resolve(true);
-                    }).catch(function(err) {
-                        console.log('Error:', err);
-                        resolve(true);
-                    });
-                } else {
-                    resolve(true);
-                }
-            } else {
-                resolve(true);
-            }
-        });
-        
-    },
-    clearEvents: function() {
-        TelemetryService._events = [];
     },
     logError: function(eventName, error) {
         var data = {

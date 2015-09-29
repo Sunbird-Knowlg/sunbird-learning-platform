@@ -7,9 +7,9 @@ TelemetryEvent = Class.extend({
         this.event = {
             "ts": toGenieDateTime(this.createdTime),
             "ver": TelemetryService._eventsVersion,
-            "sid": TelemetryService._user.sid,
-            "uid": TelemetryService._user.uid,
-            "did": TelemetryService._user.did,
+            "sid": GlobalContext.user.uid,
+            "uid": GlobalContext.user.uid,
+            "did": GlobalContext.user.uid,
             "edata": {
                 "eks": {},
                 "ext": {}
