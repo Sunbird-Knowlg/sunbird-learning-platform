@@ -50,7 +50,7 @@ object ConceptProficiencyModelV2 extends Serializable {
 
         var records = new ListBuffer[Array[String]];
         userProfs.foreach(f => {
-            val user = userMapping.value.getOrElse(f._1, User("Anonymous", "Anonymous", "Unknown", new Date(), 0));
+            val user = userMapping.value.getOrElse(f._1, User("Anonymous","Anonymous", "Anonymous", "Unknown", new Date(), 0));
             f._2.foreach { x =>
                 records += Array(
                     f._1,
