@@ -93,6 +93,19 @@ DownloaderService = {
                 file.remove();
             });
         });
+    },
+    deleteContentDir: function(contentId) {
+        return new Promise(function(resolve, reject) {
+            var basePath = DownloaderService.appDataDirectory;
+            var contentPath = basePath.replace(DownloaderService._root.nativeURL, "") + contentId;
+            DownloaderService._root.getDirectory(contentPath, {create: false}, function(contentDir) {
+                console.log("content dir full path: "+ contentDir.fullPath);
+                contentDir.removeRecursively();
+                resolve(true);
+            }, function(dirErr) {
+                reject(false);
+            });
+        });
     }
 }
 

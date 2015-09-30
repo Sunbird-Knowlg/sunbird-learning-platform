@@ -219,6 +219,12 @@ angular.module('quiz.services', ['ngResource'])
             },
             clear: function() {
                 $window.localStorage.clear();
+            },
+            deleteAllContent: function() {
+                _.map(returnObject.contentList, function(value, key){
+                    DownloaderService.deleteContentDir(key);
+                    delete returnObject.contentList[key];
+                });
             }
         };
         return returnObject;
