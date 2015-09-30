@@ -34,7 +34,7 @@ case class LineEvent(eid: Option[String], ts: Option[String], ver: Option[String
 case class LineData(id: Option[String], ver: Option[String], ts: Option[String], params: Option[Map[String, AnyRef]], events: Array[LineEvent]);
 case class SyncEvent(apiType: Option[String], level: Option[String], msg: Option[String], time: Option[String], errorMsg: Option[String], data: Option[LineData]);
 
-case class User(encoded_id: String, ekstep_id: String, gender: String, dob: Date, language_id: Int);
+case class User(name: String, encoded_id: String, ekstep_id: String, gender: String, dob: Date, language_id: Int);
 
 case class Filter(contentId: Option[String], eventIds: Option[String]);
 case class Sort(by: Option[String], order: Option[String]);

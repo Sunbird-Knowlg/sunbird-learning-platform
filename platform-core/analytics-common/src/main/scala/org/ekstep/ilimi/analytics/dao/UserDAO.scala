@@ -6,7 +6,7 @@ import org.apache.commons.dbutils.QueryRunner
 import org.apache.commons.dbutils.ResultSetHandler
 import java.sql.ResultSet
 import scala.collection.mutable.ListBuffer
-import scala.collection.mutable.Map
+import scala.collection.immutable.Map
 import scala.collection.mutable.HashMap
 import org.ekstep.ilimi.analytics.model.User
 
@@ -23,10 +23,10 @@ object UserDAO extends BaseDAO {
             var i = 0;
             
             do {
-                result(rs.getString(1)) = User(rs.getString(1), rs.getString(2), rs.getString(4), rs.getDate(3), rs.getInt(5));
+                result(rs.getString(2)) = User(rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(5), rs.getDate(4), rs.getInt(6));
             } while (rs.next())
 
-            result;
+            result.toMap;
         }
     };
     
@@ -44,14 +44,14 @@ object UserDAO extends BaseDAO {
                 result(rs.getInt(1)) = rs.getString(2);
             } while (rs.next())
 
-            result;
+            result.toMap;
         }
     };
 
     def getUserMapping(): Map[String, User] = {
         val conn = AppDBUtils.getConnection;
         val qr = new QueryRunner();
-        val results = qr.query(conn, "SELECT encoded_id, ekstep_id, dob, gender, language_id FROM children", userResultHandler);
+        val results = qr.query(conn, "SELECT name, encoded_id, ekstep_id, dob, gender, language_id FROM children", userResultHandler);
         AppDBUtils.closeConnection(conn);
         results;
     }
