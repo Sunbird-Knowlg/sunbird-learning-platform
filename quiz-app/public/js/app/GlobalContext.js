@@ -12,33 +12,44 @@ GlobalContext = {
         });
     },
     _setGlobalContext: function(resolve, reject) {
-        GenieService.getCurrentUser()
-            .then(function(result) {
-                if (result.status == 'success') {
-                    if (result.data.uid) {
-                        GlobalContext.user = result.data;
-                        resolve(true);
-                    } else {
-                        reject(false);
-                    }
+        new Promise(function(resolve, reject) {
+            if(window.plugins && window.plugins.webintent) {
+                resolve(GlobalContext._getIntentExtra('uid'));  // change it to 'origin' after getting new build.
+            } else {
+                resolve('Genie');
+            }
+        })
+        .then(function(origin) {
+            if(origin) {
+                return GenieService.getCurrentUser();
+            } else {
+                reject(false);
+            }
+        })
+        .then(function(result) {
+            console.log("Getting user session.......");
+            if (result && result.status == 'success') {
+                if (result.data.uid) {
+                    GlobalContext.user = result.data;
+                    resolve(true);
                 } else {
                     reject(false);
                 }
-            });
+            } else {
+                reject(false);
+            }
+        });
     },
-    _getIntentExtra: function(param, contextObj) {
+    _getIntentExtra: function(param) {
         return new Promise(function(resolve, reject) {
             window.plugins.webintent.getExtra(param,
                 function(url) {
                     console.log(param + ' intent value: ' + url);
-                    if (url) {
-                        contextObj[param] = url;
-                    }
-                    resolve(true);
+                    resolve(url);
                 },
                 function() {
                     console.log('intent value not set for: ' + param);
-                    resolve(true);
+                    resolve();
                 }
             );
         });
