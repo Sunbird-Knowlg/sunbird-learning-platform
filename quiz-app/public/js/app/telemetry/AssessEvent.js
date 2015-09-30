@@ -40,7 +40,8 @@ AssessEvent = TelemetryEvent.extend({
                 this.event.edata.eks.mmc = [];
             } else {
                 this.event.edata.eks.pass = 'No';
-                this.event.edata.eks.score = 0;
+                if(!score)
+                    this.event.edata.eks.score = 0;
                 this.event.edata.eks.failedatmpts += 1;
             }
             this.event.edata.eks.res = res || [];
