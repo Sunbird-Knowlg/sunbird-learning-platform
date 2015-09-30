@@ -4,7 +4,7 @@ module.exports = function(grunt) {
         uglify: {
             js: {
                 files: {
-                    'public/js/app/quizapp-0.2.min.js': [
+                    'public/js/app/quizapp-0.3.min.js': [
                         'public/js/thirdparty/exclude/xml2json.js',
                         'public/js/thirdparty/exclude/createjs-2015.05.21.min.js',
                         'public/js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js',
@@ -20,7 +20,7 @@ module.exports = function(grunt) {
                         'public/js/app/renderer/*.js',
                         'public/js/app/cordova-plugin/DownloaderService.js'
                     ],
-                    'public/js/app/telemetry-lib-0.2.min.js': [
+                    'public/js/app/telemetry-lib-0.3.min.js': [
                         'public/js/thirdparty/exclude/date-format.js',
                         'public/js/app/telemetry/FilewriterService.js',
                         'public/js/app/telemetry/TelemetryEvent.js',
@@ -92,14 +92,14 @@ module.exports = function(grunt) {
                 options: {
                     bucket: 'ekstep-public',
                     mime: {
-                        'public/js/app/quizapp-0.2.min.js': 'application/javascript',
-                        'public/js/app/telemetry-lib-0.2.min.js': 'application/javascript'
+                        'public/js/app/quizapp-0.3.min.js': 'application/javascript',
+                        'public/js/app/telemetry-lib-0.3.min.js': 'application/javascript'
                     }
                 },
                 files: [{
                     expand: true,
                     cwd: 'public/js/app/',
-                    src: ['*-0.2.min.js'],
+                    src: ['*-0.3.min.js'],
                     dest: 'js/'
                 }]
             },
