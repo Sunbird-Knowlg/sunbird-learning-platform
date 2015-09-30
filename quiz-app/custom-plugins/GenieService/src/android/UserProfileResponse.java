@@ -19,9 +19,8 @@ public class UserProfileResponse implements IResponseHandler {
         this.callbackContext = callbackContext;
     }
 
-    @Override
-    public void onSuccess(Object o) {
-        GenieResponse response = (GenieResponse) o;
+    public void onSuccess(GenieResponse response) {
+        // GenieResponse response = (GenieResponse) o;
         System.out.println("UserProfileResponse success: " + response.getStatus());
         System.out.println("UserProfileResponse result: " + response.getResult());
         Map<String, Object> map = new HashMap<String, Object>();
@@ -32,9 +31,8 @@ public class UserProfileResponse implements IResponseHandler {
         callbackContext.success(new JSONObject(map));
     }
 
-    @Override
-    public void onFailure(Object o) {
-        GenieResponse response = (GenieResponse) o;
+    public void onFailure(GenieResponse response) {
+        // GenieResponse response = (GenieResponse) o;
         System.out.println("TelemetryResponse error: " + response.getStatus() + " -- " + response.getError());
         List<String> errors = response.getErrorMessages();
         String error = response.getError();

@@ -19,18 +19,16 @@ public class TelemetryResponse implements IResponseHandler {
         this.callbackContext = callbackContext;
     }
 
-    @Override
-    public void onSuccess(Object o) {
-        GenieResponse response = (GenieResponse) o;
+    public void onSuccess(GenieResponse response) {
+        // GenieResponse response = (GenieResponse) o;
         System.out.println("TelemetryResponse success: " + response.getStatus());
         Map<String, String> map = new HashMap<String, String>();
         map.put("status", "success");
         callbackContext.success(new JSONObject(map));
     }
 
-    @Override
-    public void onFailure(Object o) {
-        GenieResponse response = (GenieResponse) o;
+    public void onFailure(GenieResponse response) {
+        // GenieResponse response = (GenieResponse) o;
         System.out.println("TelemetryResponse error: " + response.getStatus() + " -- " + response.getError());
         List<String> errors = response.getErrorMessages();
         String error = response.getError();
