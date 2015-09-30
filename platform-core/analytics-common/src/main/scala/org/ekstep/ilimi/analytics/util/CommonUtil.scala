@@ -166,7 +166,13 @@ object CommonUtil {
             case a if a.startsWith("s3://") =>
                 val arr = a.replaceFirst("s3://", "").split('/');
                 val bucket = arr(0);
-                val prefix = a.replaceFirst("s3://", "").replaceFirst(bucket + "/", "") + (if (null != suffix) suffix else "");
+                var prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
+                if (prefix.startsWith("/")) {
+                    prefix = prefix.replaceFirst("/", "");
+                }
+                if (null != suffix) {
+                    prefix = prefix + suffix
+                }
                 S3Util.getAllKeys(bucket, prefix).map { x => "s3n://" + bucket + "/" + x }.mkString(",");
             case a if a.startsWith("local://") =>
                 a.replaceFirst("local://", "");
@@ -248,7 +254,7 @@ object CommonUtil {
         parallelization.toInt;
     }
 
-    def gzip(path: String) : String = {
+    def gzip(path: String): String = {
         val buf = new Array[Byte](1024);
         val src = new File(path);
         val dst = new File(path ++ ".gz");

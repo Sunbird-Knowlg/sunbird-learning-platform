@@ -138,8 +138,8 @@ object TelemetryDataMigrationModel extends Serializable {
                 Console.println("## Uploading file to S3 ##");
                 val arr = a.replaceFirst("s3://", "").split('/');
                 val bucket = arr(0);
-                val prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
-                if(prefix.startsWith("/")) prefix.replaceFirst("/", "");
+                var prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
+                if(prefix.startsWith("/")) prefix = prefix.replaceFirst("/", "");
                 var uploadFileName = "";
                 if(prefix.length() > 0) {
                     uploadFileName = prefix + "/" + fileName;
