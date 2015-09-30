@@ -12,7 +12,7 @@ describe('Telemetry Service API - inActive', function() {
         TelemetryService.assess("qid", "NUM", "MEDIUM").start();
         TelemetryService.assess("qid").end(true, 1);
         TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
-        TelemetryService.assess("qid1").end(true, 1).mmc(["mmc1", "mmc2"]);
+        TelemetryService.assess("qid1").end(true, 1);
         TelemetryService.end();
         setTimeout(function() {
             done();
@@ -34,30 +34,15 @@ describe('Telemetry Service API', function() {
 
     beforeAll(function(done) {
         // done is called after getting the data. done() - is used to handle asynchronous operations...
-        var user = {
-            "sid": "de305d54-75b4-431b-adb2-eb6b9e546013",
-            "uid": "123e4567-e89b-12d3-a456-426655440000",
-            "did": "ff305d54-85b4-341b-da2f-eb6b9e5460fa"
-        };
-        var game = {
-                "id": "com.ekstep.quiz.app",
-                "ver": "1.0"
-            };
-        TelemetryService.init(user, game)
+        var packageName = "org.ekstep.quiz.app";
+        var version = "1.0";
+        GlobalContext.init(packageName, version)
         .then(function() {
+            return TelemetryService.init(GlobalContext.game);
+        })
+        .then(function() {
+            console.log("Init completed........");
             TelemetryService.start();
-            TelemetryService.interact("TOUCH", "id", "TOUCH");
-            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end(true, 1);
-            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end(false, 0);
-            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end(true, 1);
-            TelemetryService.assess("qid", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid").end(true, 1);
-
-            TelemetryService.assess("qid1", "NUM", "MEDIUM").start();
-            TelemetryService.assess("qid1").end(true, 1).mmc(["mmc1", "mmc2"]);
             TelemetryService.end();
             setTimeout(function() {
                 done();
@@ -69,75 +54,6 @@ describe('Telemetry Service API', function() {
         it('service is active.', function() {
             var expected = TelemetryService.isActive;
             expect(true).toEqual(expected);
-        });
-    });
-    
-
-    describe('Testcases for events data validation', function() {
-        it('events created and flushed.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-                expect(data.length).not.toEqual(0);
-                done();
-            });
-        });
-        it('count of the events.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-                var dataObj = JSON.parse( data );
-                expect(5).toEqual(dataObj.events.length);
-                done();
-            });
-        });
-        it('validate structure of each event.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-                expect(true).toEqual(isValidJson(data));
-                done();
-            });
-        });
-
-    });
-
-    describe('Testcases for "Assess event"', function() {
-        it('validate attempts.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-            var dataObj = JSON.parse( data );
-            expect(4).toEqual(dataObj.events[2].edata.eks.atmpts);
-            done();
-        });
-        });
-        
-        it('validate failed attempts.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-            var dataObj = JSON.parse( data );
-            expect(1).toEqual(dataObj.events[2].edata.eks.failedatmpts);
-            done();
-        });
-        });
-
-        it('validate final pass and score values.', function(done) {
-            var expected = TelemetryService.isActive;
-            expect(true).toEqual(expected);
-            TelemetryService.ws.getData(TelemetryService._gameOutputFile)
-            .then(function(data) {
-                var dataObj = JSON.parse( data );
-                expect("Yes").toMatch(dataObj.events[2].edata.eks.pass);
-                expect(1).toEqual(dataObj.events[2].edata.eks.score);
-                done();
-            });
         });
     });
 });
