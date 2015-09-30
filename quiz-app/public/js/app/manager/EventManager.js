@@ -91,9 +91,6 @@ EventManager = {
 				}
 				if (!id) {
 					var actionObj = action.action;
-					if (!_.isArray(actionObj) && actionObj.length >= 1) {
-						actionObj = actionObj[0];
-					}
 					if (actionObj)
 						id = actionObj.asset;
 				}
