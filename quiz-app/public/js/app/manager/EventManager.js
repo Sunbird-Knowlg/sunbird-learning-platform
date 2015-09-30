@@ -90,7 +90,7 @@ EventManager = {
 					id = action.asset;
 				}
 				if (id) {
-					TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext);
+					TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext).flush();
 				}
 			}
 		}

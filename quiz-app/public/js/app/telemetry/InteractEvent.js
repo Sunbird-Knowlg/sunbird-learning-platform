@@ -13,6 +13,6 @@ InteractEvent = TelemetryEvent.extend({
             "extype": extype,
             "uri": ""
         };
-        this.flush();
+        // this.flush();
     }
 })
