@@ -150,7 +150,8 @@ module.exports = function(grunt) {
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
                         'cordova-plugin-file-transfer',
-                        'https://github.com/Initsogar/cordova-webintent.git'
+                        'https://github.com/Initsogar/cordova-webintent.git',
+                        'com.lampa.startapp'
                     ]
                 }
             },

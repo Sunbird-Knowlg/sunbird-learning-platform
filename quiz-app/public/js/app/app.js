@@ -15,29 +15,34 @@ function backbuttonPressed(cs) {
 }
 
 function exitApp(cs) {
-    if(cs) {
-        cs.resetSyncStart();
-        if(cs.getProcessCount() > 0) {
-            var processing = cs.getProcessList();
-            for(key in processing) {
-                var item = processing[key];
-                item.status = "error";
-                cs.saveContent(item);
+    navigator.startApp.start("org.ekstep.genie", function(message) {
+        if(cs) {
+            cs.resetSyncStart();
+            if(cs.getProcessCount() > 0) {
+                var processing = cs.getProcessList();
+                for(key in processing) {
+                    var item = processing[key];
+                    item.status = "error";
+                    cs.saveContent(item);
+                }
             }
         }
-    }
-    if (TelemetryService._gameData) {
-        TelemetryService.end(packageName, version);
-    }
-    if(navigator.app) {
-        navigator.app.exitApp();
-    }
-    if(navigator.device) {
-        navigator.device.exitApp();
-    }
-    if(window) {
-        window.close();
-    }
+        if (TelemetryService._gameData) {
+            TelemetryService.end(packageName, version);
+        }
+        if(navigator.app) {
+            navigator.app.exitApp();
+        }
+        if(navigator.device) {
+            navigator.device.exitApp();
+        }
+        if(window) {
+            window.close();
+        }
+    }, 
+    function(error) {
+        alert("Unalbe to start Genie App.");
+    });
 }
 
 angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
