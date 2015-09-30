@@ -99,7 +99,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
+    .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaDialogs, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         var currentContentVersion = "0.2";
 
@@ -260,13 +260,17 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             console.log("Exit");
             exitApp(ContentService);
         };
-        // $scope.clearAllData = function() {
-        //     $cordovaFile.removeDir(cordova.file.dataDirectory, "/files").then(function (success) {
-        //         console.log("Deleted Successfully..");
-        //     }, function (error) {
-        //         console.log("Error in deletion..")
-        //     });
-        // }
+        $scope.clearAllContent = function() {
+            $cordovaDialogs.confirm('Are you sure you want to clear the content??', 'Alert', ['button 1','button 2'])
+            .then(function(buttonIndex) {
+              var btnIndex = buttonIndex;
+              if(btnIndex == 1) {
+                ContentService.deleteAllContent();
+                $rootScope.worksheets = undefined;
+                $rootScope.stories = undefined;
+              }                
+            });s            
+        }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {
         if ($stateParams.itemId) {
