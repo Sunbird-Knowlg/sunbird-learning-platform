@@ -89,8 +89,19 @@ EventManager = {
 				if (!id) {
 					id = action.asset;
 				}
+				if (!id) {
+					var actionObj = action.action;
+					if (!_.isArray(actionObj) && actionObj.length >= 1) {
+						actionObj = actionObj[0];
+					}
+					if (actionObj)
+						id = actionObj.asset;
+				}
+				if (!id) {
+					id = plugin._type || 'none';
+				}
 				if (id) {
-					TelemetryService.interact(type, plugin._data.id || plugin._data.asset, type).ext(ext).flush();
+					TelemetryService.interact(type, id, type).ext(ext).flush();
 				}
 			}
 		}
