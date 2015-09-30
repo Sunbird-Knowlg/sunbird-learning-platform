@@ -31,6 +31,14 @@ public class GenieService extends CordovaPlugin {
         
     }
 
+    public void onDestroy() {
+        if(null != userProfile) {
+            System.out.println("Calling UserProfile finish...........");
+            userProfile.finish();
+        }
+        super.onDestroy();
+    }
+
     public boolean execute(final String action, JSONArray args, CallbackContext callbackContext) throws JSONException {
         CordovaActivity activity = (CordovaActivity) this.cordova.getActivity();
         System.out.println("Genie Service execute...........");
