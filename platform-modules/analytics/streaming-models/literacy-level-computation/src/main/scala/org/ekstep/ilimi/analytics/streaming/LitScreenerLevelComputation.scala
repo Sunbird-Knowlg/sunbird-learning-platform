@@ -11,7 +11,7 @@ import org.ekstep.ilimi.analytics.model.EventOutput
 import org.ekstep.ilimi.analytics.model.Pdata
 import org.ekstep.ilimi.analytics.model.Gdata
 import java.io.FileWriter
-import org.ekstep.ilimi.analytics.model.Edata2
+import org.ekstep.ilimi.analytics.model.EventData
 import java.util.Date
 import org.ekstep.ilimi.analytics.conf.AppConf
 import org.joda.time.DateTime
@@ -72,7 +72,7 @@ object LitScreenerLevelComputation extends Serializable {
     def getEventOutput(event: (String, String, Int, Int, String, String), gid: String): EventOutput = {
         val edata = Map[String, AnyRef]("score" -> event._3.asInstanceOf[AnyRef], "maxscore" -> event._4.asInstanceOf[AnyRef], "current_level" -> event._5);
         EventOutput("ME_USER_GAME_LEVEL", CommonUtil.formatEventDate(new DateTime), "1.0", Some(event._1), Some(event._2), Some(event._6), Some(Gdata(Option(gid), Option(screenerVersion))),
-            Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), Edata2(edata));
+            Some(Pdata("AssessmentPipeline", "LitScreenerLevelComputation", "1.0")), EventData(edata));
     }
 
     def getCodeMap(codeMap: Map[String, Array[(String, String)]], valueMap: Map[String, (Int, Int)]): Map[String, (Int, Int)] = {

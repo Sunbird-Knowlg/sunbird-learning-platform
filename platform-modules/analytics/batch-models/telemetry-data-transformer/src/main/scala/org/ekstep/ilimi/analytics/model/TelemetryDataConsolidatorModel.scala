@@ -65,7 +65,7 @@ object TelemetryDataConsolidatorModel extends Serializable {
                 implicit val formats = DefaultFormats;
                 parse(line).extract[SyncEvent]
             }
-        }.map { x => x.data.getOrElse(LineData(None, None, None, Array())).events }.collect();
+        }.map { x => x.data.getOrElse(LineData(None, None, None, None, Array())).events }.collect();
         
         events.foreach { x =>
             {

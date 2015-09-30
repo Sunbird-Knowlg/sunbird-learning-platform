@@ -67,7 +67,9 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
             $ionicPlatform.on("resume", function() {
                 Renderer.resume();
                 if(!Renderer.running) {
-                    initBookshelf();
+                    setTimeout(function() {
+                        initBookshelf();
+                    }, 500);                    
                 }
             });
 
@@ -99,7 +101,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                 controller: 'ContentCtrl'
             });
     })
-    .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
+    .controller('ContentListCtrl', function($scope, $rootScope, $http, $ionicModal, $cordovaFile, $cordovaDialogs, $cordovaToast, $ionicPopover, $state, $q, ContentService) {
 
         var currentContentVersion = "0.2";
 
@@ -255,6 +257,17 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
         $scope.exitApp = function(){
             console.log("Exit");
             exitApp(ContentService);
+        };
+        $scope.clearAllContent = function() {
+            $cordovaDialogs.confirm('Are you sure you want to clear the content??', 'Alert', ['button 1','button 2'])
+            .then(function(buttonIndex) {
+              var btnIndex = buttonIndex;
+              if(btnIndex == 1) {
+                ContentService.deleteAllContent();
+                $rootScope.worksheets = undefined;
+                $rootScope.stories = undefined;
+              }                
+            });s            
         }
 
     }).controller('ContentCtrl', function($scope, $http, $cordovaFile, $cordovaToast, $ionicPopover, $state, ContentService, $stateParams) {

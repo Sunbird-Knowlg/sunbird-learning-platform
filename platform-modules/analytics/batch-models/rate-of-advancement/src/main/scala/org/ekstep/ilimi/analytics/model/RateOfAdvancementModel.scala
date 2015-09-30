@@ -7,7 +7,6 @@ import org.apache.spark.HashPartitioner
 import org.apache.spark.SparkContext
 import org.apache.spark.rdd.RDD.rddToPairRDDFunctions
 import org.ekstep.ilimi.analytics.dao.EffectivenessStatsDAO
-import org.ekstep.ilimi.analytics.model.BaseModel
 import org.ekstep.ilimi.analytics.model.Event
 import org.ekstep.ilimi.analytics.model.Output
 import org.ekstep.ilimi.analytics.util.CommonUtil
@@ -17,7 +16,7 @@ import java.text.SimpleDateFormat
 case class GameOutput(gameId: String, levels: Int, time_taken: Float, roa_ratio: Float);
 case class RateOfAdvancementOutput(uid: String, games: Array[GameOutput]) extends Output;
 
-object RateOfAdvancementModel extends BaseModel {
+object RateOfAdvancementModel {
 
     @transient val df = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss+z");
 
