@@ -1,0 +1,12 @@
+---
+title: ASER Report
+author: "Learning Platform - Analytics Engine"
+date: '`r format(Sys.Date(), "%B %d, %Y")`'
+output: html_document
+comment: haha
+---
+
+```{r,warning=FALSE}
+source(paste(source_dir,'/ASER_GenerateGraphs.R',sep=''))
+sessionInfo()
+```
