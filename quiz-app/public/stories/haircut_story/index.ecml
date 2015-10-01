@@ -130,10 +130,10 @@
                 <audioSprite id="teapot_rhyme" startTime="23000" duration="7021.496598639455"></audioSprite>
             </data>
         </media>
-        <media src="sounds/scene1.ogg" id="scene1_audio" type="audiosprite">
+        <media src="sounds/scene1.mp3" id="scene1_audio" type="audiosprite">
             <data>
                 <audioSprite id="clock_sound" startTime="0" duration="23337.95918367347"></audioSprite>
-                <audioSprite id="scene1_sound" startTime="25000" duration="5746.938775510202"></audioSprite>
+                <audioSprite id="scene1_sound" startTime="25000" duration="7000.0"></audioSprite>
             </data>
         </media>
         <media src="sounds/scene7.ogg" id="scene7_audio" type="audiosprite">

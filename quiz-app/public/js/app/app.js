@@ -15,22 +15,21 @@ function backbuttonPressed(cs) {
 }
 
 function exitApp(cs) {
-    if(cs) {
-        cs.resetSyncStart();
-        if(cs.getProcessCount() > 0) {
-            var processing = cs.getProcessList();
-            for(key in processing) {
-                var item = processing[key];
-                item.status = "error";
-                cs.saveContent(item);
+    navigator.startApp.start("org.ekstep.genie", function(message) {
+        if(cs) {
+            cs.resetSyncStart();
+            if(cs.getProcessCount() > 0) {
+                var processing = cs.getProcessList();
+                for(key in processing) {
+                    var item = processing[key];
+                    item.status = "error";
+                    cs.saveContent(item);
+                }
             }
         }
-    }
-    if (TelemetryService._gameData) {
-        TelemetryService.end(packageName, version);
-    }
-    TelemetryService.writeFile().then(function() {
-        console.log('Telemetry data sent');
+        if (TelemetryService._gameData) {
+            TelemetryService.end(packageName, version);
+        }
         if(navigator.app) {
             navigator.app.exitApp();
         }
@@ -40,6 +39,9 @@ function exitApp(cs) {
         if(window) {
             window.close();
         }
+    }, 
+    function(error) {
+        alert("Unalbe to start Genie App.");
     });
 }
 
@@ -73,7 +75,7 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
 
             GlobalContext.init(packageName, version).then(function() {
                 if (!TelemetryService._gameData) {
-                    TelemetryService.init(GlobalContext.user, GlobalContext.game).then(function() {
+                    TelemetryService.init(GlobalContext.game).then(function() {
                         TelemetryService.start();    
                     }).catch(function(error) {
                         console.log('TelemetryService init failed');
@@ -198,10 +200,6 @@ angular.module('quiz', ['ionic', 'ngCordova', 'quiz.services'])
                                 });
                             }
                             $rootScope.loadBookshelf();
-                            console.log('flushing telemetry in 2sec...');
-                            setTimeout(function() {
-                                TelemetryService.flush();
-                            }, 2000);
                         });
                 }, 100);   
             } else {

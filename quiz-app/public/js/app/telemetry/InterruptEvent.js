@@ -11,12 +11,6 @@ InterruptEvent = TelemetryEvent.extend({
             "type": type,
             "id": id || ''
         };
-        var messages = TelemetryService.validateEvent(eventStr, this.event.edata);
-        if (messages.length == 0) {
-            this.flush();
-        } else {
-            TelemetryService.logError(this.name, messages);
-            throw 'validation failed: ' + JSON.stringify(messages);
-        }
+        this.flush();
     }
 })
