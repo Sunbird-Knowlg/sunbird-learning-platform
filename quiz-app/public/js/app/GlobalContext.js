@@ -14,20 +14,23 @@ GlobalContext = {
     _setGlobalContext: function(resolve, reject) {
         new Promise(function(resolve, reject) {
             if(window.plugins && window.plugins.webintent) {
-                resolve(GlobalContext._getIntentExtra('uid'));  // change it to 'origin' after getting new build.
+                GlobalContext._getIntentExtra('origin')
+                .then(function(origin) {
+                    resolve(origin);
+                });
             } else {
                 resolve('Genie');
             }
         })
         .then(function(origin) {
-            if(origin) {
+            console.log("Origin value is:::", origin);
+            if(origin && origin == 'Genie') {
                 return GenieService.getCurrentUser();
             } else {
                 reject(false);
             }
         })
         .then(function(result) {
-            console.log("Getting user session.......");
             if (result && result.status == 'success') {
                 if (result.data.uid) {
                     GlobalContext.user = result.data;
