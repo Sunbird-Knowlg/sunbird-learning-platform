@@ -32,6 +32,13 @@ var OptionPlugin = Plugin.extend({
                 } else if (this._parent._type == 'mtf') {
                     this.renderMTFOption(value);
                 }
+            } else if(value.value.type == 'text') {
+                this.renderText(value.value);
+                if (this._parent._type == 'mcq') {
+                    this.renderMCQOption();
+                } else if (this._parent._type == 'mtf') {
+                    this.renderMTFOption(value);
+                }
             }
         }
     },
@@ -160,6 +167,12 @@ var OptionPlugin = Plugin.extend({
         data.h = 100 - (2 * pady);
         PluginManager.invoke('image', data, this, this._stage, this._theme);
         this._data.asset = value.asset;
+        this._render = true;
+    },
+    renderText: function(data) {
+        data.$t = data.asset;
+        PluginManager.invoke('text', data, this, this._stage, this._theme);
+        this._data.asset = data.asset;
         this._render = true;
     }
 });

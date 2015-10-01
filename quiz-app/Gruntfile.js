@@ -4,7 +4,7 @@ module.exports = function(grunt) {
         uglify: {
             js: {
                 files: {
-                    'public/js/app/quizapp-0.2.min.js': [
+                    'public/js/app/quizapp-0.3.min.js': [
                         'public/js/thirdparty/exclude/xml2json.js',
                         'public/js/thirdparty/exclude/createjs-2015.05.21.min.js',
                         'public/js/thirdparty/exclude/cordovaaudioplugin-0.6.1.min.js',
@@ -20,10 +20,10 @@ module.exports = function(grunt) {
                         'public/js/app/renderer/*.js',
                         'public/js/app/cordova-plugin/DownloaderService.js'
                     ],
-                    'public/js/app/telemetry-lib-0.2.min.js': [
+                    'public/js/app/telemetry-lib-0.3.min.js': [
                         'public/js/thirdparty/exclude/date-format.js',
-                        'public/js/app/telemetry/TelemetryEvent.js',
                         'public/js/app/telemetry/FilewriterService.js',
+                        'public/js/app/telemetry/TelemetryEvent.js',
                         'public/js/app/telemetry/*.js'
                     ]
                 }
@@ -92,14 +92,14 @@ module.exports = function(grunt) {
                 options: {
                     bucket: 'ekstep-public',
                     mime: {
-                        'public/js/app/quizapp-0.2.min.js': 'application/javascript',
-                        'public/js/app/telemetry-lib-0.2.min.js': 'application/javascript'
+                        'public/js/app/quizapp-0.3.min.js': 'application/javascript',
+                        'public/js/app/telemetry-lib-0.3.min.js': 'application/javascript'
                     }
                 },
                 files: [{
                     expand: true,
                     cwd: 'public/js/app/',
-                    src: ['*-0.2.min.js'],
+                    src: ['*-0.3.min.js'],
                     dest: 'js/'
                 }]
             },
@@ -130,7 +130,9 @@ module.exports = function(grunt) {
                     action: 'rm',
                     plugins: [
                         'org.ekstep.platform.service.plugin',
-                        'org.ekstep.downloader.service.plugin'
+                        'org.ekstep.downloader.service.plugin',
+                        'org.ekstep.genie.service.plugin',
+                        'org.ekstep.intent.service.plugin'
                     ]
                 }
             },
@@ -148,7 +150,8 @@ module.exports = function(grunt) {
                         'cordova-plugin-whitelist',
                         'cordova-plugin-crosswalk-webview',
                         'cordova-plugin-file-transfer',
-                        'https://github.com/Initsogar/cordova-webintent.git'
+                        'https://github.com/Initsogar/cordova-webintent.git',
+                        'com.lampa.startapp'
                     ]
                 }
             },
@@ -158,7 +161,9 @@ module.exports = function(grunt) {
                     action: 'add',
                     plugins: [
                         'custom-plugins/PlatformService/',
-                        'custom-plugins/DownloaderService/'
+                        'custom-plugins/DownloaderService/',
+                        'custom-plugins/GenieService/',
+                        'custom-plugins/IntentService/'
                     ]
                 }
             },
