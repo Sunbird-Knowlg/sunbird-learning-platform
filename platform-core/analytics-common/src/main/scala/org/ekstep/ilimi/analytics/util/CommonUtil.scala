@@ -35,6 +35,8 @@ import java.util.zip.GZIPOutputStream
 import java.io.FileOutputStream
 import java.io.FileNotFoundException
 import org.joda.time.Years
+import java.nio.file.Paths
+import java.nio.file.StandardCopyOption
 
 object CommonUtil {
 
@@ -235,12 +237,12 @@ object CommonUtil {
         event.eid.getOrElse("");
     }
 
-    def getEventTS(ts: String): Long = {
+    def getEventTS(event: Event): Long = {
         try {
-            df3.parseLocalDate(ts).toDate.getTime;            
+            df3.parseLocalDate(event.ts.getOrElse("")).toDate.getTime;
         } catch {
-            case _:Exception =>
-                Console.println("Invalid event time", ts);
+            case _: Exception =>
+                Console.err.println("Invalid event time", event.ts.getOrElse(""));
                 0
         }
     }
@@ -303,6 +305,47 @@ object CommonUtil {
         val now = new LocalDate();
         val age = Years.yearsBetween(birthdate, now);
         age.getYears;
+    }
+
+    def sendOutput(output: String, tmpFilePath: String, gzip: Boolean, isPublic: Boolean) = {
+
+        Console.println("## Zipping the file - gzip ##");
+        val filePath = if (gzip) CommonUtil.gzip(tmpFilePath) else tmpFilePath;
+        val fileName = filePath.split("/").last;
+        if (gzip) Console.println("## Gzip complete. File path - " + filePath + " ##");
+
+        output match {
+            case a if a.startsWith("local://") =>
+                Console.println("## Saving file to local store ##");
+                val outputPath = a.replaceFirst("local://", "");
+                val from = Paths.get(filePath);
+                val to = Paths.get(outputPath + "/" + fileName);
+                Files.createDirectories(Paths.get(outputPath));
+                Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
+                Console.println("## File saved to localstore at " + outputPath + "/" + fileName + " ##");
+            case a if a.startsWith("s3://") =>
+                Console.println("## Uploading file to S3 ##");
+                val arr = a.replaceFirst("s3://", "").split('/');
+                val bucket = arr(0);
+                var prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
+                if (prefix.startsWith("/")) prefix = prefix.replaceFirst("/", "");
+                var uploadFileName = "";
+                if (prefix.length() > 0) {
+                    uploadFileName = prefix + "/" + fileName;
+                } else {
+                    uploadFileName = fileName;
+                }
+                if(isPublic) {
+                    S3Util.uploadPublic(bucket, filePath, uploadFileName);
+                } else {
+                    S3Util.upload(bucket, filePath, uploadFileName);
+                }
+                CommonUtil.deleteFile(filePath);
+                Console.println("## File uploaded to S3 at s3://" + bucket + "/" + uploadFileName + " ##");
+            case _ =>
+                throw new Exception("Invalid output location. Valid output location should start with s3:// (for S3 upload) or local:// (for local save)");
+        }
+        if (gzip) CommonUtil.deleteFile(tmpFilePath);
     }
 
 }
