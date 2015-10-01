@@ -20,7 +20,7 @@ import org.json4s.jvalue2extractable
 import org.json4s.string2JsonInput
 import org.apache.spark.SparkConf
 
-case class Eks( subj: Option[String], mc: Option[Array[String]], mmc: Option[Array[String]], pass: Option[String], qid: Option[String], qtype: Option[String], qlevel: Option[String], score: Option[Int], maxscore: Option[Int], res: Option[Array[String]], exres: Option[Array[String]], length: Option[Double], exlength: Option[Double], atmpts: Option[Int], failedatmpts: Option[Int], category: Option[String], current: Option[String], max: Option[String], `type`: Option[String], extype: Option[String], id: Option[String], uri: Option[String])
+case class Eks(subj: Option[String], mc: Option[Array[String]], mmc: Option[Array[String]], pass: Option[String], qid: Option[String], qtype: Option[String], qlevel: Option[String], score: Option[Int], maxscore: Option[Int], res: Option[Array[String]], exres: Option[Array[String]], length: Option[String], exlength: Option[Double], atmpts: Option[Int], failedatmpts: Option[Int], category: Option[String], current: Option[String], max: Option[String], `type`: Option[String], extype: Option[String], id: Option[String], gid: Option[String])
 case class Edata(eks: Eks)
 case class Gdata(id: Option[String], ver: Option[String])
 case class Event(eid: Option[String], ts: Option[String], ver: Option[String], gdata: Option[Gdata], sid: Option[String], uid: Option[String], did: Option[String], edata: Edata)

@@ -85,7 +85,7 @@ object LitScreenerLevelModel extends Serializable {
                     getStringFromInt(event.edata.eks.maxscore),
                     getStringFromArray(event.edata.eks.res),
                     getStringFromArray(event.edata.eks.exres),
-                    getStringFromDouble(event.edata.eks.length),
+                    getString(event.edata.eks.length),
                     getStringFromInt(event.edata.eks.atmpts),
                     getStringFromInt(event.edata.eks.failedatmpts),
                     getString(event.edata.eks.category),
