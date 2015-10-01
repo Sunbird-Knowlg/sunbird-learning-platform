@@ -4,7 +4,7 @@
 // 'quiz' is the name of this angular module example (also set in a <body> attribute in index.html)
 // the 2nd parameter is an array of 'requires'
 var packageName = "org.ekstep.quiz.app";
-var version = "0.2";
+var version = "1.0";
 
 function backbuttonPressed(cs) {
     if(Renderer.running) {

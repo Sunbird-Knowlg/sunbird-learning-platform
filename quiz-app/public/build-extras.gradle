@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        versionName "0.2"
+        versionName "1.0"
         setProperty("archivesBaseName", "quizapp-v$versionName-"+ getTimestamp())
     }
 }
