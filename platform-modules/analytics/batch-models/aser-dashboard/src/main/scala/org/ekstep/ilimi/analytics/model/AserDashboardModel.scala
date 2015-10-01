@@ -28,8 +28,8 @@ import scala.io.Source
 import java.io.PrintWriter
 
 case class Question(qid: Option[String], res: Option[Array[String]], pass: Option[String], score: Option[Int], timeStamp: Option[Long], timeSpent: Option[Double]);
-case class Game(id: Option[String], level: Option[String], secondChance: Option[String], noOfSessions: Option[Int], timeSpent: Option[Double], startTimestamp: Option[Long], endTimestamp: Option[Long]);
-case class Record(uid: String, name: Option[String], age: Option[Int], language: Option[String], ekstepId: Option[String], gender: Option[String], questions: Buffer[Question]);
+case class Game(id: Option[String], level: Option[Map[String, String]], secondChance: Option[String], noOfSessions: Option[Int], timeSpent: Option[Double], startTimestamp: Option[Long], endTimestamp: Option[Long]);
+case class Record(uid: String, name: Option[String], age: Option[Int], language: Option[String], ekstepId: Option[String], gender: Option[String], questions: Buffer[Question], game: Option[Game]);
 
 object AserDashboardModel extends Serializable {
 
@@ -52,15 +52,16 @@ object AserDashboardModel extends Serializable {
         val sortedRdd = sort(job.sort, filterRdd);
         val aserRdd = getAserData(sortedRdd, p, userMapping, langMapping);
         if (job.rscript.nonEmpty) {
-            invokeRscript(job, aserRdd.collect());
+            //aserRdd.collect().foreach { x => Console.println(x) };
+            executeScript(config, job, aserRdd.collect());
         } else {
-            Console.println("Count of events - " + aserRdd.count());
-            aserRdd.collect().foreach { x => Console.println(CommonUtil.jsonToString(x)) };
+            Console.println("## No Script to execute. Count of events - " + aserRdd.count() + " ##");
         }
         CommonUtil.closeSparkContext(sc);
     }
 
     def executeQuery(query: Query, config: Map[String, String], sc: SparkContext, p: Int): RDD[Event] = {
+
         var path = config.getOrElse("input", "") + "/*";
         var dates = Array[String]();
         if (query.dateFilter.nonEmpty) {
@@ -96,7 +97,7 @@ object AserDashboardModel extends Serializable {
             if (filter.get.contentId.nonEmpty) {
                 filterRDD = filterRDD.filter { x =>
                     {
-                        CommonUtil.getGameId(x).equals(filter.get.contentId.get);
+                        CommonUtil.getGameId(x).equals(filter.get.contentId.get) || x.edata.eks.gid.getOrElse("").equals(filter.get.contentId.get);
                     }
                 }
             }
@@ -128,23 +129,57 @@ object AserDashboardModel extends Serializable {
         sortedRdd;
     }
 
-    def getAserData(rdd: RDD[Event], parallelization: Int, userMapping: Broadcast[Map[String, User]], langMapping: Broadcast[Map[Int, String]]): RDD[String] = {
-        val userPairs = rdd.filter { x => x.uid.nonEmpty }.map(event => (event.uid.get, Buffer(event))).partitionBy(new HashPartitioner(parallelization));
-        userPairs.reduceByKey((a, b) => a ++ b).mapValues { x =>
-            x.map { x =>
-                {
-                    Question(x.edata.eks.qid, x.edata.eks.res, x.edata.eks.pass, x.edata.eks.score, Option(CommonUtil.getEventTS(x.ts.get)), x.edata.eks.length);
-                }
+    def getLength(len: Option[AnyRef]): Option[Double] = {
+        if (len.nonEmpty) {
+            if (len.get.isInstanceOf[String]) {
+                Option(len.get.asInstanceOf[String].toDouble)
+            } else if (len.get.isInstanceOf[Double]) {
+                Option(len.get.asInstanceOf[Double])
+            } else if (len.get.isInstanceOf[Int]) {
+                Option(len.get.asInstanceOf[Int].toDouble)
+            } else {
+                Option(0d);
             }
-        }.map(f => {
-            val user = userMapping.value.getOrElse(f._1, User("Anonymous", "Anonymous", "Anonymous", "Unknown", new Date(), 0));
-            Record(f._1, Option(user.name), Option(CommonUtil.getAge(user.dob)), langMapping.value.get(user.language_id), Option(user.ekstep_id), Option(user.gender), f._2)
-        }).map { x => CommonUtil.jsonToString(x) };
+        } else {
+            Option(0d);
+        }
     }
 
-    def invokeRscript(job: Job, events: Array[String]) = {
+    def getAserData(rdd: RDD[Event], parallelization: Int, userMapping: Broadcast[Map[String, User]], langMapping: Broadcast[Map[Int, String]]): RDD[String] = {
+        val userQuestions = rdd.filter { x => x.uid.nonEmpty && CommonUtil.getEventId(x).equals("OE_ASSESS") }
+            .map(event => (event.uid.get, Buffer(event)))
+            .partitionBy(new HashPartitioner(parallelization))
+            .reduceByKey((a, b) => a ++ b).mapValues { x =>
+                x.map { x => Question(x.edata.eks.qid, x.edata.eks.res, x.edata.eks.pass, x.edata.eks.score, Option(CommonUtil.getEventTS(x)), getLength(x.edata.eks.length)) }
+            };
+        val userGame = rdd.filter { x => x.uid.nonEmpty }
+            .map(event => (event.uid.get, Buffer(event)))
+            .partitionBy(new HashPartitioner(parallelization))
+            .reduceByKey((a, b) => a ++ b).mapValues { x =>
+                val distinctEvents = x.distinct;
+                val assessEvents = distinctEvents.filter { x => CommonUtil.getEventId(x).equals("OE_ASSESS") }.sortBy { x => CommonUtil.getEventTS(x) };
+                val qids = assessEvents.map { x => x.edata.eks.qid.getOrElse("") };
+                val secondChance = Option(if ((qids.length - qids.distinct.length) > 0) "Yes" else "No");
+                val noOfSessions = Option(distinctEvents.filter { x => CommonUtil.getEventId(x).equals("GE_LAUNCH_GAME") }.length);
+                val oeStarts = distinctEvents.filter { x => CommonUtil.getEventId(x).equals("GE_LAUNCH_GAME") };
+                val oeEnds = distinctEvents.filter { x => CommonUtil.getEventId(x).equals("OE_END") };
+                val startTimestamp = if (oeStarts.length > 0) { Option(CommonUtil.getEventTS(oeStarts(0))) } else { Option(0l) };
+                val endTimestamp = if (oeEnds.length > 0) { Option(CommonUtil.getEventTS(oeEnds(0))) } else { Option(0l) };
+                val timeSpent = if (oeEnds.length > 0) { getLength(oeEnds.last.edata.eks.length) } else { Option(0d) };
+                var levelMap = distinctEvents.filter { x => CommonUtil.getEventId(x).equals("OE_LEVEL_SET") }.map { x => (x.edata.eks.category.getOrElse(""), x.edata.eks.current.getOrElse("")) }.toMap;
+                Game(Option(CommonUtil.getGameId(x(0))), Option(levelMap.toMap), secondChance, noOfSessions, timeSpent, startTimestamp, endTimestamp)
+            }
+        userQuestions.join(userGame, 1).map(f => {
+            val user = userMapping.value.getOrElse(f._1, User("Anonymous", "Anonymous", "Anonymous", "Unknown", new Date(), 0));
+            Record(f._1, Option(user.name), Option(CommonUtil.getAge(user.dob)), langMapping.value.get(user.language_id), Option(user.ekstep_id), Option(user.gender), f._2._1, Option(f._2._2))
+        }).map { x => CommonUtil.jsonToString(x) };
 
-        val proc = Runtime.getRuntime.exec(job.rscript.get, Array("outputFile=" + job.config.get.getOrElse("outputFile", "/tmp/Aser_output.html"), "sourceDir=" + job.config.get.getOrElse("sourceDir", "/")));
+    }
+
+    def executeScript(config: Map[String, String], job: Job, events: Array[String]) = {
+        Console.println("## Count of events - " + events.length + " ##");
+        val outputFile = config.getOrElse("outputFile", "Aser_output") + "-" + System.currentTimeMillis() + "." + config.getOrElse("outputFileExt", "html");
+        val proc = Runtime.getRuntime.exec(job.rscript.get, Array("outputFile=" + outputFile, "sourceDir=" + config.getOrElse("sourceDir", "/")));
         new Thread("stderr reader for " + job.rscript.get) {
             override def run() {
                 for (line <- Source.fromInputStream(proc.getErrorStream).getLines)
@@ -161,6 +196,10 @@ object AserDashboardModel extends Serializable {
         }.start();
         val outputLines = Source.fromInputStream(proc.getInputStream).getLines;
         println(outputLines.toList);
+        val exitStatus = proc.waitFor();
+        if (exitStatus == 0) {
+            CommonUtil.sendOutput(config.getOrElse("uploadDir", "local:///tmp"), outputFile, false, config.getOrElse("uploadDirPublic", "true").equals("true"));
+        }
     }
 
 }
