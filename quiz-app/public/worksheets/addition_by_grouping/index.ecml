@@ -142,7 +142,7 @@
                 </event>
             </shape>
             <image asset="hint" x="93" y="20" w="5" h="9"/>
-            <image asset="validate" x="93" y="30" w="5" h="9">
+            <image asset="validate" x="93" y="30" w="5" h="9" id="img_validate">
                 <event type="click">
                     <action type="command" command="eval" asset="item" success="correct_answer" failure="wrong_answer"/>
                 </event>
@@ -198,9 +198,9 @@
         <appEvents list="correct_answer,wrong_answer"/>
         <events>
             <event type="correct_answer">
-                <action type="command" command="show" asset="img_overlay"/>
                 <action type="command" command="show" asset="img_correct_answer"/>
                 <action type="command" command="show" asset="btn_next"/>
+                <action type="command" command="hide" asset="img_validate"/>
                 <action type="command" command="hide" asset="img_wrong_answer"/>
                 <action type="command" command="hide" asset="btn_try_again"/>
                 <action type="command" command="hide" asset="text1"/>
@@ -208,9 +208,9 @@
                 <action type="command" command="hide" asset="text3"/>
             </event>
             <event type="wrong_answer">
-                <action type="command" command="show" asset="img_overlay"/>
                 <action type="command" command="show" asset="img_wrong_answer"/>
                 <action type="command" command="show" asset="btn_try_again"/>
+                <action type="command" command="hide" asset="img_validate"/>
                 <action type="command" command="hide" asset="img_correct_answer"/>
                 <action type="command" command="hide" asset="btn_next"/>
                 <action type="command" command="hide" asset="text1"/>
