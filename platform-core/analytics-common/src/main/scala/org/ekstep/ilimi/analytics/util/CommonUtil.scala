@@ -34,12 +34,13 @@ import java.io.FileInputStream
 import java.util.zip.GZIPOutputStream
 import java.io.FileOutputStream
 import java.io.FileNotFoundException
+import org.joda.time.Years
 
 object CommonUtil {
 
     @transient val df = new SimpleDateFormat("ssmmhhddMMyyyy");
     @transient val df2 = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssXXX");
-    @transient val df3: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'hh:mm:ssZZ");
+    @transient val df3: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZZ");
     @transient val df4: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd");
 
     def getParallelization(parallelization: Int): Int = {
@@ -166,7 +167,13 @@ object CommonUtil {
             case a if a.startsWith("s3://") =>
                 val arr = a.replaceFirst("s3://", "").split('/');
                 val bucket = arr(0);
-                val prefix = a.replaceFirst("s3://", "").replaceFirst(bucket + "/", "") + (if (null != suffix) suffix else "");
+                var prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
+                if (prefix.startsWith("/")) {
+                    prefix = prefix.replaceFirst("/", "");
+                }
+                if (null != suffix) {
+                    prefix = prefix + suffix
+                }
                 S3Util.getAllKeys(bucket, prefix).map { x => "s3n://" + bucket + "/" + x }.mkString(",");
             case a if a.startsWith("local://") =>
                 a.replaceFirst("local://", "");
@@ -228,6 +235,16 @@ object CommonUtil {
         event.eid.getOrElse("");
     }
 
+    def getEventTS(ts: String): Long = {
+        try {
+            df3.parseLocalDate(ts).toDate.getTime;            
+        } catch {
+            case _:Exception =>
+                Console.println("Invalid event time", ts);
+                0
+        }
+    }
+
     def getGameId(event: Event): String = {
         event.gdata.getOrElse(Gdata(Option(""), Option(""))).id.getOrElse("");
     }
@@ -248,7 +265,7 @@ object CommonUtil {
         parallelization.toInt;
     }
 
-    def gzip(path: String) : String = {
+    def gzip(path: String): String = {
         val buf = new Array[Byte](1024);
         val src = new File(path);
         val dst = new File(path ++ ".gz");
@@ -279,6 +296,13 @@ object CommonUtil {
                 System.err.printf("Permission Denied: %s", path)
         }
         path ++ ".gz";
+    }
+
+    def getAge(dob: Date): Int = {
+        val birthdate = LocalDate.fromDateFields(dob);
+        val now = new LocalDate();
+        val age = Years.yearsBetween(birthdate, now);
+        age.getYears;
     }
 
 }
