@@ -23,6 +23,7 @@ import org.apache.spark.Accumulator
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import org.ekstep.ilimi.analytics.streaming.KafkaEventProducer
 
 object TelemetryDataMigrationModel extends Serializable {
 
@@ -37,8 +38,6 @@ object TelemetryDataMigrationModel extends Serializable {
         CommonUtil.closeSparkContext(sc);
         * 
         */
-        
-        
     }
 
     def getDeltaInput(input: String, delta: Int): Array[String] = {
@@ -57,7 +56,7 @@ object TelemetryDataMigrationModel extends Serializable {
         CommonUtil.getInputPaths(input).split(',');
     }
 
-    def compute(input: String, output: String, parallelization: Int, duration: String, delta: Int) {
+    def compute(input: String, output: String, parallelization: Int, duration: String, delta: Int, brokerList: Option[String]) {
 
         val path = duration match {
             case "delta" =>
@@ -72,15 +71,13 @@ object TelemetryDataMigrationModel extends Serializable {
         }
         @transient val sc = CommonUtil.getSparkContext(parallelization, "TelemetryDataMigrator");
         val accum = sc.accumulator(0, "Total Event Count Accumulator");
-        val fileAccum = sc.accumulator(0, "Event Count Accumulator");
-        path.foreach { x => outputEventPerLine(x, sc, parallelization, output, accum, fileAccum) }
+        path.foreach { x => outputEventPerLine(x, sc, parallelization, output, accum, brokerList) }
         Console.println("## Total Events Size - " + accum.value + " ##");
         CommonUtil.closeSparkContext(sc);
     }
 
-    def outputEventPerLine(path: String, sc: SparkContext, parallelization: Int, output: String, accum: Accumulator[Int], fileAccum: Accumulator[Int]) {
+    def outputEventPerLine(path: String, sc: SparkContext, parallelization: Int, output: String, accum: Accumulator[Int], brokerList: Option[String]) {
 
-        fileAccum.setValue(0);
         val rdd = sc.textFile(path, parallelization).cache();
         val fileName = path.split("/").last.replaceAll(".gz", ".log").replaceAll("telemetry.log", "telemetry.raw")
         val tmpFilePath = AppConf.getConfig("spark_output_temp_dir") + fileName;
@@ -102,57 +99,37 @@ object TelemetryDataMigrationModel extends Serializable {
         }.filter(_ != null).map { x => x.data.getOrElse(LineData(None, None, None, None, Array())).events }.collect();
 
         Console.println("## Log Events Count - " + rdd.count() + " | Distinct Events Count - " + events.length + " ##");
-        Files.createFile(Paths.get(tmpFilePath));
-        events.foreach { x =>
-            {
-                accum += x.distinct.size;
-                fileAccum += x.distinct.size;
-                val fw = new FileWriter(tmpFilePath, true);
-                x.distinct.foreach { x => fw.write(CommonUtil.jsonToString(x) + "\n"); }
-                fw.close();
-            }
-        };
-        Console.println("## Events Size - " + fileAccum.value + " ##");
+        
+        val result = Buffer[String]();
+        events.foreach { x => { x.foreach { y => result += CommonUtil.jsonToString(y) } } };
+        
+        val distinctEvents = result.distinct;
+        accum += distinctEvents.size;
+
+        Console.println("## Events Size - " + distinctEvents.size + " ##");
         Console.println("## Temp Output Path - " + tmpFilePath + " ##");
-        moveToOutput(output, tmpFilePath);
+        moveToOutput(distinctEvents, output, tmpFilePath, brokerList);
         Console.println();
     }
+    
+    def createTempFile(tmpFilePath: String, events: Buffer[String]) = {
+        Files.createFile(Paths.get(tmpFilePath));
+        val fw = new FileWriter(tmpFilePath, true);
+        events.foreach { x => {fw.write(x + "\n");}};
+        fw.close();
+    }
 
-    def moveToOutput(output: String, tmpFilePath: String) = {
-
-        Console.println("## Zipping the file - gzip ##");
-        val filePath = CommonUtil.gzip(tmpFilePath);
-        val fileName = filePath.split("/").last;
-        Console.println("## Gzip complete. File path - " + filePath + " ##");
+    def moveToOutput(events: Buffer[String], output: String, tmpFilePath: String, brokerList: Option[String]) = {
 
         output match {
-            case a if a.startsWith("local://") =>
-                Console.println("## Saving file to local store ##");
-                val outputPath = a.replaceFirst("local://", "");
-                val from = Paths.get(filePath);
-                val to = Paths.get(outputPath + "/" + fileName);
-                Files.createDirectories(Paths.get(outputPath));
-                Files.move(from, to, StandardCopyOption.REPLACE_EXISTING);
-                Console.println("## File saved to localstore at " + outputPath + "/" + fileName + " ##");
-            case a if a.startsWith("s3://") =>
-                Console.println("## Uploading file to S3 ##");
-                val arr = a.replaceFirst("s3://", "").split('/');
-                val bucket = arr(0);
-                var prefix = a.replaceFirst("s3://", "").replaceFirst(bucket, "");
-                if(prefix.startsWith("/")) prefix = prefix.replaceFirst("/", "");
-                var uploadFileName = "";
-                if(prefix.length() > 0) {
-                    uploadFileName = prefix + "/" + fileName;
-                } else {
-                    uploadFileName = fileName;
-                }
-                S3Util.upload(bucket, filePath, uploadFileName);
-                CommonUtil.deleteFile(filePath);
-                Console.println("## File uploaded to S3 at s3://" + bucket + "/" + uploadFileName + " ##");
+            case a if a.startsWith("kafka://") =>
+                Console.println("## Sending events to Kafka ##");
+                val topic = a.replaceFirst("kafka://", "");
+                KafkaEventProducer.publishEvents(events, topic, brokerList.getOrElse("localhost:9092"));
+                Console.println("## Events sent to topic " + topic + " ##");
             case _ =>
-                throw new Exception("Invalid output location. Valid output location should start with s3:// (for S3 upload) or local:// (for local save)");
+                CommonUtil.sendOutput(output, tmpFilePath, true, false);
         }
-        CommonUtil.deleteFile(tmpFilePath);
     }
 
 }

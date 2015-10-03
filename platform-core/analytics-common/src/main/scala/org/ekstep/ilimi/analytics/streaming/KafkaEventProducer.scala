@@ -44,5 +44,16 @@ object KafkaEventProducer {
         }
         close(producer);
     }
+    
+    def publishEvents(events: Buffer[String], topic: String, brokerList: String) = {
+        val producer = init(brokerList);
+        events.foreach { event =>
+            {
+                val message = new ProducerRecord[String, String](topic, null, event);
+                producer.send(message);
+            }
+        }
+        close(producer);
+    }
 
 }
