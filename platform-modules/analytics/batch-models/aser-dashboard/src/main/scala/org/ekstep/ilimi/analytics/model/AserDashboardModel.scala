@@ -69,6 +69,11 @@ object AserDashboardModel extends Serializable {
             dates = CommonUtil.getDatesBetween(query.dateFilter.get.from.get, query.dateFilter.get.to);
         }
         Console.println("## Path - " + path + " ##");
+        
+        if(path.isEmpty()) {
+            throw new Exception("No path found");
+        }
+        
         val rdd = sc.textFile(path, p).cache();
         val baseRdd = rdd.map { line =>
             {
