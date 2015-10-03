@@ -184,7 +184,7 @@ object AserDashboardModel extends Serializable {
     def executeScript(config: Map[String, String], job: Job, events: Array[String]) = {
         Console.println("## Count of events - " + events.length + " ##");
         val outputFile = config.getOrElse("outputFile", "Aser_output") + "-" + System.currentTimeMillis() + "." + config.getOrElse("outputFileExt", "html");
-        val proc = Runtime.getRuntime.exec(job.rscript.get, Array("outputFile=" + outputFile, "sourceDir=" + config.getOrElse("sourceDir", "/")));
+        val proc = Runtime.getRuntime.exec(job.rscript.get, Array("outputFile=" + outputFile, "sourceDir=" + config.getOrElse("sourceDir", "/"), "jobConfig=" + CommonUtil.jsonToString(job)));
         new Thread("stderr reader for " + job.rscript.get) {
             override def run() {
                 for (line <- Source.fromInputStream(proc.getErrorStream).getLines)
