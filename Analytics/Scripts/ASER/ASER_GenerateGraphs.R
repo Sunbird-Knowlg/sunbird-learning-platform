@@ -164,7 +164,7 @@ print(p)
 
 cat("Distribution of Total Time Spent in ASER\n")
 # remove later
-df$timeSpent <- rnorm(nrow(df))
+# df$timeSpent <- rnorm(nrow(df))
 
 p<-ggplot(df$game,aes(x=timeSpent)) + geom_histogram(aes(y=..density..),fill='darkgrey')+geom_density()+
   labs(x='Time Spent(s) in ASER',y='Density',title='')
