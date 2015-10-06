@@ -1,12 +1,11 @@
 ---
 title: ASER Report
 author: "Learning Platform - Analytics Engine"
-date: '`r format(Sys.Date(), "%B %d, %Y")`'
+date: '`r format(Sys.time(),"%c") `'
 output: html_document
-comment: haha
 ---
 
-```{r,warning=FALSE}
+```{r,warning=FALSE,echo=FALSE}
 source(paste(source_dir,'/ASER_GenerateGraphs.R',sep=''))
 sessionInfo()
 ```

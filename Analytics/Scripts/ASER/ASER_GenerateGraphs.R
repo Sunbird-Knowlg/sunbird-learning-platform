@@ -102,6 +102,16 @@ df.assess.full$qtype <- tmp
 
 
 
+# App Data Used to produce this report
+cat('** *** **\n');
+cat('** Data Source **\n');
+cat('** *** **\n');
+
+cat('App/Game/Screener ID: ',jobConfig$filter$contentId, '\n');
+cat('Played/Administed between: ',jobConfig$query$dateFilter$from, ' and ',jobConfig$query$dateFilter$to,'\n');
+cat('\n\n\n');
+
+
 # demographics
 cat('** *** ** \n');
 cat('** Student Demographics ** \n');
@@ -156,7 +166,7 @@ cat("Distribution of Total Time Spent in ASER\n")
 # remove later
 df$timeSpent <- rnorm(nrow(df))
 
-p<-ggplot(df,aes(x=timeSpent)) + geom_histogram(aes(y=..density..),fill='darkgrey')+geom_density()+
+p<-ggplot(df$game,aes(x=timeSpent)) + geom_histogram(aes(y=..density..),fill='darkgrey')+geom_density()+
   labs(x='Time Spent(s) in ASER',y='Density',title='')
 print(p)
 

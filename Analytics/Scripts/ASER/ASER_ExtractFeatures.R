@@ -8,7 +8,7 @@ require(rmarkdown)
 
 # set thse Env for rmarkdown to run the script from command line instead of RStudio
 # exact values don't matter
-Sys.setenv(RSTUDIO_PANDOC="/usr/local/bin")
+Sys.setenv(RSTUDIO_PANDOC="/usr/bin/pandoc")
 Sys.setenv(HOME="/something_not_important")
 
 outputFile=Sys.getenv("outputFile")
@@ -17,10 +17,15 @@ source_dir=Sys.getenv("sourceDir")
 cat('** x **')
 cat(source_dir)
 
-
-initial.options <- commandArgs(trailingOnly = FALSE)
-file.arg.name <- "--file="
-script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
+cat('** Y **\n')
+jobConfig=Sys.getenv("jobConfig")
+print(jobConfig)
+jobConfig = fromJSON(jobConfig)
+#save(jobConfig, file = "/Users/soma/Documents/ekStep/Scripts/ASER_AWS/ASER_ConfigObject.RData")
+cat('\n')
+#initial.options <- commandArgs(trailingOnly = FALSE)
+#file.arg.name <- "--file="
+#script.name <- sub(file.arg.name, "", initial.options[grep(file.arg.name, initial.options)])
 #source_dir <- dirname(script.name)
 
 
