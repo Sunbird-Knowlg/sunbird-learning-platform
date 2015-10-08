@@ -339,7 +339,7 @@
           "category": "general",
           "dataType": "Number",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
