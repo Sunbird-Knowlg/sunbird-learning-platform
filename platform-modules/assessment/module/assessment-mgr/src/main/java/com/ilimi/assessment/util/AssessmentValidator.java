@@ -1,7 +1,6 @@
 package com.ilimi.assessment.util;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -86,11 +85,11 @@ public class AssessmentValidator extends BaseManager {
             switch (AssessmentItemType.getAssessmentType(itemType)) {
             case mcq:
                 checkJsonList(metadata, errorMessages, "options",
-                        new String[] { "content_type", "content", "is_answer" }, AssessmentItemType.mcq.name());
+                        new String[] { "value" }, AssessmentItemType.mcq.name());
                 break;
             case mmcq:
                 checkJsonList(metadata, errorMessages, "options",
-                        new String[] { "content_type", "content", "is_answer" }, AssessmentItemType.mmcq.name());
+                        new String[] { "value" }, AssessmentItemType.mmcq.name());
                 break;
             case ftb:
                 if (null == metadata.get("answer"))
@@ -98,8 +97,7 @@ public class AssessmentValidator extends BaseManager {
                 checkAnswers(metadata, errorMessages, numAnswers);
                 break;
             case mtf:
-                checkMtfJson(metadata, errorMessages, "lhs_options",
-                        new String[] { "content_type", "content", "index" }, "rhs_options");
+                checkMtfJson(metadata, errorMessages);
                 break;
             case speech_question:
                 if (null == metadata.get("answer"))
@@ -212,65 +210,84 @@ public class AssessmentValidator extends BaseManager {
     }
 
     @SuppressWarnings("unchecked")
-    private int checkMtfJson(Map<String, Object> metadata, List<String> errorMessages, String propertyName,
-            String[] keys, String rshOptions) {
-        Map<Object, Object> option1 = new HashMap<Object, Object>();
-        Map<Object, Object> option2 = new HashMap<Object, Object>();
-        if (null == metadata.get(propertyName)) {
-            errorMessages.add("item " + propertyName + " is missing.");
+    private int checkMtfJson(Map<String, Object> metadata, List<String> errorMessages) {
+        List<Object> option1 = new ArrayList<Object>();
+        List<Object> option2 = new ArrayList<Object>();
+        String lhsOptions = "lhs_options";
+        String[] lhsKeys = new String[]{"value", "index"};
+        String rhsOptions = "rhs_options";
+        String[] rhsKeys = new String[]{"value", "answer"};
+        if (null == metadata.get(lhsOptions)) {
+            errorMessages.add("item " + lhsOptions + " is missing.");
         } else {
             try {
-                List<Map<String, Object>> values = mapper.readValue((String) metadata.get(propertyName), List.class);
+                List<Map<String, Object>> values = mapper.readValue((String) metadata.get(lhsOptions), List.class);
                 for (Map<String, Object> value : values) {
-                    for (String key : keys) {
+                    for (String key : lhsKeys) {
                         if (!value.containsKey(key)) {
                             errorMessages.add(
-                                    "invalid assessment item property: " + propertyName + ". " + key + " is missing.");
+                                    "invalid assessment item property: " + lhsOptions + ". " + key + " is missing.");
                             break;
                         }
                     }
-                    if (value.containsKey("index") && value.containsKey("content")) {
-                        if (option1.containsKey(value.get("index"))) {
+                    if (!checkOptionValue(value, errorMessages))
+                        break;
+                    if (value.containsKey("index")) {
+                        if (option1.contains(value.get("index"))) {
                             errorMessages.add("index should be unique.");
                             break;
                         }
-                        option1.put(value.get("index"), value.get("content"));
+                        option1.add(value.get("index"));
                     }
                 }
             } catch (Exception e) {
-                errorMessages.add("invalid assessment item property: " + propertyName + ".");
+                errorMessages.add("invalid assessment item property: " + lhsOptions + ".");
             }
         }
-        if (null == metadata.get(rshOptions)) {
-            errorMessages.add("item " + rshOptions + " is missing.");
+        if (null == metadata.get(rhsOptions)) {
+            errorMessages.add("item " + rhsOptions + " is missing.");
         } else {
             try {
-                List<Map<String, Object>> values = mapper.readValue((String) metadata.get(rshOptions), List.class);
+                List<Map<String, Object>> values = mapper.readValue((String) metadata.get(rhsOptions), List.class);
                 for (Map<String, Object> value : values) {
-                    for (String key : keys) {
+                    for (String key : rhsKeys) {
                         if (!value.containsKey(key)) {
                             errorMessages.add(
-                                    "invalid assessment item property: " + rshOptions + ". " + key + " is missing.");
+                                    "invalid assessment item property: " + rhsOptions + ". " + key + " is missing.");
                             break;
                         }
                     }
-                    if (value.containsKey("index") && value.containsKey("content")) {
-                        if (option2.containsKey(value.get("index"))) {
-                            errorMessages.add("index should be unique.");
+                    if (!checkOptionValue(value, errorMessages))
+                        break;
+                    if (value.containsKey("answer")) {
+                        if (option2.contains(value.get("answer"))) {
+                            errorMessages.add("answer should be unique.");
                             return 0;
                         }
-                        option2.put(value.get("index"), value.get("content"));
+                        option2.add(value.get("answer"));
                     }
                 }
             } catch (Exception e) {
-                errorMessages.add("invalid assessment item property: " + rshOptions + ".");
+                e.printStackTrace();
+                errorMessages.add("invalid assessment item property: " + rhsOptions + ".");
             }
         }
-        if (option1.size() != option2.size()) {
-            String error = option1.size() - option2.size() > 0 ? "rhs_options" : "lhs_options";
-            errorMessages.add("missing " + error);
-        }
         return 0;
+    }
+    
+    @SuppressWarnings("unchecked")
+    private boolean checkOptionValue(Map<String, Object> value, List<String> errorMessages) {
+        if (null != value.get("value")) {
+            Map<String, Object> valueMap = (Map<String, Object>) value.get("value");
+            Object type = valueMap.get("type");
+            Object asset = valueMap.get("asset");
+            if (null == type || null == asset) {
+                errorMessages.add(
+                        "invalid option value.");
+                return false;
+            }
+        }
+        return true;
     }
 
     @SuppressWarnings("unchecked")
@@ -293,9 +310,13 @@ public class AssessmentValidator extends BaseManager {
                             break;
                         }
                     }
-                    if (itemType != null && (Boolean) value.get("is_answer"))
-                        answerCount++;
-
+                    if (null != itemType) {
+                        if (null != value.get("answer") && (Boolean) value.get("answer")) {
+                            answerCount += 1;
+                        }
+                        if (!checkOptionValue(value, errorMessages))
+                            break;
+                    }
                 }
                 if (AssessmentItemType.mcq.name().equals(itemType)) {
                     if (answerCount < 1)
@@ -309,6 +330,7 @@ public class AssessmentValidator extends BaseManager {
                         errorMessages.add("num_answers is not equals to no. of correct options");
                 }
             } catch (Exception e) {
+                e.printStackTrace();
                 errorMessages.add("invalid assessment item property: " + propertyName + ".");
             }
         }
