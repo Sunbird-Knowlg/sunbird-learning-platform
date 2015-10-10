@@ -65,7 +65,7 @@ object AserDashboardModel extends Serializable {
         var path = config.getOrElse("input", "") + "/*";
         var dates = Array[String]();
         if (query.dateFilter.nonEmpty) {
-            path = CommonUtil.getInputPaths(config.getOrElse("input", ""), config.getOrElse("suffix", ""), query.dateFilter.get.from, query.dateFilter.get.to).mkString(",");
+            path = CommonUtil.getInputPaths(config.getOrElse("input", ""), config.getOrElse("suffix", ""), query.dateFilter.get.from, query.dateFilter.get.to).filterNot { x => x.isEmpty() }.mkString(",");
             dates = CommonUtil.getDatesBetween(query.dateFilter.get.from.get, query.dateFilter.get.to);
         }
         Console.println("## Path - " + path + " ##");
