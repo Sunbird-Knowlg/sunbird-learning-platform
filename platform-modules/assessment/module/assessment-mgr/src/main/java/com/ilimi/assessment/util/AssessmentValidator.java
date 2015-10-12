@@ -380,8 +380,8 @@ public class AssessmentValidator extends BaseManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            errorMessages.add("Invalid Assessment Search Criteira");
         }
-
         return errorMessages;
     }
 

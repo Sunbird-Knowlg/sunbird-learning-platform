@@ -13,7 +13,6 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +31,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -177,10 +177,13 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (null == criteria)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(),
                     "AssessmentItem Search Criteria Object is blank");
-        List<String> assessmentErrors = validator.validateAssessmentItemSet(request);
-        if (assessmentErrors.size() > 0)
-            throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.name(),
-                    "property can not be empty string");
+        /*
+         * List<String> assessmentErrors =
+         * validator.validateAssessmentItemSet(request); if
+         * (assessmentErrors.size() > 0) throw new
+         * ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_CRITERIA.
+         * name(), "property can not be empty string");
+         */
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
         Response response = getResponse(req, LOGGER);
@@ -265,7 +268,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     if (null != entry.getValue()) {
                         if (fields.contains(entry.getKey())) {
                             if (jsonProps.contains(entry.getKey())) {
-                                Object val = convertJSONString((String) entry.getValue());
+                                Object val = JSONUtils.convertJSONString((String) entry.getValue());
                                 if (null != val)
                                     metadata.put(entry.getKey(), val);
                             } else {
@@ -278,7 +281,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 for (Entry<String, Object> entry : nodeMetadata.entrySet()) {
                     if (null != entry.getValue()) {
                         if (jsonProps.contains(entry.getKey())) {
-                            Object val = convertJSONString((String) entry.getValue());
+                            Object val = JSONUtils.convertJSONString((String) entry.getValue());
                             if (null != val)
                                 metadata.put(entry.getKey(), val);
                         } else {
@@ -292,23 +295,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             metadata.put("tags", node.getTags());
         }
         return metadata;
-    }
-
-    @SuppressWarnings("unchecked")
-    private Object convertJSONString(String value) {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            Map<Object, Object> map = mapper.readValue(value, Map.class);
-            return map;
-        } catch (Exception e) {
-            try {
-                List<Object> list = mapper.readValue(value, List.class);
-                return list;
-            } catch (Exception ex) {
-                e.printStackTrace();
-            }
-        }
-        return null;
     }
 
     @SuppressWarnings("unchecked")
@@ -338,6 +324,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         assessmentErrors);
             } else {
                 String type = validator.getQuestionnaireType(node);
+                if (null == node.getOutRelations())
+                    node.setOutRelations(new ArrayList<Relation>());
                 if (QuestionnaireType.materialised.name().equals(type)) {
                     Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
                     setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
@@ -356,10 +344,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         metadata.put("count", node.getMetadata().get("total_items"));
                         relation.setMetadata(metadata);
                         node.getOutRelations().add(relation);
+
+                        updateItemSetsMetadata(node, relation.getEndNodeId());
                     }
                 } else if (QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
-                    node.getMetadata().remove("item_sets");
                     for (Map<String, String> criteria : setCriteria) {
                         Relation relation = new Relation();
                         relation.setEndNodeId(criteria.get("id"));
@@ -380,6 +369,16 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 return createRes;
             }
         }
+    }
+
+    private void updateItemSetsMetadata(Node node, String setId) {
+        Integer total = (Integer) node.getMetadata().get("total_items");
+        Map<String, Object> itemSet = new HashMap<String, Object>();
+        itemSet.put("id", setId);
+        itemSet.put("count", total);
+        List<Map<String, Object>> itemSets = new ArrayList<Map<String, Object>>();
+        itemSets.add(itemSet);
+        node.getMetadata().put("item_sets", itemSets);
     }
 
     @SuppressWarnings("unchecked")
@@ -412,6 +411,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         assessmentErrors);
             } else {
                 String type = validator.getQuestionnaireType(node);
+                if (null == node.getOutRelations())
+                    node.setOutRelations(new ArrayList<Relation>());
                 if (QuestionnaireType.materialised.name().equals(type)) {
                     List<String> inputMembers = validator.getQuestionnaireItems(node);
 
@@ -422,14 +423,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     if (checkError(getNodeRes))
                         return getNodeRes;
                     Node qrNode = (Node) getNodeRes.get(GraphDACParams.node.name());
-
-                    Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER,
-                            "getCollectionMembers");
-                    setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
                     String setId = validator.getQuestionnaireSetId(qrNode);
-                    setReq.put(GraphDACParams.collection_id.name(), setId);
-                    Response setRes = getResponse(setReq, LOGGER);
-                    List<String> existingMembers = (List<String>) setRes.get(GraphDACParams.members.name());
+                    List<String> existingMembers = getSetMembers(taxonomyId, setId);
                     List<String> removeIds = new ArrayList<String>();
                     List<String> addIds = new ArrayList<String>();
                     validator.compareMembers(inputMembers, existingMembers, addIds, removeIds);
@@ -466,11 +461,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                     Map<String, Object> metadata = new HashMap<String, Object>();
                     metadata.put("count", node.getMetadata().get("total_items"));
                     relation.setMetadata(metadata);
-
                     node.getOutRelations().add(relation);
+
+                    updateItemSetsMetadata(node, setId);
                 } else if (QuestionnaireType.dynamic.name().equals(type)) {
                     List<Map<String, String>> setCriteria = validator.getQuestionnaireItemSets(node);
-                    node.getMetadata().remove("item_sets");
                     for (Map<String, String> criteria : setCriteria) {
                         Relation relation = new Relation();
                         relation.setStartNodeId(id);
@@ -516,10 +511,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             return response;
         else {
             List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-            List<QuestionnaireDTO> searchItemSets = new ArrayList<QuestionnaireDTO>();
+            List<Map<String, Object>> searchItemSets = new ArrayList<Map<String, Object>>();
             if (null != nodes && nodes.size() > 0) {
                 for (Node node : nodes) {
-                    searchItemSets.add(new QuestionnaireDTO(node));
+                    QuestionnaireDTO dto = new QuestionnaireDTO(node);
+                    searchItemSets.add(dto.returnMap());
                 }
             }
             listRes.put(AssessmentAPIParams.questionnaire_list.name(), searchItemSets);
@@ -546,9 +542,37 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         if (null != node) {
             QuestionnaireDTO dto = new QuestionnaireDTO(node, qrfields);
-            response.put(AssessmentAPIParams.questionnaire.name(), dto);
+            List<Relation> setRelations = getSetRelations(node);
+            Map<String, List<String>> items = new HashMap<String, List<String>>();
+            for (Relation relation : setRelations) {
+                List<String> members = getSetMembers(taxonomyId, relation.getEndNodeId());
+                Integer count = (Integer) relation.getMetadata().get("count");
+                if (null == members || members.size() < count) {
+                    throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INSUFFICIENT_ITEMS.name(),
+                            "Questionnaire requires " + count + " assessment items from the set '" + relation.getEndNodeId()
+                                    + "', but it has only " + members.size() + " assessment items.");
+                } else {
+                    items.put(relation.getEndNodeId(), members);
+                }
+            }
+            Map<String, Object> questionnaire = dto.returnMap();
+            questionnaire.put("items", items);
+            response.put(AssessmentAPIParams.questionnaire.name(), questionnaire);
         }
         return response;
+    }
+
+    private List<Relation> getSetRelations(Node node) {
+        List<Relation> setRelations = new ArrayList<Relation>();
+        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+            for (Relation relation : node.getOutRelations()) {
+                if (SystemNodeTypes.SET.name().equals(relation.getEndNodeType())
+                        && "ItemSet".equals(relation.getEndNodeObjectType())) {
+                    setRelations.add(relation);
+                }
+            }
+        }
+        return setRelations;
     }
 
     @Override
@@ -562,6 +586,16 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode",
                 GraphDACParams.node_id.name(), id);
         return getResponse(request, LOGGER);
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> getSetMembers(String taxonomyId, String setId) {
+        Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
+        setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
+        setReq.put(GraphDACParams.collection_id.name(), setId);
+        Response setRes = getResponse(setReq, LOGGER);
+        List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
+        return members;
     }
 
     @SuppressWarnings("unchecked")
@@ -581,20 +615,10 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             return copyResponse(getNodeRes);
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-        List<Relation> setRelations = new ArrayList<Relation>();
-        for (Relation relation : node.getOutRelations()) {
-            if (SystemNodeTypes.SET.name().equals(relation.getEndNodeType())
-                    && "ItemSet".equals(relation.getEndNodeObjectType())) {
-                setRelations.add(relation);
-            }
-        }
+        List<Relation> setRelations = getSetRelations(node);
         Set<String> allMembers = new HashSet<String>();
         for (Relation relation : setRelations) {
-            Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "getCollectionMembers");
-            setReq.put(GraphDACParams.collection_type.name(), SystemNodeTypes.SET.name());
-            setReq.put(GraphDACParams.collection_id.name(), relation.getEndNodeId());
-            Response setRes = getResponse(setReq, LOGGER);
-            List<String> members = (List<String>) setRes.get(GraphDACParams.members.name());
+            List<String> members = getSetMembers(taxonomyId, relation.getEndNodeId());
             Collections.shuffle(members);
             Integer count = (Integer) relation.getMetadata().get("count");
             if (members.size() < count) {
@@ -608,7 +632,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
         List<String> members = new ArrayList<String>(allMembers);
         Collections.shuffle(members);
-        System.out.println("Members:" + members);
         if (null != members && members.size() > 0) {
             SearchCriteria criteria = new SearchCriteria();
             criteria.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -622,12 +645,13 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 return copyResponse(itemNodesRes);
             }
             List<Node> itemNodes = (List<Node>) itemNodesRes.get(GraphDACParams.node_list.name());
-            System.out.println("ItemNodes:" + itemNodes.size());
-            List<ItemDTO> deliveryItems = new ArrayList<ItemDTO>();
+            DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
+            List<String> jsonProps = getJSONProperties(definition);
+            List<Map<String, Object>> deliveryItems = new ArrayList<Map<String, Object>>();
             for (Node itemNode : itemNodes) {
-                deliveryItems.add(new ItemDTO(itemNode));
+                Map<String, Object> dto = getAssessmentItem(itemNode, jsonProps, null);
+                deliveryItems.add(dto);
             }
-            System.out.println("DeliveryItems:" + deliveryItems.size());
             return OK(AssessmentAPIParams.assessment_items.name(), deliveryItems);
         } else {
             return OK(AssessmentAPIParams.assessment_items.name(), members);

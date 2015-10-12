@@ -1,5 +1,6 @@
 package com.ilimi.assessment.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,34 +10,33 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
-public class QuestionnaireDTO extends Node  {
+public class QuestionnaireDTO implements Serializable {
 
     private static final long serialVersionUID = 2382516005215431314L;
-    
+
+    private String identifier;
     private List<NodeDTO> concepts;
-    private List<String> items;
-    private List<Map<String, Object>> item_sets;
+    private Object itemSets;
+    private List<String> tags;
+    private Map<String, Object> metadata = new HashMap<String, Object>();
 
     public QuestionnaireDTO() {
     }
-    
+
     public QuestionnaireDTO(Node node) {
         this(node, null);
     }
-    
+
     public QuestionnaireDTO(Node node, String[] qrfields) {
         if (null != node) {
-            setGraphId(node.getGraphId());
             setIdentifier(node.getIdentifier());
-            setNodeType(node.getNodeType());
-            setObjectType(node.getObjectType());
             if (null != qrfields && qrfields.length > 0) {
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
                     List<String> fields = Arrays.asList(qrfields);
@@ -50,33 +50,41 @@ public class QuestionnaireDTO extends Node  {
             } else {
                 setMetadata(node.getMetadata());
             }
-//            setInRelations(node.getInRelations());
-//            setOutRelations(node.getOutRelations());
             setTags(node.getTags());
-
-            if (null != getOutRelations() && !getOutRelations().isEmpty()) {
+            if (getMetadata().containsKey("item_sets")) {
+                String itemSets = (String) getMetadata().get("item_sets");
+                Object obj = JSONUtils.convertJSONString(itemSets);
+                setItemSets(obj);
+                getMetadata().remove("item_sets");
+            }
+            if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                 this.concepts = new ArrayList<NodeDTO>();
-                for (Relation rel : getOutRelations()) {
+                for (Relation rel : node.getOutRelations()) {
                     if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
                         if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-                            this.concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
-                        }
-                    } else if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
-                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.SET.name(), rel.getEndNodeType())) {
-                        if (StringUtils.equalsIgnoreCase("AssessmentItem", rel.getEndNodeObjectType())) {
-                            String type = (String)node.getMetadata().get("type");
-                            if(null != type && QuestionnaireType.materialised.name().equals(type)) {
-                                //TODO: update items
-                            } else if(null != type && QuestionnaireType.dynamic.name().equals(type)) {
-                                Map<String, Object> data = new HashMap<String, Object>();
-                                
-                            }
+                            this.concepts.add(
+                                    new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
                         }
                     }
                 }
             }
         }
+    }
+
+    public Map<String, Object> returnMap() {
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.putAll(getMetadata());
+        if (null != itemSets) {
+            returnMap.put("item_sets", itemSets);
+        }
+        if (null != concepts && !concepts.isEmpty()) {
+            returnMap.put("concepts", concepts);
+        }
+        if (null != tags && !tags.isEmpty()) {
+            returnMap.put("tags", tags);
+        }
+        return returnMap;
     }
 
     public List<NodeDTO> getConcepts() {
@@ -87,26 +95,38 @@ public class QuestionnaireDTO extends Node  {
         this.concepts = concepts;
     }
 
-    public List<String> getItems() {
-        return items;
+    public Object getItemSets() {
+        return itemSets;
     }
 
-    public void setItems(List<String> items) {
-        this.items = items;
+    public void setItemSets(Object itemSets) {
+        this.itemSets = itemSets;
     }
 
-    public List<Map<String, Object>> getItem_sets() {
-        return item_sets;
+    public String getIdentifier() {
+        return identifier;
     }
 
-    public void setItem_sets(List<Map<String, Object>> item_sets) {
-        this.item_sets = item_sets;
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
     }
-    
-    public void addItem_set(Map<String, Object> data) {
-        if(null == item_sets) 
-            item_sets = new ArrayList<Map<String, Object>>();
-        item_sets.add(data);
+
+    public Map<String, Object> getMetadata() {
+        if (null == metadata)
+            metadata = new HashMap<String, Object>();
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
     }
 
 }

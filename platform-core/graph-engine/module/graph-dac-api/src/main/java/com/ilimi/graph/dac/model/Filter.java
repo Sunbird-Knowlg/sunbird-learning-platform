@@ -4,6 +4,8 @@ import java.io.Serializable;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.graph.dac.enums.SystemProperties;
+
 public class Filter implements Serializable {
 
     private static final long serialVersionUID = 6519813570430055306L;
@@ -60,6 +62,9 @@ public class Filter implements Serializable {
         if (StringUtils.isBlank(param))
             param = "n";
         param = param + ".";
+        if (StringUtils.equals("identifier", property)) {
+            property = SystemProperties.IL_UNIQUE_ID.name();
+        }
         if (SearchConditions.OP_EQUAL.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
