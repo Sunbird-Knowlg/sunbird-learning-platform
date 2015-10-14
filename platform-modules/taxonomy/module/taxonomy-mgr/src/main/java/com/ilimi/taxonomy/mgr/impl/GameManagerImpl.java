@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -80,12 +81,14 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
-                            Map<String, Object> gameObj = node.getMetadata();
-                            if (null != gameObj) {
-                                if (StringUtils.isNotBlank(node.getIdentifier()))
-                                    gameObj.put("identifier", node.getIdentifier());
-                                games.add(gameObj);
-                            }
+                            Map<String, Object> gameObj = new HashMap<String, Object>();
+                            if (null != node.getMetadata() && !node.getMetadata().isEmpty())
+                                gameObj.putAll(node.getMetadata());
+                            if (StringUtils.isNotBlank(node.getIdentifier()))
+                                gameObj.put("identifier", node.getIdentifier());
+                            if (StringUtils.isNotBlank(node.getGraphId()))
+                                gameObj.put("subject", node.getGraphId());
+                            games.add(gameObj);
                         }
                     }
                 }
