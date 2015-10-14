@@ -19,6 +19,7 @@ import com.ilimi.graph.dac.model.Relation;
 public class ContentDTO implements Serializable {
 
     private static final long serialVersionUID = -4400561249191832076L;
+    private String graphId;
     private String identifier;
     private List<NodeDTO> concepts;
     private List<NodeDTO> questionnaires;
@@ -34,6 +35,7 @@ public class ContentDTO implements Serializable {
 
     public ContentDTO(Node node, String[] wfields) {
         if (null != node) {
+            this.graphId = node.getGraphId();
             setIdentifier(node.getIdentifier());
             if (null != wfields && wfields.length > 0) {
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -71,6 +73,7 @@ public class ContentDTO implements Serializable {
     public Map<String, Object> returnMap() {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.putAll(getMetadata());
+        returnMap.put("subject", this.graphId);
         returnMap.put("identifier", getIdentifier());
         if (null != concepts && !concepts.isEmpty()) {
             returnMap.put("concepts", concepts);

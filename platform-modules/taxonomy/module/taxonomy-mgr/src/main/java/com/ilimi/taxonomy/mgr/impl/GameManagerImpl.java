@@ -38,7 +38,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
 
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
-    
+
     static {
         DEFAULT_FIELDS.add("identifier");
         DEFAULT_FIELDS.add("name");
@@ -68,7 +68,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 requests.add(req);
             }
         }
-        Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(), LearningObjectAPIParams.games.name());
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+                LearningObjectAPIParams.games.name());
         Response listRes = copyResponse(response);
         if (checkError(response))
             return response;
@@ -79,10 +80,12 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
-                            if (StringUtils.isNotBlank(node.getIdentifier()) && null != node.getMetadata()) {
-                                node.getMetadata().put("identifier", node.getIdentifier());
+                            Map<String, Object> gameObj = node.getMetadata();
+                            if (null != gameObj) {
+                                if (StringUtils.isNotBlank(node.getIdentifier()))
+                                    gameObj.put("identifier", node.getIdentifier());
+                                games.add(gameObj);
                             }
-                            games.add(node.getMetadata());
                         }
                     }
                 }
@@ -99,7 +102,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     }
 
     @SuppressWarnings("unchecked")
-    private Request getGamesListRequest(Request request, String taxonomyId, String objectType, DefinitionDTO definition) {
+    private Request getGamesListRequest(Request request, String taxonomyId, String objectType,
+            DefinitionDTO definition) {
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
         sc.setObjectType(objectType);
@@ -122,11 +126,13 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
         if (null == statusList || statusList.isEmpty())
             statusList = DEFAULT_STATUS;
-        MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
+        MetadataCriterion mc = MetadataCriterion
+                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
 
         // set metadata filter params
         for (Entry<String, Object> entry : request.getRequest().entrySet()) {
-            if (!StringUtils.equalsIgnoreCase(PARAM_SUBJECT, entry.getKey()) && !StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
+            if (!StringUtils.equalsIgnoreCase(PARAM_SUBJECT, entry.getKey())
+                    && !StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())) {
@@ -151,7 +157,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
             fields = DEFAULT_FIELDS;
         sc.setFields(fields);
 
-        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes", GraphDACParams.search_criteria.name(), sc);
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
         return req;
     }
 
@@ -196,10 +203,10 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 System.out.println(strObject + ":: NO Exception");
                 return list;
             } catch (Exception e) {
-            	System.out.println(" Exception");
-                throw new ClientException(LearningObjectErrorCodes.ERR_GAME_INVALID_PARAM.name(), "Request Parameter '" + propName
-                        + "' should be a list");
-                
+                System.out.println(" Exception");
+                throw new ClientException(LearningObjectErrorCodes.ERR_GAME_INVALID_PARAM.name(),
+                        "Request Parameter '" + propName + "' should be a list");
+
             }
         }
         return null;

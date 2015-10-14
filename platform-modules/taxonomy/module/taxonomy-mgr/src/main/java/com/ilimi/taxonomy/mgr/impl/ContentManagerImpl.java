@@ -209,7 +209,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 
     @Override
-    public Response upload(String id, String taxonomyId, String objectType, File uploadedFile) {
+    public Response upload(String id, String taxonomyId, File uploadedFile) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
         if (StringUtils.isBlank(id))
@@ -234,9 +234,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             return response;
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-        if (!node.getObjectType().equals(objectType))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(),
-                    "Invalid objectType for the given id.");
         String[] urlArray = new String[] {};
         try {
             urlArray = AWSUploader.uploadFile(bucketName, folderName, uploadedFile);

@@ -73,6 +73,6 @@ public abstract class AbstractContentController extends BaseController {
     @ResponseBody
     public ResponseEntity<Response> upload(@PathVariable(value = "id") String id, @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
-        return contentController.upload(id, file, taxonomyId, objectType, userId);
+        return contentController.upload(id, file, taxonomyId, userId);
     }
 }

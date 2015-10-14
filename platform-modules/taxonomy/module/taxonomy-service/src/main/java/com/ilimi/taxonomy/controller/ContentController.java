@@ -236,30 +236,20 @@ public class ContentController extends BaseController {
     public ResponseEntity<Response> upload(@PathVariable(value = "id") String id,
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "type", required = true) String objectType,
             @RequestHeader(value = "user-id") String userId) {
-        objectType = objectType.toLowerCase();
         String apiId = "content.upload";
-        if (objectTypeMap.containsKey(objectType) && !objectType.equalsIgnoreCase("game")) {
-            apiId = "content." + objectType + ".upload";
-            objectType = StringUtils.capitalize(objectType);
-            LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
-            try {
-                String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis()
-                        + "." + FilenameUtils.getExtension(file.getOriginalFilename());
-                File uploadedFile = new File(name);
-                file.transferTo(uploadedFile);
-
-                Response response = contentManager.upload(id, taxonomyId, objectType, uploadedFile);
-                LOGGER.info("Upload | Response: " + response);
-                return getResponseEntity(response, apiId, null);
-            } catch (Exception e) {
-                LOGGER.error("Upload | Exception: " + e.getMessage(), e);
-                return getExceptionResponseEntity(e, apiId, null);
-            }
-        } else {
-            return getExceptionResponseEntity(new ClientException("ERR_INVALID_CONTENT_TYPE", "ObjectType is invalid."),
-                    apiId, null);
+        LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
+        try {
+            String name = FilenameUtils.getBaseName(file.getOriginalFilename()) + "_" + System.currentTimeMillis() + "."
+                    + FilenameUtils.getExtension(file.getOriginalFilename());
+            File uploadedFile = new File(name);
+            file.transferTo(uploadedFile);
+            Response response = contentManager.upload(id, taxonomyId, uploadedFile);
+            LOGGER.info("Upload | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Upload | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
         }
     }
 

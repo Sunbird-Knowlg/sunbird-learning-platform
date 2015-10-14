@@ -19,6 +19,6 @@ public interface IContentManager {
 
     Response listContents(String objectType, Request request);
 
-    Response upload(String id, String taxonomyId, String objectType, File uploadedFile);
+    Response upload(String id, String taxonomyId, File uploadedFile);
 
 }
