@@ -47,8 +47,6 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         DEFAULT_FIELDS.add("appIcon");
         DEFAULT_FIELDS.add("url");
         DEFAULT_FIELDS.add(SystemProperties.IL_UNIQUE_ID.name());
-        DEFAULT_FIELDS.add(SystemProperties.IL_SYS_NODE_TYPE.name());
-        DEFAULT_FIELDS.add(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
 
         DEFAULT_STATUS.add("Live");
     }
@@ -87,8 +85,10 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                             Map<String, Object> gameObj = new HashMap<String, Object>();
                             if (null != node.getMetadata() && !node.getMetadata().isEmpty())
                                 gameObj.putAll(node.getMetadata());
-                            if (StringUtils.isNotBlank(node.getIdentifier()))
+                            if (StringUtils.isNotBlank(node.getIdentifier())) {
                                 gameObj.put("identifier", node.getIdentifier());
+                                gameObj.remove(SystemProperties.IL_UNIQUE_ID.name());
+                            }
                             if (StringUtils.isNotBlank(node.getGraphId()))
                                 gameObj.put("subject", node.getGraphId());
                             games.add(gameObj);
@@ -155,15 +155,17 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
                 if (null != arr && arr.length > 0) {
-                    fields = Arrays.asList(arr);
-                    fields.add(SystemProperties.IL_UNIQUE_ID.name());
-                    fields.add(SystemProperties.IL_SYS_NODE_TYPE.name());
-                    fields.add(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+                    List<String> arrFields = Arrays.asList(arr);
+                    fields = new ArrayList<String>();
+                    fields.addAll(arrFields);
                 }
             }
         }
         if (null == fields || fields.isEmpty())
             fields = DEFAULT_FIELDS;
+        else {
+            fields.add(SystemProperties.IL_UNIQUE_ID.name());
+        }
         sc.setFields(fields);
 
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
@@ -207,12 +209,9 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         if (null != object) {
             try {
                 String strObject = mapper.writeValueAsString(object);
-                System.out.println(strObject);
                 List list = mapper.readValue(strObject.toString(), List.class);
-                System.out.println(strObject + ":: NO Exception");
                 return list;
             } catch (Exception e) {
-                System.out.println(" Exception");
                 throw new ClientException(LearningObjectErrorCodes.ERR_GAME_INVALID_PARAM.name(),
                         "Request Parameter '" + propName + "' should be a list");
 
