@@ -42,6 +42,14 @@ public class Node implements Serializable {
     public Node(String graphId, Map<String, Object> metadata) {
         this.graphId = graphId;
         this.metadata = metadata;
+        if (null != metadata && !metadata.isEmpty()) {
+            if (null != metadata.get(SystemProperties.IL_UNIQUE_ID.name()))
+                this.identifier = metadata.get(SystemProperties.IL_UNIQUE_ID.name()).toString();
+            if (null != metadata.get(SystemProperties.IL_SYS_NODE_TYPE.name()))
+                this.nodeType = metadata.get(SystemProperties.IL_SYS_NODE_TYPE.name()).toString();
+            if (null != metadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+                this.objectType = metadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).toString();
+        }
     }
 
     public Node(String graphId, org.neo4j.graphdb.Node neo4jNode) {

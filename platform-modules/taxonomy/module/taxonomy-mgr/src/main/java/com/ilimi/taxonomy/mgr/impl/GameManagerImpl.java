@@ -46,6 +46,9 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         DEFAULT_FIELDS.add("description");
         DEFAULT_FIELDS.add("appIcon");
         DEFAULT_FIELDS.add("url");
+        DEFAULT_FIELDS.add(SystemProperties.IL_UNIQUE_ID.name());
+        DEFAULT_FIELDS.add(SystemProperties.IL_SYS_NODE_TYPE.name());
+        DEFAULT_FIELDS.add(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
 
         DEFAULT_STATUS.add("Live");
     }
@@ -153,6 +156,9 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
                 if (null != arr && arr.length > 0) {
                     fields = Arrays.asList(arr);
+                    fields.add(SystemProperties.IL_UNIQUE_ID.name());
+                    fields.add(SystemProperties.IL_SYS_NODE_TYPE.name());
+                    fields.add(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
                 }
             }
         }
