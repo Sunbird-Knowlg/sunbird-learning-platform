@@ -11,7 +11,7 @@ public interface IContentManager {
     
     Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit, String[] gfields);
 
-    Response find(String id, String taxonomyId, String objectType, String[] fields);
+    Response find(String id, String taxonomyId, String[] fields);
 
     Response update(String id, String taxonomyId, String objectType, Request request);
 

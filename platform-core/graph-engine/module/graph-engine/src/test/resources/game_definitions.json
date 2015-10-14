@@ -348,6 +348,19 @@
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
         },
         {
+          "propertyName": "pkgVersion",
+          "title": "Package Version",
+          "description": "Version number of the package file",
+          "category": "technical",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+        },
+        {
           "propertyName": "duration",
           "title": "Duration",
           "description": "",
@@ -737,7 +750,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "launchUrl", "osId", "communication_scheme", "activity_class"],
+      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class"],
       	"status": ["Live"]
       }
     },

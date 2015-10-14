@@ -630,7 +630,7 @@
       "metadata": {
         "ttl": 24,
         "limit": 50,
-        "fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "loadingMessage", "pkgVersion", "checksum"],
+        "fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "posterImage", "loadingMessage", "pkgVersion", "checksum"],
         "status": ["Live"]
       }
     }

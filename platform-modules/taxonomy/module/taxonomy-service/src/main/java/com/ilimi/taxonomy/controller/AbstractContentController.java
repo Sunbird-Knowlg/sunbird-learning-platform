@@ -44,7 +44,7 @@ public abstract class AbstractContentController extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "fields", required = false) String[] fields, @RequestHeader(value = "user-id") String userId) {
-        return contentController.find(id, taxonomyId, objectType, fields, userId);
+        return contentController.find(id, taxonomyId, fields, userId);
     }
     
     @RequestMapping(value = "", method = RequestMethod.GET)

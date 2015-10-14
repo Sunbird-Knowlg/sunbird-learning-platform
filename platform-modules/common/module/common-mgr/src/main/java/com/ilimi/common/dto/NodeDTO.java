@@ -8,15 +8,23 @@ public class NodeDTO implements Serializable {
     private String identifier;
     private String name;
     private String objectType;
-    
+    private String relation;
+
     public NodeDTO() {
-        
+
     }
-    
+
     public NodeDTO(String identifier, String name, String objectType) {
         this.identifier = identifier;
         this.name = name;
         this.objectType = objectType;
+    }
+
+    public NodeDTO(String identifier, String name, String objectType, String relation) {
+        this.identifier = identifier;
+        this.name = name;
+        this.objectType = objectType;
+        this.relation = relation;
     }
 
     public String getIdentifier() {
@@ -41,5 +49,13 @@ public class NodeDTO implements Serializable {
 
     public void setObjectType(String objectType) {
         this.objectType = objectType;
+    }
+
+    public String getRelation() {
+        return relation;
+    }
+
+    public void setRelation(String relation) {
+        this.relation = relation;
     }
 }

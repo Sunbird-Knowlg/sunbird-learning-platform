@@ -75,6 +75,7 @@ public class QuestionnaireDTO implements Serializable {
     public Map<String, Object> returnMap() {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.putAll(getMetadata());
+        returnMap.put("identifier", getIdentifier());
         if (null != itemSets) {
             returnMap.put("item_sets", itemSets);
         }
