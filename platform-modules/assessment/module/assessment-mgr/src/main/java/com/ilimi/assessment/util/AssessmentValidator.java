@@ -29,7 +29,7 @@ public class AssessmentValidator extends BaseManager {
 
     public String getAssessmentItemType(Node item) {
         Map<String, Object> metadata = item.getMetadata();
-        String itemType = (String) metadata.get("question_type");
+        String itemType = (String) metadata.get("type");
         return itemType;
     }
 
