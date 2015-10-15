@@ -216,7 +216,7 @@ public class AssessmentValidator extends BaseManager {
         String lhsOptions = "lhs_options";
         String[] lhsKeys = new String[]{"value", "index"};
         String rhsOptions = "rhs_options";
-        String[] rhsKeys = new String[]{"value", "answer"};
+        String[] rhsKeys = new String[]{"value"};
         if (null == metadata.get(lhsOptions)) {
             errorMessages.add("item " + lhsOptions + " is missing.");
         } else {
