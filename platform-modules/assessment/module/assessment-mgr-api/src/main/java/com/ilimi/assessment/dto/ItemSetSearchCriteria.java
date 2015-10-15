@@ -2,6 +2,7 @@ package com.ilimi.assessment.dto;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.dto.AbstractSearchCriteria;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.SearchCriteria;
 

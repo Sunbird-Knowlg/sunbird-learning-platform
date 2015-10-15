@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 
+import com.ilimi.common.dto.AbstractSearchCriteria;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;

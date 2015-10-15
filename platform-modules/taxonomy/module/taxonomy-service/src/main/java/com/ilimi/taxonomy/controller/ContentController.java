@@ -25,11 +25,14 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.dto.ContentDTO;
+import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
+import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -50,7 +53,9 @@ public class ContentController extends BaseController {
     {
         objectTypeMap.put("game", "games");
         objectTypeMap.put("worksheet", "worksheets");
+        objectTypeMap.put("screener", "screeners");
         objectTypeMap.put("story", "stories");
+        objectTypeMap.put("asset", "assets");
     }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
@@ -206,8 +211,9 @@ public class ContentController extends BaseController {
 
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> list(@RequestParam(value = "type", required = true) String objectType,
-            @RequestBody Map<String, Object> map) {
+    public ResponseEntity<Response> list(
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = "") String taxonomyId,
+            @RequestParam(value = "type", required = true) String objectType, @RequestBody Map<String, Object> map) {
         objectType = objectType.toLowerCase();
         String apiId = "content.list";
         if (objectTypeMap.containsKey(objectType)) {
@@ -216,7 +222,7 @@ public class ContentController extends BaseController {
             Request request = getListRequestObject(map);
             LOGGER.info("List | Request: " + request);
             try {
-                Response response = contentManager.listContents(objectType, request);
+                Response response = contentManager.listContents(taxonomyId, objectType, request);
                 LOGGER.info("List | Response: " + response);
                 return getResponseEntity(response, apiId,
                         (null != request.getParams()) ? request.getParams().getMsgid() : null);
@@ -231,12 +237,49 @@ public class ContentController extends BaseController {
         }
     }
 
+    @RequestMapping(value = "/search", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> search(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+            @RequestParam(value = "type", required = true) String objectType, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "assessment_item.search";
+        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        try {
+            Request reqeust = getSearchRequest(map, objectType);
+            Response response = contentManager.search(taxonomyId, objectType, reqeust);
+            LOGGER.info("Search | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Search | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+
+    private Request getSearchRequest(Map<String, Object> requestMap, String objectType) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        if (null != map && !map.isEmpty()) {
+            try {
+                ContentSearchCriteria criteria = mapper.convertValue(map, ContentSearchCriteria.class);
+                criteria.setObjectType(objectType);
+                request.put(ContentAPIParams.search_criteria.name(), criteria);
+            } catch (Exception e) {
+                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA.name(),
+                        "Invalid search criteria.", e);
+            }
+        } else if (null != map && map.isEmpty()) {
+            request.put(ContentAPIParams.search_criteria.name(), new ContentSearchCriteria());
+        }
+        return request;
+    }
+
     @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> upload(@PathVariable(value = "id") String id,
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestHeader(value = "user-id") String userId,
+            @RequestParam(value = "folder", required = false, defaultValue = "") String folder) {
         String apiId = "content.upload";
         LOGGER.info("Upload | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
@@ -244,7 +287,7 @@ public class ContentController extends BaseController {
                     + FilenameUtils.getExtension(file.getOriginalFilename());
             File uploadedFile = new File(name);
             file.transferTo(uploadedFile);
-            Response response = contentManager.upload(id, taxonomyId, uploadedFile);
+            Response response = contentManager.upload(id, taxonomyId, uploadedFile, folder);
             LOGGER.info("Upload | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,6 +37,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -209,7 +209,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 
     @Override
-    public Response upload(String id, String taxonomyId, File uploadedFile) {
+    public Response upload(String id, String taxonomyId, File uploadedFile, String folder) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
         if (StringUtils.isBlank(id))
@@ -219,11 +219,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
                     "Upload file is blank.");
         }
-        if (null != uploadedFile
+        /*if (null != uploadedFile
                 && !Arrays.asList("zip", "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName()))) {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.name(),
                     "Upload file is invalid.");
-        }
+        }*/
 
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
                 GraphDACParams.node_id.name(), id);
@@ -236,7 +236,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         String[] urlArray = new String[] {};
         try {
-            urlArray = AWSUploader.uploadFile(bucketName, folderName, uploadedFile);
+            if (StringUtils.isBlank(folder))
+                folder = folderName;
+            urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
         } catch (Exception e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);
@@ -262,8 +264,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response listContents(String objectType, Request request) {
-        String taxonomyId = (String) request.get(PARAM_SUBJECT);
+    public Response listContents(String taxonomyId, String objectType, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            taxonomyId = (String) request.get(PARAM_SUBJECT);
         LOGGER.info("List Contents : " + taxonomyId);
         Map<String, DefinitionDTO> definitions = new HashMap<String, DefinitionDTO>();
         List<Request> requests = new ArrayList<Request>();
@@ -308,6 +311,47 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             if (null == ttl || ttl.intValue() <= 0)
                 ttl = DEFAULT_TTL;
             listRes.put(PARAM_TTL, ttl);
+            return listRes;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public Response search(String taxonomyId, String objectType, Request request) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
+        ContentSearchCriteria criteria = (ContentSearchCriteria) request.get(ContentAPIParams.search_criteria.name());
+        if (null == criteria)
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA.name(),
+                    "Search Criteria Object is blank");
+
+        Map<String, DefinitionDTO> definitions = new HashMap<String, DefinitionDTO>();
+        if (StringUtils.isNotBlank(taxonomyId)) {
+            DefinitionDTO definition = getDefinition(taxonomyId, objectType);
+            definitions.put(taxonomyId, definition);
+        } else {
+            DefinitionDTO definition = getDefinition(TaxonomyManagerImpl.taxonomyIds[0], objectType);
+            for (String id : TaxonomyManagerImpl.taxonomyIds) {
+                definitions.put(id, definition);
+            }
+        }
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+        Response response = getResponse(req, LOGGER);
+        Response listRes = copyResponse(response);
+        if (checkError(response)) {
+            return response;
+        } else {
+            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+            List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    Map<String, Object> content = getContent(node, request, definitions);
+                    contents.add(content);
+                }
+            }
+            String returnKey = ContentAPIParams.content.name();
+            listRes.put(returnKey, contents);
             return listRes;
         }
     }

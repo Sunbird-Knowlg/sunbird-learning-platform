@@ -1,4 +1,4 @@
-package com.ilimi.assessment.dto;
+package com.ilimi.common.dto;
 
 import java.util.List;
 

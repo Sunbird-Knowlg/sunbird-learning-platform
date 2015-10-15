@@ -672,7 +672,8 @@
           "objectTypes": [
             "Game",
             "Concept",
-            "Media"
+            "Media",
+            "Questionnaire"
           ],
           "renderingHints": "{ 'order': 26 }"
         }
