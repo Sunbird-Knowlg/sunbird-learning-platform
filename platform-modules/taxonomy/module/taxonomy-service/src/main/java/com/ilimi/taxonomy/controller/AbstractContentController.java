@@ -68,7 +68,7 @@ public abstract class AbstractContentController extends BaseController {
     @RequestMapping(value = "/list", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> list(@RequestBody Map<String, Object> map) {
-        return contentController.list(objectType, map);
+        return contentController.list(null, objectType, map);
     }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
