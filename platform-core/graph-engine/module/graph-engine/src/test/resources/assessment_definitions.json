@@ -95,7 +95,7 @@
           "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
         },
         {
-          "propertyName": "question_type",
+          "propertyName": "type",
           "title": "Type",
           "description": "",
           "category": "general",
