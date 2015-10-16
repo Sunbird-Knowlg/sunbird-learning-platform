@@ -311,8 +311,10 @@ public class AssessmentValidator extends BaseManager {
                         }
                     }
                     if (null != itemType) {
-                        if (null != value.get("answer") && (Boolean) value.get("answer")) {
-                            answerCount += 1;
+                        if (null != value.get("score")) {
+                            Integer score = (Integer) value.get("score");
+                            if (score.intValue() > 0)
+                                answerCount += 1;
                         }
                         if (!checkOptionValue(value, errorMessages))
                             break;
