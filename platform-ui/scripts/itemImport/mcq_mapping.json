@@ -32,26 +32,34 @@
 		"difficulty_level_analytics": {"col-def": {"column" : 18}},
 		"options": [
 			{
-				"type": {"col-def": {"column" : 20}},
-				"asset": {"col-def": {"column" : 21}},
+				"value" : {
+					"type": {"col-def": {"column" : 20}},
+					"asset": {"col-def": {"column" : 21}}
+				},
 				"answer": {"col-def": {"column" : 22}},
 				"score": {"col-def": {"column" : 23}}
 			},
 			{
-				"type": {"col-def": {"column" : 24}},
-				"asset": {"col-def": {"column" : 25}},
+				"value" : {
+					"type": {"col-def": {"column" : 24}},
+					"asset": {"col-def": {"column" : 25}}
+				},
 				"answer": {"col-def": {"column" : 26}},
 				"score": {"col-def": {"column" : 27}}
 			},
 			{
-				"type": {"col-def": {"column" : 28}},
-				"asset": {"col-def": {"column" : 29}},
+				"value" : {
+					"type": {"col-def": {"column" : 28}},
+					"asset": {"col-def": {"column" : 29}}
+				},
 				"answer": {"col-def": {"column" : 30}},
 				"score": {"col-def": {"column" : 31}}
 			},
 			{
-				"type": {"col-def": {"column" : 32}},
-				"asset": {"col-def": {"column" : 33}},
+				"value" : {
+					"type": {"col-def": {"column" : 32}},
+					"asset": {"col-def": {"column" : 33}}
+				},
 				"answer": {"col-def": {"column" : 34}},
 				"score": {"col-def": {"column" : 35}}
 			}

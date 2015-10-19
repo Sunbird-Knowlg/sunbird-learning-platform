@@ -45,7 +45,8 @@ public class DataNode extends AbstractNode {
     private List<Relation> inRelations;
     private List<Relation> outRelations;
 
-    public DataNode(BaseGraphManager manager, String graphId, String nodeId, String objectType, Map<String, Object> metadata) {
+    public DataNode(BaseGraphManager manager, String graphId, String nodeId, String objectType,
+            Map<String, Object> metadata) {
         super(manager, graphId, nodeId, metadata);
         this.objectType = objectType;
     }
@@ -55,11 +56,13 @@ public class DataNode extends AbstractNode {
         this.objectType = node.getObjectType();
         this.inRelations = node.getInRelations();
         this.outRelations = node.getOutRelations();
-        if(this.inRelations != null) {
-            for(Relation relation : this.inRelations) relation.setEndNodeId(getNodeId());
-        } 
-        if(this.outRelations != null) {
-            for(Relation relation : this.outRelations) relation.setStartNodeId(getNodeId());
+        if (this.inRelations != null) {
+            for (Relation relation : this.inRelations)
+                relation.setEndNodeId(getNodeId());
+        }
+        if (this.outRelations != null) {
+            for (Relation relation : this.outRelations)
+                relation.setStartNodeId(getNodeId());
         }
     }
 
@@ -139,7 +142,8 @@ public class DataNode extends AbstractNode {
                             request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                             request.setOperation("addIncomingRelations");
                             request.put(GraphDACParams.start_node_id.name(), tagIds);
-                            request.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
+                            request.put(GraphDACParams.relation_type.name(),
+                                    RelationTypes.SET_MEMBERSHIP.relationName());
                             request.put(GraphDACParams.end_node_id.name(), getNodeId());
                             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                             response.onComplete(new OnComplete<Object>() {
@@ -259,14 +263,15 @@ public class DataNode extends AbstractNode {
         return relations;
     }
 
-    public Future<List<String>> deleteRelations(final Request request, final ExecutionContext ec, List<Relation> delRels) {
+    public Future<List<String>> deleteRelations(final Request request, final ExecutionContext ec,
+            List<Relation> delRels) {
         final Promise<List<String>> promise = Futures.promise();
         Future<List<String>> relFuture = promise.future();
         List<IRelation> relations = new ArrayList<IRelation>();
         if (null != delRels && !delRels.isEmpty()) {
             for (Relation rel : delRels) {
-                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
-                        rel.getEndNodeId(), rel.getMetadata());
+                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(),
+                        rel.getRelationType(), rel.getEndNodeId(), rel.getMetadata());
                 relations.add(relation);
             }
         }
@@ -301,14 +306,15 @@ public class DataNode extends AbstractNode {
         return relFuture;
     }
 
-    public Future<List<String>> createRelations(final Request request, final ExecutionContext ec, List<Relation> addRels) {
+    public Future<List<String>> createRelations(final Request request, final ExecutionContext ec,
+            List<Relation> addRels) {
         final Promise<List<String>> promise = Futures.promise();
         Future<List<String>> relFuture = promise.future();
         final List<IRelation> relations = new ArrayList<IRelation>();
         if (null != addRels && !addRels.isEmpty()) {
             for (Relation rel : addRels) {
-                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(), rel.getRelationType(),
-                        rel.getEndNodeId(), rel.getMetadata());
+                IRelation relation = RelationHandler.getRelation(manager, getGraphId(), rel.getStartNodeId(),
+                        rel.getRelationType(), rel.getEndNodeId(), rel.getMetadata());
                 relations.add(relation);
             }
         }
@@ -356,7 +362,8 @@ public class DataNode extends AbstractNode {
         return relFuture;
     }
 
-    private void createRelations(List<IRelation> relations, final Request request, ExecutionContext ec, final Promise<List<String>> promise) {
+    private void createRelations(List<IRelation> relations, final Request request, ExecutionContext ec,
+            final Promise<List<String>> promise) {
         if (null != relations && !relations.isEmpty()) {
             List<Future<String>> futures = new ArrayList<Future<String>>();
             for (IRelation rel : relations) {
@@ -500,7 +507,8 @@ public class DataNode extends AbstractNode {
                 Request request = new Request(req);
                 request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
                 request.setOperation("getNodeByUniqueId");
-                request.put(GraphDACParams.node_id.name(), SystemNodeTypes.DEFINITION_NODE.name() + "_" + this.objectType);
+                request.put(GraphDACParams.node_id.name(),
+                        SystemNodeTypes.DEFINITION_NODE.name() + "_" + this.objectType);
                 Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                 Future<List<String>> props = response.map(new Mapper<Object, List<String>>() {
                     @Override
@@ -593,7 +601,8 @@ public class DataNode extends AbstractNode {
                         }
                     }
                     if (!found) {
-                        messages.add("Required " + direction + " incoming relation " + def.getRelationName() + " is missing");
+                        messages.add("Required " + direction + " incoming relation " + def.getRelationName()
+                                + " is missing");
                     }
                 }
             }
@@ -627,6 +636,16 @@ public class DataNode extends AbstractNode {
         return null;
     }
 
+    public static void main(String[] args) {
+        Object o = "asd";
+        Object v = "asd";
+        if (StringUtils.equalsIgnoreCase((String) v, (String) o)) {
+            System.out.println("true....");
+        } else {
+            System.out.println("false....");
+        }
+    }
+
     private void checkDataType(Object value, MetadataDefinition def, List<String> messages) {
         if (null != value) {
             String propName = def.getPropertyName();
@@ -639,15 +658,19 @@ public class DataNode extends AbstractNode {
             } else if (StringUtils.equalsIgnoreCase("number", dataType) && !(value instanceof Number)) {
                 messages.add("Metadata " + propName + " should be a Numeric value");
             } else if (StringUtils.equalsIgnoreCase("select", dataType)) {
-                if (null == range || !range.contains(value))
+                if (null == range || range.isEmpty())
                     messages.add("Metadata " + propName + " should be one of: " + range);
+                else {
+                    if (!checkRangeValue(range, value))
+                        messages.add("Metadata " + propName + " should be one of: " + range);
+                }
             } else if (StringUtils.equalsIgnoreCase("multi-select", dataType)) {
-                if (null == range) {
+                if (null == range || range.isEmpty()) {
                     messages.add("Metadata " + propName + " should be one of: " + range);
                 } else {
                     int length = Array.getLength(value);
                     for (int i = 0; i < length; i++) {
-                        if (!range.contains(Array.get(value, i))) {
+                        if (!checkRangeValue(range, Array.get(value, i))) {
                             messages.add("Metadata " + propName + " should be one of: " + range);
                             break;
                         }
@@ -656,11 +679,11 @@ public class DataNode extends AbstractNode {
             } else if (StringUtils.equalsIgnoreCase("json", dataType)) {
                 ObjectMapper mapper = new ObjectMapper();
                 try {
-                    mapper.readValue((String)value, Map.class);
+                    mapper.readValue((String) value, Map.class);
                 } catch (Exception e) {
                     try {
-                        mapper.readValue((String)value, List.class);
-                    } catch(Exception ex) {
+                        mapper.readValue((String) value, List.class);
+                    } catch (Exception ex) {
                         try {
                             mapper.readValue(mapper.writeValueAsString(value), Map.class);
                         } catch (Exception e2) {
@@ -678,6 +701,24 @@ public class DataNode extends AbstractNode {
         }
     }
     
+    private boolean checkRangeValue(List<Object> range, Object value) {
+        boolean found = false;
+        for (Object rangeVal : range) {
+            if (rangeVal instanceof String) {
+                if (StringUtils.equalsIgnoreCase((String) value, (String) rangeVal)) {
+                    found = true;
+                    break;
+                }
+            } else {
+                if (rangeVal == value) {
+                    found = true;
+                    break;
+                }
+            }
+        }
+        return found;
+    }
+
     public List<Relation> getInRelations() {
         return inRelations;
     }

@@ -277,17 +277,28 @@ public class AssessmentValidator extends BaseManager {
     
     @SuppressWarnings("unchecked")
     private boolean checkOptionValue(Map<String, Object> value, List<String> errorMessages) {
+        boolean valid = true;
         if (null != value.get("value")) {
             Map<String, Object> valueMap = (Map<String, Object>) value.get("value");
             Object type = valueMap.get("type");
             Object asset = valueMap.get("asset");
-            if (null == type || null == asset) {
+            if (null == type) {
                 errorMessages.add(
-                        "invalid option value.");
-                return false;
+                        "invalid option. Option 'type' cannot be null");
+                valid = false;
+            }
+            if (null == asset) {
+                asset = value.get("answer");
+            }
+            if (null == asset) {
+                errorMessages.add(
+                        "invalid option. Option 'value' cannot be null");
+                valid = false;
+            } else {
+                valueMap.put("asset", asset);
             }
         }
-        return true;
+        return valid;
     }
 
     @SuppressWarnings("unchecked")

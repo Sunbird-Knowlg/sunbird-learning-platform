@@ -32,7 +32,6 @@ var inputFilePath = process.argv[4];
 var mappingFile = process.argv[5];
 var conceptsFile = process.argv[6];
 
-
 var mapping = fs.readFileSync(mappingFile);
 var mappingJson = JSON.parse(mapping);
 
@@ -42,6 +41,8 @@ var conceptMap = {};
 var items = [];
 var resultMap = {};
 var errorMap = {};
+
+var default_qlevel = 'MEDIUM';
 
 async.waterfall([
     function(callback) {
@@ -138,8 +139,14 @@ function createAssessmentItems(callback) {
 		items.forEach(function(item) {
 			var metadata = item.metadata;
 			if (isEmpty(metadata.code)) {
-				errorMap[item.index] = 'Code is required';
+				errorMap[item.index + 1] = 'Code is required';
 			} else {
+				if (isEmpty(item.identifier)) {
+					item.identifier = metadata.code;
+				}
+				if (isEmpty(metadata.qlevel)) {
+					metadata.qlevel = default_qlevel;
+				}
 				asyncFns.push(getMWAPICallfunction(item));
 			}
 		});
@@ -164,6 +171,7 @@ function getMWAPICallfunction(item) {
 	var returnFn = function(callback) {
 		var reqBody = {"request": {"assessment_item": {}}};
 		reqBody.request.assessment_item.objectType = "AssessmentItem";
+		reqBody.request.assessment_item.identifier = item.identifier;
 		reqBody.request.assessment_item.metadata = item.metadata;
 		var conceptIds = item.conceptIds;
 		if (_.isArray(conceptIds) && conceptIds.length > 0) {
@@ -184,7 +192,7 @@ function getMWAPICallfunction(item) {
 	    client.post(url, args, function(data, response) {
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
-	    	errorMap[item.index] = "Connection error";
+	    	errorMap[item.index + 1] = "Connection error";
 	        callback(null, 'ok');
 	    });
 	};
@@ -197,7 +205,7 @@ function parseResponse(item, data, callback) {
         try {
             responseData = JSON.parse(data);
         } catch(err) {
-            errorMap[item.index] = 'Invalid API response';
+            errorMap[item.index + 1] = 'Invalid API response';
         }
     } else {
     	responseData = data;
@@ -208,12 +216,12 @@ function parseResponse(item, data, callback) {
     		if (responseData.result && responseData.result.messages) {
     			error.messages = responseData.result.messages;
     		}
-    		errorMap[item.index] = error;
+    		errorMap[item.index + 1] = error;
     	} else {
     		resultMap[item.metadata.code] = responseData.result.node_id;
     	}
     } else {
-    	errorMap[item.index] = 'Invalid API response';
+    	errorMap[item.index + 1] = 'Invalid API response';
     }
     callback(null, 'ok');
 }
@@ -262,7 +270,7 @@ function getArrayData(row, startCol, arr, arrData) {
 			getObjectData(row, startCol, data, objData);
 			var add = false;
 			for (var k in objData) {
-				if (objData[k] && objData[k] != null) {
+				if (!isEmptyObject(objData[k])) {
 					add = true;
 				}
 			}
@@ -271,6 +279,23 @@ function getArrayData(row, startCol, arr, arrData) {
 			}
 		}
 	});
+}
+
+function isEmptyObject(obj) {
+	if (_.isEmpty(obj)) {
+		return true;
+	} else {
+		for (var k in obj) {
+			if (_.isObject(obj[k])) {
+				return isEmptyObject(obj[k]);
+			} else {
+				if (isEmpty(obj[k])) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
 }
 
 function getColumnValue(row, startCol, colDef) {
