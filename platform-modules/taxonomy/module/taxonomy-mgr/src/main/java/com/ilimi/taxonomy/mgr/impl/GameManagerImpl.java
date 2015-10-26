@@ -15,7 +15,6 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -26,10 +25,10 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
+import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.LearningObjectAPIParams;
-import com.ilimi.taxonomy.enums.LearningObjectErrorCodes;
 import com.ilimi.taxonomy.mgr.IGameManager;
 
 @Component
@@ -134,17 +133,24 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
             statusList = DEFAULT_STATUS;
         MetadataCriterion mc = MetadataCriterion
                 .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
-
+        
         // set metadata filter params
         for (Entry<String, Object> entry : request.getRequest().entrySet()) {
             if (!StringUtils.equalsIgnoreCase(PARAM_SUBJECT, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
-                    && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())) {
+                    && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
+                    && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
                 List<String> list = getList(mapper, entry.getValue(), entry.getKey());
                 if (null != list && !list.isEmpty()) {
                     mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                }
+            } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+                List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
+                if (null != tags && !tags.isEmpty()) {
+                    TagCriterion tc = new TagCriterion(tags);
+                    sc.setTag(tc);
                 }
             }
         }
@@ -212,9 +218,9 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                throw new ClientException(LearningObjectErrorCodes.ERR_GAME_INVALID_PARAM.name(),
-                        "Request Parameter '" + propName + "' should be a list");
-
+                List<String> list = new ArrayList<String>();
+                list.add(object.toString());
+                return list;
             }
         }
         return null;

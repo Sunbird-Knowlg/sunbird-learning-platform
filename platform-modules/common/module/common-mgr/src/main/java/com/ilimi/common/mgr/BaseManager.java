@@ -36,6 +36,7 @@ public abstract class BaseManager {
     protected static final String PARAM_LIMIT = "limit";
     protected static final String PARAM_UID = "uid";
     protected static final String PARAM_STATUS = "status";
+    protected static final String PARAM_TAGS = "tags";
     protected static final String PARAM_TTL = "ttl";
     
     protected static final int DEFAULT_TTL = 24;

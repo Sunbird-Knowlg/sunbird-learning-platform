@@ -108,6 +108,19 @@
           "renderingHints": "{ 'inputType': 'table', 'order': 7 }"
         },
         {
+          "propertyName": "filter",
+          "title": "Filter Criteria",
+          "description": "",
+          "category": "general",
+          "dataType": "JSON",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }"
+        },
+        {
           "propertyName": "grayScaleAppIcon",
           "title": "GrayScale App Icon",
           "description": "",
@@ -751,7 +764,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class"],
+      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter"],
       	"status": ["Live"]
       }
     },

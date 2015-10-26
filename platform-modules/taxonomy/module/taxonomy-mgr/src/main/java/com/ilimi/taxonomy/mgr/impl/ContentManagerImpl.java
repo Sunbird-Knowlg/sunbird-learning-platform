@@ -35,6 +35,7 @@ import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
+import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
@@ -57,6 +58,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         DEFAULT_FIELDS.add("identifier");
         DEFAULT_FIELDS.add("name");
         DEFAULT_FIELDS.add("description");
+        DEFAULT_FIELDS.add(SystemProperties.IL_UNIQUE_ID.name());
 
         DEFAULT_STATUS.add("Live");
     }
@@ -445,28 +447,39 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     && !StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
-                    && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())) {
+                    && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
+                    && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
                 List<String> list = getList(mapper, entry.getValue(), entry.getKey());
                 if (null != list && !list.isEmpty()) {
                     mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
                 }
+            } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+                List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
+                if (null != tags && !tags.isEmpty()) {
+                    TagCriterion tc = new TagCriterion(tags);
+                    sc.setTag(tc);
+                }
             }
         }
         sc.addMetadata(mc);
-        // Object objFields = request.get(PARAM_FIELDS);
-        // List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
-        // if (null == fields || fields.isEmpty()) {
-        // if (null != definition && null != definition.getMetadata()) {
-        // String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
-        // if (null != arr && arr.length > 0) {
-        // fields = Arrays.asList(arr);
-        // }
-        // }
-        // }
-        // if (null == fields || fields.isEmpty())
-        // fields = DEFAULT_FIELDS;
-        // sc.setFields(fields);
-
+        Object objFields = request.get(PARAM_FIELDS);
+        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+        if (null == fields || fields.isEmpty()) {
+            if (null != definition && null != definition.getMetadata()) {
+                String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
+                if (null != arr && arr.length > 0) {
+                    List<String> arrFields = Arrays.asList(arr);
+                    fields = new ArrayList<String>();
+                    fields.addAll(arrFields);
+                }
+            }
+        }
+        if (null == fields || fields.isEmpty())
+            fields = DEFAULT_FIELDS;
+        else {
+            fields.add(SystemProperties.IL_UNIQUE_ID.name());
+        }
+        sc.setFields(fields);
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         return req;
@@ -500,9 +513,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_PARAM.name(),
-                        "Request Parameter '" + propName + "' should be a list");
-
+                List<String> list = new ArrayList<String>();
+                list.add(object.toString());
+                return list;
             }
         }
         return null;
