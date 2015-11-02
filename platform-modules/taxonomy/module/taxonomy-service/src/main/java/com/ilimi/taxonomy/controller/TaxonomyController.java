@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.controller;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -36,7 +37,7 @@ public class TaxonomyController extends BaseController {
 
     @Autowired
     private ITaxonomyManager taxonomyManager;
-    
+
     @Autowired
     private IConceptManager conceptManager;
 
@@ -61,10 +62,11 @@ public class TaxonomyController extends BaseController {
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
             @RequestParam(value = "subgraph", defaultValue = "false") boolean subgraph,
             @RequestParam(value = "tfields", required = false) String[] tfields,
-            @RequestParam(value = "cfields", required = false) String[] cfields, @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "cfields", required = false) String[] cfields,
+            @RequestHeader(value = "user-id") String userId) {
         String apiId = "taxonomy.find";
-        LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: " + cfields + " | user-id: "
-                + userId);
+        LOGGER.info("Find | Id: " + id + " | subgraph: " + subgraph + " | tfields: " + tfields + " | cfields: "
+                + cfields + " | user-id: " + userId);
         try {
             Response response = taxonomyManager.find(id, subgraph, tfields, cfields);
             LOGGER.info("Find | Response: " + response);
@@ -77,8 +79,9 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> create(@PathVariable(value = "id") String id, @RequestParam("file") MultipartFile file,
-            @RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
+    public ResponseEntity<Response> create(@PathVariable(value = "id") String id,
+            @RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
+            HttpServletResponse resp) {
         String apiId = "taxonomy.import";
         LOGGER.info("Create | Id: " + id + " | File: " + file + " | user-id: " + userId);
         try {
@@ -96,7 +99,8 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id, @RequestHeader(value = "user-id") String userId) {
+    public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
+            @RequestHeader(value = "user-id") String userId) {
         LOGGER.info("Delete | Id: " + id + " | user-id: " + userId);
         String apiId = "taxonomy.delete";
         try {
@@ -120,10 +124,12 @@ public class TaxonomyController extends BaseController {
         try {
             Response response = taxonomyManager.search(id, request);
             LOGGER.info("Search | Response: " + response);
-            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Search | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 
@@ -164,8 +170,8 @@ public class TaxonomyController extends BaseController {
 
     @RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id, @PathVariable(value = "defId") String objectType,
-            @RequestHeader(value = "user-id") String userId) {
+    public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
+            @PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
         String apiId = "definition.find";
         LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
         try {
@@ -209,16 +215,17 @@ public class TaxonomyController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/hierarchy/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> getTaxonomyHierarchy(@PathVariable(value = "id") String id, 
+    public ResponseEntity<Response> getTaxonomyHierarchy(@PathVariable(value = "id") String id,
             @RequestParam(value = "cfields", required = false) String[] cfields,
             @RequestHeader(value = "user-id") String userId) {
-    	if(cfields == null) cfields = new String[]{"name", "code"};
+        if (cfields == null)
+            cfields = new String[] { "name", "code" };
         String apiId = "taxonomy.hierarchy";
-        LOGGER.info("Get Taxonomy Hierarchy | TaxonomyId: " + id + " | Id: " + id + " | Relation: " + "isParentOf" + " | Depth: " + 0
-                + " | user-id: " + userId);
+        LOGGER.info("Get Taxonomy Hierarchy | TaxonomyId: " + id + " | Id: " + id + " | Relation: " + "isParentOf"
+                + " | Depth: " + 0 + " | user-id: " + userId);
         try {
             Response response = conceptManager.getConcepts(id, "isParentOf", 0, id, cfields, true);
             LOGGER.info("Get Taxonomy Hierarchy | Response: " + response);
@@ -227,6 +234,28 @@ public class TaxonomyController extends BaseController {
             LOGGER.error("Get Taxonomy Hierarchy | Exception: " + e.getMessage(), e);
             e.printStackTrace();
             return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @RequestMapping(value = "/{id:.+}/index", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> createIndex(@PathVariable(value = "id") String id,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "index.create";
+        Request request = getRequest(map);
+        LOGGER.info("Create Index | Id: " + id + " | Request: " + request + " | user-id: " + userId);
+        try {
+            List<String> keys = (List<String>) request.get(TaxonomyAPIParams.property_keys.name());
+            Boolean unique = (Boolean) request.get(TaxonomyAPIParams.unique_constraint.name());
+            Response response = taxonomyManager.createIndex(id, keys, unique);
+            LOGGER.info("Create Index | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("Create Index | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
 

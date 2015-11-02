@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr;
 
 import java.io.InputStream;
+import java.util.List;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -24,5 +25,7 @@ public interface ITaxonomyManager {
     Response findDefinition(String id, String objectType);
 
     Response deleteDefinition(String id, String objectType);
+    
+    Response createIndex(String id, List<String> keys, Boolean unique);
 
 }

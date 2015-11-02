@@ -5,6 +5,10 @@ import com.ilimi.common.dto.Request;
 public interface IGraphDACGraphMgr {
 
     void createGraph(Request request);
+    
+    void createUniqueConstraint(Request request);
+    
+    void createIndex(Request request);
 
     void deleteGraph(Request request);
 

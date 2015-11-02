@@ -26,6 +26,7 @@ import com.ilimi.assessment.enums.AssessmentAPIParams;
 import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.assessment.util.AssessmentValidator;
+import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -294,6 +295,20 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (null != node.getTags() && !node.getTags().isEmpty()) {
             metadata.put("tags", node.getTags());
         }
+        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+            List<NodeDTO> concepts = new ArrayList<NodeDTO>();
+            for (Relation rel : node.getOutRelations()) {
+                if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
+                        && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
+                    if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
+                        concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType(),
+                                rel.getRelationType()));
+                    }
+                }
+            }
+            if (null != concepts && !concepts.isEmpty())
+                metadata.put("concepts", concepts);
+        }
         return metadata;
     }
 
@@ -549,8 +564,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 Integer count = (Integer) relation.getMetadata().get("count");
                 if (null == members || members.size() < count) {
                     throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INSUFFICIENT_ITEMS.name(),
-                            "Questionnaire requires " + count + " assessment items from the set '" + relation.getEndNodeId()
-                                    + "', but it has only " + members.size() + " assessment items.");
+                            "Questionnaire requires " + count + " assessment items from the set '"
+                                    + relation.getEndNodeId() + "', but it has only " + members.size()
+                                    + " assessment items.");
                 } else {
                     items.put(relation.getEndNodeId(), members);
                 }

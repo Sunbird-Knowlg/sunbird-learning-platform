@@ -52,6 +52,32 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             handleException(e, getSender());
         }
     }
+    
+    @Override
+    public void createUniqueConstraint(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        try {
+            logger.info("Create Unique Constraint request: " + graphId);
+            Graph graph = new Graph(this, graphId);
+            graph.createUniqueConstraint(request);
+        } catch (Exception e) {
+            logger.error("Error in Create Unique Constraint", e);
+            handleException(e, getSender());
+        }
+    }
+    
+    @Override
+    public void createIndex(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        try {
+            logger.info("Create Index request: " + graphId);
+            Graph graph = new Graph(this, graphId);
+            graph.createIndex(request);
+        } catch (Exception e) {
+            logger.error("Error in Create Index", e);
+            handleException(e, getSender());
+        }
+    }
 
     @Override
     public void loadGraph(Request request) {

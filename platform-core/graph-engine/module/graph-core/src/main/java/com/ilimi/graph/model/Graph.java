@@ -78,7 +78,38 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
+        }
+    }
+
+    public void createUniqueConstraint(Request req) {
+        try {
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+            request.setOperation("createUniqueConstraint");
+            request.copyRequestValueObjects(req.getRequest());
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            manager.returnResponse(response, getParent());
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_UNIQUE_CONSTRAINT_UNKNOWN_ERROR.name(),
+                    e.getMessage(), e);
+        }
+    }
+
+    public void createIndex(Request req) {
+        try {
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+            request.setOperation("createIndex");
+            request.copyRequestValueObjects(req.getRequest());
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            manager.returnResponse(response, getParent());
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_INDEX_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -91,7 +122,8 @@ public class Graph extends AbstractDomainObject {
             final Request defNodesReq = new Request(req);
             defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             defNodesReq.setOperation("getNodesByProperty");
-            Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name());
+            Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
+                    SystemNodeTypes.DEFINITION_NODE.name());
             defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
             Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
             defNodesResponse.onComplete(new OnComplete<Object>() {
@@ -121,7 +153,8 @@ public class Graph extends AbstractDomainObject {
                 }
             }, ec);
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -153,7 +186,8 @@ public class Graph extends AbstractDomainObject {
             Request defNodesReq = new Request(req);
             defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             defNodesReq.setOperation("getNodesByProperty");
-            Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name());
+            Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
+                    SystemNodeTypes.DEFINITION_NODE.name());
             defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
             Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
 
@@ -161,7 +195,8 @@ public class Graph extends AbstractDomainObject {
             Request request = new Request(req);
             request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
             request.setOperation("getNodesByProperty");
-            Property property = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DATA_NODE.name());
+            Property property = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
+                    SystemNodeTypes.DATA_NODE.name());
             request.put(GraphDACParams.metadata.name(), property);
             Future<Object> dataNodesResponse = Patterns.ask(dacRouter, request, timeout);
 
@@ -188,8 +223,8 @@ public class Graph extends AbstractDomainObject {
             validationMessages.add(nodeMessages);
 
             Future<Iterable<Map<String, List<String>>>> validationsFuture = Futures.sequence(validationMessages, ec);
-            Future<Map<String, List<String>>> validationMap = validationsFuture.map(
-                    new Mapper<Iterable<Map<String, List<String>>>, Map<String, List<String>>>() {
+            Future<Map<String, List<String>>> validationMap = validationsFuture
+                    .map(new Mapper<Iterable<Map<String, List<String>>>, Map<String, List<String>>>() {
                         @Override
                         public Map<String, List<String>> apply(Iterable<Map<String, List<String>>> parameter) {
                             Map<String, List<String>> errorMap = new HashMap<String, List<String>>();
@@ -215,7 +250,8 @@ public class Graph extends AbstractDomainObject {
 
             return validationMap;
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_VALIDATE_GRAPH_UNKNOWN_ERROR.name(),
+                    e.getMessage(), e);
         }
     }
 
@@ -228,7 +264,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_DELETE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_DELETE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -239,10 +276,12 @@ public class Graph extends AbstractDomainObject {
             final String format = (String) request.get(GraphEngineParams.format.name());
             final InputStreamValue inputStream = (InputStreamValue) request.get(GraphEngineParams.input_stream.name());
             if (StringUtils.isBlank(graphId)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_GRAPH_ID.name(), "GraphId is missing");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_GRAPH_ID.name(),
+                        "GraphId is missing");
             }
             if (!manager.validateRequired(inputStream)) {
-                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_INPUTSTREAM.name(), "Import stream is missing");
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_INPUTSTREAM.name(),
+                        "Import stream is missing");
             } else {
                 // Get byte array.
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -258,13 +297,14 @@ public class Graph extends AbstractDomainObject {
                 final Request defNodesReq = new Request(request);
                 defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
                 defNodesReq.setOperation("getNodesByProperty");
-                Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.DEFINITION_NODE.name());
+                Property defNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
+                        SystemNodeTypes.DEFINITION_NODE.name());
                 defNodesReq.put(GraphDACParams.metadata.name(), defNodeProperty);
                 Future<Object> defNodesResponse = Patterns.ask(dacRouter, defNodesReq, timeout);
 
                 // Create Definition Nodes Property Map from Future.
-                Future<Map<String, Map<String, MetadataDefinition>>> propDataMapFuture = defNodesResponse.map(
-                        new Mapper<Object, Map<String, Map<String, MetadataDefinition>>>() {
+                Future<Map<String, Map<String, MetadataDefinition>>> propDataMapFuture = defNodesResponse
+                        .map(new Mapper<Object, Map<String, Map<String, MetadataDefinition>>>() {
                             @Override
                             public Map<String, Map<String, MetadataDefinition>> apply(Object parameter) {
                                 Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
@@ -281,7 +321,8 @@ public class Graph extends AbstractDomainObject {
                                 return propertyDataMap;
                             }
 
-                            private Map<String, Map<String, MetadataDefinition>> getPropertyDataMap(List<DefinitionNode> defNodesList) {
+                            private Map<String, Map<String, MetadataDefinition>> getPropertyDataMap(
+                                    List<DefinitionNode> defNodesList) {
                                 Map<String, Map<String, MetadataDefinition>> propertyDataMap = new HashMap<String, Map<String, MetadataDefinition>>();
                                 for (DefinitionNode node : defNodesList) {
                                     String objectType = node.getFunctionalObjectType();
@@ -309,14 +350,15 @@ public class Graph extends AbstractDomainObject {
                 propDataMapFuture.onComplete(new OnComplete<Map<String, Map<String, MetadataDefinition>>>() {
 
                     @Override
-                    public void onComplete(Throwable arg0, Map<String, Map<String, MetadataDefinition>> propertyDataMap) {
+                    public void onComplete(Throwable arg0,
+                            Map<String, Map<String, MetadataDefinition>> propertyDataMap) {
                         if (null != arg0) {
                             manager.ERROR(arg0, getParent());
                         } else {
                             try {
                                 // Create ImportData object from inputStream.
-                                final ImportData importData = GraphReaderFactory.getObject(getManager(), format, graphId,
-                                        inputStream.getInputStream(), propertyDataMap);
+                                final ImportData importData = GraphReaderFactory.getObject(getManager(), format,
+                                        graphId, inputStream.getInputStream(), propertyDataMap);
                                 request.put(GraphDACParams.import_input_object.name(), importData);
 
                                 // Use ImportData object and import Graph.
@@ -341,37 +383,40 @@ public class Graph extends AbstractDomainObject {
                                                 if (tagMembersMap != null) {
                                                     for (String tagName : tagMembersMap.keySet()) {
                                                         Request tagRequest = new Request(request);
-                                                        Tag tag = new Tag(manager, graphId, tagName, null, tagMembersMap.get(tagName));
+                                                        Tag tag = new Tag(manager, graphId, tagName, null,
+                                                                tagMembersMap.get(tagName));
                                                         tag.createTag(tagRequest);
                                                     }
                                                 }
 
                                                 // Validate Graph.
-                                                Future<Map<String, List<String>>> validationMap = validateGraph(request);
+                                                Future<Map<String, List<String>>> validationMap = validateGraph(
+                                                        request);
                                                 validationMap.onComplete(new OnComplete<Map<String, List<String>>>() {
                                                     @Override
-                                                    public void onComplete(Throwable throwable, Map<String, List<String>> validateMsgMap)
-                                                            throws Throwable {
+                                                    public void onComplete(Throwable throwable,
+                                                            Map<String, List<String>> validateMsgMap) throws Throwable {
                                                         if (throwable != null) {
                                                             manager.ERROR(throwable, getParent());
                                                         } else {
                                                             for (String rowIdentifier : importMsgMap.keySet()) {
                                                                 if (validateMsgMap.containsKey(rowIdentifier)) {
-                                                                    List<String> msgs = new ArrayList<String>(importMsgMap
-                                                                            .get(rowIdentifier));
+                                                                    List<String> msgs = new ArrayList<String>(
+                                                                            importMsgMap.get(rowIdentifier));
                                                                     msgs.addAll(validateMsgMap.get(rowIdentifier));
                                                                     validateMsgMap.put(rowIdentifier, msgs);
                                                                 } else {
-                                                                    List<String> msgs = new ArrayList<String>(importMsgMap
-                                                                            .get(rowIdentifier));
+                                                                    List<String> msgs = new ArrayList<String>(
+                                                                            importMsgMap.get(rowIdentifier));
                                                                     validateMsgMap.put(rowIdentifier, msgs);
                                                                 }
                                                             }
                                                             CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
                                                                     byteInputStream);
-                                                            OutputStream outputStream = msgHandler.getOutputStream(validateMsgMap);
-                                                            manager.OK(GraphEngineParams.output_stream.name(), new OutputStreamValue(
-                                                                    outputStream), getParent());
+                                                            OutputStream outputStream = msgHandler
+                                                                    .getOutputStream(validateMsgMap);
+                                                            manager.OK(GraphEngineParams.output_stream.name(),
+                                                                    new OutputStreamValue(outputStream), getParent());
                                                         }
                                                     }
 
@@ -403,7 +448,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -423,7 +469,8 @@ public class Graph extends AbstractDomainObject {
                 public List<Map<String, Object>> apply(Object parameter) {
                     if (null != parameter && parameter instanceof Response) {
                         Response res = (Response) parameter;
-                        List<Map<String, Object>> resultMap = (List<Map<String, Object>>) res.get(GraphDACParams.results.name());
+                        List<Map<String, Object>> resultMap = (List<Map<String, Object>>) res
+                                .get(GraphDACParams.results.name());
                         if (null != resultMap && !resultMap.isEmpty()) {
                             List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
                             for (Map<String, Object> map : resultMap) {
@@ -438,7 +485,8 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
             return future;
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -469,22 +517,23 @@ public class Graph extends AbstractDomainObject {
                             if (null != nodes && !nodes.isEmpty()) {
                                 List<Node> nodeList = new ArrayList<Node>();
                                 for (Node node : nodes) {
-                                    if (null != node && StringUtils.isNotBlank(node.getNodeType())
-                                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+                                    if (null != node && StringUtils.isNotBlank(node.getNodeType()) && StringUtils
+                                            .equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
                                         nodeList.add(node);
                                     }
                                 }
                                 manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
                             } else {
-                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get data nodes",
-                                        ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                        "Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                             }
                         }
                     }
                 }, manager.getContext().dispatcher());
 
             } catch (Exception e) {
-                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(),
+                        e.getMessage(), e);
             }
         }
     }
@@ -505,10 +554,10 @@ public class Graph extends AbstractDomainObject {
                     if (valid) {
                         Response res = (Response) arg1;
                         Node node = (Node) res.get(GraphDACParams.node.name());
-                        if (null == node || StringUtils.isBlank(node.getNodeType())
-                                || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get data node",
-                                    ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                        if (null == node || StringUtils.isBlank(node.getNodeType()) || !StringUtils
+                                .equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                    "Failed to get data node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         } else {
                             manager.OK(GraphDACParams.node.name(), node, getParent());
                         }
@@ -517,7 +566,8 @@ public class Graph extends AbstractDomainObject {
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -531,7 +581,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -548,7 +599,8 @@ public class Graph extends AbstractDomainObject {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get definition node");
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
+                            "Failed to get definition node");
                     if (valid) {
                         Response res = (Response) arg1;
                         List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
@@ -558,15 +610,16 @@ public class Graph extends AbstractDomainObject {
                             DefinitionDTO definition = defNode.getValueObject();
                             manager.OK(GraphDACParams.definition_node.name(), definition, getParent());
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get definition node",
-                                    ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                    "Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         }
                     }
                 }
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -583,7 +636,8 @@ public class Graph extends AbstractDomainObject {
                 @Override
                 public void onComplete(Throwable arg0, Object arg1) throws Throwable {
                     boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get definition node");
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
+                            "Failed to get definition node");
                     if (valid) {
                         Response res = (Response) arg1;
                         List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
@@ -596,15 +650,16 @@ public class Graph extends AbstractDomainObject {
                             }
                             manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());
                         } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(), "Failed to get definition node",
-                                    ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                    "Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                         }
                     }
                 }
             }, manager.getContext().dispatcher());
 
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -618,7 +673,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -632,7 +688,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -646,7 +703,8 @@ public class Graph extends AbstractDomainObject {
             Future<Object> response = Patterns.ask(dacRouter, request, timeout);
             manager.returnResponse(response, getParent());
         } catch (Exception e) {
-            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(), e);
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
         }
     }
 
@@ -654,14 +712,16 @@ public class Graph extends AbstractDomainObject {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String json = (String) request.get(GraphEngineParams.input_stream.name());
         if (!manager.validateRequired(json)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(), "Input JSON is blank");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_MISSING_REQ_PARAMS.name(),
+                    "Input JSON is blank");
         } else {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 GraphReader graphReader = new JsonGraphReader(manager, mapper, graphId, json);
                 if (graphReader.getValidations().size() > 0) {
                     String validations = mapper.writeValueAsString(graphReader.getValidations());
-                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_VALIDATION_FAILED.name(), validations);
+                    throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_VALIDATION_FAILED.name(),
+                            validations);
                 }
                 ImportData inputData = new ImportData(graphReader.getDefinitionNodes(), graphReader.getDataNodes(),
                         graphReader.getRelations(), graphReader.getTagMembersMap());
@@ -708,12 +768,13 @@ public class Graph extends AbstractDomainObject {
                         }, ec);
                     } else {
                         manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_VALIDATION_FAILED.name(),
-                                "Definition nodes validation error", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messageMap,
-                                getParent());
+                                "Definition nodes validation error", ResponseCode.CLIENT_ERROR,
+                                GraphDACParams.messages.name(), messageMap, getParent());
                     }
                 }
             } catch (Exception e) {
-                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_UNKNOWN_ERROR.name(), e.getMessage(), e);
+                throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SAVE_DEF_NODE_UNKNOWN_ERROR.name(),
+                        e.getMessage(), e);
             }
         }
     }
@@ -735,44 +796,46 @@ public class Graph extends AbstractDomainObject {
             relationsReq.setOperation("getAllRelations");
             Future<Object> relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
 
-            Future<Object> exportFuture = nodesResponse.zip(relationsResponse).map(new Mapper<Tuple2<Object, Object>, Object>() {
-                @Override
-                public Object apply(Tuple2<Object, Object> zipped) {
-                    Response nodesResp = (Response) zipped._1();
-                    if (manager.checkError(nodesResp)) {
-                        String msg = manager.getErrorMessage(nodesResp);
-                        if (StringUtils.isNotBlank(msg)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg, nodesResp.getResponseCode(),
-                                    getParent());
+            Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
+                    .map(new Mapper<Tuple2<Object, Object>, Object>() {
+                        @Override
+                        public Object apply(Tuple2<Object, Object> zipped) {
+                            Response nodesResp = (Response) zipped._1();
+                            if (manager.checkError(nodesResp)) {
+                                String msg = manager.getErrorMessage(nodesResp);
+                                if (StringUtils.isNotBlank(msg)) {
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
+                                            nodesResp.getResponseCode(), getParent());
+                                }
+                            }
+                            Response relationsResp = (Response) zipped._2();
+                            if (manager.checkError(nodesResp)) {
+                                String msg = manager.getErrorMessage(nodesResp);
+                                if (StringUtils.isNotBlank(msg)) {
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
+                                            relationsResp.getResponseCode(), getParent());
+                                }
+                            }
+                            List<Node> nodes = (List<Node>) nodesResp.get(GraphDACParams.node_list.name());
+                            List<Relation> relations = (List<Relation>) relationsResp
+                                    .get(GraphDACParams.relations.name());
+                            OutputStream outputStream = new ByteArrayOutputStream();
+                            try {
+                                outputStream = GraphWriterFactory.getData(format, nodes, relations);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            Response response = new Response();
+                            ResponseParams params = new ResponseParams();
+                            params.setErr("0");
+                            params.setStatus(StatusType.successful.name());
+                            params.setErrmsg("Operation successful");
+                            response.setParams(params);
+                            response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+                            return response;
                         }
-                    }
-                    Response relationsResp = (Response) zipped._2();
-                    if (manager.checkError(nodesResp)) {
-                        String msg = manager.getErrorMessage(nodesResp);
-                        if (StringUtils.isNotBlank(msg)) {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_UNKNOWN_ERROR.name(), msg,
-                                    relationsResp.getResponseCode(), getParent());
-                        }
-                    }
-                    List<Node> nodes = (List<Node>) nodesResp.get(GraphDACParams.node_list.name());
-                    List<Relation> relations = (List<Relation>) relationsResp.get(GraphDACParams.relations.name());
-                    OutputStream outputStream = new ByteArrayOutputStream();
-                    try {
-                        outputStream = GraphWriterFactory.getData(format, nodes, relations);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    Response response = new Response();
-                    ResponseParams params = new ResponseParams();
-                    params.setErr("0");
-                    params.setStatus(StatusType.successful.name());
-                    params.setErrmsg("Operation successful");
-                    response.setParams(params);
-                    response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
-                    return response;
-                }
 
-            }, ec);
+                    }, ec);
 
             manager.returnResponse(exportFuture, getParent());
 
@@ -821,7 +884,8 @@ public class Graph extends AbstractDomainObject {
                                             if (null != nodes && !nodes.isEmpty()) {
                                                 for (Node node : nodes) {
                                                     try {
-                                                        DataNode datanode = new DataNode(getManager(), getGraphId(), node);
+                                                        DataNode datanode = new DataNode(getManager(), getGraphId(),
+                                                                node);
                                                         List<String> validationMsgs = datanode.validateNode(defNodeMap);
                                                         if (null != validationMsgs && !validationMsgs.isEmpty()) {
                                                             List<String> list = messages.get(node.getIdentifier());
@@ -862,8 +926,9 @@ public class Graph extends AbstractDomainObject {
     }
 
     @SuppressWarnings("unchecked")
-    private void getRelationValidationsFuture(Future<Object> relationsResponse, final Promise<Map<String, List<String>>> relationsPromise,
-            final ExecutionContext ec, final Request request) {
+    private void getRelationValidationsFuture(Future<Object> relationsResponse,
+            final Promise<Map<String, List<String>>> relationsPromise, final ExecutionContext ec,
+            final Request request) {
         relationsResponse.onSuccess(new OnSuccess<Object>() {
             @Override
             public void onSuccess(Object arg0) throws Throwable {
@@ -879,8 +944,9 @@ public class Graph extends AbstractDomainObject {
                             List<Future<Map<String, List<String>>>> msgFutures = new ArrayList<Future<Map<String, List<String>>>>();
                             for (final Relation rel : rels) {
                                 try {
-                                    IRelation iRel = RelationHandler.getRelation(getManager(), rel.getGraphId(), rel.getStartNodeId(),
-                                            rel.getRelationType(), rel.getEndNodeId(), rel.getMetadata());
+                                    IRelation iRel = RelationHandler.getRelation(getManager(), rel.getGraphId(),
+                                            rel.getStartNodeId(), rel.getRelationType(), rel.getEndNodeId(),
+                                            rel.getMetadata());
                                     Future<Map<String, List<String>>> validationMsgs = iRel.validateRelation(request);
                                     msgFutures.add(validationMsgs);
                                 } catch (Exception e) {
@@ -895,7 +961,8 @@ public class Graph extends AbstractDomainObject {
                             Future<Iterable<Map<String, List<String>>>> relFutures = Futures.sequence(msgFutures, ec);
                             relFutures.onComplete(new OnComplete<Iterable<Map<String, List<String>>>>() {
                                 @Override
-                                public void onComplete(Throwable arg0, Iterable<Map<String, List<String>>> arg1) throws Throwable {
+                                public void onComplete(Throwable arg0, Iterable<Map<String, List<String>>> arg1)
+                                        throws Throwable {
                                     if (null != arg0) {
                                         relationsPromise.success(messages);
                                     } else {
@@ -948,8 +1015,8 @@ public class Graph extends AbstractDomainObject {
                     Node node = (Node) res.get(GraphDACParams.node.name());
                     if (null == node || StringUtils.isBlank(node.getNodeType())
                             || !StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
-                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_NOT_FOUND.name(), "Failed to export node",
-                                ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_EXPORT_NODE_NOT_FOUND.name(),
+                                "Failed to export node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                     } else {
                         RDFGraphWriter rdfWriter = new RDFGraphWriter();
                         InputStream is = rdfWriter.getRDF(node);

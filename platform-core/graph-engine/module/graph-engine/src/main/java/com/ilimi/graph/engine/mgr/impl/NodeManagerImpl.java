@@ -289,6 +289,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             final List<Relation> delRels = new ArrayList<Relation>();
             final List<String> addTags = new ArrayList<String>();
             final List<String> delTags = new ArrayList<String>();
+            final List<Node> dbNodes = new ArrayList<Node>();
             Future<Node> nodeFuture = datanode.getNodeObject(request);
             nodeFuture.andThen(new OnComplete<Node>() {
                 @Override
@@ -306,8 +307,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                         }
                         getRelationsDelta(addRels, delRels, dbNode, datanode);
                         getTagsDelta(addTags, delTags, dbNode, node.getTags());
-                    } else {
-                        messages.add("Node not found");
+                        dbNodes.add(dbNode);
                     }
                 }
             }, ec).andThen(new OnComplete<Node>() {
@@ -333,7 +333,11 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                                     }
                                 }
                                 if (messages.isEmpty()) {
-                                    Future<String> updateFuture = datanode.updateNode(request);
+                                    Future<String> updateFuture = null;
+                                    if (null == dbNodes || dbNodes.isEmpty())
+                                        updateFuture = datanode.createNode(request);
+                                    else
+                                        updateFuture = datanode.updateNode(request);
                                     updateFuture.onComplete(new OnComplete<String>() {
                                         @Override
                                         public void onComplete(Throwable arg0, String arg1) throws Throwable {

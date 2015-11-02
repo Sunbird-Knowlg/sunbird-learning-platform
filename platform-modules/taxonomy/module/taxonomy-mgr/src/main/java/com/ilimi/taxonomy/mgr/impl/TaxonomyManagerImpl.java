@@ -42,11 +42,13 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         LOGGER.info("Find All Taxonomy");
         List<Request> requests = new ArrayList<Request>();
         for (String id : taxonomyIds) {
-            Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+            Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                    GraphDACParams.node_id.name(), id);
             request.put(GraphDACParams.get_tags.name(), true);
             requests.add(request);
         }
-        Response response = getResponse(requests, LOGGER, GraphDACParams.node.name(), TaxonomyAPIParams.taxonomy_list.name());
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node.name(),
+                TaxonomyAPIParams.taxonomy_list.name());
         if (null != tfields && tfields.length > 0) {
             List<Node> list = (List<Node>) response.get(TaxonomyAPIParams.taxonomy_list.name());
             if (validateRequired(list)) {
@@ -64,7 +66,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         }
         LOGGER.info("Find Taxonomy : " + id);
-        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode", GraphDACParams.node_id.name(), id);
+        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                GraphDACParams.node_id.name(), id);
         Response getNodeRes = getResponse(request, LOGGER);
         Response response = copyResponse(getNodeRes);
         if (checkError(response)) {
@@ -106,7 +109,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (null == stream)
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INPUT_STREAM.name(), "Taxonomy object is emtpy");
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INPUT_STREAM.name(),
+                    "Taxonomy object is emtpy");
         LOGGER.info("Create Taxonomy : " + stream);
         Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
         request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
@@ -142,7 +146,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (null == sc)
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_SEARCH_CRITERIA.name(), "Empty Search Criteria");
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_SEARCH_CRITERIA.name(),
+                    "Empty Search Criteria");
         LOGGER.info("Search Taxonomy : " + sc);
         sc.setObjectType("Concept");
         request.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
@@ -165,7 +170,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
         if (StringUtils.isBlank(json))
-            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Definition nodes JSON is empty");
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(),
+                    "Definition nodes JSON is empty");
         LOGGER.info("Update Definition : " + id);
         Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
         request.put(GraphEngineParams.input_stream.name(), json);
@@ -188,8 +194,8 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(objectType))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
         LOGGER.info("Get Definition : " + id + " : Object Type : " + objectType);
-        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition", GraphDACParams.object_type.name(),
-                objectType);
+        Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+                GraphDACParams.object_type.name(), objectType);
         return getResponse(request, LOGGER);
     }
 
@@ -200,8 +206,26 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         if (StringUtils.isBlank(objectType))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
         LOGGER.info("Delete Definition : " + id + " : Object Type : " + objectType);
-        Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition", GraphDACParams.object_type.name(),
-                objectType);
+        Request request = getRequest(id, GraphEngineManagers.NODE_MANAGER, "deleteDefinition",
+                GraphDACParams.object_type.name(), objectType);
+        return getResponse(request, LOGGER);
+    }
+
+    @Override
+    public Response createIndex(String id, List<String> keys, Boolean unique) {
+        if (StringUtils.isBlank(id))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (null == keys || keys.isEmpty())
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_EMPTY_INDEX_KEYS.name(),
+                    "Property keys are empty");
+        LOGGER.info("Create Index : " + id + " : Keys : " + keys);
+        Request request = null;
+        if (null != unique && unique)
+            request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "createUniqueConstraint",
+                    GraphDACParams.property_keys.name(), keys);
+        else
+            request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "createIndex",
+                    GraphDACParams.property_keys.name(), keys);
         return getResponse(request, LOGGER);
     }
 

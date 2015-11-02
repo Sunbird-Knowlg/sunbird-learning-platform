@@ -18,6 +18,24 @@ public interface IGraphManager {
      * @response - STATUS: API call status
      */
     void createGraph(Request request);
+    
+    /**
+     * Creates unique constraint on given set of properties keys
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - property_keys keys on which unique constraint should be added
+     * @response - STATUS: API call status
+     */
+    void createUniqueConstraint(Request request);
+    
+    /**
+     * Creates an index on given list of keys
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - property_keys keys which should be indexed
+     * @response - STATUS: API call status
+     */
+    void createIndex(Request request);
 
     /**
      * Loads all the cached objects of the graph into cache.
