@@ -24,7 +24,7 @@ var fs = require('fs'),
 	Client = require('node-rest-client').Client;
 
 var client = new Client();
-var API_ENDPOINT = "http://localhost:9090";
+var API_ENDPOINT = "http://localhost:8080";
 var CREATE_ITEM_URL = "/taxonomy-service/assessmentitem";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
@@ -72,6 +72,9 @@ async.waterfall([
     	console.log('----------------------------------------------------------------');
     	var fd = fs.openSync('itemImport/output.json', 'w');
     	fs.writeSync(fd, JSON.stringify(errorMap));
+
+    	var fd = fs.openSync('itemImport/success.json', 'w');
+    	fs.writeSync(fd, JSON.stringify(resultMap));
     }
 });
 
@@ -186,13 +189,19 @@ function getMWAPICallfunction(item) {
 	            "Content-Type": "application/json",
 	            "user-id": 'csv-import'
 	        },
-	        data: reqBody
+	        data: reqBody,
+	        requestConfig:{
+            	timeout: 240000 
+        	},
+	        responseConfig:{
+            	timeout: 240000 
+        	}
 	    };
 	    var url = API_ENDPOINT + CREATE_ITEM_URL;
 	    client.post(url, args, function(data, response) {
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
-	    	errorMap[item.index + 1] = "Connection error";
+	    	errorMap[item.index + 1] = "Connection error: " + err;
 	        callback(null, 'ok');
 	    });
 	};
@@ -339,8 +348,11 @@ function _getValueFromRow(row, startCol, col, def) {
 }
 
 function isEmpty(val) {
-	if (!val || val == null || val.trim().length <= 0) {
+	if (!val || val == null) {
 		return true;
+	} else {
+		if (_.isString(val) && val.trim().length <= 0)
+			return true;
 	}
 	return false;
 }
