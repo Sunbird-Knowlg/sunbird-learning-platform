@@ -25,7 +25,7 @@ var fs = require('fs'),
 
 var client = new Client();
 var API_ENDPOINT = "http://localhost:8080";
-var CREATE_ITEM_URL = "/taxonomy-service/assessmentitem";
+var CREATE_ITEM_URL = "/ekstep-service/assessmentitem/${id}";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
 var inputFilePath = process.argv[4];
@@ -174,7 +174,6 @@ function getMWAPICallfunction(item) {
 	var returnFn = function(callback) {
 		var reqBody = {"request": {"assessment_item": {}}};
 		reqBody.request.assessment_item.objectType = "AssessmentItem";
-		reqBody.request.assessment_item.identifier = item.identifier;
 		reqBody.request.assessment_item.metadata = item.metadata;
 		var conceptIds = item.conceptIds;
 		if (_.isArray(conceptIds) && conceptIds.length > 0) {
@@ -184,6 +183,7 @@ function getMWAPICallfunction(item) {
 			});
 		}
 		var args = {
+			path: {id: item.identifier},
 	        parameters: {taxonomyId: taxonomyId},
 	        headers: {
 	            "Content-Type": "application/json",
@@ -198,7 +198,7 @@ function getMWAPICallfunction(item) {
         	}
 	    };
 	    var url = API_ENDPOINT + CREATE_ITEM_URL;
-	    client.post(url, args, function(data, response) {
+	    client.patch(url, args, function(data, response) {
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
 	    	errorMap[item.index + 1] = "Connection error: " + err;
@@ -214,23 +214,27 @@ function parseResponse(item, data, callback) {
         try {
             responseData = JSON.parse(data);
         } catch(err) {
-            errorMap[item.index + 1] = 'Invalid API response';
+            errorMap[item.index + 1] = 'Invalid API response for: ' + item.identifier;
         }
     } else {
     	responseData = data;
     }
     if (responseData) {
-    	if (responseData.params.status == 'failed') {
-    		var error = {'error': responseData.params.errmsg};
-    		if (responseData.result && responseData.result.messages) {
-    			error.messages = responseData.result.messages;
-    		}
-    		errorMap[item.index + 1] = error;
+    	if (responseData.params) {
+    		if (responseData.params.status == 'failed') {
+	    		var error = {'error': responseData.params.errmsg};
+	    		if (responseData.result && responseData.result.messages) {
+	    			error.messages = responseData.result.messages;
+	    		}
+	    		errorMap[item.index + 1] = error;
+	    	} else {
+	    		resultMap[item.metadata.code] = responseData.result.node_id;
+	    	}	
     	} else {
-    		resultMap[item.metadata.code] = responseData.result.node_id;
+    		errorMap[item.index + 1] = 'Invalid API response for: ' + item.identifier;
     	}
     } else {
-    	errorMap[item.index + 1] = 'Invalid API response';
+    	errorMap[item.index + 1] = 'Invalid API response for: ' + item.identifier;
     }
     callback(null, 'ok');
 }
