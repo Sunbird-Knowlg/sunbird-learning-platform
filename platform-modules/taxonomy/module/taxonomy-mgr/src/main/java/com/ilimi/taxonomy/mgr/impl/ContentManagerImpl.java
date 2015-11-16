@@ -14,7 +14,6 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
@@ -24,20 +23,19 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
@@ -295,11 +293,22 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<List<Node>> nodes = (List<List<Node>>) response.get(ContentAPIParams.contents.name());
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
+                Object objFields = request.get(PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
-                            Map<String, Object> content = getContent(node, request, definitions);
-                            contents.add(content);
+                            if (null == fields || fields.isEmpty()) {
+                                String subject = node.getGraphId();
+                                if (null != definitions.get(subject) && null != definitions.get(subject).getMetadata()) {
+                                    String[] arr = (String[]) definitions.get(subject).getMetadata().get(PARAM_FIELDS);
+                                    if (null != arr && arr.length > 0) {
+                                        fields = Arrays.asList(arr);
+                                    }
+                                }
+                            }
+                            ContentDTO content = new ContentDTO(node, fields);
+                            contents.add(content.returnMap());
                         }
                     }
                 }
@@ -347,59 +356,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
+                Object objFields = request.get(PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
                 for (Node node : nodes) {
-                    Map<String, Object> content = getContent(node, request, definitions);
-                    contents.add(content);
+                    if (null == fields || fields.isEmpty()) {
+                        String subject = node.getGraphId();
+                        if (null != definitions.get(subject) && null != definitions.get(subject).getMetadata()) {
+                            String[] arr = (String[]) definitions.get(subject).getMetadata().get(PARAM_FIELDS);
+                            if (null != arr && arr.length > 0) {
+                                fields = Arrays.asList(arr);
+                            }
+                        }
+                    }
+                    ContentDTO content = new ContentDTO(node, fields);
+                    contents.add(content.returnMap());
                 }
             }
             String returnKey = ContentAPIParams.content.name();
             listRes.put(returnKey, contents);
             return listRes;
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Map<String, Object> getContent(Node node, Request request, Map<String, DefinitionDTO> definitions) {
-        String subject = node.getGraphId();
-        Object objFields = request.get(PARAM_FIELDS);
-        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
-        if (null == fields || fields.isEmpty()) {
-            if (null != definitions.get(subject) && null != definitions.get(subject).getMetadata()) {
-                String[] arr = (String[]) definitions.get(subject).getMetadata().get(PARAM_FIELDS);
-                if (null != arr && arr.length > 0) {
-                    fields = Arrays.asList(arr);
-                }
-            }
-        }
-        Map<String, Object> content = null;
-        if (null != fields && fields.size() > 0) {
-            content = new HashMap<String, Object>();
-            for (String key : fields)
-                content.put(key, node.getMetadata().get(key));
-        } else {
-            content = new HashMap<String, Object>(node.getMetadata());
-        }
-        content.put("subject", subject);
-        content.put("identifier", node.getIdentifier());
-        List<NodeDTO> concepts = new ArrayList<NodeDTO>();
-        NodeDTO questionnaire = null;
-        if (null != node.getOutRelations() && node.getOutRelations().size() > 0) {
-            concepts = new ArrayList<NodeDTO>();
-            for (Relation rel : node.getOutRelations()) {
-                if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
-                        && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
-                    if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-                        concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
-                    } else if (StringUtils.equalsIgnoreCase("Questionnaire", rel.getEndNodeObjectType())) {
-                        questionnaire = new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
-                                rel.getEndNodeObjectType());
-                    }
-                }
-            }
-        }
-        content.put("concepts", concepts);
-        content.put("questionnaire", questionnaire);
-        return content;
     }
 
     private DefinitionDTO getDefinition(String taxonomyId, String objectType) {

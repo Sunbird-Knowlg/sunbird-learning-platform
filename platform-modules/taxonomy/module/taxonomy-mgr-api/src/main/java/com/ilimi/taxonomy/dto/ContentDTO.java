@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.dto;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,16 +32,15 @@ public class ContentDTO implements Serializable {
         this(node, null);
     }
 
-    public ContentDTO(Node node, String[] wfields) {
+    public ContentDTO(Node node, List<String> wfields) {
         if (null != node) {
             this.graphId = node.getGraphId();
             setIdentifier(node.getIdentifier());
-            if (null != wfields && wfields.length > 0) {
+            if (null != wfields && wfields.size() > 0) {
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
-                    List<String> fields = Arrays.asList(wfields);
                     Map<String, Object> metadata = new HashMap<String, Object>();
                     for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-                        if (fields.contains(entry.getKey()))
+                        if (wfields.contains(entry.getKey()))
                             metadata.put(entry.getKey(), entry.getValue());
                     }
                     setMetadata(metadata);
@@ -79,7 +77,7 @@ public class ContentDTO implements Serializable {
             returnMap.put("concepts", concepts);
         }
         if (null != questionnaires && !questionnaires.isEmpty()) {
-            returnMap.put("questionnaires", concepts);
+            returnMap.put("questionnaires", questionnaires);
         }
         if (null != tags && !tags.isEmpty()) {
             returnMap.put("tags", tags);

@@ -679,7 +679,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Associated Concepts",
+          "title": "Associations",
           "description": "",
           "required": false,
           "objectTypes": [
