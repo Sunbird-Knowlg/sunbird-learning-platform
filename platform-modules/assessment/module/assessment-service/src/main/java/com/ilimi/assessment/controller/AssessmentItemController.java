@@ -35,7 +35,7 @@ import com.ilimi.graph.model.node.MetadataDefinition;
  */
 
 @Controller
-@RequestMapping("/assessmentitem")
+@RequestMapping("/v1/assessmentitem")
 public class AssessmentItemController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AssessmentItemController.class.getName());

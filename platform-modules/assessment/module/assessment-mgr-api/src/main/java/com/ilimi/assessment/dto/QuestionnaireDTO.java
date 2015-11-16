@@ -21,6 +21,7 @@ public class QuestionnaireDTO implements Serializable {
 
     private static final long serialVersionUID = 2382516005215431314L;
 
+    private String subject;
     private String identifier;
     private List<NodeDTO> concepts;
     private Object itemSets;
@@ -36,6 +37,7 @@ public class QuestionnaireDTO implements Serializable {
 
     public QuestionnaireDTO(Node node, String[] qrfields) {
         if (null != node) {
+            setSubject(node.getGraphId());
             setIdentifier(node.getIdentifier());
             if (null != qrfields && qrfields.length > 0) {
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -76,6 +78,7 @@ public class QuestionnaireDTO implements Serializable {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.putAll(getMetadata());
         returnMap.put("identifier", getIdentifier());
+        returnMap.put("subject", getSubject());
         if (null != itemSets) {
             returnMap.put("item_sets", itemSets);
         }
@@ -128,6 +131,14 @@ public class QuestionnaireDTO implements Serializable {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
     }
 
 }

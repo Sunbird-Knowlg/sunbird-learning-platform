@@ -5,7 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
-@RequestMapping("/story")
+@RequestMapping("/v1/story")
 public class StoryController extends AbstractContentController {
     
     @Autowired

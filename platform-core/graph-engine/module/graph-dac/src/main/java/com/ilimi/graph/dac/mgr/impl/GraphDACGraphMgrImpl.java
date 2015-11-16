@@ -646,6 +646,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     if (relationMap.containsKey(relationType)) {
                         List<Relationship> relationList = relationMap.get(relationType);
                         relationList.add(relationship);
+                    } else {
+                        List<Relationship> relationList = new ArrayList<Relationship>();
+                        relationList.add(relationship);
+                        relationMap.put(relationType, relationList);
                     }
                 } else {
                     Map<String, List<Relationship>> relationMap = new HashMap<String, List<Relationship>>();
@@ -703,21 +707,30 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             List<Relation> nodeRelations = node.getOutRelations();
             if (nodeRelations != null) {
                 Map<String, List<String>> nodeRelMap = new HashMap<String, List<String>>();
+                Map<String, Map<String, Relation>> nodeRelation = new HashMap<String, Map<String, Relation>>();
                 for (Relation rel : nodeRelations) {
                     String relType = rel.getRelationType();
+                    Map<String, Relation> relMap = nodeRelation.get(relType);
+                    if (null == relMap) {
+                        relMap = new HashMap<String, Relation>();
+                        nodeRelation.put(relType, relMap);
+                    }
                     if (nodeRelMap.containsKey(relType)) {
                         List<String> endNodeIds = nodeRelMap.get(relType);
                         if (endNodeIds == null) {
                             endNodeIds = new ArrayList<String>();
-                            if (StringUtils.isNotBlank(rel.getEndNodeId()))
-                                endNodeIds.add(rel.getEndNodeId().trim());
+                            nodeRelMap.put(relType, endNodeIds);
                         }
-                        if (StringUtils.isNotBlank(rel.getEndNodeId()))
+                        if (StringUtils.isNotBlank(rel.getEndNodeId())) {
                             endNodeIds.add(rel.getEndNodeId().trim());
+                            relMap.put(rel.getEndNodeId().trim(), rel);
+                        }
                     } else {
                         List<String> endNodeIds = new ArrayList<String>();
-                        if (StringUtils.isNotBlank(rel.getEndNodeId()))
+                        if (StringUtils.isNotBlank(rel.getEndNodeId())) {
                             endNodeIds.add(rel.getEndNodeId().trim());
+                            relMap.put(rel.getEndNodeId().trim(), rel);
+                        }
                         nodeRelMap.put(relType, endNodeIds);
                     }
                 }
@@ -729,11 +742,13 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     for (String relType : relationMap.keySet()) {
                         if (nodeRelMap.containsKey(relType)) {
                             List<String> relEndNodeIds = nodeRelMap.get(relType);
+                            Map<String, Relation> relMap = nodeRelation.get(relType);
                             for (Relationship rel : relationMap.get(relType)) {
                                 String endNodeId = (String) rel.getEndNode()
                                         .getProperty(SystemProperties.IL_UNIQUE_ID.name());
                                 if (relEndNodeIds.contains(endNodeId)) {
                                     relEndNodeIds.remove(endNodeId);
+                                    setRelationMetadata(rel, relMap.get(endNodeId));
                                 } else {
                                     rel.delete();
                                     relationsCount--;
@@ -743,7 +758,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                                 Node otherNode = existingNodes.get(endNodeId);
                                 if (otherNode != null) {
                                     RelationType relation = new RelationType(relType);
-                                    neo4jNode.createRelationshipTo(otherNode, relation);
+                                    Relationship neo4jRel = neo4jNode.createRelationshipTo(otherNode, relation);
+                                    setRelationMetadata(neo4jRel, relMap.get(endNodeId));
                                     relationsCount++;
                                 } else {
                                     List<String> rowMsgs = messages.get(uniqueId);
@@ -763,29 +779,54 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                             }
                         }
                     }
+                    for (String relType : nodeRelMap.keySet()) {
+                        if (!relationMap.containsKey(relType)) {
+                            relationsCount += createNewRelations(neo4jNode, nodeRelMap, relType, nodeRelation, uniqueId,
+                                    existingNodes, messages);
+                        }
+                    }
                 } else {
                     for (String relType : nodeRelMap.keySet()) {
-                        List<String> relEndNodeIds = nodeRelMap.get(relType);
-                        for (String endNodeId : relEndNodeIds) {
-                            Node otherNode = existingNodes.get(endNodeId);
-                            if (null == otherNode) {
-                                List<String> rowMsgs = messages.get(uniqueId);
-                                if (rowMsgs == null) {
-                                    rowMsgs = new ArrayList<String>();
-                                    messages.put(uniqueId, rowMsgs);
-                                }
-                                rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
-                            } else {
-                                RelationType relation = new RelationType(relType);
-                                neo4jNode.createRelationshipTo(otherNode, relation);
-                                relationsCount++;
-                            }
-                        }
+                        relationsCount += createNewRelations(neo4jNode, nodeRelMap, relType, nodeRelation, uniqueId,
+                                existingNodes, messages);
                     }
                 }
             }
         }
         return relationsCount;
+    }
+
+    private int createNewRelations(Node neo4jNode, Map<String, List<String>> nodeRelMap, String relType,
+            Map<String, Map<String, Relation>> nodeRelation, String uniqueId, Map<String, Node> existingNodes,
+            Map<String, List<String>> messages) {
+        int relationsCount = 0;
+        List<String> relEndNodeIds = nodeRelMap.get(relType);
+        Map<String, Relation> relMap = nodeRelation.get(relType);
+        for (String endNodeId : relEndNodeIds) {
+            Node otherNode = existingNodes.get(endNodeId);
+            if (null == otherNode) {
+                List<String> rowMsgs = messages.get(uniqueId);
+                if (rowMsgs == null) {
+                    rowMsgs = new ArrayList<String>();
+                    messages.put(uniqueId, rowMsgs);
+                }
+                rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
+            } else {
+                RelationType relation = new RelationType(relType);
+                Relationship neo4jRel = neo4jNode.createRelationshipTo(otherNode, relation);
+                setRelationMetadata(neo4jRel, relMap.get(endNodeId));
+                relationsCount++;
+            }
+        }
+        return relationsCount;
+    }
+
+    private void setRelationMetadata(Relationship neo4jRel, Relation newRel) {
+        if (null != newRel && null != newRel.getMetadata() && !newRel.getMetadata().isEmpty()) {
+            for (Entry<String, Object> entry : newRel.getMetadata().entrySet()) {
+                neo4jRel.setProperty(entry.getKey(), entry.getValue());
+            }
+        }
     }
 
     private void upsertRootNode(GraphDatabaseService graphDb, String graphId, Map<String, Node> existingNodes,

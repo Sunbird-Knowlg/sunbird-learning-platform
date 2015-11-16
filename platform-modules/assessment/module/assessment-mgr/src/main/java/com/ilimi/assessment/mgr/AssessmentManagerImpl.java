@@ -13,10 +13,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.assessment.dto.ItemDTO;
 import com.ilimi.assessment.dto.ItemSearchCriteria;
 import com.ilimi.assessment.dto.ItemSetDTO;
 import com.ilimi.assessment.dto.ItemSetSearchCriteria;
@@ -55,6 +55,8 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     private static final String ITEM_SET_MEMBERS_TYPE = "AssessmentItem";
 
     private static Logger LOGGER = LogManager.getLogger(IAssessmentManager.class.getName());
+
+    private ObjectMapper mapper = new ObjectMapper();
 
     @Autowired
     private AssessmentValidator validator;
@@ -261,6 +263,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
     private Map<String, Object> getAssessmentItem(Node node, List<String> jsonProps, String[] ifields) {
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("identifier", node.getIdentifier());
+        metadata.put("subject", node.getGraphId());
         Map<String, Object> nodeMetadata = node.getMetadata();
         if (null != nodeMetadata && !nodeMetadata.isEmpty()) {
             if (null != ifields && ifields.length > 0) {
@@ -702,10 +705,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         "AssessmentItemSet validation failed", ResponseCode.CLIENT_ERROR,
                         GraphDACParams.messages.name(), assessmentErrors);
             } else {
-                ItemSetDTO itemSet = new ItemSetDTO(node);
                 Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
-                setReq.put(GraphDACParams.criteria.name(), itemSet.getCriteria());
-                setReq.put(GraphDACParams.members.name(), itemSet.getMemberIds());
+                setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
+                setReq.put(GraphDACParams.members.name(), getMemberIds(node));
                 setReq.put(GraphDACParams.node.name(), node);
                 setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
                 setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
@@ -744,16 +746,47 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                         GraphDACParams.messages.name(), assessmentErrors);
             } else {
                 node.setIdentifier(id);
-                ItemSetDTO itemSet = new ItemSetDTO(node);
                 Request setReq = getRequest(taxonomyId, GraphEngineManagers.COLLECTION_MANAGER, "updateSet");
-                setReq.put(GraphDACParams.criteria.name(), itemSet.getCriteria());
-                setReq.put(GraphDACParams.members.name(), itemSet.getMemberIds());
+                setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
+                setReq.put(GraphDACParams.members.name(), getMemberIds(node));
                 setReq.put(GraphDACParams.node.name(), node);
                 setReq.put(GraphDACParams.object_type.name(), ITEM_SET_OBJECT_TYPE);
                 setReq.put(GraphDACParams.member_type.name(), ITEM_SET_MEMBERS_TYPE);
                 return getResponse(setReq, LOGGER);
             }
         }
+    }
+
+    private String MEMBER_IDS_KEY = "memberIds";
+    private String CRITERIA_KEY = "criteria";
+
+    private SearchCriteria getItemSetCriteria(Node node) {
+        if (null != node) {
+            try {
+                String strCriteria = (String) node.getMetadata().get(CRITERIA_KEY);
+                if (StringUtils.isNotBlank(strCriteria)) {
+                    ItemSearchCriteria itemSearchCriteria = mapper.readValue(strCriteria, ItemSearchCriteria.class);
+                    return itemSearchCriteria.getSearchCriteria();
+                }
+            } catch (Exception e) {
+                throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(),
+                        "Criteria given to create ItemSet is invalid.");
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> getMemberIds(Node node) {
+        if (null != node && null != node.getMetadata()) {
+            Object obj = node.getMetadata().get(MEMBER_IDS_KEY);
+            if (null != obj) {
+                node.getMetadata().remove(MEMBER_IDS_KEY);
+                List<String> memberIds = mapper.convertValue(obj, List.class);
+                return memberIds;
+            }
+        }
+        return null;
     }
 
     @Override
@@ -773,8 +806,11 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         }
         Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
         if (null != node) {
-            ItemDTO dto = new ItemDTO(node, isfields);
-            response.put(AssessmentAPIParams.assessment_item_set.name(), dto);
+            DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_OBJECT_TYPE);
+            List<String> jsonProps = getJSONProperties(definition);
+            List<String> items = getSetMembers(taxonomyId, id);
+            ItemSetDTO dto = new ItemSetDTO(node, items, isfields, jsonProps);
+            response.put(AssessmentAPIParams.assessment_item_set.name(), dto.returnMap());
         }
         return response;
     }
@@ -799,10 +835,14 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             return response;
         } else {
             List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-            List<ItemDTO> searchItems = new ArrayList<ItemDTO>();
+            List<Map<String, Object>> searchItems = new ArrayList<Map<String, Object>>();
             if (null != nodes && nodes.size() > 0) {
+                DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_OBJECT_TYPE);
+                List<String> jsonProps = getJSONProperties(definition);
                 for (Node node : nodes) {
-                    searchItems.add(new ItemDTO(node));
+                    List<String> items = getSetMembers(taxonomyId, node.getIdentifier());
+                    ItemSetDTO dto = new ItemSetDTO(node, items, null, jsonProps);
+                    searchItems.add(dto.returnMap());
                 }
             }
             listRes.put(AssessmentAPIParams.assessment_item_sets.name(), searchItems);

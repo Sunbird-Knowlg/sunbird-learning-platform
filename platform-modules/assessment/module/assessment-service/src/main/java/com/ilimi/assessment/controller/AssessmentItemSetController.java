@@ -32,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
  */
 
 @Controller
-@RequestMapping("/assessmentitemset")
+@RequestMapping("/v1/assessmentitemset")
 public class AssessmentItemSetController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AssessmentItemSetController.class.getName());

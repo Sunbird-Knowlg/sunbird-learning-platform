@@ -32,7 +32,7 @@ import com.ilimi.graph.dac.model.Node;
  */
 
 @Controller
-@RequestMapping("/questionnaire")
+@RequestMapping("/v1/questionnaire")
 public class QuestionnaireController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(QuestionnaireController.class.getName());

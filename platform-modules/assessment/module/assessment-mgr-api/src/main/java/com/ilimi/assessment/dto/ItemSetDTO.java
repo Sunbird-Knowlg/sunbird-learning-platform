@@ -1,5 +1,6 @@
 package com.ilimi.assessment.dto;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -8,104 +9,119 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.annotate.JsonIgnore;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import com.ilimi.assessment.enums.AssessmentErrorCodes;
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
-import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.model.collection.Set;
 
-public class ItemSetDTO extends Node {
+public class ItemSetDTO implements Serializable {
 
     private static final long serialVersionUID = -6225438811177155504L;
-    private String MEMBER_IDS_KEY = "memberIds";
-    private String CRITERIA_KEY = "criteria";
-    ObjectMapper mapper = new ObjectMapper();
-    private SearchCriteria criteria;
-    private List<String> memberIds;
+
+    private String subject;
+    private String identifier;
     private List<NodeDTO> concepts;
-    
+    private List<String> tags;
+    private List<String> items;
+    private List<NodeDTO> questionnaires;
+    private Map<String, Object> metadata = new HashMap<String, Object>();
+
     @SuppressWarnings("unused")
     private ItemSetDTO() {
     }
-     
+
     public ItemSetDTO(Node node) {
-        this(node, null);
+        this(node, null, null, null);
     }
-    
-    public ItemSetDTO(Node node, String[] ifields) {
+
+    public ItemSetDTO(Node node, List<String> items, String[] ifields, List<String> jsonProps) {
         if (null != node) {
-            setGraphId(node.getGraphId());
             setIdentifier(node.getIdentifier());
-            setNodeType(node.getNodeType());
-            setObjectType(node.getObjectType());
-            setMemberIds(node.getMetadata());
-            
-            try {
-                String strCriteria = (String) node.getMetadata().get(CRITERIA_KEY);
-                if(StringUtils.isNotBlank(strCriteria)) {
-                    ItemSearchCriteria itemSearchCriteria = mapper.readValue(strCriteria, ItemSearchCriteria.class);
-                    setCriteria(itemSearchCriteria.getSearchCriteria());
-                }
-            } catch (Exception e) {
-                throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(), "Criteria given to create ItemSet is invalid.");
-            }
-            
-            if (null != ifields && ifields.length > 0) {
-                if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+            setSubject(node.getGraphId());
+            Map<String, Object> nodeMetadata = node.getMetadata();
+            if (null != nodeMetadata && !nodeMetadata.isEmpty()) {
+                if (null != ifields && ifields.length > 0) {
                     List<String> fields = Arrays.asList(ifields);
                     Map<String, Object> metadata = new HashMap<String, Object>();
-                    for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-                        if (fields.contains(entry.getKey()))
-                            metadata.put(entry.getKey(), entry.getValue());
+                    for (Entry<String, Object> entry : nodeMetadata.entrySet()) {
+                        if (fields.contains(entry.getKey())) {
+                            if (jsonProps.contains(entry.getKey())) {
+                                Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                if (null != val)
+                                    metadata.put(entry.getKey(), val);
+                            } else {
+                                metadata.put(entry.getKey(), entry.getValue());
+                            }
+                        }
                     }
                     setMetadata(metadata);
+                } else {
+                    for (Entry<String, Object> entry : nodeMetadata.entrySet()) {
+                        if (null != entry.getValue()) {
+                            if (jsonProps.contains(entry.getKey())) {
+                                Object val = JSONUtils.convertJSONString((String) entry.getValue());
+                                if (null != val)
+                                    metadata.put(entry.getKey(), val);
+                            } else {
+                                metadata.put(entry.getKey(), entry.getValue());
+                            }
+                        }
+                    }
                 }
-            } else {
-                setMetadata(node.getMetadata());
             }
             setTags(node.getTags());
-
             if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                 this.concepts = new ArrayList<NodeDTO>();
                 for (Relation rel : node.getOutRelations()) {
                     if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
                             && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getEndNodeType())) {
                         if (StringUtils.equalsIgnoreCase("Concept", rel.getEndNodeObjectType())) {
-                            this.concepts.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
+                            this.concepts.add(
+                                    new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType()));
                         }
                     }
                 }
             }
+            if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
+                this.questionnaires = new ArrayList<NodeDTO>();
+                for (Relation rel : node.getInRelations()) {
+                    if (StringUtils.equals(RelationTypes.ASSOCIATED_TO.relationName(), rel.getRelationType())
+                            && StringUtils.equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), rel.getStartNodeType())) {
+                        if (StringUtils.equalsIgnoreCase("Questionnaire", rel.getStartNodeObjectType())) {
+                            this.questionnaires.add(new NodeDTO(rel.getStartNodeId(), rel.getStartNodeName(),
+                                    rel.getStartNodeObjectType()));
+                        }
+                    }
+                }
+            }
+            setItems(items);
         }
     }
-    
-    @JsonIgnore
-    public SearchCriteria getCriteria() {
-        return criteria;
-    }
 
-    public void setCriteria(SearchCriteria criteria) {
-        this.criteria = criteria;
-    }
-
-    @JsonIgnore
-    public List<String> getMemberIds() {
-        return memberIds;
-    }
-
-    @SuppressWarnings("unchecked")
-    private void setMemberIds(Map<String, Object> metadata) {
-        Object obj = metadata.get(MEMBER_IDS_KEY);
-        if(null != obj) {
-            metadata.remove(MEMBER_IDS_KEY);
-            this.memberIds = mapper.convertValue(obj, List.class);
+    public Map<String, Object> returnMap() {
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.putAll(getMetadata());
+        returnMap.remove(Set.SET_CRITERIA_KEY);
+        returnMap.remove(Set.SET_CRITERIA_QUERY_KEY);
+        returnMap.put("identifier", getIdentifier());
+        returnMap.put("subject", getSubject());
+        if (null != items && !items.isEmpty()) {
+            returnMap.put("items", items);
         }
+        if (null != concepts && !concepts.isEmpty()) {
+            returnMap.put("concepts", concepts);
+        }
+        if (null != tags && !tags.isEmpty()) {
+            returnMap.put("tags", tags);
+        }
+        if (null != questionnaires && !questionnaires.isEmpty()) {
+            returnMap.put("questionnaires", questionnaires);
+        }
+        return returnMap;
     }
 
     public List<NodeDTO> getConcepts() {
@@ -115,5 +131,45 @@ public class ItemSetDTO extends Node {
     public void setConcepts(List<NodeDTO> concepts) {
         this.concepts = concepts;
     }
-    
+
+    public String getSubject() {
+        return subject;
+    }
+
+    public void setSubject(String subject) {
+        this.subject = subject;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public List<String> getTags() {
+        return tags;
+    }
+
+    public void setTags(List<String> tags) {
+        this.tags = tags;
+    }
+
+    public List<String> getItems() {
+        return items;
+    }
+
+    public void setItems(List<String> items) {
+        this.items = items;
+    }
+
+    public Map<String, Object> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, Object> metadata) {
+        this.metadata = metadata;
+    }
+
 }
