@@ -37,7 +37,7 @@ exports.getGameCoverage = function(tid, cb) {
 		if(!util.validateMWResponse(results.concepts, cb)) {
 			return;
 		}
-		
+
 		var data = {
 			concepts: results.concepts.result.results,
 			games: [],

@@ -20,7 +20,8 @@ var userHelper = require('../view_helpers/UserViewHelper')
     , gameHelper = require('../view_helpers/GameViewHelper')
     , commentHelper = require('../view_helpers/CommentViewHelper')
     , uploadHelper = require('../view_helpers/UploadViewHelper')
-    , mediaHelper = require('../view_helpers/MediaViewHelper');
+    , mediaHelper = require('../view_helpers/MediaViewHelper')
+    , contentHelper = require('../view_helpers/ContentViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -197,13 +198,20 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.post('/private/v1/player/fileupload', uploadHelper.uploadFile);
     app.post('/private/v1/player/media', mediaHelper.createMedia);
 
+    app.get('/private/v1/player/contentdefinition/:tid/:contentType', contentHelper.getContentDefinition);
+    app.get('/private/v1/player/contents/:contentType/:offset/:limit', contentHelper.getContents);
+    app.get('/private/v1/player/content/:cid/:tid/:type', contentHelper.getContent);
+    app.post('/private/v1/player/content/create', contentHelper.createContent);
+    app.post('/private/v1/player/content/update', contentHelper.updateContent);
+
+
 };
 
 function setUser(req, res, next) {
     if (appConfig.CONTEXT_NAME && appConfig.CONTEXT_NAME != '') {
         res.locals.contextname = appConfig.CONTEXT_NAME;
     }
-    
+
     if (!req.roles) {
         req.roles = ["public"];
     }

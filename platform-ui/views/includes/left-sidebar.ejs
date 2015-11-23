@@ -38,5 +38,16 @@
 			</li>
 		</ul>
 	</li>
+	<li class="dropdown coachingTab common_box">
+		<div class="dropdown dropdown-toggle" data-toggle="dropdown">
+			<i class="coachingImg"></i>
+			<span class="lefttab"> Content</span>
+		</div>
+		<ul class="dropdown-menu" role="menu" aria-labelledby="dropdownMenu1">
+			<li role="presentation" ng-repeat="taxonomy in allTaxonomies">
+				<a href="javascript:void(0);" ng-click="selectContent(taxonomy.id)">{{taxonomy.name}} Content</a>
+			</li>
+		</ul>
+	</li>
 </ul>
 </div>

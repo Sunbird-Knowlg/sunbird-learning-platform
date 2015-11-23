@@ -72,6 +72,58 @@ app.config(function($stateProvider) {
             $(".RightSideBar").removeClass('Effectsidebar').css('display','inline');
             $(".mid-area").removeClass('Effectside');
         }
+    }).state('contentList', {
+        url: "/contentList/:id",
+        views: {
+            "contentSection": {
+                templateUrl: contextPath + "/templates/player/contentList.html",
+                controller: 'ContentListController'
+            },
+        },
+        onEnter: function() {
+            $(".RightSideBar").addClass('Effectsidebar').css('display', 'none');
+            $(".mid-area").addClass('Effectside');
+        },
+        onExit: function() {
+            $(".RightSideBar").removeClass('Effectsidebar').css('display', 'inline');;
+            $(".mid-area").removeClass('Effectside');
+        }
+    }).state('contentPage', {
+        url: "/contentPage/:id",
+        views: {
+            "contentSection": {
+                templateUrl: contextPath + "/templates/player/content.html",
+                controller: 'ContentController'
+            },
+        },
+        onEnter: function() {
+            $('.rightBarGameMenu').removeClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
+        },
+        onExit: function() {
+            $('.rightBarGameMenu').addClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
+        }
+    }).state('contentEditPage', {
+        url: "/contentEditPage/:id",
+        views: {
+            "contentSection": {
+                templateUrl: contextPath + "/templates/player/content_edit.html",
+                controller: 'ContentController'
+            },
+        },
+        onEnter: function() {
+            $('.rightBarGameMenu').removeClass('hide');
+            $('#relConId').addClass('hide');
+            $('#gameConCovId').removeClass('hide');
+        },
+        onExit: function() {
+            $('.rightBarGameMenu').addClass('hide');
+            $('#relConId').removeClass('hide');
+            $('#gameConCovId').addClass('hide');
+        }
     })
 });
 
@@ -87,7 +139,7 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
                 deferred.reject(resp);
                 console.log("postToService Error");
             }
-                
+
         });
         return deferred.promise;
     }
@@ -183,6 +235,26 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/media', data);
     }
 
+    this.getContents = function(contentType, offset, limit) {
+        return this.getFromService('/private/v1/player/contents/' + contentType + '/' + offset + '/' + limit);
+    }
+
+    this.getContentDefinition = function(taxonomyId, contentType) {
+        return this.getFromService('/private/v1/player/contentdefinition/' + taxonomyId + '/' + contentType);
+    }
+
+    this.getContent = function(contentId, taxonomyId, contentType) {
+        return this.getFromService('/private/v1/player/content/' + contentId + '/' + taxonomyId + '/' + contentType);
+    }
+
+    this.updateContent = function(data) {
+        return this.postToService('/private/v1/player/content/update', data);
+    }
+
+    this.createContent = function(data) {
+        return this.postToService('/private/v1/player/content/create', data);
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
@@ -230,6 +302,10 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 
     $scope.selectTaxonomy = function(taxonomyId) {
         $state.go('learningMap', {id: taxonomyId});
+    }
+
+    $scope.selectContent = function(taxonomyId) {
+        $state.go('contentList', {id: taxonomyId});
     }
 
     $scope.viewGameList = function(taxonomyId) {
@@ -421,7 +497,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             valid = false;
             errors.push('Code already in use. Try another.')
         }
-    
+
         $scope.validationMessages = errors;
         return valid;
     }
@@ -524,7 +600,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $scope.showNewComment = false;
         $scope.auditHistoryObjects = auditHistory;
         $('#auditLogModal').modal('show');
-        
+
     }
 
     $scope.getCommentReplies = function(comment){
@@ -614,7 +690,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         if (fileObj && fileObj != null) {
             var type = fileObj.type;
             console.log("File oj type:" + type);
-            if (type.indexOf('image') == 0 || type.indexOf('image') == 0 || type.indexOf('image') == 0) {
+            if (type.indexOf('image') == 0 || type.indexOf('application/zip') == 0) {
                 if (fileObj.size && fileObj.size > 0) {
                     var fd = new FormData();
                     fd.append('document', fileObj);
@@ -625,21 +701,22 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                         $scope.selectedConcept.metadata[propName] = data.url;
                         console.log(propName);
                     }).catch(function(err) {
+                        console.log('Error While File Upload', err);
                         $scope.selectedConcept.uploading[propName] = false;
-                        alert('File upload failed: ' + err.errorMsg);    
+                        alert('File upload failed: ' + err.errorMsg);
                     });
                 } else {
-                    alert('Selected file size is 0 bytes. Please select another file');    
-                }    
+                    alert('Selected file size is 0 bytes. Please select another file');
+                }
             } else {
-                alert('Only images, audio and video files are allowed');    
+                alert('Only images, audio, video and zipfiles are allowed');
             }
         } else {
             alert('Please select a file to upload');
         }
     }
 
-   
+
 
 }]);
 
@@ -921,7 +998,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
                     $scope.seeMoreGames = true;
                 } else {
                     $scope.seeMoreGames = false;
-                }    
+                }
             } else {
                 $scope.seeMoreGames = false;
             }
@@ -993,7 +1070,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
      $scope.uploadScreenshots = function($event, propName) {
         var fileObj = $scope.selectedConcept.filesToUpload[propName];
         if (fileObj && fileObj != null) {
-            var type = fileObj.type;            
+            var type = fileObj.type;
             if (type.indexOf('image') == 0 || type.indexOf('video') == 0) {
                 if (fileObj.size && fileObj.size > 0) {
                     $scope.buttonLoading($event);
@@ -1009,7 +1086,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
                                 url: data.url,
                                 mimeType : type,
                                 mediaType : mediaval
-                            }                        
+                            }
                         service.getMedia($scope.newMedia).then(function(data){
                             var screenshot = {
                                               "identifier": data,
@@ -1037,7 +1114,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
                     });
                 } else {
                     $scope.showConformationMessage('alert-danger', 'Selected file size is 0 bytes. Please select another file');
-                }    
+                }
             } else {
                 $scope.showConformationMessage('alert-danger', 'Only images, audio and video files are allowed');
             }
@@ -1047,11 +1124,11 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
     }
 
     $scope.moreDescription = function() {
-        $scope.showFullDesc = true;        
+        $scope.showFullDesc = true;
     }
 
     $scope.lessDescription = function() {
-        $scope.showFullDesc = false;        
+        $scope.showFullDesc = false;
     }
 
     $scope.viewGameList = function() {
@@ -1131,7 +1208,7 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
     $scope.resetSlider = function() {
         if ($scope.slider && $scope.slider != null) {
             $scope.slider.destroySlider();
-        } 
+        }
         $scope.slider = $('.bxslider').bxSlider({
             minSlides: 2,
             maxSlides: 5,
@@ -1165,6 +1242,292 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
     }
 
     $scope.getGameDefinition($scope.$parent.selectedTaxonomyId);
+
+}]);
+
+app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+
+    $scope.$parent.selectedTaxonomyId = $stateParams.id;
+    $scope.offset = 0;
+    $scope.limit = 10;
+    $scope.contents = [];
+    $scope.seeMoreContents = false;
+    $scope.showContents = false;
+
+    $scope.newContent = {
+        contentType: $scope.selectedContentType,
+        name: undefined,
+        code: undefined,
+        appIcon: undefined,
+        owner: undefined,
+        body: undefined,
+        description: undefined,
+        errorMessages: [],
+        comment: undefined
+    }
+
+    $scope.getContents = function() {
+        $scope.showContents = false;
+        var contentType = $scope.selectedContentType;
+        // console.log('ContentListController :: getContents() -- Content Type - ', contentType);
+        service.getContents(contentType, $scope.offset, $scope.limit).then(function(data) {
+          // console.log('ContentListController :: getContents() -- ', data);
+          // console.log(data);
+            if (data.contents && data.contents.length > 0) {
+                $scope.contents = [];
+                $scope.contents.push.apply($scope.contents, data.contents);
+                $scope.showContents = true;
+                var count = data.count;
+                if (count > ($scope.offset + $scope.limit)) {
+                    $scope.seeMoreContents = true;
+                } else {
+                    $scope.seeMoreContents = false;
+                }
+            } else {
+                $scope.seeMoreContents = false;
+            }
+        }).catch(function(err) {
+            console.log('Error fetching content list - ', err);
+        });
+    }
+
+    $scope.nextPage = function() {
+        $scope.offset = $scope.offset + $scope.limit;
+        $scope.getContents();
+    }
+
+    $scope.viewContent = function(contentId) {
+        $state.go('contentPage', {id: contentId});
+    }
+
+    $scope.selectedContentType = 'Story';
+    $scope.$parent.selectedContentType = 'Story';
+    $scope.getContents();
+
+    $("select.selectpicker").change(function(){
+          var selectedContentType = $(".selectpicker option:selected").val();
+          $scope.selectedContentType = selectedContentType;
+          $scope.$parent.selectedContentType = selectedContentType;
+          $scope.getContents();
+    });
+
+    $('.selectpicker').selectpicker({
+        style: 'btn-info',
+        size: 'false',
+  			iconBase: 'fa'
+    });
+
+    $scope.createContent = function($event) {
+        var valid = true;
+
+        if(_.isEmpty($scope.newContent.name)) {
+            $scope.newContent.errorMessages.push('Name is required');
+            valid = false;
+        }
+        if(_.isEmpty($scope.newContent.code)) {
+            $scope.newContent.errorMessages.push('Code is required');
+            valid = false;
+        }
+        if(_.isEmpty($scope.newContent.appIcon)) {
+            $scope.newContent.errorMessages.push('Logo is required');
+            valid = false;
+        }
+        if(_.isEmpty($scope.newContent.owner)) {
+            $scope.newContent.errorMessages.push('Owner is required');
+            valid = false;
+        }
+        if(_.isEmpty($scope.newContent.body)) {
+            $scope.newContent.errorMessages.push('Body(XML) is required');
+            valid = false;
+        }
+
+        if(!valid) {
+            return;
+        }
+
+        $scope.buttonLoading($event);
+        $scope.newContent.posterImage = $scope.newContent.appIcon;
+        service.createContent($scope.newContent).then(function(data) {
+            $scope.showConformationMessage('alert-success','Content created successfully.');
+            $scope.buttonReset($event);
+            $("#writeIcon").trigger('click');
+            $scope.getContents();
+        }).catch(function(err) {
+            $scope.errorMessages = [];
+            $scope.errorMessages.push(err.errorMsg);
+            $scope.buttonReset($event);
+            $scope.showConformationMessage('alert-danger','Error saving content.');
+        })
+    }
+    $timeout(function() {
+        selectLeftMenuTab('forumsTab');
+    }, 1000);
+}]);
+
+app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+// TODO: UploadContent method needs to be generalized for all controller all the differences should be passed as parameter including callback functions
+    $scope.showFullDesc = false;
+    //  $scope.uploadContent = function($event, propName) {
+    //     var fileObj = $scope.selectedConcept.filesToUpload[propName];
+    //     if (fileObj && fileObj != null) {
+    //         var type = fileObj.type;
+    //         if (type.indexOf('application/zip') == 0) {
+    //             if (fileObj.size && fileObj.size > 0) {
+    //                 $scope.buttonLoading($event);
+    //                 var fd = new FormData();
+    //                 fd.append('document', fileObj);
+    //                 fd.append('folderName', 'content');
+    //                 $scope.selectedConcept.uploading[propName] = true;
+    //                 var mediaval = (type.indexOf('application/zip') == 0 ? "zip" : "other");
+    //                 service.uploadFile(fd).then(function(data) {debugger;
+    //                   $scope.newContent = {
+    //                       taxonomyId: $scope.selectedTaxonomyId,
+    //                       contentId: propName.identifier,
+    //                       url: data,
+    //                       mimeType : type,
+    //                       mediaType : mediaval
+    //                   }
+    //                   $scope.showConformationMessage('alert-success','Content uploaded successfully.');
+    //                   $scope.buttonReset($event);
+    //                 }).catch(function(err) {
+    //                     $scope.showConformationMessage('alert-danger','Content upload failed: ' + err.errorMsg);
+    //                     $scope.buttonReset($event);
+    //                 });
+    //             } else {
+    //                 $scope.showConformationMessage('alert-danger', 'Selected file size is 0 bytes. Please select another file');
+    //             }
+    //         } else {
+    //             $scope.showConformationMessage('alert-danger', 'Only zip files are allowed');
+    //         }
+    //     } else {
+    //         $scope.showConformationMessage('alert-danger', 'Please select a file to upload');
+    //     }
+    // }
+
+    $scope.moreDescription = function() {
+        $scope.showFullDesc = true;
+    }
+
+    $scope.lessDescription = function() {
+        $scope.showFullDesc = false;
+    }
+
+    $scope.viewContentList = function() {
+        $state.go('contentList', {id: $scope.$parent.selectedTaxonomyId});
+    }
+
+    $scope.$parent.categories = [
+        {id: 'general', label: "General", editable: true, editMode: false},
+        {id: 'tags', label: "Tags", editable: true, editMode: false},
+        {id: 'relations', label: "Relations", editable: false, editMode: false},
+        {id: 'pedagogy', label: "Pedagogy", editable: true, editMode: false},
+        {id: 'gameExperience', label: "Game Experience", editable: true, editMode: false},
+        {id: 'analytics', label: "Analytics", editable: false, editMode: false},
+        {id: 'audit', label: "Audit", editable: false, editMode: false},
+        {id: 'technical', label: "Technical", editable: true, editMode: false},
+        {id: 'ownership', label: "Ownership", editable: true, editMode: false},
+        {id: 'lifeCycle', label: "Lifecycle", editable: true, editMode: false},
+        {id: 'comments', label: "Comments", editable: false, editMode: false}
+    ]
+
+    $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$scope.$parent.selectedTaxonomyId];
+    $scope.selectedContentId = $stateParams.id;
+
+    $scope.getContentDefinition = function(taxonomyId, contentType) {
+        service.getContentDefinition(taxonomyId, contentType).then(function(taxonomyDefs) {
+            var categories = _.uniq(_.pluck(taxonomyDefs.properties, 'category'));
+            var definitions = {
+
+            }
+            _.each(categories, function(category) {
+                definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
+            });
+            $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
+            $scope.$parent.selectedTaxonomy.definitions = definitions;
+            $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
+            $scope.getContent($scope.selectedContentId, $scope.$parent.selectedTaxonomyId, $scope.$parent.selectedContentType);
+        }).catch(function(err) {
+            console.log('Error fetching content definitions - ', err);
+        });
+    }
+
+    $scope.getContent = function(contentId, taxonomyId, contentType) {
+        service.getContent(contentId, taxonomyId, contentType).then($scope.setContentResponse);
+    }
+
+    $scope.viewScreenShot = function(screenshot) {
+        $scope.selectedScreenshot = screenshot;
+        if (screenshot.mediaType == 'video') {
+            if (screenshot.mimeType == 'video/youtube') {
+                setTimeout(function() {
+                    document.getElementById('selectedScreenshotIframe').src = screenshot.mediaUrl;
+                }, 500);
+            }
+        }
+    }
+
+    $scope.setContentResponse = function(data) {console.log(data);
+        $scope.$parent.selectedConcept = data;
+        $scope.$parent.selectedConcept.newMetadata = [];
+        // TODO: Remove below two line when the middleware is returning metadata as its properties
+        $scope.$parent.selectedConcept.metadata = [];
+        $scope.$parent.selectedConcept.metadata.push(data.downloadUrl);debugger;
+        //
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedContentsLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
+        $scope.$parent.selectedConcept.filesToUpload = {};
+        $scope.$parent.selectedConcept.uploading = {};
+        $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
+        $scope.resetCategories();
+        setTimeout(function() {
+            $('.tool-tip').tooltip();
+            if ($scope.$parent.selectedConcept.screenshots && $scope.$parent.selectedConcept.screenshots.length > 0) {
+                $scope.resetSlider();
+            }
+        }, 500);
+    }
+
+    $scope.resetSlider = function() {
+        if ($scope.slider && $scope.slider != null) {
+            $scope.slider.destroySlider();
+        }
+        $scope.slider = $('.bxslider').bxSlider({
+            minSlides: 2,
+            maxSlides: 5,
+            slideWidth: 320,
+            slideMargin: 20,
+            pager: false,
+            infiniteLoop: false,
+            hideControlOnEnd: true,
+            responsive: false,
+            onSliderLoad: function() {
+                $('ul.bxslider li').width('auto');
+            }
+        });
+    }
+
+    $scope.saveChanges = function($event) {
+        $scope.buttonLoading($event);
+        $scope.$parent.conceptToBeUpdated.comment = $scope.commitMessage;
+        service.updateContent($scope.$parent.conceptToBeUpdated).then(function(data) {
+            $scope.buttonReset($event);
+            $scope.getContent($scope.$parent.selectedTaxonomyId);
+            $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-success','Content updated successfully.');
+        }).catch(function(err) {
+            $scope.$parent.validationMessages = [];
+            $scope.$parent.validationMessages.push(err.errorMsg);
+            $scope.buttonReset($event);
+            $('#saveChangesModal').modal('hide');
+            $scope.showConformationMessage('alert-danger','Error while updating Content.');
+        });
+    }
+
+    $scope.getContentDefinition($scope.$parent.selectedTaxonomyId, $scope.$parent.selectedContentType);
 
 }]);
 

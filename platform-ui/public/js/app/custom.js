@@ -2,7 +2,7 @@
 (function() {
     $('.tool').tooltip();
     $('.tool-tip').tooltip();
-    
+
     $(".panel-title .collapse-icon").click(function() {
         $(this).parents(".panel-group").find(".collapse-icon").removeClass('active');
         $(this).addClass("active");
@@ -359,7 +359,7 @@ function rightBarSearchDivClose() {
 
 $(document).ready(function(){
     if (!($('#userDropDown').attr('aria-haspopup') == undefined &&
-    $('#userDropDown').attr('aria-expanded') == undefined)) 
+    $('#userDropDown').attr('aria-expanded') == undefined))
         //$('.dropdown-toggle').click(function (e) { return false; });
         $('#userDropDown').click(function (e) { return false; });
 

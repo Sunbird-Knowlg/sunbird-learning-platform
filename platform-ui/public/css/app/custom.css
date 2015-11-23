@@ -22,7 +22,7 @@ body {
     background-color: #fff;
     font-family: 'FrutigerNeueW01-Regular';
     /*font-family:'Frutiger Neue W01 Md';*/
-    
+
     padding-top: 50px;
     font-size: 16px;
 }
@@ -1067,7 +1067,7 @@ span.divider {
 
 .nav>li a:hover {
     /*background: #09c;*/
-    
+
     border: 0 solid red;
 }
 
@@ -3266,7 +3266,7 @@ footer {
 }
 .scrollstyle::-webkit-scrollbar-track {
     /*-webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);*/
-    
+
     background-color: #fafafa;
 }
 .scrollstyle::-webkit-scrollbar {
@@ -3347,4 +3347,8 @@ footer {
 .feature-list-glanceitems li h3 {
     margin: 0px 0px -2px 0px;
     font-size: 30px;
+}
+
+.marginTop10 {
+  margin-top: 10px;
 }

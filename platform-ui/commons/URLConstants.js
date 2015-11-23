@@ -15,3 +15,7 @@ exports.GET_COMMENTS = '/taxonomy-service/comment/${id}';
 exports.SAVE_COMMENT = '/taxonomy-service/comment?taxonomyId=${tid}';
 exports.GET_COMMENT_THREAD = '/taxonomy-service/comment/${id}/${threadId}';
 exports.SAVE_MEDIA = '/taxonomy-service/learning-object/media?taxonomyId=${tid}';
+exports.GET_CONTENTS = '/taxonomy-service/v1/content/list?type=${type}';
+exports.GET_CONTENT = '/taxonomy-service/v1/content/${id}';
+exports.GET_CONTENT_TAXONOMY_DEFS = '/taxonomy-service/taxonomy/${id}/definition/${contentType}';
+exports.UPDATE_CONTENT = '/taxonomy-service/v1/content/${id}?taxonomyId=${tid}&type=${type}';

@@ -1,0 +1,134 @@
+<style type="text/css">
+.grayText {
+  color: #999 !important;
+  background: none repeat scroll 0 0 #f9f9f9 !important;
+}
+.gameTitleSection {
+  background: none repeat scroll 0 0 #f9f9f9;
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+</style>
+<div class="MywallActivity">
+	<div class=" wallActivityHeader">
+		<div class="editContent">
+			<div class="headerAsk" >
+                <h2 id="titleHeaderId">
+                	<a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Back to Contents list"  data-original-title="Back to Games list" ng-click="viewContentList()">
+						<i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
+					</a>
+                	{{selectedConcept.name}}
+                </h2>
+            </div>
+            <div class="col-md-12 noPad padTop marginBottom15 borderBottomSolid gameTitleSection">
+            	<div class="col-md-3 noPad">
+            		<img ng-src="{{selectedConcept.posterImage}}" ng-if="selectedConcept.posterImage"/>
+            		<img ng-src="{{contextPath}}/img/not_available.jpg" ng-if="!selectedConcept.posterImage"/>
+                <div class="col-md-12 noPad marginTop10 marginBottom15">
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.purpose">{{selectedConcept.purpose}}</span>
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.status">{{selectedConcept.status}}</span>
+                </div>
+            	</div>
+            	<div class="col-md-9">
+            		  <div class="des_container col-md-12 noPad marginBottom15 borderBottomSolid">
+                    <span ng-if="selectedConcept.description.length > 300" ng-show="!showFullDesc">
+                      <span class="des_content col-md-12 noPad" ng-bind-html="renderHtmlTrim(selectedConcept.description, 300)">
+                      </span>
+                      <a href="javascript:void()" ng-click="moreDescription()" class="pull-right" style="position: relative; bottom: 20px;">more...</a>
+                    </span>
+                    <span ng-if="selectedConcept.description.length <= 300">
+                      <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.description)">
+                      </span>
+                    </span>
+                    <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.description)" ng-show="showFullDesc">
+                    </span>
+                    <a href="javascript:void()" ng-click="lessDescription()" class="pull-right" style="position: relative; bottom: 20px;" ng-show="showFullDesc">less...</a>
+                	</div>
+                  <div class="col-md-12 noPad marginBottom10" ng-if="selectedConcept.downloads || selectedConcept.totalGamingTime || selectedConcept.avgGamingTime">
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.downloads">
+                        Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.downloads}}</h4></a>
+                    </div>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.totalGamingTime">
+                        Total Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.totalGamingTime}}</h4></a>
+                    </div>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.avgGamingTime">
+                        Avg. Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.avgGamingTime}}</h4></a>
+                    </div>
+                  </div>
+                	<div class="col-md-12 noPad padBottom10">
+                    <div class="col-md-4 noPad">
+                        Developed by<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.developer}}</h4></a>
+                    </div>
+                    <div class="col-md-4 noPad">
+                        Owned by: <a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.owner}}</h4></a>
+                    </div>
+                	</div>
+            	</div>
+            </div>
+            <!-- <div class="col-md-12 padBottom10">
+                <div class="col-md-4 noPad">
+                  Upload Content <a href="javascript: void(0)"><h4 class="margin0 grayText"></h4></a>
+                </div>
+                <div class="col-md-4 noPad" style = "display:inline">
+                    <input style = "display:inline; border-radius: 5px;" type="file" file-model="selectedConcept.filesToUpload[selectedConcept]"/>
+                </div>
+                <div div class="col-md-4 noPad" style = "display:inline">
+                  <button class="btn btn-primary btn-xs pull-right" style = "display:inline; margin-right: 5%;"  ng-click="uploadContent($event, selectedConcept)" data-loading-text="Uploading Media...">Upload</button>
+                </div>
+            </div> -->
+            <!-- <div class="col-md-12 noPad padTop marginBottom15">
+              <ul class="bxslider" ng-if="selectedConcept.screenshots && selectedConcept.screenshots.length > 0">
+                <li ng-repeat="screenshot in selectedConcept.screenshots">
+  						    <a href="javascript:void(0)" data-toggle="modal" data-target=".image-view-modal" ng-if="screenshot.mediaType == 'image'" ng-click="viewScreenShot(screenshot)">
+                    <img ng-src="{{screenshot.mediaUrl}}" class="carouselImg" ng-if="screenshot.mediaUrl"/>
+                    <img ng-src="{{contextPath}}/img/not_available.jpg" class="carouselImg" ng-if="!screenshot.mediaUrl"/>
+  						    </a>
+  						    <a href="javascript:void(0)" data-toggle="modal" data-target=".image-view-modal" ng-if="screenshot.mediaType == 'video'" ng-click="viewScreenShot(screenshot)">
+  							   <img ng-src="{{screenshot.posterImage}}" class="carouselImg" ng-if="screenshot.posterImage"/>
+  							   <img ng-src="{{contextPath}}/img/not_available.jpg" class="carouselImg" ng-if="!screenshot.posterImage"/>
+  							   <div id="playImg">
+  								    <i class="fa fa-play"></i>
+  							   </div>
+  						    </a>
+                </li>
+            </ul>
+
+				    <div class="modal fade image-view-modal" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+				    	<div class="modal-content">
+				    		<button type="button" class="pull-right marRight30 close" data-dismiss="modal" aria-label="Close">
+				    			<i class="writeBlackOne fa fa-times"></i>
+				    		</button>
+				    		<div class="pad20">
+				    			<div ng-if="selectedScreenshot.mediaType == 'image'">
+				    				<img ng-src="{{selectedScreenshot.mediaUrl}}" class="screenshotImg" ng-if="selectedScreenshot.mediaUrl"/>
+				    				<img ng-src="{{contextPath}}/img/not_available.jpg" ng-if="!selectedScreenshot.mediaUrl"/>
+				    			</div>
+				    			<div ng-if="selectedScreenshot.mediaType == 'video'">
+				    				<iframe id="selectedScreenshotIframe" width="800" height="450" frameborder="0" allowfullscreen></iframe>
+				    			</div>
+				    		</div>
+				    	</div>
+  					</div>
+				  </div>
+        </div> -->
+        <div class="col-md-12 noPad padBottom">
+          <div ng-include="'metadata_categories_template.html'"></div>
+        </div>
+		</div>
+	</div>
+</div>
+
+<div ng-include="'save_confirmation_template.html'"></div>
+<div ng-include="'comments_template.html'"></div>
+<div ng-include="'audit_log_template.html'"></div>
+
+<script type="text/javascript">
+  $('.mid-container-full').on("scroll", function(e) {
+    if (this.scrollTop > 100) {
+      $('#titleHeaderId').addClass('fix-title-head');
+    } else {
+      $('#titleHeaderId').removeClass('fix-title-head');
+    }
+  });
+</script>
