@@ -336,7 +336,9 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     };
 
     $scope.openSection = function(divId) {
-        $('#'+divId).collapse('show');
+        if ($('#'+divId).hasClass('in') === false) {
+          $('#'+divId).collapse('show');
+        }
     }
 
     $scope.categories = [
