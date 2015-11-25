@@ -25,7 +25,7 @@ var fs = require('fs'),
 
 var client = new Client();
 var API_ENDPOINT = "http://localhost:8080";
-var CREATE_ITEM_URL = "/ekstep-service/assessmentitem/${id}";
+var CREATE_ITEM_URL = "/taxonomy-service/v1/assessmentitem?taxonomyId=${tid}";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
 var inputFilePath = process.argv[4];
@@ -53,7 +53,7 @@ async.waterfall([
     },
     function(arg1, callback) {
     	createAssessmentItems(callback);
-    }		
+    }
 ], function (err, result) {
     if (err) {
 		console.log('Error: ' + err);
@@ -87,7 +87,7 @@ function loadConcepts(callback) {
 			var value = row[4];
 			if (!isEmpty(value)) {
 				if (!isEmpty(code)) {
-					conceptMap[value.trim()] = code.trim();	
+					conceptMap[value.trim()] = code.trim();
 				}
 			}
 		}
@@ -98,7 +98,7 @@ function loadConcepts(callback) {
 	.on('error', function(error){
 		console.log('concept csv error', error);
 		callback('concept csv error: ' + error);
-	});	
+	});
 }
 
 
@@ -150,11 +150,15 @@ function createAssessmentItems(callback) {
 				if (isEmpty(metadata.qlevel)) {
 					metadata.qlevel = default_qlevel;
 				}
+				// TODO: Below code added to handle the no of answer issue since in CSV the 'num_answers' is not equals to no. of answers
+				if (questionType.toLowerCase() == 'ftb') {
+					item.metadata.num_answers = getNumberOfKeys(item.metadata.answer);
+				}
 				asyncFns.push(getMWAPICallfunction(item));
 			}
 		});
 		if (asyncFns.length > 0) {
-			async.parallel(asyncFns, 
+			async.parallel(asyncFns,
 				function (err, result) {
 			    	if (err) {
 						callback(err);
@@ -173,6 +177,7 @@ function createAssessmentItems(callback) {
 function getMWAPICallfunction(item) {
 	var returnFn = function(callback) {
 		var reqBody = {"request": {"assessment_item": {}}};
+		reqBody.request.assessment_item.identifier = item.metadata.code;
 		reqBody.request.assessment_item.objectType = "AssessmentItem";
 		reqBody.request.assessment_item.metadata = item.metadata;
 		var conceptIds = item.conceptIds;
@@ -183,22 +188,21 @@ function getMWAPICallfunction(item) {
 			});
 		}
 		var args = {
-			path: {id: item.identifier},
-	        parameters: {taxonomyId: taxonomyId},
+			path: {tid:taxonomyId},
 	        headers: {
 	            "Content-Type": "application/json",
 	            "user-id": 'csv-import'
 	        },
 	        data: reqBody,
 	        requestConfig:{
-            	timeout: 240000 
+            	timeout: 240000
         	},
 	        responseConfig:{
-            	timeout: 240000 
+            	timeout: 240000
         	}
 	    };
 	    var url = API_ENDPOINT + CREATE_ITEM_URL;
-	    client.patch(url, args, function(data, response) {
+	    client.post(url, args, function(data, response) {
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
 	    	errorMap[item.index + 1] = "Connection error: " + err;
@@ -229,7 +233,7 @@ function parseResponse(item, data, callback) {
 	    		errorMap[item.index + 1] = error;
 	    	} else {
 	    		resultMap[item.metadata.code] = responseData.result.node_id;
-	    	}	
+	    	}
     	} else {
     		errorMap[item.index + 1] = 'Invalid API response for: ' + item.identifier;
     	}
@@ -339,7 +343,7 @@ function _getValueFromRow(row, startCol, col, def) {
 			} else {
 				return false;
 			}
-		}	
+		}
 	} else {
 		if (data && data != null) {
 			if (!isNaN(parseFloat(data))) {
@@ -359,4 +363,14 @@ function isEmpty(val) {
 			return true;
 	}
 	return false;
+}
+
+function getNumberOfKeys(obj)
+{
+    var count = 0;
+    for(var prop in obj)
+    {
+        count++;
+    }
+    return count;
 }

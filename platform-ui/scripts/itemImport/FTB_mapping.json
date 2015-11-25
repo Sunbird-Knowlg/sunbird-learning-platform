@@ -1,0 +1,28 @@
+{
+	"start_row": 0,
+	"start_col": 0,
+	"data": {
+		"code": {"col-def": {"column" : 0}},
+		"title": {"col-def": {"column" : 1}},
+		"question": {"col-def": {"column" : 2}},
+		"num_answers": {"col-def": {"column" : 3}},
+		"max_score": {"col-def": {"column" : 4}},
+		"partial_scoring": {"col-def": {"column" : 5, "type": "boolean"}},
+		"feedback": {"col-def": {"column" : 6}},
+		"gradeLevel": {"col-def": {"column" : 7}},
+		"difficulty_level_sn": {"col-def": {"column" : 8}},
+		"difficulty_level": {"col-def": {"column" : 8}},
+		"difficulty_level_analytics": {"col-def": {"column" : 8}},
+		"answer": {
+			"ans1" : {"value" : {"col-def": {"column" : 9}}, "score": {"col-def": {"column" : 10}}},
+      "ans2" : {"value" : {"col-def": {"column" : 11}}, "score": {"col-def": {"column" : 12}}},
+      "ans3" : {"value" : {"col-def": {"column" : 13}}, "score": {"col-def": {"column" : 14}}},
+      "ans4" : {"value" : {"col-def": {"column" : 15}}, "score": {"col-def": {"column" : 16}}}
+		},
+		"remarks": {
+			"kannada": {"col-def": {"column" : 36}},
+			"transliteration": {"col-def": {"column" : 37}}
+		},
+		"rel:associatedTo": {"col-def": {"column": [32, 33, 34]}}
+	}
+}

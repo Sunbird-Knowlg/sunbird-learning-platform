@@ -3,8 +3,8 @@ package com.ilimi.assessment.enums;
 import org.apache.commons.lang3.StringUtils;
 
 public enum AssessmentItemType {
-    mcq, mmcq, sort_list, ftb, mtf, speech_question, canvas_question;
-    
+    mcq, mmcq, sort_list, ftb, mtf, speech_question, canvas_question, recognition;
+
     public static boolean isValidAssessmentType(String str) {
         AssessmentItemType val = null;
         try {
@@ -19,9 +19,9 @@ public enum AssessmentItemType {
             return false;
         return true;
     }
-    
+
     public static AssessmentItemType getAssessmentType(String str) {
         return AssessmentItemType.valueOf(str);
     }
-    
+
 }

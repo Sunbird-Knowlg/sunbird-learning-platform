@@ -1,1 +1,75 @@
-identifier,rel:isParentOf,Name,objectType,Code,Description,Language,Learning Objective,Keywords,Examples,Status,Internal Validation,External Validation,Validators,References,Expected Learning Time,Applicability,Foundation,Assessment Method,No of Games,Avg. Gaming Time Spent,tagsliteracy_v2,"LD1,LD2,LD3,LD4,LD5",Literacy V2,Taxonomy,LITERACY,Literacy,Kannada,,,,,,,,,,,,,,,LD1,"LO1,LO2",Vocabulary,Concept,LD1,Vocabulary,Kannada,,,,,,,,,,,,,,,DimensionLD2,"LO3,LO4",Listening Comprehension,Concept,LD2,Listening Comprehension,Kannada,,,,,,,,,,,,,,,DimensionLD3,LO5,Akshara Knowledge,Concept,LD3,Akshara Knowledge,Kannada,,,,,,,,,,,,,,,DimensionLD4,"LO6,LO7,LO8",Decoding & Fluency,Concept,LD4, Decoding & Fluency,Kannada,,,,,,,,,,,,,,,DimensionLD5,"LO9,LO10",Reading Comprehension,Concept,LD5,Reading Comprehension,Kannada,,,,,,,,,,,,,,,DimensionLO1,LT01,Receptive Vocabulary,Concept,LO1,Receptive Vocabulary,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO2,LT02,Lexical Judgement,Concept,LO2,Lexical Judgement,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO3,LT03,Sentence Comprehension,Concept,LO3,Sentence Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO4,LT04,Grammaticality Judgement/Syntax,Concept,LO4,Grammaticality Judgement/Syntax,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO5,LT05,Sound-to-symbol Mapping,Concept,LO5,Sound-to-symbol Mapping,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO6,LT06,Decoding for Spelling,Concept,LO6,Decoding for Spelling,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO7,"LT07,LT08",Decoding for Reading,Concept,LO7,Decoding for Reading,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO8,LT09,Decoding for Spelling,Concept,LO8,Decoding for Spelling,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO9,"LT10,LT11,LT12",Sentence Comprehension,Concept,LO9,Sentence Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLO10,LT13,Passage Comprehension,Concept,LO10,Passage Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-ConceptLT01,,Chili Pili,Concept,LT01,Chili Pili (find picture from four options to match just heard word),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game MechanicsLT02,,Pick the correct Picture,Concept,LT02,Pick the correct Picture (choose spoken word to match picture with a spoken nonword as disractor),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game MechanicsLT03,,Listen and choose picture,Concept,LT03,Listen and choose picture (find picture from four options to match just heard sentence),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game MechanicsLT04,,Is this right?,Concept,LT04,Is this right? (judge whether just-heard sentence is grammatically correct),Kannada,Construct sentences with simple grammar rules,,,,,,,,,,,,,,Class 4::Task::Game MechanicsLT05,,Akshara Sound,Concept,LT05,Akshara Sound (find akshara from four options to match just heard akshara),Kannada,"Learn vowels, consonants(49) and gunitakshara(the first seven) individually and in sequence",,,,,,,,,,,,,,Class 1::Task::Game MechanicsLT06,,Teacher Teacher!,Concept,LT06,Teacher Teacher! (decide if spelling is right or wrong after listening to word),Kannada,Dictate simple words without othakshara,,,,,,,,,,,,,,Class 1::Task::Game MechanicsLT07,,Word picture matching,Concept,LT07,Word picture matching (Choose the right word to match the picture shown),Kannada,"Read or listen to text with simple sentences, three letter words with minimum othakshara",,,,,,,,,,,,,,Class 1::Task::Game MechanicsLT08,,Pick the correct word,Concept,LT08,Pick the correct word (find answer to a question about a just-heard sentence from four word options),Kannada,"Read or listen to text with simple sentences, three letter words with minimum othakshara",,,,,,,,,,,,,,Class 1::Task::Game MechanicsLT09,,Word completion,Concept,LT09,Word completion (fill in missing akshara from four options to make a meaningful word),Kannada,Dictate simple words without othakshara,,,,,,,,,,,,,,Class 1::Task::Game MechanicsLT10,,Read and choose word,Concept,LT10,Read and choose word (read the sentence and related questions and choose a word answer),Kannada,,,,,,,,,,,,,,,Task::Game MechanicsLT11,,Read and choose Picture,Concept,LT11,Read and choose Picture (read the sentence and related questions and choose a picture answer),Kannada,,,,,,,,,,,,,,,Task::Game MechanicsLT12,,Passage Reading (fill in the blanks),Concept,LT12,Passage Reading (fill in the blanks in sentences),Kannada,"Read independently texts, identify the main topic, sequence of events ",,,,,,,,,,,,,,Class 4::Task::Game MechanicsLT13,,Passage Reading (match the words),Concept,LT13,Passage Reading (match the words to the blanks in passage),Kannada,"Read independently texts, identify the main topic, sequence of events ",,,,,,,,,,,,,,Class 4::Task::Game Mechanics
+identifier,rel:isParentOf,Name,objectType,Code,Description,Language,Learning Objective,Keywords,Examples,Status,Internal Validation,External Validation,Validators,References,Expected Learning Time,Applicability,Foundation,Assessment Method,No of Games,Avg. Gaming Time Spent,tags
+literacy_v2,"LD1,LD2,LD3,LD4,LD5,LD6",Literacy V2,Taxonomy,LITERACY,Literacy,Kannada,,,,,,,,,,,,,,,
+LD1,"LO1,LO2,LO50,LO51,LO52,LO53,LO54",Vocabulary,Concept,LD1,Vocabulary,Kannada,,,,,,,,,,,,,,,Dimension
+LD2,"LO3,LO4,LO41,LO42,LO43,LO44,LO45,LO46,LO47,LO48,LO49",Listening Comprehension,Concept,LD2,Listening Comprehension,Kannada,,,,,,,,,,,,,,,Dimension
+LD3,"LO5,LO36,LO37,LO38,LO39,LO40",Akshara Knowledge,Concept,LD3,Akshara Knowledge,Kannada,,,,,,,,,,,,,,,Dimension
+LD4,"LO6,LO7,LO8,LO28,LO29,LO30,LO31,LO32,LO33,LO34,LO35",Decoding & Fluency,Concept,LD4, Decoding & Fluency,Kannada,,,,,,,,,,,,,,,Dimension
+LD5,"LO9,LO10,LO18,LO19,LO20,LO21,LO22,LO23,LO24,LO25",Reading Comprehension,Concept,LD5,Reading Comprehension,Kannada,,,,,,,,,,,,,,,Dimension
+LD6,"LO11,LO12,LO13,LO14,LO15,LO16,LO17",Phonological Awareness,Concept,LD6,Phonological Awareness,,,,,,,,,,,,,,,,
+LO1,LT01,Receptive Vocabulary,Concept,LO1,Receptive Vocabulary,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO2,LT02,Lexical Judgement,Concept,LO2,Lexical Judgement,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO3,LT03,Sentence Comprehension,Concept,LO3,Sentence Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO4,LT04,Grammaticality Judgement/Syntax,Concept,LO4,Grammaticality Judgement/Syntax,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO5,LT05,Sound-to-symbol Mapping,Concept,LO5,Sound-to-symbol Mapping,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO6,LT06,Decoding for Spelling,Concept,LO6,Decoding for Spelling,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO7,"LT07,LT08",Decoding for Reading,Concept,LO7,Decoding for Reading,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO8,LT09,Decoding for Spelling,Concept,LO8,Decoding for Spelling,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO9,"LT10,LT11,LT12",Sentence Comprehension,Concept,LO9,Sentence Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO10,LT13,Passage Comprehension,Concept,LO10,Passage Comprehension,Kannada,,,,,,,,,,,,,,,Learning Objective::Micro-Concept
+LO11,,Phoneme Play,Concept,LO11,Phoneme Play,,,,,,,,,,,,,,,,
+LO12,,Phoneme Awareness,Concept,LO12,Phoneme Awareness,,,,,,,,,,,,,,,,
+LO13,,Syllable Play,Concept,LO13,Syllable Play,,,,,,,,,,,,,,,,
+LO14,,Syllable Awareness,Concept,LO14,Syllable Awareness,,,,,,,,,,,,,,,,
+LO15,,Onset-Coda Play,Concept,LO15,Onset-Coda Play,,,,,,,,,,,,,,,,
+LO16,,Onset-Coda Awareness,Concept,LO16,Onset-Coda Awareness,,,,,,,,,,,,,,,,
+LO17,,Memory For Sound Strings,Concept,LO17,Memory For Sound Strings,,,,,,,,,,,,,,,,
+LO18,,Inference Using Context 2,Concept,LO18,Inference Using Context 2,,,,,,,,,,,,,,,,
+LO19,,Inference By Making Associations 2,Concept,LO19,Inference By Making Associations 2,,,,,,,,,,,,,,,,
+LO20,,Inference About Implied Ideas 2,Concept,LO20,Inference About Implied Ideas 2,,,,,,,,,,,,,,,,
+LO21,,Figurative Language 2,Concept,LO21,Figurative Language 2,,,,,,,,,,,,,,,,
+LO22,,Comprehension Of Essays 2,Concept,LO22,Comprehension Of Essays 2,,,,,,,,,,,,,,,,
+LO23,,Comprehension Of Stories 2,Concept,LO23,Comprehension Of Stories 2,,,,,,,,,,,,,,,,
+LO24,,Comprehension Of Poems 2,Concept,LO24,Comprehension Of Poems 2,,,,,,,,,,,,,,,,
+LO25,,Accurate Structure Of Context 2,Concept,LO25,Accurate Structure Of Context 2,,,,,,,,,,,,,,,,
+LO26,LT13,Comprehension Of Brief Passage 2,Concept,LO26,Comprehension Of Brief Passage 2,,,,,,,,,,,,,,,,
+LO27,"LT10,LT11,LT12",Sentence Comprehension 2,Concept,LO27,Sentence Comprehension 2,,,,,,,,,,,,,,,,
+LO28,,Speed And Accuracy In Text Reading,Concept,LO28,Speed And Accuracy In Text Reading,,,,,,,,,,,,,,,,
+LO29,,Speed And Accuracy In List Reading,Concept,LO29,Speed And Accuracy In List Reading,,,,,,,,,,,,,,,,
+LO30,,Spelling Exception Words,Concept,LO30,Spelling Exception Words,,,,,,,,,,,,,,,,
+LO31,,Spelling Regular Words,Concept,LO31,Spelling Regular Words,,,,,,,,,,,,,,,,
+LO32,,Reading Exception Words,Concept,LO32,Reading Exception Words,,,,,,,,,,,,,,,,
+LO33,,Reading Regular Words,Concept,LO33,Reading Regular Words,,,,,,,,,,,,,,,,
+LO34,,Recognising Sight Words,Concept,LO34,Recognising Sight Words,,,,,,,,,,,,,,,,
+LO35,,Concepts About Print,Concept,LO35,Concepts About Print,,,,,,,,,,,,,,,,
+LO36,LT05,Symbol To Sound Mapping,Concept,LO36,Symbol To Sound Mapping,,,,,,,,,,,,,,,,
+LO37,,Tracing Akshara,Concept,LO37,Tracing Akshara,,,,,,,,,,,,,,,,
+LO38,,Tracing Patterns,Concept,LO38,Tracing Patterns,,,,,,,,,,,,,,,,
+LO39,,Akshara Recognition,Concept,LO39,Akshara Recognition,,,,,,,,,,,,,,,,
+LO40,,Pattern Recognition,Concept,LO40,Pattern Recognition,,,,,,,,,,,,,,,,
+LO41,,Inference Using Context 1,Concept,LO41,Inference Using Context 1,,,,,,,,,,,,,,,,
+LO42,,Infer By Making Associations 1,Concept,LO42,Infer By Making Associations 1,,,,,,,,,,,,,,,,
+LO43,,Inference About Implied Ideas 1,Concept,LO43,Inference About Implied Ideas 1,,,,,,,,,,,,,,,,
+LO44,,Figurative Language 1,Concept,LO44,Figurative Language 1,,,,,,,,,,,,,,,,
+LO45,,Comprehension Of Essays 1,Concept,LO45,Comprehension Of Essays 1,,,,,,,,,,,,,,,,
+LO46,,Comprehension Of Stories 1,Concept,LO46,Comprehension Of Stories 1,,,,,,,,,,,,,,,,
+LO47,,Comprehension Of Poems 1,Concept,LO47,Comprehension Of Poems 1,,,,,,,,,,,,,,,,
+LO48,,Comprehension Of Brief Passage 1,Concept,LO48,Comprehension Of Brief Passage 1,,,,,,,,,,,,,,,,
+LO49,,Accurate Structure Of Context 1,Concept,LO49,Accurate Structure Of Context 1,,,,,,,,,,,,,,,,
+LO50,,Synonyms & Antonyms,Concept,LO50,Synonyms & Antonyms,,,,,,,,,,,,,,,,
+LO51,,Roots And Derivations,Concept,LO51,Roots And Derivations,,,,,,,,,,,,,,,,
+LO52,,More Than One Meaning,Concept,LO52,More Than One Meaning,,,,,,,,,,,,,,,,
+LO53,,Accurate Word For Context,Concept,LO53,Accurate Word For Context,,,,,,,,,,,,,,,,
+LO54,,Expressive Vocabulary,Concept,LO54,Expressive Vocabulary,,,,,,,,,,,,,,,,
+LT01,,Chili Pili,Concept,LT01,Chili Pili (find picture from four options to match just heard word),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game Mechanics
+LT02,,Pick the correct Picture,Concept,LT02,Pick the correct Picture (choose spoken word to match picture with a spoken nonword as disractor),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game Mechanics
+LT03,,Listen and choose picture,Concept,LT03,Listen and choose picture (find picture from four options to match just heard sentence),Kannada,"Listen and understand conversation, oral demands in a known situation",,,,,,,,,,,,,,Class 1::Class 2::Task::Game Mechanics
+LT04,,Is this right?,Concept,LT04,Is this right? (judge whether just-heard sentence is grammatically correct),Kannada,Construct sentences with simple grammar rules,,,,,,,,,,,,,,Class 4::Task::Game Mechanics
+LT05,,Akshara Sound,Concept,LT05,Akshara Sound (find akshara from four options to match just heard akshara),Kannada,"Learn vowels, consonants(49) and gunitakshara(the first seven) individually and in sequence",,,,,,,,,,,,,,Class 1::Task::Game Mechanics
+LT06,,Teacher Teacher!,Concept,LT06,Teacher Teacher! (decide if spelling is right or wrong after listening to word),Kannada,Dictate simple words without othakshara,,,,,,,,,,,,,,Class 1::Task::Game Mechanics
+LT07,,Word picture matching,Concept,LT07,Word picture matching (Choose the right word to match the picture shown),Kannada,"Read or listen to text with simple sentences, three letter words with minimum othakshara",,,,,,,,,,,,,,Class 1::Task::Game Mechanics
+LT08,,Pick the correct word,Concept,LT08,Pick the correct word (find answer to a question about a just-heard sentence from four word options),Kannada,"Read or listen to text with simple sentences, three letter words with minimum othakshara",,,,,,,,,,,,,,Class 1::Task::Game Mechanics
+LT09,,Word completion,Concept,LT09,Word completion (fill in missing akshara from four options to make a meaningful word),Kannada,Dictate simple words without othakshara,,,,,,,,,,,,,,Class 1::Task::Game Mechanics
+LT10,,Read and choose word,Concept,LT10,Read and choose word (read the sentence and related questions and choose a word answer),Kannada,,,,,,,,,,,,,,,Task::Game Mechanics
+LT11,,Read and choose Picture,Concept,LT11,Read and choose Picture (read the sentence and related questions and choose a picture answer),Kannada,,,,,,,,,,,,,,,Task::Game Mechanics
+LT12,,Passage Reading (fill in the blanks),Concept,LT12,Passage Reading (fill in the blanks in sentences),Kannada,"Read independently texts, identify the main topic, sequence of events ",,,,,,,,,,,,,,Class 4::Task::Game Mechanics
+LT13,,Passage Reading (match the words),Concept,LT13,Passage Reading (match the words to the blanks in passage),Kannada,"Read independently texts, identify the main topic, sequence of events ",,,,,,,,,,,,,,Class 4::Task::Game Mechanics

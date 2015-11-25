@@ -1,0 +1,10 @@
+,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+,,,,,,,,,,,,LHS Options,,,,,,,,,का ,,,,,,,,,,,,,,,,,,,
+,,Code,Title,,Number of Answers,Maximum Score,Partial Scoring,Feedback,Grade Level,Difficulty Level,,LHS option 1 type,LHS option 1 asset,LHS option 2 type,LHS option 2 asset,LHS option 3 type,LHS option 3 asset,LHS option 4 type,LHS option 4 asset,,RHS Options 1 type,RHS Options 1 asset,RHS Options 1 answer,RHS Options 1 score,RHS Options 2 type,RHS Options 2 asset,RHS Options 2 answer,RHS Options 2 score,RHS Options 3 type,RHS Options 3 asset,RHS Options 3 answer,RHS Options 3 score,RHS Options 4 type,RHS Options 4 asset,RHS Options 4 answer,RHS Options 4 score,,Related micro-concepts,Related micro-concepts,Related micro-concepts
+,,Unique code for the question,Title for the assessment item,Question Body,How many answers are there?,How many marks can be allotted?,Partial scoring is allowed?,Feedback to show if the item is answered incorrectly,Grade level,How difficult is the question? ,,"LHS Options for the MTF questions. The RHS options will be matched to one of these options. Each lhs option has 
+- a type (image, text or audio)
+- asset (asset id for image & audio, and the textual content for text type)",,,,,,,,,"RHS Options for the MTF questions. The RHS options can be matched to zero or one lhs options. Each rhs option has 
+- a type (image, text or audio)
+- asset (asset id for image & audio, and the textual content for text type)
+- answer value set to the index value of the matching lhs options
+- the score to be allotted if the option is matched correctly",,,,,,,,,,,,,,,,,This method is related to which micro-concept,Other related micro-concept (if more than one),Other related micro-concept (if more than one)
