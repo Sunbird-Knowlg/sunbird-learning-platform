@@ -113,23 +113,22 @@ exports.updateContent = function(data, cb) {
 		data: {
 		  "request": {
 		    "content": {
-		      "metadata": data.metadata, // Change to data.propertires once middleware allow partial Update for Update Content API
-		      "outRelations": [],
-		      "tags": []
+		      "metadata": data.metadata // Change to data.propertires once middleware allow partial Update for Update Content API
 		    }
 		  }
 		}
   }
 	if (data.tags && data.tags.length > 0) {
+		args.data.request.content.tags = [];
 		_.each(data.tags, function (tag) {
 			args.data.request.content.tags.push(tag);
 		})
 	}
-	if (data.outRelations && data.outRelations.length > 0) {
-		_.each(data.outRelations, function (relation) {
-			args.data.request.content.outRelations.push(relation);
-		})
-	}
+	// if (data.outRelations && data.outRelations.length > 0) {
+	// 	_.each(data.outRelations, function (relation) {
+	// 		args.data.request.content.outRelations.push(relation);
+	// 	})
+	// }
 	mwService.patchCall(urlConstants.UPDATE_CONTENT, args, function(err, data) {
 		if(err) {
 			cb(err);
