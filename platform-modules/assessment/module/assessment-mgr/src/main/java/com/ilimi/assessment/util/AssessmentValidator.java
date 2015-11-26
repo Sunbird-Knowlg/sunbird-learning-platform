@@ -109,6 +109,10 @@ public class AssessmentValidator extends BaseManager {
                     errorMessages.add("answer is missing.");
                 checkAnswers(metadata, errorMessages, numAnswers);
                 break;
+            case recognition:
+            	checkJsonList(metadata, errorMessages, "options",
+                        new String[] { "value" }, AssessmentItemType.recognition.name());
+                break;
             default:
                 errorMessages.add("invalid assessment type: " + itemType);
                 break;
