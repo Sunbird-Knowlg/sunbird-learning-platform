@@ -122,12 +122,12 @@ exports.updateContent = function(data, cb) {
   }
 	if (data.tags && data.tags.length > 0) {
 		_.each(data.tags, function (tag) {
-			args.data.tags.push(tag);
+			args.data.request.content.tags.push(tag);
 		})
 	}
 	if (data.outRelations && data.outRelations.length > 0) {
 		_.each(data.outRelations, function (relation) {
-			args.data.outRelations.push(relation);
+			args.data.request.content.outRelations.push(relation);
 		})
 	}
 	mwService.patchCall(urlConstants.UPDATE_CONTENT, args, function(err, data) {
