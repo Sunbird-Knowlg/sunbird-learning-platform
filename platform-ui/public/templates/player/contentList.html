@@ -1,0 +1,75 @@
+<div class="MywallActivity">
+  <div class=" wallActivityHeader">
+    <div class="editContent">
+      <div class="headerAsk" id="activityStream">
+        <h2>{{taxonomies[selectedTaxonomyId].metadata.name}}
+          Contents
+          <a class="tool-tip hide" data-original-title="Add new content" data-placement="bottom" data-toggle="tooltip" href="javascript:void(0);" title="Add new content">
+            <i class="writeBlackOne fa fa-plus" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i>
+          </a>
+        </h2>
+        <select class="selectpicker pull-right marginTop10" style="display:none">
+          <option data-icon="fa fa-film" value="Story">Story</option>
+          <option data-icon="fa fa-flag" value="Worksheet">Worksheet</option>
+          <option data-icon="fa fa-gamepad" value="Game">Game</option>
+        </select>
+      </div>
+      <div class="col-md-12 noPad borderBottom textEditor marginTop20 form-group" id="il-Txt-Editor" style="display:none;">
+        <div class="col-md-12 noPad">
+          <div class="form-group col-md-6 required">
+            <label class="control-label">Name</label>
+            <input class="form-control" ng-model="newContent.name" type="text"/>
+          </div>
+          <div class="form-group col-md-6 required">
+            <label class="control-label">Code</label>
+            <input class="form-control" ng-model="newContent.code" type="text"/>
+          </div>
+          <div class="form-group col-md-6 required">
+            <label class="control-label">Logo</label>
+            <input class="form-control" ng-model="newContent.appIcon" type="text"/>
+          </div>
+          <div class="form-group col-md-6 required">
+            <label class="control-label">Owner</label>
+            <input class="form-control" ng-model="newContent.owner" type="text"/>
+          </div>
+          <div class="form-group col-md-12">
+            <label>Body</label>
+            <textarea class="form-control" ng-model="newContent.body" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="col-md-12 padBottom">
+          <div class="alert alert-danger" ng-show="newContent.errorMessages.length > 0">
+            Error creating game. Following are the failed validations
+            <ul style="padding-left: 25px;list-style:disc outside none">
+              <li ng-repeat="error in newContent.errorMessages">{{error}}</li>
+            </ul>
+          </div>
+          <button class="btn btn-primary pull-right" data-loading-text="Creating content..." ng-click="createContent($event)">Create</button>
+        </div>
+      </div>
+      <div class="col-md-12 noPad padTop">
+        <div class="metro" ng-show="showContents">
+          <div class="tile gameTile" ng-click="viewContent(content.identifier)" ng-if="contents.length > 0" ng-repeat="content in contents" style="border: 1px solid #eee;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+            <div class="tile-content image" style="padding: 15px;">
+              <img ng-if="content.metadata.appIcon" ng-src="{{content.metadata.appIcon}}">
+              <img ng-if="!content.metadata.appIcon" ng-src="{{contextPath}}/img/not_available.jpg">
+            </div>
+            <div class="brand bg-white">
+              <span class="label fg-black" style="text-align: left;">
+                {{content.name}}
+                <div class="gameOwner" ng-if="content.description">{{content.description}}</div>
+              </span>
+              <span class="label fg-black game-status" style="color: green !important; font-weight:bold !important;">{{content.status}}</span>
+            </div>
+          </div>
+          <div class="alert alert-info" ng-if="contents.length == 0">
+            No contents are defined.
+          </div>
+        </div>
+        <div class="col-md-12" ng-if="seeMoreGames">
+          <button class="btn btn-sm btn-primary pull-right" ng-click="nextPage()">See More</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

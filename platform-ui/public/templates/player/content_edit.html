@@ -1,0 +1,187 @@
+<style type="text/css">
+  .grayText {
+    color: #999 !important;
+    background: none repeat scroll 0 0 #f9f9f9 !important;
+  }
+
+  .gameTitleSection {
+    background: none repeat scroll 0 0 #f9f9f9;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+
+  .noPad-noMargin {
+    padding: 0 !important;
+    margin: 0 !important;
+    margin-top: 7px !important;
+  }
+</style>
+<div class="MywallActivity">
+  <div class=" wallActivityHeader">
+    <div class="editContent">
+      <div class="headerAsk">
+        <h2 id="titleHeaderId">
+          <a href="javascript:void(0);" class="tool-tip hide" data-toggle="tooltip" data-placement="bottom" title="Back to Learning Object list" data-original-title="Back to Learning Object list" ng-click="viewLOBList()">
+            <i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
+          </a>
+          {{selectedContent.metadata.name}} [{{selectedContent.metadata.category}}]
+        </h2>
+      </div>
+      <div class="col-md-12 noPad padTop marginBottom15">
+        <!-- CSS removed borderBottomSolid gameTitleSection-->
+        <div id="contentDiv"></div>
+        <div class="des_container col-md-12 noPad marginBottom15 borderBottomSolid middleContent">
+          <span ng-if="selectedLOB.metadata.description.length > 300" ng-show="!showFullDesc">
+            <p class="des_content col-md-12 noPad" ng-bind-html="renderHtmlTrim(selectedLOB.metadata.description, 300)">
+            </p>
+            <a href="javascript:void()" ng-click="moreDescription()" class="pull-right" style="position: relative; bottom: 20px;">more...</a>
+          </span>
+          <span ng-if="selectedLOB.metadata.description.length <= 300">
+            <p class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedLOB.metadata.description)">
+            </p>
+          </span>
+          <p class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedLOB.metadata.description)" ng-show="showFullDesc">
+          </p>
+          <a href="javascript:void()" ng-click="lessDescription()" class="pull-right" style="position: relative; bottom: 20px;" ng-show="showFullDesc">less...</a>
+        </div>
+        <!-- <h4 class="noPad-noMargin">Rate the Content:</h4>
+        <div star-rating ng-model="contentRating" max="10" on-rating-select="rateFunction(rating)"></div>
+        <hr/>
+        <h5 class="noPad-noMargin">Rate the Content Relevance to Concept:</h5>
+        <div star-rating ng-model="conceptRating" max="10" on-rating-select="rateFunction(rating)"></div>
+        <h5 class="noPad-noMargin">Rate the Content Relevance to Learning Object:</h5>
+        <div star-rating ng-model="LOBRating" max="10" on-rating-select="rateFunction(rating)"></div>
+        <h5 class="noPad-noMargin">Rate the Content Relevance to Category '{{selectedContent.metadata.category}}':</h5>
+        <div star-rating ng-model="categoryRating" max="10" on-rating-select="rateFunction(rating)"></div>
+        <hr/>
+        <h3 class="noPad-noMargin">Please Leave Your Comment:</h3>
+        </br>
+        <div class="row">
+          <div class="col-sm-1">
+            <div class="thumbnail">
+              <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </div>
+          </div>
+
+          <div class="col-sm-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong> Feroz</strong>
+                <span class="text-muted">commented 6 days ago</span>
+              </div>
+              <div class="panel-body">
+                Nice content Easy to understand. Good Job!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1">
+            <div class="thumbnail">
+              <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </div>
+          </div>
+
+          <div class="col-sm-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong> Satish</strong>
+                <span class="text-muted">commented 5 days ago</span>
+              </div>
+              <div class="panel-body">
+                Great Work!
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1">
+            <div class="thumbnail">
+              <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </div>
+          </div>
+
+          <div class="col-sm-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong> Santhosh</strong>
+                <span class="text-muted">commented 4 days ago</span>
+              </div>
+              <div class="panel-body">
+                Good Content! Expecting more advance level.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1">
+            <div class="thumbnail">
+              <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </div>
+          </div>
+
+          <div class="col-sm-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong> Rayulu</strong>
+                <span class="text-muted">commented 4 days ago</span>
+              </div>
+              <div class="panel-body">
+                Good and Informative Content.
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-sm-1">
+            <div class="thumbnail">
+              <img class="img-responsive user-photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+            </div>
+          </div>
+
+          <div class="col-sm-5">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <strong> Azhar</strong>
+                <span class="text-muted">commented 3 days ago</span>
+              </div>
+              <div class="panel-body">
+                Nice Content.
+              </div>
+            </div>
+          </div>
+        </div>
+        <hr/>
+        <wysiwyg textarea-id="question" textarea-class="form-control" textarea-height="180px" textarea-name="textareaQuestion" textarea-required ng-model="data.text" enable-bootstrap-title="true" textarea-menu="menu" disabled="disabled">
+        </wysiwyg>
+        <hr/>
+        <button class="btn btn-primary pull-right" ng-click="">Post Comment</button> -->
+        <!-- <div class="col-md-12 noPad padBottom10">
+          <div class="col-md-4 noPad" style="float:right;">
+            Author(s)
+            <a href="mailto:{{author.email}}" ng-repeat="author in selectedConcept.metadata.authors">
+              <h4 class="margin0 grayText">{{author.name}}</h4>
+            </a>
+          </div>
+        </div> -->
+      </div>
+      <div class="col-md-12 noPad padBottom">
+      <div ng-include="'metadata_categories_template.html'"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div ng-include="'save_confirmation_template.html'"></div>
+<div ng-include="'comments_template.html'"></div>
+<div ng-include="'audit_log_template.html'"></div>
+
+<script type="text/javascript">
+  $('.mid-container-full').on("scroll", function(e) {
+    if (this.scrollTop > 100) {
+      $('#titleHeaderId').addClass('fix-title-head');
+    } else {
+      $('#titleHeaderId').removeClass('fix-title-head');
+    }
+  });
+</script>

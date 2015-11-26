@@ -4,7 +4,7 @@
 			<div class="headerAsk" id="activityStream">
                 <h2>{{taxonomies[selectedTaxonomyId].metadata.name}} Games
                 <a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Add new game"  data-original-title="Add new game">
-                    <i class="writeBlackOne fa fa-edit" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i></a>
+                    <i class="writeBlackOne fa fa-plus" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i></a>
                 </h2>
             </div>
             <div class="col-md-12 noPad borderBottom textEditor marginTop20 form-group" id="il-Txt-Editor" style="display:none;">
@@ -65,12 +65,12 @@
 					</div>
                     <div ng-if="games.length == 0" class="alert alert-info">
                         No games are defined.
-                    </div>    
+                    </div>
             	</div>
             	<div class="col-md-12" ng-if="seeMoreGames">
             		<button class="btn btn-sm btn-primary pull-right" ng-click="nextPage()">See More</button>
             	</div>
-        	</div>    	
-		</div>		
+        	</div>
+		</div>
 	</div>
 </div>
