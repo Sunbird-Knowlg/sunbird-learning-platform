@@ -48,37 +48,83 @@ exports.getContents = function(cb, contentType, offset, limit) {
 }
 
 exports.getContent = function(cb, contentId, taxonomyId, contentType) {
-  var args = {
-    path: {id: contentId},
-    parameters: {taxonomyId: taxonomyId,
-                type: contentType}
-  }
-  mwService.getCall(urlConstants.GET_CONTENT, args, function(err, results) {
-		if(err) {
-			cb(err);
-		} else {
-			var content = results.result.content;
-			content.relatedConcepts = util.getRelatedObjects(content, 'Concept');
-			content.relatedGames = util.getRelatedObjects(content, 'Game');
-			cb(null, content);
-		}
-	});
+	// TODO: Since the metadata is not coming from middleware as of now we are using getGame API code and commenting the getContent API Code
+  // var args = {
+  //   path: {id: contentId},
+  //   parameters: {taxonomyId: taxonomyId,
+  //               type: contentType}
+  // }
+  // mwService.getCall(urlConstants.GET_CONTENT, args, function(err, results) {
+	// 	if(err) {
+	// 		cb(err);
+	// 	} else {
+	// 		var content = results.result.content;
+	// 		content.relatedConcepts = util.getRelatedObjects(content, 'Concept');
+	// 		content.relatedGames = util.getRelatedObjects(content, 'Game');
+	// 		console.log('ContentService :: getContent() -- Final Content Object - ', content.metadata);
+	// 		cb(null, content);
+	// 	}
+	// });
+	// console.log('ContentService :: getContent() -- IN - ');
+		async.parallel({
+			game: function(callback) {
+				var args = {
+					path: {id: contentId},
+					parameters: {taxonomyId: taxonomyId}
+				}
+				// console.log('ContentService :: getContent() -- Arguments - ', args);
+				mwService.getCall(urlConstants.GET_GAME, args, callback);
+			},
+			auditHistory: function(callback) {
+				var args = {
+					path: {id: contentId},
+					parameters: {taxonomyId: taxonomyId}
+				}
+				mwService.getCall(urlConstants.AUDIT_HISTORY, args, callback);
+			},
+			comments: function(callback) {
+				var args = {
+					path: {id: contentId},
+					parameters: {taxonomyId: taxonomyId}
+				}
+				mwService.getCall(urlConstants.GET_COMMENTS, args, callback);
+			}
+		}, function(err, results) {
+			if(err) {
+				// console.log('ContentService :: getContent() -- Error - ', err);
+				cb(err);
+			} else {
+				var game = results.game.result.learning_object;
+				game.relatedConcepts = util.getRelatedObjects(game, 'Concept');
+				game.relatedGames = util.getRelatedObjects(game, 'Game');
+				game.parent = util.getParent(game);
+				game.auditHistory = results.auditHistory.result.audit_records;
+				game.comments = results.comments.result.comments;
+				// console.log('ContentService :: getContent() -- Final Content Object - ', game);
+				cb(null, game);
+			}
+		});
 }
 
 exports.updateContent = function(data, cb) {
 	var args = {
     path: {id: data.identifier,tid: data.taxonomyId,
-		type: 'Story'},
+		type: data.selectedContentType},
 		data: {
 		  "request": {
 		    "content": {
-		      "metadata": data.properties,
+		      "metadata": data.metadata, // Change to data.propertires once middleware allow partial Update for Update Content API
 		      "outRelations": [],
 		      "tags": []
 		    }
 		  }
 		}
   }
+	if (data.tags && data.tags.length > 0) {
+		_.each(data.tags, function (tag) {
+			args.data.tags.push(tag);
+		})
+	}
 	if (data.outRelations && data.outRelations.length > 0) {
 		_.each(data.outRelations, function (relation) {
 			args.data.outRelations.push(relation);
@@ -99,21 +145,22 @@ exports.createContent = function(data, cb) {
           type: data.contentType},
 		data: {
 		  "request": {
-		    "worksheet": {
-		      "metadata": {
-		        "name": data.name,
-		        "description": data.description,
-		        "code": data.code,
-		        "body": data.body,
-		        "owner": data.owner
-		      },
+		    "content": {
+					"identifier": data.code,
+		      "metadata": data.properties,
 		      "outRelations": [],
 		      "tags": []
 		    }
 		  }
 		}
 	}
-	mwService.patchCall(urlConstants.CREATE_CONTENT, args, function(err, data) {
+	if (data.outRelations && data.outRelations.length > 0) {
+		_.each(data.outRelations, function (relation) {
+			args.data.outRelations.push(relation);
+		})
+	}
+	console.log('ContentService :: Create Content -- Arguments - ', args);
+	mwService.postCall(urlConstants.SAVE_CONTENT, args, function(err, data) {console.log(data);
 		if(err) {
 			cb(err);
 		} else if(util.validateMWResponse(data, cb)) {

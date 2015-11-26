@@ -17,50 +17,50 @@
                 	<a href="javascript:void(0);" class="tool-tip" data-toggle="tooltip" data-placement="bottom" title="Back to Contents list"  data-original-title="Back to Games list" ng-click="viewContentList()">
 						<i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
 					</a>
-                	{{selectedConcept.name}}
+                	{{selectedConcept.metadata.name}}
                 </h2>
             </div>
             <div class="col-md-12 noPad padTop marginBottom15 borderBottomSolid gameTitleSection">
             	<div class="col-md-3 noPad">
-            		<img ng-src="{{selectedConcept.posterImage}}" ng-if="selectedConcept.posterImage"/>
-            		<img ng-src="{{contextPath}}/img/not_available.jpg" ng-if="!selectedConcept.posterImage"/>
+            		<img ng-src="{{selectedConcept.metadata.posterImage}}" ng-if="selectedConcept.metadata.posterImage"/>
+            		<img ng-src="{{contextPath}}/img/not_available.jpg" ng-if="!selectedConcept.metadata.posterImage"/>
                 <div class="col-md-12 noPad marginTop10 marginBottom15">
-                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.purpose">{{selectedConcept.purpose}}</span>
-                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.status">{{selectedConcept.status}}</span>
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.metadata.purpose">{{selectedConcept.metadata.purpose}}</span>
+                    <span class="badge greenBadge marginRight15" ng-if="selectedConcept.metadata.status">{{selectedConcept.metadata.status}}</span>
                 </div>
             	</div>
             	<div class="col-md-9">
             		  <div class="des_container col-md-12 noPad marginBottom15 borderBottomSolid">
-                    <span ng-if="selectedConcept.description.length > 300" ng-show="!showFullDesc">
-                      <span class="des_content col-md-12 noPad" ng-bind-html="renderHtmlTrim(selectedConcept.description, 300)">
+                    <span ng-if="selectedConcept.metadata.description.length > 300" ng-show="!showFullDesc">
+                      <span class="des_content col-md-12 noPad" ng-bind-html="renderHtmlTrim(selectedConcept.metadata.description, 300)">
                       </span>
                       <a href="javascript:void()" ng-click="moreDescription()" class="pull-right" style="position: relative; bottom: 20px;">more...</a>
                     </span>
-                    <span ng-if="selectedConcept.description.length <= 300">
-                      <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.description)">
+                    <span ng-if="selectedConcept.metadata.description.length <= 300">
+                      <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.metadata.description)">
                       </span>
                     </span>
-                    <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.description)" ng-show="showFullDesc">
+                    <span class="des_content col-md-12 noPad padBottom10" ng-bind-html="renderHtml(selectedConcept.metadata.description)" ng-show="showFullDesc">
                     </span>
                     <a href="javascript:void()" ng-click="lessDescription()" class="pull-right" style="position: relative; bottom: 20px;" ng-show="showFullDesc">less...</a>
                 	</div>
-                  <div class="col-md-12 noPad marginBottom10" ng-if="selectedConcept.downloads || selectedConcept.totalGamingTime || selectedConcept.avgGamingTime">
-                    <div class="col-md-4 noPad" ng-if="selectedConcept.downloads">
-                        Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.downloads}}</h4></a>
+                  <div class="col-md-12 noPad marginBottom10" ng-if="selectedConcept.metadata.downloads || selectedConcept.metadata.totalGamingTime || selectedConcept.metadata.avgGamingTime">
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.downloads">
+                        Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.downloads}}</h4></a>
                     </div>
-                    <div class="col-md-4 noPad" ng-if="selectedConcept.totalGamingTime">
-                        Total Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.totalGamingTime}}</h4></a>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.totalGamingTime">
+                        Total Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.totalGamingTime}}</h4></a>
                     </div>
-                    <div class="col-md-4 noPad" ng-if="selectedConcept.avgGamingTime">
-                        Avg. Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.avgGamingTime}}</h4></a>
+                    <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.avgGamingTime">
+                        Avg. Gaming Time<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.avgGamingTime}}</h4></a>
                     </div>
                   </div>
                 	<div class="col-md-12 noPad padBottom10">
                     <div class="col-md-4 noPad">
-                        Developed by<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.developer}}</h4></a>
+                        Developed by<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.developer}}</h4></a>
                     </div>
                     <div class="col-md-4 noPad">
-                        Owned by: <a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.owner}}</h4></a>
+                        Owned by: <a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.owner}}</h4></a>
                     </div>
                 	</div>
             	</div>

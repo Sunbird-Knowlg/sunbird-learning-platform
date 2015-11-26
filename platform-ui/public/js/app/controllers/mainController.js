@@ -687,6 +687,19 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $state.go('gamePage', {id: gameId});
     }
 
+    $scope.updatePkgVersion = function(propName) {
+      if (propName === 'downloadUrl') {
+          var currentVer = $scope.selectedConcept.metadata['pkgVersion'];
+          console.log('Current Version: ', currentVer);
+          if (currentVer == undefined || currentVer == null) {
+            $scope.selectedConcept.metadata['pkgVersion'] = 1;
+          }else {
+            $scope.selectedConcept.metadata['pkgVersion'] = currentVer + 1;
+          }
+          console.log('Updated Version: ', $scope.selectedConcept.metadata['pkgVersion']);
+      }
+    }
+
     $scope.uploadFile = function(propName) {
         var fileObj = $scope.selectedConcept.filesToUpload[propName];
         if (fileObj && fileObj != null) {
@@ -701,6 +714,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                     service.uploadFile(fd).then(function(data) {
                         $scope.selectedConcept.uploading[propName] = false;
                         $scope.selectedConcept.metadata[propName] = data.url;
+                        $scope.updatePkgVersion(propName);
                         console.log(propName);
                     }).catch(function(err) {
                         console.log('Error While File Upload', err);
@@ -1271,10 +1285,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.getContents = function() {
         $scope.showContents = false;
         var contentType = $scope.selectedContentType;
-        // console.log('ContentListController :: getContents() -- Content Type - ', contentType);
         service.getContents(contentType, $scope.offset, $scope.limit).then(function(data) {
-          // console.log('ContentListController :: getContents() -- ', data);
-          // console.log(data);
             if (data.contents && data.contents.length > 0) {
                 $scope.contents = [];
                 $scope.contents.push.apply($scope.contents, data.contents);
@@ -1362,7 +1373,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
         })
     }
     $timeout(function() {
-        selectLeftMenuTab('forumsTab');
+        selectLeftMenuTab('courseTab');
     }, 1000);
 }]);
 
@@ -1474,10 +1485,6 @@ app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$state
     $scope.setContentResponse = function(data) {console.log(data);
         $scope.$parent.selectedConcept = data;
         $scope.$parent.selectedConcept.newMetadata = [];
-        // TODO: Remove below two line when the middleware is returning metadata as its properties
-        $scope.$parent.selectedConcept.metadata = [];
-        $scope.$parent.selectedConcept.metadata.push(data.downloadUrl);debugger;
-        //
         $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
         $scope.$parent.selectedConcept.relatedContentsLimit = service.rhsSectionObjectsLimit;
         $scope.resetRelations();
@@ -1515,7 +1522,11 @@ app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$state
     $scope.saveChanges = function($event) {
         $scope.buttonLoading($event);
         $scope.$parent.conceptToBeUpdated.comment = $scope.commitMessage;
-        service.updateContent($scope.$parent.conceptToBeUpdated).then(function(data) {
+        $scope.$parent.conceptToBeUpdated.contentType = $scope.$parent.selectedContentType;
+        // TODO: use 'conceptToBeUpdated' instead of 'selectedConcept' Once middleware APIs are ready with partial update
+        $scope.$parent.selectedConcept.taxonomyId = $scope.$parent.selectedTaxonomyId;
+        $scope.$parent.selectedConcept.selectedContentType = $scope.$parent.selectedContentType;
+        service.updateContent($scope.$parent.selectedConcept).then(function(data) {
             $scope.buttonReset($event);
             $scope.getContent($scope.$parent.selectedTaxonomyId);
             $('#saveChangesModal').modal('hide');
