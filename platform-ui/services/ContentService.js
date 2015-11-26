@@ -26,9 +26,9 @@ exports.getContentDefinition = function(cb, taxonomyId, contentType) {
 	});
 }
 
-exports.getContents = function(cb, contentType, offset, limit) {
+exports.getContents = function(cb, taxonomyId, contentType, offset, limit) {
 	var args = {
-		path: {type: contentType},
+		path: {taxonomyId: taxonomyId, type: contentType},
 		data: {
 			request: {
 			}

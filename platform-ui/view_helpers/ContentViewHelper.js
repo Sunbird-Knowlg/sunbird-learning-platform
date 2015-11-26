@@ -22,7 +22,7 @@ exports.getContentDefinition = function(req, res) {
 }
 
 exports.getContents = function(req, res) {
-	service.getContents(util.responseCB(res), req.params.contentType, req.params.offset, req.params.limit);
+	service.getContents(util.responseCB(res), req.params.taxonomyId, req.params.contentType, req.params.offset, req.params.limit);
 }
 
 exports.getContent = function(req, res) {

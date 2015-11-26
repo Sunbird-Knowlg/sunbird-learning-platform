@@ -235,8 +235,8 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/media', data);
     }
 
-    this.getContents = function(contentType, offset, limit) {
-        return this.getFromService('/private/v1/player/contents/' + contentType + '/' + offset + '/' + limit);
+    this.getContents = function(taxonomyId, contentType, offset, limit) {
+        return this.getFromService('/private/v1/player/contents/' + taxonomyId + '/' + contentType + '/' + offset + '/' + limit);
     }
 
     this.getContentDefinition = function(taxonomyId, contentType) {
@@ -1285,7 +1285,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.getContents = function() {
         $scope.showContents = false;
         var contentType = $scope.selectedContentType;
-        service.getContents(contentType, $scope.offset, $scope.limit).then(function(data) {
+        service.getContents($scope.$parent.selectedTaxonomyId, contentType, $scope.offset, $scope.limit).then(function(data) {
             if (data.contents && data.contents.length > 0) {
                 $scope.contents = [];
                 $scope.contents.push.apply($scope.contents, data.contents);
