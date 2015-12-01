@@ -26,9 +26,10 @@ exports.getContentDefinition = function(cb, taxonomyId, contentType) {
 	});
 }
 
-exports.getContents = function(cb, contentType, offset, limit) {
+exports.getContents = function(cb, contentType, taxonomyId, offset, limit) {
 	var args = {
-		path: {type: contentType},
+		path: {type: contentType,
+					tid: taxonomyId},
 		data: {
 			request: {
 			}
@@ -38,7 +39,6 @@ exports.getContents = function(cb, contentType, offset, limit) {
 		if(err) {
 			cb(err);
 		} else {
-			// console.log('ContentService :: getContents() -- IN - ', data);
 			var contents = data.result.content;
 			var result = {};
 			result.contents = contents;
@@ -72,7 +72,6 @@ exports.getContent = function(cb, contentId, taxonomyId, contentType) {
 					path: {id: contentId},
 					parameters: {taxonomyId: taxonomyId}
 				}
-				// console.log('ContentService :: getContent() -- Arguments - ', args);
 				mwService.getCall(urlConstants.GET_GAME, args, callback);
 			},
 			auditHistory: function(callback) {
@@ -91,7 +90,6 @@ exports.getContent = function(cb, contentId, taxonomyId, contentType) {
 			}
 		}, function(err, results) {
 			if(err) {
-				// console.log('ContentService :: getContent() -- Error - ', err);
 				cb(err);
 			} else {
 				var game = results.game.result.learning_object;
@@ -100,7 +98,6 @@ exports.getContent = function(cb, contentId, taxonomyId, contentType) {
 				game.parent = util.getParent(game);
 				game.auditHistory = results.auditHistory.result.audit_records;
 				game.comments = results.comments.result.comments;
-				// console.log('ContentService :: getContent() -- Final Content Object - ', game);
 				cb(null, game);
 			}
 		});
@@ -141,13 +138,20 @@ exports.updateContent = function(data, cb) {
 
 exports.createContent = function(data, cb) {
 	var args = {
-    path: {taxonomyId: data.taxonomyId,
-          type: data.contentType},
+    path: {tid: data.taxonomyId,
+          contentType: data.contentType},
 		data: {
 		  "request": {
 		    "content": {
 					"identifier": data.code,
-		      "metadata": data.properties,
+		      "metadata": {
+						"name": data.name,
+					  "code": data.code,
+					  "appIcon": data.appIcon,
+					  "owner": data.owner,
+					  "body": data.body,
+						"status": data.status
+					},
 		      "outRelations": [],
 		      "tags": []
 		    }
@@ -158,8 +162,7 @@ exports.createContent = function(data, cb) {
 		_.each(data.outRelations, function (relation) {
 			args.data.outRelations.push(relation);
 		})
-	}
-	console.log('ContentService :: Create Content -- Arguments - ', args);
+	}console.log(args.data.request.content.metadata);
 	mwService.postCall(urlConstants.SAVE_CONTENT, args, function(err, data) {console.log(data);
 		if(err) {
 			cb(err);

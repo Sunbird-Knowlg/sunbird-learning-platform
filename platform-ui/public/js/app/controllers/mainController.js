@@ -235,8 +235,8 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/media', data);
     }
 
-    this.getContents = function(contentType, offset, limit) {
-        return this.getFromService('/private/v1/player/contents/' + contentType + '/' + offset + '/' + limit);
+    this.getContents = function(contentType, taxonomyId, offset, limit) {
+        return this.getFromService('/private/v1/player/contents/' + contentType + '/' + taxonomyId + '/' + offset + '/' + limit);
     }
 
     this.getContentDefinition = function(taxonomyId, contentType) {
@@ -272,7 +272,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.selectedTaxonomyId = undefined;
     $scope.selectedConcept = undefined;
     $scope.newComment = "";
-    $scope.uploadFolderName = "games";
+    $scope.remoteUploadFolder = "games";
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
             if(data && data.length > 0) {
@@ -687,8 +687,9 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $state.go('gamePage', {id: gameId});
     }
 
-    $scope.updatePkgVersion = function(propName) {
-      if (propName === 'downloadUrl') {
+    $scope.updatePkgInformation = function(propName, fileObj) {
+      if (propName.toLowerCase() === 'downloadurl') {
+          // Update Package Version
           var currentVer = $scope.selectedConcept.metadata['pkgVersion'];
           console.log('Current Version: ', currentVer);
           if (currentVer == undefined || currentVer == null) {
@@ -696,7 +697,27 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
           }else {
             $scope.selectedConcept.metadata['pkgVersion'] = currentVer + 1;
           }
+
+          if (fileObj) {
+            // Update Package Size
+            $scope.selectedConcept.metadata['size'] = fileObj.size;
+
+            // Update Package Format
+            if (fileObj.type.toLowerCase() === 'application/zip') {
+              $scope.selectedConcept.metadata['format'] = "ZIP";
+            }else {
+              $scope.selectedConcept.metadata['format'] = fileObj.type;
+            }
+          }
           console.log('Updated Version: ', $scope.selectedConcept.metadata['pkgVersion']);
+      }
+    }
+
+    $scope.setRemoteUploadFolder = function(propName) {
+      if (propName.toLowerCase() === 'downloadurl') {
+        $scope.remoteUploadFolder = "content";
+      }else {
+        $scope.remoteUploadFolder = "games";
       }
     }
 
@@ -707,14 +728,16 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             console.log("File oj type:" + type);
             if (type.indexOf('image') == 0 || type.indexOf('application/zip') == 0) {
                 if (fileObj.size && fileObj.size > 0) {
-                    var fd = new FormData();
+                    $scope.setRemoteUploadFolder(propName);
+                    var fd = new FormData();console.log('File Descriptor: ', fileObj);
                     fd.append('document', fileObj);
-                    fd.append('folderName', 'games');
+                    fd.append('folderName', $scope.remoteUploadFolder);
+                    console.log('Uploading Content to: ', $scope.remoteUploadFolder);
                     $scope.selectedConcept.uploading[propName] = true;
                     service.uploadFile(fd).then(function(data) {
                         $scope.selectedConcept.uploading[propName] = false;
                         $scope.selectedConcept.metadata[propName] = data.url;
-                        $scope.updatePkgVersion(propName);
+                        $scope.updatePkgInformation(propName, fileObj);
                         console.log(propName);
                     }).catch(function(err) {
                         console.log('Error While File Upload', err);
@@ -1264,6 +1287,8 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
 app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
+    $scope.selectedContentType = 'Story';
+    $scope.$parent.selectedContentType = 'Story';
     $scope.offset = 0;
     $scope.limit = 10;
     $scope.contents = [];
@@ -1271,7 +1296,9 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.showContents = false;
 
     $scope.newContent = {
-        contentType: $scope.selectedContentType,
+        contentType: $scope.$parent.selectedContentType,
+        taxonomyId: $scope.$parent.selectedTaxonomyId,
+        status: "Live",
         name: undefined,
         code: undefined,
         appIcon: undefined,
@@ -1285,7 +1312,8 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.getContents = function() {
         $scope.showContents = false;
         var contentType = $scope.selectedContentType;
-        service.getContents(contentType, $scope.offset, $scope.limit).then(function(data) {
+        var taxonomyId = $scope.$parent.selectedTaxonomyId;
+        service.getContents(contentType, taxonomyId, $scope.offset, $scope.limit).then(function(data) {
             if (data.contents && data.contents.length > 0) {
                 $scope.contents = [];
                 $scope.contents.push.apply($scope.contents, data.contents);
@@ -1313,9 +1341,8 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
         $state.go('contentPage', {id: contentId});
     }
 
-    $scope.selectedContentType = 'Story';
-    $scope.$parent.selectedContentType = 'Story';
     $scope.getContents();
+    console.log('ContentListController :: selectedContentType', $scope.$parent.selectedContentType);
 
     $("select.selectpicker").change(function(){
           var selectedContentType = $(".selectpicker option:selected").val();
@@ -1530,12 +1557,14 @@ app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$state
             $scope.buttonReset($event);
             $scope.getContent($scope.$parent.selectedTaxonomyId);
             $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
             $scope.showConformationMessage('alert-success','Content updated successfully.');
         }).catch(function(err) {
             $scope.$parent.validationMessages = [];
             $scope.$parent.validationMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
             $scope.showConformationMessage('alert-danger','Error while updating Content.');
         });
     }

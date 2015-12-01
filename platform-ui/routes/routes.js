@@ -199,7 +199,7 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.post('/private/v1/player/media', mediaHelper.createMedia);
 
     app.get('/private/v1/player/contentdefinition/:tid/:contentType', contentHelper.getContentDefinition);
-    app.get('/private/v1/player/contents/:contentType/:offset/:limit', contentHelper.getContents);
+    app.get('/private/v1/player/contents/:contentType/:taxonomyId/:offset/:limit', contentHelper.getContents);
     app.get('/private/v1/player/content/:cid/:tid/:type', contentHelper.getContent);
     app.post('/private/v1/player/content/create', contentHelper.createContent);
     app.post('/private/v1/player/content/update', contentHelper.updateContent);

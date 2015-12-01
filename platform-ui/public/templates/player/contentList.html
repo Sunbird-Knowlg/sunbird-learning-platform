@@ -4,7 +4,7 @@
       <div class="headerAsk" id="activityStream">
         <h2>{{taxonomies[selectedTaxonomyId].metadata.name}}
           Contents
-          <a class="tool-tip hide" data-original-title="Add new content" data-placement="bottom" data-toggle="tooltip" href="javascript:void(0);" title="Add new content">
+          <a class="tool-tip" data-original-title="Add new content" data-placement="bottom" data-toggle="tooltip" href="javascript:void(0);" title="Add new content">
             <i class="writeBlackOne fa fa-plus" id="writeIcon" onclick="openCreateArea(this, 'fa-edit');"></i>
           </a>
         </h2>
@@ -51,7 +51,7 @@
         <div class="metro" ng-show="showContents">
           <div class="tile gameTile" ng-click="viewContent(content.identifier)" ng-if="contents.length > 0" ng-repeat="content in contents" style="border: 1px solid #eee;box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
             <div class="tile-content image" style="padding: 15px;">
-              <img ng-if="content.metadata.appIcon" ng-src="{{content.metadata.appIcon}}">
+              <img ng-if="content.appIcon" ng-src="{{content.appIcon}}">
               <img ng-if="!content.metadata.appIcon" ng-src="{{contextPath}}/img/not_available.jpg">
             </div>
             <div class="brand bg-white">
