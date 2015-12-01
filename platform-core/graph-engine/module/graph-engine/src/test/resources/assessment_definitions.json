@@ -108,7 +108,8 @@
             "ftb",
             "mtf",
             "speech_question",
-            "canvas_question"
+            "canvas_question",
+            "recognition"
           ],
           "required": true,
           "indexed": true,
