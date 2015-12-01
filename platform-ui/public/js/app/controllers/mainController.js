@@ -687,7 +687,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $state.go('gamePage', {id: gameId});
     }
 
-    $scope.updatePkgInformation = function(propName, fileObj) {
+    $scope.updatePkgInformation = function(propName, data, fileObj) {
       if (propName.toLowerCase() === 'downloadurl') {
           // Update Package Version
           var currentVer = $scope.selectedConcept.metadata['pkgVersion'];
@@ -698,9 +698,14 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             $scope.selectedConcept.metadata['pkgVersion'] = currentVer + 1;
           }
 
+          // Update File Checksum
+          if (data && data.digest) {
+            $scope.selectedConcept.metadata['checksum'] = data.digest;
+          }
+
           if (fileObj) {
             // Update Package Size
-            $scope.selectedConcept.metadata['size'] = fileObj.size;
+            $scope.selectedConcept.metadata['size'] = fileObj.size.toString();
 
             // Update Package Format
             if (fileObj.type.toLowerCase() === 'application/zip') {
@@ -729,7 +734,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
             if (type.indexOf('image') == 0 || type.indexOf('application/zip') == 0) {
                 if (fileObj.size && fileObj.size > 0) {
                     $scope.setRemoteUploadFolder(propName);
-                    var fd = new FormData();console.log('File Descriptor: ', fileObj);
+                    var fd = new FormData();
                     fd.append('document', fileObj);
                     fd.append('folderName', $scope.remoteUploadFolder);
                     console.log('Uploading Content to: ', $scope.remoteUploadFolder);
@@ -737,7 +742,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
                     service.uploadFile(fd).then(function(data) {
                         $scope.selectedConcept.uploading[propName] = false;
                         $scope.selectedConcept.metadata[propName] = data.url;
-                        $scope.updatePkgInformation(propName, fileObj);
+                        $scope.updatePkgInformation(propName, data, fileObj);
                         console.log(propName);
                     }).catch(function(err) {
                         console.log('Error While File Upload', err);

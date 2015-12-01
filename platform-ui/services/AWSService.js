@@ -15,18 +15,25 @@
  */
 var AWS = require('aws-sdk'),
     fs = require('fs'),
+    crypto = require("crypto"),
     util = require('../commons/Util');
 
 AWS.config.region = appConfig.AWS_REGION;
 AWS.config.update({ accessKeyId: appConfig.AWS_ACCESSKEYID, secretAccessKey: appConfig.AWS_SECRETACCESSKEY });
 
-exports.uploadFile = function(bucketName, folderPath , fileName, file, cb) {	
+exports.uploadFile = function(bucketName, folderPath , fileName, file, cb) {
 	var fileStream = fs.createReadStream(file.path);
 	var keyVal = folderPath + '/' + fileName;
+  var hex = "";
+  var digest = crypto.createHash("sha1");
+  fileStream.on("data", function(d) {digest.update(d);});
+  fileStream.on("end", function() {
+    hex = digest.digest("hex");
+  });
 	fileStream.on('error', function (err) {
 	  if (err)
-	  	throw err; 
-	});  
+	  	throw err;
+	});
 	fileStream.on('open', function () {
 	  var s3 = new AWS.S3();
 	  s3.putObject({
@@ -36,11 +43,11 @@ exports.uploadFile = function(bucketName, folderPath , fileName, file, cb) {
 	    ACL: 'public-read',
 	    ContentType: file.type
 	  }, function (err , data) {
-	    if (err) { 
+	    if (err) {
 	    	cb(err);
 	    } else {
 	    	var objectURL = 'https://s3-' + appConfig.AWS_REGION + '.amazonaws.com/' + bucketName + '/' + keyVal;
-	    	var resp = {url: objectURL};
+	    	var resp = {url: objectURL, digest: hex};
 	    	cb(null, resp);
 	    }
 	  });
