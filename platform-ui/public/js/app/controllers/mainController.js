@@ -705,27 +705,23 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         if (fileObj && fileObj != null) {
             var type = fileObj.type;
             console.log("File oj type:" + type);
-            if (type.indexOf('image') == 0 || type.indexOf('application/zip') == 0) {
-                if (fileObj.size && fileObj.size > 0) {
-                    var fd = new FormData();
-                    fd.append('document', fileObj);
-                    fd.append('folderName', 'games');
-                    $scope.selectedConcept.uploading[propName] = true;
-                    service.uploadFile(fd).then(function(data) {
-                        $scope.selectedConcept.uploading[propName] = false;
-                        $scope.selectedConcept.metadata[propName] = data.url;
-                        $scope.updatePkgVersion(propName);
-                        console.log(propName);
-                    }).catch(function(err) {
-                        console.log('Error While File Upload', err);
-                        $scope.selectedConcept.uploading[propName] = false;
-                        alert('File upload failed: ' + err.errorMsg);
-                    });
-                } else {
-                    alert('Selected file size is 0 bytes. Please select another file');
-                }
+            if (fileObj.size && fileObj.size > 0) {
+                var fd = new FormData();
+                fd.append('document', fileObj);
+                fd.append('folderName', 'games');
+                $scope.selectedConcept.uploading[propName] = true;
+                service.uploadFile(fd).then(function(data) {
+                    $scope.selectedConcept.uploading[propName] = false;
+                    $scope.selectedConcept.metadata[propName] = data.url;
+                    $scope.updatePkgVersion(propName);
+                    console.log(propName);
+                }).catch(function(err) {
+                    console.log('Error While File Upload', err);
+                    $scope.selectedConcept.uploading[propName] = false;
+                    alert('File upload failed: ' + err.errorMsg);
+                });
             } else {
-                alert('Only images, audio, video and zipfiles are allowed');
+                alert('Selected file size is 0 bytes. Please select another file');
             }
         } else {
             alert('Please select a file to upload');
