@@ -733,6 +733,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
 }]);
 
 app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+    $scope.$parent.validationMessages = [];
     $rootScope.sunburstLoaded = false;
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
     $scope.sbConcept = undefined, $scope.$parent.selectedConcept = undefined, $scope.$parent.unmodifiedConcept = undefined, $scope.showSunburst = true, $scope.showTree = false;
@@ -842,6 +843,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $rootScope.isNameExist = function(conceptName, oldConceptName) {
+        if (conceptName === oldConceptName) {
+          return false;
+        }
         var allConcepts = $scope.allConcepts;
         if(oldConceptName) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {name: oldConceptName}));
         var concept = _.findWhere(allConcepts, {name: conceptName});
@@ -850,6 +854,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $rootScope.isCodeExist = function(code, oldCode) {
+        if (code === oldCode) {
+          return false;
+        }
         var allConcepts = $scope.allConcepts;
         if(oldCode) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {code: oldCode}));
         var concept = _.findWhere(allConcepts, {code: code});
@@ -1077,7 +1084,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
 }]);
 
 app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
-
+    $scope.$parent.validationMessages = [];
     $scope.showFullDesc = false;
      $scope.uploadScreenshots = function($event, propName) {
         var fileObj = $scope.selectedConcept.filesToUpload[propName];
@@ -1375,6 +1382,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
 
 app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 // TODO: UploadContent method needs to be generalized for all controller all the differences should be passed as parameter including callback functions
+    $scope.$parent.validationMessages = [];
     $scope.showFullDesc = false;
     //  $scope.uploadContent = function($event, propName) {
     //     var fileObj = $scope.selectedConcept.filesToUpload[propName];
