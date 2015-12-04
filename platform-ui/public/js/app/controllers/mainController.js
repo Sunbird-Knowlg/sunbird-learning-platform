@@ -874,6 +874,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $rootScope.isNameExist = function(conceptName, oldConceptName) {
+        if (conceptName === oldConceptName) {
+          return false;
+        }
         var allConcepts = $scope.allConcepts;
         if(oldConceptName) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {name: oldConceptName}));
         var concept = _.findWhere(allConcepts, {name: conceptName});
@@ -882,6 +885,9 @@ app.controller('LearningMapController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $rootScope.isCodeExist = function(code, oldCode) {
+        if (code === oldCode) {
+          return false;
+        }
         var allConcepts = $scope.allConcepts;
         if(oldCode) allConcepts = _.without(allConcepts, _.findWhere(allConcepts, {code: oldCode}));
         var concept = _.findWhere(allConcepts, {code: code});
