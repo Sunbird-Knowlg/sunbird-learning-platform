@@ -25,7 +25,7 @@ var fs = require('fs'),
 
 var client = new Client();
 var API_ENDPOINT = "http://localhost:8080";
-var CREATE_ITEM_URL = "/taxonomy-service/v1/assessmentitem?taxonomyId=${tid}";
+var CREATE_ITEM_URL = "/taxonomy-service/v1/assessmentitem/${id}?taxonomyId=${tid}";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
 var inputFilePath = process.argv[4];
@@ -188,7 +188,7 @@ function getMWAPICallfunction(item) {
 			});
 		}
 		var args = {
-			path: {tid:taxonomyId},
+			path: {id:item.metadata.code, tid:taxonomyId},
 	        headers: {
 	            "Content-Type": "application/json",
 	            "user-id": 'csv-import'
@@ -202,7 +202,7 @@ function getMWAPICallfunction(item) {
         	}
 	    };
 	    var url = API_ENDPOINT + CREATE_ITEM_URL;
-	    client.post(url, args, function(data, response) {
+	    client.patch(url, args, function(data, response) {
 	        parseResponse(item, data, callback);
 	    }).on('error', function(err) {
 	    	errorMap[item.index + 1] = "Connection error: " + err;
