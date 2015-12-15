@@ -1,0 +1,56 @@
+{
+	"start_row": 0,
+	"start_col": 0,
+	"data": {
+		"code": {"col-def": {"column" : 0}},
+		"title": {"col-def": {"column" : 1}},
+		"question": {"col-def": {"column" : 2}},
+		"num_answers": {"col-def": {"column" : 3}},
+		"max_score": {"col-def": {"column" : 4}},
+		"partial_scoring": {"col-def": {"column" : 5, "type": "boolean"}},
+		"feedback": {"col-def": {"column" : 6}},
+		"gradeLevel": {"col-def": {"column" : 7}},
+		"difficulty_level_sn": {"col-def": {"column" : 8}},
+		"difficulty_level": {"col-def": {"column" : 8}},
+		"difficulty_level_analytics": {"col-def": {"column" : 8}},
+		"options": [
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 9}},
+					"asset": {"col-def": {"column" : 10}}
+				},
+				"answer": {"col-def": {"column" : 11}},
+				"score": {"col-def": {"column" : 12}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 13}},
+					"asset": {"col-def": {"column" : 14}}
+				},
+				"answer": {"col-def": {"column" : 15}},
+				"score": {"col-def": {"column" : 16}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 17}},
+					"asset": {"col-def": {"column" : 18}}
+				},
+				"answer": {"col-def": {"column" : 19}},
+				"score": {"col-def": {"column" : 20}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 21}},
+					"asset": {"col-def": {"column" : 22}}
+				},
+				"answer": {"col-def": {"column" : 23}},
+				"score": {"col-def": {"column" : 24}}
+			}
+		],
+		"remarks": {
+			"kannada": {"col-def": {"column" : 36}},
+			"transliteration": {"col-def": {"column" : 37}}
+		},
+		"rel:associatedTo": {"col-def": {"column": [25, 26, 27]}}
+	}
+}

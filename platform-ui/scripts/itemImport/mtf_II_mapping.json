@@ -1,0 +1,116 @@
+{
+	"start_row": 0,
+	"start_col": 0,
+	"data": {
+		"code": {"col-def": {"column" : 0}},
+		"title": {"col-def": {"column" : 1}},
+		"question": {"col-def": {"column" : 2}},
+		"num_answers": {"col-def": {"column" : 3}},
+		"max_score": {"col-def": {"column" : 4}},
+		"partial_scoring": {"col-def": {"column" : 5, "type": "boolean"}},
+		"feedback": {"col-def": {"column" : 6}},
+		"gradeLevel": {"col-def": {"column" : 7}},
+		"difficulty_level_sn": {"col-def": {"column" : 8}},
+		"difficulty_level": {"col-def": {"column" : 8}},
+		"difficulty_level_analytics": {"col-def": {"column" : 8}},
+		"lhs_options": [
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 10}},
+					"asset": {"col-def": {"column" : 11}}
+				},
+				"index":{"col-def": {"column" : 9}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 13}},
+					"asset": {"col-def": {"column" : 14}}
+				},
+				"index":{"col-def": {"column" : 12}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 16}},
+					"asset": {"col-def": {"column" : 17}}
+				},
+				"index":{"col-def": {"column" : 15}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 19}},
+					"asset": {"col-def": {"column" : 20}}
+				},
+				"index":{"col-def": {"column" : 18}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 22}},
+					"asset": {"col-def": {"column" : 23}}
+				},
+				"index":{"col-def": {"column" : 21}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 25}},
+					"asset": {"col-def": {"column" : 26}}
+				},
+				"index":{"col-def": {"column" : 24}}
+			}
+		],
+		"rhs_options": [
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 27}},
+					"asset": {"col-def": {"column" : 28}}
+				},
+				"answer": {"col-def": {"column" : 29}},
+				"score": {"col-def": {"column" : 30}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 31}},
+					"asset": {"col-def": {"column" : 32}}
+				},
+				"answer": {"col-def": {"column" : 33}},
+				"score": {"col-def": {"column" : 34}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 35}},
+					"asset": {"col-def": {"column" : 36}}
+				},
+				"answer": {"col-def": {"column" : 37}},
+				"score": {"col-def": {"column" : 38}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 39}},
+					"asset": {"col-def": {"column" : 40}}
+				},
+				"answer": {"col-def": {"column" : 41}},
+				"score": {"col-def": {"column" : 42}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 43}},
+					"asset": {"col-def": {"column" : 44}}
+				},
+				"answer": {"col-def": {"column" : 45}},
+				"score": {"col-def": {"column" : 46}}
+			},
+			{
+				"value" : {
+					"type": {"col-def": {"column" : 47}},
+					"asset": {"col-def": {"column" : 48}}
+				},
+				"answer": {"col-def": {"column" : 49}},
+				"score": {"col-def": {"column" : 50}}
+			}
+		],
+		"remarks": {
+			"kannada": {"col-def": {"column" : 56}},
+			"transliteration": {"col-def": {"column" : 57}}
+		},
+		"rel:associatedTo": {"col-def": {"column": [51, 52, 53]}}
+	}
+}
