@@ -206,12 +206,14 @@ exports.createGame = function(data, cb) {
 			request: {
 				learning_object: {
 	        		objectType: "Game",
+	        		identifier: data.code,
 	        		metadata: {
 	 					"name": data.name,
 	 					"code": data.code,
 	 					"appIcon": data.appIcon,
 	 					"posterImage": data.posterImage,
 	 					"owner": data.owner,
+	 					"mimeType": data.mimeType,
 	 					"developer": data.developer,
 	 					"description": data.description
 					}

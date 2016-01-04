@@ -95,6 +95,42 @@
           "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
         },
         {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "mimeType",
+          "title": "Mime Type",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "application/vnd.ekstep.ecml-archive",
+            "application/vnd.ekstep.html-archive",
+            "application/vnd.android.package-archive",
+            "application/vnd.ekstep.content-archive",
+            "application/vnd.ekstep.content-collection",
+            "image/jpeg", "image/jpg", "image/png", "image/tiff", "image/bmp", "image/gif", "image/svg+xml", 
+            "video/avi", "video/mpeg", "video/quicktime", "video/3gpp", "video/mpeg", "video/mp4", "video/ogg", "video/webm",
+            "audio/mp3", "audio/mp4", "audio/mpeg", "audio/ogg", "audio/webm", "audio/x-wav"
+          ],
+          "defaultValue": "application/vnd.ekstep.ecml-archive",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+          "indexed": false,
+          "draft": false
+        },
+        {
+          "propertyName": "minSupportedVersion",
+          "title": "Min Supported Version",
+          "description": "Minimum Supported Version of this content",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 10 }"
+        },
+        {
           "propertyName": "appIcon",
           "title": "App Icon",
           "description": "",
@@ -764,7 +800,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter"],
+      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter", "mimeType", "minSupportedVersion"],
       	"status": ["Live"]
       }
     },

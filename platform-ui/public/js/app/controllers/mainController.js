@@ -1025,6 +1025,14 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     $scope.seeMoreGames = false;
     $scope.showGames = false;
 
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+        'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
+
     $scope.newGame = {
         taxonomyId: $scope.$parent.selectedTaxonomyId,
         name: undefined,
@@ -1033,6 +1041,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         owner: undefined,
         developer: undefined,
         description: undefined,
+        mimeType: undefined,
         errorMessages: [],
         comment: undefined
     }
@@ -1091,6 +1100,10 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             $scope.newGame.errorMessages.push('Developer is required');
             valid = false;
         }
+        if(_.isEmpty($scope.newGame.mimeType)) {
+            $scope.newGame.errorMessages.push('MimeType is required');
+            valid = false;
+        }
 
         if(!valid) {
             return;
@@ -1099,13 +1112,20 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         $scope.buttonLoading($event);
         $scope.newGame.posterImage = $scope.newGame.appIcon;
         service.createGame($scope.newGame).then(function(data) {
-            $scope.showConformationMessage('alert-success','Game created successfully.');
-            $scope.buttonReset($event);
-            $("#writeIcon").trigger('click');
-            $scope.getGames();
+            if (data.error) {
+                $scope.newContent.errorMessages = [];
+                $scope.newContent.errorMessages.push(data.errorMsg);
+                $scope.buttonReset($event);
+                $scope.showConformationMessage('alert-danger','Error saving game.');
+            } else {
+                $scope.showConformationMessage('alert-success','Game created successfully.');
+                $scope.buttonReset($event);
+                $("#writeIcon").trigger('click');
+                $scope.getGames(); 
+            }
         }).catch(function(err) {
-            $scope.errorMessages = [];
-            $scope.errorMessages.push(err.errorMsg);
+            $scope.newContent.errorMessages = [];
+            $scope.newContent.errorMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $scope.showConformationMessage('alert-danger','Error saving game.');
         })
@@ -1307,19 +1327,33 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.seeMoreContents = false;
     $scope.showContents = false;
 
-    $scope.newContent = {
-        contentType: $scope.$parent.selectedContentType,
-        taxonomyId: $scope.$parent.selectedTaxonomyId,
-        status: "Live",
-        name: undefined,
-        code: undefined,
-        appIcon: undefined,
-        owner: undefined,
-        body: undefined,
-        description: undefined,
-        errorMessages: [],
-        comment: undefined
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+        'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
+
+    $scope.resetNewContent = function() {
+        $scope.newContent = {
+            contentType: $scope.$parent.selectedContentType,
+            taxonomyId: $scope.$parent.selectedTaxonomyId,
+            status: "Live",
+            name: undefined,
+            code: undefined,
+            appIcon: undefined,
+            language: undefined,
+            owner: undefined,
+            body: undefined,
+            mimeType: undefined,
+            description: undefined,
+            errorMessages: [],
+            comment: undefined
+        }
     }
+
+    $scope.resetNewContent();
 
     $scope.getContents = function() {
         $scope.showContents = false;
@@ -1354,7 +1388,6 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     }
 
     $scope.getContents();
-    console.log('ContentListController :: selectedContentType', $scope.$parent.selectedContentType);
 
     $("select.selectpicker").change(function(){
           var selectedContentType = $(".selectpicker option:selected").val();
@@ -1371,7 +1404,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.createContent = function($event) {
         var valid = true;
-
+        $scope.newContent.errorMessages = [];
         if(_.isEmpty($scope.newContent.name)) {
             $scope.newContent.errorMessages.push('Name is required');
             valid = false;
@@ -1380,18 +1413,17 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.newContent.errorMessages.push('Code is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.appIcon)) {
-            $scope.newContent.errorMessages.push('Logo is required');
+        if(_.isEmpty($scope.newContent.language)) {
+            $scope.newContent.errorMessages.push('Language is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.owner)) {
-            $scope.newContent.errorMessages.push('Owner is required');
+        if(_.isEmpty($scope.newContent.mimeType)) {
+            $scope.newContent.errorMessages.push('MimeType is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.body)) {
-            $scope.newContent.errorMessages.push('Body(XML) is required');
-            valid = false;
-        }
+        $scope.newContent.owner = 'EkStep';
+        $scope.newContent.body = '<theme></theme>';
+        $scope.newContent.contentType = $scope.$parent.selectedContentType;
 
         if(!valid) {
             return;
@@ -1400,13 +1432,21 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.buttonLoading($event);
         $scope.newContent.posterImage = $scope.newContent.appIcon;
         service.createContent($scope.newContent).then(function(data) {
-            $scope.showConformationMessage('alert-success','Content created successfully.');
-            $scope.buttonReset($event);
-            $("#writeIcon").trigger('click');
-            $scope.getContents();
+            if (data.error) {
+                $scope.newContent.errorMessages = [];
+                $scope.newContent.errorMessages.push(data.errorMsg);
+                $scope.buttonReset($event);
+                $scope.showConformationMessage('alert-danger','Error saving content.');
+            } else {
+                $scope.closeContentCreate();
+                $scope.showConformationMessage('alert-success','Content created successfully.');
+                $scope.buttonReset($event);
+                $("#writeIcon").trigger('click');
+                $scope.getContents();    
+            }
         }).catch(function(err) {
-            $scope.errorMessages = [];
-            $scope.errorMessages.push(err.errorMsg);
+            $scope.newContent.errorMessages = [];
+            $scope.newContent.errorMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $scope.showConformationMessage('alert-danger','Error saving content.');
         })
@@ -1414,6 +1454,16 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $timeout(function() {
         selectLeftMenuTab('courseTab');
     }, 1000);
+
+    $scope.openContentCreate = function(thisObj, className) {
+        $scope.resetNewContent();
+        openCreateArea(thisObj, className);
+    }
+
+    $scope.closeContentCreate = function(thisObj, className) {
+        $("#il-Txt-Editor").slideToggle('slow');
+    }
+
 }]);
 
 app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {

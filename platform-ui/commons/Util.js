@@ -43,10 +43,10 @@ exports.sendJSONFileResponse = function(fileName, cb) {
 
 exports.validateMWResponse = function(response, cb) {
 	var statusObj = response.params, errors = [], valid = true;
-	if(statusObj.status == 'ERROR') {
+	if(statusObj.status == 'failed') {
 		valid = false;
-		if(!_.isEmpty(response.result.MESSAGES) && !_.isEmpty(response.result.MESSAGES.valueObjectList)) {
-			errors = _.pluck(response.result.MESSAGES.valueObjectList,  'id');
+		if(!_.isEmpty(response.result.messages)) {
+			errors = response.result.messages;
 		} else {
 			errors.push(statusObj.errmsg);
 		}

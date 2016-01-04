@@ -146,9 +146,10 @@ exports.createContent = function(data, cb) {
 		      "metadata": {
 						"name": data.name,
 					  "code": data.code,
-					  "appIcon": data.appIcon,
+					  "language": data.language,
 					  "owner": data.owner,
 					  "body": data.body,
+					  "mimeType": data.mimeType,
 						"status": data.status
 					},
 		      "outRelations": [],
