@@ -82,6 +82,23 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "mimeType",
+          "title": "Mime Type",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "ecml",
+            "html"
+          ],
+          "defaultValue": "ecml",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+          "indexed": false,
+          "draft": false
+        },
+        {
           "propertyName": "launchUrl",
           "title": "Launch Url",
           "description": "URL to launch the worksheet",
@@ -628,10 +645,10 @@
         }
       ],
       "metadata": {
-      	"ttl": 24,
-      	"limit": 50,
-      	"fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "posterImage", "loadingMessage", "pkgVersion", "checksum"],
-      	"status": ["Live"]
+        "ttl": 24,
+        "limit": 50,
+        "fields": ["identifier", "name", "description", "appIcon", "grayScaleAppIcon", "downloadUrl", "posterImage", "loadingMessage", "pkgVersion", "checksum", "mimeType"],
+        "status": ["Live"]
       }
     }
   ]

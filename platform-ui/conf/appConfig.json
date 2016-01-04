@@ -18,7 +18,7 @@
     "AWS_REGION": "ap-southeast-1",
     "AWS_PUBLIC_BUCKET_NAME": "ekstep-public",
     "USE_TEST_MAIL": false,
-    "ORCHESTRATOR_URL": "http://localhost:8080",
+    "ORCHESTRATOR_URL": "http://localhost:9090",
     "CONTEXT_NAME": "dev",
     "APP_STATUS": "LIVE",
     "USER_LOGIN": {
