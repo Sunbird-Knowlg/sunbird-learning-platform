@@ -367,12 +367,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     ctnts.add(node.getMetadata());
                 }
             }
-            String fileName = BUNDLE_PATH + File.separator + bundleFileName + '_' + dateFormat.format(date).replace(' ', '_') + ".ecar";
+            String fileName = BUNDLE_PATH + File.separator + bundleFileName + '_' + dateFormat.format(date).replace(" ", "").replace("-", "").replace("/", "").replace(".", "") + ".ecar";
             contentBundle.asyncCreateContentBundle(ctnts, fileName);
             System.out.println("... try to do something while the work is being done....");
             System.out.println("... and more ....");
             System.out.println("End work" + new java.util.Date());
-            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/" + bundleFileName + '_' + dateFormat.format(date).replace(' ', '_') + ".ecar";
+            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/" + bundleFileName + '_' + dateFormat.format(date).replace(" ", "").replace("-", "").replace("/", "").replace(".", "") + ".ecar";
             String returnKey = ContentAPIParams.bundle.name();
             listRes.put(returnKey, url);
             return listRes;

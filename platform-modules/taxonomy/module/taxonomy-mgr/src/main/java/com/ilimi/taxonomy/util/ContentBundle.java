@@ -8,10 +8,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -23,6 +26,8 @@ import java.util.zip.ZipOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import com.google.gson.*;
 
 @Component
 public class ContentBundle {
@@ -53,8 +58,10 @@ public class ContentBundle {
         	}
         }
         List<File> downloadedFiles = getContentBundle(downloadUrls);
-        String manifestContent = contents.toString();
-        File manifestFile = createManifestFile(manifestContent);
+        Gson gs = new Gson();
+        String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"1.0\", \"ts\": \"" + getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID() + "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
+        String manifestoJSON = header + gs.toJson(contents) + "}}";
+        File manifestFile = createManifestFile(manifestoJSON);
         if (null != manifestFile) {
         	downloadedFiles.add(manifestFile);
         }
@@ -159,5 +166,15 @@ public class ContentBundle {
     		System.out.println("creating directory: " + directoryName);
     		theDir.mkdir();
     	}
+    }
+    
+    private String getResponseTimestamp() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
+        return sdf.format(new Date());
+    }
+
+    private String getUUID() {
+        UUID uid = UUID.randomUUID();
+        return uid.toString();
     }
 }
