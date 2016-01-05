@@ -235,8 +235,8 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/media', data);
     }
 
-    this.getContents = function(taxonomyId, contentType, offset, limit) {
-        return this.getFromService('/private/v1/player/contents/' + taxonomyId + '/' + contentType + '/' + offset + '/' + limit);
+    this.getContents = function(contentType, taxonomyId, offset, limit) {
+        return this.getFromService('/private/v1/player/contents/' + contentType + '/' + taxonomyId + '/' + offset + '/' + limit);
     }
 
     this.getContentDefinition = function(taxonomyId, contentType) {
@@ -272,7 +272,7 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
     $scope.selectedTaxonomyId = undefined;
     $scope.selectedConcept = undefined;
     $scope.newComment = "";
-    $scope.uploadFolderName = "games";
+    $scope.remoteUploadFolder = "games";
     $scope.getAllTaxonomies = function() {
         service.getAllTaxonomies().then(function(data) {
             if(data && data.length > 0) {
@@ -687,8 +687,9 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         $state.go('gamePage', {id: gameId});
     }
 
-    $scope.updatePkgVersion = function(propName) {
-      if (propName === 'downloadUrl') {
+    $scope.updatePkgInformation = function(propName, data, fileObj) {
+      if (propName.toLowerCase() === 'downloadurl') {
+          // Update Package Version
           var currentVer = $scope.selectedConcept.metadata['pkgVersion'];
           console.log('Current Version: ', currentVer);
           if (currentVer == undefined || currentVer == null) {
@@ -696,7 +697,32 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
           }else {
             $scope.selectedConcept.metadata['pkgVersion'] = currentVer + 1;
           }
+
+          // Update File Checksum
+          if (data && data.digest) {
+            $scope.selectedConcept.metadata['checksum'] = data.digest;
+          }
+
+          if (fileObj) {
+            // Update Package Size
+            $scope.selectedConcept.metadata['size'] = fileObj.size.toString();
+
+            // Update Package Format
+            if (fileObj.type.toLowerCase() === 'application/zip') {
+              $scope.selectedConcept.metadata['format'] = "ZIP";
+            }else {
+              $scope.selectedConcept.metadata['format'] = fileObj.type;
+            }
+          }
           console.log('Updated Version: ', $scope.selectedConcept.metadata['pkgVersion']);
+      }
+    }
+
+    $scope.setRemoteUploadFolder = function(propName) {
+      if (propName.toLowerCase() === 'downloadurl') {
+        $scope.remoteUploadFolder = "content";
+      }else {
+        $scope.remoteUploadFolder = "games";
       }
     }
 
@@ -705,23 +731,29 @@ app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateP
         if (fileObj && fileObj != null) {
             var type = fileObj.type;
             console.log("File oj type:" + type);
-            if (fileObj.size && fileObj.size > 0) {
-                var fd = new FormData();
-                fd.append('document', fileObj);
-                fd.append('folderName', 'games');
-                $scope.selectedConcept.uploading[propName] = true;
-                service.uploadFile(fd).then(function(data) {
-                    $scope.selectedConcept.uploading[propName] = false;
-                    $scope.selectedConcept.metadata[propName] = data.url;
-                    $scope.updatePkgVersion(propName);
-                    console.log(propName);
-                }).catch(function(err) {
-                    console.log('Error While File Upload', err);
-                    $scope.selectedConcept.uploading[propName] = false;
-                    alert('File upload failed: ' + err.errorMsg);
-                });
+            if (type.indexOf('image') == 0 || type.indexOf('application/zip') == 0) {
+                if (fileObj.size && fileObj.size > 0) {
+                    $scope.setRemoteUploadFolder(propName);
+                    var fd = new FormData();
+                    fd.append('document', fileObj);
+                    fd.append('folderName', $scope.remoteUploadFolder);
+                    console.log('Uploading Content to: ', $scope.remoteUploadFolder);
+                    $scope.selectedConcept.uploading[propName] = true;
+                    service.uploadFile(fd).then(function(data) {
+                        $scope.selectedConcept.uploading[propName] = false;
+                        $scope.selectedConcept.metadata[propName] = data.url;
+                        $scope.updatePkgInformation(propName, data, fileObj);
+                        console.log(propName);
+                    }).catch(function(err) {
+                        console.log('Error While File Upload', err);
+                        $scope.selectedConcept.uploading[propName] = false;
+                        alert('File upload failed: ' + err.errorMsg);
+                    });
+                } else {
+                    alert('Selected file size is 0 bytes. Please select another file');
+                }
             } else {
-                alert('Selected file size is 0 bytes. Please select another file');
+                alert('Only images, audio, video and zipfiles are allowed');
             }
         } else {
             alert('Please select a file to upload');
@@ -993,6 +1025,14 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     $scope.seeMoreGames = false;
     $scope.showGames = false;
 
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+        'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
+
     $scope.newGame = {
         taxonomyId: $scope.$parent.selectedTaxonomyId,
         name: undefined,
@@ -1001,6 +1041,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         owner: undefined,
         developer: undefined,
         description: undefined,
+        mimeType: undefined,
         errorMessages: [],
         comment: undefined
     }
@@ -1059,6 +1100,10 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
             $scope.newGame.errorMessages.push('Developer is required');
             valid = false;
         }
+        if(_.isEmpty($scope.newGame.mimeType)) {
+            $scope.newGame.errorMessages.push('MimeType is required');
+            valid = false;
+        }
 
         if(!valid) {
             return;
@@ -1067,13 +1112,20 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
         $scope.buttonLoading($event);
         $scope.newGame.posterImage = $scope.newGame.appIcon;
         service.createGame($scope.newGame).then(function(data) {
-            $scope.showConformationMessage('alert-success','Game created successfully.');
-            $scope.buttonReset($event);
-            $("#writeIcon").trigger('click');
-            $scope.getGames();
+            if (data.error) {
+                $scope.newContent.errorMessages = [];
+                $scope.newContent.errorMessages.push(data.errorMsg);
+                $scope.buttonReset($event);
+                $scope.showConformationMessage('alert-danger','Error saving game.');
+            } else {
+                $scope.showConformationMessage('alert-success','Game created successfully.');
+                $scope.buttonReset($event);
+                $("#writeIcon").trigger('click');
+                $scope.getGames(); 
+            }
         }).catch(function(err) {
-            $scope.errorMessages = [];
-            $scope.errorMessages.push(err.errorMsg);
+            $scope.newContent.errorMessages = [];
+            $scope.newContent.errorMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $scope.showConformationMessage('alert-danger','Error saving game.');
         })
@@ -1267,28 +1319,47 @@ app.controller('GameController', ['$scope', '$timeout', '$rootScope', '$statePar
 app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
 
     $scope.$parent.selectedTaxonomyId = $stateParams.id;
+    $scope.selectedContentType = 'Story';
+    $scope.$parent.selectedContentType = 'Story';
     $scope.offset = 0;
     $scope.limit = 10;
     $scope.contents = [];
     $scope.seeMoreContents = false;
     $scope.showContents = false;
 
-    $scope.newContent = {
-        contentType: $scope.selectedContentType,
-        name: undefined,
-        code: undefined,
-        appIcon: undefined,
-        owner: undefined,
-        body: undefined,
-        description: undefined,
-        errorMessages: [],
-        comment: undefined
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+        'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
+
+    $scope.resetNewContent = function() {
+        $scope.newContent = {
+            contentType: $scope.$parent.selectedContentType,
+            taxonomyId: $scope.$parent.selectedTaxonomyId,
+            status: "Live",
+            name: undefined,
+            code: undefined,
+            appIcon: undefined,
+            language: undefined,
+            owner: undefined,
+            body: undefined,
+            mimeType: undefined,
+            description: undefined,
+            errorMessages: [],
+            comment: undefined
+        }
     }
+
+    $scope.resetNewContent();
 
     $scope.getContents = function() {
         $scope.showContents = false;
         var contentType = $scope.selectedContentType;
-        service.getContents($scope.$parent.selectedTaxonomyId, contentType, $scope.offset, $scope.limit).then(function(data) {
+        var taxonomyId = $scope.$parent.selectedTaxonomyId;
+        service.getContents(contentType, taxonomyId, $scope.offset, $scope.limit).then(function(data) {
             if (data.contents && data.contents.length > 0) {
                 $scope.contents = [];
                 $scope.contents.push.apply($scope.contents, data.contents);
@@ -1316,8 +1387,6 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
         $state.go('contentPage', {id: contentId});
     }
 
-    $scope.selectedContentType = 'Story';
-    $scope.$parent.selectedContentType = 'Story';
     $scope.getContents();
 
     $("select.selectpicker").change(function(){
@@ -1335,7 +1404,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
 
     $scope.createContent = function($event) {
         var valid = true;
-
+        $scope.newContent.errorMessages = [];
         if(_.isEmpty($scope.newContent.name)) {
             $scope.newContent.errorMessages.push('Name is required');
             valid = false;
@@ -1344,18 +1413,17 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
             $scope.newContent.errorMessages.push('Code is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.appIcon)) {
-            $scope.newContent.errorMessages.push('Logo is required');
+        if(_.isEmpty($scope.newContent.language)) {
+            $scope.newContent.errorMessages.push('Language is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.owner)) {
-            $scope.newContent.errorMessages.push('Owner is required');
+        if(_.isEmpty($scope.newContent.mimeType)) {
+            $scope.newContent.errorMessages.push('MimeType is required');
             valid = false;
         }
-        if(_.isEmpty($scope.newContent.body)) {
-            $scope.newContent.errorMessages.push('Body(XML) is required');
-            valid = false;
-        }
+        $scope.newContent.owner = 'EkStep';
+        $scope.newContent.body = '<theme></theme>';
+        $scope.newContent.contentType = $scope.$parent.selectedContentType;
 
         if(!valid) {
             return;
@@ -1364,13 +1432,21 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
         $scope.buttonLoading($event);
         $scope.newContent.posterImage = $scope.newContent.appIcon;
         service.createContent($scope.newContent).then(function(data) {
-            $scope.showConformationMessage('alert-success','Content created successfully.');
-            $scope.buttonReset($event);
-            $("#writeIcon").trigger('click');
-            $scope.getContents();
+            if (data.error) {
+                $scope.newContent.errorMessages = [];
+                $scope.newContent.errorMessages.push(data.errorMsg);
+                $scope.buttonReset($event);
+                $scope.showConformationMessage('alert-danger','Error saving content.');
+            } else {
+                $scope.closeContentCreate();
+                $scope.showConformationMessage('alert-success','Content created successfully.');
+                $scope.buttonReset($event);
+                $("#writeIcon").trigger('click');
+                $scope.getContents();    
+            }
         }).catch(function(err) {
-            $scope.errorMessages = [];
-            $scope.errorMessages.push(err.errorMsg);
+            $scope.newContent.errorMessages = [];
+            $scope.newContent.errorMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $scope.showConformationMessage('alert-danger','Error saving content.');
         })
@@ -1378,6 +1454,16 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $timeout(function() {
         selectLeftMenuTab('courseTab');
     }, 1000);
+
+    $scope.openContentCreate = function(thisObj, className) {
+        $scope.resetNewContent();
+        openCreateArea(thisObj, className);
+    }
+
+    $scope.closeContentCreate = function(thisObj, className) {
+        $("#il-Txt-Editor").slideToggle('slow');
+    }
+
 }]);
 
 app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
@@ -1534,12 +1620,14 @@ app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$state
             $scope.buttonReset($event);
             $scope.getContent($scope.$parent.selectedTaxonomyId);
             $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
             $scope.showConformationMessage('alert-success','Content updated successfully.');
         }).catch(function(err) {
             $scope.$parent.validationMessages = [];
             $scope.$parent.validationMessages.push(err.errorMsg);
             $scope.buttonReset($event);
             $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
             $scope.showConformationMessage('alert-danger','Error while updating Content.');
         });
     }
