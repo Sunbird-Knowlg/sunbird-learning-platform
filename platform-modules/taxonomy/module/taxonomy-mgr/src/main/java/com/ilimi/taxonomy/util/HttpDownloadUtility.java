@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
@@ -70,6 +71,20 @@ public class HttpDownloadUtility {
         }
         httpConn.disconnect();
         return null;
+    }
+    
+    public static boolean isValidUrl(Object url) {
+        if (null != url) {
+            try {
+                new URL(url.toString());
+            } catch (MalformedURLException e) {
+                return false;
+            }
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public static InputStream downloadFile(String fileURL) {

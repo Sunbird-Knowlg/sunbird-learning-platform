@@ -344,6 +344,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         ContentSearchCriteria criteria = new ContentSearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();
         String bundleFileName = (String) request.get("file_name");
+        bundleFileName = bundleFileName.replaceAll("\\s+","_");
         List<String> contentIds = (List<String>) request.get("content_identifiers");
         Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
         filters.add(filter);
