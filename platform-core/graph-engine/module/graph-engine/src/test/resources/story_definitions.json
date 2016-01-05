@@ -126,9 +126,52 @@
           "range": [],
           "required": false,
           "indexed": false,
-          "displayProperty": "Readonly",
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "osId",
+          "title": "Operating System Id",
+          "description": "Operating System specific Id",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'table', 'order': 6 }"
+        },
+        {
+          "propertyName": "communication_scheme",
+          "title": "Communication scheme",
+          "description": "",
+          "category": "general",
+          "dataType": "Select",
+          "range": [
+            "NONE",
+            "FILE",
+            "INTENT"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 14 }"
+        },
+        {
+          "propertyName": "activity_class",
+          "title": "Activity Class Name",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
         },
         {
           "propertyName": "loadingMessage",
