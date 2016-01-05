@@ -123,16 +123,40 @@ public class ImportDictionary {
 	}
 	
 	protected void importData(String languageId, SourceType sourceType, String csvFileUrl) {
+		if (!isValidLanguageId(languageId)) {
+			throw new IllegalArgumentException("Invalid Language Id."); 
+		}else if (!isValidSourceType(sourceType)) {
+			throw new IllegalArgumentException("Invalid Data Source Type.");
+		}else{
+			try {
+				switch (sourceType) {
+				case IndoWordNet:
+					importIndoWordNetData(languageId, sourceType, csvFileUrl);
+					break;
+	
+				default:
+					break;
+				}
+			} catch(Exception e) {}
+		}
+	}
+	
+	protected boolean isValidLanguageId(String languageId) {
 		try {
-			switch (sourceType) {
-			case IndoWordNet:
-				importIndoWordNetData(languageId, sourceType, csvFileUrl);
-				break;
-
-			default:
-				break;
-			}
-		} catch(Exception e) {}
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+	}
+	
+	protected boolean isValidSourceType(SourceType sourceType) {
+		try {
+			return true;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 	
     private static void writeWordsToCSV(List<WordModel> wordList)

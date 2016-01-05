@@ -1,17 +1,19 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -41,10 +43,14 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.util.AWSUploader;
+import com.ilimi.taxonomy.util.ContentBundle;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
+	@Autowired
+    private ContentBundle contentBundle;
+	
     private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
 
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
@@ -63,6 +69,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     private static final String bucketName = "ekstep-public";
     private static final String folderName = "content";
+    private static final String ecarFolderName = "ecar_files";
+    
+    
+    protected static final String URL_FIELD = "URL";
+    protected static final String BUNDLE_PATH = "/data/contentBundle";
+    protected static final String BUNDLE_FILE_NAME = "EkStep_Content_Bundle.ecar";
+    protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
@@ -328,6 +341,45 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @SuppressWarnings("unchecked")
     @Override
+    public Response bundle(String taxonomyId, Request request) {
+    	Date date = new Date() ;
+		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+        ContentSearchCriteria criteria = new ContentSearchCriteria();
+        List<Filter> filters = new ArrayList<Filter>();
+        final String bundleFileName = (String) request.get("file_name");
+        Filter filter = new Filter("identifier", SearchConditions.OP_IN, request.get("content_identifiers"));
+        filters.add(filter);
+        MetadataCriterion metadata = MetadataCriterion.create(filters);
+        metadata.addFilter(filter);
+        criteria.setMetadata(metadata);
+        
+        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+        Response response = getResponse(req, LOGGER);
+        Response listRes = copyResponse(response);
+        if (checkError(response)) {
+            return response;
+        } else {
+            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+            final List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    ctnts.add(node.getMetadata());
+                }
+            }
+            String fileName = BUNDLE_PATH + File.separator + bundleFileName + '_' + dateFormat.format(date).replace(' ', '_') + ".ecar";
+            contentBundle.asyncCreateContentBundle(ctnts, fileName);
+            System.out.println("... try to do something while the work is being done....");
+            System.out.println("... and more ....");
+            System.out.println("End work" + new java.util.Date());
+            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/" + bundleFileName + '_' + dateFormat.format(date).replace(' ', '_') + ".ecar";
+            String returnKey = ContentAPIParams.bundle.name();
+            listRes.put(returnKey, url);
+            return listRes;
+        }
+    }
+
+    @SuppressWarnings("unchecked")
     public Response search(String taxonomyId, String objectType, Request request) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank.");
@@ -377,7 +429,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             return listRes;
         }
     }
-
+    
     private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
                 GraphDACParams.object_type.name(), objectType);

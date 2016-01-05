@@ -23,4 +23,6 @@ public interface IContentManager {
 
     Response upload(String id, String taxonomyId, File uploadedFile, String folder);
 
+	Response bundle(String taxonomyId, Request request);
+
 }

@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.controller;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -242,7 +243,7 @@ public class ContentController extends BaseController {
     public ResponseEntity<Response> search(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
             @RequestParam(value = "type", required = true) String objectType, @RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "assessment_item.search";
+        String apiId = "content.search";
         LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
         try {
             Request reqeust = getSearchRequest(map, objectType);
@@ -253,6 +254,44 @@ public class ContentController extends BaseController {
             LOGGER.error("Search | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
+    }
+    
+    @RequestMapping(value = "/bundle", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> bundle(@RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.archive";
+        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        try {
+            Request request = getBundleRequest(map);
+            Response response = contentManager.bundle(taxonomyId, request);
+            LOGGER.info("Archive | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Archive | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Request getBundleRequest(Map<String, Object> requestMap) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        if (null != map && !map.isEmpty()) {
+            try {
+            	// TODO: All should come from standard Search Criteria Class as 'ContentSearchCriteria' like Content Search API
+				List<String> contentIdentifiers = (List<String>) map.get("content_identifiers");
+            	String fileName = (String) map.get("file_name");
+            	request.put("content_identifiers", contentIdentifiers);
+            	request.put("file_name", fileName);
+            } catch (Exception e) {
+                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA.name(),
+                        "Invalid search criteria.", e);
+            }
+        } else if (null != map && map.isEmpty()) {
+            request.put(ContentAPIParams.search_criteria.name(), new ContentSearchCriteria());
+        }
+        return request;
     }
 
     private Request getSearchRequest(Map<String, Object> requestMap, String objectType) {
