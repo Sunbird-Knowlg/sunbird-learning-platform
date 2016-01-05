@@ -255,16 +255,16 @@ public class ContentController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/bundle", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> bundle(@RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
+    public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "content.archive";
-        LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
+        LOGGER.info("Create Content Bundle | user-id: " + userId);
         try {
             Request request = getBundleRequest(map);
-            Response response = contentManager.bundle(taxonomyId, request);
+            Response response = contentManager.bundle(request);
             LOGGER.info("Archive | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
@@ -272,24 +272,25 @@ public class ContentController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private Request getBundleRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
         if (null != map && !map.isEmpty()) {
-            try {
-            	// TODO: All should come from standard Search Criteria Class as 'ContentSearchCriteria' like Content Search API
-				List<String> contentIdentifiers = (List<String>) map.get("content_identifiers");
-            	String fileName = (String) map.get("file_name");
-            	request.put("content_identifiers", contentIdentifiers);
-            	request.put("file_name", fileName);
-            } catch (Exception e) {
-                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA.name(),
-                        "Invalid search criteria.", e);
-            }
+            List<String> contentIdentifiers = (List<String>) map.get("content_identifiers");
+            String fileName = (String) map.get("file_name");
+            if (null == contentIdentifiers || contentIdentifiers.isEmpty())
+                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
+                        "Atleast one content identifier should be provided to create ECAR file");
+            if (StringUtils.isBlank(fileName))
+                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
+                        "ECAR file name should not be blank");
+            request.put("content_identifiers", contentIdentifiers);
+            request.put("file_name", fileName);
         } else if (null != map && map.isEmpty()) {
-            request.put(ContentAPIParams.search_criteria.name(), new ContentSearchCriteria());
+            throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
+                    "Invalid request body");
         }
         return request;
     }

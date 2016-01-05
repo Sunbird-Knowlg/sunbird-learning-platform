@@ -24,73 +24,89 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
-import com.google.gson.*;
-
 @Component
 public class ContentBundle {
-	
-	private static final String bucketName = "ekstep-public";
+
+    private static final String bucketName = "ekstep-public";
     private static final String ecarFolderName = "ecar_files";
-    
-    
+
+    private ObjectMapper mapper = new ObjectMapper();
+
     protected static final String URL_FIELD = "URL";
     protected static final String BUNDLE_PATH = "/data/contentBundle";
     protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
-    
-	@Async
-    public void asyncCreateContentBundle(List<Map<String, Object>> contents, String bundleFileName) {
-    	System.out.println("Async method invoked....");
-    	List<String> urlFields = new ArrayList<String>();
-    	urlFields.add("appIcon");
-    	urlFields.add("grayScaleAppIcon");
-    	urlFields.add("posterImage");
-    	urlFields.add("downloadUrl");
-    	Map<String, String> downloadUrls = new HashMap<String, String>();
+
+    @Async
+    public void asyncCreateContentBundle(List<Map<String, Object>> contents, String fileName) {
+        String bundleFileName = BUNDLE_PATH + File.separator + fileName;
+        System.out.println("Async method invoked....");
+        List<String> urlFields = new ArrayList<String>();
+        urlFields.add("appIcon");
+        urlFields.add("grayScaleAppIcon");
+        urlFields.add("posterImage");
+        Map<String, String> downloadUrls = new HashMap<String, String>();
         for (Map<String, Object> content : contents) {
-        	for (Map.Entry<String, Object> entry : content.entrySet()) {
-        	    if (urlFields.contains(entry.getKey())) {
-        	    	downloadUrls.put(entry.getValue().toString(), (String) content.get("identifier"));
-        	    	entry.setValue(entry.getValue().toString().substring(entry.getValue().toString().lastIndexOf('/') + 1));
-        	    }
-        	}
+            String identifier = (String) content.get("identifier");
+            String objectType = (String) content.get("objectType");
+            if (StringUtils.equalsIgnoreCase("game", objectType.trim())) {
+                urlFields.remove("downloadUrl");
+            } else {
+                urlFields.add("downloadUrl");
+            }
+            for (Map.Entry<String, Object> entry : content.entrySet()) {
+                if (urlFields.contains(entry.getKey())) {
+                    downloadUrls.put(entry.getValue().toString(), identifier.trim());
+                    entry.setValue(identifier.trim() + File.separator
+                            + entry.getValue().toString().substring(entry.getValue().toString().lastIndexOf('/') + 1));
+                }
+            }
         }
         List<File> downloadedFiles = getContentBundle(downloadUrls);
-        Gson gs = new Gson();
-        String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"1.0\", \"ts\": \"" + getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID() + "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
-        String manifestoJSON = header + gs.toJson(contents) + "}}";
-        File manifestFile = createManifestFile(manifestoJSON);
-        if (null != manifestFile) {
-        	downloadedFiles.add(manifestFile);
-        }
-        if (null != downloadedFiles) {
-        	try {
-        		FileOutputStream stream = new FileOutputStream(bundleFileName);
-        		stream.write(createECAR(downloadedFiles));
-        		stream.close();
-        		File contentBundle = new File(bundleFileName);
-        		String[] url =  AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
-        		System.out.println("AWS Upload is complete.... on URL : " + url.toString());
-        	} catch(Exception e) {
-        		e.printStackTrace();
-        	} finally {
-        		HttpDownloadUtility.DeleteFiles(downloadedFiles);
-        	}
+        try {
+            String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"1.0\", \"ts\": \""
+                    + getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID()
+                    + "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
+            String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
+            File manifestFile = createManifestFile(manifestJSON);
+            if (null != manifestFile) {
+                downloadedFiles.add(manifestFile);
+            }
+            if (null != downloadedFiles) {
+                try {
+                    FileOutputStream stream = new FileOutputStream(bundleFileName);
+                    stream.write(createECAR(downloadedFiles));
+                    stream.close();
+                    File contentBundle = new File(bundleFileName);
+                    String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
+                    System.out.println("AWS Upload is complete.... on URL : " + url.toString());
+                    downloadedFiles.add(contentBundle);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    HttpDownloadUtility.DeleteFiles(downloadedFiles);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
-	
-	private List<File> getContentBundle(final Map<String, String> downloadUrls) {
-    	try {
-    		ExecutorService pool = Executors.newFixedThreadPool(10);
+
+    private List<File> getContentBundle(final Map<String, String> downloadUrls) {
+        try {
+            ExecutorService pool = Executors.newFixedThreadPool(10);
             List<Callable<File>> tasks = new ArrayList<Callable<File>>(downloadUrls.size());
             List<File> files = new ArrayList<File>();
             for (final String url : downloadUrls.keySet()) {
                 tasks.add(new Callable<File>() {
                     public File call() throws Exception {
-                    	createDirectoryIfNeeded(BUNDLE_PATH + File.separator + downloadUrls.get(url));
-                        return HttpDownloadUtility.downloadFile(url, BUNDLE_PATH + File.separator + downloadUrls.get(url));
+                        createDirectoryIfNeeded(BUNDLE_PATH + File.separator + downloadUrls.get(url));
+                        return HttpDownloadUtility.downloadFile(url,
+                                BUNDLE_PATH + File.separator + downloadUrls.get(url));
                     }
                 });
             }
@@ -100,28 +116,30 @@ public class ContentBundle {
             }
             pool.shutdown();
             return files;
-    	} catch (InterruptedException | ExecutionException e) {
+        } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-		return null;
+        return null;
     }
-    
-    private byte[] createECAR(List<File> files) throws IOException{
-        //creating byteArray stream, make it bufforable and passing this buffor to ZipOutputStream
+
+    private byte[] createECAR(List<File> files) throws IOException {
+        // creating byteArray stream, make it bufforable and passing this buffor
+        // to ZipOutputStream
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
         ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
-
-        //packing files
+        // packing files
         for (File file : files) {
-        	String fileName = null;
-        	if (file.getName().toLowerCase().endsWith("manifest.json")) {
-        		fileName = file.getName();
-        	} else {
-        		fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1) + File.separator + file.getName();
-        	}
-        		
-            //new zip entry and copying inputstream with file to zipOutputStream, after all closing streams
+            String fileName = null;
+            if (file.getName().toLowerCase().endsWith("manifest.json")) {
+                fileName = file.getName();
+            } else {
+                fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1) + File.separator
+                        + file.getName();
+            }
+
+            // new zip entry and copying inputstream with file to
+            // zipOutputStream, after all closing streams
             zipOutputStream.putNextEntry(new ZipEntry(fileName));
             FileInputStream fileInputStream = new FileInputStream(file);
 
@@ -140,34 +158,32 @@ public class ContentBundle {
         IOUtils.closeQuietly(byteArrayOutputStream);
         return byteArrayOutputStream.toByteArray();
     }
-    
+
     private File createManifestFile(String manifestContent) {
-    	BufferedWriter writer = null;
-    	try {
-    	    writer = new BufferedWriter(new FileWriter(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME));
-    	    writer.write(manifestContent);
-    	    return new File(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME);
-    	} catch (IOException ioe) {
-    		return null;
-    	}
-    	finally {
-    	    try {
-    	        if ( writer != null)
-    	        writer.close( );
-    	    } catch (IOException ioe) {}
-    	}
+        BufferedWriter writer = null;
+        try {
+            writer = new BufferedWriter(new FileWriter(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME));
+            writer.write(manifestContent);
+            return new File(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME);
+        } catch (IOException ioe) {
+            return null;
+        } finally {
+            try {
+                if (writer != null)
+                    writer.close();
+            } catch (IOException ioe) {
+            }
+        }
     }
-    
-    private void createDirectoryIfNeeded(String directoryName)
-    {
-    	File theDir = new File(directoryName);
-    	// if the directory does not exist, create it
-    	if (!theDir.exists()) {
-    		System.out.println("creating directory: " + directoryName);
-    		theDir.mkdir();
-    	}
+
+    private void createDirectoryIfNeeded(String directoryName) {
+        File theDir = new File(directoryName);
+        // if the directory does not exist, create it
+        if (!theDir.exists()) {
+            theDir.mkdir();
+        }
     }
-    
+
     private String getResponseTimestamp() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
         return sdf.format(new Date());

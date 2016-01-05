@@ -1,14 +1,13 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +20,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
@@ -48,9 +48,9 @@ import com.ilimi.taxonomy.util.ContentBundle;
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
-	@Autowired
+    @Autowired
     private ContentBundle contentBundle;
-	
+
     private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
 
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
@@ -70,12 +70,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     private static final String bucketName = "ekstep-public";
     private static final String folderName = "content";
     private static final String ecarFolderName = "ecar_files";
-    
-    
+
     protected static final String URL_FIELD = "URL";
-    protected static final String BUNDLE_PATH = "/data/contentBundle";
-    protected static final String BUNDLE_FILE_NAME = "EkStep_Content_Bundle.ecar";
-    protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
@@ -232,11 +228,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
                     "Upload file is blank.");
         }
-        /*if (null != uploadedFile
-                && !Arrays.asList("zip", "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName()))) {
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.name(),
-                    "Upload file is invalid.");
-        }*/
+        /*
+         * if (null != uploadedFile && !Arrays.asList("zip",
+         * "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName())))
+         * { throw new
+         * ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.
+         * name(), "Upload file is invalid."); }
+         */
 
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
                 GraphDACParams.node_id.name(), id);
@@ -313,7 +311,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                         for (Node node : list) {
                             if (null == fields || fields.isEmpty()) {
                                 String subject = node.getGraphId();
-                                if (null != definitions.get(subject) && null != definitions.get(subject).getMetadata()) {
+                                if (null != definitions.get(subject)
+                                        && null != definitions.get(subject).getMetadata()) {
                                     String[] arr = (String[]) definitions.get(subject).getMetadata().get(PARAM_FIELDS);
                                     if (null != arr && arr.length > 0) {
                                         fields = Arrays.asList(arr);
@@ -341,38 +340,51 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response bundle(String taxonomyId, Request request) {
-    	Date date = new Date() ;
-		SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH-mm-ss");
+    public Response bundle(Request request) {
         ContentSearchCriteria criteria = new ContentSearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();
-        final String bundleFileName = (String) request.get("file_name");
-        Filter filter = new Filter("identifier", SearchConditions.OP_IN, request.get("content_identifiers"));
+        String bundleFileName = (String) request.get("file_name");
+        List<String> contentIds = (List<String>) request.get("content_identifiers");
+        Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
         filters.add(filter);
         MetadataCriterion metadata = MetadataCriterion.create(filters);
         metadata.addFilter(filter);
         criteria.setMetadata(metadata);
-        
-        Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-                GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
-        Response response = getResponse(req, LOGGER);
+        List<Request> requests = new ArrayList<Request>();
+        for (String taxonomyId : TaxonomyManagerImpl.taxonomyIds) {
+            Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                    GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+            requests.add(req);
+        }
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+                ContentAPIParams.contents.name());
         Response listRes = copyResponse(response);
         if (checkError(response)) {
             return response;
         } else {
-            List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-            final List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+            List<Object> nodes = (List<Object>) response.get(ContentAPIParams.contents.name());
+            List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
-                for (Node node : nodes) {
-                    ctnts.add(node.getMetadata());
+                for (Object obj : nodes) {
+                    List<Node> list = (List<Node>) obj;
+                    for (Node node : list) {
+                        if (null != node.getMetadata()) {
+                            node.getMetadata().put("identifier", node.getIdentifier());
+                            node.getMetadata().put("objectType", node.getObjectType());
+                            node.getMetadata().put("subject", node.getGraphId());
+                            ctnts.add(node.getMetadata());
+                        }
+                    }
                 }
             }
-            String fileName = BUNDLE_PATH + File.separator + bundleFileName + '_' + dateFormat.format(date).replace(" ", "").replace("-", "").replace("/", "").replace(".", "") + ".ecar";
+            if (contentIds.size() != ctnts.size()) {
+                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                        "One or more of the input content identifier are not found");
+            }
+            String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
             contentBundle.asyncCreateContentBundle(ctnts, fileName);
-            System.out.println("... try to do something while the work is being done....");
-            System.out.println("... and more ....");
-            System.out.println("End work" + new java.util.Date());
-            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/" + bundleFileName + '_' + dateFormat.format(date).replace(" ", "").replace("-", "").replace("/", "").replace(".", "") + ".ecar";
+            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/"
+                    + fileName;
             String returnKey = ContentAPIParams.bundle.name();
             listRes.put(returnKey, url);
             return listRes;
@@ -429,7 +441,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             return listRes;
         }
     }
-    
+
     private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
                 GraphDACParams.object_type.name(), objectType);
