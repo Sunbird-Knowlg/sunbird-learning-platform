@@ -709,7 +709,7 @@
       "metadata": {
         "ttl": 24,
         "limit": 50,
-        "fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "posterImage", "loadingMessage", "pkgVersion", "checksum", "mimeType", "minSupportedVersion"],
+      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum"],
         "status": ["Live"]
       }
     }

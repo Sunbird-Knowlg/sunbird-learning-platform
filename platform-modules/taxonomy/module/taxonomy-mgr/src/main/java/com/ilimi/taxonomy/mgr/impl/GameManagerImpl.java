@@ -39,6 +39,8 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
+    private ObjectMapper mapper = new ObjectMapper();
+
     static {
         DEFAULT_FIELDS.add("identifier");
         DEFAULT_FIELDS.add("name");
@@ -80,17 +82,11 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
             if (null != nodes && !nodes.isEmpty()) {
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
+                        List<String> fields = getFields(request, definition);
                         for (Node node : list) {
-                            Map<String, Object> gameObj = new HashMap<String, Object>();
-                            if (null != node.getMetadata() && !node.getMetadata().isEmpty())
-                                gameObj.putAll(node.getMetadata());
-                            if (StringUtils.isNotBlank(node.getIdentifier())) {
-                                gameObj.put("identifier", node.getIdentifier());
-                                gameObj.remove(SystemProperties.IL_UNIQUE_ID.name());
-                            }
-                            if (StringUtils.isNotBlank(node.getGraphId()))
-                                gameObj.put("subject", node.getGraphId());
-                            games.add(gameObj);
+                            Map<String, Object> map = getContentMap(node, fields);
+                            if (null != map && !map.isEmpty())
+                                games.add(map);
                         }
                     }
                 }
@@ -106,16 +102,60 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
     }
 
+    private Map<String, Object> getContentMap(Node node, List<String> fields) {
+        if (null != node) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+                if (null != fields && fields.size() > 0) {
+                    for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+                        if (fields.contains(entry.getKey()))
+                            map.put(entry.getKey(), entry.getValue());
+                    }
+                } else {
+                    map.putAll(node.getMetadata());
+                }
+            }
+            map.put("identifier", node.getIdentifier());
+            map.put("objectType", node.getObjectType());
+            map.put("subject", node.getGraphId());
+            if (null != node.getTags() && !node.getTags().isEmpty()) {
+                map.put("tags", node.getTags());
+            }
+            return map;
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<String> getFields(Request request, DefinitionDTO definition) {
+        Object objFields = request.get(PARAM_FIELDS);
+        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+        if (null == fields || fields.isEmpty()) {
+            if (null != definition && null != definition.getMetadata()) {
+                String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
+                if (null != arr && arr.length > 0) {
+                    List<String> arrFields = Arrays.asList(arr);
+                    fields = new ArrayList<String>();
+                    fields.addAll(arrFields);
+                }
+            }
+        }
+        if (null == fields || fields.isEmpty())
+            fields = DEFAULT_FIELDS;
+        else {
+            fields.add(SystemProperties.IL_UNIQUE_ID.name());
+        }
+        return fields;
+    }
+
     @SuppressWarnings("unchecked")
     private Request getGamesListRequest(Request request, String taxonomyId, String objectType,
             DefinitionDTO definition) {
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-        sc.setObjectType(objectType);
         sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
         setLimit(request, sc, definition);
 
-        ObjectMapper mapper = new ObjectMapper();
         // status filter
         List<String> statusList = new ArrayList<String>();
         Object statusParam = request.get(PARAM_STATUS);
@@ -131,9 +171,10 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         }
         if (null == statusList || statusList.isEmpty())
             statusList = DEFAULT_STATUS;
-        MetadataCriterion mc = MetadataCriterion
-                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
-        
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+
         // set metadata filter params
         for (Entry<String, Object> entry : request.getRequest().entrySet()) {
             if (!StringUtils.equalsIgnoreCase(PARAM_SUBJECT, entry.getKey())
@@ -154,28 +195,16 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                 }
             }
         }
-        sc.addMetadata(mc);
-        Object objFields = request.get(PARAM_FIELDS);
-        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
-        if (null == fields || fields.isEmpty()) {
-            if (null != definition && null != definition.getMetadata()) {
-                String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
-                if (null != arr && arr.length > 0) {
-                    List<String> arrFields = Arrays.asList(arr);
-                    fields = new ArrayList<String>();
-                    fields.addAll(arrFields);
-                }
-            }
-        }
-        if (null == fields || fields.isEmpty())
-            fields = DEFAULT_FIELDS;
-        else {
-            fields.add(SystemProperties.IL_UNIQUE_ID.name());
-        }
-        sc.setFields(fields);
 
+        List<String> objectTypes = new ArrayList<String>();
+        objectTypes.add("Game");
+        objectTypes.add("Story");
+        objectTypes.add("Worksheet");
+        mc.addFilter(new Filter(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), SearchConditions.OP_IN, objectTypes));
+        sc.addMetadata(mc);
         Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
         return req;
     }
 

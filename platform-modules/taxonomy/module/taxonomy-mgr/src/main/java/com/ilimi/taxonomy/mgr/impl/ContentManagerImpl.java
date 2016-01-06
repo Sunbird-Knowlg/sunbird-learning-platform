@@ -355,6 +355,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         for (String taxonomyId : TaxonomyManagerImpl.taxonomyIds) {
             Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                     GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+            req.put(GraphDACParams.get_tags.name(), true);
             requests.add(req);
         }
         Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
@@ -373,6 +374,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                             node.getMetadata().put("identifier", node.getIdentifier());
                             node.getMetadata().put("objectType", node.getObjectType());
                             node.getMetadata().put("subject", node.getGraphId());
+                            if (null != node.getTags() && !node.getTags().isEmpty())
+                                node.getMetadata().put("tags", node.getTags());
                             ctnts.add(node.getMetadata());
                         }
                     }

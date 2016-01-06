@@ -145,14 +145,14 @@
         },
         {
           "propertyName": "filter",
-          "title": "Filter Criteria",
-          "description": "",
+          "title": "Filter Criteria (JSON)",
+          "description": "E.g.: {\"tags\": [\"Delhi Curriculum\"]}",
           "category": "general",
           "dataType": "JSON",
           "range": [],
           "required": false,
           "indexed": false,
-          "displayProperty": "Hidden",
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'textarea', 'order': 7 }"
         },
@@ -800,7 +800,7 @@
       "metadata": {
       	"ttl": 24,
       	"limit": 50,
-      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter", "mimeType", "minSupportedVersion"],
+      	"fields": ["identifier", "name", "description", "code", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", "communication_scheme", "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum"],
       	"status": ["Live"]
       }
     },
