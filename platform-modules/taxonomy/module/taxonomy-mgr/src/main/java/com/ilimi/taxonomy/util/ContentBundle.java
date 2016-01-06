@@ -60,8 +60,8 @@ public class ContentBundle {
             }
             for (Map.Entry<String, Object> entry : content.entrySet()) {
                 if (urlFields.contains(entry.getKey())) {
-                    downloadUrls.put(entry.getValue().toString(), identifier.trim());
                     if (HttpDownloadUtility.isValidUrl(entry.getValue())) {
+                        downloadUrls.put(entry.getValue().toString(), identifier.trim());
                         entry.setValue(identifier.trim() + File.separator
                                 + entry.getValue().toString().substring(entry.getValue().toString().lastIndexOf('/') + 1));
                     }
