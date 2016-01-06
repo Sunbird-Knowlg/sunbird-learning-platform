@@ -433,6 +433,7 @@
     <input ng-switch-when="Number" type="number" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}" placeholder="{{prop.description}}"/>
     <input ng-switch-when="Text" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
     <input ng-switch-when="XML" type="text" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"/>
+    <textarea ng-switch-when="JSON" rows="4" ng-model="selectedConcept.metadata[prop.propertyName]" class="form-control {{prop.error ? 'validation-error': ''}}"  placeholder="{{prop.description}}"></textarea>
     <div ng-switch-when="URL">
     <div class="col-md-12 noPad">
         Select File:
