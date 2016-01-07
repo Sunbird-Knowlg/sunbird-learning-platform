@@ -1,6 +1,8 @@
 package com.ilimi.taxonomy.controller;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,10 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.enums.ImportType;
+import com.ilimi.graph.importer.OutputStreamValue;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.IConceptManager;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
@@ -94,6 +99,31 @@ public class TaxonomyController extends BaseController {
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{id:.+}/export", method = RequestMethod.POST)
+    @ResponseBody
+    public void export(@PathVariable(value = "id") String id,
+            @RequestHeader(value = "user-id") String userId,
+            HttpServletResponse resp) {
+        String format = ImportType.CSV.name();
+        LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
+        try {
+            Response response = taxonomyManager.export(id, format);
+            if (!checkError(response)) {
+                OutputStreamValue graphOutputStream = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
+                OutputStream os = graphOutputStream.getOutputStream();
+                ByteArrayOutputStream bos = (ByteArrayOutputStream) os;
+                byte[] bytes = bos.toByteArray();
+                resp.setContentType("text/csv");
+                resp.setHeader("Content-Disposition", "attachment; filename=graph.csv");
+                resp.getOutputStream().write(bytes);
+                resp.getOutputStream().close();
+            }
+            LOGGER.info("Export | Response: " + response);
+        } catch (Exception e) {
+            LOGGER.error("Create | Exception: " + e.getMessage(), e);
         }
     }
 

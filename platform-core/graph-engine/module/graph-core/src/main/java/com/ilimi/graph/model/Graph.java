@@ -331,12 +331,14 @@ public class Graph extends AbstractDomainObject {
                                     if (indexedMeta != null) {
                                         for (MetadataDefinition propDef : indexedMeta) {
                                             propMap.put(propDef.getTitle(), propDef);
+                                            propMap.put(propDef.getPropertyName(), propDef);
                                         }
                                     }
                                     List<MetadataDefinition> nonIndexedMeta = node.getNonIndexedMetadata();
                                     if (nonIndexedMeta != null) {
                                         for (MetadataDefinition propDef : nonIndexedMeta) {
                                             propMap.put(propDef.getTitle(), propDef);
+                                            propMap.put(propDef.getPropertyName(), propDef);
                                         }
                                     }
                                     propertyDataMap.put(objectType, propMap);

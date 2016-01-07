@@ -129,6 +129,17 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             return response;
         }
     }
+    
+    @Override
+    public Response export(String id, String format) {
+        if (StringUtils.isBlank(id))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        LOGGER.info("Export Taxonomy : " + id + " | Format: " + format);
+        Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "exportGraph");
+        request.put(GraphEngineParams.format.name(), format);
+        Response exportRes = getResponse(request, LOGGER);
+        return exportRes;
+    }
 
     @Override
     public Response delete(String id) {

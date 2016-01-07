@@ -33,12 +33,12 @@ public class CSVGraphReader implements GraphReader {
     private ObjectMapper mapper;
     Map<String, Map<String, MetadataDefinition>> propertyDataMap;
 
-    private static final String PROPERTY_ID = "identifier";
-    private static final String PROPERTY_NODE_TYPE = "nodeType";
-    private static final String PROPERTY_OBJECT_TYPE = "objectType";
-    private static final String PROPERTY_TAGS = "tags";
-    private static final String REL_HEADER_START_WITH = "rel:";
-    private static final String LIST_STR_DELIMITER = "::";
+    public static final String PROPERTY_ID = "identifier";
+    public static final String PROPERTY_NODE_TYPE = "nodeType";
+    public static final String PROPERTY_OBJECT_TYPE = "objectType";
+    public static final String PROPERTY_TAGS = "tags";
+    public static final String REL_HEADER_START_WITH = "rel:";
+    public static final String LIST_STR_DELIMITER = "::";
 
     CSVFormat csvFileFormat = CSVFormat.DEFAULT;
 
@@ -71,7 +71,8 @@ public class CSVGraphReader implements GraphReader {
         int tagsIndex = allHeaders.indexOf(PROPERTY_TAGS);
         List<Integer> skipIndexes = Arrays.asList(uniqueIdIndex, nodeTypeIndex, objectTypeIndex, tagsIndex);
         if (!hasValidIndexes(uniqueIdIndex, objectTypeIndex)) {
-            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_MISSING_REQ_COLUMNS.name(), "Required columns are missing.");
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_MISSING_REQ_COLUMNS.name(),
+                    "Required columns are missing.");
         }
 
         for (int i = 1; i < recordsList.size(); i++) {
@@ -92,9 +93,10 @@ public class CSVGraphReader implements GraphReader {
                         String[] valList = getListFromString(val);
                         metadata.put(metadataKey, valList);
                     } else {
-                        if (StringUtils.isNotBlank(val))
+                        if (StringUtils.isNotBlank(val)) {
+                            val = val.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
                             metadata.put(metadataKey, val);
-                        else
+                        } else
                             metadata.put(metadataKey, null);
                     }
                 }
@@ -140,6 +142,7 @@ public class CSVGraphReader implements GraphReader {
 
     private String[] getListFromString(String valStr) {
         if (StringUtils.isNotBlank(valStr)) {
+            valStr = valStr.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
             String[] vals = valStr.trim().split("\\s*" + LIST_STR_DELIMITER + "\\s*");
             if (null != vals && vals.length > 0)
                 return vals;

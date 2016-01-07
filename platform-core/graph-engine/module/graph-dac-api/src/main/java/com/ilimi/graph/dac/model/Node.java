@@ -79,11 +79,15 @@ public class Node implements Serializable {
         }
         Iterable<Relationship> inRels = neo4jNode.getRelationships(Direction.INCOMING);
         if (null != inRels && null != inRels.iterator()) {
+            this.tags = new ArrayList<String>();
             this.inRelations = new ArrayList<Relation>();
             for (Relationship inRel : inRels) {
                 Relation rel = new Relation(graphId, inRel);
                 if (!isTagRelation(rel))
                     this.inRelations.add(rel);
+                else {
+                    this.tags.add(rel.getStartNodeName());
+                }
             }
         }
     }

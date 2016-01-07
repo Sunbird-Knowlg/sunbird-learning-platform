@@ -13,6 +13,8 @@ public interface ITaxonomyManager {
     Response find(String id, boolean subgraph, String[] tfields, String[] cfields);
 
     Response create(String id, InputStream stream);
+    
+    Response export(String id, String format);
 
     Response delete(String id);
 
