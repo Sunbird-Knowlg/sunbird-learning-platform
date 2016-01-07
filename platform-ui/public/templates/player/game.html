@@ -44,6 +44,9 @@
                     </span>
                     <a href="javascript:void()" ng-click="lessDescription()" class="pull-right" style="position: relative; bottom: 20px;" ng-show="showFullDesc">less...</a>
                 	</div>
+                  <div class="col-md-12 noPad marginBottom10">
+                        Identifier<br><a href="javascript: void(0)"><span class="margin0 grayText">{{selectedConcept.identifier}}</span></a>
+                  </div>
                   <div class="col-md-12 noPad marginBottom10" ng-if="selectedConcept.metadata.downloads || selectedConcept.metadata.totalGamingTime || selectedConcept.metadata.avgGamingTime">
                     <div class="col-md-4 noPad" ng-if="selectedConcept.metadata.downloads">
                         Downloads<a href="javascript: void(0)"><h4 class="margin0 grayText">{{selectedConcept.metadata.downloads}}</h4></a>

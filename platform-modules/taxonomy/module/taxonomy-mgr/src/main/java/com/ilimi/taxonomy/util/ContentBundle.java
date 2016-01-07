@@ -87,7 +87,7 @@ public class ContentBundle {
                     String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
                     System.out.println("AWS Upload is complete.... on URL : " + url.toString());
                     downloadedFiles.add(contentBundle);
-                } catch (Exception e) {
+                } catch (Throwable e) {
                     e.printStackTrace();
                 } finally {
                     HttpDownloadUtility.DeleteFiles(downloadedFiles);
@@ -99,10 +99,10 @@ public class ContentBundle {
     }
 
     private List<File> getContentBundle(final Map<String, String> downloadUrls) {
+        List<File> files = new ArrayList<File>();
         try {
             ExecutorService pool = Executors.newFixedThreadPool(10);
             List<Callable<File>> tasks = new ArrayList<Callable<File>>(downloadUrls.size());
-            List<File> files = new ArrayList<File>();
             for (final String url : downloadUrls.keySet()) {
                 tasks.add(new Callable<File>() {
                     public File call() throws Exception {
@@ -114,14 +114,15 @@ public class ContentBundle {
             }
             List<Future<File>> results = pool.invokeAll(tasks);
             for (Future<File> ff : results) {
-                files.add(ff.get());
+                File f = ff.get();
+                if (null != f)
+                    files.add(f);
             }
             pool.shutdown();
-            return files;
         } catch (InterruptedException | ExecutionException e) {
             e.printStackTrace();
         }
-        return null;
+        return files;
     }
 
     private byte[] createECAR(List<File> files) throws IOException {
