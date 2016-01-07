@@ -52,8 +52,8 @@ public class ContentBundle {
         Map<String, String> downloadUrls = new HashMap<String, String>();
         for (Map<String, Object> content : contents) {
             String identifier = (String) content.get("identifier");
-            String objectType = (String) content.get("objectType");
-            if (StringUtils.equalsIgnoreCase("game", objectType.trim())) {
+            String mimeType = (String) content.get("mimeType");
+            if (StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType.trim())) {
                 urlFields.remove("downloadUrl");
             } else {
                 urlFields.add("downloadUrl");
