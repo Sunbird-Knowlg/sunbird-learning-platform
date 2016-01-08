@@ -11,32 +11,39 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections.*;
+
 import org.ekstep.literacy.models.WordModel;
 import org.ekstep.literacy.enums.Enums.ObjectType;
 import org.ekstep.literacy.enums.Enums.SourceType;
 import org.ekstep.literacy.models.SynsetModel;
 
 public class ImportDictionary {
-	
+
 	private static final String CSV_SEPARATOR = ",";
-	
+
 //	public static void main(String args[]) {
 //		ImportDictionary id = new ImportDictionary();
 //		id.importData("hi", SourceType.IndoWordNet, "/Users/ilimi/PerceptronWorkspace/EkStep/Learning-Platform/language-platform/module/dictionary/src/main/java/org/ekstep/literacy/importer/data.txt");
 //	}
-	
+
+	@SuppressWarnings("unchecked")
 	protected void importIndoWordNetData(String languageId, SourceType sourceType, String csvFileUrl) {
+		double  startTime = System.currentTimeMillis();
+		System.out.println("Language-Platform | Importer | IWN | Start Time : " + startTime);
 		// TODO: All the Codes should come from Configuration
 		final String HYPERNYM_CODE = "0000";
 		final String ANTONYM_CODE = "0000";
 		final String HYPONYM_CODE = "0000";
 		final String HOMONYM_CODE = "0000";
 		final String MERONYM_CODE = "0000";
-		
+
+		final String MULTI_SYNSET_SAPERATOR = "|";
+
 		//Indices in Source WordNet File
 		final int IDX_MEMBER_WORDS = 3;
 		final int IDX_ID_IN_SOURCE = 0;
-		
+
 		BufferedReader br = null;
 		String line = "";
 		String csvSplitBy = " ";
@@ -53,18 +60,18 @@ public class ImportDictionary {
 
 			br = new BufferedReader(new FileReader(csvFileUrl));
 			while ((line = br.readLine()) != null) {
-				
+
 				/***********************************************************************************
-				 * 1. Split Each line through '|' 												
+				 * 1. Split Each line through '|'
 				 * 		a. First part will be synset and relation
 				 * 			i. Split it through ' ' and will get info like (id, counts and synset)
 				 * 			ii. Split [4] through ':' will give all the word of same sysnset
 				 * 		b. Second part will contain meaning and usage
 				 * 			i. Split it with ':'
 				 ***********************************************************************************/
-				
+
 				// TODO: All the index ids should be a part of configuration
-				
+
 				SynsetModel synset = new SynsetModel();
 				synsetDetails = line.split(csvSplitBy);
 				synsetMemberWords = synsetDetails[IDX_MEMBER_WORDS];
@@ -84,26 +91,52 @@ public class ImportDictionary {
 				synsetList.add(synset);
 				synsetMemberWordList = synsetMemberWords.split(csvMemberWordSplitBy);
 				for (int i = 0; i < synsetMemberWordList.length; i++) {
-					WordModel word = new WordModel();
-					word.setIdentifier(languageId + ':' + "W:" + synsetDetails[IDX_ID_IN_SOURCE] + i);
-					word.setLanguageId(languageId);
-					word.setWordLemma(synsetMemberWordList[i]);
-					word.setSourceType(sourceType.toString());
-					word.setIdInSource(synsetDetails[IDX_ID_IN_SOURCE]);
-					word.setUsage(meaningAndUsage[1]);
-					word.setMeaning(meaningAndUsage[0]);
-					word.setMemberOfSynsetId(languageId + ':' + "S:" + synsetDetails[IDX_ID_IN_SOURCE]);
-					word.setAntonymOfWordId(getSynsetIdByRelation(ANTONYM_CODE, line, ObjectType.Word));
-					word.setHyponymOfWordId(getSynsetIdByRelation(HYPONYM_CODE, line, ObjectType.Word));
-					word.setHypernymOfWordId(getSynsetIdByRelation(HYPERNYM_CODE, line, ObjectType.Word));
-					word.setHomonymOfWordId(getSynsetIdByRelation(HOMONYM_CODE, line, ObjectType.Word));
-					word.setMeronymOfWordId(getSynsetIdByRelation(MERONYM_CODE, line, ObjectType.Word));
-					wordList.add(word);
+					final String currentWord = synsetMemberWordList[i];
+					// TODO: Make the below search value for field as generic method using reflections
+					Predicate condition = new Predicate() {
+						   public boolean evaluate(Object word) {
+						        return ((WordModel)word).getWordLemma().trim().equals(currentWord);
+						   }
+					};
+					List<WordModel> results = (List<WordModel>) CollectionUtils.select(wordList, condition);
+
+					if (results.size() <= 0) {
+						WordModel word = new WordModel();
+						word.setIdentifier(languageId + ':' + "W:" + synsetDetails[IDX_ID_IN_SOURCE] + i);
+						word.setLanguageId(languageId);
+						word.setWordLemma(synsetMemberWordList[i].trim());
+						word.setSourceType(sourceType.toString());
+						word.setIdInSource(synsetDetails[IDX_ID_IN_SOURCE]);
+						word.setUsage(meaningAndUsage[1]);
+						word.setMeaning(meaningAndUsage[0]);
+						word.setMemberOfSynsetId(languageId + ':' + "S:" + synsetDetails[IDX_ID_IN_SOURCE]);
+						word.setAntonymOfWordId(getSynsetIdByRelation(ANTONYM_CODE, line, ObjectType.Word));
+						word.setHyponymOfWordId(getSynsetIdByRelation(HYPONYM_CODE, line, ObjectType.Word));
+						word.setHypernymOfWordId(getSynsetIdByRelation(HYPERNYM_CODE, line, ObjectType.Word));
+						word.setHomonymOfWordId(getSynsetIdByRelation(HOMONYM_CODE, line, ObjectType.Word));
+						word.setMeronymOfWordId(getSynsetIdByRelation(MERONYM_CODE, line, ObjectType.Word));
+						wordList.add(word);
+					} else {
+						System.out.println("Importer Module | Duplicate Word - " + currentWord);
+						String identifier = null;
+						for (WordModel result : results) {
+							identifier = result.getIdentifier();
+							if (null != identifier) {
+								for (WordModel word : wordList) {
+									if (word.getIdentifier().equals(identifier)) {
+										word.setMemberOfSynsetId(word.getMemberOfSynsetId() + MULTI_SYNSET_SAPERATOR + languageId + ':' + "S:" + synsetDetails[IDX_ID_IN_SOURCE]);
+									}
+								}
+							}
+						}
+					}
 				}
 			}
 			writeSynsetsToCSV(synsetList);
 			writeWordsToCSV(wordList);
-			
+			double endTime = System.currentTimeMillis();
+			System.out.println("Language-Platform | Importer | IWN | End Time : " + endTime);
+			System.out.println("Language-Platform | Importer | IWN | Total Elapsed Time : " + (endTime - startTime));
 
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -121,10 +154,10 @@ public class ImportDictionary {
 
 		System.out.println("Done");
 	}
-	
+
 	protected void importData(String languageId, SourceType sourceType, String csvFileUrl) {
 		if (!isValidLanguageId(languageId)) {
-			throw new IllegalArgumentException("Invalid Language Id."); 
+			throw new IllegalArgumentException("Invalid Language Id.");
 		}else if (!isValidSourceType(sourceType)) {
 			throw new IllegalArgumentException("Invalid Data Source Type.");
 		}else{
@@ -133,14 +166,14 @@ public class ImportDictionary {
 				case IndoWordNet:
 					importIndoWordNetData(languageId, sourceType, csvFileUrl);
 					break;
-	
+
 				default:
 					break;
 				}
 			} catch(Exception e) {}
 		}
 	}
-	
+
 	protected boolean isValidLanguageId(String languageId) {
 		try {
 			return true;
@@ -149,7 +182,7 @@ public class ImportDictionary {
 			return false;
 		}
 	}
-	
+
 	protected boolean isValidSourceType(SourceType sourceType) {
 		try {
 			return true;
@@ -158,7 +191,7 @@ public class ImportDictionary {
 			return false;
 		}
 	}
-	
+
     private static void writeWordsToCSV(List<WordModel> wordList)
     {
         try
@@ -206,7 +239,7 @@ public class ImportDictionary {
         catch (FileNotFoundException e){}
         catch (IOException e){}
     }
-    
+
     private static void writeSynsetsToCSV(List<SynsetModel> synsetList)
     {
         try
@@ -252,7 +285,7 @@ public class ImportDictionary {
         catch (FileNotFoundException e){}
         catch (IOException e){}
     }
-	
+
 	protected String getSynsetIdByRelation(String relationId, String synsetDetail, ObjectType objectType ) {
 		try {
 			String id = null;
@@ -267,7 +300,7 @@ public class ImportDictionary {
 					  return id;
 				}
 				break;
-				
+
 			case Synset:
 				if (synsetDetail.indexOf(relationId) > 0) {
 					  int index = synsetDetail.indexOf(relationId);
@@ -286,6 +319,5 @@ public class ImportDictionary {
 			return null;
 		}
 	}
-	
+
 }
- 
