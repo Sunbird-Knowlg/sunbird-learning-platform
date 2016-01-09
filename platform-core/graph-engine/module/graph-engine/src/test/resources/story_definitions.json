@@ -82,7 +82,7 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
         {
-          "required": false,
+          "required": true,
           "dataType": "Select",
           "propertyName": "mimeType",
           "title": "Mime Type",
