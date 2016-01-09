@@ -1,0 +1,157 @@
+{
+    "definitionNodes":
+    [
+        {
+            "objectType": "ANY",
+            "indexedMetadata":
+            [
+                {
+                    "propertyName": "name",
+                    "title": "Name",
+                    "description": "Name of the node",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 1}"
+                },
+                {
+                    "propertyName": "code",
+                    "title": "Code",
+                    "description": "Unique code to identify the node",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 2}"
+                },
+
+                {
+                    "propertyName": "identifier",
+                    "title": "Identifier",
+                    "description": "System identifier for the node",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+                    "displayProperty": "Hidden",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 3}"
+                },
+                {
+                    "propertyName": "keywords",
+                    "title": "Keywords",
+                    "description": "Keywords related to this node",
+                    "category": "general",
+                    "dataType": "List",
+                    "required": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 7}"
+                },
+                {
+                    "propertyName": "status",
+                    "title": "Status",
+                    "description": "Status of the node",
+                    "category": "lifeCycle",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "Draft",
+                        "Live",
+                        "Retired"
+                    ],
+
+                    "required": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                }
+            ],
+
+            "nonIndexedMetadata":
+            [
+                {
+                    "propertyName": "description",
+                    "title": "Description",
+                    "description": "Description of the node in 2-3 sentences.",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+                },
+                {
+                    "propertyName": "lastUpdatedBy",
+                    "title": "Last Updated By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 21}"
+                },
+                {
+                    "propertyName": "lastUpdatedOn",
+                    "title": "Last Updated On",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 22}"
+                },
+                {
+                    "propertyName": "version",
+                    "title": "Version",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Number",
+                    "required": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 23}"
+                },
+                {
+                    "propertyName": "versionDate",
+                    "title": "Version Date",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 24}"
+                },
+                {
+                    "propertyName": "versionCreatedBy",
+                    "title": "Version Created By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 25}"
+                }
+            ],
+
+            "inRelations":
+            [
+
+            ],
+            "outRelations":
+            [
+
+            ],
+            "systemTags":
+            [
+
+            ]
+        }
+    ]
+}

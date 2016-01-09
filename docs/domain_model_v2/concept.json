@@ -1,0 +1,47 @@
+{
+    "identifier" : "", // Identifier of the object - unique across the system
+    "code": "", // Human readable code - unique across the system
+    "name": "", // Display name of the object
+    "keywords": [""], // Keywords related to this object (list of keyword strings)
+    "tags": [""], // Tags for this object (sets to which this object belongs)
+    "status": "", // Status of the object (Draft, Live, Retired)
+    "lastUpdatedOn": "", // Timestamp of the last update to the object
+    "version": "", // Version number of the object
+
+    "validations": [""], // Validations of this concept (array of string)
+    "dimension": "", // Root dimension of this concept
+    "applicability":"", // Type of applicability of this concept (High, Medium, Low)
+    "foundation":"", // Whether this concept is a foundational concept (High, Medium, Low)
+    "assessmentMethod": [""], // Applicable assessment methods (Correctness, Complexity, Time Spent, Attempts)
+    "learningObjective":[""], // List of text learning objectives for this concept
+    "examples":[""], // Example/illustrations of this concept in action
+    "references": [""], // List of references for this concept
+
+    "numConcepts": "", // Number of derived concepts in this concept
+    "numMethods": "", // Number of teaching methods in this concept
+    "numMisconceptions": "", // Number of content associated with this dimension
+
+    "parents": [
+        // Parent concept or dimension for this concept (will be only one)
+    ],
+
+    "children" : [
+        // Array of child concepts in this concept
+    ],
+
+    "co-occurrences" : [
+        // Array of concepts that co-occur with this concept
+    ],
+
+    "pre-requisites" : [
+        // Array of pre-requisite concepts
+    ],
+
+    "misconceptions": [
+        // Array of misconceptions related to this concept
+    ],
+
+    "methods": [
+        // Array of methods related to this concept
+    ]
+}

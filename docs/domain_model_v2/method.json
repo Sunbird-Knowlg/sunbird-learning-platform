@@ -1,0 +1,25 @@
+{
+    "identifier" : "", // Identifier of the object - unique across the system
+    "code": "", // Human readable code - unique across the system
+    "name": "", // Display name of the object
+    "keywords": [""], // Keywords related to this object (list of keyword strings)
+    "tags": [""], // Tags for this object (sets to which this object belongs)
+    "status": "", // Status of the object (Draft, Live, Retired)
+    "lastUpdatedOn": "", // Timestamp of the last update to the object
+    "version": "", // Version number of the object
+
+    "skills": [""], // Skills required (Listening, Reading, Writing, Speaking, Touch, Gestures)
+    "material": [""], // Material presented (see the list of materials)
+    "complexity": "", // Complexity in presentation of the material
+    "cognitiveProcessing": [""], // Cognitive processing required (e.g. sort collections)
+    "interactivity": [""], // Type of interactivity required (e.g. Logical Reasoning, Mental Maths)
+    "learningStyle": [""], // Learning style associated with this method (e.g. Visual, Auditory)
+
+    "concepts": [
+        // Associated concepts to this method
+    ],
+
+    "children" : [
+        // Array of child methods
+    ]
+}

@@ -1,0 +1,19 @@
+{
+    "identifier" : "", // Identifier of the object - unique across the system
+    "code": "", // Human readable code - unique across the system
+    "name": "", // Display name of the object
+    "keywords": [""], // Keywords related to this object (list of keyword strings)
+    "tags": [""], // Tags for this object (sets to which this object belongs)
+    "status": "", // Status of the object (Draft, Live, Retired)
+    "lastUpdatedOn": "", // Timestamp of the last update to the object
+    "version": "", // Version number of the object
+
+    "numDimensions": "", // Number of dimensions in this domain
+    "numConcepts": "", // Number of concepts in this domain
+    "numMethods": "", // Number of teaching methods in this domain
+    "numContent": "", // Number of content associated with this domain
+
+    "children" : [
+        // Array of dimensions in this domain
+    ]
+}
