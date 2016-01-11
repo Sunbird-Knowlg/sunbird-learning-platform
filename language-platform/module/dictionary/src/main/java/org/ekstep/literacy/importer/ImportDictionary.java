@@ -24,7 +24,7 @@ public class ImportDictionary {
 
 //	public static void main(String args[]) {
 //		ImportDictionary id = new ImportDictionary();
-//		id.importData("hi", SourceType.IndoWordNet, "/Users/ilimi/PerceptronWorkspace/EkStep/Learning-Platform/language-platform/module/dictionary/src/main/java/org/ekstep/literacy/importer/data.txt");
+//		id.importData("hi", SourceType.IndoWordNet, "/Users/ilimi/PerceptronWorkspace/EkStep/Learning-Platform/language-platform/module/dictionary/src/main/resources/data.txt");
 //	}
 
 	@SuppressWarnings("unchecked")
