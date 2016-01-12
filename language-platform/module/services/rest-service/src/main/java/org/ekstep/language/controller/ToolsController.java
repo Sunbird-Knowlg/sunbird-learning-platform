@@ -1,4 +1,4 @@
-package org.ekstep.literacy.controller;
+package org.ekstep.language.controller;
 
 import java.util.Map;
 

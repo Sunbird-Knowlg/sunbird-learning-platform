@@ -6,43 +6,20 @@ import java.util.StringTokenizer;
 
 import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.language.measures.meta.OrthographicVectors;
-import org.ekstep.language.measures.meta.PhonologicVectors;
+import org.ekstep.language.measures.meta.SyllableMap;
 
 public class ParagraphMeasures {
 
-	public static void main(String[] args) {
-		try {
-			String path = "/Users/rayulu/work/EkStep/language_model/wordnets/wiktionary/meta/words";
-			OrthographicVectors.load(path);
-			PhonologicVectors.load(path);
-
-			String text = "గువ్వకు జరమమ్మా రాతిరి బువ్వే తినలేదు ముక్కుకి ముక్కెర కావాలంటది ముక్కు చూపుతూ నడవాలంటది  గువ్వకు జరమమ్మా రాతిరి బువ్వే తినలేదు నడుముకు ఒడ్డాణం కావాలంటది నడుము తిప్పుతూ నడవాలంటది గువ్వకు జరమమ్మా రాతిరి బువ్వే తినలేదు కాళ్ళకి గజ్జెలు కావాలంటది కాళ్ళు తిప్పుతూ తిరగాలంటది గువ్వకు జరమమ్మా రాతిరి బువ్వే తినలేదు";
-			ParagraphComplexity pc = getParagraphMeasures(text);
-			if (null != pc) {
-				System.out.println("Word Count: " + pc.getWordMeasures().size());
-				System.out.println(
-						"Mean Complexity: (" + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity() + ")");
-				System.out.println("Total Complexity: (" + pc.getTotalOrthoComplexity() + ", "
-						+ pc.getTotalPhonicComplexity() + ")");
-				for (WordComplexity wc : pc.getWordMeasures()) {
-					System.out.print(
-							wc.getWord() + " (" + wc.getOrthoComplexity() + ", " + wc.getPhonicComplexity() + "), ");
-				}
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	private static ParagraphComplexity getParagraphMeasures(String text) {
+	public static ParagraphComplexity getTextComplexity(String language, String text) {
+	    if (!SyllableMap.isLanguageEnabled(language))
+            return null;
 		if (null != text && text.trim().length() > 0) {
 			StringTokenizer st = new StringTokenizer(text);
 			List<WordComplexity> wordMeasures = new ArrayList<WordComplexity>();
 			if (null != st) {
 				while (st.hasMoreTokens()) {
 					String word = st.nextToken().trim();
-					WordComplexity wc = WordMeasures.getWordComplexity(word);
+					WordComplexity wc = WordMeasures.getWordComplexity(language, word);
 					wordMeasures.add(wc);
 				}
 			}

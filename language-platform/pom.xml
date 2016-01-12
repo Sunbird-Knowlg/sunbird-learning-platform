@@ -20,6 +20,7 @@
 		<module>module/tools</module>
 		<module>module/services</module>
 		<module>module/common</module>
+		<module>module/language-service</module>
 	</modules>
 
 	<dependencies>

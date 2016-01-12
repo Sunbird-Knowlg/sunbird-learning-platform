@@ -22,7 +22,6 @@
 
 	<modules>
 		<module>lexile-algorithms</module>
-		<module>tools-service</module>
 	</modules>
 
 	<dependencies>

@@ -2,7 +2,7 @@ package org.ekstep.language.measures.entity;
 
 import java.util.List;
 
-import org.ekstep.language.measures.meta.TeluguSyllables;
+import org.ekstep.language.measures.meta.SyllableMap;
 
 public class Syllable {
 
@@ -15,8 +15,8 @@ public class Syllable {
 		this.internalCode = internalCode;
 		this.unicodes = unicodes;
 		if (null != internalCode && internalCode.trim().length() > 0) {
-			this.code = this.internalCode.replaceAll(TeluguSyllables.VOWEL_SIGN_CODE, TeluguSyllables.VOWEL_CODE)
-					.replaceAll(TeluguSyllables.HALANT_CODE, "").replaceAll(TeluguSyllables.CLOSE_VOWEL_CODE, TeluguSyllables.VOWEL_CODE);
+			this.code = this.internalCode.replaceAll(SyllableMap.VOWEL_SIGN_CODE, SyllableMap.VOWEL_CODE)
+					.replaceAll(SyllableMap.HALANT_CODE, "").replaceAll(SyllableMap.CLOSE_VOWEL_CODE, SyllableMap.VOWEL_CODE);
 		}
 	}
 

@@ -3,11 +3,11 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.ekstep</groupId>
-		<artifactId>language-platform-tools</artifactId>
+		<artifactId>language-platform-rest-service</artifactId>
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>tools-service</artifactId>
+	<artifactId>language-rest-service</artifactId>
 	<name>EkStep Language Tools Services</name>
 	<dependencies>
 		<dependency>

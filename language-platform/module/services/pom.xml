@@ -7,7 +7,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-    <artifactId>language-platform-service</artifactId>
+    <artifactId>language-platform-rest-service</artifactId>
     <packaging>pom</packaging>
     <name>EkStep Language Platform Services</name>
 	<properties>
@@ -19,10 +19,22 @@
 	</properties>
 
 	<modules>
-		<module>language-service</module>
+		<module>rest-service</module>
 	</modules>
 
 	<dependencies>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>language-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>lexile-measures</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
