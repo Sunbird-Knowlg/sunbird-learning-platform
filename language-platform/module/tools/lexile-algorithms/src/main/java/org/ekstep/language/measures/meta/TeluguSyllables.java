@@ -1,4 +1,4 @@
-package org.ekstep.literacy.meta;
+package org.ekstep.language.measures.meta;
 
 import java.util.HashMap;
 import java.util.Map;

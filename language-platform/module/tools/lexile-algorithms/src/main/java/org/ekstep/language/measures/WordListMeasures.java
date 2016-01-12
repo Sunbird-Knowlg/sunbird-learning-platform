@@ -1,4 +1,4 @@
-package org.ekstep.literacy.measures;
+package org.ekstep.language.measures;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
-import org.ekstep.literacy.entity.WordComplexity;
-import org.ekstep.literacy.meta.OrthographicVectors;
-import org.ekstep.literacy.meta.PhonologicVectors;
+import org.ekstep.language.measures.entity.WordComplexity;
+import org.ekstep.language.measures.meta.OrthographicVectors;
+import org.ekstep.language.measures.meta.PhonologicVectors;
 
 public class WordListMeasures {
 

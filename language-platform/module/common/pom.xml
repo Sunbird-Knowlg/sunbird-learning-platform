@@ -7,17 +7,11 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>language-platform-dictionary</artifactId>
+	<artifactId>language-common</artifactId>
 	<dependencies>
 		<dependency>
 			<groupId>com.ilimi</groupId>
 			<artifactId>graph-engine</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>language-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>

@@ -1,10 +1,12 @@
-package org.ekstep.literacy.entity;
+package org.ekstep.language.measures.entity;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class WordComplexity {
+public class WordComplexity implements Serializable {
 
-	private String word;
+    private static final long serialVersionUID = -837291979119278370L;
+    private String word;
 	private String rts;
 	private int count;
 	private String notation;

@@ -1,10 +1,12 @@
-package org.ekstep.literacy.entity;
+package org.ekstep.language.measures.entity;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class ParagraphComplexity {
+public class ParagraphComplexity implements Serializable {
 
-	private String text;
+    private static final long serialVersionUID = -2895861316069551961L;
+    private String text;
 	private Double meanOrthoComplexity;
 	private Double totalOrthoComplexity;
 	private Double meanPhonicComplexity;

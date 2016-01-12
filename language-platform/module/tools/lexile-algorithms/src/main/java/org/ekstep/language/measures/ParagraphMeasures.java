@@ -1,13 +1,13 @@
-package org.ekstep.literacy.measures;
+package org.ekstep.language.measures;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.ekstep.literacy.entity.ParagraphComplexity;
-import org.ekstep.literacy.entity.WordComplexity;
-import org.ekstep.literacy.meta.OrthographicVectors;
-import org.ekstep.literacy.meta.PhonologicVectors;
+import org.ekstep.language.measures.entity.ParagraphComplexity;
+import org.ekstep.language.measures.entity.WordComplexity;
+import org.ekstep.language.measures.meta.OrthographicVectors;
+import org.ekstep.language.measures.meta.PhonologicVectors;
 
 public class ParagraphMeasures {
 

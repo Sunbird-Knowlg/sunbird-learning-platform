@@ -1,8 +1,8 @@
-package org.ekstep.literacy.entity;
+package org.ekstep.language.measures.entity;
 
 import java.util.List;
 
-import org.ekstep.literacy.meta.TeluguSyllables;
+import org.ekstep.language.measures.meta.TeluguSyllables;
 
 public class Syllable {
 

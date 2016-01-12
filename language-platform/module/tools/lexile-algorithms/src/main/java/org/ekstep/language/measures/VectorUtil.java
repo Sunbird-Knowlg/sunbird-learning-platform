@@ -1,4 +1,4 @@
-package org.ekstep.literacy.measures;
+package org.ekstep.language.measures;
 
 public class VectorUtil {
 

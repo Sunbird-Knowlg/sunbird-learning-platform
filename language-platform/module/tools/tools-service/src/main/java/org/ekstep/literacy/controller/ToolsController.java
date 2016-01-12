@@ -1,11 +1,11 @@
 package org.ekstep.literacy.controller;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.common.LanguageMap;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -25,24 +26,14 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 public class ToolsController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(ToolsController.class.getName());
-    
-    private static final Map<String, String> languageMap = new HashMap<String, String>();
 
-    {
-    	System.out.println("init tools controller");
-        languageMap.put("hi", "hindi");
-        languageMap.put("en", "english");
-        languageMap.put("te", "telugu");
-        languageMap.put("kan", "kannada");
-    }
-    
     @RequestMapping(value = "/lexileMeasures", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> complexity(
             @RequestParam(value = "languageId", required = true, defaultValue = "") String languageId,
             @RequestBody Map<String, Object> map) {
         String apiId = "language.complexity";
-        if (languageMap.containsKey(languageId)) {
+        if (LanguageMap.containsLanguage(languageId)) {
             apiId = "language.complexity";
             Request request = getRequestObject(map);
             LOGGER.info("List | Request: " + request);
