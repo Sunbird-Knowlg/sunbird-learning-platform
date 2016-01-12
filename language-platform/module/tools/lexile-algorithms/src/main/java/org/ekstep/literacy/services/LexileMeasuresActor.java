@@ -20,7 +20,8 @@ public class LexileMeasuresActor extends UntypedActor {
         log.info("Received Command: " + msg);
 
         if (msg instanceof Request) {
-            
+        	Request request = (Request) msg;
+        	request.getOperation();
         } else if (msg.equals("echo")) {
             log.info("ECHO!");
         }

@@ -22,9 +22,7 @@
 
 	<modules>
 		<module>lexile-algorithms</module>
-		<module>nlp-tools</module>
-		<module>parsers</module>
-		<module>transliteration-tools</module>
+		<module>tools-service</module>
 	</modules>
 
 	<dependencies>
