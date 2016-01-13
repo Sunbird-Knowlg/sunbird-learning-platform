@@ -11,9 +11,18 @@ public class SynsetModel {
 	String antonymSynsetId = null;
 	String hyponymSynsetId = null;
 	String hypernymSynsetId = null;
-	String homonymSynsetId = null;
+	String holonymSynsetId = null;
 	String meronymSynsetId = null;
+	String partOfSpeech = null;
 	
+	public String getPartOfSpeech() {
+		return partOfSpeech;
+	}
+
+	public void setPartOfSpeech(String partOfSpeech) {
+		this.partOfSpeech = partOfSpeech;
+	}
+
 	public String getIdentifier () {
 		return identifier;
 	}
@@ -94,12 +103,12 @@ public class SynsetModel {
 		this.hypernymSynsetId = hypernymSynsetId;
 	}
 	
-	public String getHomonymSynsetId () {
-		return homonymSynsetId;
+	public String getHolonymSynsetId () {
+		return holonymSynsetId;
 	}
 	
-	public void setHomonymSynsetId (String homonymSynsetId) {
-		this.homonymSynsetId = homonymSynsetId;
+	public void setHolonymSynsetId (String holonymSynsetId) {
+		this.holonymSynsetId = holonymSynsetId;
 	}
 	
 	public String getMeronymSynsetId () {
