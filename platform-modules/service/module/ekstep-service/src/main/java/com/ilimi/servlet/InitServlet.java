@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.router.LanguageRequestRouterPool;
 
 import com.ilimi.common.router.RequestRouterPool;
 
@@ -22,6 +23,7 @@ public class InitServlet extends HttpServlet {
         // Initialising Request Router Pool
         LOGGER.info("Initialising Request Router Pool");
         RequestRouterPool.getActorSystem();
+        LanguageRequestRouterPool.init();
     }
 
 }

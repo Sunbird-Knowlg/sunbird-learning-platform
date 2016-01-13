@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.router.LanguageRequestRouterPool;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
@@ -13,7 +14,6 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 
@@ -43,10 +43,10 @@ public abstract class BaseLanguageController extends BaseController {
     }
     
     protected Response getResponse(Request request, Logger logger) {
-        ActorRef router = RequestRouterPool.getRequestRouter();
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
-            Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
-            Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+            Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.REQ_TIMEOUT);
+            Object obj = Await.result(future, LanguageRequestRouterPool.WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
                 return (Response) obj;
             } else {

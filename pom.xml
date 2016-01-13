@@ -25,6 +25,7 @@
 		<module>platform-modules/assessment</module>
 		<module>platform-modules/common</module>
 		<module>platform-modules/service</module>
+		<module>language-platform</module>
 	</modules>
 
 	<dependencies>

@@ -20,7 +20,6 @@
 		<module>module/tools</module>
 		<module>module/controllers</module>
 		<module>module/common</module>
-		<module>module/services</module>
 	</modules>
 
 	<dependencies>

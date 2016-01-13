@@ -4,6 +4,8 @@ import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 public class Vectors {
 
     public static Integer[] getVector(String language, String s, Map<String, Map<String, Integer[]>> vectorMap) {
@@ -16,10 +18,13 @@ public class Vectors {
     }
 
     public static int getIncrement(String language, String s, Map<String, Map<String, Integer>> incrMap) {
-        if (null != s && s.trim().length() > 0) {
-            if (incrMap.containsKey(language.toLowerCase().trim())) {
-                return incrMap.get(language.toLowerCase().trim()).get(s.toUpperCase());
+        try {
+            if (StringUtils.isNotBlank(s)) {
+                if (incrMap.containsKey(language.toLowerCase().trim())) {
+                    return incrMap.get(language.toLowerCase().trim()).get(s.toUpperCase());
+                }
             }
+        } catch (Exception e) {
         }
         return 0;
     }
@@ -47,7 +52,7 @@ public class Vectors {
             incrMap.put(language.toLowerCase().trim(), langIncrMap);
         }
 
-        MetaLoader.loadVectors(language.toLowerCase().trim() + File.separator + vectorFileName, langVectorMap,
+        MetaLoader.loadVectors(File.separator + language.toLowerCase().trim() + File.separator + vectorFileName, langVectorMap,
                 langIncrMap);
         if (null != langVectorMap && !langVectorMap.isEmpty()) {
             Integer[] vector = langVectorMap.values().iterator().next();

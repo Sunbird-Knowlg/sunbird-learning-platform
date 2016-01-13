@@ -83,6 +83,9 @@ public class SyllableMap {
             addToLanguageMap(languageMap, close_vowels, CLOSE_VOWEL_CODE);
             List<String> halants = (List<String>) map.get("halants");
             addToLanguageMap(languageMap, halants, HALANT_CODE);
+            
+            OrthographicVectors.load(language);
+            PhonologicVectors.load(language);
         } catch (Exception e) {
             e.printStackTrace();
         }

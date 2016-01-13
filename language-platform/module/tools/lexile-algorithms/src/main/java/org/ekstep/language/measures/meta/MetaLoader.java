@@ -1,8 +1,6 @@
 package org.ekstep.language.measures.meta;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Map;
@@ -38,8 +36,8 @@ public class MetaLoader {
 
     public static void loadWeightage(String filePath, Double[] weightage) throws Exception {
         try {
-            File f = new File(filePath);
-            BufferedReader br = new BufferedReader(new FileReader(f));
+            InputStream is = MetaLoader.class.getResourceAsStream(filePath);
+            BufferedReader br = new BufferedReader(new InputStreamReader(is));
             br.readLine();
             String s = null;
             int index = 0;

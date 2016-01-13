@@ -17,6 +17,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.router.RequestRouterPool;
 
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -57,7 +58,7 @@ public class LanguageRequestRouter extends UntypedActor {
     }
 
     private void initActorPool() {
-        ActorSystem system = LanguageRequestRouterPool.getActorSystem();
+        ActorSystem system = RequestRouterPool.getActorSystem();
         int poolSize = 4;
 
         Props lexileMeasuresProps = Props.create(LexileMeasuresActor.class);
