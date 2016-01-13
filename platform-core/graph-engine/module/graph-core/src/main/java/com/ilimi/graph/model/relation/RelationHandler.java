@@ -12,7 +12,8 @@ import com.ilimi.graph.model.IRelation;
 
 public class RelationHandler {
 
-    public static IRelation getRelation(BaseGraphManager manager, String graphId, String startNodeId, String relationType, String endNodeId, Map<String, Object> metadata) {
+    public static IRelation getRelation(BaseGraphManager manager, String graphId, String startNodeId,
+            String relationType, String endNodeId, Map<String, Object> metadata) {
 
         if (StringUtils.isNotBlank(relationType) && RelationTypes.isValidRelationType(relationType)) {
             if (StringUtils.equals(RelationTypes.HIERARCHY.relationName(), relationType)) {
@@ -31,9 +32,18 @@ public class RelationHandler {
                 return new CoOccurrenceRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.PRE_REQUISITE.relationName(), relationType)) {
                 return new PreRequisiteRelation(manager, graphId, startNodeId, endNodeId);
+            } else if (StringUtils.equals(RelationTypes.SYNONYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.ANTONYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.HYPERNYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.HYPONYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.HOMONYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.MERONYM.relationName(), relationType)) {
+                return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId);
             }
-            throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "UnSupported Relation: " + relationType);
+            throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(),
+                    "UnSupported Relation: " + relationType);
         }
-        throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "UnSupported Relation: " + relationType);
+        throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(),
+                "UnSupported Relation: " + relationType);
     }
 }

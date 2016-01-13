@@ -11,7 +11,14 @@ public enum RelationTypes {
     ASSOCIATED_TO("associatedTo"),
     SUB_SET("hasSubSet"),
     CO_OCCURRENCE("co-occurrence"),
-    PRE_REQUISITE("pre-requisite");
+    PRE_REQUISITE("pre-requisite"),
+    SYNONYM("synonym"),
+    ANTONYM("hasAntonym"),
+    HYPERNYM("hasHypernym"),
+    HOMONYM("hasHomonym"),
+    HYPONYM("hasHyponym"),
+    MERONYM("hasMeronym"),
+    PROPOSITION("proposition");
 
     private String relationName;
 

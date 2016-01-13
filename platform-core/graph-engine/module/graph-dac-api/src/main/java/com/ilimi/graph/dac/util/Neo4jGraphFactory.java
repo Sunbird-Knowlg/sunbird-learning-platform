@@ -1,5 +1,7 @@
 package com.ilimi.graph.dac.util;
 
+import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
+
 import java.io.File;
 import java.io.InputStream;
 import java.util.HashMap;
@@ -8,8 +10,10 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
@@ -17,6 +21,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserters;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphFactory {
@@ -56,11 +61,30 @@ public class Neo4jGraphFactory {
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
                 graphDbMap.put(graphId, graphDb);
+                createConstraints(graphDb);
             }
             if (null != graphDb && graphDb.isAvailable(0))
                 return graphDb;
         }
         throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph database: " + graphId + " not found");
+    }
+    
+    public static void createConstraints(GraphDatabaseService graphDb) {
+        Transaction tx = null;
+        try {
+            tx = graphDb.beginTx();
+            Schema schema = graphDb.schema();
+            schema.indexFor(NODE_LABEL).on(SystemProperties.IL_SYS_NODE_TYPE.name()).create();
+            schema.indexFor(NODE_LABEL).on(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).create();
+            schema.constraintFor(NODE_LABEL).assertPropertyIsUnique(SystemProperties.IL_UNIQUE_ID.name()).create();
+            tx.success();
+        } catch (Exception e) {
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
     }
 
     public static void createGraph(String graphId) {

@@ -66,24 +66,12 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_ALREADY_EXISTS.name(),
                     "Graph '" + graphId + "' already exists");
         } else {
-            Transaction tx = null;
             try {
                 Neo4jGraphFactory.createGraph(graphId);
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-                tx = graphDb.beginTx();
-                Schema schema = graphDb.schema();
-                schema.indexFor(NODE_LABEL).on(SystemProperties.IL_SYS_NODE_TYPE.name()).create();
-                schema.indexFor(NODE_LABEL).on(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).create();
-                schema.constraintFor(NODE_LABEL).assertPropertyIsUnique(SystemProperties.IL_UNIQUE_ID.name()).create();
-                tx.success();
+                Neo4jGraphFactory.getGraphDb(graphId);
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
-                if (null != tx)
-                    tx.failure();
                 ERROR(e, getSender());
-            } finally {
-                if (null != tx)
-                    tx.close();
             }
         }
     }
