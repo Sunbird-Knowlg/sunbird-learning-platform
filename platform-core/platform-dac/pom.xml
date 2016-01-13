@@ -45,7 +45,7 @@
 	</profiles>
 
 	<properties>
-		<spring.version>4.0.2.RELEASE</spring.version>
+		<spring.version>4.2.4.RELEASE</spring.version>
 		<hibernate.version>4.1.4.Final</hibernate.version>
 		<maven.compiler.target>1.7</maven.compiler.target>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -159,7 +159,7 @@
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-jdbc</artifactId>
-			<version>3.2.2.RELEASE</version>
+			<version>${spring.version}</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
