@@ -107,4 +107,8 @@ public class WordComplexity implements Serializable {
 			return -1;
 		};
 	};
+	
+	public ComplexityMeasures getMeasures() {
+        return new ComplexityMeasures(orthoComplexity, phonicComplexity);
+    }
 }

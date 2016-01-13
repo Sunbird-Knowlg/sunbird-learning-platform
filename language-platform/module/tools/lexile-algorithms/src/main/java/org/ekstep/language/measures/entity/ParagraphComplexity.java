@@ -60,5 +60,9 @@ public class ParagraphComplexity implements Serializable {
 	public void setWordMeasures(List<WordComplexity> wordMeasures) {
 		this.wordMeasures = wordMeasures;
 	}
+	
+	public ComplexityMeasures getMeasures() {
+	    return new ComplexityMeasures(meanOrthoComplexity, meanPhonicComplexity);
+	}
 
 }
