@@ -3,12 +3,12 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.ekstep</groupId>
-		<artifactId>language-platform-rest-service</artifactId>
+		<artifactId>language-platform</artifactId>
 		<version>1.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
+		<relativePath>../../pom.xml</relativePath>
 	</parent>
-	<artifactId>language-rest-service</artifactId>
-	<name>EkStep Language Tools Services</name>
+	<artifactId>language-controller</artifactId>
+	<name>EkStep Language Controllers</name>
 	<dependencies>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -24,6 +24,18 @@
 		<dependency>
 			<groupId>com.ilimi</groupId>
 			<artifactId>common-service</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>language-common</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>lexile-measures</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>

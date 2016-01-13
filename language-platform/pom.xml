@@ -18,9 +18,9 @@
 	<modules>
 		<module>module/dictionary</module>
 		<module>module/tools</module>
-		<module>module/services</module>
+		<module>module/controllers</module>
 		<module>module/common</module>
-		<module>module/language-service</module>
+		<module>module/services</module>
 	</modules>
 
 	<dependencies>
