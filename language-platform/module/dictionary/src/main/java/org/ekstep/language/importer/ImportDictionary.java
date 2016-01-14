@@ -34,14 +34,14 @@ public class ImportDictionary {
     }
 
 
-	public static void main(String args[]) {
-		try{
-			ImportDictionary id = new ImportDictionary();
-			id.importData("hi", SourceType.IndoWordNet, "/Users/ilimi/PerceptronWorkspace/EkStep/Learning-Platform/language-platform/module/dictionary/src/main/resources/data.txt");
-		} catch(Exception ex) {
-			ex.printStackTrace();
-		}
-	}
+//	public static void main(String args[]) {
+//		try{
+//			ImportDictionary id = new ImportDictionary();
+//			id.importData("hi", SourceType.IndoWordNet, "/Users/ilimi/PerceptronWorkspace/EkStep/Learning-Platform/language-platform/module/dictionary/src/main/resources/data.txt");
+//		} catch(Exception ex) {
+//			ex.printStackTrace();
+//		}
+//	}
 
 	@SuppressWarnings("unchecked")
 	protected void importIndoWordNetData(String languageId, SourceType sourceType, String csvFileUrl) {
