@@ -26,6 +26,7 @@
 		<module>platform-modules/common</module>
 		<module>platform-modules/service</module>
 		<module>language-platform</module>
+		<module>platform-tests</module>
 	</modules>
 
 	<dependencies>
