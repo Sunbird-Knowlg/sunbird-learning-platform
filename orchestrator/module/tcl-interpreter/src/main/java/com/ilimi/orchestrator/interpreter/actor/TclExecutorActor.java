@@ -18,6 +18,7 @@ import com.ilimi.orchestrator.dac.model.ScriptTypes;
 import com.ilimi.orchestrator.interpreter.ICommand;
 import com.ilimi.orchestrator.interpreter.OrchestratorRequest;
 import com.ilimi.orchestrator.interpreter.command.AkkaCommand;
+import com.ilimi.orchestrator.interpreter.command.ScriptCommand;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
 import akka.actor.UntypedActor;
@@ -93,6 +94,8 @@ public class TclExecutorActor extends UntypedActor {
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
 					}
+				} else if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), script.getType())) {
+				    interpreter.createCommand(script.getName(), new ScriptCommand(script));
 				}
 			}
 		}
