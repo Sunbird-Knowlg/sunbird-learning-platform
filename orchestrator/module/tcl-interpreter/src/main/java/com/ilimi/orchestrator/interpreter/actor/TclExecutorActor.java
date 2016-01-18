@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
@@ -30,6 +31,7 @@ import tcl.pkg.java.ReflectObject;
 public class TclExecutorActor extends UntypedActor {
 
 	private Interp interpreter;
+	private ObjectMapper mapper = new ObjectMapper();
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {
 	    init(commands);
@@ -67,9 +69,7 @@ public class TclExecutorActor extends UntypedActor {
 	@SuppressWarnings("rawtypes")
 	private void init(List<OrchestratorScript> scripts) {
 		interpreter = new Interp();
-		System.out.println("loading commands");
 		if (null != scripts && !scripts.isEmpty()) {
-		    System.out.println("loading commands: " + scripts.size());
 			for (OrchestratorScript script : scripts) {
 				if (StringUtils.equalsIgnoreCase(ScriptTypes.COMMAND.name(), script.getType())) {
 					if (StringUtils.isNotBlank(script.getCmdClass())) {
@@ -98,7 +98,7 @@ public class TclExecutorActor extends UntypedActor {
 		}
 	}
 
-	@SuppressWarnings("rawtypes")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object execute(OrchestratorScript script, List<Object> params) {
 		try {
 			if (null != params && !params.isEmpty()) {
@@ -114,12 +114,15 @@ public class TclExecutorActor extends UntypedActor {
 						try {
 							if (StringUtils.isNotBlank(param.getDatatype())) {
 								Class cls = Class.forName(param.getDatatype());
-								TclObject obj = ReflectObject.newInstance(interpreter, cls, params.get(i - 1));
+								String objectStr = mapper.writeValueAsString(params.get(i - 1));
+								Object javaObj = mapper.readValue(objectStr, cls);
+								TclObject obj = ReflectObject.newInstance(interpreter, cls, javaObj);
 								interpreter.setVar(param.getName(), obj, TCL.NAMESPACE_ONLY);
 							} else {
 								interpreter.setVar(param.getName(), params.get(i - 1).toString(), TCL.NAMESPACE_ONLY);
 							}
 						} catch (Exception e) {
+						    e.printStackTrace();
 							interpreter.setVar(param.getName(), params.get(i - 1).toString(), TCL.NAMESPACE_ONLY);
 						}
 					}
