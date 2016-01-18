@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptTypes;
@@ -23,7 +24,7 @@ import tcl.lang.TclException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
-public class ScriptCommand implements Command {
+public class ScriptCommand extends BaseSystemCommand implements Command {
 
     private OrchestratorScript self;
 
@@ -57,7 +58,13 @@ public class ScriptCommand implements Command {
             request.setParams(params);
             Future<Object> future = Patterns.ask(actorRef, request, AkkaRequestRouter.timeout);
             Object result = Await.result(future, AkkaRequestRouter.WAIT_TIMEOUT.duration());
-            TclObject tclResp = ReflectObject.newInstance(interp, result.getClass(), result);
+            Response res = (Response) result;
+            Response response = new Response();
+            response.setParams(res.getParams());
+            response.setResponseCode(res.getResponseCode());
+            response.setId(res.getId());
+            response.getResult().putAll(res.getResult());
+            TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
             interp.setResult(tclResp);
         } catch (Exception e) {
             throw new MiddlewareException(ExecutionErrorCodes.ERR_SYSTEM_ERROR.name(), e.getMessage(), e);

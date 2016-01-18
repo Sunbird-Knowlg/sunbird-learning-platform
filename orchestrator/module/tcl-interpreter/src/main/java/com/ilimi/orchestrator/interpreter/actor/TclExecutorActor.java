@@ -50,7 +50,10 @@ public class TclExecutorActor extends UntypedActor {
 				} else if (StringUtils.equalsIgnoreCase(OrchestratorRequest.ACTION_TYPES.EXECUTE.name(),
 						request.getAction())) {
 					Object result = execute(request.getScript(), request.getParams());
-					response = OK("result", result);
+					if (result instanceof Response)
+					    response = (Response) result;
+					else
+					    response = OK("result", result);
 				} else {
 					response = ERROR(ExecutionErrorCodes.ERR_INVALID_REQUEST.name(), "Invalid Request",
 							ResponseCode.CLIENT_ERROR);
