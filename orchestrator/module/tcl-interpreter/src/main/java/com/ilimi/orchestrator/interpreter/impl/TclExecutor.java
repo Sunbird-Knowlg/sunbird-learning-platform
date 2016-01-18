@@ -1,5 +1,6 @@
 package com.ilimi.orchestrator.interpreter.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -10,39 +11,32 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
-import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.ScriptParams;
 import com.ilimi.orchestrator.dac.model.ScriptTypes;
 import com.ilimi.orchestrator.interpreter.Executor;
 import com.ilimi.orchestrator.interpreter.OrchestratorRequest;
-import com.ilimi.orchestrator.interpreter.actor.TclExecutorActor;
+import com.ilimi.orchestrator.interpreter.actor.TclExecutorActorRef;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 import com.ilimi.orchestrator.mgr.service.IOrchestratorManager;
 import com.ilimi.orchestrator.mgr.service.OrchestratorScriptMap;
 import com.ilimi.orchestrator.router.AkkaRequestRouter;
 
 import akka.actor.ActorRef;
-import akka.actor.ActorSystem;
-import akka.actor.Props;
 import akka.pattern.Patterns;
 import akka.routing.Broadcast;
-import akka.routing.SmallestMailboxPool;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 @Component
 public class TclExecutor implements Executor {
 
-    public static final int poolSize = 8;
-
-    private ActorRef actorRef;
-
     @Autowired
     private IOrchestratorManager manager;
 
     @Override
     public Response initCommands() {
+        ActorRef actorRef = TclExecutorActorRef.getRef();
         if (null != actorRef) {
             List<OrchestratorScript> scripts = manager.getAllScripts();
             List<OrchestratorScript> commands = manager.getAllCommands();
@@ -50,6 +44,11 @@ public class TclExecutor implements Executor {
             OrchestratorRequest request = new OrchestratorRequest();
             request.setAction(OrchestratorRequest.ACTION_TYPES.INIT.name());
             request.setScripts(commands);
+            if (null != scripts && !scripts.isEmpty()) {
+                if (null == request.getScripts())
+                    request.setScripts(new ArrayList<OrchestratorScript>());
+                request.getScripts().addAll(scripts);
+            }
             actorRef.tell(new Broadcast(request), actorRef);
             return null;
         } else {
@@ -63,6 +62,7 @@ public class TclExecutor implements Executor {
             throw new MiddlewareException(ExecutionErrorCodes.ERR_INVALID_REQUEST.name(),
                     "Executor actor not initialized");
         }
+        ActorRef actorRef = TclExecutorActorRef.getRef();
         if (null != actorRef) {
             if (StringUtils.equalsIgnoreCase(ScriptTypes.COMMAND.name(), script.getType())) {
                 String body = script.getName();
@@ -99,9 +99,13 @@ public class TclExecutor implements Executor {
     @PostConstruct
     public void initExecutor() {
         List<OrchestratorScript> commands = manager.getAllCommands();
-        ActorSystem system = RequestRouterPool.getActorSystem();
-        Props actorProps = Props.create(TclExecutorActor.class, commands);
-        actorRef = system.actorOf(new SmallestMailboxPool(poolSize).props(actorProps));
+        List<OrchestratorScript> scripts = manager.getAllScripts();
+        if (null != scripts && !scripts.isEmpty()) {
+            if (null == commands)
+                commands = new ArrayList<OrchestratorScript>();
+            commands.addAll(scripts);
+        }
+        TclExecutorActorRef.initExecutorActor(commands);
     }
 
 }
