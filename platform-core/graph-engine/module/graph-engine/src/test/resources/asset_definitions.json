@@ -73,7 +73,7 @@
           "title": "Package Version",
           "description": "Version number of the asset",
           "category": "technical",
-          "dataType": "Text",
+          "dataType": "Number",
           "range": [],
           "required": false,
           "indexed": false,
