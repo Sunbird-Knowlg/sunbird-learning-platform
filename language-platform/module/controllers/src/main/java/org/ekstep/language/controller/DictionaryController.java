@@ -129,6 +129,59 @@ public abstract class DictionaryController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> addRelation(@PathVariable(value = "languageId") String languageId,
+            @PathVariable(value = "objectId1") String objectId1, @PathVariable(value = "relation") String relation,
+            @PathVariable(value = "objectId2") String objectId2, @RequestHeader(value = "user-id") String userId) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".relation.add";
+        try {
+            Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
+                    objectId2);
+            LOGGER.info("Add Relation | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    // TODO: Take 'objectType' from the url since it is coming from there after dictionary "GET - v1/language/dictionary/word/{languageId}/synonym/{wordId}?fields={fields}"
+    @RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> getSynonyms(@PathVariable(value = "languageId") String languageId,
+            @PathVariable(value = "objectId") String objectId, @PathVariable(value = "relation") String relation,
+            @RequestParam(value = "fields", required = false) String[] fields,
+            @RequestParam(value = "relations", required = false) String[] relations,
+            @RequestHeader(value = "user-id") String userId) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".synonym.list";
+        try {
+            Response response = dictionaryManager.relatedObjects(languageId, objectType, objectId, relation, fields, relations);
+            LOGGER.info("Get Synonyms | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> getTranslations(@PathVariable(value = "languageId") String languageId,
+            @RequestParam(value = "words", required = false) String[] words,
+            @RequestParam(value = "languages", required = false) String[] languages,
+            @RequestHeader(value = "user-id") String userId) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".word.translation";
+        try {
+            Response response = dictionaryManager.translation(languageId, words, languages);
+            LOGGER.info("Get Translations | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     private Request getRequestObject(Map<String, Object> requestMap, String objectType) {
         Request request = getRequest(requestMap);
