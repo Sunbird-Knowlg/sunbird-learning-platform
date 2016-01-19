@@ -7,4 +7,3 @@ db.createCollection("scripts");
 
 // Create unique constraint on script name
 db.scripts.createIndex( { "name": 1 }, { unique: true } );
-db.scripts.createIndex( { "name": 1 }, { unique: true } );
