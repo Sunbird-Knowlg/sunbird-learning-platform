@@ -103,7 +103,7 @@ public class TclExecutorActor extends UntypedActor {
 			}
 		}
 	}
-
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object execute(OrchestratorScript script, List<Object> params) {
 		try {
@@ -120,7 +120,8 @@ public class TclExecutorActor extends UntypedActor {
 						try {
 							if (StringUtils.isNotBlank(param.getDatatype())) {
 								Class cls = Class.forName(param.getDatatype());
-								String objectStr = mapper.writeValueAsString(params.get(i - 1));
+								Object paramObj = params.get(i - 1);
+								String objectStr = mapper.writeValueAsString(paramObj);
 								Object javaObj = mapper.readValue(objectStr, cls);
 								TclObject obj = ReflectObject.newInstance(interpreter, cls, javaObj);
 								interpreter.setVar(param.getName(), obj, TCL.NAMESPACE_ONLY);

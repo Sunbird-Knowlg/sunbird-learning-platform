@@ -68,6 +68,25 @@
                     "defaultValue": "",
                     "renderingHints": "{'inputType': 'table', 'order': 7}"
                 },
+                
+                {
+                    "propertyName": "subject",
+                    "title": "Subject",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "numeracy",
+                        "literacy"
+                    ],
+
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                },
 
                 {
                     "propertyName": "status",

@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -21,6 +22,8 @@ public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
     private static final String API_VERSION = "1.0";
+    
+    protected ObjectMapper mapper = new ObjectMapper();
     
     protected Response getSuccessResponse() {
         Response response = new Response();
