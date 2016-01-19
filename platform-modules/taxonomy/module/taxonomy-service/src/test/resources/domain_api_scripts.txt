@@ -13,8 +13,6 @@ if {$type == "dimensions"} {
 	return "Domain"
 }
 
-package require java\nputs \"Getting domain object type\"\nif {$type == \"dimensions\"} {\nreturn \"Dimension\"\n} elseif {$type == \"concepts\"} {\nreturn \"Concept\"\n} elseif {$type == \"misconceptions\"} {\nreturn \"Misconception\"\n} elseif {$type == \"methods\"} {\nreturn \"Method\"\n} else {\nreturn \"Domain\"\n}
-
 --------
 getDomainObjects
 
@@ -53,9 +51,7 @@ if {$check_error} {
 	return $response_list
 }
 
-package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Filter\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type_res [getDomainObjectType $type]\nset object_type [get_resp_value $object_type_res \"result\"]\nset map [java::new HashMap]\n$map put \"subject\" $domain_id\n$map put \"objectType\" $object_type\nset search_criteria [create_search_criteria $map]\n\nset graph_id \"domain\"\nset search_response [searchNodes $graph_id $search_criteria]\nset check_error [check_response_error $search_response]\nif {$check_error} {\nputs \"Error response from searchNodes\"\nreturn $search_response;\n} else {\nset graph_nodes [get_resp_value $search_response \"node_list\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset obj_list [java::new ArrayList]\njava::for {Node graph_node} $graph_nodes {\nputs \"adding domain object\" \nset domain_obj [convert_graph_node $graph_node $def_node]\n$obj_list add $domain_obj\n}\nset result_map [java::new HashMap]\n$result_map put $type $obj_list\nset response_list [create_response $result_map]\nreturn $response_list\n}
 ----
-
 getDomainObject
 
 package require java
@@ -79,9 +75,7 @@ if {$check_error} {
 	return $response_list
 }
 
-package require java\njava::import -package java.util HashMap Map\n\nset object_type_res [getDomainObjectType $type]\nset object_type [get_resp_value $object_type_res \"result\"]\nset graph_id \"domain\"\nset resp_get_node [getDataNode $graph_id $object_id]\nset check_error [check_response_error $resp_get_node]\nif {$check_error} {\nreturn $resp_get_node;\n} else {\nset graph_node [get_resp_value $resp_get_node \"node\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset resp_object [convert_graph_node $graph_node $def_node]\nset result_map [java::new HashMap]\n$result_map put $object_type $resp_object\nset response_list [create_response $result_map]\nreturn $response_list\n}
 ----
-
 searchDomainObjects
 
 package require java
@@ -120,10 +114,7 @@ if {$check_error} {
 	return $response_list
 }
 
-package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type_res [getDomainObjectType $type]\nset object_type [get_resp_value $object_type_res \"result\"]\nset check_null [java::isnull $search]\nif {$search == 1} {\nset $search [java::new HashMap]\n}\n$search put \"objectType\" $object_type\n$search put \"subject\" $domain_id\nset search_criteria [create_search_criteria $search]\nset graph_id \"domain\"\nset search_response [searchNodes $graph_id $search_criteria]\nset check_error [check_response_error $search_response]\nif {$check_error} {\nputs \"Error response from searchNodes\"\nreturn $search_response;\n} else {\nset graph_nodes [get_resp_value $search_response \"node_list\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset obj_list [java::new ArrayList]\njava::for {Node graph_node} $graph_nodes {\nputs \"adding domain object\" \nset domain_obj [convert_graph_node $graph_node $def_node]\n$obj_list add $domain_obj\n}\nset result_map [java::new HashMap]\n$result_map put $type $obj_list\nset response_list [create_response $result_map]\nreturn $response_list\n}
-
 ----
-
 saveDomainObject
 
 package require java
@@ -137,14 +128,12 @@ set graph_id "domain"
 set resp_def_node [getDefinition $graph_id $object_type]
 set def_node [get_resp_value $resp_def_node "definition_node"]
 $object put "objectType" $object_type
+$object put "subject" $domain_id
 set domain_obj [convert_to_graph_node $object $def_node]
 set create_response [createDataNode $graph_id $domain_obj]
 return $create_response
 
-package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type_res [getDomainObjectType $type]\nset object_type [get_resp_value $object_type_res \"result\"]\nset graph_id \"domain\"\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\n$object put \"objectType\" $object_type\nset domain_obj [convert_to_graph_node $object $def_node]\nset create_response [createDataNode $graph_id $domain_obj]\nreturn $create_response
-
 ----
-
 updateDomainObject
 
 package require java
@@ -159,14 +148,12 @@ set resp_def_node [getDefinition $graph_id $object_type]
 set def_node [get_resp_value $resp_def_node "definition_node"]
 $object put "objectType" $object_type
 $object put "identifier" $object_id
+$object put "subject" $domain_id
 set domain_obj [convert_to_graph_node $object $def_node]
 set create_response [updateDataNode $graph_id $object_id $domain_obj]
 return $create_response
 
-package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type_res [getDomainObjectType $type]\nset object_type [get_resp_value $object_type_res \"result\"]\nset graph_id \"domain\"\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\n$object put \"objectType\" $object_type\n$object put \"identifier\" $object_id\nset domain_obj [convert_to_graph_node $object $def_node]\nset create_response [updateDataNode $graph_id $object_id $domain_obj]\nreturn $create_response
-
 ----
-
 getDomains
 
 package require java
@@ -201,10 +188,7 @@ if {$check_error} {
 	return $response_list
 }
 
-package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type \"Domain\"\nset map [java::new HashMap]\n$map put \"objectType\" $object_type\n$map put \"nodeType\" \"DATA_NODE\"\nset search_criteria [create_search_criteria $map]\n\nset graph_id \"domain\"\nset search_response [searchNodes $graph_id $search_criteria]\nset check_error [check_response_error $search_response]\nif {$check_error} {\nputs \"Error response from searchNodes\"\nreturn $search_response;\n} else {\nset graph_nodes [get_resp_value $search_response \"node_list\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset obj_list [java::new ArrayList]\njava::for {Node graph_node} $graph_nodes {\nset domain_obj [convert_graph_node $graph_node $def_node]\n$obj_list add $domain_obj\n}\nset result_map [java::new HashMap]\n$result_map put $object_type $obj_list\nset response_list [create_response $result_map]\nreturn $response_list\n}
-
 ----
-
 getDomain
 
 package require java
@@ -226,6 +210,4 @@ if {$check_error} {
 	set response_list [create_response $result_map]
 	return $response_list
 }
-
-package require java\njava::import -package java.util HashMap Map\n\nset object_type \"Domain\"\nset graph_id \"domain\"\nset resp_get_node [getDataNode $graph_id $domain_id]\nset check_error [check_response_error $resp_get_node]\nif {$check_error} {\nreturn $resp_get_node;\n} else {\nset graph_node [get_resp_value $resp_get_node \"node\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset resp_object [convert_graph_node $graph_node $def_node]\nset result_map [java::new HashMap]\n$result_map put $object_type $resp_object\nset response_list [create_response $result_map]\nreturn $response_list\n}
 
