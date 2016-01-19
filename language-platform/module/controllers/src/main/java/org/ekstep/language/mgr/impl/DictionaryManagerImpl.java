@@ -1,7 +1,6 @@
 package org.ekstep.language.mgr.impl;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.stereotype.Component;
 
@@ -40,9 +40,8 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 public class DictionaryManagerImpl extends BaseManager implements IDictionaryManager {
 
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
-
+    private static final String LEMMA_PROPERTY = "lemma";
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
-
     static {
         DEFAULT_STATUS.add("Live");
     }
@@ -195,6 +194,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return getResponse(request, LOGGER);
     }
     
+    @SuppressWarnings("unchecked")
     @Override
     public Response relatedObjects(String languageId, String objectType, String objectId, String relation, String[] fields, String[] relations) {
     	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -214,24 +214,75 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         } else {
             Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
             Map<String, Object> map = convertGraphNode(node, languageId, fields);
-            if (relation.toLowerCase() == "relation" && 
-            		(relations.length > 0 || null != relations)) {
-            	String[] relationTypes = {"synonyms", "antonyms", "hypernyms", "hyponyms", "homonyms", "meronyms"};
-            	List<String> uncommonRelations = new ArrayList<> ();
-            	for (String s : relations) {
-            	    if (!Arrays.asList(relationTypes).contains(s)) uncommonRelations.add(s);
-            	}
-            	for (String s : relationTypes) {
-            	    if (!Arrays.asList(relations).contains(s)) uncommonRelations.add(s);
-            	}
-            	for (String rel : uncommonRelations) {
-            		map.remove(rel);
-            	}
+            if (StringUtils.equalsIgnoreCase("synonym", relation)) {
+                List<Map<String, Object>> synonyms = (List<Map<String, Object>>) map.get("synonyms");
+                getSynsetMembers(languageId, synonyms);
+                Response response = copyResponse(getNodeRes);
+                response.put(LanguageParams.synonyms.name(), synonyms);
+                return response;
+            } else {
+                Map<String, List<NodeDTO>> relationMap = new HashMap<String, List<NodeDTO>>();
+                if (null != relations && relations.length > 0) {
+                    for (String rel : relations) {
+                        if (map.containsKey(rel)) {
+                            try {
+                                List<NodeDTO> list = (List<NodeDTO>) map.get(rel);
+                                relationMap.put(rel, list);
+                            } catch(Exception e) {
+                            }
+                        }
+                    }
+                }
+                Response response = copyResponse(getNodeRes);
+                response.put(LanguageParams.relations.name(), relationMap);
+                return response;
             }
-            Response response = copyResponse(getNodeRes);
-            response.put(LanguageObjectTypes.Word.name(), map);
-            return response;
         }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void getSynsetMembers(String languageId, List<Map<String, Object>> synonyms) {
+        if (null != synonyms && !synonyms.isEmpty()) {
+            List<String> synsetIds = new ArrayList<String>();
+            for (Map<String, Object> synonymObj : synonyms) {
+                String synsetId = (String) synonymObj.get("identifier");
+                if (StringUtils.isNotBlank(synsetId))
+                    synsetIds.add(synsetId);
+            }
+            Request synsetReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
+                    GraphDACParams.node_ids.name(), synsetIds);
+            Response synsetRes = getResponse(synsetReq, LOGGER);
+            List<Node> synsets = (List<Node>) synsetRes.get(GraphDACParams.node_list.name());
+            Map<String, List<String>> membersMap = new HashMap<String, List<String>>();
+            if (null != synsets && !synsets.isEmpty()) {
+                for (Node synset : synsets) {
+                    List<String> words = getSynsetMemberWords(synset);
+                    membersMap.put(synset.getIdentifier(), words);
+                }
+            }
+            for (Map<String, Object> synonymObj : synonyms) {
+                String synsetId = (String) synonymObj.get("identifier");
+                if (membersMap.containsKey(synsetId)) {
+                    List<String> words = membersMap.get(synsetId);
+                    synonymObj.put("words", words);
+                }
+            }
+        }
+    }
+    
+    private List<String> getSynsetMemberWords(Node synset) {
+        List<String> words = new ArrayList<String>();
+        List<Relation> outRels = synset.getOutRelations();
+        if (null != outRels && !outRels.isEmpty()) {
+            for (Relation outRel : outRels) {
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), outRel.getRelationType())) {
+                    String word = getOutRelationWord(outRel);
+                    if (StringUtils.isNotBlank(word))
+                        words.add(word);
+                }
+            }
+        }
+        return words;
     }
     
 	@SuppressWarnings("null")
@@ -430,27 +481,39 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     }
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.ANTONYM.relationName(), inRel.getRelationType())) {
-                    antonyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                    antonyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 } else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPERNYM.relationName(),
                         inRel.getRelationType())) {
-                    hypernyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                    hypernyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(), inRel.getRelationType())) {
-                    hyponyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                    hyponyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOMONYM.relationName(),
                         inRel.getRelationType())) {
-                    homonyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                    homonyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.MERONYM.relationName(), inRel.getRelationType())) {
-                    meronyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                    meronyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 }
             }
         }
+    }
+    
+    private String getInRelationWord(Relation inRel) {
+        String name = null;
+        if (null != inRel.getStartNodeMetadata() && !inRel.getStartNodeMetadata().isEmpty()) {
+            if (inRel.getStartNodeMetadata().containsKey(LEMMA_PROPERTY)) {
+                name = (String) inRel.getStartNodeMetadata().get(LEMMA_PROPERTY);
+            }
+        }
+        if (StringUtils.isBlank(name))
+            name = inRel.getStartNodeName();
+        return name;
     }
 
     private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
@@ -466,27 +529,39 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     }
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.ANTONYM.relationName(), outRel.getRelationType())) {
-                    antonyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                    antonyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 } else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPERNYM.relationName(),
                         outRel.getRelationType())) {
-                    hypernyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                    hypernyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(), outRel.getRelationType())) {
-                    hyponyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                    hyponyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOMONYM.relationName(),
                         outRel.getRelationType())) {
-                    homonyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                    homonyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 } else
                     if (StringUtils.equalsIgnoreCase(RelationTypes.MERONYM.relationName(), outRel.getRelationType())) {
-                    meronyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                    meronyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 }
             }
         }
+    }
+    
+    private String getOutRelationWord(Relation outRel) {
+        String name = null;
+        if (null != outRel.getEndNodeMetadata() && !outRel.getEndNodeMetadata().isEmpty()) {
+            if (outRel.getEndNodeMetadata().containsKey(LEMMA_PROPERTY)) {
+                name = (String) outRel.getEndNodeMetadata().get(LEMMA_PROPERTY);
+            }
+        }
+        if (StringUtils.isBlank(name))
+            name = outRel.getEndNodeName();
+        return name;
     }
 
 }
