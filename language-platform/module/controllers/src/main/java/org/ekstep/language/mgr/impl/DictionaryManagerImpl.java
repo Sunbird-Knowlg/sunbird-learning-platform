@@ -1,6 +1,7 @@
 package org.ekstep.language.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,6 +175,90 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         request.put(GraphDACParams.relation_type.name(), relation);
         request.put(GraphDACParams.end_node_id.name(), objectId2);
         return getResponse(request, LOGGER);
+    }
+    
+    @Override
+    public Response addRelation(String languageId, String objectType, String objectId1, String relation,
+            String objectId2) {
+        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        if (StringUtils.isBlank(objectType))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+        if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+        if (StringUtils.isBlank(relation))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
+        Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+        request.put(GraphDACParams.start_node_id.name(), objectId1);
+        request.put(GraphDACParams.relation_type.name(), relation);
+        request.put(GraphDACParams.end_node_id.name(), objectId2);
+        return getResponse(request, LOGGER);
+    }
+    
+    @Override
+    public Response relatedObjects(String languageId, String objectType, String objectId, String relation, String[] fields, String[] relations) {
+    	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        if (StringUtils.isBlank(objectType))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+        if (StringUtils.isBlank(objectId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+        if (StringUtils.isBlank(relation))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                GraphDACParams.node_id.name(), objectId);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response getNodeRes = getResponse(request, LOGGER);
+        if (checkError(getNodeRes)) {
+            return getNodeRes;
+        } else {
+            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+            Map<String, Object> map = convertGraphNode(node, languageId, fields);
+            if (relation.toLowerCase() == "relation" && 
+            		(relations.length > 0 || null != relations)) {
+            	String[] relationTypes = {"synonyms", "antonyms", "hypernyms", "hyponyms", "homonyms", "meronyms"};
+            	List<String> uncommonRelations = new ArrayList<> ();
+            	for (String s : relations) {
+            	    if (!Arrays.asList(relationTypes).contains(s)) uncommonRelations.add(s);
+            	}
+            	for (String s : relationTypes) {
+            	    if (!Arrays.asList(relations).contains(s)) uncommonRelations.add(s);
+            	}
+            	for (String rel : uncommonRelations) {
+            		map.remove(rel);
+            	}
+            }
+            Response response = copyResponse(getNodeRes);
+            response.put(LanguageObjectTypes.Word.name(), map);
+            return response;
+        }
+    }
+    
+	@SuppressWarnings("null")
+	@Override
+    public Response translation(String languageId, String[] words, String[] languages) {
+    	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        if (null == words || words.length <= 0)
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Word list is empty");
+        if (null == languages || languages.length <= 0)
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "language list is empty");
+        Map<String, Object> map = new HashMap<String,Object>();
+        Response response = null;
+        for (String word: words) {
+        	Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                    GraphDACParams.node_id.name(), word);
+            request.put(GraphDACParams.get_tags.name(), true);
+            Response getNodeRes = getResponse(request, LOGGER);
+            if (checkError(getNodeRes)) {
+                return getNodeRes;
+            } else {
+                Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+                map.put(word, node.getMetadata().get("translations"));
+                response.put("translations", map);
+            }
+        }
+        return response;
     }
 
     @SuppressWarnings("unchecked")

@@ -18,6 +18,7 @@ import com.ilimi.orchestrator.dac.model.ScriptTypes;
 import com.ilimi.orchestrator.interpreter.ICommand;
 import com.ilimi.orchestrator.interpreter.OrchestratorRequest;
 import com.ilimi.orchestrator.interpreter.command.AkkaCommand;
+import com.ilimi.orchestrator.interpreter.command.ScriptCommand;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
 import akka.actor.UntypedActor;
@@ -49,7 +50,10 @@ public class TclExecutorActor extends UntypedActor {
 				} else if (StringUtils.equalsIgnoreCase(OrchestratorRequest.ACTION_TYPES.EXECUTE.name(),
 						request.getAction())) {
 					Object result = execute(request.getScript(), request.getParams());
-					response = OK("result", result);
+					if (result instanceof Response)
+					    response = (Response) result;
+					else
+					    response = OK("result", result);
 				} else {
 					response = ERROR(ExecutionErrorCodes.ERR_INVALID_REQUEST.name(), "Invalid Request",
 							ResponseCode.CLIENT_ERROR);
@@ -93,6 +97,8 @@ public class TclExecutorActor extends UntypedActor {
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
 					}
+				} else if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), script.getType())) {
+				    interpreter.createCommand(script.getName(), new ScriptCommand(script));
 				}
 			}
 		}

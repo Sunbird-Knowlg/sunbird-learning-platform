@@ -5,21 +5,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.Syllable;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
 
+import com.ilimi.common.exception.ServerException;
+
 public class WordMeasures {
-    
+
     static {
         SyllableMap.loadSyllables("te");
     }
 
     public static WordComplexity getWordComplexity(String language, String word) {
         if (!SyllableMap.isLanguageEnabled(language))
-            return null;
+            throw new ServerException(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Language not supported");
         List<Syllable> syllables = getSyllables(language, word);
         WordComplexity wc = new WordComplexity();
         wc.setWord(word);

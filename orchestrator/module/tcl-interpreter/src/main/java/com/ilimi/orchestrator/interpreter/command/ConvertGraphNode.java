@@ -1,7 +1,6 @@
 package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -66,19 +65,15 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
     }
 
     private Map<String, Object> convertGraphNode(Node node, String domainId, DefinitionDTO definition,
-            String[] fields) {
+            List<String> fieldList) {
         Map<String, Object> map = new HashMap<String, Object>();
-        List<String> fieldList = new ArrayList<String>();
-        if (null != fields && fields.length > 0) {
-            fieldList = Arrays.asList(fields);
-        }
         if (null != node) {
             Map<String, Object> metadata = node.getMetadata();
             if (null != metadata && !metadata.isEmpty()) {
                 for (Entry<String, Object> entry : metadata.entrySet()) {
-                    if (!fieldList.isEmpty() && fieldList.contains(entry.getKey())) {
+                    if (null != fieldList && fieldList.contains(entry.getKey())) {
                         map.put(entry.getKey(), entry.getValue());
-                    } else if (fieldList.isEmpty()) {
+                    } else {
                         map.put(entry.getKey(), entry.getValue());
                     }
                 }

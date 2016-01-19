@@ -17,4 +17,11 @@ public interface IDictionaryManager {
     
     Response list(String languageId, String objectType, Request request);
 
+	Response addRelation(String languageId, String objectType, String objectId1, String relation, String objectId2);
+
+	Response relatedObjects(String languageId, String objectType, String objectId, String relation, String[] fields,
+			String[] relations);
+	
+	Response translation(String languageId, String[] words, String[] languages);
+
 }

@@ -172,9 +172,6 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
         if (StringUtils.isBlank(script.getBody()))
             throw new OrchestratorException(OrchestratorErrorCodes.ERR_INVALID_SCRIPT.name(),
                     "Script body cannot be blank");
-        if (null == script.getRequestPath())
-            throw new OrchestratorException(OrchestratorErrorCodes.ERR_INVALID_SCRIPT.name(),
-                    "Script should be registered with a valid request path");
         script.setName(script.getName().trim());
         if (null == script.getRequestPath()) {
             RequestPath path = new RequestPath();
@@ -182,6 +179,9 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
             path.setUrl("/v1/exec/" + script.getName());
             script.setRequestPath(path);
         }
+        if (null == script.getRequestPath())
+            throw new OrchestratorException(OrchestratorErrorCodes.ERR_INVALID_SCRIPT.name(),
+                    "Script should be registered with a valid request path");
         validateRequestPath(script.getRequestPath(), OrchestratorErrorCodes.ERR_INVALID_SCRIPT.name());
     }
 

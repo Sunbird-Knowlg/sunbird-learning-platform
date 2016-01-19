@@ -27,7 +27,7 @@ public class SearchController extends BaseController {
     @Autowired
     private IDictionaryManager dictionaryManager;
 
-    private static Logger LOGGER = LogManager.getLogger(SearchController.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(ParserController.class.getName());
 
     @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
     @ResponseBody
