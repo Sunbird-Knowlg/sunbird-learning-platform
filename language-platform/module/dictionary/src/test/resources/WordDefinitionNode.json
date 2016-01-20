@@ -366,8 +366,21 @@
           "renderingHints": "{ 'inputType': '',  'order': 9 }"
         },
         {
-          "propertyName": "pronunciation",
-          "title": "Pronunciation",
+          "propertyName": "pictures",
+          "title": "Pictures",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 14 }"
+        },
+        {
+          "propertyName": "pronunciations",
+          "title": "Pronunciations",
           "description": "",
           "category": "sampleData",
           "dataType": "List",
