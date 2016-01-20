@@ -613,7 +613,7 @@
       "inRelations": [
         {
           "relationName": "synonym",
-          "title": "Synonyms",
+          "title": "synonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -625,7 +625,7 @@
       "outRelations": [
         {
           "relationName": "hasAntonym",
-          "title": "Antonyms",
+          "title": "antonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -635,7 +635,7 @@
         },
         {
           "relationName": "hasHypernym",
-          "title": "Hypernyms",
+          "title": "hypernyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -645,7 +645,7 @@
         },
         {
           "relationName": "hasHomonym",
-          "title": "Homonyms",
+          "title": "homonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -655,7 +655,7 @@
         },
         {
           "relationName": "hasHyponym",
-          "title": "Hyponyms",
+          "title": "hyponyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -665,7 +665,7 @@
         },
         {
           "relationName": "hasMeronym",
-          "title": "Meronyms",
+          "title": "meronyms",
           "description": "",
           "required": false,
           "objectTypes": [
