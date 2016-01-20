@@ -61,7 +61,7 @@ public class ExecutionController extends BaseOrchestratorController {
     @RequestMapping(value = "/**", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(HttpServletRequest request) {
-        return executeScript(request, RequestTypes.PATCH.name(), null);
+        return executeScript(request, RequestTypes.DELETE.name(), null);
     }
 
     private ResponseEntity<Response> executeScript(HttpServletRequest request, String type, Map<String, Object> map) {
