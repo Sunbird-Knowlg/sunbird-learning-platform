@@ -129,7 +129,7 @@ public abstract class DictionaryController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> addRelation(@PathVariable(value = "languageId") String languageId,
@@ -138,16 +138,18 @@ public abstract class DictionaryController extends BaseController {
         String objectType = getObjectType();
         String apiId = objectType.toLowerCase() + ".relation.add";
         try {
-            Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
-                    objectId2);
+            Response response = dictionaryManager.addRelation(languageId, objectType, objectId1, relation, objectId2);
             LOGGER.info("Add Relation | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
-    // TODO: Take 'objectType' from the url since it is coming from there after dictionary "GET - v1/language/dictionary/word/{languageId}/synonym/{wordId}?fields={fields}"
+
+    // TODO: Take 'objectType' from the url since it is coming from there after
+    // dictionary
+    // "GET -
+    // v1/language/dictionary/word/{languageId}/synonym/{wordId}?fields={fields}"
     @RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> getSynonyms(@PathVariable(value = "languageId") String languageId,
@@ -158,14 +160,15 @@ public abstract class DictionaryController extends BaseController {
         String objectType = getObjectType();
         String apiId = objectType.toLowerCase() + ".synonym.list";
         try {
-            Response response = dictionaryManager.relatedObjects(languageId, objectType, objectId, relation, fields, relations);
+            Response response = dictionaryManager.relatedObjects(languageId, objectType, objectId, relation, fields,
+                    relations);
             LOGGER.info("Get Synonyms | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> getTranslations(@PathVariable(value = "languageId") String languageId,

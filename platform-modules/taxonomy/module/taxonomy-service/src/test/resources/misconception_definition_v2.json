@@ -1,0 +1,194 @@
+{
+    "definitionNodes":
+    [
+        {
+            "objectType": "Misconception",
+            "properties":
+            [
+                {
+
+                    "propertyName": "name",
+                    "title": "Name",
+                    "description": "Name of the misconception",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 1}"
+                },
+                {
+                    "propertyName": "code",
+                    "title": "Code",
+                    "description": "Unique code to identify the misconception",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 2}"
+                },
+
+                {
+                    "propertyName": "identifier",
+                    "title": "Identifier",
+                    "description": "System identifier for the misconception",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Hidden",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 3}"
+                },
+                {
+                    "propertyName": "keywords",
+                    "title": "Keywords",
+                    "description": "Keywords related to this misconception",
+                    "category": "general",
+                    "dataType": "List",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 7}"
+                },
+                {
+                    "propertyName": "subject",
+                    "title": "Subject",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "numeracy",
+                        "literacy"
+                    ],
+
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                },
+                {
+                    "propertyName": "status",
+                    "title": "Status",
+                    "description": "Status of the misconception",
+                    "category": "lifeCycle",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "Draft",
+                        "Live",
+                        "Retired"
+                    ],
+
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                },
+				{
+                    "propertyName": "description",
+                    "title": "Description",
+                    "description": "Description of the node in 2-3 sentences.",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+                },
+                {
+                    "propertyName": "lastUpdatedBy",
+                    "title": "Last Updated By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 21}"
+                },
+                {
+                    "propertyName": "lastUpdatedOn",
+                    "title": "Last Updated On",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 22}"
+                },
+                {
+                    "propertyName": "version",
+                    "title": "Version",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Number",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 23}"
+                },
+                {
+                    "propertyName": "versionDate",
+                    "title": "Version Date",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 24}"
+                },
+                {
+                    "propertyName": "versionCreatedBy",
+                    "title": "Version Created By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 25}"
+                }
+            ],
+
+
+            "inRelations":
+            [
+
+            ],
+            "outRelations":
+            [
+                {
+                    "relationName": "associatedTo",
+                    "title": "Concepts",
+                    "description": "Concepts that this misconception applies to",
+                    "required": false,
+                    "objectTypes":
+                    [
+                        "Concept"
+                    ],
+                    "renderingHints": "{'order': 27}"
+                }
+            ],
+            "systemTags":
+            [
+
+            ]
+        }
+    ]
+}

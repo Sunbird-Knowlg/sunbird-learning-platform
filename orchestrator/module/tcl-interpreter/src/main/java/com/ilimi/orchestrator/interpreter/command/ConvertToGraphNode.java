@@ -10,8 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.NodeDTO;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -42,22 +40,14 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                 TclObject tclObject1 = argv[1];
                 TclObject tclObject2 = argv[2];
                 if (null == tclObject1 || null == tclObject2) {
-                    Response response = null;
-                    if (null == tclObject1)
-                        response = ERROR("INVALID_DATA", "Empty object cannot be converted to node",
-                                ResponseCode.RESOURCE_NOT_FOUND);
-                    else
-                        response = ERROR("INVALID_DATA", "Object Type definition not found", ResponseCode.SERVER_ERROR);
-                    TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
-                    interp.setResult(tclResp);
+                    throw new TclException(interp, "Null arguments to " + getCommandName());
                 } else {
                     Object obj1 = ReflectObject.get(interp, tclObject1);
                     Map<String, Object> map = (Map<String, Object>) obj1;
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     DefinitionDTO def = (DefinitionDTO) obj2;
                     Node node = convertToGraphNode(map, def);
-                    Response response = OK("node", node);
-                    TclObject tclResp = ReflectObject.newInstance(interp, response.getClass(), response);
+                    TclObject tclResp = ReflectObject.newInstance(interp, node.getClass(), node);
                     interp.setResult(tclResp);
                 }
 

@@ -21,3 +21,5 @@
 {"_class":"com.ilimi.orchestrator.dac.model.OrchestratorScript","_id":{"$oid":"569dbae1a8261c2e6f85eb72"},"command_class":"com.ilimi.orchestrator.interpreter.command.ConvertToGraphNode","name":"convert_to_graph_node","type":"COMMAND"}
 {"_class":"com.ilimi.orchestrator.dac.model.OrchestratorScript","_id":{"$oid":"569dbaf5a8261c2e6f85eb73"},"command_class":"com.ilimi.orchestrator.interpreter.command.GetResponseValue","name":"get_resp_value","type":"COMMAND"}
 {"_class":"com.ilimi.orchestrator.dac.model.OrchestratorScript","_id":{"$oid":"569dbb0aa8261c2e6f85eb74"},"command_class":"com.ilimi.orchestrator.interpreter.command.MergeResponse","name":"merge_response","type":"COMMAND"}
+{"_class":"com.ilimi.orchestrator.dac.model.OrchestratorScript","_id":{"$oid":"569e6426a8264cf219f2a093"},"command_class":"com.ilimi.orchestrator.interpreter.command.CreateSearchCriteria","name":"create_search_criteria","type":"COMMAND"}
+{"_class":"com.ilimi.orchestrator.dac.model.OrchestratorScript","_id":{"$oid":"569e8208a8261cc57a5b7c69"},"command_class":"com.ilimi.orchestrator.interpreter.command.CreateResponse","name":"create_response","type":"COMMAND"}

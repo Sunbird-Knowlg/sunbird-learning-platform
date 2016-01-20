@@ -57,6 +57,12 @@ public class ExecutionController extends BaseOrchestratorController {
     public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         return executeScript(request, RequestTypes.PATCH.name(), map);
     }
+    
+    @RequestMapping(value = "/**", method = RequestMethod.DELETE)
+    @ResponseBody
+    public ResponseEntity<Response> delete(HttpServletRequest request) {
+        return executeScript(request, RequestTypes.PATCH.name(), null);
+    }
 
     private ResponseEntity<Response> executeScript(HttpServletRequest request, String type, Map<String, Object> map) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -130,7 +136,7 @@ public class ExecutionController extends BaseOrchestratorController {
         Map<String, Object> bodyParamMap = new HashMap<String, Object>();
         getPathParamMap(pathParamMap, reqPath, path);
         getRequestParamMap(reqParamMap, reqPath, request);
-        getBodyParamMap(bodyParamMap, reqPath, map);
+        getBodyParamMap(bodyParamMap, map);
         if (null != script.getParameters() && !script.getParameters().isEmpty()) {
             for (ScriptParams param : script.getParameters()) {
                 params.add(getParamValue(param.getName(), pathParamMap, reqParamMap, bodyParamMap));
@@ -177,13 +183,29 @@ public class ExecutionController extends BaseOrchestratorController {
         if (null != reqPath.getRequestParams() && !reqPath.getRequestParams().isEmpty()) {
             for (String paramName : reqPath.getRequestParams()) {
                 String value = null == request.getParameter(paramName) ? "" : request.getParameter(paramName);
-                reqParamMap.put(paramName, value);
+                if (value.indexOf(",") >= 0) {
+                    reqParamMap.put(paramName, value.split(","));
+                } else {
+                    reqParamMap.put(paramName, value);
+                }
             }
         }
     }
 
-    private void getBodyParamMap(Map<String, Object> bodyParamMap, RequestPath reqPath, Map<String, Object> map) {
-        if (null != map && !map.isEmpty())
-            bodyParamMap.putAll(map);
+    @SuppressWarnings("unchecked")
+    private void getBodyParamMap(Map<String, Object> bodyParamMap, Map<String, Object> map) {
+        if (null != map && !map.isEmpty()) {
+            Object requestObj = map.get("request");
+            if (null != requestObj) {
+                try {
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> requestMap = mapper.readValue(strRequest, Map.class);
+                    if (null != requestMap && !requestMap.isEmpty())
+                        bodyParamMap.putAll(requestMap);
+                } catch (Exception e) {
+                }
+            }
+        }
+            
     }
 }
