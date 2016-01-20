@@ -79,7 +79,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         }
         Response createRes = new Response();
         Response errResponse = null;
-        Map<String, String> resMap = new HashMap<String, String>();
+        List<String> lstNodeId = new ArrayList<String>();
         for (Node node : nodeList) {
         	node.setObjectType(objectType);
 	        Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
@@ -94,17 +94,19 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	            if (checkError(res)) {
 	            	errResponse = res;
 	            } else {
-	            	resMap.put("", "");
+	            	lstNodeId.add(node.getIdentifier());
 	            }
 	            createRes = res;
 	            System.out.println("Response: | ");
 	        }
         }
         if (null == errResponse) {
-        	createRes.put("result", resMap);
+        	createRes.getResult().remove("node_id");
+        	createRes.put("node_id", lstNodeId);
         	return createRes;
         } else {
-        	errResponse.put("result", resMap);
+        	errResponse.getResult().remove("node_id");
+        	errResponse.put("node_id", lstNodeId);
         	return errResponse;
         }
     }
