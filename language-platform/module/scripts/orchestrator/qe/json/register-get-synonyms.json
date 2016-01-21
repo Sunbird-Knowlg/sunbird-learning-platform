@@ -1,0 +1,17 @@
+{
+    "name": "lang_qe_getSynonyms",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"word",
+        "index": 1,
+        "routingParam": true
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/exec/lang_qe_getSynonyms"
+    },
+    "body": ""
+}
