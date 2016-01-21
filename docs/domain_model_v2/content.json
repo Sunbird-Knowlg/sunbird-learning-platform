@@ -1,0 +1,88 @@
+{
+    // General
+    "name": "", // Name of the content
+    "identifier": "", // System identifier for this content
+    "code": "", // Unique code for the content
+    "description": "", // Description
+    "keywords": "", // Keywords
+    "ageGroup": "", // Suggested Age Group
+    "loadingMessage": "", // Loading Message
+    "appIcon": "", // Icon
+    "grayScaleAppIcon": "", // GrayScale App Icon
+    "thumbnail": "", // Thumbnail
+
+    "mediaType": "", // Media Type (Enum: content, collection, image, video etc.)
+    "minSupportedVersion": "", // Minimum Supported Version of this content
+    "filter": "", // E.g.: {"tags": ["Delhi Curriculum"]}
+    "theme": "", // Theme (Enum: History, Adventure, Mystery, Science etc.)
+    "genre": "", // Genre (Enum: Picture Books, Chapter Books, Flash Cards, Serial Books etc.)
+    "objects": "", // Objects Used in the Content
+    "contentType": "", // Content Type (Enum: Story, Worksheet, Game, Simulation etc.)
+    "visibility": "", // Visibility (set as 'Parent' to hide this from any other list view)
+    "posterImage": "", // Poster Image
+    "language": "", // Language
+
+    // Pedagogy
+    "feedback": "", // Feedback (Enum: Right/Wrong, Reflection, Guidance, Learn from Mistakes etc.)
+    "scaffolding": "", // Scaffolding (Enum: Tutorial, Help, Practice)
+    "feedbackType": "", // Feedback (Enum: Audio, Visual, Textual, Tactile)
+    "teachingMode": "", // Teaching Mode (Enum: Abstract, Concrete, Pictorial)
+    "skills": "", // Skills Required (Enum: Listening, Speaking, Reading, Writing etc.)
+    "learningObjective": "", // Learning Objective
+    "curriculum": "", // Curriculum (Enum: NCERT, CBSE, ICSE, State Curriculum etc.)
+    "interactivityLevel": "", // Interactivity Level (Enum: High, Medium, Low)
+    "gradeLevel": "", // Grade Level
+
+    // Technical
+    "activity_class": "", // Activity Class Name
+    "duration": "", // Duration
+    "resources": "", // Resources (Enum: Speaker, Touch, Microphone, GPS etc.)
+    "idealScreenSize": "", // Ideal Screen Size (Enum: 4in, 7in, Other)
+    "mimeType": "", // Mime Types (Enum: see mime types wiki for full list)
+    "minGenieVersion": "", // E.g. 5.0
+    "minOsVersion": "", // E.g. 4.4
+    "os": "", // Supported Operating Systems (Enum: All, Android, iOS, Windows)
+    "checksum": "", // Checksum value of the story package file
+    "minResolution": "", // Min Resolution
+    "downloadUrl": "", // URL to download the asset
+    "pkgVersion": 0, // Version number of the package file
+    "launchUrl": "", // URL to launch the game
+    "osId": "", // Operating System specific Id
+    "format": "", // Format
+
+    // Ownership
+    "developer": "", // Content Developer
+    "license": "", // License
+    "attributions": "", // Attributions/Credits
+    "copyright": "", // Copyright
+    "owner": "", // Content Owner
+
+    //Analytics
+    "popularity": 0, // Popularity
+    "quality": 0, // Quality
+    "rating_a": 0, // Analytical Rating
+    "rating": 0, // User Rating
+
+    // Authoring
+    "data": "", // Data
+    "editorState": "", // Editor State
+    "body": "", // Body
+    "text": "", // Text of the story
+    "words": "", // Dictionary words in this content
+
+    // Lifecycle
+    "versionCreatedBy": "", // Version Created By
+    "versionDate": "", // Version Date
+    "version": 0, // Version
+    "lastUpdatedOn": "", // Last Updated On
+    "lastUpdatedBy": "", // Last Updated By
+    "status": "", // Status (Enum: Draft, Review, Live, Retired etc.)
+    "releaseNotes": "", // Release Notes
+
+    // Relations
+    "concepts": [ ], // Concept, Micro-concepts associated with this content
+    "itemsets": [ ], // ItemSet, Assessment items associated with this content
+    "methods": [ ], // Method, Teaching methods used in this content
+    "screenshots": [ ], // Content, Screenshots and other media for this content
+    "children": [ ], // Content, Child content items for collections like Textbooks
+}
