@@ -58,7 +58,6 @@ if {$check_error} {
 		java::for {Node graph_node} $graph_nodes {
 			set word_ids [getNodeRelationIds $graph_node "Word" "endNodeId"]
 			set not_empty_list [isNotEmpty $word_ids]
-			puts $not_empty_list
 			if {$not_empty_list} {
 				$word_id_list addAll $word_ids
 			}
