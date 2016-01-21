@@ -1,0 +1,57 @@
+{
+    "identifier": "", // Identifier
+    "name": "", // Name
+    "code": "", // Code
+    "title": "", // Title (Enum: )
+
+    // general
+    "template": "", // Template/Layout used to render this item (Enum: )
+    "type": "", // Type (Enum: embedded, mcq, mmcq, sort_list etc.)
+    "keywords": "", // Keywords
+    "body": "", // Question (Enum: )
+    "model": "", // Model (Enum: )
+    "options": "", // Options (Enum: )
+    "lhs_options": "", // LHS Options (Enum: )
+    "rhs_options": "", // RHS Options (Enum: )
+    "num_answers": 0, // Number of Answers (Enum: )
+    "answer": "", // Answer (Enum: )
+    "hints": "", // Hints (Enum: )
+    "qlevel": "", // Question Level (Enum: EASY, MEDIUM, DIFFICULT, RARE)
+    "difficulty_level": "", // Difficulty Level (Enum: low, medium, high)
+    "sub_purpose": "", // Sub Purpose (Enum: )
+    "depth_of_knowledge": "", // Depth of Knowledge (Enum: Recall, Skill, Strategic Thinking, Extended Thinking)
+    "used_for": "", // Used for (Enum: assessment, worksheet)
+    "max_score": 0, // Maximum possible score for this item (Enum: )
+    "partial_scoring": "", // Partial Scoring
+    "feedback": "", // Feedback (Enum: )
+    "max_time": 0, // Max Time (Enum: )
+    "levels": "", // Levels (Enum: Level1, Level2, Level3, Level4 etc.)
+    "rendering_metadata": "", // Rendering Metadata (Enum: )
+    "description": "", // Description
+    "learningObjective": "", // Learning Objective
+    "example": "", // Examples
+    "language": "", // Language
+
+    //audit
+    "versionCreatedBy": "", // Version Created By
+    "versionDate": "", // Version Date
+    "version": 0, // Version
+    "lastUpdatedOn": "", // Last Updated On
+    "lastUpdatedBy": "", // Last Updated By
+
+    // lifeCycle
+    "validators": "", // Validators
+    "status": "", // Status (Enum: Draft, Review, Live, Retired etc.)
+
+    // ownership
+    "owner": "", // Owner (Enum: )
+
+    // pedagogy
+    "purpose": "", // Purpose (Enum: Knowledge, Conceptual, Application, Problem Solving)
+
+    // usageMetadata
+    "references": "", // List of references
+
+    // Relations
+    "concepts": [ ], // Concept, Concepts associated with this item
+}
