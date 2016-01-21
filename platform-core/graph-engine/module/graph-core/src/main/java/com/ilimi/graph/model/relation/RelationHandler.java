@@ -25,7 +25,7 @@ public class RelationHandler {
             } else if (StringUtils.equals(RelationTypes.SET_MEMBERSHIP.relationName(), relationType)) {
                 return new SetMembershipRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType)) {
-                return new SequenceMembershipRelation(manager, graphId, startNodeId, endNodeId);
+                return new SequenceMembershipRelation(manager, graphId, startNodeId, endNodeId, metadata);
             } else if (StringUtils.equals(RelationTypes.SUB_SET.relationName(), relationType)) {
                 return new SubsetRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.CO_OCCURRENCE.relationName(), relationType)) {

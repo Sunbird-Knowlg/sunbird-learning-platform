@@ -99,7 +99,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             outRelMap.put(key, list);
                         }
                         list.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
-                                outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                                outRel.getEndNodeObjectType(), outRel.getRelationType(), outRel.getMetadata()));
                     }
                 }
                 updateReturnMap(map, outRelMap, outRelDefMap);

@@ -13,6 +13,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Lock;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
@@ -28,6 +29,7 @@ import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
@@ -248,14 +250,21 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             try {
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
+                int index = 0;
                 RelationType relation = new RelationType(relationType);
                 Node startNode = getNodeByUniqueId(graphDb, startNodeId);
+                Lock lock = null;
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),relationType))
+                    lock = tx.acquireReadLock(startNode);
                 Relationship dbRel = null;
                 Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
                 if (null != relations) {
                     for (Relationship rel : relations) {
                         Object relEndNodeId = rel.getEndNode().getProperty(SystemProperties.IL_UNIQUE_ID.name());
                         String strEndNodeId = (null == relEndNodeId) ? null : relEndNodeId.toString();
+                        if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+                                relationType))
+                            index += 1;
                         if (StringUtils.equals(endNodeId, strEndNodeId)) {
                             dbRel = rel;
                             break;
@@ -265,6 +274,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 if (null == dbRel) {
                     Node endNode = getNodeByUniqueId(graphDb, endNodeId);
                     Relationship rel = startNode.createRelationshipTo(endNode, relation);
+                    if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relationType))
+                        rel.setProperty(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
                     if (null != metadata && metadata.size() > 0) {
                         for (Entry<String, Object> entry : metadata.entrySet()) {
                             rel.setProperty(entry.getKey(), entry.getValue());
@@ -277,6 +288,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         }
                     }
                 }
+                if (null != lock)
+                    lock.release();
                 tx.success();
                 tx.close();
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());

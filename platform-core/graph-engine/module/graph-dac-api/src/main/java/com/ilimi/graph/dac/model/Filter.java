@@ -66,20 +66,25 @@ public class Filter implements Serializable {
             property = SystemProperties.IL_UNIQUE_ID.name();
         }
         if (SearchConditions.OP_EQUAL.equals(getOperator())) {
-            sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
-            sc.params.put("" + pIndex, value);
+            if (value instanceof String) {
+                sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
+                sc.params.put("" + pIndex, "(?i)" + value);
+            } else {
+                sb.append(" ").append(param).append(property).append(" = {").append(pIndex).append("} ");
+                sc.params.put("" + pIndex, value);
+            }
             pIndex += 1;
         } else if (SearchConditions.OP_LIKE.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
-            sc.params.put("" + pIndex, "*" + value + "*");
+            sc.params.put("" + pIndex, "(?i).*" + value + ".*");
             pIndex += 1;
         } else if (SearchConditions.OP_STARTS_WITH.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
-            sc.params.put("" + pIndex, value + "*");
+            sc.params.put("" + pIndex, "(?i)" + value + ".*");
             pIndex += 1;
         } else if (SearchConditions.OP_ENDS_WITH.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" =~ {").append(pIndex).append("} ");
-            sc.params.put("" + pIndex, "*" + value);
+            sc.params.put("" + pIndex, "(?i).*" + value);
             pIndex += 1;
         } else if (SearchConditions.OP_GREATER_THAN.equals(getOperator())) {
             sb.append(" ").append(param).append(property).append(" > {").append(pIndex).append("} ");
