@@ -25,7 +25,7 @@
           "range": [],
           "required": false,
           "indexed": true,
-          "displayProperty": "Readonly",
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
         },
@@ -34,11 +34,24 @@
           "title": "Example Sentences",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
-          "displayProperty": "Readonly",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
+        },
+        {
+          "propertyName": "frames",
+          "title": "Sentence Frames",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
         },
@@ -46,8 +59,8 @@
           "propertyName": "pos",
           "title": "POS",
           "description": "",
-          "category": "grammar/language",
-          "dataType": "TEXT",
+          "category": "grammar",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": false,
@@ -59,20 +72,7 @@
           "propertyName": "namedEntityType",
           "title": "Named Entity Type",
           "description": "",
-          "category": "grammar/language",
-          "dataType": "text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 4 }"
-        },
-        {
-          "propertyName": "typeOfPOS",
-          "title": "Type of POS",
-          "description": "",
-          "category": "grammar/language",
+          "category": "grammar",
           "dataType": "Text",
           "range": [],
           "required": false,
@@ -86,7 +86,7 @@
           "title": "Pictures",
           "description": "URL",
           "category": "sampleData",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": false,
@@ -99,7 +99,7 @@
           "title": "audio",
           "description": "URL",
           "category": "sampleData",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
@@ -147,30 +147,23 @@
           "renderingHints": "{ 'order': 22 }"
         },
         {
-          "propertyName": "status",
-          "title": "Status",
-          "description": "",
-          "category": "audit",
-          "dataType": "text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 23 }"
-        },
-        {
-          "propertyName": "auditHistory",
-          "title": "Audit History",
-          "description": "",
-          "category": "audit",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 24 }"
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "audit",
+            "dataType": "Select",
+            "range":
+            [
+                "Draft",
+                "Live",
+                "Retired"
+            ],
+
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Draft",
+            "renderingHints": "{'inputType': 'select', 'order': 23}"
         },
         {
           "propertyName": "source",
@@ -265,7 +258,7 @@
       "systemTags": [
         {
           "name": "Review Tags",
-          "description": "Need to Review this Word."
+          "description": "Need to Review this Synset."
         },
         {
           "name": "Missing Information",
@@ -273,11 +266,7 @@
         },
         {
           "name": "Incorrect Data",
-          "description": "Wrong information about this word."
-        },
-        {
-          "name": "Spelling Mistakes",
-          "description": "Incorrect Spellings"
+          "description": "Wrong information about this Synset."
         }
       ],
       "metadata": {

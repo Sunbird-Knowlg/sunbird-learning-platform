@@ -1,0 +1,241 @@
+getContent
+
+package require java
+java::import -package java.util HashMap Map
+
+set object_type "Content"
+set graph_id "domain"
+set resp_get_node [getDataNode $graph_id $content_id]
+set check_error [check_response_error $resp_get_node]
+if {$check_error} {
+	return $resp_get_node;
+} else {
+	set graph_node [get_resp_value $resp_get_node "node"]
+	set resp_def_node [getDefinition $graph_id $object_type]
+	set def_node [get_resp_value $resp_def_node "definition_node"]
+	set resp_object [convert_graph_node $graph_node $def_node]
+	set result_map [java::new HashMap]
+	$result_map put "content" $resp_object
+	set response_list [create_response $result_map]
+	return $response_list
+}
+
+----
+listContent
+
+package require java
+java::import -package java.util ArrayList List
+java::import -package java.util HashMap Map
+java::import -package com.ilimi.graph.dac.model Node
+
+set object_type "Content"
+set check_null [java::isnull $search]
+if {$search == 1} {
+	set $search [java::new HashMap]
+}
+$search put "objectType" $object_type
+$search put "nodeType" "DATA_NODE"
+set status_val [$search get "status"]
+set is_status_null [java::isnull $status_val]
+if {$is_status_null == 1} {
+	$search put "status" "Live"
+}
+set search_criteria [create_search_criteria $search]
+set graph_id "domain"
+set search_response [searchNodes $graph_id $search_criteria]
+set check_error [check_response_error $search_response]
+if {$check_error} {
+	puts "Error response from searchNodes"
+	return $search_response;
+} else {
+	set graph_nodes [get_resp_value $search_response "node_list"]
+	set resp_def_node [getDefinition $graph_id $object_type]
+	set def_node [get_resp_value $resp_def_node "definition_node"]
+	set obj_list [java::new ArrayList]
+	java::for {Node graph_node} $graph_nodes {
+		puts "adding domain object" 
+		set domain_obj [convert_graph_node $graph_node $def_node]
+		$obj_list add $domain_obj
+	}
+	set result_map [java::new HashMap]
+	$result_map put "content" $obj_list
+	set response_list [create_response $result_map]
+	return $response_list
+}
+
+----
+searchContent
+
+package require java
+java::import -package java.util ArrayList List
+java::import -package java.util HashMap Map
+java::import -package com.ilimi.graph.dac.model Node
+
+set object_type "Content"
+set check_null [java::isnull $search]
+if {$search == 1} {
+	set $search [java::new HashMap]
+}
+$search put "objectType" $object_type
+$search put "nodeType" "DATA_NODE"
+set search_criteria [create_search_criteria $search]
+set graph_id "domain"
+set search_response [searchNodes $graph_id $search_criteria]
+set check_error [check_response_error $search_response]
+if {$check_error} {
+	puts "Error response from searchNodes"
+	return $search_response;
+} else {
+	set graph_nodes [get_resp_value $search_response "node_list"]
+	set resp_def_node [getDefinition $graph_id $object_type]
+	set def_node [get_resp_value $resp_def_node "definition_node"]
+	set obj_list [java::new ArrayList]
+	java::for {Node graph_node} $graph_nodes {
+		puts "adding domain object" 
+		set domain_obj [convert_graph_node $graph_node $def_node]
+		$obj_list add $domain_obj
+	}
+	set result_map [java::new HashMap]
+	$result_map put "content" $obj_list
+	set response_list [create_response $result_map]
+	return $response_list
+}
+
+----
+saveContent
+
+package require java
+java::import -package java.util ArrayList List
+java::import -package java.util HashMap Map
+java::import -package com.ilimi.graph.dac.model Node
+
+set object_type "Content"
+set graph_id "domain"
+set resp_def_node [getDefinition $graph_id $object_type]
+set def_node [get_resp_value $resp_def_node "definition_node"]
+$content put "objectType" $object_type
+set domain_obj [convert_to_graph_node $content $def_node]
+set create_response [createDataNode $graph_id $domain_obj]
+return $create_response
+
+----
+updateContent
+
+package require java
+java::import -package java.util ArrayList List
+java::import -package java.util HashMap Map
+java::import -package com.ilimi.graph.dac.model Node
+
+set object_type "Content"
+set graph_id "domain"
+set resp_def_node [getDefinition $graph_id $object_type]
+set def_node [get_resp_value $resp_def_node "definition_node"]
+$content put "objectType" $object_type
+$content put "identifier" $content_id
+set domain_obj [convert_to_graph_node $content $def_node]
+set create_response [updateDataNode $graph_id $content_id $domain_obj]
+return $create_response
+
+------------------------------------------------------------------------------------------------------------------------
+Registration Commands
+
+{
+	"name" : "getContent_v2",
+	"type" : "SCRIPT",
+	"body": "package require java\njava::import -package java.util HashMap Map\n\nset object_type \"Content\"\nset graph_id \"domain\"\nset resp_get_node [getDataNode $graph_id $content_id]\nset check_error [check_response_error $resp_get_node]\nif {$check_error} {\nreturn $resp_get_node;\n} else {\nset graph_node [get_resp_value $resp_get_node \"node\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset resp_object [convert_graph_node $graph_node $def_node]\nset result_map [java::new HashMap]\n$result_map put \"content\" $resp_object\nset response_list [create_response $result_map]\nreturn $response_list\n}",   
+	"parameters": [
+        {
+          "name": "content_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type" : "GET",
+		"url" : "/v2/content/*",
+		"pathParams" : [
+			"content_id"
+		]
+    }
+}
+
+
+{
+	"name" : "listContent_v2",
+	"type" : "SCRIPT",
+	"body": "package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type \"Content\"\nset check_null [java::isnull $search]\nif {$search == 1} {\nset $search [java::new HashMap]\n}\n$search put \"objectType\" $object_type\n$search put \"nodeType\" \"DATA_NODE\"\nset status_val [$search get \"status\"]\nset is_status_null [java::isnull $status_val]\nif {$is_status_null == 1} {\n$search put \"status\" \"Live\"\n}\nset search_criteria [create_search_criteria $search]\nset graph_id \"domain\"\nset search_response [searchNodes $graph_id $search_criteria]\nset check_error [check_response_error $search_response]\nif {$check_error} {\nputs \"Error response from searchNodes\"\nreturn $search_response;\n} else {\nset graph_nodes [get_resp_value $search_response \"node_list\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset obj_list [java::new ArrayList]\njava::for {Node graph_node} $graph_nodes {\nputs \"adding domain object\" \nset domain_obj [convert_graph_node $graph_node $def_node]\n$obj_list add $domain_obj\n}\nset result_map [java::new HashMap]\n$result_map put \"content\" $obj_list\nset response_list [create_response $result_map]\nreturn $response_list\n}",   
+	"parameters": [
+        {
+          "name": "search",
+          "datatype": "java.util.Map",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type" : "POST",
+		"url" : "/v2/content/list"
+    }
+}
+
+{
+	"name" : "searchContent_v2",
+	"type" : "SCRIPT",
+	"body": "package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type \"Content\"\nset check_null [java::isnull $search]\nif {$search == 1} {\nset $search [java::new HashMap]\n}\n$search put \"objectType\" $object_type\n$search put \"nodeType\" \"DATA_NODE\"\nset search_criteria [create_search_criteria $search]\nset graph_id \"domain\"\nset search_response [searchNodes $graph_id $search_criteria]\nset check_error [check_response_error $search_response]\nif {$check_error} {\nputs \"Error response from searchNodes\"\nreturn $search_response;\n} else {\nset graph_nodes [get_resp_value $search_response \"node_list\"]\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\nset obj_list [java::new ArrayList]\njava::for {Node graph_node} $graph_nodes {\nputs \"adding domain object\" \nset domain_obj [convert_graph_node $graph_node $def_node]\n$obj_list add $domain_obj\n}\nset result_map [java::new HashMap]\n$result_map put \"content\" $obj_list\nset response_list [create_response $result_map]\nreturn $response_list\n}",   
+	"parameters": [
+        {
+          "name": "search",
+          "datatype": "java.util.Map",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type" : "POST",
+		"url" : "/v2/content/search"
+    }
+}
+
+
+{
+	"name" : "saveContent_v2",
+	"type" : "SCRIPT",
+	"body": "package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type \"Content\"\nset graph_id \"domain\"\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\n$content put \"objectType\" $object_type\nset domain_obj [convert_to_graph_node $content $def_node]\nset create_response [createDataNode $graph_id $domain_obj]\nreturn $create_response",   
+	"parameters": [
+        {
+          "name": "content",
+          "datatype": "java.util.Map",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type" : "POST",
+		"url" : "/v2/content"
+    }
+}
+
+{
+	"name" : "updateContent_v2",
+	"type" : "SCRIPT",
+	"body": "package require java\njava::import -package java.util ArrayList List\njava::import -package java.util HashMap Map\njava::import -package com.ilimi.graph.dac.model Node\n\nset object_type \"Content\"\nset graph_id \"domain\"\nset resp_def_node [getDefinition $graph_id $object_type]\nset def_node [get_resp_value $resp_def_node \"definition_node\"]\n$content put \"objectType\" $object_type\n$content put \"identifier\" $content_id\nset domain_obj [convert_to_graph_node $content $def_node]\nset create_response [updateDataNode $graph_id $content_id $domain_obj]\nreturn $create_response",   
+	"parameters": [
+	    {
+          "name": "content_id",
+          "index": 0,
+          "routingParam": false
+        },
+        {
+          "name": "content",
+          "index": 1,
+          "datatype": "java.util.Map",
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type" : "PATCH",
+		"url" : "/v2/content/*",
+		"pathParams": ["content_id"]
+    }
+}
+

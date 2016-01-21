@@ -1,0 +1,18 @@
+{
+    "name": "getWordList",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"wordlist_id",
+        "index": 1,
+        "routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/dictionary/wordlist/*/*",
+        "pathParams": ["language_id", "wordlist_id"]
+    },
+    "body": ""
+}
