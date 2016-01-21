@@ -36,7 +36,7 @@ public class RelationHandler {
                     || StringUtils.equals(RelationTypes.ANTONYM.relationName(), relationType)
                     || StringUtils.equals(RelationTypes.HYPERNYM.relationName(), relationType)
                     || StringUtils.equals(RelationTypes.HYPONYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.HOMONYM.relationName(), relationType)
+                    || StringUtils.equals(RelationTypes.HOLONYM.relationName(), relationType)
                     || StringUtils.equals(RelationTypes.MERONYM.relationName(), relationType)) {
                 return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId);
             }
