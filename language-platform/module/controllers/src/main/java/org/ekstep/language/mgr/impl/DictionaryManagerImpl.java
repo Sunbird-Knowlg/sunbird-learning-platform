@@ -50,26 +50,64 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     
     private ObjectMapper mapper = new ObjectMapper();
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
     public Response create(String languageId, String objectType, Request request) {
         if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
-        Node item = (Node) request.get(objectType.toLowerCase().trim());
-        if (null == item)
+        List<Map> items = (List<Map>) request.get("words");
+        List<Node> nodeList = new ArrayList<Node>();
+        if (null == items || items.size() <= 0)
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(), objectType + " Object is blank");
-        item.setObjectType(objectType);
-        Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-        validateReq.put(GraphDACParams.node.name(), item);
-        Response validateRes = getResponse(validateReq, LOGGER);
-        if (checkError(validateRes)) {
-            return validateRes;
+        try {
+            if (null != items && !items.isEmpty()) {
+            	Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+                        GraphDACParams.object_type.name(), objectType);
+                Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+            	 if (!checkError(responseDefiniton)) {
+                     DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+                     for (Map item : items) {
+                         Node node = convertToGraphNode(item, definition);
+                         nodeList.add(node);
+                     }
+                 }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        Response createRes = new Response();
+        Response errResponse = null;
+        List<String> lstNodeId = new ArrayList<String>();
+        for (Node node : nodeList) {
+        	node.setObjectType(objectType);
+	        Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+	        validateReq.put(GraphDACParams.node.name(), node);
+	        Response validateRes = getResponse(validateReq, LOGGER);
+	        if (checkError(validateRes)) {
+	            return validateRes;
+	        } else {
+	            Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+	            createReq.put(GraphDACParams.node.name(), node);
+	            Response res = getResponse(createReq, LOGGER);
+	            if (checkError(res)) {
+	            	errResponse = res;
+	            } else {
+	            	lstNodeId.add(node.getIdentifier());
+	            }
+	            createRes = res;
+	            System.out.println("Response: | ");
+	        }
+        }
+        if (null == errResponse) {
+        	createRes.getResult().remove("node_id");
+        	createRes.put("node_id", lstNodeId);
+        	return createRes;
         } else {
-            Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-            createReq.put(GraphDACParams.node.name(), item);
-            Response createRes = getResponse(createReq, LOGGER);
-            return createRes;
+        	errResponse.getResult().remove("node_id");
+        	errResponse.put("node_id", lstNodeId);
+        	return errResponse;
         }
     }
 
