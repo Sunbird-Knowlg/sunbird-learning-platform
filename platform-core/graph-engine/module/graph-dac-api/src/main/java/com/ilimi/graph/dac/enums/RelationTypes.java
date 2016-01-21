@@ -15,7 +15,7 @@ public enum RelationTypes {
     SYNONYM("synonym"),
     ANTONYM("hasAntonym"),
     HYPERNYM("hasHypernym"),
-    HOMONYM("hasHomonym"),
+    HOLONYM("hasHolonym"),
     HYPONYM("hasHyponym"),
     MERONYM("hasMeronym"),
     PROPOSITION("proposition");

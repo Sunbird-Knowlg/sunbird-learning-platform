@@ -531,7 +531,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(), inRel.getRelationType())) {
                     hyponyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
-                } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOMONYM.relationName(),
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOLONYM.relationName(),
                         inRel.getRelationType())) {
                     homonyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
@@ -579,7 +579,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(), outRel.getRelationType())) {
                     hyponyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
-                } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOMONYM.relationName(),
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.HOLONYM.relationName(),
                         outRel.getRelationType())) {
                     homonyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
