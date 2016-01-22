@@ -24,7 +24,7 @@ import tcl.pkg.java.ReflectObject;
 
 public class CreateSearchCriteria implements ICommand, Command {
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
     public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
         if (argv.length == 2) {
@@ -67,6 +67,15 @@ public class CreateSearchCriteria implements ICommand, Command {
                             Integer startPosition = (Integer) map.get("startPosition");
                             if (null != startPosition && startPosition.intValue() > 0)
                                 sc.setStartPosition(startPosition);
+                        } else if (StringUtils.equalsIgnoreCase("filters", entry.getKey())) {
+                            List<Map> list = (List<Map>) map.get("filters");
+                            if (null != list && !list.isEmpty()) {
+                                for (Map filterObj : list) {
+                                    Filter dto = (Filter) mapper.convertValue(filterObj, Filter.class);
+                                    if (null != dto)
+                                        filters.add(dto);
+                                }
+                            }
                         } else {
                             List<String> list = getList(entry.getValue());
                             if (null != list && !list.isEmpty())

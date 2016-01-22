@@ -1,0 +1,9 @@
+{
+    "name": "getLanguages",
+    "parameters": [],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language"
+    },
+    "body": ""
+}

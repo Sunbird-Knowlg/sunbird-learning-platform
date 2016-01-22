@@ -130,7 +130,8 @@ public class TclExecutorActor extends UntypedActor {
 							}
 						} catch (Exception e) {
 						    e.printStackTrace();
-							interpreter.setVar(param.getName(), params.get(i - 1).toString(), TCL.NAMESPACE_ONLY);
+						    TclObject obj = ReflectObject.newInstance(interpreter, Object.class, params.get(i - 1));
+							interpreter.setVar(param.getName(), obj, TCL.NAMESPACE_ONLY);
 						}
 					}
 				}
