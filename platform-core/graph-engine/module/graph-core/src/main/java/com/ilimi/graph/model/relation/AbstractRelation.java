@@ -68,6 +68,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         request.put(GraphDACParams.start_node_id.name(), getStartNodeId());
                         request.put(GraphDACParams.relation_type.name(), getRelationType());
                         request.put(GraphDACParams.end_node_id.name(), getEndNodeId());
+                        request.put(GraphDACParams.metadata.name(), getMetadata());
                         Future<Object> response = Patterns.ask(dacRouter, request, timeout);
                         manager.returnResponse(response, getParent());
                     } else {

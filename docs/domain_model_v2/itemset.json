@@ -1,0 +1,37 @@
+{
+    // general
+    "type": "", // Type (Enum: materialised, dynamic)
+    "identifier": "", // Identifier (Enum: )
+    "language": "", // Language (Enum: )
+    "description": "", // Description (Enum: )
+    "criteria": "", // Search Criteria (Enum: )
+    "difficulty_level": "", // Difficulty Level (Enum: low, medium, high)
+    "title": "", // Title (Enum: )
+    "code": "", // Code (Enum: )
+    "depth_of_knowledge": "", // Depth of Knowledge (Enum: Recall, Skill, Strategic Thinking, Extended Thinking)
+    "used_for": "", // Used for (Enum: assessment, worksheet)
+    "levels": "", // Levels (Enum: Level1, Level2, Level3, Level4 etc.)
+    "sub_purpose": "", // Sub Purpose (Enum: )
+
+    //audit
+    "versionCreatedBy": "", // Version Created By (Enum: )
+    "versionDate": "", // Version Date (Enum: )
+    "version": 0, // Version (Enum: )
+    "lastUpdatedOn": "", // Last Updated On (Enum: )
+
+    // lifeCycle
+    "currentVersion": "", // Current Version (Enum: )
+    "status": "", // Status (Enum: Draft, Review, Live, Retired etc.)
+
+    // ownership
+    "copyright": "", // Copyright (Enum: )
+    "license": "", // License (Enum: )
+    "owner": "", // Owner (Enum: )
+
+    // pedagogy
+    "purpose": "", // Purpose (Enum: Knowledge, Conceptual, Application, Problem Solving)
+
+    // Relations
+    "members": [ ], // AssessmentItem,
+    "concepts": [ ], // Concept,
+}

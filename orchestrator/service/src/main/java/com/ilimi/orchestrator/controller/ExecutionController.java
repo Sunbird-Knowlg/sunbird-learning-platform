@@ -74,7 +74,7 @@ public class ExecutionController extends BaseOrchestratorController {
             }
             List<Object> params = getParams(request, script, path, map);
             Response response = executor.execute(script, params);
-            return getResponseEntity(response, path);
+            return getResponseEntity(response, script.getName());
         } catch (Exception e) {
             return getExceptionResponseEntity(e, path);
         }

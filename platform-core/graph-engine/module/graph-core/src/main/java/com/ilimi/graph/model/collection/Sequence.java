@@ -21,6 +21,7 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
@@ -28,7 +29,6 @@ import com.ilimi.graph.exception.GraphEngineErrorCodes;
 public class Sequence extends AbstractCollection {
 
     private List<String> memberIds;
-    public static final String INDEX_PROPERTY = "INDEX";
 
     public Sequence(BaseGraphManager manager, String graphId, String id) {
         super(manager, graphId, id, null); // TODO: Will add metadata if required.
@@ -105,7 +105,7 @@ public class Sequence extends AbstractCollection {
                                     dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
                                     dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
                                     Map<String, Object> map = new HashMap<String, Object>();
-                                    map.put(INDEX_PROPERTY, index);
+                                    map.put(SystemProperties.IL_SEQUENCE_INDEX.name(), index);
                                     dacRequest.put(GraphDACParams.metadata.name(), map);
                                     dacRouter.tell(dacRequest, manager.getSelf());
                                     manager.OK(getParent());
@@ -290,7 +290,7 @@ public class Sequence extends AbstractCollection {
                                 dacRequest.setOperation("createCollection");
                                 dacRequest.put(GraphDACParams.collection_id.name(), sequenceId);
                                 dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SEQUENCE_MEMBERSHIP.relationName());
-                                dacRequest.put(GraphDACParams.index.name(), INDEX_PROPERTY);
+                                dacRequest.put(GraphDACParams.index.name(), SystemProperties.IL_SEQUENCE_INDEX.name());
                                 dacRequest.put(GraphDACParams.members.name(), memberIds);
                                 dacRouter.tell(dacRequest, manager.getSelf());
                             }

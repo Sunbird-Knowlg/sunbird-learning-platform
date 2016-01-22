@@ -64,13 +64,26 @@
           "range": [],
           "required": false,
           "indexed": true,
-          "displayProperty": "Readonly",
+          "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
         },
         {
           "propertyName": "syllableNotation",
           "title": "Syllable Notation",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+        },
+        {
+          "propertyName": "unicodeNotation",
+          "title": "Unicode Notation",
           "description": "",
           "category": "lexile",
           "dataType": "Text",
@@ -121,11 +134,11 @@
           "renderingHints": ""
         },
         {
-          "propertyName": "aksharaMeasures",
-          "title": "Akshara Measures",
+          "propertyName": "orthographic_complexity",
+          "title": "Orthographic Complexity",
           "description": "",
           "category": "lexile",
-          "dataType": "Text",
+          "dataType": "Number",
           "range": [],
           "required": false,
           "indexed": false,
@@ -134,11 +147,11 @@
           "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
         },
         {
-          "propertyName": "vocabularyMeasures",
-          "title": "Vocabulary Measures",
+          "propertyName": "phonologic_complexity",
+          "title": "Phonological Complexity",
           "description": "",
           "category": "lexile",
-          "dataType": "Text",
+          "dataType": "Number",
           "range": [],
           "required": false,
           "indexed": false,
@@ -657,8 +670,8 @@
           "renderingHints": "{ 'order': 26 }"
         },
         {
-          "relationName": "hasHomonym",
-          "title": "homonyms",
+          "relationName": "hasHolonym",
+          "title": "holonyms",
           "description": "",
           "required": false,
           "objectTypes": [
