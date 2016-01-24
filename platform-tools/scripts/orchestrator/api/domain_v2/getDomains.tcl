@@ -3,10 +3,19 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
+set is_sortBy_null [java::isnull $sortBy]
+set is_resultSize_null [java::isnull $resultSize]
 set object_type "Domain"
 set map [java::new HashMap]
 $map put "objectType" $object_type
 $map put "nodeType" "DATA_NODE"
+if {$is_sortBy_null == 0} {
+	$map put "sortBy" $sortBy
+}
+if {$is_resultSize_null == 0} {
+	$map put "resultSize" $resultSize
+}
+$map put "order" $order
 set search_criteria [create_search_criteria $map]
 
 set graph_id "domain"

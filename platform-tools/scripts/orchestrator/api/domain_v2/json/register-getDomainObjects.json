@@ -9,6 +9,23 @@
             "name": "type",
             "index": 1,
             "routingParam": false
+        },
+        {
+            "name": "sortBy",
+            "index": 2,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        },
+        {
+            "name": "order",
+            "index": 3,
+            "routingParam": false
+        },
+        {
+            "name": "resultSize",
+            "index": 4,
+            "datatype": "java.lang.Integer",
+            "routingParam": false
         }
     ],
     "requestPath": {
@@ -17,6 +34,11 @@
         "pathParams": [
           "domain_id",
           "type"
+        ],
+        "requestParams": [
+          "sortBy",
+          "order",
+          "resultSize"
         ]
     },
     "body": ""
