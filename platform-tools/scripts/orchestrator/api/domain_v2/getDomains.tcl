@@ -34,7 +34,7 @@ if {$check_error} {
 		$obj_list add $domain_obj
 	}
 	set result_map [java::new HashMap]
-	$result_map put $object_type $obj_list
+	$result_map put "domains" $obj_list
 	set response_list [create_response $result_map]
 	return $response_list
 }

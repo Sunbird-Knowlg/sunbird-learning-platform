@@ -45,7 +45,7 @@ if {$check_error} {
 		$resp_object put "method_count" $method_count
 		$resp_object put "content_count" $content_count
 	
-		$result_map put $object_type $resp_object
+		$result_map put "domain" $resp_object
 	} catch {Exception err} {
     	puts [$err getMessage]
     	$result_map put "error" [$err getMessage]
