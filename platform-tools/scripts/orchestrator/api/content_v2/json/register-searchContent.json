@@ -1,0 +1,17 @@
+{
+    "name": "searchContent_v2",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "search",
+          "datatype": "java.util.Map",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/content/search"
+    },
+    "body": ""
+}

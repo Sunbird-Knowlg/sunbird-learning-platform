@@ -1,0 +1,23 @@
+{
+    "name": "getDomainObjects",
+    "parameters": [{
+            "name": "domain_id",
+            "index": 0,
+            "routingParam": false
+        },
+        {
+            "name": "type",
+            "index": 1,
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/domains/*/*",
+        "pathParams": [
+          "domain_id",
+          "type"
+        ]
+    },
+    "body": ""
+}

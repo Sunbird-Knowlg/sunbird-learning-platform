@@ -1,0 +1,9 @@
+{
+    "name": "getDomains",
+    "parameters": [],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/domains"
+    },
+    "body": ""
+}
