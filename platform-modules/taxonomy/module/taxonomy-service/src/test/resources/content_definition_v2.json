@@ -663,11 +663,21 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Associated Concepts",
+          "title": "concepts",
           "description": "",
           "required": false,
           "objectTypes": [
             "Concept"
+          ],
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "hasSequenceMember",
+          "title": "children",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Content"
           ],
           "renderingHints": "{ 'order': 26 }"
         }

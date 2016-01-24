@@ -2,6 +2,7 @@ package com.ilimi.orchestrator.interpreter.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import javax.annotation.PostConstruct;
 
@@ -57,7 +58,7 @@ public class TclExecutor implements Executor {
     }
 
     @Override
-    public Response execute(OrchestratorScript script, List<Object> params) {
+    public Response execute(OrchestratorScript script, Map<String, Object> params) {
         if (null == script || StringUtils.isBlank(script.getName()) || StringUtils.isBlank(script.getType())) {
             throw new MiddlewareException(ExecutionErrorCodes.ERR_INVALID_REQUEST.name(),
                     "Executor actor not initialized");

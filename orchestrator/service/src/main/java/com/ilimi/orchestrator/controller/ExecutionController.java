@@ -1,6 +1,5 @@
 package com.ilimi.orchestrator.controller;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -57,7 +56,7 @@ public class ExecutionController extends BaseOrchestratorController {
     public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request) {
         return executeScript(request, RequestTypes.PATCH.name(), map);
     }
-    
+
     @RequestMapping(value = "/**", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(HttpServletRequest request) {
@@ -72,9 +71,9 @@ public class ExecutionController extends BaseOrchestratorController {
                 throw new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
                         "Script not found for the request path: " + path);
             }
-            List<Object> params = getParams(request, script, path, map);
+            Map<String, Object> params = getParams(request, script, path, map);
             Response response = executor.execute(script, params);
-            return getResponseEntity(response, path);
+            return getResponseEntity(response, script.getName());
         } catch (Exception e) {
             return getExceptionResponseEntity(e, path);
         }
@@ -127,9 +126,9 @@ public class ExecutionController extends BaseOrchestratorController {
         return null;
     }
 
-    private List<Object> getParams(HttpServletRequest request, OrchestratorScript script, String path,
+    private Map<String, Object> getParams(HttpServletRequest request, OrchestratorScript script, String path,
             Map<String, Object> map) {
-        List<Object> params = new ArrayList<Object>();
+        Map<String, Object> params = new HashMap<String, Object>();
         RequestPath reqPath = script.getRequestPath();
         Map<String, Object> pathParamMap = new HashMap<String, Object>();
         Map<String, Object> reqParamMap = new HashMap<String, Object>();
@@ -139,7 +138,7 @@ public class ExecutionController extends BaseOrchestratorController {
         getBodyParamMap(bodyParamMap, map);
         if (null != script.getParameters() && !script.getParameters().isEmpty()) {
             for (ScriptParams param : script.getParameters()) {
-                params.add(getParamValue(param.getName(), pathParamMap, reqParamMap, bodyParamMap));
+                params.put(param.getName(), getParamValue(param.getName(), pathParamMap, reqParamMap, bodyParamMap));
             }
         }
         return params;
@@ -182,11 +181,15 @@ public class ExecutionController extends BaseOrchestratorController {
     private void getRequestParamMap(Map<String, Object> reqParamMap, RequestPath reqPath, HttpServletRequest request) {
         if (null != reqPath.getRequestParams() && !reqPath.getRequestParams().isEmpty()) {
             for (String paramName : reqPath.getRequestParams()) {
-                String value = null == request.getParameter(paramName) ? "" : request.getParameter(paramName);
-                if (value.indexOf(",") >= 0) {
-                    reqParamMap.put(paramName, value.split(","));
-                } else {
-                    reqParamMap.put(paramName, value);
+                String value = request.getParameter(paramName);
+                if (StringUtils.isNotBlank(paramName)) {
+                    if (StringUtils.isNotBlank(value)) {
+                        if (value.indexOf(",") >= 0) {
+                            reqParamMap.put(paramName, value.split(","));
+                        } else {
+                            reqParamMap.put(paramName, value);
+                        }
+                    }
                 }
             }
         }
@@ -206,6 +209,6 @@ public class ExecutionController extends BaseOrchestratorController {
                 }
             }
         }
-            
+
     }
 }

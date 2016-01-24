@@ -2,6 +2,7 @@ package com.ilimi.orchestrator.interpreter;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 
@@ -12,7 +13,7 @@ public class OrchestratorRequest implements Serializable {
 	private String action;
 	private List<OrchestratorScript> scripts;
 	private OrchestratorScript script;
-	private List<Object> params;
+	private Map<String, Object> params;
 
 	public String getAction() {
 		return action;
@@ -38,11 +39,11 @@ public class OrchestratorRequest implements Serializable {
 		this.script = script;
 	}
 
-	public List<Object> getParams() {
+	public Map<String, Object> getParams() {
 		return params;
 	}
 
-	public void setParams(List<Object> params) {
+	public void setParams(Map<String, Object> params) {
 		this.params = params;
 	}
 

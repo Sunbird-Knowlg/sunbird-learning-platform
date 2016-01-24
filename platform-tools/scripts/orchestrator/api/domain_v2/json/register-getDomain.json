@@ -1,0 +1,19 @@
+{
+    "name": "getDomain",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "domain_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/domains/*",
+        "pathParams": [
+          "domain_id"
+        ]
+    },
+    "body": ""
+}

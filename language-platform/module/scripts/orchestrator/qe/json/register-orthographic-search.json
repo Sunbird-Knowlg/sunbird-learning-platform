@@ -1,0 +1,21 @@
+{
+    "name": "lang_qe_orthographic_search",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"syllableCount",
+        "index": 1,
+        "routingParam": false
+    },{
+        "name":"startsWith",
+        "index": 2,
+        "routingParam": false
+    },{
+        "name":"minComplexity",
+        "index": 3,
+        "routingParam": false
+    }],
+    "body": ""
+}

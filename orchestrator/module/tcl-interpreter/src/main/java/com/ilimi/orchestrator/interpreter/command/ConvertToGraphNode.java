@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -104,8 +105,13 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                         if (null != list && !list.isEmpty()) {
                             for (Map obj : list) {
                                 NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
-                                outRelations
-                                        .add(new Relation(null, outRelDefMap.get(entry.getKey()), dto.getIdentifier()));
+                                Relation relation = new Relation(null, outRelDefMap.get(entry.getKey()), dto.getIdentifier());
+                                if (null != dto.getIndex() && dto.getIndex().intValue() >= 0) {
+                                    Map<String, Object> relMetadata = new HashMap<String, Object>();
+                                    relMetadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), dto.getIndex());
+                                    relation.setMetadata(relMetadata);
+                                }
+                                outRelations.add(relation);
                             }
                         }
                     } catch (Exception e) {

@@ -1,6 +1,5 @@
 package com.ilimi.orchestrator.interpreter.actor;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -105,36 +104,34 @@ public class TclExecutorActor extends UntypedActor {
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private Object execute(OrchestratorScript script, List<Object> params) {
+	private Object execute(OrchestratorScript script, Map<String, Object> params) {
 		try {
-			if (null != params && !params.isEmpty()) {
-				Map<Integer, ScriptParams> paramMap = new HashMap<Integer, ScriptParams>();
-				if (null != script.getParameters() && !script.getParameters().isEmpty()) {
-					for (ScriptParams param : script.getParameters()) {
-						paramMap.put(param.getIndex(), param);
-					}
-				}
-				for (int i = 1; i <= params.size(); i++) {
-					ScriptParams param = paramMap.get(i-1);
-					if (null != param) {
-						try {
-							if (StringUtils.isNotBlank(param.getDatatype())) {
-								Class cls = Class.forName(param.getDatatype());
-								Object paramObj = params.get(i - 1);
-								String objectStr = mapper.writeValueAsString(paramObj);
-								Object javaObj = mapper.readValue(objectStr, cls);
-								TclObject obj = ReflectObject.newInstance(interpreter, cls, javaObj);
-								interpreter.setVar(param.getName(), obj, TCL.NAMESPACE_ONLY);
-							} else {
-								interpreter.setVar(param.getName(), params.get(i - 1).toString(), TCL.NAMESPACE_ONLY);
-							}
-						} catch (Exception e) {
-						    e.printStackTrace();
-							interpreter.setVar(param.getName(), params.get(i - 1).toString(), TCL.NAMESPACE_ONLY);
-						}
-					}
-				}
-			}
+		    List<ScriptParams> scriptParams = script.getParameters();
+		    if (null != scriptParams && !scriptParams.isEmpty()) {
+		        for (ScriptParams scriptParam : scriptParams) {
+		            String name = scriptParam.getName();
+		            Object paramObj = params.get(name);
+		            if (null != paramObj) {
+		                try {
+                            if (StringUtils.isNotBlank(scriptParam.getDatatype())) {
+                                Class cls = Class.forName(scriptParam.getDatatype());
+                                String objectStr = mapper.writeValueAsString(paramObj);
+                                Object javaObj = mapper.readValue(objectStr, cls);
+                                TclObject obj = ReflectObject.newInstance(interpreter, cls, javaObj);
+                                interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+                            } else {
+                                interpreter.setVar(name, paramObj.toString(), TCL.NAMESPACE_ONLY);
+                            }
+                        } catch (Exception e) {
+                            TclObject obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
+                            interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+                        }
+		            } else {
+		                TclObject obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
+                        interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+		            }
+		        }
+		    }
 			interpreter.eval(script.getBody());
 			TclObject tclObject = interpreter.getResult();
 			if (null != tclObject.getInternalRep() && tclObject.getInternalRep() instanceof ReflectObject)
@@ -142,6 +139,7 @@ public class TclExecutorActor extends UntypedActor {
 			else
 			    return tclObject.toString();
 		} catch (TclException ex) {
+		    ex.printStackTrace();
 			int code = ex.getCompletionCode();
 			String msg = "";
 			switch (code) {

@@ -454,8 +454,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                List<String> list = new ArrayList<String>();
-                list.add(object.toString());
+                List<Object> list = new ArrayList<Object>();
+                list.add(object);
                 return list;
             }
         }
