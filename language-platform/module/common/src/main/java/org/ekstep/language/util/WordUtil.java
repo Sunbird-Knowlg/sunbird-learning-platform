@@ -1,5 +1,6 @@
 package org.ekstep.language.util;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -10,6 +11,8 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -126,9 +129,24 @@ public class WordUtil extends BaseManager {
 			LOGGER.error("Search | Exception: " + e.getMessage(), e);
 			e.printStackTrace();
 		}
-		return "1";
+		return "Dummy_ID";
 	}
 
+	public String getWordIndex(String word, String rootWord,
+			String wordIdentifier, ObjectMapper mapper)
+			throws JsonGenerationException, JsonMappingException, IOException {
+		String wordIndexJson = null;
+		if (wordIdentifier != null) {
+			Map<String, String> wordIndex = new HashMap<String, String>();
+			wordIndex.put("word", word);
+			wordIndex.put("rootWord", rootWord);
+			wordIndex.put("id", wordIdentifier);
+			wordIndexJson = mapper.writeValueAsString(wordIndex);
+		}
+		return wordIndexJson;
+	}
+	
+	
 	@SuppressWarnings("unchecked")
 	public Response list(String languageId, String objectType, Request request) {
 		if (StringUtils.isBlank(languageId)

@@ -106,28 +106,32 @@ public class SSFParser {
 				String citationJson = mapper.writeValueAsString(citation);
 				citiationIndexes.add(citationJson);
 
-				/*
-				 * String wordIdentifier = wordUtil.getWordIdentifier(language,
-				 * citation.getRootWord()); String wordIndexJson =
-				 * getWordIndex(citation.getRootWord(), citation.getRootWord(),
-				 * wordIdentifier, mapper); // TODO modify later if
-				 * (wordIndexJson != null) { // wordIndexes.add(wordIndexJson);
-				 * }
-				 * 
-				 * wordIndexJson = null; wordIdentifier = null; wordIdentifier =
-				 * wordUtil.getWordIdentifier(language, citation.getWord());
-				 * wordIndexJson = getWordIndex(citation.getWord(),
-				 * citation.getRootWord(), wordIdentifier, mapper); // TODO
-				 * modify later if (wordIndexJson != null) { //
-				 * wordIndexes.add(wordIndexJson); }
-				 */
+				String wordIdentifier = wordUtil.getWordIdentifier(language,
+						citation.getRootWord());
+				String wordIndexJson = wordUtil.getWordIndex(citation.getRootWord(),
+						citation.getRootWord(), wordIdentifier, mapper);
+				// TODO
+				// modify
+				// later
+				if (wordIndexJson != null) {
+					wordIndexes.add(wordIndexJson);
+				}
+
+				wordIndexJson = null;
+				wordIdentifier = null;
+				wordIdentifier = wordUtil.getWordIdentifier(language,
+						citation.getWord());
+				wordIndexJson = wordUtil.getWordIndex(citation.getWord(),
+						citation.getRootWord(), wordIdentifier, mapper); // TODO
+				if (wordIndexJson != null) { //
+					wordIndexes.add(wordIndexJson);
+				}
 			}
 			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(
 					citationIndexName, Constants.CITATION_INDEX_TYPE,
 					citiationIndexes);
 			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(wordIndexName,
 					Constants.WORD_INDEX_TYPE, wordIndexes);
-			elasticSearchUtil.closeClient();
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
@@ -135,20 +139,6 @@ public class SSFParser {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	}
-
-	private static String getWordIndex(String word, String rootWord,
-			String wordIdentifier, ObjectMapper mapper)
-			throws JsonGenerationException, JsonMappingException, IOException {
-		String wordIndexJson = null;
-		if (wordIdentifier != null) {
-			Map<String, String> wordIndex = new HashMap<String, String>();
-			wordIndex.put("word", word);
-			wordIndex.put("rootWord", rootWord);
-			wordIndex.put("id", wordIdentifier);
-			wordIndexJson = mapper.writeValueAsString(wordIndex);
-		}
-		return wordIndexJson;
 	}
 
 	private static List<CitationBean> processSentence(String sentence,
