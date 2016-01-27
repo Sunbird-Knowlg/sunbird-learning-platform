@@ -11,7 +11,7 @@
             "routingParam": false
         },
         {
-            "name": "sortBy",
+            "name": "sort",
             "index": 2,
             "datatype": "java.util.ArrayList",
             "routingParam": false
@@ -22,7 +22,7 @@
             "routingParam": false
         },
         {
-            "name": "resultSize",
+            "name": "limit",
             "index": 4,
             "datatype": "java.lang.Integer",
             "routingParam": false
@@ -36,9 +36,9 @@
           "type"
         ],
         "requestParams": [
-          "sortBy",
+          "sort",
           "order",
-          "resultSize"
+          "limit"
         ]
     },
     "body": ""

@@ -5,18 +5,18 @@ java::import -package com.ilimi.graph.dac.model Filter
 java::import -package com.ilimi.graph.dac.model Node
 
 
-set is_sortBy_null [java::isnull $sortBy]
-set is_resultSize_null [java::isnull $resultSize]
+set is_sortBy_null [java::isnull $sort]
+set is_resultSize_null [java::isnull $limit]
 set object_type_res [getDomainObjectType $type]
 set object_type [get_resp_value $object_type_res "result"]
 set map [java::new HashMap]
 $map put "subject" $domain_id
 $map put "objectType" $object_type
 if {$is_sortBy_null == 0} {
-	$map put "sortBy" $sortBy
+	$map put "sortBy" $sort
 }
 if {$is_resultSize_null == 0} {
-	$map put "resultSize" $resultSize
+	$map put "resultSize" $limit
 }
 $map put "order" $order
 
