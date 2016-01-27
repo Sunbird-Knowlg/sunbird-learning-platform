@@ -246,8 +246,8 @@ public class ElasticSearchUtil {
 						}
 					}
 					parentCountObject.put("childGroups", groupByChildMap);
-					parentCountMap.put((String)aggKeyListMap.get("key"), parentCountObject);
 				}
+				parentCountMap.put((String)aggKeyListMap.get("key"), parentCountObject);
 				parentGroupList.add(parentCountMap);
 			}
 			countMap.put(groupByParent, parentCountMap);

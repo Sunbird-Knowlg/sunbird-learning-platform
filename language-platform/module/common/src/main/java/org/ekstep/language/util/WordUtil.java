@@ -111,6 +111,7 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String getWordIdentifier(String languageId, String word) {
+		word ="குவிப்பு";
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		LinkedHashMap<String, List> lemmaMap = new LinkedHashMap<String, List>();
 		lemmaMap.put("lemma", getList(mapper, word, null));
