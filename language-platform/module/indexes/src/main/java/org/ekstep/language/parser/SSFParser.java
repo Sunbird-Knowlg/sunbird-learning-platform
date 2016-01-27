@@ -3,13 +3,10 @@ package org.ekstep.language.parser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
@@ -20,31 +17,38 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.language.util.ParserUtil;
+import org.ekstep.language.util.PropertiesUtil;
 import org.ekstep.language.util.WordUtil;
 
 public class SSFParser {
 
 	private static String SENTENCE_SPLITTER = " ";
 	private static String ATTRIBUTES_SEPARATOR = ",";
-	private static int defaultTokenCountAfterWord = 4;
+	private static int defaultTokenCountAfterWord = Integer
+			.parseInt(PropertiesUtil.getProperty("defaultTokenCountAfterWord"));
 	private static String[] ignoreStartWords;
 	private static String[] tagNames;
 	private static String[] discardTokens;
 	private static Logger logger = LogManager.getLogger(SSFParser.class
 			.getName());
 	private static String attributesTagIdentifier;
-	private static String specialCharRegEx = "^([$&+,:;=?@#|!]*)$";
-	private static String numberRegEx = "^([+-]?\\d*\\.?\\d*)$";
+	private static String specialCharRegEx = PropertiesUtil
+			.getProperty("specialCharRegEx");
+	private static String numberRegEx = PropertiesUtil
+			.getProperty("numberRegEx");
 	private static WordUtil wordUtil = new WordUtil();
 
 	static {
-		String ignoreStartWordsList = "<Sentence,id=,<fs,head=,case_name=,paradigm=,name=,inf=";
+		String ignoreStartWordsList = PropertiesUtil
+				.getProperty("ignoreStartWordsList");
 		ignoreStartWords = ignoreStartWordsList.split(",");
-		String tagNamesList = "NN,NST,PRP,DEM,VM,VAUX,JJ,RB,PSP,RP,CC,WQ,QF,QC,QO,CL,INTF,INJ,NEG,SYM,*C,RDP,ECH,UNK,NP,VGF,VGNF,VGINF,VGNN,JJP,RBP,NEGP,CCP,FRAGP,BLK";
+		String tagNamesList = PropertiesUtil.getProperty("tagNamesList");
 		tagNames = tagNamesList.split(",");
-		String discardTokensList = "NNP,((,))";
+		String discardTokensList = PropertiesUtil
+				.getProperty("discardTokensList");
 		discardTokens = discardTokensList.split(",");
-		attributesTagIdentifier = "af";
+		attributesTagIdentifier = PropertiesUtil
+				.getProperty("attributesTagIdentifier");
 	}
 
 	public static void parseSsfFilesFolder(String folderPath,
@@ -108,8 +112,9 @@ public class SSFParser {
 
 				String wordIdentifier = wordUtil.getWordIdentifier(language,
 						citation.getRootWord());
-				String wordIndexJson = wordUtil.getWordIndex(citation.getRootWord(),
-						citation.getRootWord(), wordIdentifier, mapper);
+				String wordIndexJson = wordUtil.getWordIndex(
+						citation.getRootWord(), citation.getRootWord(),
+						wordIdentifier, mapper);
 				// TODO
 				// modify
 				// later

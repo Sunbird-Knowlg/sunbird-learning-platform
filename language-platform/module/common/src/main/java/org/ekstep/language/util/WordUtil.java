@@ -111,7 +111,6 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public String getWordIdentifier(String languageId, String word) {
-		word ="குவிப்பு";
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		LinkedHashMap<String, List> lemmaMap = new LinkedHashMap<String, List>();
 		lemmaMap.put("lemma", getList(mapper, word, null));
@@ -122,15 +121,15 @@ public class WordUtil extends BaseManager {
 					LanguageObjectTypes.Word.name(), request);
 			LOGGER.info("Search | Response: " + response);
 			List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
-			//Dummy line
-			list.get(0);
-			
-			
+			if(!list.isEmpty()){
+				Map<String, Object> wordMap = list.get(0);
+				return (String) wordMap.get("identifier");
+			}
 		} catch (Exception e) {
 			LOGGER.error("Search | Exception: " + e.getMessage(), e);
 			e.printStackTrace();
 		}
-		return "Dummy_ID";
+		return null;
 	}
 
 	public String getWordIndex(String word, String rootWord,

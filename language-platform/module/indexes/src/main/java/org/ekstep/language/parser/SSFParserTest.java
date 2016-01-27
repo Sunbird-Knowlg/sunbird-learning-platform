@@ -151,7 +151,7 @@ public class SSFParserTest {
 					Constants.CITATION_INDEX_TYPE, citiationIndexes);
 			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(wordIndexName,
 					Constants.WORD_INDEX_TYPE, wordIndexes);
-			elasticSearchUtil.closeClient();
+			//elasticSearchUtil.closeClient();
 		} catch (JsonGenerationException e) {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {

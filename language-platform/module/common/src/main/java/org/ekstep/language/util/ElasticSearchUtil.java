@@ -12,7 +12,6 @@ import io.searchbox.core.SearchResult;
 import io.searchbox.indices.CreateIndex;
 import io.searchbox.indices.IndicesExists;
 import io.searchbox.indices.mapping.PutMapping;
-import io.searchbox.params.SearchType;
 
 import java.io.IOException;
 import java.net.UnknownHostException;
@@ -45,8 +44,8 @@ public class ElasticSearchUtil {
 	}
 
 	public void initialize() {
-		hostName = "http://localhost";
-		port = "9200";
+		hostName = PropertiesUtil.getProperty("elastic-search-host");
+		port = PropertiesUtil.getProperty("elastic-search-port");
 	}
 
 	@SuppressWarnings("unused")
@@ -61,7 +60,6 @@ public class ElasticSearchUtil {
 		client.execute(index);
 	}
 
-	@SuppressWarnings("unchecked")
 	public void addIndex(String indexName, String documentType) {
 		try {
 			if (!isIndexExists(indexName)) {
