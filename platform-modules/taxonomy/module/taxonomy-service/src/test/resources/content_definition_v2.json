@@ -663,7 +663,7 @@
       "outRelations": [
         {
           "relationName": "associatedTo",
-          "title": "Micro-Concepts",
+          "title": "concepts",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -673,7 +673,7 @@
         },
         {
           "relationName": "hasSequenceMember",
-          "title": "Contents",
+          "title": "children",
           "description": "",
           "required": false,
           "objectTypes": [
