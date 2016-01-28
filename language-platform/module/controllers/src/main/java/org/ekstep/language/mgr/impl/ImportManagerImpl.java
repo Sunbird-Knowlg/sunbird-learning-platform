@@ -6,7 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +21,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -44,7 +47,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         Request request = getLanguageRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(), "importData");
         request.put(LanguageParams.format.name(), LanguageParams.CSVInputStream);
         request.put(LanguageParams.input_stream.name(), stream);
-        LOGGER.info("List | Request: " + request);
+        LOGGER.info("Import | Request: " + request);
         Response importRes = getLanguageResponse(request, LOGGER);
         if (checkError(importRes)) {
             return importRes;
@@ -162,14 +165,39 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	}
 	
 	@SuppressWarnings("unused")
-	private void callAddCitationToIndex() {
-		
+	private void callAddCitationToIndex(String languageId, List<WordModel> lstWord) {
+		if (!StringUtils.isBlank(languageId) && LanguageMap.containsLanguage(languageId) && null != lstWord) {
+			LOGGER.info("Enrich - callAddCitationToIndex :- Word List : " + lstWord + ", Language Id : " + languageId);
+	        Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(), "addCitationIndex");
+	        request.put(LanguageParams.citations.name(), getWordMapList(lstWord));
+	        LOGGER.info("List | Request: " + request);
+	        Response addCitationRes = getLanguageResponse(request, LOGGER);
+	        if (checkError(addCitationRes)) {
+	            System.out.println("Enrich - callAddCitationToIndex : Error");
+	        } else {
+	            Response response = copyResponse(addCitationRes);
+	            // TODO: Return the Response for now its '200' or 400 series 
+	            System.out.println("Enrich - callAddCitationToIndex : Success");
+	        }
+		}
+	}
+	
+	private List<Map<String, String>> getWordMapList(List<WordModel> lstWord) {
+		List<Map<String, String>> lstMap = new ArrayList<Map<String, String>>();
+		for (WordModel word : lstWord) {
+			// TODO: Add sourceType also for now take it from url and pass it on
+			Map<String, String> map = new HashMap<String, String>();
+			map.put(LanguageParams.word.name(), word.getWordLemma());
+			map.put(LanguageParams.date.name(), DateTime.now().toString());
+			lstMap.add(map);
+		}
+		return lstMap;
 	}
 	
 	private List<String> getWordLemmaList(List<WordModel> lstWord) {
 		List<String> lstLemma = new ArrayList<String>();
 		for (WordModel word : lstWord) {
-			if (!lstLemma.contains(word.getWordLemma()) && null != word.getWordLemma() && word.getWordLemma() != "")
+			if (!lstLemma.contains(word.getWordLemma()) && !StringUtils.isBlank(word.getWordLemma()))
 				lstLemma.add(word.getWordLemma().trim());
 		}
 		return lstLemma;
