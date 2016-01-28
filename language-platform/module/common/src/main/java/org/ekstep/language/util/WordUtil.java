@@ -185,10 +185,17 @@ public class WordUtil extends BaseManager {
 					+ "_" + language;
 			String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"
 					+ language;
+			
 			ObjectMapper mapper = new ObjectMapper();
 			ArrayList<String> citiationIndexes = new ArrayList<String>();
 			ArrayList<String> wordIndexes = new ArrayList<String>();
 			ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+			
+			createCitationIndex(citationIndexName,
+					Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
+			createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE,
+					elasticSearchUtil);
+			
 			for (CitationBean citation : citations) {
 				if(citation.getDate() == null || citation.getDate().isEmpty()){
 					citation.setDate(getFormattedDateTime(System
@@ -257,10 +264,6 @@ public class WordUtil extends BaseManager {
 				String citationJson = mapper.writeValueAsString(citation);
 				citiationIndexes.add(citationJson);
 			}
-			createCitationIndex(citationIndexName,
-					Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
-			createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE,
-					elasticSearchUtil);
 			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(
 					citationIndexName, Constants.CITATION_INDEX_TYPE,
 					citiationIndexes);

@@ -260,7 +260,7 @@ public class ElasticSearchUtil {
 										.put(groupByChild, childCountMap);
 							}
 						}
-						parentCountObject.put("groupedBy", groupByChildMap);
+						parentCountObject.putAll(groupByChildMap);
 					}
 					parentCountMap.put((String) aggKeyListMap.get("key"),
 							parentCountObject);
