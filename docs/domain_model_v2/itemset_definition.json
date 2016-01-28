@@ -4,19 +4,6 @@
         "indexedMetadata": [{
             "required": true,
             "dataType": "Text",
-            "propertyName": "identifier",
-            "title": "Identifier",
-            "description": "",
-            "category": "general",
-            "displayProperty": "Hidden",
-            "range": [],
-            "defaultValue": "",
-            "renderingHints": "{ 'order': 3 }",
-            "indexed": true,
-            "draft": false
-        }, {
-            "required": true,
-            "dataType": "Text",
             "propertyName": "code",
             "title": "Code",
             "description": "",

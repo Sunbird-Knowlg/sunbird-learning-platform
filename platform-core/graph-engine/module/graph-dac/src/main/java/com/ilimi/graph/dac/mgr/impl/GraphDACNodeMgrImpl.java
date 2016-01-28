@@ -14,14 +14,14 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
@@ -30,6 +30,8 @@ import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
+
+import akka.actor.ActorRef;
 
 public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNodeMgr {
 
@@ -56,6 +58,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
         else {
             try {
+                String date = DateUtils.formatCurrentDate();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node neo4jNode = null;
@@ -67,9 +70,11 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         node.setIdentifier(graphId + "_" + neo4jNode.getId());
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                     neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
+                    neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     if (StringUtils.isNotBlank(node.getObjectType()))
                         neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                 }
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 setNodeData(graphDb, node, neo4jNode);
                 tx.success();
                 tx.close();
@@ -93,6 +98,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
         else {
             try {
+                String date = DateUtils.formatCurrentDate();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node neo4jNode = graphDb.createNode(NODE_LABEL);
@@ -100,6 +106,8 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     node.setIdentifier(graphId + "_" + neo4jNode.getId());
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
+                neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 if (StringUtils.isNotBlank(node.getObjectType()))
                     neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                 setNodeData(graphDb, node, neo4jNode);
@@ -128,6 +136,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 setNodeData(graphDb, node, neo4jNode);
                 tx.success();
                 tx.close();
@@ -166,6 +175,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_IMPORT_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         else {
             try {
+                String date = DateUtils.formatCurrentDate();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 for (com.ilimi.graph.dac.model.Node node : nodes) {
@@ -174,7 +184,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
                     } catch (ResourceNotFoundException e) {
                         neo4jNode = graphDb.createNode(NODE_LABEL);
+                        neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     }
+                    neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                     if (StringUtils.isBlank(node.getIdentifier()))
                         node.setIdentifier(graphId + "_" + neo4jNode.getId());
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -210,6 +222,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
+                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.acquireWriteLock(node);
                 if (null == property.getPropertyValue())
                     node.removeProperty(property.getPropertyName());
@@ -250,6 +263,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         else
                             node.setProperty(entry.getKey(), entry.getValue());
                     }
+                    node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 }
                 tx.success();
                 OK(getSender());
@@ -279,6 +293,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 Node node = getNodeByUniqueId(graphDb, nodeId);
                 tx.acquireWriteLock(node);
                 node.removeProperty(key);
+                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
                 OK(getSender());
             } catch (Exception e) {
@@ -309,6 +324,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 for (String key : keys) {
                     node.removeProperty(key);
                 }
+                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
                 OK(getSender());
             } catch (Exception e) {

@@ -2,6 +2,7 @@ package com.ilimi.graph.reader;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -93,11 +94,12 @@ public class CSVGraphReader implements GraphReader {
                         String[] valList = getListFromString(val);
                         metadata.put(metadataKey, valList);
                     } else {
-                        if (StringUtils.isNotBlank(val)) {
+                        if (StringUtils.isNotBlank(val))
                             val = val.replaceAll("&lt;", "<").replaceAll("&gt;", ">");
-                            metadata.put(metadataKey, val);
-                        } else
-                            metadata.put(metadataKey, null);
+                        else
+                            val = null;
+                        Object value = getMetadataValue(objectType, metadataKey, val);
+                        metadata.put(metadataKey, value);
                     }
                 }
             }
@@ -163,6 +165,46 @@ public class CSVGraphReader implements GraphReader {
         } else {
             return title;
         }
+    }
+
+    private Object getMetadataValue(String objectType, String title, String val) {
+        if (propertyDataMap != null) {
+            Map<String, MetadataDefinition> objectPropMap = propertyDataMap.get(objectType);
+            if (objectPropMap != null) {
+                MetadataDefinition def = objectPropMap.get(title);
+                if (null != def) {
+                    Object value = val;
+                    if (StringUtils.isBlank(val) && null != def.getDefaultValue()
+                            && StringUtils.isNotBlank(def.getDefaultValue().toString()))
+                        value = def.getDefaultValue();
+                    if (null != value) {
+                        String datatype = def.getDataType();
+                        if (StringUtils.equalsIgnoreCase("list", datatype)
+                                || StringUtils.equalsIgnoreCase("multi-select", datatype)) {
+                            if (value instanceof List) {
+                                value = ((List) value).toArray();
+                            } else if (!(value instanceof Object[])) {
+                                value = new String[] { value.toString() };
+                            }
+                        } else if (StringUtils.equalsIgnoreCase("number", datatype)) {
+                            try {
+                                BigDecimal bd = new BigDecimal(val.toString());
+                                value = bd;
+                            } catch (Exception e) {
+                            }
+                        } else if (StringUtils.equalsIgnoreCase("boolean", datatype)) {
+                            try {
+                                Boolean b = new Boolean(val.toString());
+                                value = b;
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+                    return value;
+                }
+            }
+        }
+        return val;
     }
 
     private boolean isListProperty(String objectType, String title) {

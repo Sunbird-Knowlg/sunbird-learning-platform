@@ -22,16 +22,6 @@
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 2}"
         }, {
-            "propertyName": "identifier",
-            "title": "Identifier",
-            "description": "System identifier for this content",
-            "category": "General",
-            "dataType": "Text",
-            "required": true,
-            "displayProperty": "Hidden",
-            "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 3}"
-        }, {
             "required": false,
             "dataType": "Multi-Select",
             "propertyName": "os",
@@ -528,7 +518,7 @@
             "indexed": false,
             "draft": false
         }, {
-            "required": true,
+            "required": false,
             "dataType": "Text",
             "propertyName": "osId",
             "title": "Operating System Id",
@@ -540,7 +530,7 @@
             "indexed": false,
             "draft": false
         }, {
-            "required": true,
+            "required": false,
             "dataType": "Text",
             "propertyName": "activity_class",
             "title": "Activity Class Name",

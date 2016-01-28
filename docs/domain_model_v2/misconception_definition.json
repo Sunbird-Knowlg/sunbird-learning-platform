@@ -22,16 +22,6 @@
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 2}"
         }, {
-            "propertyName": "identifier",
-            "title": "Identifier",
-            "description": "System identifier for the misconception",
-            "category": "general",
-            "dataType": "Text",
-            "required": true,
-            "displayProperty": "Hidden",
-            "defaultValue": "",
-            "renderingHints": "{'order': 3}"
-        }, {
             "propertyName": "keywords",
             "title": "Keywords",
             "description": "Keywords related to this misconception",
@@ -139,13 +129,6 @@
             "relationName": "associatedTo",
             "title": "concepts",
             "description": "Concepts that this misconception applies to",
-            "required": false,
-            "objectTypes": ["Concept"],
-            "renderingHints": "{'order': 27}"
-        }, {
-            "relationName": "associatedTo",
-            "title": "missing_concepts",
-            "description": "Missing micro-concepts indicated by this misconception",
             "required": false,
             "objectTypes": ["Concept"],
             "renderingHints": "{'order': 27}"

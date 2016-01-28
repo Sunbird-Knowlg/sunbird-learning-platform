@@ -1,0 +1,698 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "AssessmentItem",
+      "properties": [
+        {
+          "propertyName": "name",
+          "title": "Name",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 1}",
+          "indexed": true
+        },
+        {
+          "propertyName": "code",
+          "title": "Code",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "indexed": true
+        },
+        {
+          "propertyName": "identifier",
+          "title": "Identifier",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{'order': 3}",
+          "indexed": true
+        },
+        {
+          "propertyName": "language",
+          "title": "Language",
+          "description": "",
+          "category": "General",
+          "dataType": "Multi-Select",
+          "required": false,
+          "range": [
+            "English",
+            "Hindi",
+            "Assamese",
+            "Bengali",
+            "Gujarati",
+            "Kannada",
+            "Malayalam",
+            "Marathi",
+            "Nepali",
+            "Oriya",
+            "Punjabi",
+            "Tamil",
+            "Telugu",
+            "Urdu",
+            "Other"
+          ],
+          "displayProperty": "Editable",
+          "defaultValue": "English",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "title",
+          "title": "Title",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "template",
+          "title": "Template",
+          "description": "Template/Layout used to render this item",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": true,
+          "dataType": "Select",
+          "propertyName": "type",
+          "title": "Type",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "embedded",
+            "mcq",
+            "ftb",
+            "mtf",
+            "recognition",
+            "other"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "propertyName": "keywords",
+          "title": "Keywords",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 7}",
+          "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "status",
+          "title": "Status",
+          "description": "",
+          "category": "lifeCycle",
+          "displayProperty": "Editable",
+          "range": [
+            "Draft",
+            "Review",
+            "Live",
+            "Retired",
+            "Mock"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "owner",
+          "title": "Owner",
+          "description": "",
+          "category": "ownership",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "body",
+          "title": "Question",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "model",
+          "title": "Model",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "options",
+          "title": "Options",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "lhs_options",
+          "title": "LHS Options",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "rhs_options",
+          "title": "RHS Options",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "num_answers",
+          "title": "Number of Answers",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'number', 'order': 19 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "answer",
+          "title": "Answer",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "hints",
+          "title": "Hints",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": true,
+          "dataType": "Select",
+          "propertyName": "qlevel",
+          "title": "Question Level",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "EASY",
+            "MEDIUM",
+            "DIFFICULT",
+            "RARE"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "difficulty_level",
+          "title": "Difficulty Level",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "low",
+            "medium",
+            "high"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "purpose",
+          "title": "Purpose",
+          "description": "",
+          "category": "pedagogy",
+          "displayProperty": "Editable",
+          "range": [
+            "Knowledge",
+            "Conceptual",
+            "Application",
+            "Problem Solving"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "sub_purpose",
+          "title": "Sub Purpose",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "depth_of_knowledge",
+          "title": "Depth of Knowledge",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "Recall",
+            "Skill",
+            "Strategic Thinking",
+            "Extended Thinking"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "used_for",
+          "title": "Used for",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "assessment",
+            "worksheet"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "max_score",
+          "title": "Maximum Score",
+          "description": "Maximum possible score for this item",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Boolean",
+          "propertyName": "partial_scoring",
+          "title": "Partial Scoring",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": null,
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "feedback",
+          "title": "Feedback",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "max_time",
+          "title": "Max Time",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Multi-Select",
+          "propertyName": "gradeLevel",
+          "title": "Grade Level",
+          "description": "",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "range": [
+            "Kindergarten",
+            "Grade 1",
+            "Grade 2",
+            "Grade 3",
+            "Grade 4",
+            "Grade 5",
+            "Other"
+          ],
+          "defaultValue": "Grade 1",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "propertyName": "source",
+          "title": "Source",
+          "description": "Source of the item (e.g. if it was imported from some other system)",
+          "category": "general",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 2}",
+          "indexed": true
+        },
+        {
+          "required": false,
+          "dataType": "JSON",
+          "propertyName": "rendering_metadata",
+          "title": "Rendering Metadata",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "propertyName": "description",
+          "title": "Description",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'textarea', 'order': 4}",
+          "indexed": false
+        },
+        {
+          "propertyName": "learningObjective",
+          "title": "Learning Objective",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 6}",
+          "indexed": false
+        },
+        {
+          "propertyName": "example",
+          "title": "Examples",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'textarea', 'order': 8}",
+          "indexed": false
+        },
+        {
+          "propertyName": "validators",
+          "title": "Validators",
+          "description": "",
+          "category": "lifeCycle",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 12}",
+          "indexed": false
+        },
+        {
+          "propertyName": "references",
+          "title": "References",
+          "description": "List of references",
+          "category": "usageMetadata",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'textarea', 'order': 14}",
+          "indexed": false
+        },
+        {
+          "propertyName": "createdBy",
+          "title": "Created By",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": false
+        },
+        {
+          "propertyName": "createdOn",
+          "title": "Created On",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 22}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastUpdatedBy",
+          "title": "Last Updated By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastUpdatedOn",
+          "title": "Last Updated On",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 22}",
+          "indexed": false
+        },
+        {
+          "propertyName": "version",
+          "title": "Version",
+          "description": "",
+          "category": "audit",
+          "dataType": "Number",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 23}",
+          "indexed": false
+        },
+        {
+          "propertyName": "versionDate",
+          "title": "Version Date",
+          "description": "",
+          "category": "audit",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 24}",
+          "indexed": false
+        },
+        {
+          "propertyName": "versionCreatedBy",
+          "title": "Version Created By",
+          "description": "",
+          "category": "audit",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 25}",
+          "indexed": false
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "associatedTo",
+          "objectTypes": [
+            "Concept"
+          ],
+          "title": "concepts",
+          "description": "Concepts associated with this item",
+          "required": false,
+          "renderingHints": "{ 'order': 26 }"
+        }
+      ],
+      "systemTags": [
+        {
+          "name": "Numeracy",
+          "description": "Domain"
+        },
+        {
+          "name": "Literacy",
+          "description": "Domain"
+        },
+        {
+          "name": "Non-Cog",
+          "description": "Domain"
+        },
+        {
+          "name": "Mandatory",
+          "description": "Is the item mandatory?"
+        },
+        {
+          "name": "Audio Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Visual Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Textual Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "Touch Interaction",
+          "description": "Interactivity Type"
+        },
+        {
+          "name": "No Intervention",
+          "description": "Intervention Type"
+        },
+        {
+          "name": "Optional Intervention",
+          "description": "Intervention Type"
+        },
+        {
+          "name": "Mandatory Intervention",
+          "description": "Intervention Type"
+        }
+      ],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}
