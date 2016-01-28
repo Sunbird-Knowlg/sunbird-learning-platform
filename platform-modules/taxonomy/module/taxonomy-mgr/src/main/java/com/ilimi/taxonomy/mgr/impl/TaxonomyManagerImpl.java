@@ -105,6 +105,19 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     }
 
     @Override
+    public Response getSubGraph(String graphId, String id, Integer depth) {
+        if (StringUtils.isBlank(id))
+            throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Domain Id is blank");
+        LOGGER.info("Find Taxonomy : " + id);
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverseSubGraph",
+                GraphDACParams.start_node_id.name(), id);
+        if (null != depth && depth.intValue() > 0)
+            request.put(GraphDACParams.depth.name(), depth);
+        Response subGraphRes = getResponse(request, LOGGER);
+        return subGraphRes;
+    }
+
+    @Override
     public Response create(String id, InputStream stream) {
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
@@ -129,7 +142,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
             return response;
         }
     }
-    
+
     @Override
     public Response export(String id, String format) {
         if (StringUtils.isBlank(id))

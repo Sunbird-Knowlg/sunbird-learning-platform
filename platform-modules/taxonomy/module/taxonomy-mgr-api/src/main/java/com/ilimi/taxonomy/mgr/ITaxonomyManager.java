@@ -29,5 +29,7 @@ public interface ITaxonomyManager {
     Response deleteDefinition(String id, String objectType);
     
     Response createIndex(String id, List<String> keys, Boolean unique);
+    
+    Response getSubGraph(String graphId, String id, Integer depth);
 
 }

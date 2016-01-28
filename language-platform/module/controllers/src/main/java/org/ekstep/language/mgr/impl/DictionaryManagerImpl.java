@@ -94,7 +94,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	            if (checkError(res)) {
 	            	errResponse = res;
 	            } else {
-	            	lstNodeId.add(node.getIdentifier());
+	            	Map<String, Object> result = res.getResult();
+	            	if(result != null){
+	            		String nodeId = (String) result.get("node_id");
+	            		if(nodeId != null){
+	            			lstNodeId.add(nodeId);
+	            		}
+	            	}
 	            }
 	            createRes = res;
 	            System.out.println("Response: | ");
