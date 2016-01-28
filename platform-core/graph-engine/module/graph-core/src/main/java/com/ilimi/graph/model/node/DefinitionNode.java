@@ -393,10 +393,17 @@ public class DefinitionNode extends AbstractNode {
         if (StringUtils.isBlank(def.getRelationName()) || !RelationTypes.isValidRelationType(def.getRelationName())) {
             messages.add("Invalid relation type: " + def.getRelationName() + ". Object Type: " + objectType);
         } else {
-            if (relationNames.contains(def.getRelationName().toLowerCase())) {
-                messages.add("Duplicate Relation Definition: " + def.getRelationName() + ". Object Type: " + objectType);
+            List<String> objectTypes = def.getObjectTypes();
+            if (null != objectTypes && !objectTypes.isEmpty()) {
+                for (String type : objectTypes) {
+                    if (relationNames.contains(def.getRelationName().toLowerCase() + "_" + type.toLowerCase())) {
+                        messages.add("Duplicate Relation Definition: " + def.getRelationName() + ", with object type: " + type);
+                    } else {
+                        relationNames.add(def.getRelationName().toLowerCase() + "_" + type.toLowerCase());
+                    }
+                }
             } else {
-                relationNames.add(def.getRelationName().toLowerCase());
+                messages.add("Invalid Relation Definition: " + def.getRelationName() + ". No object types are specified.");
             }
         }
         if (StringUtils.isBlank(def.getTitle())) {

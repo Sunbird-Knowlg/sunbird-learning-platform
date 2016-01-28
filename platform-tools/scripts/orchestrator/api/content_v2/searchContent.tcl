@@ -10,6 +10,15 @@ if {$search == 1} {
 }
 $search put "objectType" $object_type
 $search put "nodeType" "DATA_NODE"
+
+set sort [$search get "sort"]
+set limit [$search get "limit"]
+$search put "sortBy" $sort
+$search put "resultSize" $limit
+
+$search remove "sort"
+$search remove "limit"
+
 set search_criteria [create_search_criteria $search]
 set graph_id "domain"
 set search_response [searchNodes $graph_id $search_criteria]
