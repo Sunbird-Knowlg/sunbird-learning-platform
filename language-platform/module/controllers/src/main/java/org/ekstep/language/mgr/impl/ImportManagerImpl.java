@@ -17,6 +17,7 @@ import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.LanguageSourceTypeMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
+import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.models.SynsetModel;
@@ -44,7 +45,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
             throw new ClientException(LanguageErrorCodes.ERR_SOURCE_EMPTY_INPUT_STREAM.name(),
                     "Source object is emtpy");
         LOGGER.info("Import : " + stream);
-        Request request = getLanguageRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(), "importData");
+        Request request = getLanguageRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(), LanguageOperations.importData.name());
         request.put(LanguageParams.format.name(), LanguageParams.CSVInputStream);
         request.put(LanguageParams.input_stream.name(), stream);
         LOGGER.info("Import | Request: " + request);
@@ -168,7 +169,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	private void callAddCitationToIndex(String languageId, List<WordModel> lstWord) {
 		if (!StringUtils.isBlank(languageId) && LanguageMap.containsLanguage(languageId) && null != lstWord) {
 			LOGGER.info("Enrich - callAddCitationToIndex :- Word List : " + lstWord + ", Language Id : " + languageId);
-	        Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(), "addCitationIndex");
+	        Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(), LanguageOperations.addCitationIndex.name());
 	        request.put(LanguageParams.citations.name(), getWordMapList(lstWord));
 	        LOGGER.info("List | Request: " + request);
 	        Response addCitationRes = getLanguageResponse(request, LOGGER);
@@ -192,6 +193,17 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			lstMap.add(map);
 		}
 		return lstMap;
+	}
+	
+	private Response callGetIndexInfo(List<WordModel> lstWord) {
+		if (lstWord.size() > 0) {
+			List<String> lstLemma = getWordLemmaList(lstWord);
+		}
+		return null;
+	}
+	
+	private List<WordModel> addCitattionCountInfoInWordList(List<WordModel> lstWord) {
+		return null;
 	}
 	
 	private List<String> getWordLemmaList(List<WordModel> lstWord) {
