@@ -15,7 +15,7 @@ public class PropertiesUtil {
 			.getName());
 
 	static {
-		String filename = "common.properties";
+		String filename = "language-indexes.properties";
 		input = PropertiesUtil.class.getClassLoader().getResourceAsStream(
 				filename);
 		if (input == null) {

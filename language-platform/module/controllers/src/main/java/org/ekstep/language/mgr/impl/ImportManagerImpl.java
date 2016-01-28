@@ -60,9 +60,11 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	}
 
 	@Override
-	public Response enrich(String languageId, InputStream synsetStream, InputStream wordStream) {
+	public Response enrich(String languageId, String sourceId, InputStream synsetStream, InputStream wordStream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(sourceId) || !LanguageSourceTypeMap.containsLanguage(sourceId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Source Id");
         if (null == synsetStream)
             throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(),
                     "Synset object is emtpy");
@@ -88,6 +90,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         
         Reader reader = null;
         BufferedReader br = null; 
+        List<WordModel> lstEnrichedWord = new ArrayList<WordModel>();
         List<WordModel> lstWord = new ArrayList<WordModel>();
         List<SynsetModel> lstSynset = new ArrayList<SynsetModel>();
         String line = "";
@@ -137,11 +140,12 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					continue;
 				}	
 			}
-	        
-	        List<String> lstLemma = getWordLemmaList(lstWord);
-	        if (lstLemma.size() > 0) {
-	        	// Make a Call to Indexer for Adding word to Index and DB.
-	        	
+	        if (lstWord.size() > 0) {
+		        callAddCitationToIndex(languageId,sourceId, lstWord);
+		        lstEnrichedWord = addCitattionCountInfoInWordList(languageId, lstWord);
+		        if (null != lstEnrichedWord) {
+		        	
+		        }
 	        }
         } catch(IOException e) {
         	e.printStackTrace();
@@ -166,11 +170,11 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	}
 	
 	@SuppressWarnings("unused")
-	private void callAddCitationToIndex(String languageId, List<WordModel> lstWord) {
+	private void callAddCitationToIndex(String languageId, String sourceId, List<WordModel> lstWord) {
 		if (!StringUtils.isBlank(languageId) && LanguageMap.containsLanguage(languageId) && null != lstWord) {
 			LOGGER.info("Enrich - callAddCitationToIndex :- Word List : " + lstWord + ", Language Id : " + languageId);
 	        Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(), LanguageOperations.addCitationIndex.name());
-	        request.put(LanguageParams.citations.name(), getWordMapList(lstWord));
+	        request.put(LanguageParams.citations.name(), getWordMapList(sourceId, lstWord));
 	        LOGGER.info("List | Request: " + request);
 	        Response addCitationRes = getLanguageResponse(request, LOGGER);
 	        if (checkError(addCitationRes)) {
@@ -183,13 +187,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 	}
 	
-	private List<Map<String, String>> getWordMapList(List<WordModel> lstWord) {
+	private List<Map<String, String>> getWordMapList(String sourceId, List<WordModel> lstWord) {
 		List<Map<String, String>> lstMap = new ArrayList<Map<String, String>>();
 		for (WordModel word : lstWord) {
-			// TODO: Add sourceType also for now take it from url and pass it on
 			Map<String, String> map = new HashMap<String, String>();
 			map.put(LanguageParams.word.name(), word.getWordLemma());
 			map.put(LanguageParams.date.name(), DateTime.now().toString());
+			map.put(LanguageParams.source_type.name(), sourceId);
+			map.put(LanguageParams.source.name(), LanguageSourceTypeMap.getLanguage(sourceId));
 			lstMap.add(map);
 		}
 		return lstMap;
@@ -222,17 +227,18 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	            		try {
 		            		if (word.getWordLemma().trim() == key.trim()) {
 		            			Map<String, Object> citationMap = (Map<String, Object>) map.get(LanguageParams.citations.name());
-		            			Map<String, Object> citationBySourceType = (Map<String, Object>) citationMap.get(LanguageParams.source_type.name());
-		            			Map<String, Object> citationBySource = (Map<String, Object>) citationMap.get(LanguageParams.source.name());
-		            			Map<String, Object> citationByPOS = (Map<String, Object>) citationMap.get(LanguageParams.pos.name());
-		            			Map<String, Object> citationByGrad = (Map<String, Object>) citationMap.get(LanguageParams.grad.name());
+		            			Map<String, Integer> citationBySourceType = (Map<String, Integer>) citationMap.get(LanguageParams.source_type.name());
+		            			Map<String, Integer> citationBySource = (Map<String, Integer>) citationMap.get(LanguageParams.source.name());
+		            			Map<String, Integer> citationByPOS = (Map<String, Integer>) citationMap.get(LanguageParams.pos.name());
+		            			Map<String, Integer> citationByGrad = (Map<String, Integer>) citationMap.get(LanguageParams.grad.name());
 		            			word.setWordLemma(map.get(LanguageParams.root_word.name()).toString().trim());
 		            			word.setIdentifier(map.get(LanguageParams.identifier.name()).toString());
 		            			word.setTotalCitation(Integer.parseInt(citationMap.get(LanguageParams.total.name()).toString()));
-//		            			word.setCitationBySourceType(citationBySourceType);
-//		            			word.setCitationBySource(citationBySource);
-//		            			word.setCitationByPOS(citationByPOS);
-//		            			word.setCitationByGrad(citationByGrad);
+		            			word.setCitationBySourceType(citationBySourceType);
+		            			word.setCitationBySource(citationBySource);
+		            			word.setCitationByPOS(citationByPOS);
+		            			word.setCitationByGrad(citationByGrad);
+		            			break;
 		            		}
 	            		} catch(Exception e) {
 	            			e.printStackTrace();
