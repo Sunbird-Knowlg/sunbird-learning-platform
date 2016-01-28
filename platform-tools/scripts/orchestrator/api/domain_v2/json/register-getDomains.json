@@ -1,0 +1,32 @@
+{
+    "name": "getDomains",
+    "parameters": [
+    	{
+            "name": "sort",
+            "index": 0,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
+        },
+        {
+            "name": "order",
+            "index": 1,
+            "routingParam": false
+        },
+        {
+            "name": "limit",
+            "index": 2,
+            "datatype": "java.lang.Integer",
+            "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/domains",
+        "requestParams": [
+          "sort",
+          "order",
+          "limit"
+        ]
+    },
+    "body": ""
+}

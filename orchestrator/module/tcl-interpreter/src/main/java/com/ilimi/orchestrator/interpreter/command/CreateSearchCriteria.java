@@ -12,6 +12,7 @@ import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.orchestrator.interpreter.ICommand;
 
@@ -35,6 +36,8 @@ public class CreateSearchCriteria implements ICommand, Command {
 
                 SearchCriteria sc = new SearchCriteria();
                 List<Filter> filters = new ArrayList<Filter>();
+                List<String> sortFields = new ArrayList<String>();
+                String order = Sort.SORT_ASC;
                 if (null != map && !map.isEmpty()) {
                     for (Entry<String, Object> entry : map.entrySet()) {
                         if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
@@ -67,6 +70,10 @@ public class CreateSearchCriteria implements ICommand, Command {
                             Integer startPosition = (Integer) map.get("startPosition");
                             if (null != startPosition && startPosition.intValue() > 0)
                                 sc.setStartPosition(startPosition);
+                        } else if (StringUtils.equalsIgnoreCase("sortBy", entry.getKey())) {
+                            sortFields = getList(map.get("sortBy"));
+                        }  else if (StringUtils.equalsIgnoreCase("order", entry.getKey())) {
+                            order = (String) map.get("order");
                         } else if (StringUtils.equalsIgnoreCase("filters", entry.getKey())) {
                             List<Map> list = (List<Map>) map.get("filters");
                             if (null != list && !list.isEmpty()) {
@@ -86,6 +93,14 @@ public class CreateSearchCriteria implements ICommand, Command {
                 if (null != filters && !filters.isEmpty()) {
                     MetadataCriterion mc = MetadataCriterion.create(filters);
                     sc.addMetadata(mc);
+                }
+                if (null != sortFields && !sortFields.isEmpty()) {
+                    if (StringUtils.equalsIgnoreCase(Sort.SORT_DESC, order))
+                        order = Sort.SORT_DESC;
+                    else
+                        order = Sort.SORT_ASC;
+                    for (String sortField : sortFields)
+                        sc.sort(new Sort(sortField, order));
                 }
                 TclObject tclResp = ReflectObject.newInstance(interp, sc.getClass(), sc);
                 interp.setResult(tclResp);
@@ -113,7 +128,8 @@ public class CreateSearchCriteria implements ICommand, Command {
                 return list;
             } catch (Exception e) {
                 List<String> list = new ArrayList<String>();
-                list.add(object.toString());
+                if (null != object && StringUtils.isNotBlank(object.toString()))
+                    list.add(object.toString());
                 return list;
             }
         }

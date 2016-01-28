@@ -1,0 +1,19 @@
+{
+    "name": "getContent_v2",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "content_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/content/*",
+        "pathParams": [
+          "content_id"
+        ]
+    },
+    "body": ""
+}

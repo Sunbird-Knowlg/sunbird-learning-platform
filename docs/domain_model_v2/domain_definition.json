@@ -1,212 +1,178 @@
 {
-    "definitionNodes":
-    [
-        {
-            "objectType": "Domain",
-            "indexedMetadata":
-            [
-                {
-
-                    "propertyName": "name",
-                    "title": "Name",
-                    "description": "Name of the domain",
-                    "category": "general",
-                    "dataType": "Text",
-                    "required": true,
-                    "displayProperty": "Editable",
-                    "defaultValue": "",
-                    "renderingHints": "{'inputType': 'text', 'order': 1}"
-                },
-                {
-                    "propertyName": "code",
-                    "title": "Code",
-                    "description": "Unique code to identify the domain",
-                    "category": "general",
-                    "dataType": "Text",
-                    "required": true,
-                    "displayProperty": "Editable",
-                    "defaultValue": "",
-                    "renderingHints": "{'inputType': 'text', 'order': 2}"
-                },
-
-                {
-                    "propertyName": "identifier",
-                    "title": "Identifier",
-                    "description": "System identifier for the domain",
-                    "category": "general",
-                    "dataType": "Text",
-                    "required": true,
-                    "displayProperty": "Hidden",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 3}"
-                },
-                {
-                    "propertyName": "keywords",
-                    "title": "Keywords",
-                    "description": "Keywords related to this domain",
-                    "category": "general",
-                    "dataType": "List",
-                    "required": false,
-                    "displayProperty": "Editable",
-                    "defaultValue": "",
-                    "renderingHints": "{'inputType': 'table', 'order': 7}"
-                },
-                {
-                    "propertyName": "status",
-                    "title": "Status",
-                    "description": "Status of the domain",
-                    "category": "lifeCycle",
-                    "dataType": "Select",
-                    "range":
-                    [
-                        "Draft",
-                        "Live",
-                        "Retired"
-                    ],
-
-                    "required": false,
-                    "displayProperty": "Editable",
-                    "defaultValue": "Draft",
-                    "renderingHints": "{'inputType': 'select', 'order': 9}"
-                },
-                {
-                    "propertyName": "numDimensions",
-                    "title": "No of dimensions in this domain",
-                    "description": "",
-                    "category": "analytics",
-                    "dataType": "Number",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 19}"
-                },
-                {
-                    "propertyName": "numConcepts",
-                    "title": "Number of concepts in this domain",
-                    "description": "",
-                    "category": "analytics",
-                    "dataType": "Number",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 20}"
-                },
-                {
-                    "propertyName": "numMethods",
-                    "title": "Number of methods in this domain",
-                    "description": "",
-                    "category": "analytics",
-                    "dataType": "Number",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 20}"
-                },
-                {
-                    "propertyName": "numContent",
-                    "title": "Number of content items in this domain",
-                    "description": "",
-                    "category": "analytics",
-                    "dataType": "Number",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 20}"
-                }
-            ],
-
-            "nonIndexedMetadata":
-            [
-                {
-                    "propertyName": "description",
-                    "title": "Description",
-                    "description": "Description of the node in 2-3 sentences.",
-                    "category": "general",
-                    "dataType": "Text",
-                    "required": false,
-                    "displayProperty": "Editable",
-                    "defaultValue": "",
-                    "renderingHints": "{'inputType': 'textarea', 'order': 4}"
-                },
-                {
-                    "propertyName": "lastUpdatedBy",
-                    "title": "Last Updated By",
-                    "description": "",
-                    "category": "audit",
-                    "dataType": "Text",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 21}"
-                },
-                {
-                    "propertyName": "lastUpdatedOn",
-                    "title": "Last Updated On",
-                    "description": "",
-                    "category": "audit",
-                    "dataType": "Date",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 22}"
-                },
-                {
-                    "propertyName": "version",
-                    "title": "Version",
-                    "description": "",
-                    "category": "audit",
-                    "dataType": "Number",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 23}"
-                },
-                {
-                    "propertyName": "versionDate",
-                    "title": "Version Date",
-                    "description": "",
-                    "category": "audit",
-                    "dataType": "Date",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 24}"
-                },
-                {
-                    "propertyName": "versionCreatedBy",
-                    "title": "Version Created By",
-                    "description": "",
-                    "category": "audit",
-                    "dataType": "Text",
-                    "required": false,
-                    "displayProperty": "Readonly",
-                    "defaultValue": "",
-                    "renderingHints": "{'order': 25}"
-                }
-            ],
-
-            "inRelations":
-            [
-
-            ],
-            "outRelations":
-            [
-                {
-                    "relationName": "isParentOf",
-                    "title": "Children",
-                    "description": "Dimensions that are part of this domain",
-                    "required": false,
-                    "objectTypes":
-                    [
-                        "Dimension"
-                    ],
-                    "renderingHints": "{'order': 27}"
-                }
-            ],
-            "systemTags":
-            [
-
-            ]
-        }
-    ]
+    "definitionNodes": [{
+        "objectType": "Domain",
+        "indexedMetadata": [{
+            "propertyName": "name",
+            "title": "Name",
+            "description": "Name of the domain",
+            "category": "general",
+            "dataType": "Text",
+            "required": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 1}"
+        }, {
+            "propertyName": "code",
+            "title": "Code",
+            "description": "Unique code to identify the domain",
+            "category": "general",
+            "dataType": "Text",
+            "required": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 2}"
+        }, {
+            "propertyName": "keywords",
+            "title": "Keywords",
+            "description": "Keywords related to this domain",
+            "category": "general",
+            "dataType": "List",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'table', 'order': 7}"
+        }, {
+            "propertyName": "status",
+            "title": "Status",
+            "description": "Status of the domain",
+            "category": "lifeCycle",
+            "dataType": "Select",
+            "range": ["Draft", "Live", "Retired"],
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "Draft",
+            "renderingHints": "{'inputType': 'select', 'order': 9}"
+        }, {
+            "propertyName": "numDimensions",
+            "title": "No of dimensions in this domain",
+            "description": "",
+            "category": "analytics",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 19}"
+        }, {
+            "propertyName": "numConcepts",
+            "title": "Number of concepts in this domain",
+            "description": "",
+            "category": "analytics",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 20}"
+        }, {
+            "propertyName": "numMethods",
+            "title": "Number of methods in this domain",
+            "description": "",
+            "category": "analytics",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 20}"
+        }, {
+            "propertyName": "numContent",
+            "title": "Number of content items in this domain",
+            "description": "",
+            "category": "analytics",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 20}"
+        }],
+        "nonIndexedMetadata": [{
+            "propertyName": "description",
+            "title": "Description",
+            "description": "Description of the node in 2-3 sentences.",
+            "category": "general",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+        }, {
+            "propertyName": "createdBy",
+            "title": "Created By",
+            "description": "",
+            "category": "Lifecycle",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 21}"
+        }, {
+            "propertyName": "createdOn",
+            "title": "Created On",
+            "description": "",
+            "category": "Lifecycle",
+            "dataType": "Date",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 22}"
+        }, {
+            "propertyName": "lastUpdatedBy",
+            "title": "Last Updated By",
+            "description": "",
+            "category": "audit",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 21}"
+        }, {
+            "propertyName": "lastUpdatedOn",
+            "title": "Last Updated On",
+            "description": "",
+            "category": "audit",
+            "dataType": "Date",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 22}"
+        }, {
+            "propertyName": "version",
+            "title": "Version",
+            "description": "",
+            "category": "audit",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 23}"
+        }, {
+            "propertyName": "versionDate",
+            "title": "Version Date",
+            "description": "",
+            "category": "audit",
+            "dataType": "Date",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 24}"
+        }, {
+            "propertyName": "versionCreatedBy",
+            "title": "Version Created By",
+            "description": "",
+            "category": "audit",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 25}"
+        }],
+        "inRelations": [],
+        "outRelations": [{
+            "relationName": "isParentOf",
+            "title": "children",
+            "description": "Dimensions that are part of this domain",
+            "required": false,
+            "objectTypes": ["Dimension"],
+            "renderingHints": "{'order': 27}"
+        }],
+        "systemTags": []
+    }]
 }
