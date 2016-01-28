@@ -372,4 +372,42 @@ public class ContentController extends BaseController {
         }
         return request;
     }
+   /* @RequestMapping(value = "/extractContent", method = RequestMethod.POST )
+    @ResponseBody
+    public ResponseEntity<Response> extractContent(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    		@RequestParam(value = "zipFilePath", required = true)  String zipFilePath, @RequestParam(value = "saveDir", required = false) String saveDir) {
+    	  String apiId = "content.extractContent";
+    	  LOGGER.info("extractContent has Taxonomy Id :: " + taxonomyId + "Zip File Location : " + zipFilePath + "Save Directory  : " + saveDir);
+    	  Response response = contentManager.extractContent(taxonomyId, zipFilePath, saveDir);
+        return getResponseEntity(response, apiId, null);
+    }
+    
+    @RequestMapping(value = "/parseContent", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> parseContent(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    		@RequestBody String filePath, @RequestBody String saveDir) {
+    	  String apiId = "content.parseContent";
+    	  LOGGER.info("parseContent has Taxonomy Id :: " + taxonomyId + "File Location : " + filePath + "Save Directory  : " + saveDir);
+    	  Response response = contentManager.parseContent(taxonomyId, filePath, saveDir);
+        return getResponseEntity(response, apiId, null);
+    }*/
+    
+    @RequestMapping(value = "/getParseContent", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> getParseContent(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    		@RequestParam(value = "contentId", required = true)  String contentId) {
+    	  String apiId = "content.parseContent";
+    	  LOGGER.info("getParseContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
+    	  Response response = contentManager.getParseContent(taxonomyId, contentId);
+        return getResponseEntity(response, apiId, null);
+    }
+    @RequestMapping(value = "/getExtractContent", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> getExtractContent(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    		@RequestParam(value = "contentId", required = true)  String contentId) {
+    	  String apiId = "content.parseContent";
+    	  LOGGER.info("getExtractContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
+    	  Response response = contentManager.getExtractContent(taxonomyId, contentId);
+        return getResponseEntity(response, apiId, null);
+    }
 }

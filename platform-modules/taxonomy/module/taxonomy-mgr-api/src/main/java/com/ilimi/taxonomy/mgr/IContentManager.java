@@ -22,6 +22,14 @@ public interface IContentManager {
     Response search(String taxonomyId, String objectType, Request request);
 
     Response upload(String id, String taxonomyId, File uploadedFile, String folder);
+    
+    Response  extractContent(String taxonomyId ,String zipFilePath,String saveDir);
+
+	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir);
+	
+	Response  getExtractContent(String taxonomyId ,String contentId);
+	
+	Response  getParseContent(String taxonomyId ,String contentId);
 
 	Response bundle(Request request);
 
