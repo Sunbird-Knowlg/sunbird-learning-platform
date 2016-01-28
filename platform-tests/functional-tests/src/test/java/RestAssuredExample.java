@@ -50,8 +50,26 @@ public class RestAssuredExample {
 		then().
 			statusLine("HTTP/1.1 200 OK").
 			body("id", equalTo("ekstep.lp.concept.find")).
-			body("params.status", equalTo("successfu"));
+			body("params.status", equalTo("successful"));
 		
+	}
+	
+	
+	@Test
+	public void getNumeracyDomain(){
+		
+		baseURI="http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+		
+		given().
+			header("Content-Type", "application/json").
+			header("user-id", "rayuluv").
+		when().
+			get("v2/domains/numeracy").
+		then().
+			log().all().
+			statusLine("HTTP/1.1 200 OK").
+			body("id", equalTo("orchestrator./v2/domains/numeracy")).
+			body("params.status", equalTo("successful"));
 	}
 
 }
