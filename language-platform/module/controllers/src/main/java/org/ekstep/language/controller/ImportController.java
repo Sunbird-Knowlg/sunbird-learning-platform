@@ -49,15 +49,15 @@ public class ImportController extends BaseLanguageController {
         }
     }
     
-    @RequestMapping(value = "/{languageId:.+}/enrich/{objectType:.+}", method = RequestMethod.POST)
+    @RequestMapping(value = "/{languageId:.+}/enrich/{sourceId:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> enrich(@PathVariable(value = "languageId") String languageId,
-    		@PathVariable(value = "objectType") String objectType,
+    		@PathVariable(value = "sourceId") String sourceId,
             @RequestParam("synsetFile") MultipartFile synsetFile,
             @RequestParam("wordFile") MultipartFile wordFile, @RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
         String apiId = "language.enrich";
-        LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + objectType + " | Synset File: " + synsetFile + " Synset File: " + wordFile + "| user-id: " + userId);
+        LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | Synset File: " + synsetFile + " Synset File: " + wordFile + "| user-id: " + userId);
         try {
             InputStream synsetStream = null;
             InputStream wordStream = null;
@@ -65,7 +65,7 @@ public class ImportController extends BaseLanguageController {
                 synsetStream = synsetFile.getInputStream();
                 wordStream = wordFile.getInputStream();
             }
-            Response response = importManager.enrich(languageId, synsetStream, wordStream);
+            Response response = importManager.enrich(languageId, sourceId, synsetStream, wordStream);
             LOGGER.info("Import | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
