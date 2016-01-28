@@ -238,14 +238,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 					"Upload file is blank.");
 		}
-		/*
-		 * if (null != uploadedFile && !Arrays.asList("zip",
-		 * "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName())))
-		 * { throw new
-		 * ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.
-		 * name(), "Upload file is invalid."); }
-		 */
-
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		request.put(GraphDACParams.get_tags.name(), true);
@@ -575,7 +567,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
-	public  Response getParseContent(String taxonomyId ,String contentId){
+	public  Response publish(String taxonomyId ,String contentId){
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -600,7 +592,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			FileUtils.writeStringToFile(file, contentBody);
 			response = parseContent(taxonomyId,contentId, tempFile, fileName);
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		return response;
 	}
@@ -613,13 +605,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @param filePath
 	 * @param saveDir
 	 * */
-	public  Response parseContent(String taxonomyId ,String contentId , String filePath,String fileName){
+    public Response parseContent(String taxonomyId ,String contentId , String filePath,String fileName){
 		ReadProperties readPro =  new ReadProperties();
 		String sourceFolder = null;
 		try {
 			sourceFolder = readPro.getPropValues("source.folder");
 		} catch (IOException e1) {
-			e1.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e1.getMessage());
 		}
 		Response response = new Response();
 		Map<String,String> map = null;
@@ -647,7 +639,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					directory.mkdir();
 				}
 			} catch (IOException e) {
-				e.printStackTrace();
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 			}
 		}
 		return response;
@@ -682,7 +674,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
-	public Response getExtractContent(String taxonomyId,String contentId){
+	public Response extract(String taxonomyId,String contentId){
 		Response updateRes =null;
 		ReadProperties readPro = new ReadProperties();
 		String tempFileLocation = "";
@@ -690,6 +682,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			tempFileLocation = readPro.getPropValues("save.directory");
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
 		}
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -709,6 +702,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String zipFile = tempFileLocation+fileNameWithExtn;
 			Response response = new Response();
 			response = extractContent(taxonomyId, zipFile, tempFileLocation);
+			if (checkError(response)) {
+			    return response;
+			}
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			metadata = node.getMetadata();
 			metadata.put("body", response.get("ecmlBody"));
@@ -881,9 +877,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 			}
 		} catch (Exception ex) {
-			ex.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		}
-
 		return response;
 	}
 	private Object getMimeType(File file) {

@@ -75,7 +75,7 @@ public class CustomParser  {
 		return mediaId;
 	}
 
-	public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
+    public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
 		
 			String filePath1 = filePath+"index.ecml";
 			String assetDir = assetFolder+"assets";

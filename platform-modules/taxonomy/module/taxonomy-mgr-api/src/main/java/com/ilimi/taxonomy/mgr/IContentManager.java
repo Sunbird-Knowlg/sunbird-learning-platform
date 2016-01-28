@@ -27,9 +27,9 @@ public interface IContentManager {
 
 	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir);
 	
-	Response  getExtractContent(String taxonomyId ,String contentId);
+	Response  extract(String taxonomyId ,String contentId);
 	
-	Response  getParseContent(String taxonomyId ,String contentId);
+	Response  publish(String taxonomyId ,String contentId);
 
 	Response bundle(Request request);
 

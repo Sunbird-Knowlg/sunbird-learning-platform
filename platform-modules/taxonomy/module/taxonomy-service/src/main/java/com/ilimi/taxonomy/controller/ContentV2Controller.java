@@ -20,13 +20,16 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @Controller
 @RequestMapping("/v2/content")
 public class ContentV2Controller extends BaseController {
-	private static Logger LOGGER = LogManager.getLogger(ContentV2Controller.class.getName());
+
+    private static Logger LOGGER = LogManager.getLogger(ContentV2Controller.class.getName());
+
     @Autowired
     private ContentController contentController;
-    
+
     @Autowired
     private IContentManager contentManager;
-    
+
+    private String graphId = "domain";
 
     @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
@@ -35,23 +38,34 @@ public class ContentV2Controller extends BaseController {
             @RequestHeader(value = "user-id") String userId) {
         return contentController.upload(id, file, "domain", userId, null);
     }
-    
-    @RequestMapping(value = "/publish", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> publish(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-    		@RequestParam(value = "contentId", required = true)  String contentId) {
-    	  String apiId = "content.publish";
-    	  LOGGER.info("getParseContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
-    	  Response response = contentManager.getParseContent(taxonomyId, contentId);
-        return getResponseEntity(response, apiId, null);
+    public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.publish";
+        LOGGER.info("Publish content | Content Id : " + contentId);
+        try {
+            Response response = contentManager.publish(graphId, contentId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Publish | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
     }
-    @RequestMapping(value = "/extract", method = RequestMethod.GET)
+
+    @RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> extract(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-    		@RequestParam(value = "contentId", required = true)  String contentId) {
-    	  String apiId = "content.extract";
-    	  LOGGER.info("getExtractContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
-    	  Response response = contentManager.getExtractContent(taxonomyId, contentId);
-        return getResponseEntity(response, apiId, null);
+    public ResponseEntity<Response> extract(@PathVariable(value = "id") String contentId,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.extract";
+        LOGGER.info("Extract content | Content Id : " + contentId);
+        try {
+            Response response = contentManager.extract(graphId, contentId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Extract | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
     }
 }

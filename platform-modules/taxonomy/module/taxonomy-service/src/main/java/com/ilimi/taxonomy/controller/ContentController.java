@@ -373,36 +373,4 @@ public class ContentController extends BaseController {
         return request;
     }
     
-    @RequestMapping(value = "/publish", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> publish(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-    		@RequestParam(value = "contentId", required = true)  String contentId) {
-    	  String apiId = "content.publish";
-    	  LOGGER.info("getParseContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
-    	  try {
-    		  Response response = contentManager.getParseContent(taxonomyId, contentId);
-    		  LOGGER.info("Publish | Response: " + response);
-    	        return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Publish | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-		}
-    	  
-    }
-    @RequestMapping(value = "/extract", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> extract(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-    		@RequestParam(value = "contentId", required = true)  String contentId) {
-    	  String apiId = "content.extract";
-    	  LOGGER.info("getExtractContent has Taxonomy Id :: " + taxonomyId + "Content Id : " + contentId );
-    	  try {
-    		  Response response = contentManager.getExtractContent(taxonomyId, contentId);
-    		  LOGGER.info("Extract | Response: " + response);
-    	        return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			LOGGER.error("Extract | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-		}
-    	 
-    }
 }
