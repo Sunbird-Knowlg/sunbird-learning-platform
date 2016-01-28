@@ -17,6 +17,8 @@ public class WordModel {
 	String homonymOfWordId = null;
 	String meronymOfWordId = null;
 	Integer totalCitation = null;
+	String orthographicComplexity = null;
+	String phonologicComplexity = null;
 	Map<String, Integer> citationBySourceType = null;
 	Map<String, Integer> citationBySource = null;
 	Map<String, Integer> citationByPOS = null;
@@ -164,6 +166,22 @@ public class WordModel {
 
 	public void setTotalCitation(Integer totalCitation) {
 		this.totalCitation = totalCitation;
+	}
+	
+	public String getOrthographicComplexity() {
+		return orthographicComplexity;
+	}
+
+	public void setOrthographicComplexity(String orthographicComplexity) {
+		this.orthographicComplexity = orthographicComplexity;
+	}
+
+	public String getPhonologicComplexity() {
+		return phonologicComplexity;
+	}
+
+	public void setPhonologicComplexity(String phonologicComplexity) {
+		this.phonologicComplexity = phonologicComplexity;
 	}
 	
 }
