@@ -21,7 +21,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -79,8 +78,8 @@ public class CustomParser  {
 	public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
 		
 			String filePath1 = filePath+"index.ecml";
-			String saveDir = assetFolder+"assets";
-			File file1 = new File(saveDir);
+			String assetDir = assetFolder+"assets";
+			File file1 = new File(assetDir);
 			if (!file1.exists()) {
 				file1.mkdir();
 			}
@@ -92,7 +91,7 @@ public class CustomParser  {
 	            Document doc = dBuilder.parse(xmlFile);
 	            doc.getDocumentElement().normalize();
 	            //update attribute value
-	            updateAttributeValue(doc , saveDir,mediaIdURLMap);
+	            updateAttributeValue(doc , assetDir,mediaIdURLMap);
 	            //write the updated document to file or console
 	            doc.getDocumentElement().normalize();
 	            TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -141,6 +140,12 @@ public class CustomParser  {
           
         }
     }
+    /**
+     * Read any type of file
+     * @author Rajiv
+     * @param File type
+     * @return text, String Type
+     * */
     public static String readFile(File file){
     	String text = "";
     	try (FileInputStream fis = new FileInputStream(file);){ 
@@ -151,19 +156,50 @@ public class CustomParser  {
     	}
     	return text;
     }
-   /* 
-    public static void main(String[] args) {
-		File file = new File("C:\\ilimi\\download\\temp\\index.ecml");
-		String text = readFile(file);
-		
-		try {
-    		File file1 = new File("C:\\ilimi\\download\\temp2\\index.ecml");
-    		if (!file1.exists()) {
-				file1.mkdir();
+    
+    
+    /**
+     * This Method Copy Data and Item Json into ecml as CDATA
+     * @author Rajiv
+     * @param filePath 
+     * @param type : items or data
+     * **/
+    public static void updateJsonInEcml(String filePath,final String type){
+    	try {
+    		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    		Document doc = docBuilder.parse(filePath);
+    		NodeList attrList = doc.getElementsByTagName("controller");
+    		for (int i = 0; i < attrList.getLength(); i++) {
+    			//element = (Element) attrList.item(i);
+    			Element controller =  (Element) attrList.item(i);
+    			if (controller.getAttribute("type").equalsIgnoreCase(type)) {
+    				controller =  (Element) attrList.item(i);
+    				File file = new File(filePath);
+    				String nameOfJsonFile = controller.getAttribute("id");
+    				String itemJsonPath = file.getParent()+"//items//"+nameOfJsonFile+".json";
+    				File jsonFile = new File(itemJsonPath);
+    				if (jsonFile.exists()) {
+    					controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
+					}
+				}
 			}
-			FileUtils.writeStringToFile(file1, text);
-		} catch (IOException e) {
+    		doc.getDocumentElement().normalize();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(filePath));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.transform(source, result);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	}*/
+    }
+    
+    public static void main(String[] args) {
+		//C:\ilimi\StoryFolder\1452487631391_PrathamStories_Day_1_JAN_9_2016\items//C:\\ilimi\\download\\test\\index.ecml", "items
+    	updateJsonInEcml("C:\\ilimi\\StoryFolder\\1452487631391_PrathamStories_Day_1_JAN_9_2016\\index.ecml", "items");
+	}
+    
+    
 }
