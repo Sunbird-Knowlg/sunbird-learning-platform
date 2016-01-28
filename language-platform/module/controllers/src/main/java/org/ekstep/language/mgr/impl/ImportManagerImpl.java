@@ -195,14 +195,54 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return lstMap;
 	}
 	
-	private Response callGetIndexInfo(List<WordModel> lstWord) {
+	private Response callGetIndexInfo(String languageId, List<WordModel> lstWord) {
 		if (lstWord.size() > 0) {
 			List<String> lstLemma = getWordLemmaList(lstWord);
+			if (lstLemma.size() > 0) {
+				Request request = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(), LanguageOperations.getIndexInfo.name());
+				request.put(LanguageParams.words.name(), lstLemma);
+				Response getIndexInfoRes = getLanguageResponse(request, LOGGER);
+	            return getIndexInfoRes;
+			}
 		}
 		return null;
 	}
 	
-	private List<WordModel> addCitattionCountInfoInWordList(List<WordModel> lstWord) {
+	@SuppressWarnings("unchecked")
+	private List<WordModel> addCitattionCountInfoInWordList(String languageId, List<WordModel> lstWord) {
+		if (lstWord.size() > 0) {
+			Response getIndexInfoResponse = callGetIndexInfo(languageId, lstWord);
+			if (checkError(getIndexInfoResponse)) {
+	            return null;
+	        } else {
+	            Response response = copyResponse(getIndexInfoResponse);
+	            Map<String, Object> map = (Map<String, Object>) response.get(LanguageParams.index_info.name());
+	            for (String key : map.keySet()) {
+	            	for (WordModel word : lstWord) {
+	            		try {
+		            		if (word.getWordLemma().trim() == key.trim()) {
+		            			Map<String, Object> citationMap = (Map<String, Object>) map.get(LanguageParams.citations.name());
+		            			Map<String, Object> citationBySourceType = (Map<String, Object>) citationMap.get(LanguageParams.source_type.name());
+		            			Map<String, Object> citationBySource = (Map<String, Object>) citationMap.get(LanguageParams.source.name());
+		            			Map<String, Object> citationByPOS = (Map<String, Object>) citationMap.get(LanguageParams.pos.name());
+		            			Map<String, Object> citationByGrad = (Map<String, Object>) citationMap.get(LanguageParams.grad.name());
+		            			word.setWordLemma(map.get(LanguageParams.root_word.name()).toString().trim());
+		            			word.setIdentifier(map.get(LanguageParams.identifier.name()).toString());
+		            			word.setTotalCitation(Integer.parseInt(citationMap.get(LanguageParams.total.name()).toString()));
+//		            			word.setCitationBySourceType(citationBySourceType);
+//		            			word.setCitationBySource(citationBySource);
+//		            			word.setCitationByPOS(citationByPOS);
+//		            			word.setCitationByGrad(citationByGrad);
+		            		}
+	            		} catch(Exception e) {
+	            			e.printStackTrace();
+	            			continue; 
+	            		}
+	            	}
+	            }
+	            return null;
+	        }
+		}
 		return null;
 	}
 	
