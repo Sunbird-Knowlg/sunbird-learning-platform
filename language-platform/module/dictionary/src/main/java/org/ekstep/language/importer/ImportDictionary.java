@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,7 +19,7 @@ import java.util.regex.Pattern;
 import org.apache.commons.collections.*;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.ekstep.language.enums.Enums.ObjectType;
-import org.ekstep.language.enums.Enums.SourceType;
+import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
 
@@ -42,9 +44,9 @@ public class ImportDictionary {
 //			ex.printStackTrace();
 //		}
 //	}
-
+    
 	@SuppressWarnings("unchecked")
-	protected void importIndoWordNetData(String languageId, SourceType sourceType, String csvFileUrl) {
+	protected DictionaryObject importIndoWordNetData(String languageId, String sourceType, InputStream stream) {
 		double  startTime = System.currentTimeMillis();
 		System.out.println("Language-Platform | Importer | IWN | Start Time : " + startTime);
 		// TODO: All the Codes should come from Configuration
@@ -70,11 +72,12 @@ public class ImportDictionary {
 		String[] synsetDetails = null;
 		String[] synsetMemberWordList = null;
 		String[] meaningAndUsage = null;
-		List<WordModel> wordList = new ArrayList<WordModel>();
-		List<SynsetModel> synsetList = new ArrayList<SynsetModel>();
+		List<WordModel> lstWord = new ArrayList<WordModel>();
+		List<SynsetModel> lstSynset = new ArrayList<SynsetModel>();
+		DictionaryObject dictionaryObject = new DictionaryObject();
 		try {
-
-			br = new BufferedReader(new FileReader(csvFileUrl));
+			Reader reader = new InputStreamReader(stream);
+			br = new BufferedReader(reader);
 			while ((line = br.readLine()) != null) {
 				try {
 
@@ -119,7 +122,7 @@ public class ImportDictionary {
 						   }
 					};
 					// Search for duplicate word in list
-					List<WordModel> results = (List<WordModel>) CollectionUtils.select(wordList, condition);
+					List<WordModel> results = (List<WordModel>) CollectionUtils.select(lstWord, condition);
 
 					// New Word 
 					if (results.size() <= 0) {
@@ -138,7 +141,7 @@ public class ImportDictionary {
 						word.setHypernymOfWordId(getSynsetIdByRelation(HYPERNYM_CODE, line, ObjectType.Word, languageId));
 						word.setHomonymOfWordId(getSynsetIdByRelation(HOLONYM_CODE, line, ObjectType.Word, languageId));
 						word.setMeronymOfWordId(getSynsetIdByRelation(MERONYM_CODE, line, ObjectType.Word, languageId));
-						wordList.add(word);
+						lstWord.add(word);
 					} else {
 						// Duplicate Word
 						System.out.println("Importer Module | Duplicate Word - " + currentWord);
@@ -146,7 +149,7 @@ public class ImportDictionary {
 						for (WordModel result : results) {
 							identifier = result.getIdentifier();
 							if (null != identifier) {
-								for (WordModel word : wordList) {
+								for (WordModel word : lstWord) {
 									if (word.getIdentifier().equals(identifier)) {
 										word.setMemberOfSynsetId(word.getMemberOfSynsetId() + MULTI_SYNSET_SAPERATOR + languageId + ':' + "S:" + synsetDetails[IDX_ID_IN_SOURCE]);
 										CSVMemeberWordsId += word.getIdentifier() + CSV_SEPARATOR;
@@ -158,18 +161,20 @@ public class ImportDictionary {
 					}
 				}
 				synset.setWordMember(CSVMemeberWordsId);
-				synsetList.add(synset);
+				lstSynset.add(synset);
 				} catch (ArrayIndexOutOfBoundsException e) {
 					e.printStackTrace();
 					continue;
 				}
 			}
-			writeSynsetsToCSV(synsetList);
-			writeWordsToCSV(wordList);
+			dictionaryObject.setLstSynset(lstSynset);
+			dictionaryObject.setLstWord(lstWord);
+			writeSynsetsToCSV(lstSynset);
+			writeWordsToCSV(lstWord);
 			double endTime = System.currentTimeMillis();
 			System.out.println("Language-Platform | Importer | IWN | End Time : " + endTime);
 			System.out.println("Language-Platform | Importer | IWN | Total Elapsed Time : " + (endTime - startTime));
-
+			return dictionaryObject;
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		} catch (IOException e) {
@@ -185,25 +190,29 @@ public class ImportDictionary {
 		}
 
 		System.out.println("Done");
+		return null;
 	}
-
-	protected void importData(String languageId, SourceType sourceType, String csvFileUrl) {
+	
+	public DictionaryObject importData(String languageId, String sourceType, InputStream stream) {
 		if (!isValidLanguageId(languageId)) {
 			throw new IllegalArgumentException("Invalid Language Id.");
 		}else if (!isValidSourceType(sourceType)) {
 			throw new IllegalArgumentException("Invalid Data Source Type.");
 		}else{
 			try {
+				DictionaryObject dictionaryObject = new DictionaryObject();
 				switch (sourceType) {
-				case IndoWordNet:
-					importIndoWordNetData(languageId, sourceType, csvFileUrl);
+				case "IndoWordNet":
+					dictionaryObject = importIndoWordNetData(languageId, sourceType, stream);
 					break;
 
 				default:
 					break;
 				}
+				return dictionaryObject;
 			} catch(Exception e) {}
 		}
+		return null;
 	}
 
 	protected boolean isValidLanguageId(String languageId) {
@@ -215,7 +224,7 @@ public class ImportDictionary {
 		}
 	}
 
-	protected boolean isValidSourceType(SourceType sourceType) {
+	protected boolean isValidSourceType(String sourceType) {
 		try {
 			return true;
 		} catch(Exception e) {
@@ -266,7 +275,7 @@ public class ImportDictionary {
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(synset.getWordMember() == null ? "" : StringEscapeUtils.escapeCsv(synset.getWordMember()));
                 oneLine.append(CSV_SEPARATOR);
-                oneLine.append(synset.getHyponymSynsetId() == null ? "" : StringEscapeUtils.escapeCsv(synset.getAntonymSynsetId()));
+                oneLine.append(synset.getAntonymSynsetId() == null ? "" : StringEscapeUtils.escapeCsv(synset.getAntonymSynsetId()));
                 oneLine.append(CSV_SEPARATOR);
                 oneLine.append(synset.getHyponymSynsetId() == null ? "" : StringEscapeUtils.escapeCsv(synset.getHyponymSynsetId()));
                 oneLine.append(CSV_SEPARATOR);

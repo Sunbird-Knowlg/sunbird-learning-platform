@@ -2,7 +2,8 @@ package org.ekstep.language.router;
 
 import java.util.concurrent.TimeUnit;
 
-import com.ilimi.common.enums.TaxonomyErrorCodes;
+import org.ekstep.language.common.enums.LanguageErrorCodes;
+
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 
@@ -30,7 +31,7 @@ public class LanguageRequestRouterPool {
     
     public static ActorRef getRequestRouter() {
         if (null == actor) {
-            throw new ServerException(TaxonomyErrorCodes.ERR_TAXONOMY_REQUEST_ROUTER_NOT_FOUND.name(), "Request Router not found");
+            throw new ServerException(LanguageErrorCodes.ERR_LANGUAGE_REQUEST_ROUTER_NOT_FOUND.name(), "Request Router not found");
         }
         return actor;
     }
