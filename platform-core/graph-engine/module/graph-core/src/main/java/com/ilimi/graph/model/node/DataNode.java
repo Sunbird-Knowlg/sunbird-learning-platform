@@ -694,8 +694,10 @@ public class DataNode extends AbstractNode {
             } else if (StringUtils.equalsIgnoreCase("date", dataType)) {
                 if (value instanceof Date)
                     value = setPropertyValue(def, propName, DateUtils.format((Date) value));
-                else
-                    value = setPropertyValue(def, propName, DateUtils.parse(value.toString()));
+                else {
+                    value = DateUtils.format(DateUtils.parse(value.toString()));
+                    value = setPropertyValue(def, propName, value);
+                }   
             } else if (StringUtils.equalsIgnoreCase("select", dataType)) {
                 if (null == range || range.isEmpty())
                     messages.add("Metadata " + propName + " should be one of: " + range);

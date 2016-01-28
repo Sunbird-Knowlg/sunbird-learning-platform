@@ -505,7 +505,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 } catch (ResourceNotFoundException e) {
                     if (null != collection && StringUtils.isNotBlank(collection.getIdentifier())) {
                         startNode = graphDb.createNode(NODE_LABEL);
-                        startNode.setProperty(AuditProperties.createdOn.name(), date);
                         startNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), collection.getIdentifier());
                         startNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), collection.getNodeType());
                         if (StringUtils.isNotBlank(collection.getObjectType()))
@@ -517,6 +516,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                                 startNode.setProperty(entry.getKey(), entry.getValue());
                             }
                         }
+                        startNode.setProperty(AuditProperties.createdOn.name(), date);
                     } else {
                         throw new ClientException(GraphDACErrorCodes.ERR_CREATE_COLLECTION_MISSING_REQ_PARAMS.name(),
                                 "Failed to create Collection node");
@@ -688,7 +688,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     nodesCount++;
                 }
-                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty("identifier", node.getIdentifier());
                 neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
@@ -704,6 +703,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         }
                     }
                 }
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 existingNodes.put(node.getIdentifier(), neo4jNode);
             }
         }

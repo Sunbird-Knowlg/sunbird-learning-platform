@@ -74,8 +74,8 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     if (StringUtils.isNotBlank(node.getObjectType()))
                         neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                 }
-                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 setNodeData(graphDb, node, neo4jNode);
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 tx.success();
                 tx.close();
                 OK(GraphDACParams.node_id.name(), node.getIdentifier(), getSender());
@@ -106,11 +106,11 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     node.setIdentifier(graphId + "_" + neo4jNode.getId());
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
-                neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
-                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 if (StringUtils.isNotBlank(node.getObjectType()))
                     neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                 setNodeData(graphDb, node, neo4jNode);
+                neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 tx.success();
                 tx.close();
                 OK(GraphDACParams.node_id.name(), node.getIdentifier(), getSender());
@@ -136,8 +136,8 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
-                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 setNodeData(graphDb, node, neo4jNode);
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
                 tx.close();
                 OK(GraphDACParams.node_id.name(), node.getIdentifier(), getSender());
@@ -186,7 +186,6 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         neo4jNode = graphDb.createNode(NODE_LABEL);
                         neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     }
-                    neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                     if (StringUtils.isBlank(node.getIdentifier()))
                         node.setIdentifier(graphId + "_" + neo4jNode.getId());
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -194,6 +193,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                     if (StringUtils.isNotBlank(node.getObjectType()))
                         neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
                     setNodeData(graphDb, node, neo4jNode);
+                    neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 }
                 tx.success();
                 OK(getSender());
@@ -222,12 +222,12 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
-                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.acquireWriteLock(node);
                 if (null == property.getPropertyValue())
                     node.removeProperty(property.getPropertyName());
                 else
                     node.setProperty(property.getPropertyName(), property.getPropertyValue());
+                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
                 OK(getSender());
             } catch (Exception e) {
