@@ -229,7 +229,6 @@ public class WordUtil extends BaseManager {
 					} else {
 						Map<String, Object> wordMap = new HashMap<String, Object>();
 						wordMap.put("lemma", citation.getRootWord());
-						wordMap.put("code", citation.getRootWord());
 						List<Map<String, Object>> wordList = new ArrayList<Map<String, Object>>();
 						wordList.add(wordMap);
 						Request request = new Request();
