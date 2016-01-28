@@ -624,7 +624,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         long timeStempInMiliSec = System.currentTimeMillis();
         File olderName = new File(zipFilePathName);
         if (olderName.exists() && olderName.isFile()) {
-            File newName = new File(sourceFolder + "\\" + timeStempInMiliSec + olderName.getName());
+            File newName = new File(sourceFolder + File.separator + timeStempInMiliSec + olderName.getName());
             olderName.renameTo(newName);
             response = upload(contentId, taxonomyId, newName, folderName);
         }
@@ -650,7 +650,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             // directory is empty, then delete it
             if (file.list().length == 0) {
                 file.delete();
-                System.out.println("Directory is deleted : " + file.getAbsolutePath());
             } else {
                 // list all the directory contents
                 String files[] = file.list();
@@ -663,14 +662,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 // check the directory again, if empty then delete it
                 if (file.list().length == 0) {
                     file.delete();
-                    System.out.println("Directory is deleted : " + file.getAbsolutePath());
                 }
             }
 
         } else {
             // if file, then delete it
             file.delete();
-            System.out.println("File is deleted : " + file.getAbsolutePath());
         }
     }
 
@@ -733,7 +730,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     @SuppressWarnings("unchecked")
     public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
         String filePath = saveDir + "index.ecml";
-        String uploadFilePath = saveDir + "assets\\";
+        String uploadFilePath = saveDir + "assets" + File.separator;
         List<String> mediaIdNotUploaded = new ArrayList<>();
         Map<String, String> mediaIdURL = new HashMap<String, String>();
         UnzipUtility unzipper = new UnzipUtility();
@@ -742,7 +739,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             unzipper.unzip(zipFilePath, saveDir);
             Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath, saveDir);
             Set<String> mediaIdList1 = mediaIdMap.keySet();
-            List<String> mediaIdList = new ArrayList<String>(mediaIdList1);
+            List<String> mediaIdList = new ArrayList<String>();
+            if (null != mediaIdList1 && !mediaIdList1.isEmpty())
+                mediaIdList.addAll(mediaIdList1);
             if (mediaIdList != null && !mediaIdList.isEmpty()) {
                 Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
                         GraphDACParams.node_ids.name(), mediaIdList);
@@ -756,83 +755,89 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                         }
                     }
                 }
-                if (mediaIdFromNode != null && !mediaIdFromNode.isEmpty()) {
-                    for (int i = 0; i < mediaIdFromNode.size(); i++) {
-                        for (String mediaId : mediaIdList) {
-                            if (!mediaIdFromNode.contains(mediaId)) {
-                                if (!mediaIdNotUploaded.contains(mediaId)) {
-                                    mediaIdNotUploaded.add(mediaId);
-                                }
-                                // Updating Node When AWS3 URL is blank
-                                if (mediaNodes.get(i).getMetadata().get("downloadUrl") == null) {
-                                    long timeStempInMiliSec = System.currentTimeMillis();
-                                    File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
-                                    if (olderName.exists() && olderName.isFile()) {
-                                        String parentFolderName = olderName.getParent();
-                                        File newName = new File(
-                                                parentFolderName + "\\" + timeStempInMiliSec + olderName.getName());
-                                        olderName.renameTo(newName);
-                                        String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
-                                        mediaIdURL.put(mediaId, url[1]);
-                                        Node item = mediaNodes.get(i);
-                                        item.setObjectType("Story");
-                                        Map<String, Object> metadata = new HashMap<String, Object>();
-                                        metadata.put("name", mediaId);
-                                        metadata.put("code", mediaId);
-                                        metadata.put("body", "<content></content>");
-                                        metadata.put("status", "Live");
-                                        metadata.put("owner", "ekstep");
-                                        metadata.put("downloadUrl", url[1]);
-                                        if (metadata.get("pkgVersion") == null) {
-                                            metadata.put("pkgVersion", 1);
-                                        } else {
-                                            int version = (Integer) metadata.get("pkgVersion") + 1;
-                                            metadata.put("pkgVersion", version);
-                                        }
-                                        Object mimeType = getMimeType(new File(olderName.getName()));
-                                        metadata.put("mimeType", mimeType);
-                                        item.setMetadata(metadata);
-                                        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-                                                "validateNode");
-                                        validateReq.put(GraphDACParams.node.name(), item);
-                                        Response validateRes = getResponse(validateReq, LOGGER);
-                                        if (checkError(validateRes)) {
-                                            return validateRes;
-                                        } else {
-                                            Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-                                                    "updateDataNode");
-                                            updateReq.put(GraphDACParams.node.name(), item);
-                                            updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
-                                            getResponse(updateReq, LOGGER);
-                                        }
+                if (mediaIdList != null && !mediaIdList.isEmpty()) {
+                    for (String mediaId : mediaIdList) {
+                        if (!mediaIdFromNode.contains(mediaId)) {
+                            if (!mediaIdNotUploaded.contains(mediaId)) {
+                                mediaIdNotUploaded.add(mediaId);
+                            }
+                        }
+                    }
+                    if (null != mediaNodes) {
+                        for (Node item : mediaNodes) {
+                            if (null == item.getMetadata())
+                                item.setMetadata(new HashMap<String, Object>());
+                            // Updating Node When AWS3 URL is blank
+                            if (item.getMetadata().get("downloadUrl") == null) {
+                                long timeStempInMiliSec = System.currentTimeMillis();
+                                File olderName = new File(uploadFilePath + mediaIdMap.get(item.getIdentifier()));
+                                if (olderName.exists() && olderName.isFile()) {
+                                    String parentFolderName = olderName.getParent();
+                                    File newName = new File(
+                                            parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
+                                    olderName.renameTo(newName);
+                                    String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                                    mediaIdURL.put(item.getIdentifier(), url[1]);
+                                    item.setObjectType("Content");
+                                    Map<String, Object> metadata = new HashMap<String, Object>();
+                                    metadata.put("name", item.getIdentifier());
+                                    metadata.put("code", item.getIdentifier());
+                                    metadata.put("body", "<content></content>");
+                                    metadata.put("status", "Live");
+                                    metadata.put("owner", "ekstep");
+                                    metadata.put("contentType", "Asset");
+                                    metadata.put("downloadUrl", url[1]);
+                                    if (metadata.get("pkgVersion") == null) {
+                                        metadata.put("pkgVersion", 1);
+                                    } else {
+                                        int version = (Integer) metadata.get("pkgVersion") + 1;
+                                        metadata.put("pkgVersion", version);
                                     }
-
+                                    Object mimeType = getMimeType(new File(olderName.getName()));
+                                    metadata.put("mimeType", mimeType);
+                                    item.setMetadata(metadata);
+                                    Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                            "validateNode");
+                                    validateReq.put(GraphDACParams.node.name(), item);
+                                    Response validateRes = getResponse(validateReq, LOGGER);
+                                    if (checkError(validateRes)) {
+                                        System.out.println("Asset creation failed: " + item.getIdentifier());
+                                        return validateRes;
+                                    } else {
+                                        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                                "updateDataNode");
+                                        updateReq.put(GraphDACParams.node.name(), item);
+                                        updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
+                                        getResponse(updateReq, LOGGER);
+                                    }
                                 }
+
                             }
                         }
                     }
                     if (mediaIdNotUploaded != null && !mediaIdNotUploaded.isEmpty()) {
-                        System.out.println("esle");
+                        System.out.println("else");
                         for (String mediaId : mediaIdNotUploaded) {
                             long timeStempInMiliSec = System.currentTimeMillis();
                             File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
                             if (olderName.exists() && olderName.isFile()) {
                                 String parentFolderName = olderName.getParent();
                                 File newName = new File(
-                                        parentFolderName + "\\" + timeStempInMiliSec + olderName.getName());
+                                        parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
                                 olderName.renameTo(newName);
                                 String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
                                 mediaIdURL.put(mediaId, url[1]);
                                 // Creating Node
                                 Node item = new Node();
                                 item.setIdentifier(mediaId);
-                                item.setObjectType("Story");
+                                item.setObjectType("Content");
                                 Map<String, Object> metadata = new HashMap<String, Object>();
                                 metadata.put("name", mediaId);
                                 metadata.put("code", mediaId);
                                 metadata.put("body", "<content></content>");
                                 metadata.put("status", "Live");
                                 metadata.put("owner", "ekstep");
+                                metadata.put("contentType", "Asset");
                                 metadata.put("downloadUrl", url[1]);
                                 if (metadata.get("pkgVersion") == null) {
                                     metadata.put("pkgVersion", 1);
@@ -843,13 +848,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 Object mimeType = getMimeType(new File(olderName.getName()));
                                 metadata.put("mimeType", mimeType);
                                 item.setMetadata(metadata);
-
                                 // Creating a graph.
                                 Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                         "validateNode");
                                 validateReq.put(GraphDACParams.node.name(), item);
                                 Response validateRes = getResponse(validateReq, LOGGER);
                                 if (checkError(validateRes)) {
+                                    System.out.println("Asset creation failed: " + mediaId);
                                     return validateRes;
                                 } else {
                                     Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
