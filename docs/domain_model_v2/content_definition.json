@@ -136,7 +136,7 @@
             "description": "",
             "category": "General",
             "displayProperty": "Editable",
-            "range": ["content", "collection", "image", "video", "audio", "document", "pdf", "text", "other"],
+            "range": ["content", "collection", "image", "video", "audio", "ecml", "document", "pdf", "text", "other"],
             "defaultValue": "content",
             "renderingHints": "{ 'inputType': 'text',  'order': 5 }",
             "indexed": false,
@@ -436,7 +436,7 @@
             "description": "",
             "category": "General",
             "displayProperty": "Editable",
-            "range": ["Story", "Worksheet", "Game", "Simulation", "Puzzle", "Diagnostic", "Collection"],
+            "range": ["Story", "Worksheet", "Game", "Simulation", "Puzzle", "Diagnostic", "Collection", "Asset"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
             "indexed": true,
@@ -870,12 +870,6 @@
             "description": "Narrative"
         }, {
             "name": "Template",
-            "description": "Usage"
-        }, {
-            "name": "Asset",
-            "description": "Usage"
-        }, {
-            "name": "Character",
             "description": "Usage"
         }, {
             "name": "Numeracy",
