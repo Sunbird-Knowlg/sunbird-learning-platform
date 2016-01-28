@@ -18,7 +18,8 @@ public class BaseTest
 	 */
 	public void setURI()
 	{
-		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+		baseURI ="http://localhost:8080/taxonomy-service";
 	}
 	/**
 	 * adds the given content_type and user_id to the request header

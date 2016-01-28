@@ -102,6 +102,7 @@ public class GetDomainsTests extends BaseTest
 		
 	}
 	
+	/***
 	@Test
 	public void searchDomains()
 	{
@@ -118,5 +119,6 @@ public class GetDomainsTests extends BaseTest
 			//spec(get200ResponseSpec()).
 			body("id", equalTo("orchestrator.searchDomainObjects"));
 	}
+	***/
 }
 

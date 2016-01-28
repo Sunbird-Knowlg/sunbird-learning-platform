@@ -1,5 +1,6 @@
 package org.ekstep.platform.importdata;
 
+
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
@@ -24,6 +25,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.engine.router.RequestRouter;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
+
 
 public class GraphImportTest {
 
@@ -83,14 +85,16 @@ public class GraphImportTest {
 
             Object obj = Await.result(req, t.duration());
             Response response = (Response) obj;
-//            OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
+            //OutputStreamValue osV = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
             System.out.println(response.getResult());
-//            if(osV == null) {
-//                System.out.println(response.getResult());
-//            } else {
-//                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
-//                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
-//            }
+            /***
+            if(osV == null) {
+                System.out.println(response.getResult());
+            } else {
+                ByteArrayOutputStream os = (ByteArrayOutputStream) osV.getOutputStream();
+                FileUtils.writeByteArrayToFile(new File("Literacy-GraphEngine-WithResult.csv"), os.toByteArray());
+            }
+            ***/
             System.out.println(message+" imported.");
             Thread.sleep(10000);
         } catch (Exception e) {

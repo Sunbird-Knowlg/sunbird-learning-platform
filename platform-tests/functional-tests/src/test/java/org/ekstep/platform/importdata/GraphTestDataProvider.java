@@ -7,9 +7,9 @@ public class GraphTestDataProvider {
     @DataProvider(name="definitions")
     public static Object[][] getDefinitionData() {
         return new Object[][]{
-                {"domain", "domain_definition_v2.json", "Literacy Subject Definition"},
-                {"domain", "dimension_definition_v2.json", "Literacy Game Definition"},
-                {"domain", "concept_definition_v2.json", "Literacy Assessments Definition"}             
+                {"domain", "domain_definition_v2.json", "Domain Definition"},
+                {"domain", "dimension_definition_v2.json", "Dimension Definition"},
+                {"domain", "concept_definition_v2.json", "Concept Definition"}             
                 
        };
     }
