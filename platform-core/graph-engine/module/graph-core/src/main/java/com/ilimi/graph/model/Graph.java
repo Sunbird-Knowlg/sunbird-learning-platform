@@ -694,6 +694,21 @@ public class Graph extends AbstractDomainObject {
                     e);
         }
     }
+    
+    public void traverseSubGraph(Request req) {
+        try {
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+            request.setOperation("traverseSubGraph");
+            request.copyRequestValueObjects(req.getRequest());
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            manager.returnResponse(response, getParent());
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
+        }
+    }
 
     public void getSubGraph(Request req) {
         try {

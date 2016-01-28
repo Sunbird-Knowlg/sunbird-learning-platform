@@ -32,5 +32,7 @@ public interface IGraphDACSearchMgr {
 
     void traverse(Request request);
     
+    void traverseSubGraph(Request request);
+    
     void getSubGraph(Request request);
 }

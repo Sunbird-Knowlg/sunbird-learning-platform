@@ -595,6 +595,31 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             }
         }
     }
+    
+    @Override
+    public void traverseSubGraph(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        Traverser traverser = (Traverser) request.get(GraphDACParams.traversal_description.name());
+        if (!validateRequired(traverser)) {
+            throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
+        } else {
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                tx = graphDb.beginTx();
+                Graph subGraph = traverser.getSubGraph();
+                tx.success();
+                OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
+            } catch (Exception e) {
+                if (null != tx)
+                    tx.failure();
+                ERROR(e, getSender());
+            } finally {
+                if (null != tx)
+                    tx.close();
+            }
+        }
+    }
 
     @Override
     public void getSubGraph(Request request) {
