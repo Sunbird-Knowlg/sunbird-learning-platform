@@ -1,5 +1,7 @@
 package org.ekstep.language.models;
 
+import java.util.Map;
+
 public class WordModel {
 	String identifier = null;
 	String languageId = null;
@@ -14,6 +16,11 @@ public class WordModel {
 	String hypernymOfWordId = null;
 	String homonymOfWordId = null;
 	String meronymOfWordId = null;
+	Integer totalCitation = null;
+	Map<String, Integer> citationBySourceType = null;
+	Map<String, Integer> citationBySource = null;
+	Map<String, Integer> citationByPOS = null;
+	Map<String, Integer> citationByGrad = null;
 	
 	public String getIdentifier () {
 		return identifier;
@@ -117,6 +124,46 @@ public class WordModel {
 	
 	public void setMeronymOfWordId (String meronymOfWordId) {
 		this.meronymOfWordId = meronymOfWordId;
+	}
+	
+	public Map<String, Integer> getCitationBySourceType() {
+		return citationBySourceType;
+	}
+
+	public void setCitationBySourceType(Map<String, Integer> citationBySourceType) {
+		this.citationBySourceType = citationBySourceType;
+	}
+
+	public Map<String, Integer> getCitationBySource() {
+		return citationBySource;
+	}
+
+	public void setCitationBySource(Map<String, Integer> citationBySource) {
+		this.citationBySource = citationBySource;
+	}
+
+	public Map<String, Integer> getCitationByPOS() {
+		return citationByPOS;
+	}
+
+	public void setCitationByPOS(Map<String, Integer> citationByPOS) {
+		this.citationByPOS = citationByPOS;
+	}
+
+	public Map<String, Integer> getCitationByGrad() {
+		return citationByGrad;
+	}
+
+	public void setCitationByGrad(Map<String, Integer> citationByGrad) {
+		this.citationByGrad = citationByGrad;
+	}
+	
+	public Integer getTotalCitation() {
+		return totalCitation;
+	}
+
+	public void setTotalCitation(Integer totalCitation) {
+		this.totalCitation = totalCitation;
 	}
 	
 }
