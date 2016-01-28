@@ -574,8 +574,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return null;
 	}
-	/******************Rajiv Ranjan****************/
-
 
 	public  Response getParseContent(String taxonomyId ,String contentId){
 		Response response = new Response();
@@ -685,6 +683,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	public Response getExtractContent(String taxonomyId,String contentId){
+		Response updateRes =null;
 		ReadProperties readPro = new ReadProperties();
 		String tempFileLocation = "";
 		try {
@@ -723,12 +722,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), node);
 				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-				getResponse(updateReq, LOGGER);
+				updateRes =getResponse(updateReq, LOGGER);
 			}
 		}
-
-
-		return new Response();
+		return updateRes;
 	}
 	/**
 	 * This method unzip content folder
