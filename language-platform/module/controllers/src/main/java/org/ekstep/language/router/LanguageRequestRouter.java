@@ -65,6 +65,11 @@ public class LanguageRequestRouter extends UntypedActor {
         Props lexileMeasuresProps = Props.create(LexileMeasuresActor.class);
         ActorRef graphMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(lexileMeasuresProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(), graphMgr);
+        
+        Props importProps = Props.create(ImportActor.class);
+        ActorRef importMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(importProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.IMPORT_ACTOR.name(), importMgr);
+        
         Props indexesProps = Props.create(IndexesActor.class);
         ActorRef indexMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(indexesProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.INDEXES_ACTOR.name(), indexMgr);
