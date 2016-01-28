@@ -5,18 +5,19 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.model.CitationBean;
-import org.ekstep.language.util.ElasticSearchUtil;
-import org.ekstep.language.util.ParserUtil;
+import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.PropertiesUtil;
 import org.ekstep.language.util.WordUtil;
 
@@ -52,30 +53,33 @@ public class SSFParser {
 	}
 
 	public static void parseSsfFilesFolder(String folderPath,
-			String sourceType, String grade, String languageId) {
+			String sourceType, String source, String grade, String languageId) {
 		final File folder = new File(folderPath);
 		for (final File fileEntry : folder.listFiles()) {
 			if (fileEntry.isDirectory()) {
 				parseSsfFilesFolder(fileEntry.getAbsolutePath(), sourceType,
-						grade, languageId);
+						source, grade, languageId);
 			} else {
-				parseSsfFile(fileEntry.getAbsolutePath(), sourceType, grade,
-						languageId);
+				parseSsfFile(fileEntry.getAbsolutePath(), sourceType, source,
+						grade, languageId);
 			}
 		}
 	}
 
-	public static void parseSsfFile(String fileName, String sourceType,
-			String grade, String languageId) {
+	public static void parseSsfFile(String filePath, String sourceType,
+			String source, String grade, String languageId) {
 		String sentence = null;
 		BufferedReader br = null;
 		try {
+			File file = new File(filePath);
+			String fileName = file.getName();
+			fixFileFormat(filePath);
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
-					fileName), "UTF8"));
+					filePath), "UTF8"));
 			while ((sentence = br.readLine()) != null) {
-				addCitationsAndWordIndexToElasticSearch(
-						processSentence(sentence, sourceType, grade),
-						languageId);
+				wordUtil.addCitationsAndWordIndexToElasticSearch(
+						processSentence(sentence, sourceType, source, grade,
+								fileName), languageId);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -90,74 +94,38 @@ public class SSFParser {
 		}
 	}
 
-	public static void main(String args[]) {
-		String fileName = "C:\\data\\ssfFile.txt";
-		parseSsfFile(fileName, "Books", "1", "ta");
+	private static void fixFileFormat(String fileName) throws IOException {
+		Path path = Paths.get(fileName);
+		Charset charset = StandardCharsets.UTF_8;
+		String content = new String(Files.readAllBytes(path), charset);
+		content = content.replaceAll("\n", "");
+		content = content.replaceAll("<Sentence", "\n<Sentence");
+		content = content.replaceAll("\\x{A0}", " ");
+		// content = content.replaceAll("\\x{9}", " ");
+		Files.write(path, content.getBytes(charset));
 	}
 
-	private static void addCitationsAndWordIndexToElasticSearch(
-			List<CitationBean> citations, String language) {
-		try {
-			String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME
-					+ "_" + language;
-			String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"
-					+ language;
-			ObjectMapper mapper = new ObjectMapper();
-			ArrayList<String> citiationIndexes = new ArrayList<String>();
-			ArrayList<String> wordIndexes = new ArrayList<String>();
-			ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-			for (CitationBean citation : citations) {
-				String citationJson = mapper.writeValueAsString(citation);
-				citiationIndexes.add(citationJson);
-
-				String wordIdentifier = wordUtil.getWordIdentifier(language,
-						citation.getRootWord());
-				String wordIndexJson = wordUtil.getWordIndex(
-						citation.getRootWord(), citation.getRootWord(),
-						wordIdentifier, mapper);
-				// TODO
-				// modify
-				// later
-				if (wordIndexJson != null) {
-					wordIndexes.add(wordIndexJson);
-				}
-
-				wordIndexJson = null;
-				wordIdentifier = null;
-				wordIdentifier = wordUtil.getWordIdentifier(language,
-						citation.getWord());
-				wordIndexJson = wordUtil.getWordIndex(citation.getWord(),
-						citation.getRootWord(), wordIdentifier, mapper); // TODO
-				if (wordIndexJson != null) { //
-					wordIndexes.add(wordIndexJson);
-				}
-			}
-			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(
-					citationIndexName, Constants.CITATION_INDEX_TYPE,
-					citiationIndexes);
-			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(wordIndexName,
-					Constants.WORD_INDEX_TYPE, wordIndexes);
-		} catch (JsonGenerationException e) {
-			e.printStackTrace();
-		} catch (JsonMappingException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+	public static void main(String args[]) {
+		String fileName = "C:\\data\\testFolder\\test.txt";
+		parseSsfFile(fileName, "Books", "Scarlet", "1", "ka");
 	}
 
 	private static List<CitationBean> processSentence(String sentence,
-			String sourceType, String grade) {
+			String sourceType, String source, String grade, String fileName) {
 		String[] sentenceTokens = sentence.split(SENTENCE_SPLITTER);
 		ArrayList<String> enhancedSentenceTokens = enhanceSentenceTokens(sentenceTokens);
 		boolean wordFound = false;
 		String word = null;
+		String pos = null;
 		int tokenCountAfterWord = 0;
 		List<CitationBean> citationList = new ArrayList<CitationBean>();
 		for (String token : enhancedSentenceTokens) {
 			tokenCountAfterWord++;
 
 			if (isTagName(token)) {
+				if (wordFound && word != null) {
+					pos = token;
+				}
 				continue;
 			}
 			if (ignoreToken(token)) {
@@ -170,6 +138,7 @@ public class SSFParser {
 					|| (wordFound && tokenCountAfterWord > defaultTokenCountAfterWord)) {
 				wordFound = false;
 				word = null;
+				pos = null;
 				continue;
 			}
 			if (isSpecialCharacter(token)) {
@@ -185,16 +154,17 @@ public class SSFParser {
 									.split(ATTRIBUTES_SEPARATOR);
 							String rootWord = afAttributes[Constants.TAG_INDEX_ROOT_WORD]
 									.replace("'", "");
-							String category = afAttributes[Constants.TAG_INDEX_CATEGORY];
-
-							CitationBean citationObj = new CitationBean(word,
-									rootWord, category,
-									ParserUtil.getFormattedDateTime(System
-											.currentTimeMillis()), sourceType,
-									grade);
-							citationList.add(citationObj);
+							if (rootWord != null && !rootWord.isEmpty()) {
+								CitationBean citationObj = new CitationBean(
+										word, rootWord, pos,
+										wordUtil.getFormattedDateTime(System
+												.currentTimeMillis()),
+										sourceType, source, grade, fileName);
+								citationList.add(citationObj);
+							}
 
 							word = null;
+							pos = null;
 							tokenCountAfterWord = 0;
 						} catch (IndexOutOfBoundsException e) {
 							logger.error("Word attributes does not contain all required data.");

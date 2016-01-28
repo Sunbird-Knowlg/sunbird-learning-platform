@@ -4,26 +4,38 @@ public class CitationBean {
 	
 	private String word;
 	private String rootWord;
-	private String position;
+	private String pos;
 	private String date;
 	private String sourceType;
+	private String source;
 	private String grade;
+	private String fileName;
 	
-	public CitationBean(String word, String rootWord, String position,
-			String date, String sourceType, String grade) {
+	public CitationBean(String word, String rootWord, String pos, String date,
+			String sourceType, String source, String grade, String fileName) {
 		super();
 		this.word = word;
 		this.rootWord = rootWord;
-		this.position = position;
+		this.pos = pos;
 		this.date = date;
 		this.sourceType = sourceType;
+		this.source = source;
 		this.grade = grade;
+		this.fileName = fileName;
 	}
 
 	public CitationBean() {
 		super();
 	}
 	
+	public String getSource() {
+		return source;
+	}
+
+	public void setSource(String source) {
+		this.source = source;
+	}
+
 	public String getGrade() {
 		return grade;
 	}
@@ -44,11 +56,11 @@ public class CitationBean {
 	public void setRootWord(String rootWord) {
 		this.rootWord = rootWord;
 	}
-	public String getPosition() {
-		return position;
+	public String getPos() {
+		return pos;
 	}
-	public void setPosition(String position) {
-		this.position = position;
+	public void setPos(String position) {
+		this.pos = position;
 	}
 	public String getDate() {
 		return date;
@@ -61,6 +73,14 @@ public class CitationBean {
 	}
 	public void setSourceType(String sourceType) {
 		this.sourceType = sourceType;
+	}
+
+	public String getFileName() {
+		return fileName;
+	}
+
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 	
 	

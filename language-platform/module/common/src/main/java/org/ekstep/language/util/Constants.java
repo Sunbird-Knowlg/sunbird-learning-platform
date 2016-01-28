@@ -1,4 +1,4 @@
-package org.ekstep.language.parser;
+package org.ekstep.language.util;
 
 public class Constants {
 	public static final int TAG_INDEX_ROOT_WORD=0;

@@ -18,6 +18,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordPojo;
+import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.language.util.WordUtil;
 
@@ -133,11 +134,11 @@ public class SSFParserTest {
 				citiationIndexes.add(citationJson);
 
 				String word = citation.getRootWord();
-				String wordIdentifier = wordUtil.getWordIdentifier(language,
+				String wordIdentifier = wordUtil.getWordIdentifierFromIndex(language,
 						word);
 				if (wordIdentifier == null) {
 					word = citation.getWord();
-					wordIdentifier = wordUtil.getWordIdentifier(language, word);
+					wordIdentifier = wordUtil.getWordIdentifierFromIndex(language, word);
 				}
 				if (wordIdentifier != null) {
 					Map<String, String> wordIndex = new HashMap<String, String>();
@@ -156,7 +157,7 @@ public class SSFParserTest {
 			e.printStackTrace();
 		} catch (JsonMappingException e) {
 			e.printStackTrace();
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
