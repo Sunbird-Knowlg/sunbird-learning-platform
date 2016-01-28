@@ -15,6 +15,15 @@ set is_status_null [java::isnull $status_val]
 if {$is_status_null == 1} {
 	$search put "status" "Live"
 }
+
+set sort [$search get "sort"]
+set limit [$search get "limit"]
+$search put "sortBy" $sort
+$search put "resultSize" $limit
+
+$search remove "sort"
+$search remove "limit"
+
 set search_criteria [create_search_criteria $search]
 set graph_id "domain"
 set search_response [searchNodes $graph_id $search_criteria]

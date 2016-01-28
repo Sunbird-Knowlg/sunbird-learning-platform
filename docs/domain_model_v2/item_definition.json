@@ -1,6 +1,6 @@
 {
     "definitionNodes": [{
-        "objectType": "Concept",
+        "objectType": "AssessmentItem",
         "indexedMetadata": [{
             "propertyName": "name",
             "title": "Name",
@@ -11,8 +11,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 1}"
-        },
-        {
+        }, {
             "propertyName": "code",
             "title": "Code",
             "description": "",
@@ -22,30 +21,18 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'text', 'order': 2}"
-        },
-        {
-            "propertyName": "identifier",
-            "title": "Identifier",
-            "description": "",
-            "category": "general",
-            "dataType": "Text",
-            "required": true,
-            "displayProperty": "Hidden",
-            "defaultValue": "",
-            "renderingHints": "{'order': 3}"
-        },
-        {
+        }, {
             "propertyName": "language",
             "title": "Language",
             "description": "",
-            "category": "general",
-            "dataType": "Text",
+            "category": "General",
+            "dataType": "Multi-Select",
             "required": false,
+            "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Oriya", "Punjabi", "Tamil", "Telugu", "Urdu", "Other"],
             "displayProperty": "Editable",
-            "defaultValue": "",
+            "defaultValue": "English",
             "renderingHints": "{'inputType': 'text', 'order': 5}"
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Text",
             "propertyName": "title",
@@ -58,8 +45,7 @@
             "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
             "indexed": true,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Text",
             "propertyName": "template",
@@ -72,8 +58,7 @@
             "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
             "indexed": true,
             "draft": false
-        },
-        {
+        }, {
             "required": true,
             "dataType": "Select",
             "propertyName": "type",
@@ -81,13 +66,12 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": ["embedded", "mcq", "mmcq", "sort_list", "ftb", "mtf", "speech_question", "canvas_question", "recognition"],
+            "range": ["embedded", "mcq", "ftb", "mtf", "recognition", "other"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
             "indexed": true,
             "draft": false
-        },
-        {
+        }, {
             "propertyName": "keywords",
             "title": "Keywords",
             "description": "",
@@ -97,8 +81,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'table', 'order': 7}"
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Select",
             "propertyName": "status",
@@ -111,8 +94,7 @@
             "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
             "indexed": true,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Text",
             "propertyName": "owner",
@@ -125,8 +107,7 @@
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
             "indexed": true,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "body",
@@ -139,8 +120,7 @@
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "model",
@@ -153,8 +133,7 @@
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "options",
@@ -167,8 +146,7 @@
             "renderingHints": "",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "lhs_options",
@@ -181,8 +159,7 @@
             "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "rhs_options",
@@ -195,8 +172,7 @@
             "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Number",
             "propertyName": "num_answers",
@@ -209,8 +185,7 @@
             "renderingHints": "{ 'inputType': 'number', 'order': 19 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "answer",
@@ -223,8 +198,7 @@
             "renderingHints": "{ 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "hints",
@@ -237,8 +211,7 @@
             "renderingHints": "{ 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": true,
             "dataType": "Select",
             "propertyName": "qlevel",
@@ -251,8 +224,7 @@
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Select",
             "propertyName": "difficulty_level",
@@ -265,8 +237,7 @@
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Select",
             "propertyName": "purpose",
@@ -279,8 +250,7 @@
             "renderingHints": "{ 'inputType': 'select',  'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Text",
             "propertyName": "sub_purpose",
@@ -293,8 +263,7 @@
             "renderingHints": "{ 'inputType': 'text', 'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Select",
             "propertyName": "depth_of_knowledge",
@@ -307,8 +276,7 @@
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Select",
             "propertyName": "used_for",
@@ -321,9 +289,8 @@
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
             "indexed": false,
             "draft": false
-        },
-        {
-            "required": true,
+        }, {
+            "required": false,
             "dataType": "Number",
             "propertyName": "max_score",
             "title": "Maximum Score",
@@ -335,8 +302,7 @@
             "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Boolean",
             "propertyName": "partial_scoring",
@@ -349,8 +315,7 @@
             "renderingHints": "{ 'inputType': 'select', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Text",
             "propertyName": "feedback",
@@ -363,8 +328,7 @@
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Number",
             "propertyName": "max_time",
@@ -377,22 +341,30 @@
             "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
             "indexed": false,
             "draft": false
-        },
-        {
+        }, {
             "required": false,
             "dataType": "Multi-Select",
-            "propertyName": "levels",
-            "title": "Levels",
+            "propertyName": "gradeLevel",
+            "title": "Grade Level",
             "description": "",
-            "category": "general",
+            "category": "Pedagogy",
             "displayProperty": "Editable",
-            "range": ["Level1", "Level2", "Level3", "Level4", "Level5"],
-            "defaultValue": "",
-            "renderingHints": "{ 'inputType': 'select', 'order': 4 }",
-            "indexed": false,
+            "range": ["Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Other"],
+            "defaultValue": "Grade 1",
+            "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+            "indexed": true,
             "draft": false
-        },
-        {
+        }, {
+            "propertyName": "source",
+            "title": "Source",
+            "description": "Source of the item (e.g. if it was imported from some other system)",
+            "category": "general",
+            "dataType": "Text",
+            "required": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 2}"
+        }, {
             "required": false,
             "dataType": "JSON",
             "propertyName": "rendering_metadata",
@@ -405,7 +377,7 @@
             "renderingHints": "",
             "indexed": false,
             "draft": false
-        }, ],
+        }],
         "nonIndexedMetadata": [{
             "propertyName": "description",
             "title": "Description",
@@ -416,8 +388,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'textarea', 'order': 4}"
-        },
-        {
+        }, {
             "propertyName": "learningObjective",
             "title": "Learning Objective",
             "description": "",
@@ -427,8 +398,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'table', 'order': 6}"
-        },
-        {
+        }, {
             "propertyName": "example",
             "title": "Examples",
             "description": "",
@@ -438,8 +408,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'textarea', 'order': 8}"
-        },
-        {
+        }, {
             "propertyName": "validators",
             "title": "Validators",
             "description": "",
@@ -449,8 +418,7 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'table', 'order': 12}"
-        },
-        {
+        }, {
             "propertyName": "references",
             "title": "References",
             "description": "List of references",
@@ -460,8 +428,27 @@
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'textarea', 'order': 14}"
-        },
-        {
+        }, {
+            "propertyName": "createdBy",
+            "title": "Created By",
+            "description": "",
+            "category": "Lifecycle",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 21}"
+        }, {
+            "propertyName": "createdOn",
+            "title": "Created On",
+            "description": "",
+            "category": "Lifecycle",
+            "dataType": "Date",
+            "required": false,
+            "displayProperty": "Readonly",
+            "defaultValue": "",
+            "renderingHints": "{'order': 22}"
+        }, {
             "propertyName": "lastUpdatedBy",
             "title": "Last Updated By",
             "description": "",
@@ -471,8 +458,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 21}"
-        },
-        {
+        }, {
             "propertyName": "lastUpdatedOn",
             "title": "Last Updated On",
             "description": "",
@@ -482,8 +468,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 22}"
-        },
-        {
+        }, {
             "propertyName": "version",
             "title": "Version",
             "description": "",
@@ -493,8 +478,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 23}"
-        },
-        {
+        }, {
             "propertyName": "versionDate",
             "title": "Version Date",
             "description": "",
@@ -504,8 +488,7 @@
             "displayProperty": "Readonly",
             "defaultValue": "",
             "renderingHints": "{'order': 24}"
-        },
-        {
+        }, {
             "propertyName": "versionCreatedBy",
             "title": "Version Created By",
             "description": "",
@@ -526,46 +509,36 @@
             "renderingHints": "{ 'order': 26 }"
         }],
         "systemTags": [{
-            "name": "Literacy",
-            "description": "Subject area"
-        },
-        {
             "name": "Numeracy",
-            "description": "Subject area"
-        },
-        {
-            "name": "Non Cognitive",
-            "description": "Subject area"
-        },
-        {
+            "description": "Domain"
+        }, {
+            "name": "Literacy",
+            "description": "Domain"
+        }, {
+            "name": "Non-Cog",
+            "description": "Domain"
+        }, {
             "name": "Mandatory",
-            "description": "Is the game mandatory?"
-        },
-        {
+            "description": "Is the item mandatory?"
+        }, {
             "name": "Audio Interaction",
             "description": "Interactivity Type"
-        },
-        {
+        }, {
             "name": "Visual Interaction",
             "description": "Interactivity Type"
-        },
-        {
+        }, {
             "name": "Textual Interaction",
             "description": "Interactivity Type"
-        },
-        {
+        }, {
             "name": "Touch Interaction",
             "description": "Interactivity Type"
-        },
-        {
+        }, {
             "name": "No Intervention",
             "description": "Intervention Type"
-        },
-        {
+        }, {
             "name": "Optional Intervention",
             "description": "Intervention Type"
-        },
-        {
+        }, {
             "name": "Mandatory Intervention",
             "description": "Intervention Type"
         }],

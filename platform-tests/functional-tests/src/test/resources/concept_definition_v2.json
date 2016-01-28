@@ -1,0 +1,488 @@
+{
+    "definitionNodes":
+    [
+        {
+            "objectType": "Concept",
+            "properties":
+            [
+                {
+                    "propertyName": "name",
+                    "title": "Name",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 1}"
+                },
+                {
+                    "propertyName": "code",
+                    "title": "Code",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 2}"
+                },
+
+                {
+                    "propertyName": "identifier",
+                    "title": "Identifier",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Hidden",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 3}"
+                },
+
+                {
+                    "propertyName": "language",
+                    "title": "Language",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'text', 'order': 5}"
+                },
+
+                {
+                    "propertyName": "keywords",
+                    "title": "Keywords",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "List",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 7}"
+                },
+                
+                {
+                    "propertyName": "subject",
+                    "title": "Subject",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "numeracy",
+                        "literacy"
+                    ],
+
+                    "required": true,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                },
+
+                {
+                    "propertyName": "status",
+                    "title": "Status",
+                    "description": "",
+                    "category": "lifeCycle",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "Draft",
+                        "Active",
+                        "Retired"
+                    ],
+
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "Draft",
+                    "renderingHints": "{'inputType': 'select', 'order': 9}"
+                },
+
+                {
+                    "propertyName": "internalValidation",
+                    "title": "Internal Validation",
+                    "description": "",
+                    "category": "lifeCycle",
+                    "dataType": "List",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 10}"
+                },
+
+                {
+                    "propertyName": "externalValidation",
+                    "title": "External Validation",
+                    "description": "",
+                    "category": "lifeCycle",
+                    "dataType": "List",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 11}"
+                },
+
+                {
+                    "propertyName": "baseConceptId",
+                    "title": "Base Concept Id",
+                    "description": "",
+                    "category": "lifeCycle",
+                    "dataType": "text",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Hidden",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 13}"
+                },
+                {
+                    "propertyName": "expectedLearningTime",
+                    "title": "Expected Learning Time",
+                    "description": "Learning time in hours",
+                    "category": "usageMetadata",
+                    "dataType": "Number",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'number', 'order': 15}"
+                },
+
+                {
+                    "propertyName": "applicability",
+                    "title": "Applicability",
+                    "description": "Application in real life",
+                    "category": "usageMetadata",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "High",
+                        "Medium",
+                        "Low"
+                    ],
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'select', 'order': 16}"
+                },
+
+                {
+                    "propertyName": "foundation",
+                    "title": "Foundation",
+                    "description": "",
+                    "category": "usageMetadata",
+                    "dataType": "Select",
+                    "range":
+                    [
+                        "High",
+                        "Medium",
+                        "Low"
+                    ],
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'select', 'order': 17}"
+                },
+                {
+                    "propertyName": "assessmentMethod",
+                    "title": "Assessment Method",
+                    "description": "",
+                    "category": "usageMetadata",
+                    "dataType": "Multi-Select",
+                    "range":
+                    [
+                        "Correctness",
+                        "Complexity",
+                        "Time Spent",
+                        "Attempts"
+                    ],
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'multiselect', 'order': 18}"
+                },
+                {
+                    "propertyName": "noOfGames",
+                    "title": "No of Games",
+                    "description": "",
+                    "category": "analytics",
+                    "dataType": "Number",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 19}"
+                },
+                {
+                    "propertyName": "avgGamingTimeSpent",
+                    "title": "Avg. Gaming Time Spent",
+                    "description": "",
+                    "category": "analytics",
+                    "dataType": "Number",
+                    "required": false,
+					"indexed": true,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 20}"
+                },
+				{
+                    "propertyName": "description",
+                    "title": "Description",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+                },
+                {
+                    "propertyName": "learningObjective",
+                    "title": "Learning Objective",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "List",
+                    "required": true,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 6}"
+                },
+                {
+                    "propertyName": "example",
+                    "title": "Examples",
+                    "description": "",
+                    "category": "general",
+                    "dataType": "Text",
+                    "required": true,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'textarea', 'order': 8}"
+                },
+                {
+                    "propertyName": "validators",
+                    "title": "Validators",
+                    "description": "",
+                    "category": "lifeCycle",
+                    "dataType": "List",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'table', 'order': 12}"
+                },
+                {
+                    "propertyName": "references",
+                    "title": "References",
+                    "description": "List of references",
+                    "category": "usageMetadata",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Editable",
+                    "defaultValue": "",
+                    "renderingHints": "{'inputType': 'textarea', 'order': 14}"
+                },
+                {
+                    "propertyName": "lastUpdatedBy",
+                    "title": "Last Updated By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 21}"
+                },
+                {
+                    "propertyName": "lastUpdatedOn",
+                    "title": "Last Updated On",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 22}"
+                },
+                {
+                    "propertyName": "version",
+                    "title": "Version",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Number",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 23}"
+                },
+                {
+                    "propertyName": "versionDate",
+                    "title": "Version Date",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Date",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 24}"
+                },
+                {
+                    "propertyName": "versionCreatedBy",
+                    "title": "Version Created By",
+                    "description": "",
+                    "category": "audit",
+                    "dataType": "Text",
+                    "required": false,
+					"indexed": false,
+                    "displayProperty": "Readonly",
+                    "defaultValue": "",
+                    "renderingHints": "{'order': 25}"
+                }
+            ],
+
+            "inRelations":
+            [
+                {
+                    "relationName": "isParentOf",
+                    "title": "Parent",
+                    "description": "Connected to other nodes with Parent-Child relation",
+                    "required": true,
+                    "objectTypes":
+                    [
+                        "Concept"
+                    ],
+                    "renderingHints": "{'order': 26}"
+                }
+            ],
+            "outRelations":
+            [
+                {
+                    "relationName": "isParentOf",
+                    "title": "Children",
+                    "description": "Connected to other nodes with Parent-Child relation",
+                    "required": false,
+                    "objectTypes":
+                    [
+                        "Concept"
+                    ],
+                    "renderingHints": "{'order': 27}"
+                },
+                {
+                    "relationName": "co-occurrence",
+                    "title": "Co-occurrence",
+                    "description": "Connected to other nodes with Co-occurence relation",
+                    "required": false,
+                    "objectTypes":
+                    [
+                        "Concept"
+                    ],
+                    "renderingHints": "{'order': 28}"
+                },
+                {
+                    "relationName": "pre-requisite",
+                    "title": "Pre-requisite",
+                    "description": "Pre-requiste relation is created",
+                    "required": false,
+                    "objectTypes":
+                    [
+                        "Concept"
+                    ],
+                    "renderingHints": "{'order': 29}"
+                }
+            ],
+            "systemTags":
+            [
+                {
+                    "name": "Concept",
+                    "description": "Type of object"
+                },
+
+                {
+                    "name": "Subconcept",
+                    "description": "Type of object"
+                },
+
+                {
+                    "name": "Micro-concept",
+                    "description": "Type of object"
+                },
+
+                {
+                    "name": "Class 1",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Class 2",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Class 3",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Class 4",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Class 5",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Class 6",
+                    "description": "Study level"
+                },
+
+                {
+                    "name": "Beginner",
+                    "description": "Learner level"
+                },
+
+                {
+                    "name": "Intermediate",
+                    "description": "Learner level"
+                },
+
+                {
+                    "name": "Skilled",
+                    "description": "Learner level"
+                },
+
+                {
+                    "name": "Critical",
+                    "description": "Is this concept/micro-concept critical to the root concept"
+                },
+
+                {
+                    "name": "Predictor",
+                    "description": "Is this a predictor"
+                }
+            ]
+        }
+    ]
+}

@@ -25,9 +25,11 @@ import akka.actor.ActorRef;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -254,8 +256,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 RelationType relation = new RelationType(relationType);
                 Node startNode = getNodeByUniqueId(graphDb, startNodeId);
                 Lock lock = null;
-                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),relationType))
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),relationType)) {
+                    System.out.println("acquiring lock for " + relationType + " -- " + startNodeId + " -- " + endNodeId);
                     lock = tx.acquireReadLock(startNode);
+                }
                 Relationship dbRel = null;
                 Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
                 if (null != relations) {
@@ -491,6 +495,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
+                String date = DateUtils.formatCurrentDate();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 RelationType relation = new RelationType(relationType);
@@ -511,11 +516,13 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                                 startNode.setProperty(entry.getKey(), entry.getValue());
                             }
                         }
+                        startNode.setProperty(AuditProperties.createdOn.name(), date);
                     } else {
                         throw new ClientException(GraphDACErrorCodes.ERR_CREATE_COLLECTION_MISSING_REQ_PARAMS.name(),
                                 "Failed to create Collection node");
                     }
                 }
+                startNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
                 if (null != relations) {
                     for (Relationship rel : relations) {
@@ -667,6 +674,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     private int createNodes(Request request, GraphDatabaseService graphDb, Map<String, Node> existingNodes,
             List<com.ilimi.graph.dac.model.Node> nodes) {
         int nodesCount = 0;
+        String date = DateUtils.formatCurrentDate();
         for (com.ilimi.graph.dac.model.Node node : nodes) {
             if (null == node || StringUtils.isBlank(node.getIdentifier()) || StringUtils.isBlank(node.getNodeType())) {
                 // ERROR(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(),
@@ -677,6 +685,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     neo4jNode = existingNodes.get(node.getIdentifier());
                 } else {
                     neo4jNode = graphDb.createNode(NODE_LABEL);
+                    neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     nodesCount++;
                 }
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
@@ -694,6 +703,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         }
                     }
                 }
+                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 existingNodes.put(node.getIdentifier(), neo4jNode);
             }
         }

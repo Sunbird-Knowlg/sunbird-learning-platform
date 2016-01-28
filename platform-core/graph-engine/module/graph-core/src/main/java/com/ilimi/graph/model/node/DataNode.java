@@ -1,7 +1,9 @@
 package com.ilimi.graph.model.node;
 
 import java.lang.reflect.Array;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
+import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -615,6 +618,14 @@ public class DataNode extends AbstractNode {
                 String propName = def.getPropertyName();
                 if (StringUtils.isNotBlank(propName)) {
                     Object value = getPropertyValue(propName);
+                    if (null == value) {
+                        if (null != def.getDefaultValue() && StringUtils.isNotBlank(def.getDefaultValue().toString()))
+                            value = setPropertyValue(def, propName, def.getDefaultValue());
+                    } else if (value instanceof String) {
+                        if (StringUtils.isBlank((String) value) && null != def.getDefaultValue()
+                                && StringUtils.isNotBlank(def.getDefaultValue().toString()))
+                            value = setPropertyValue(def, propName, def.getDefaultValue());
+                    }
                     if (def.isRequired()) {
                         if (null == value)
                             messages.add("Required Metadata " + propName + " not set");
@@ -636,14 +647,37 @@ public class DataNode extends AbstractNode {
         return null;
     }
 
-    public static void main(String[] args) {
-        Object o = "asd";
-        Object v = "asd";
-        if (StringUtils.equalsIgnoreCase((String) v, (String) o)) {
-            System.out.println("true....");
-        } else {
-            System.out.println("false....");
+    @SuppressWarnings("rawtypes")
+    private Object setPropertyValue(MetadataDefinition def, String propName, Object value) {
+        if (StringUtils.isNotBlank(propName) && null != value) {
+            if (null == metadata)
+                metadata = new HashMap<String, Object>();
+            String datatype = def.getDataType();
+            if (null != value) {
+                if (StringUtils.equalsIgnoreCase("list", datatype)
+                        || StringUtils.equalsIgnoreCase("multi-select", datatype)) {
+                    if (value instanceof List) {
+                        value = ((List) value).toArray();
+                    } else if (!(value instanceof Object[])) {
+                        value = new String[] { value.toString() };
+                    }
+                } else if (StringUtils.equalsIgnoreCase("boolean", datatype)) {
+                    try {
+                        Boolean b = new Boolean(value.toString());
+                        value = b;
+                    } catch (Exception e) {
+                    }
+                } else if (StringUtils.equalsIgnoreCase("number", datatype)) {
+                    try {
+                        BigDecimal bd = new BigDecimal(value.toString());
+                        value = bd;
+                    } catch (Exception e) {
+                    }
+                }
+            }
+            metadata.put(propName, value);
         }
+        return value;
     }
 
     private void checkDataType(Object value, MetadataDefinition def, List<String> messages) {
@@ -657,6 +691,13 @@ public class DataNode extends AbstractNode {
                 messages.add("Metadata " + propName + " should be a Boolean value");
             } else if (StringUtils.equalsIgnoreCase("number", dataType) && !(value instanceof Number)) {
                 messages.add("Metadata " + propName + " should be a Numeric value");
+            } else if (StringUtils.equalsIgnoreCase("date", dataType)) {
+                if (value instanceof Date)
+                    value = setPropertyValue(def, propName, DateUtils.format((Date) value));
+                else {
+                    value = DateUtils.format(DateUtils.parse(value.toString()));
+                    value = setPropertyValue(def, propName, value);
+                }   
             } else if (StringUtils.equalsIgnoreCase("select", dataType)) {
                 if (null == range || range.isEmpty())
                     messages.add("Metadata " + propName + " should be one of: " + range);
@@ -700,7 +741,7 @@ public class DataNode extends AbstractNode {
             }
         }
     }
-    
+
     private boolean checkRangeValue(List<Object> range, Object value) {
         boolean found = false;
         for (Object rangeVal : range) {
