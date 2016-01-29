@@ -698,8 +698,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
 					"Content Id is blank");
 		Response responseNode = getDataNode(taxonomyId, contentId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if(responseNode!=null){
+			Node node = (Node) responseNode.get(GraphDACParams.node.name());
+			if (node==null) {
+				throw new ClientException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"Content Id is invalid Or Node not avl");
+			}
 			String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
 			HttpDownloadUtility.downloadFile(zipFilUrl, tempFileLocation);
 			String zipFileTempLocation[] = null;
