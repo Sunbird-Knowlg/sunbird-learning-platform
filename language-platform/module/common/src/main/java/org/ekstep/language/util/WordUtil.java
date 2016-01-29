@@ -141,9 +141,10 @@ public class WordUtil extends BaseManager {
 		}
 		return null;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public String getWordIdentifierFromIndex(String languageId, String word) throws IOException {
+	public String getWordIdentifierFromIndex(String languageId, String word)
+			throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
@@ -158,16 +159,18 @@ public class WordUtil extends BaseManager {
 			wordMap.put("wordId", wordIndex.getWordIdentifier());
 			wordIdsMap.put(wordIndex.getWord(), wordMap);
 		}
-		if(wordIdsMap.get(word) != null){
-			return (String) ((Map<String, Object>)wordIdsMap.get(word)).get("wordId");
+		if (wordIdsMap.get(word) != null) {
+			return (String) ((Map<String, Object>) wordIdsMap.get(word))
+					.get("wordId");
 		}
 		return null;
 	}
-	
+
 	public String getFormattedDateTime(long dateTime) {
 		String dateTimeString = "";
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
+			SimpleDateFormat formatter = new SimpleDateFormat(
+					"dd-MMM-yyyy HH:mm:ss");
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
@@ -176,7 +179,7 @@ public class WordUtil extends BaseManager {
 		}
 		return dateTimeString;
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public void addCitationsAndWordIndexToElasticSearch(
 			List<CitationBean> citations, String language) {
@@ -185,25 +188,25 @@ public class WordUtil extends BaseManager {
 					+ "_" + language;
 			String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"
 					+ language;
-			
+
 			ObjectMapper mapper = new ObjectMapper();
 			ArrayList<String> citiationIndexes = new ArrayList<String>();
 			ArrayList<String> wordIndexes = new ArrayList<String>();
 			ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-			
+
 			createCitationIndex(citationIndexName,
 					Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
 			createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE,
 					elasticSearchUtil);
-			
+
 			for (CitationBean citation : citations) {
-				if(citation.getDate() == null || citation.getDate().isEmpty()){
+				if (citation.getDate() == null || citation.getDate().isEmpty()) {
 					citation.setDate(getFormattedDateTime(System
 							.currentTimeMillis()));
 				}
-				
-				String wordIdentifier = getWordIdentifierFromIndex(
-						language, citation.getWord());
+
+				String wordIdentifier = getWordIdentifierFromIndex(language,
+						citation.getWord());
 				String wordIndexJson;
 				if (wordIdentifier != null) {
 					if (citation.getRootWord() == null
@@ -215,16 +218,14 @@ public class WordUtil extends BaseManager {
 				} else if (wordIdentifier == null) {
 					if (citation.getRootWord() != null
 							&& !citation.getRootWord().isEmpty()) {
-						wordIdentifier = getWordIdentifierFromIndex(
-								language, citation.getRootWord());
-					}
-					else{
+						wordIdentifier = getWordIdentifierFromIndex(language,
+								citation.getRootWord());
+					} else {
 						citation.setRootWord(citation.getWord());
 					}
 					if (wordIdentifier != null) {
-						wordIndexJson = getWordIndex(
-								citation.getWord(), citation.getRootWord(),
-								wordIdentifier, mapper);
+						wordIndexJson = getWordIndex(citation.getWord(),
+								citation.getRootWord(), wordIdentifier, mapper);
 						wordIndexes.add(wordIndexJson);
 					} else {
 						Map<String, Object> wordMap = new HashMap<String, Object>();
@@ -246,12 +247,13 @@ public class WordUtil extends BaseManager {
 										citation.getRootWord(), wordIdentifier,
 										mapper);
 								wordIndexes.add(wordIndexJson);
-								
-								if(!citation.getWord().equalsIgnoreCase(citation.getRootWord())){
+
+								if (!citation.getWord().equalsIgnoreCase(
+										citation.getRootWord())) {
 									wordIndexJson = getWordIndex(
 											citation.getWord(),
-											citation.getRootWord(), wordIdentifier,
-											mapper);
+											citation.getRootWord(),
+											wordIdentifier, mapper);
 									wordIndexes.add(wordIndexJson);
 								}
 							}
@@ -328,14 +330,20 @@ public class WordUtil extends BaseManager {
 				.key("fields").object().key("hash").object().key("type")
 				.value("murmur3").endObject().endObject().endObject()
 				.key("date").object().key("type").value("date").key("format")
-				.value("dd-MMM-yyyy HH:mm:ss").endObject().endObject()
-				.endObject().endObject();
+				.value("dd-MMM-yyyy HH:mm:ss").endObject().key("sourceType")
+				.object().key("type").value("string").key("index")
+				.value("not_analyzed").endObject().key("source").object()
+				.key("type").value("string").key("index").value("not_analyzed")
+				.endObject().key("fileName").object().key("type")
+				.value("string").key("index").value("not_analyzed").endObject()
+				.key("grade").object().key("type").value("string").key("index")
+				.value("not_analyzed").endObject().endObject().endObject()
+				.endObject();
 
 		elasticSearchUtil.addIndex(indexName, indexType,
 				settingBuilder.toString(), mappingBuilder.toString());
 	}
-	
-	
+
 	@SuppressWarnings({ "unchecked" })
 	public String getRootWordsFromIndex(String word, String languageId)
 			throws IOException {
@@ -353,9 +361,10 @@ public class WordUtil extends BaseManager {
 			wordMap.put("rootWord", wordIndex.getRootWord());
 			rootWordsMap.put(wordIndex.getWord(), wordMap);
 		}
-		
-		if(rootWordsMap.get(word) != null){
-			return (String) ((Map<String, Object>)rootWordsMap.get(word)).get("rootWord");
+
+		if (rootWordsMap.get(word) != null) {
+			return (String) ((Map<String, Object>) rootWordsMap.get(word))
+					.get("rootWord");
 		}
 		return null;
 	}
@@ -617,157 +626,189 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response create(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
-        List<Map> items = (List<Map>) request.get("words");
-        List<Node> nodeList = new ArrayList<Node>();
-        if (null == items || items.size() <= 0)
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(), objectType + " Object is blank");
-        try {
-            if (null != items && !items.isEmpty()) {
-            	Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-                        GraphDACParams.object_type.name(), objectType);
-                Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-            	 if (!checkError(responseDefiniton)) {
-                     DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
-                     for (Map item : items) {
-                         Node node = convertToGraphNode(item, definition);
-                         nodeList.add(node);
-                     }
-                 }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        Response createRes = new Response();
-        Response errResponse = null;
-        List<String> lstNodeId = new ArrayList<String>();
-        for (Node node : nodeList) {
-        	node.setObjectType(objectType);
-	        Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-	        validateReq.put(GraphDACParams.node.name(), node);
-	        Response validateRes = getResponse(validateReq, LOGGER);
-	        if (checkError(validateRes)) {
-	            return validateRes;
-	        } else {
-	            Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-	            createReq.put(GraphDACParams.node.name(), node);
-	            Response res = getResponse(createReq, LOGGER);
-	            if (checkError(res)) {
-	            	errResponse = res;
-	            } else {
-	            	Map<String, Object> result = res.getResult();
-	            	if(result != null){
-	            		String nodeId = (String) result.get("node_id");
-	            		if(nodeId != null){
-	            			lstNodeId.add(nodeId);
-	            		}
-	            	}
-	            }
-	            createRes = res;
-	            System.out.println("Response: | ");
-	        }
-        }
-        if (null == errResponse) {
-        	createRes.getResult().remove("node_id");
-        	createRes.put("node_id", lstNodeId);
-        	return createRes;
-        } else {
-        	errResponse.getResult().remove("node_id");
-        	errResponse.put("node_id", lstNodeId);
-        	return errResponse;
-        }
-    }
-	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
-    private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) {
-        Node node = new Node();
-        if (null != map && !map.isEmpty()) {
-            Map<String, String> inRelDefMap = new HashMap<String, String>();
-            Map<String, String> outRelDefMap = new HashMap<String, String>();
-            getRelDefMaps(definition, inRelDefMap, outRelDefMap);
-            List<Relation> inRelations = new ArrayList<Relation>();
-            List<Relation> outRelations = new ArrayList<Relation>();
-            Map<String, Object> metadata = new HashMap<String, Object>();
-            for (Entry<String, Object> entry : map.entrySet()) {
-                if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
-                    node.setIdentifier((String) entry.getValue());
-                } else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
-                    node.setObjectType((String) entry.getValue());
-                } else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-                    try {
-                        String objectStr = mapper.writeValueAsString(entry.getValue());
-                        List<String> tags = mapper.readValue(objectStr, List.class);
-                        if (null != tags && !tags.isEmpty())
-                            node.setTags(tags);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (inRelDefMap.containsKey(entry.getKey())) {
-                    try {
-                        String objectStr = mapper.writeValueAsString(entry.getValue());
-                        List<Map> list = mapper.readValue(objectStr, List.class);
-                        if (null != list && !list.isEmpty()) {
-                            for (Map obj : list) {
-                                NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
-                                inRelations
-                                        .add(new Relation(dto.getIdentifier(), inRelDefMap.get(entry.getKey()), null));
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else if (outRelDefMap.containsKey(entry.getKey())) {
-                    try {
-                        String objectStr = mapper.writeValueAsString(entry.getValue());
-                        List<Map> list = mapper.readValue(objectStr, List.class);
-                        if (null != list && !list.isEmpty()) {
-                            for (Map obj : list) {
-                                NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
-                                outRelations
-                                        .add(new Relation(null, outRelDefMap.get(entry.getKey()), dto.getIdentifier()));
-                            }
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    metadata.put(entry.getKey(), entry.getValue());
-                }
-            }
-            node.setInRelations(inRelations);
-            node.setOutRelations(outRelations);
-            node.setMetadata(metadata);
-        }
-        return node;
-    }
-	
-	private void getRelDefMaps(DefinitionDTO definition, Map<String, String> inRelDefMap,
-            Map<String, String> outRelDefMap) {
-        if (null != definition) {
-            if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {
-                for (RelationDefinition rDef : definition.getInRelations()) {
-                    if (StringUtils.isNotBlank(rDef.getTitle()) && StringUtils.isNotBlank(rDef.getRelationName())) {
-                        inRelDefMap.put(rDef.getTitle(), rDef.getRelationName());
-                    }
-                }
-            }
-            if (null != definition.getOutRelations() && !definition.getOutRelations().isEmpty()) {
-                for (RelationDefinition rDef : definition.getOutRelations()) {
-                    if (StringUtils.isNotBlank(rDef.getTitle()) && StringUtils.isNotBlank(rDef.getRelationName())) {
-                        outRelDefMap.put(rDef.getTitle(), rDef.getRelationName());
-                    }
-                }
-            }
-        }
-    }
+		if (StringUtils.isBlank(languageId)
+				|| !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(
+					LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
+					"Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(
+					LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(),
+					"ObjectType is blank");
+		List<Map> items = (List<Map>) request.get("words");
+		List<Node> nodeList = new ArrayList<Node>();
+		if (null == items || items.size() <= 0)
+			throw new ClientException(
+					LanguageErrorCodes.ERR_INVALID_OBJECT.name(), objectType
+							+ " Object is blank");
+		try {
+			if (null != items && !items.isEmpty()) {
+				Request requestDefinition = getRequest(languageId,
+						GraphEngineManagers.SEARCH_MANAGER,
+						"getNodeDefinition", GraphDACParams.object_type.name(),
+						objectType);
+				Response responseDefiniton = getResponse(requestDefinition,
+						LOGGER);
+				if (!checkError(responseDefiniton)) {
+					DefinitionDTO definition = (DefinitionDTO) responseDefiniton
+							.get(GraphDACParams.definition_node.name());
+					for (Map item : items) {
+						Node node = convertToGraphNode(item, definition);
+						nodeList.add(node);
+					}
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response createRes = new Response();
+		Response errResponse = null;
+		List<String> lstNodeId = new ArrayList<String>();
+		for (Node node : nodeList) {
+			node.setObjectType(objectType);
+			Request validateReq = getRequest(languageId,
+					GraphEngineManagers.NODE_MANAGER, "validateNode");
+			validateReq.put(GraphDACParams.node.name(), node);
+			Response validateRes = getResponse(validateReq, LOGGER);
+			if (checkError(validateRes)) {
+				return validateRes;
+			} else {
+				Request createReq = getRequest(languageId,
+						GraphEngineManagers.NODE_MANAGER, "createDataNode");
+				createReq.put(GraphDACParams.node.name(), node);
+				Response res = getResponse(createReq, LOGGER);
+				if (checkError(res)) {
+					errResponse = res;
+				} else {
+					Map<String, Object> result = res.getResult();
+					if (result != null) {
+						String nodeId = (String) result.get("node_id");
+						if (nodeId != null) {
+							lstNodeId.add(nodeId);
+						}
+					}
+				}
+				createRes = res;
+				System.out.println("Response: | ");
+			}
+		}
+		if (null == errResponse) {
+			createRes.getResult().remove("node_id");
+			createRes.put("node_id", lstNodeId);
+			return createRes;
+		} else {
+			errResponse.getResult().remove("node_id");
+			errResponse.put("node_id", lstNodeId);
+			return errResponse;
+		}
+	}
 
-	public ArrayList<String> validateCitationsList(List<CitationBean> citationBeanList) {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node convertToGraphNode(Map<String, Object> map,
+			DefinitionDTO definition) {
+		Node node = new Node();
+		if (null != map && !map.isEmpty()) {
+			Map<String, String> inRelDefMap = new HashMap<String, String>();
+			Map<String, String> outRelDefMap = new HashMap<String, String>();
+			getRelDefMaps(definition, inRelDefMap, outRelDefMap);
+			List<Relation> inRelations = new ArrayList<Relation>();
+			List<Relation> outRelations = new ArrayList<Relation>();
+			Map<String, Object> metadata = new HashMap<String, Object>();
+			for (Entry<String, Object> entry : map.entrySet()) {
+				if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
+					node.setIdentifier((String) entry.getValue());
+				} else if (StringUtils.equalsIgnoreCase("objectType",
+						entry.getKey())) {
+					node.setObjectType((String) entry.getValue());
+				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry
+								.getValue());
+						List<String> tags = mapper.readValue(objectStr,
+								List.class);
+						if (null != tags && !tags.isEmpty())
+							node.setTags(tags);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else if (inRelDefMap.containsKey(entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry
+								.getValue());
+						List<Map> list = mapper
+								.readValue(objectStr, List.class);
+						if (null != list && !list.isEmpty()) {
+							for (Map obj : list) {
+								NodeDTO dto = (NodeDTO) mapper.convertValue(
+										obj, NodeDTO.class);
+								inRelations.add(new Relation(dto
+										.getIdentifier(), inRelDefMap.get(entry
+										.getKey()), null));
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else if (outRelDefMap.containsKey(entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry
+								.getValue());
+						List<Map> list = mapper
+								.readValue(objectStr, List.class);
+						if (null != list && !list.isEmpty()) {
+							for (Map obj : list) {
+								NodeDTO dto = (NodeDTO) mapper.convertValue(
+										obj, NodeDTO.class);
+								outRelations.add(new Relation(null,
+										outRelDefMap.get(entry.getKey()), dto
+												.getIdentifier()));
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else {
+					metadata.put(entry.getKey(), entry.getValue());
+				}
+			}
+			node.setInRelations(inRelations);
+			node.setOutRelations(outRelations);
+			node.setMetadata(metadata);
+		}
+		return node;
+	}
+
+	private void getRelDefMaps(DefinitionDTO definition,
+			Map<String, String> inRelDefMap, Map<String, String> outRelDefMap) {
+		if (null != definition) {
+			if (null != definition.getInRelations()
+					&& !definition.getInRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getInRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle())
+							&& StringUtils.isNotBlank(rDef.getRelationName())) {
+						inRelDefMap
+								.put(rDef.getTitle(), rDef.getRelationName());
+					}
+				}
+			}
+			if (null != definition.getOutRelations()
+					&& !definition.getOutRelations().isEmpty()) {
+				for (RelationDefinition rDef : definition.getOutRelations()) {
+					if (StringUtils.isNotBlank(rDef.getTitle())
+							&& StringUtils.isNotBlank(rDef.getRelationName())) {
+						outRelDefMap.put(rDef.getTitle(),
+								rDef.getRelationName());
+					}
+				}
+			}
+		}
+	}
+
+	public ArrayList<String> validateCitationsList(
+			List<CitationBean> citationBeanList) {
 		ArrayList<String> errorMessageList = new ArrayList<String>();
-		for(CitationBean citation: citationBeanList){
-			if(citation.getWord() == null || citation.getWord().isEmpty()){
+		for (CitationBean citation : citationBeanList) {
+			if (citation.getWord() == null || citation.getWord().isEmpty()) {
 				errorMessageList.add("Word cannot be null");
 			}
 		}
