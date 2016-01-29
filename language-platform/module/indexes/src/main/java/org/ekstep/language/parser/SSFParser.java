@@ -52,17 +52,17 @@ public class SSFParser {
 				.getProperty("attributesTagIdentifier");
 	}
 
-	public static void parseSsfFiles(String folderPath,
+	public static void parseSsfFilesFolder(String folderPath,
 			String sourceType, String source, String grade, String languageId) {
-		final File file = new File(folderPath);
-		if (file.isDirectory()) {
-			for (final File fileEntry : file.listFiles()) {
-				parseSsfFiles(fileEntry.getAbsolutePath(), sourceType,
+		final File folder = new File(folderPath);
+		for (final File fileEntry : folder.listFiles()) {
+			if (fileEntry.isDirectory()) {
+				parseSsfFilesFolder(fileEntry.getAbsolutePath(), sourceType,
 						source, grade, languageId);
+			} else {
+				parseSsfFile(fileEntry.getAbsolutePath(), sourceType, source,
+						grade, languageId);
 			}
-		} else {
-			parseSsfFile(file.getAbsolutePath(), sourceType, source, grade,
-					languageId);
 		}
 	}
 
