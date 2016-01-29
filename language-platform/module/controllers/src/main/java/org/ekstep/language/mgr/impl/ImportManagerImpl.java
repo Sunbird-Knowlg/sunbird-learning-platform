@@ -144,7 +144,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		        callAddCitationToIndex(languageId,sourceId, lstWord);
 		        lstEnrichedWord = addCitattionCountInfoInWordList(languageId, lstWord);
 		        if (null != lstEnrichedWord) {
-		        	
+		        	lstEnrichedWord = addComplexityToWordList(languageId, lstEnrichedWord);
 		        }
 	        }
         } catch(IOException e) {
@@ -259,5 +259,45 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				lstLemma.add(word.getWordLemma().trim());
 		}
 		return lstLemma;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<WordModel> addComplexityToWordList(String languageId,List<WordModel> lstWord) {
+		if (lstWord.size() > 0) {
+			List<String> lstLemma = getWordLemmaList(lstWord);
+			Response computeComplexityRes = callGetComplexityMeasure(languageId, lstLemma);
+			if (checkError(computeComplexityRes)) {
+	            return null;
+	        } else {
+	            Response response = copyResponse(computeComplexityRes);
+	            Map<String, Object> map = (Map<String, Object>) response.get(LanguageParams.complexity_measures.name());
+	            for (String key : map.keySet()) {
+	            	for (WordModel word : lstWord) {
+	            		try {
+		            		if (word.getWordLemma().trim() == key.trim()) {
+		            			word.setOrthographicComplexity(((Map<String, String>)map.get(key)).get(LanguageParams.orthographic_complexity.name()));
+		            			word.setPhonologicComplexity(((Map<String, String>)map.get(key)).get(LanguageParams.phonologic_complexity.name()));
+		            			break;
+		            		}
+	            		} catch(Exception e) {
+	            			e.printStackTrace();
+	            			continue; 
+	            		}
+	            	}
+	            }
+	            return null;
+	        }
+		}
+		return null;
+	}
+	
+	private Response callGetComplexityMeasure(String languageId, List<String> lstLemma) {
+		if (lstLemma.size() > 0) {
+			Request request = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(), LanguageOperations.computeComplexity.name());
+			request.put(LanguageParams.words.name(), lstLemma);
+			Response computeComplexityRes = getLanguageResponse(request, LOGGER);
+	        return computeComplexityRes;
+		}
+		return null;
 	}
 }
