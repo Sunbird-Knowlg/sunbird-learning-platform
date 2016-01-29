@@ -5,9 +5,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -22,6 +20,7 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -112,19 +111,18 @@ public class CustomParser  {
 	
 	private static String fileNameInURL[] = null;
 	private static String fileNameWithExtn = null;
-    @SuppressWarnings("rawtypes")
 	private static void updateAttributeValue(Document doc,String saveDir,Map<String,String> mediaIdURLMap) {
         NodeList medias = doc.getElementsByTagName("media");
         Element media = null;
         for(int i=0; i<medias.getLength();i++){
         	media = (Element) medias.item(i);
         	if (mediaIdURLMap!=null && !mediaIdURLMap.isEmpty()) {
-        		 Iterator<Entry<String, String>> it = mediaIdURLMap.entrySet().iterator();
-        		 while (it.hasNext()) {
-        		        Map.Entry pair = (Map.Entry)it.next();
-        		        media.setAttribute("src", (String)pair.getValue());
-        		        it.remove(); // avoids a ConcurrentModificationException
-        		    }
+        	    String mediaId = media.getAttribute("id");
+        	    if (mediaIdURLMap.containsKey(mediaId)) {
+        	        String url = mediaIdURLMap.get(mediaId);
+        	        if (StringUtils.isNotBlank(url))
+        	            media.setAttribute("src", url);
+        	    }
 			}else if (mediaIdURLMap==null) {
 				 String src = media.getAttribute("src");
                  HttpDownloadUtility.downloadFile(src, saveDir);

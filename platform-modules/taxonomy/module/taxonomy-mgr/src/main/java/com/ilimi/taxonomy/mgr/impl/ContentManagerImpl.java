@@ -801,7 +801,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                     validateReq.put(GraphDACParams.node.name(), item);
                                     Response validateRes = getResponse(validateReq, LOGGER);
                                     if (checkError(validateRes)) {
-                                        System.out.println("Asset creation failed: " + item.getIdentifier());
                                         return validateRes;
                                     } else {
                                         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
@@ -811,12 +810,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                         getResponse(updateReq, LOGGER);
                                     }
                                 }
-
+                            } else {
+                                mediaIdURL.put(item.getIdentifier(), item.getMetadata().get("downloadUrl").toString());
                             }
                         }
                     }
                     if (mediaIdNotUploaded != null && !mediaIdNotUploaded.isEmpty()) {
-                        System.out.println("else");
                         for (String mediaId : mediaIdNotUploaded) {
                             long timeStempInMiliSec = System.currentTimeMillis();
                             File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
@@ -854,7 +853,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 validateReq.put(GraphDACParams.node.name(), item);
                                 Response validateRes = getResponse(validateReq, LOGGER);
                                 if (checkError(validateRes)) {
-                                    System.out.println("Asset creation failed: " + mediaId);
                                     return validateRes;
                                 } else {
                                     Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
