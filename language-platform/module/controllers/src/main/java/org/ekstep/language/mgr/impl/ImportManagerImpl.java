@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +21,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
+import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
 import org.joda.time.DateTime;
@@ -32,6 +34,8 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Component
 public class ImportManagerImpl extends BaseLanguageManager implements IImportManager {
+	
+	private static final String CSV_SEPARATOR = ",";
 	
 	private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
 
@@ -90,7 +94,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         
         Reader reader = null;
         BufferedReader br = null; 
+        DictionaryObject dictionaryObject = new DictionaryObject();
         List<WordModel> lstEnrichedWord = new ArrayList<WordModel>();
+        List<SynsetModel> lstEnrichedSynset = new ArrayList<SynsetModel>();
         List<WordModel> lstWord = new ArrayList<WordModel>();
         List<SynsetModel> lstSynset = new ArrayList<SynsetModel>();
         String line = "";
@@ -142,7 +148,11 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			}
 	        if (lstWord.size() > 0) {
 		        callAddCitationToIndex(languageId,sourceId, lstWord);
-		        lstEnrichedWord = addCitattionCountInfoInWordList(languageId, lstWord);
+		        dictionaryObject = addCitattionCountInfoInWordList(languageId, lstWord, lstSynset);
+		        if (null != dictionaryObject) {
+		        	lstEnrichedWord = dictionaryObject.getLstWord();
+		        	lstEnrichedSynset = dictionaryObject.getLstSynset();
+		        }
 		        if (null != lstEnrichedWord) {
 		        	lstEnrichedWord = addComplexityToWordList(languageId, lstEnrichedWord);
 		        }
@@ -214,18 +224,24 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<WordModel> addCitattionCountInfoInWordList(String languageId, List<WordModel> lstWord) {
+	private DictionaryObject addCitattionCountInfoInWordList(String languageId, List<WordModel> lstWord, List<SynsetModel> lstSynset) {
 		if (lstWord.size() > 0) {
 			Response getIndexInfoResponse = callGetIndexInfo(languageId, lstWord);
 			if (checkError(getIndexInfoResponse)) {
 	            return null;
 	        } else {
 	            Response response = copyResponse(getIndexInfoResponse);
+	            DictionaryObject dictionaryObject = new DictionaryObject();
+	            Map<String, String> replacedWordIdMap = new HashMap<String, String>();
 	            Map<String, Object> map = (Map<String, Object>) response.get(LanguageParams.index_info.name());
 	            for (String key : map.keySet()) {
 	            	for (WordModel word : lstWord) {
 	            		try {
-		            		if (word.getWordLemma().trim() == key.trim()) {
+		            		if (StringUtils.equalsIgnoreCase(word.getWordLemma().trim(), key.trim())) {
+		            			// Record the changed/updated word identifier which needs to be replaced in Synset List as well.
+		            			if (!StringUtils.equalsIgnoreCase(word.getIdentifier(), map.get(LanguageParams.identifier.name()).toString())) {
+		            				replacedWordIdMap.put(word.getIdentifier().trim(), map.get(LanguageParams.identifier.name()).toString());
+		            			}
 		            			Map<String, Object> citationMap = (Map<String, Object>) map.get(LanguageParams.citations.name());
 		            			Map<String, Integer> citationBySourceType = (Map<String, Integer>) citationMap.get(LanguageParams.source_type.name());
 		            			Map<String, Integer> citationBySource = (Map<String, Integer>) citationMap.get(LanguageParams.source.name());
@@ -246,7 +262,41 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	            		}
 	            	}
 	            }
-	            return null;
+	            // Remove duplicate words from Word List
+	            Map<String, WordModel> uniqueWordMap = new HashMap<String, WordModel>();
+	            for (WordModel word : lstWord) {
+	            	if (!uniqueWordMap.containsKey(word.getIdentifier().trim())) {
+	            		uniqueWordMap.put(word.getIdentifier(), word);
+	            	}
+	            }
+	            lstWord.clear();
+	            for (Entry<String, WordModel> entry : uniqueWordMap.entrySet()) {
+	            	lstWord.add(entry.getValue());
+	            }
+	            
+	            // Replace new Word Ids with existing one in Synset List.
+	            if (lstSynset.size() > 0) {
+		            for (SynsetModel synset : lstSynset) {
+		            	String[] lstMemberWordId = null;
+		            	String memberWordId = synset.getWordMember();
+		            	if (!StringUtils.isBlank(memberWordId)) {
+		            		lstMemberWordId = memberWordId.split(CSV_SEPARATOR);
+		            		for (String wordId : lstMemberWordId) {
+		            			if (replacedWordIdMap.containsKey(wordId.trim())) {
+		            				wordId = replacedWordIdMap.get(wordId).trim();
+		            			}
+		            		}
+		            		if (null != lstMemberWordId) {
+			            		String updatedMemberWordId = StringUtils.join(lstMemberWordId, CSV_SEPARATOR);
+			            		if (!StringUtils.equalsIgnoreCase(memberWordId, updatedMemberWordId))
+			            			synset.setWordMember(updatedMemberWordId);
+		            		}
+		            	}
+		            }
+	            }
+	            dictionaryObject.setLstWord(lstWord);
+	            dictionaryObject.setLstSynset(lstSynset);
+	            return dictionaryObject;
 	        }
 		}
 		return null;
