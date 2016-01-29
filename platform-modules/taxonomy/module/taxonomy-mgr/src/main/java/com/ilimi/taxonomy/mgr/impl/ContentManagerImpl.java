@@ -703,6 +703,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             Map<String, Object> metadata = new HashMap<String, Object>();
             metadata = node.getMetadata();
             metadata.put("body", response.get("ecmlBody"));
+            String appIconUrl = (String) node.getMetadata().get("appIcon");
+            if (StringUtils.isBlank(appIconUrl)) {
+                String newUrl = uploadFile(tempFileLocation, "logo.png");
+                if (StringUtils.isNotBlank(newUrl))
+                    metadata.put("appIcon", newUrl);
+            }
             node.setMetadata(metadata);
             Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
             validateReq.put(GraphDACParams.node.name(), node);
@@ -717,6 +723,23 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             }
         }
         return updateRes;
+    }
+    
+    private String uploadFile(String folder, String filename) {
+        File olderName = new File(folder + filename);
+        try {
+            if (null != olderName && olderName.exists() && olderName.isFile()) {
+                String parentFolderName = olderName.getParent();
+                File newName = new File(
+                        parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
+                olderName.renameTo(newName);
+                String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                return url[1];
+            }
+        } catch (Exception ex) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
+        }
+        return null;
     }
 
     /**
