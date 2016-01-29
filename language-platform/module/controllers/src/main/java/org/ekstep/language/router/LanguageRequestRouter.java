@@ -3,10 +3,12 @@ package org.ekstep.language.router;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.actor.IndexesActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.actor.LexileMeasuresActor;
+import org.ekstep.language.services.ImportActor;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -60,10 +62,18 @@ public class LanguageRequestRouter extends UntypedActor {
     private void initActorPool() {
         ActorSystem system = RequestRouterPool.getActorSystem();
         int poolSize = 4;
-
+        
         Props lexileMeasuresProps = Props.create(LexileMeasuresActor.class);
         ActorRef graphMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(lexileMeasuresProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(), graphMgr);
+        
+        Props importProps = Props.create(ImportActor.class);
+        ActorRef importMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(importProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.IMPORT_ACTOR.name(), importMgr);
+        
+        Props indexesProps = Props.create(IndexesActor.class);
+        ActorRef indexMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(indexesProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.INDEXES_ACTOR.name(), indexMgr);
     }
 
     private ActorRef getActorFromPool(Request request) {

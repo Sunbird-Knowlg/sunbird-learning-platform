@@ -129,6 +129,8 @@ public interface ISearchManager {
      */
     void getSubGraph(Request request);
     
+    void traverseSubGraph(Request request);
+    
     void searchRelations(Request request);
 
 }

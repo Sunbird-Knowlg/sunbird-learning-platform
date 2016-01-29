@@ -575,7 +575,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
-	public  Response getParseContent(String taxonomyId ,String contentId){
+	public  Response publish(String taxonomyId ,String contentId){
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
@@ -682,7 +682,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
-	public Response getExtractContent(String taxonomyId,String contentId){
+	public Response extract(String taxonomyId,String contentId){
 		Response updateRes =null;
 		ReadProperties readPro = new ReadProperties();
 		String tempFileLocation = "";
@@ -895,5 +895,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 		return mimeType.getContentType(file);
 	}
+
+	
 
 }

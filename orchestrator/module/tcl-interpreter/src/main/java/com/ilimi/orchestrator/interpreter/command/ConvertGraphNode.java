@@ -6,8 +6,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.lang3.StringUtils;
-
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -107,8 +105,6 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
             if (null != node.getTags() && !node.getTags().isEmpty())
                 map.put("tags", node.getTags());
             map.put("identifier", node.getIdentifier());
-            if (StringUtils.isNotBlank(domainId))
-                map.put("domain", domainId);
         }
         return map;
     }

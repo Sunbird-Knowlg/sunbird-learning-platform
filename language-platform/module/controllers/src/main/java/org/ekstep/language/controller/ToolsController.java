@@ -28,7 +28,7 @@ public class ToolsController extends BaseLanguageController {
     public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
         String apiId = "language.complexity";
         apiId = "language.complexity";
-        Request request = getRequestObject(map);
+        Request request = getRequest(map);
 
         String language = (String) request.get(LanguageParams.language_id.name());
         // TODO: return error response if language value is blank
