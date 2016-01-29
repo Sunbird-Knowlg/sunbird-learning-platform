@@ -591,6 +591,22 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 file.createNewFile();
             }
             FileUtils.writeStringToFile(file, contentBody);
+            String appIcon = (String) metadata.get("appIcon");
+            if (StringUtils.isNotBlank(appIcon)) {
+                HttpDownloadUtility.downloadFile(appIcon, tempFile);
+                String logoname = appIcon.substring(appIcon.lastIndexOf('/') + 1);
+                File olderName = new File(tempFile + logoname);
+                try {
+                    if (null != olderName && olderName.exists() && olderName.isFile()) {
+                        String parentFolderName = olderName.getParent();
+                        File newName = new File(
+                                parentFolderName + File.separator + "logo.png");
+                        olderName.renameTo(newName);
+                    }
+                } catch (Exception ex) {
+                    throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
+                }
+            }
             response = parseContent(taxonomyId, contentId, tempFile, fileName);
         } catch (IOException e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
