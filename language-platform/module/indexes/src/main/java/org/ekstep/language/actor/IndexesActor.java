@@ -42,97 +42,105 @@ public class IndexesActor extends LanguageBaseActor {
 			String languageId = (String) request.getContext().get(
 					LanguageParams.language_id.name());
 			String operation = request.getOperation();
-			if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.loadCitations.name(), operation)) {
-				String filePathOnServer = (String) request
-						.get(LanguageParams.file_path.name());
-				String sourceType = (String) request
-						.get(LanguageParams.source_type.name());
-				String grade = (String) request
-						.get(LanguageParams.grade.name());
-				String source = (String) request.get(LanguageParams.source
-						.name());
-				SSFParser.parseSsfFilesFolder(filePathOnServer, sourceType,
-						source, grade, languageId);
-				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.citationsCount.name(), operation)) {
-				List<String> words = (List<String>) request
-						.get(LanguageParams.words.name());
-				List<String> groupByList = (List<String>) request
-						.get(LanguageParams.groupBy.name());
+			try {
+				if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.loadCitations.name(), operation)) {
+					String filePathOnServer = (String) request
+							.get(LanguageParams.file_path.name());
+					String sourceType = (String) request
+							.get(LanguageParams.source_type.name());
+					String grade = (String) request.get(LanguageParams.grade
+							.name());
+					String source = (String) request.get(LanguageParams.source
+							.name());
+					SSFParser.parseSsfFiles(filePathOnServer, sourceType,
+							source, grade, languageId);
+					OK(getSender());
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.citationsCount.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					List<String> groupByList = (List<String>) request
+							.get(LanguageParams.groupBy.name());
 
-				Map<String, Object> groupByWordMap = new HashMap<String, Object>();
-				groupByWordMap.put("groupByParent", LanguageParams.word.name());
-				groupByWordMap.put("groupByChildList", groupByList);
+					Map<String, Object> groupByWordMap = new HashMap<String, Object>();
+					groupByWordMap.put("groupByParent",
+							LanguageParams.word.name());
+					groupByWordMap.put("groupByChildList", groupByList);
 
-				List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
-				groupByFinalList.add(groupByWordMap);
+					List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+					groupByFinalList.add(groupByWordMap);
 
-				getCitationsCount(words, languageId, groupByFinalList);
-				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.citationsCount.name(), operation)) {
-				List<String> words = (List<String>) request
-						.get(LanguageParams.words.name());
+					getCitationsCount(words, languageId, groupByFinalList);
+					OK(getSender());
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.citationsCount.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
 
-				String sourceType = request.get(LanguageParams.source_type
-						.name()) != null ? (String) request
-						.get(LanguageParams.source_type.name()) : null;
-				String grade = request.get(LanguageParams.grade.name()) != null ? (String) request
-						.get(LanguageParams.grade.name()) : null;
-				String pos = request.get(LanguageParams.pos.name()) != null ? (String) request
-						.get(LanguageParams.pos.name()) : null;
-				String fileName = request.get(LanguageParams.file_name.name()) != null ? (String) request
-						.get(LanguageParams.pos.name()) : null;
-				String fromDate = request.get(LanguageParams.from_date.name()) != null ? (String) request
-						.get(LanguageParams.from_date.name()) : null;
-				String toDate = request.get(LanguageParams.to_date.name()) != null ? (String) request
-						.get(LanguageParams.to_date.name()) : null;
-				getCitations(words, sourceType, grade, pos, fileName, fromDate,
-						toDate, languageId);
-				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.getRootWords.name(), operation)) {
-				List<String> words = (List<String>) request
-						.get(LanguageParams.words.name());
-				getRootWords(words, languageId);
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.getWordId.name(), operation)) {
-				List<String> words = (List<String>) request
-						.get(LanguageParams.words.name());
-				getWordIds(words, languageId);
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.getIndexInfo.name(), operation)) {
-				List<String> words = (List<String>) request
-						.get(LanguageParams.words.name());
-				List<String> groupByList = (List<String>) request
-						.get(LanguageParams.groupBy.name());
+					String sourceType = request.get(LanguageParams.source_type
+							.name()) != null ? (String) request
+							.get(LanguageParams.source_type.name()) : null;
+					String grade = request.get(LanguageParams.grade.name()) != null ? (String) request
+							.get(LanguageParams.grade.name()) : null;
+					String pos = request.get(LanguageParams.pos.name()) != null ? (String) request
+							.get(LanguageParams.pos.name()) : null;
+					String fileName = request.get(LanguageParams.file_name
+							.name()) != null ? (String) request
+							.get(LanguageParams.pos.name()) : null;
+					String fromDate = request.get(LanguageParams.from_date
+							.name()) != null ? (String) request
+							.get(LanguageParams.from_date.name()) : null;
+					String toDate = request.get(LanguageParams.to_date.name()) != null ? (String) request
+							.get(LanguageParams.to_date.name()) : null;
+					getCitations(words, sourceType, grade, pos, fileName,
+							fromDate, toDate, languageId);
+					OK(getSender());
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.getRootWords.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					getRootWords(words, languageId);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.getWordId.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					getWordIds(words, languageId);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.getIndexInfo.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					List<String> groupByList = (List<String>) request
+							.get(LanguageParams.groupBy.name());
 
-				Map<String, Object> groupByWordMap = new HashMap<String, Object>();
-				groupByWordMap.put("groupByParent", LanguageParams.word.name());
-				groupByWordMap.put("groupByChildList", groupByList);
+					Map<String, Object> groupByWordMap = new HashMap<String, Object>();
+					groupByWordMap.put("groupByParent",
+							LanguageParams.word.name());
+					groupByWordMap.put("groupByChildList", groupByList);
 
-				List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
-				groupByFinalList.add(groupByWordMap);
-				
-				getIndexInfo(words, groupByFinalList, languageId);
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.addWordIndex.name(), operation)) {
-				List<Map<String, String>> words = (List<Map<String, String>>) request
-						.get(LanguageParams.words.name());
-				addWordIndex(words, languageId);
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.getWordMetrics.name(), operation)) {
-				getWordMetrics(languageId);
-			} else if (StringUtils.equalsIgnoreCase(
-					LanguageOperations.addCitationIndex.name(), operation)) {
-				List<Map<String, String>> Citations = (List<Map<String, String>>) request
-						.get(LanguageParams.citations.name());
-				addCitations(Citations, languageId);
-			} else {
-				LOGGER.info("Unsupported operation: " + operation);
-				unhandled(msg);
+					List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+					groupByFinalList.add(groupByWordMap);
+
+					getIndexInfo(words, groupByFinalList, languageId);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.addWordIndex.name(), operation)) {
+					List<Map<String, String>> words = (List<Map<String, String>>) request
+							.get(LanguageParams.words.name());
+					addWordIndex(words, languageId);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.getWordMetrics.name(), operation)) {
+					getWordMetrics(languageId);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.addCitationIndex.name(), operation)) {
+					List<Map<String, String>> Citations = (List<Map<String, String>>) request
+							.get(LanguageParams.citations.name());
+					addCitations(Citations, languageId);
+				} else {
+					LOGGER.info("Unsupported operation: " + operation);
+					unhandled(msg);
+				}
+			} catch (Exception e) {
+				handleException(e, getSender());
 			}
 		} else {
 			LOGGER.info("Unsupported operation!");
@@ -141,8 +149,7 @@ public class IndexesActor extends LanguageBaseActor {
 	}
 
 	private void addCitations(List<Map<String, String>> citations,
-			String languageId) throws JsonGenerationException,
-			JsonMappingException, IOException {
+			String languageId) throws Exception {
 		WordUtil wordUtil = new WordUtil();
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayList<CitationBean> citationBeanList = new ArrayList<CitationBean>();
@@ -260,7 +267,8 @@ public class IndexesActor extends LanguageBaseActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private void getIndexInfo(List<String> words, List<Map<String, Object>> groupByFinalList, String languageId)
+	private void getIndexInfo(List<String> words,
+			List<Map<String, Object>> groupByFinalList, String languageId)
 			throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"

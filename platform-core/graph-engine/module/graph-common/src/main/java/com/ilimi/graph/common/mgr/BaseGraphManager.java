@@ -189,7 +189,7 @@ public abstract class BaseGraphManager extends UntypedActor {
         } else {
             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
         }
-        params.setErrmsg(e.getMessage());
+        params.setErrmsg(e.getClass().getName() + ": " + e.getMessage());
         response.setParams(params);
         setResponseCode(response, e);
         parent.tell(response, getSelf());

@@ -61,7 +61,7 @@ public class ElasticSearchUtil {
 		client.execute(index);
 	}
 
-	public static void main(String args[]) throws UnknownHostException {
+	public static void main(String args[]) throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis")
 				.object().key("filter").object().key("nfkc_normalizer")
@@ -88,23 +88,19 @@ public class ElasticSearchUtil {
 	}
 
 	public void addIndex(String indexName, String documentType,
-			String settings, String mappings) {
-		try {
-			if (!isIndexExists(indexName)) {
-				CreateIndex createIndex = new CreateIndex.Builder(indexName)
-						.settings(settings).build();
-				client.execute(createIndex);
+			String settings, String mappings) throws IOException {
+		if (!isIndexExists(indexName)) {
+			CreateIndex createIndex = new CreateIndex.Builder(indexName)
+					.settings(settings).build();
+			client.execute(createIndex);
 
-				GetSettings getSettings = new GetSettings.Builder().addIndex(
-						indexName).build();
-				client.execute(getSettings);
+			GetSettings getSettings = new GetSettings.Builder().addIndex(
+					indexName).build();
+			client.execute(getSettings);
 
-				PutMapping putMapping = new PutMapping.Builder(indexName,
-						documentType, mappings).build();
-				client.execute(putMapping);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			PutMapping putMapping = new PutMapping.Builder(indexName,
+					documentType, mappings).build();
+			client.execute(putMapping);
 		}
 	}
 
@@ -210,6 +206,9 @@ public class ElasticSearchUtil {
 				.addType(IndexType).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
+		if(result.getErrorMessage() != null){
+			throw new IOException(result.getErrorMessage());
+		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
 		System.out.println("Time taken for search :" + diff + "ms");
@@ -285,8 +284,7 @@ public class ElasticSearchUtil {
 		if (aggregations != null) {
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
-				String groupByParent = (String) aggregationsMap
-						.get("groupBy");
+				String groupByParent = (String) aggregationsMap.get("groupBy");
 				Map aggKeyMap = (Map) aggregations.get(groupByParent);
 				List<Map<String, Double>> aggKeyList = (List<Map<String, Double>>) aggKeyMap
 						.get("buckets");
@@ -295,15 +293,15 @@ public class ElasticSearchUtil {
 							.get("distinctKey");
 					Map aggChildKeyMap = (Map) aggKeyListMap.get("distinct_"
 							+ distinctKey + "s");
-					Long count = ((Double)aggChildKeyMap.get("value")).longValue();
-					String keyAsString = (String) aggKeyListMap.get("key_as_string");
-					if(keyAsString != null){
-						parentCountMap
-						.put(keyAsString, count);
-					}
-					else{
-						parentCountMap
-								.put((String) aggKeyListMap.get("key"), (Long)count);
+					Long count = ((Double) aggChildKeyMap.get("value"))
+							.longValue();
+					String keyAsString = (String) aggKeyListMap
+							.get("key_as_string");
+					if (keyAsString != null) {
+						parentCountMap.put(keyAsString, count);
+					} else {
+						parentCountMap.put((String) aggKeyListMap.get("key"),
+								(Long) count);
 					}
 				}
 				countMap.put(groupByParent, parentCountMap);
@@ -374,7 +372,7 @@ public class ElasticSearchUtil {
 				builder.endObject();
 			}
 		}
-		
+
 		builder.endObject();
 		return builder.toString();
 	}
