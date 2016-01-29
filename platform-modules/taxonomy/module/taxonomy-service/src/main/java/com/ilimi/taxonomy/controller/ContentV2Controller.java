@@ -1,5 +1,7 @@
 package com.ilimi.taxonomy.controller;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -13,13 +15,21 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.mgr.IContentManager;
 
 @Controller
 @RequestMapping("/v2/content")
 public class ContentV2Controller extends BaseController {
-    
+
+    private static Logger LOGGER = LogManager.getLogger(ContentV2Controller.class.getName());
+
     @Autowired
     private ContentController contentController;
+
+    @Autowired
+    private IContentManager contentManager;
+
+    private String graphId = "domain";
 
     @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
     @ResponseBody
@@ -27,5 +37,35 @@ public class ContentV2Controller extends BaseController {
             @RequestParam(value = "file", required = true) MultipartFile file,
             @RequestHeader(value = "user-id") String userId) {
         return contentController.upload(id, file, "domain", userId, null);
+    }
+
+    @RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.publish";
+        LOGGER.info("Publish content | Content Id : " + contentId);
+        try {
+            Response response = contentManager.publish(graphId, contentId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Publish | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+
+    @RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> extract(@PathVariable(value = "id") String contentId,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.extract";
+        LOGGER.info("Extract content | Content Id : " + contentId);
+        try {
+            Response response = contentManager.extract(graphId, contentId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Extract | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
     }
 }

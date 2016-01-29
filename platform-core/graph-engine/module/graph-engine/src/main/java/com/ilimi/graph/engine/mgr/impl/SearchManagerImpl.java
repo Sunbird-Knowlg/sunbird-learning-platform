@@ -172,8 +172,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             try {
                 Graph graph = new Graph(this, graphId);
                 Traverser traverser = new Traverser(graphId, nodeId);
-                traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL).traverseRelation(
-                        new RelationTraversal(relation, RelationTraversal.DIRECTION_OUT));
+                traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL)
+                        .traverseRelation(new RelationTraversal(relation, RelationTraversal.DIRECTION_OUT));
                 if (null != depth && depth.intValue() > 0)
                     traverser.toDepth(depth);
                 request.put(GraphDACParams.traversal_description.name(), traverser);
@@ -182,7 +182,6 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 handleException(e, getSender());
             }
         }
-
     }
 
     @Override
@@ -230,6 +229,36 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             try {
                 Graph graph = new Graph(this, graphId);
                 graph.traverse(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void traverseSubGraph(Request request) {
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        List<String> relations = (List<String>) request.get(GraphDACParams.relations.name());
+        Integer depth = (Integer) request.get(GraphDACParams.depth.name());
+        if (!validateRequired(startNodeId)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_TRAVERSAL_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+            try {
+                Graph graph = new Graph(this, graphId);
+                Traverser traverser = new Traverser(graphId, startNodeId);
+                if (null != relations && !relations.isEmpty()) {
+                    for (String relation : relations) {
+                        traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL)
+                                .traverseRelation(new RelationTraversal(relation));
+                    }
+                }
+                if (null != depth && depth.intValue() > 0)
+                    traverser.toDepth(depth);
+                request.put(GraphDACParams.traversal_description.name(), traverser);
+                graph.traverseSubGraph(request);
             } catch (Exception e) {
                 handleException(e, getSender());
             }
@@ -337,7 +366,8 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                                         if (!relMap.isEmpty()) {
                                             if (relMap.containsKey(SystemProperties.IL_UNIQUE_ID.name()))
                                                 relMap.remove(SystemProperties.IL_UNIQUE_ID.name());
-                                            List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap.get(relationType);
+                                            List<Map<String, Object>> relList = (List<Map<String, Object>>) attrMap
+                                                    .get(relationType);
                                             relList.add(relMap);
                                         }
                                     }
@@ -357,10 +387,12 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         }
     }
 
-    private int getFilterQuery(List<Filter> filters, StringBuilder sb, Map<String, Object> params, String index, int pIndex) {
+    private int getFilterQuery(List<Filter> filters, StringBuilder sb, Map<String, Object> params, String index,
+            int pIndex) {
         for (int i = 0; i < filters.size(); i++) {
             Filter filter = filters.get(i);
-            sb.append(" ").append(index).append(".").append(filter.getProperty()).append(" = {").append(pIndex).append("} ");
+            sb.append(" ").append(index).append(".").append(filter.getProperty()).append(" = {").append(pIndex)
+                    .append("} ");
             params.put("" + pIndex, filter.getValue());
             pIndex += 1;
             if (i < filters.size() - 1) {

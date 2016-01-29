@@ -1,13 +1,18 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
+import javax.activation.MimetypesFileTypeMap;
+
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -43,7 +48,12 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.util.AWSUploader;
+import com.ilimi.taxonomy.util.AppZip;
 import com.ilimi.taxonomy.util.ContentBundle;
+import com.ilimi.taxonomy.util.CustomParser;
+import com.ilimi.taxonomy.util.HttpDownloadUtility;
+import com.ilimi.taxonomy.util.ReadProperties;
+import com.ilimi.taxonomy.util.UnzipUtility;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
@@ -228,14 +238,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
                     "Upload file is blank.");
         }
-        /*
-         * if (null != uploadedFile && !Arrays.asList("zip",
-         * "gzip").contains(FilenameUtils.getExtension(uploadedFile.getName())))
-         * { throw new
-         * ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_UPLOAD_OBJECT.
-         * name(), "Upload file is invalid."); }
-         */
-
         Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
                 GraphDACParams.node_id.name(), id);
         request.put(GraphDACParams.get_tags.name(), true);
@@ -344,7 +346,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         ContentSearchCriteria criteria = new ContentSearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();
         String bundleFileName = (String) request.get("file_name");
-        bundleFileName = bundleFileName.replaceAll("\\s+","_");
+        bundleFileName = bundleFileName.replaceAll("\\s+", "_");
         List<String> contentIds = (List<String>) request.get("content_identifiers");
         Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
         filters.add(filter);
@@ -564,4 +566,356 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         return null;
     }
+
+    public Response publish(String taxonomyId, String contentId) {
+        Response response = new Response();
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(contentId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+        Response responseNode = getDataNode(taxonomyId, contentId);
+        if (checkError(responseNode))
+            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                    "Content not found with id: " + contentId);
+        Node node = (Node) responseNode.get(GraphDACParams.node.name());
+        String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata = node.getMetadata();
+        String contentBody = (String) metadata.get("body");
+        ReadProperties readPro = new ReadProperties();
+        String tempFile = null;
+        try {
+            tempFile = readPro.getPropValues("source.folder");
+            File file = new File(tempFile + "index.ecml");
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            FileUtils.writeStringToFile(file, contentBody);
+            response = parseContent(taxonomyId, contentId, tempFile, fileName);
+        } catch (IOException e) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+        }
+        return response;
+    }
+
+    /**
+     * this method parse ECML file and find src to download media type in assets
+     * folder and finally zip parent folder.
+     * 
+     * @param filePath
+     * @param saveDir
+     */
+    public Response parseContent(String taxonomyId, String contentId, String filePath, String fileName) {
+        ReadProperties readPro = new ReadProperties();
+        String sourceFolder = null;
+        try {
+            sourceFolder = readPro.getPropValues("source.folder");
+        } catch (IOException e1) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e1.getMessage());
+        }
+        Response response = new Response();
+        Map<String, String> map = null;
+        CustomParser.readECMLFileDownload(filePath, sourceFolder, map);
+        String zipFilePathName = sourceFolder + fileName + ".zip";
+        List<String> fileList = new ArrayList<String>();
+        AppZip appZip = new AppZip(fileList, zipFilePathName, sourceFolder);
+        appZip.generateFileList(new File(sourceFolder));
+        appZip.zipIt(zipFilePathName);
+        long timeStempInMiliSec = System.currentTimeMillis();
+        File olderName = new File(zipFilePathName);
+        if (olderName.exists() && olderName.isFile()) {
+            File newName = new File(sourceFolder + File.separator + timeStempInMiliSec + olderName.getName());
+            olderName.renameTo(newName);
+            response = upload(contentId, taxonomyId, newName, folderName);
+        }
+        File directory = new File(sourceFolder);
+        if (!directory.exists()) {
+            System.out.println("Directory does not exist.");
+            System.exit(0);
+        } else {
+            try {
+                delete(directory);
+                if (!directory.exists()) {
+                    directory.mkdir();
+                }
+            } catch (IOException e) {
+                throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+            }
+        }
+        return response;
+    }
+
+    private static void delete(File file) throws IOException {
+        if (file.isDirectory()) {
+            // directory is empty, then delete it
+            if (file.list().length == 0) {
+                file.delete();
+            } else {
+                // list all the directory contents
+                String files[] = file.list();
+                for (String temp : files) {
+                    // construct the file structure
+                    File fileDelete = new File(file, temp);
+                    // recursive delete
+                    delete(fileDelete);
+                }
+                // check the directory again, if empty then delete it
+                if (file.list().length == 0) {
+                    file.delete();
+                }
+            }
+
+        } else {
+            // if file, then delete it
+            file.delete();
+        }
+    }
+
+    public Response extract(String taxonomyId, String contentId) {
+        Response updateRes = null;
+        ReadProperties readPro = new ReadProperties();
+        String tempFileLocation = "";
+        try {
+            tempFileLocation = readPro.getPropValues("save.directory");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
+        }
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+        if (StringUtils.isBlank(contentId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
+        Response responseNode = getDataNode(taxonomyId, contentId);
+        Node node = (Node) responseNode.get(GraphDACParams.node.name());
+        if (responseNode != null) {
+            String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
+            HttpDownloadUtility.downloadFile(zipFilUrl, tempFileLocation);
+            String zipFileTempLocation[] = null;
+            String fileNameWithExtn = null;
+            zipFileTempLocation = zipFilUrl.split("/");
+            fileNameWithExtn = zipFileTempLocation[zipFileTempLocation.length - 1];
+            String zipFile = tempFileLocation + fileNameWithExtn;
+            Response response = new Response();
+            response = extractContent(taxonomyId, zipFile, tempFileLocation);
+            if (checkError(response)) {
+                return response;
+            }
+            Map<String, Object> metadata = new HashMap<String, Object>();
+            metadata = node.getMetadata();
+            metadata.put("body", response.get("ecmlBody"));
+            String appIconUrl = (String) node.getMetadata().get("appIcon");
+            if (StringUtils.isBlank(appIconUrl)) {
+                String newUrl = uploadFile(tempFileLocation, "logo.png");
+                if (StringUtils.isNotBlank(newUrl))
+                    metadata.put("appIcon", newUrl);
+            }
+            node.setMetadata(metadata);
+            Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+            validateReq.put(GraphDACParams.node.name(), node);
+            Response validateRes = getResponse(validateReq, LOGGER);
+            if (checkError(validateRes)) {
+                return validateRes;
+            } else {
+                Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                updateRes = getResponse(updateReq, LOGGER);
+            }
+        }
+        return updateRes;
+    }
+    
+    private String uploadFile(String folder, String filename) {
+        File olderName = new File(folder + filename);
+        try {
+            if (null != olderName && olderName.exists() && olderName.isFile()) {
+                String parentFolderName = olderName.getParent();
+                File newName = new File(
+                        parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
+                olderName.renameTo(newName);
+                String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                return url[1];
+            }
+        } catch (Exception ex) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * This method unzip content folder then it read ECML file and check graph
+     * with id if Id avl then modify ECML File if Id not there it upload on AWS3
+     * and then ceate graph and modify ECML file.
+     * 
+     * @param zipFilePath
+     * @param saveDir
+     */
+    @SuppressWarnings("unchecked")
+    public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
+        String filePath = saveDir + "index.ecml";
+        String uploadFilePath = saveDir + "assets" + File.separator;
+        List<String> mediaIdNotUploaded = new ArrayList<>();
+        Map<String, String> mediaIdURL = new HashMap<String, String>();
+        UnzipUtility unzipper = new UnzipUtility();
+        Response response = new Response();
+        try {
+            unzipper.unzip(zipFilePath, saveDir);
+            Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath, saveDir);
+            Set<String> mediaIdList1 = mediaIdMap.keySet();
+            List<String> mediaIdList = new ArrayList<String>();
+            if (null != mediaIdList1 && !mediaIdList1.isEmpty())
+                mediaIdList.addAll(mediaIdList1);
+            if (mediaIdList != null && !mediaIdList.isEmpty()) {
+                Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
+                        GraphDACParams.node_ids.name(), mediaIdList);
+                Response mediaRes = getResponse(mediaReq, LOGGER);
+                List<Node> mediaNodes = (List<Node>) mediaRes.get(GraphDACParams.node_list.name());
+                List<String> mediaIdFromNode = new ArrayList<String>();
+                if (mediaNodes != null) {
+                    for (Node node : mediaNodes) {
+                        if (!mediaIdFromNode.contains(node.getIdentifier())) {
+                            mediaIdFromNode.add(node.getIdentifier());
+                        }
+                    }
+                }
+                if (mediaIdList != null && !mediaIdList.isEmpty()) {
+                    for (String mediaId : mediaIdList) {
+                        if (!mediaIdFromNode.contains(mediaId)) {
+                            if (!mediaIdNotUploaded.contains(mediaId)) {
+                                mediaIdNotUploaded.add(mediaId);
+                            }
+                        }
+                    }
+                    if (null != mediaNodes) {
+                        for (Node item : mediaNodes) {
+                            if (null == item.getMetadata())
+                                item.setMetadata(new HashMap<String, Object>());
+                            // Updating Node When AWS3 URL is blank
+                            if (item.getMetadata().get("downloadUrl") == null) {
+                                long timeStempInMiliSec = System.currentTimeMillis();
+                                File olderName = new File(uploadFilePath + mediaIdMap.get(item.getIdentifier()));
+                                if (olderName.exists() && olderName.isFile()) {
+                                    String parentFolderName = olderName.getParent();
+                                    File newName = new File(
+                                            parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
+                                    olderName.renameTo(newName);
+                                    String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                                    mediaIdURL.put(item.getIdentifier(), url[1]);
+                                    item.setObjectType("Content");
+                                    Map<String, Object> metadata = new HashMap<String, Object>();
+                                    metadata.put("name", item.getIdentifier());
+                                    metadata.put("code", item.getIdentifier());
+                                    metadata.put("body", "<content></content>");
+                                    metadata.put("status", "Live");
+                                    metadata.put("owner", "ekstep");
+                                    metadata.put("contentType", "Asset");
+                                    metadata.put("downloadUrl", url[1]);
+                                    if (metadata.get("pkgVersion") == null) {
+                                        metadata.put("pkgVersion", 1);
+                                    } else {
+                                        int version = (Integer) metadata.get("pkgVersion") + 1;
+                                        metadata.put("pkgVersion", version);
+                                    }
+                                    Object mimeType = getMimeType(new File(olderName.getName()));
+                                    metadata.put("mimeType", mimeType);
+                                    item.setMetadata(metadata);
+                                    Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                            "validateNode");
+                                    validateReq.put(GraphDACParams.node.name(), item);
+                                    Response validateRes = getResponse(validateReq, LOGGER);
+                                    if (checkError(validateRes)) {
+                                        return validateRes;
+                                    } else {
+                                        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                                "updateDataNode");
+                                        updateReq.put(GraphDACParams.node.name(), item);
+                                        updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
+                                        getResponse(updateReq, LOGGER);
+                                    }
+                                }
+                            } else {
+                                mediaIdURL.put(item.getIdentifier(), item.getMetadata().get("downloadUrl").toString());
+                            }
+                        }
+                    }
+                    if (mediaIdNotUploaded != null && !mediaIdNotUploaded.isEmpty()) {
+                        for (String mediaId : mediaIdNotUploaded) {
+                            long timeStempInMiliSec = System.currentTimeMillis();
+                            File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
+                            if (olderName.exists() && olderName.isFile()) {
+                                String parentFolderName = olderName.getParent();
+                                File newName = new File(
+                                        parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
+                                olderName.renameTo(newName);
+                                String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                                mediaIdURL.put(mediaId, url[1]);
+                                // Creating Node
+                                Node item = new Node();
+                                item.setIdentifier(mediaId);
+                                item.setObjectType("Content");
+                                Map<String, Object> metadata = new HashMap<String, Object>();
+                                metadata.put("name", mediaId);
+                                metadata.put("code", mediaId);
+                                metadata.put("body", "<content></content>");
+                                metadata.put("status", "Live");
+                                metadata.put("owner", "ekstep");
+                                metadata.put("contentType", "Asset");
+                                metadata.put("downloadUrl", url[1]);
+                                if (metadata.get("pkgVersion") == null) {
+                                    metadata.put("pkgVersion", 1);
+                                } else {
+                                    int version = (Integer) metadata.get("pkgVersion") + 1;
+                                    metadata.put("pkgVersion", version);
+                                }
+                                Object mimeType = getMimeType(new File(olderName.getName()));
+                                metadata.put("mimeType", mimeType);
+                                item.setMetadata(metadata);
+                                // Creating a graph.
+                                Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                        "validateNode");
+                                validateReq.put(GraphDACParams.node.name(), item);
+                                Response validateRes = getResponse(validateReq, LOGGER);
+                                if (checkError(validateRes)) {
+                                    return validateRes;
+                                } else {
+                                    Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+                                            "createDataNode");
+                                    createReq.put(GraphDACParams.node.name(), item);
+                                    getResponse(createReq, LOGGER);
+                                }
+                            }
+                        }
+                    }
+                }
+                CustomParser.readECMLFileDownload(saveDir, saveDir, mediaIdURL);
+            }
+            CustomParser.updateJsonInEcml(filePath, "items");
+            response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
+            // deleting unzip file
+            File directory = new File(saveDir);
+            if (!directory.exists()) {
+                System.out.println("Directory does not exist.");
+                System.exit(0);
+            } else {
+                try {
+                    delete(directory);
+                    if (!directory.exists()) {
+                        directory.mkdir();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception ex) {
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
+        }
+        return response;
+    }
+
+    private Object getMimeType(File file) {
+        MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
+
+        return mimeType.getContentType(file);
+    }
+
 }
