@@ -1,5 +1,6 @@
 package org.ekstep.language.measures.actor;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -64,6 +65,22 @@ public class LexileMeasuresActor extends LanguageBaseActor {
                         }
                     }
                     OK(LanguageParams.complexity_measures.name(), map, getSender());
+                } else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordFeatures.name(), operation)) { 
+                    List<String> words = (List<String>) request.get(LanguageParams.words.name());
+                    if (null == words) {
+                        words = new ArrayList<String>();
+                    }
+                    String word = (String) request.get(LanguageParams.word.name());
+                    if (StringUtils.isNotBlank(word))
+                        words.add(word);
+                    
+                    Map<String, WordComplexity> map = new HashMap<String, WordComplexity>();
+                    if (null != words && !words.isEmpty()) {
+                        for (String w : words) {
+                            map.put(w, WordMeasures.getWordComplexity(languageId, w));
+                        }
+                    }
+                    OK(LanguageParams.word_features.name(), map, getSender());
                 } else {
                     LOGGER.info("Unsupported operation: " + operation);
                     unhandled(msg);
