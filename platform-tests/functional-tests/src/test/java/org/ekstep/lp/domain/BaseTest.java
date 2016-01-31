@@ -13,10 +13,10 @@ public class BaseTest
 {
 	ResponseSpecBuilder builderres = new ResponseSpecBuilder();
 	
-	String liveStatus = "Live";
-	String contentType = "application/json";
-	String validuserId = "rayuluv";
-	String invalidUserId = "abc";
+	public String liveStatus = "Live";
+	public String contentType = "application/json";
+	public String validuserId = "rayuluv";
+	public String invalidUserId = "abc";
 	
 	/**
 	 * sets baseURI and basePath
