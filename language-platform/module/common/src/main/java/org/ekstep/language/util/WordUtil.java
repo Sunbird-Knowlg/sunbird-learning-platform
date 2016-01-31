@@ -689,7 +689,6 @@ public class WordUtil extends BaseManager {
 					}
 				}
 				createRes = res;
-				System.out.println("Response: | ");
 			}
 		}
 		if (null == errResponse) {

@@ -164,7 +164,7 @@
           "title": "POS (Parts of Speech)",
           "description": "",
           "category": "grammar",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": false,
@@ -453,13 +453,14 @@
             [
                 "Draft",
                 "Live",
+                "Review",
                 "Retired"
             ],
 
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Draft",
+            "defaultValue": "Live",
             "renderingHints": "{'inputType': 'select', 'order': 23}"
         },
         {

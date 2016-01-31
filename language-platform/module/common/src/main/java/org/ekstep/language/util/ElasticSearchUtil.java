@@ -212,7 +212,6 @@ public class ElasticSearchUtil {
 		SearchResult result = client.execute(search);
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
-		System.out.println("Time taken for search :" + diff + "ms");
 		return result;
 	}
 
