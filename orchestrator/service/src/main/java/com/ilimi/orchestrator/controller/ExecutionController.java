@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,29 +42,32 @@ public class ExecutionController extends BaseOrchestratorController {
 
     @RequestMapping(value = "/**", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> get(HttpServletRequest request) {
-        return executeScript(request, RequestTypes.GET.name(), null);
+    public ResponseEntity<Response> get(HttpServletRequest request, HttpServletResponse response) {
+        return executeScript(request, response, RequestTypes.GET.name(), null);
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> post(@RequestBody Map<String, Object> map, HttpServletRequest request) {
-        return executeScript(request, RequestTypes.POST.name(), map);
+    public ResponseEntity<Response> post(@RequestBody Map<String, Object> map, HttpServletRequest request,
+            HttpServletResponse response) {
+        return executeScript(request, response, RequestTypes.POST.name(), map);
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.PATCH)
     @ResponseBody
-    public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request) {
-        return executeScript(request, RequestTypes.PATCH.name(), map);
+    public ResponseEntity<Response> patch(@RequestBody Map<String, Object> map, HttpServletRequest request,
+            HttpServletResponse response) {
+        return executeScript(request, response, RequestTypes.PATCH.name(), map);
     }
 
     @RequestMapping(value = "/**", method = RequestMethod.DELETE)
     @ResponseBody
-    public ResponseEntity<Response> delete(HttpServletRequest request) {
-        return executeScript(request, RequestTypes.DELETE.name(), null);
+    public ResponseEntity<Response> delete(HttpServletRequest request, HttpServletResponse response) {
+        return executeScript(request, response, RequestTypes.DELETE.name(), null);
     }
 
-    private ResponseEntity<Response> executeScript(HttpServletRequest request, String type, Map<String, Object> map) {
+    private ResponseEntity<Response> executeScript(HttpServletRequest request, HttpServletResponse response,
+            String type, Map<String, Object> map) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         OrchestratorScript script = getScript(path, type);
         try {
@@ -72,8 +76,19 @@ public class ExecutionController extends BaseOrchestratorController {
                         "Script not found for the request path: " + path);
             }
             Map<String, Object> params = getParams(request, script, path, map);
-            Response response = executor.execute(script, params);
-            return getResponseEntity(response, script.getName());
+            Response resp = executor.execute(script, params);
+            String format = request.getParameter("format");
+            if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
+                String csv = (String) resp.getResult().get("result");
+                if (StringUtils.isNotBlank(csv)) {
+                    byte[] bytes = csv.getBytes();
+                    response.setContentType("text/csv");
+                    response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
+                    response.getOutputStream().write(bytes);
+                    response.getOutputStream().close();
+                }
+            }
+            return getResponseEntity(resp, script.getName());
         } catch (Exception e) {
             return getExceptionResponseEntity(e, path);
         }

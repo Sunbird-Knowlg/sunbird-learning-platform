@@ -188,14 +188,14 @@ public class IndexesActor extends LanguageBaseActor {
 		grade.put("groupBy", "grade");
 		grade.put("distinctKey", distinctKey);
 		groupByList.add(grade);
-		Map<String, Object> fileName = new HashMap<String, Object>();
+		/*Map<String, Object> fileName = new HashMap<String, Object>();
 		fileName.put("groupBy", "fileName");
 		fileName.put("distinctKey", distinctKey);
 		groupByList.add(fileName);
 		Map<String, Object> date = new HashMap<String, Object>();
 		date.put("groupBy", "date");
 		date.put("distinctKey", distinctKey);
-		groupByList.add(date);
+		groupByList.add(date);*/
 
 		Map<String, Object> wordMetrics = (Map<String, Object>) util
 				.getDistinctCountOfSearch(null, citationIndexName,

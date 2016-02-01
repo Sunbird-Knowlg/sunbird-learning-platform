@@ -1,5 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
@@ -41,5 +43,15 @@ public abstract class BaseSystemCommand {
         params.setStatus(StatusType.successful.name());
         params.setErrmsg("Operation successful");
         return params;
+    }
+    
+    protected boolean checkError(Response response) {
+        ResponseParams params = response.getParams();
+        if (null != params) {
+            if (StringUtils.equals(StatusType.failed.name(), params.getStatus())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
