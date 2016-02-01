@@ -2,31 +2,29 @@
     "identifier": "", // Identifier
     "name": "", // Name
     "code": "", // Code
-    "title": "", // Title (Enum: )
+    "title": "", // Title
 
     // general
-    "template": "", // Template/Layout used to render this item (Enum: )
+    "template": "", // Template/Layout used to render this item
     "type": "", // Type (Enum: embedded, mcq, mmcq, sort_list etc.)
     "keywords": "", // Keywords
-    "body": "", // Question (Enum: )
-    "model": "", // Model (Enum: )
-    "options": "", // Options (Enum: )
-    "lhs_options": "", // LHS Options (Enum: )
-    "rhs_options": "", // RHS Options (Enum: )
-    "num_answers": 0, // Number of Answers (Enum: )
-    "answer": "", // Answer (Enum: )
-    "hints": "", // Hints (Enum: )
+    "body": "", // Question
+    "model": "", // Model
+    "options": "", // Options
+    "lhs_options": "", // LHS Options
+    "rhs_options": "", // RHS Options
+    "num_answers": 0, // Number of Answers
+    "answer": "", // Answer
+    "hints": "", // Hints
     "qlevel": "", // Question Level (Enum: EASY, MEDIUM, DIFFICULT, RARE)
-    "difficulty_level": "", // Difficulty Level (Enum: low, medium, high)
-    "sub_purpose": "", // Sub Purpose (Enum: )
     "depth_of_knowledge": "", // Depth of Knowledge (Enum: Recall, Skill, Strategic Thinking, Extended Thinking)
     "used_for": "", // Used for (Enum: assessment, worksheet)
-    "max_score": 0, // Maximum possible score for this item (Enum: )
+    "max_score": 0, // Maximum possible score for this item
     "partial_scoring": "", // Partial Scoring
-    "feedback": "", // Feedback (Enum: )
-    "max_time": 0, // Max Time (Enum: )
-    "levels": "", // Levels (Enum: Level1, Level2, Level3, Level4 etc.)
-    "rendering_metadata": "", // Rendering Metadata (Enum: )
+    "feedback": "", // Feedback
+    "max_time": 0, // Max Time
+    "gradeLevel": "", // Levels (Enum: "Kindergarten", "Grade 1", "Grade 2", "Grade 3", "Grade 4", "Grade 5", "Other")
+    "rendering_metadata": "", // Rendering Metadata
     "description": "", // Description
     "learningObjective": "", // Learning Objective
     "example": "", // Examples
@@ -44,7 +42,7 @@
     "status": "", // Status (Enum: Draft, Review, Live, Retired etc.)
 
     // ownership
-    "owner": "", // Owner (Enum: )
+    "owner": "", // Owner
 
     // pedagogy
     "purpose": "", // Purpose (Enum: Knowledge, Conceptual, Application, Problem Solving)
