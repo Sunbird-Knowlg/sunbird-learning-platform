@@ -1,0 +1,83 @@
+{
+    "definitionNodes": [{
+        "objectType": "ItemOption",
+        "properties": [{
+            "propertyName": "text",
+            "title": "Text",
+            "description": "Option text (if any)",
+            "category": "general",
+            "dataType": "Text",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 1}",
+            "indexed": true
+        }, {
+            "propertyName": "image",
+            "title": "Image",
+            "description": "Image to include in the option (if any)",
+            "category": "general",
+            "dataType": "URL",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'text', 'order': 2}",
+            "indexed": true
+        }, {
+            "propertyName": "audio",
+            "title": "Sound",
+            "description": "Audio to play on this option (if any)",
+            "category": "General",
+            "dataType": "URL",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "English",
+            "renderingHints": "{'inputType': 'text', 'order': 5}",
+            "indexed": true
+        }, {
+            "required": true,
+            "dataType": "Text",
+            "propertyName": "value",
+            "title": "Value",
+            "description": "Value for the response",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+            "indexed": true
+        }, {
+            "required": false,
+            "dataType": "Number",
+            "propertyName": "index",
+            "title": "Index",
+            "description": "Option index (in case of sequenced options)",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+            "indexed": true
+        }, {
+            "required": false,
+            "dataType": "Boolean",
+            "propertyName": "answer",
+            "title": "Answer",
+            "description": "Is this option correct?",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
+            "indexed": true
+        }, {
+            "propertyName": "mapto",
+            "title": "Mapped to",
+            "description": "Which option does this map to",
+            "category": "general",
+            "dataType": "Number",
+            "required": false,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'table', 'order': 7}",
+            "indexed": true
+        }]
+    }]
+}
