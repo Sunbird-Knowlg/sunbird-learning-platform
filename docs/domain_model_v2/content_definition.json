@@ -338,7 +338,7 @@
         },
         {
           "required": false,
-          "dataType": "Text",
+          "dataType": "URL",
           "propertyName": "downloadUrl",
           "title": "Download Url",
           "description": "URL to download the content",
@@ -944,7 +944,7 @@
           "title": "Checksum",
           "description": "Checksum value of the story package file",
           "category": "Technical",
-          "displayProperty": "Editable",
+          "displayProperty": "Hidden",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": false,
