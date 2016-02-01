@@ -26,6 +26,8 @@ import net.sf.json.util.JSONStringer;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.ekstep.language.model.CitationBean;
+import org.ekstep.language.model.WordIndexBean;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -34,6 +36,19 @@ public class ElasticSearchUtil {
 	private JestClient client;
 	private String hostName;
 	private String port;
+	private int defaultResultSize = 10000;
+	private int resultSize = defaultResultSize;
+
+	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
+		super();
+		initialize();
+		this.resultSize = resultSize;
+		JestClientFactory factory = new JestClientFactory();
+		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":"
+				+ port).multiThreaded(true).build());
+		client = factory.getObject();
+		
+	}
 
 	public ElasticSearchUtil() throws UnknownHostException {
 		super();
@@ -43,7 +58,7 @@ public class ElasticSearchUtil {
 				+ port).multiThreaded(true).build());
 		client = factory.getObject();
 	}
-
+	
 	public void initialize() {
 		hostName = PropertiesUtil.getProperty("elastic-search-host");
 		port = PropertiesUtil.getProperty("elastic-search-port");
@@ -61,7 +76,7 @@ public class ElasticSearchUtil {
 		client.execute(index);
 	}
 
-	public static void main(String args[]) throws UnknownHostException {
+	public static void main(String args[]) throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
 		settingBuilder.object().key("settings").object().key("analysis")
 				.object().key("filter").object().key("nfkc_normalizer")
@@ -82,29 +97,25 @@ public class ElasticSearchUtil {
 				.value("dd-MMM-yyyy HH:mm:ss").endObject().endObject()
 				.endObject().endObject();
 
-		ElasticSearchUtil util = new ElasticSearchUtil();
+		ElasticSearchUtil util = new ElasticSearchUtil(10000);
 		util.addIndex("test_index", "test_type", settingBuilder.toString(),
 				mappingBuilder.toString());
 	}
 
 	public void addIndex(String indexName, String documentType,
-			String settings, String mappings) {
-		try {
-			if (!isIndexExists(indexName)) {
-				CreateIndex createIndex = new CreateIndex.Builder(indexName)
-						.settings(settings).build();
-				client.execute(createIndex);
+			String settings, String mappings) throws IOException {
+		if (!isIndexExists(indexName)) {
+			CreateIndex createIndex = new CreateIndex.Builder(indexName)
+					.settings(settings).build();
+			client.execute(createIndex);
 
-				GetSettings getSettings = new GetSettings.Builder().addIndex(
-						indexName).build();
-				client.execute(getSettings);
+			GetSettings getSettings = new GetSettings.Builder().addIndex(
+					indexName).build();
+			client.execute(getSettings);
 
-				PutMapping putMapping = new PutMapping.Builder(indexName,
-						documentType, mappings).build();
-				client.execute(putMapping);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
+			PutMapping putMapping = new PutMapping.Builder(indexName,
+					documentType, mappings).build();
+			client.execute(putMapping);
 		}
 	}
 
@@ -172,6 +183,55 @@ public class ElasticSearchUtil {
 		return documents;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked", "deprecation" })
+	public List<Object> wildCardSearch(Class objectClass, String textKeyWord,
+			String wordWildCard, String indexName, String indexType)
+			throws IOException {
+		SearchResult result = wildCardSearch(textKeyWord, wordWildCard,
+				indexName, indexType);
+		List<Object> documents = result.getSourceAsObjectList(objectClass);
+		return documents;
+	}
+
+	private SearchResult wildCardSearch(String textKeyWord,
+			String wordWildCard, String indexName, String indexType)
+			throws IOException {
+		String query = buildJsonForWildCardQuery(textKeyWord, wordWildCard);
+		return search(indexName, indexType, query);
+	}
+
+	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
+	public List<Object> textFiltersSearch(Class objectClass,
+			Map<String, Object> searchCriteria,
+			Map<String, Object> textFiltersMap, String indexName,
+			String indexType) throws IOException {
+		SearchResult result = search(searchCriteria, textFiltersMap, indexName,
+				indexType, null, false);
+		List<Object> documents = result.getSourceAsObjectList(objectClass);
+		return documents;
+	}
+
+	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
+	public Map<String, Object> textFiltersGroupBySearch(Class objectClass,
+			Map<String, Object> searchCriteria,
+			Map<String, Object> textFiltersMap,
+			List<Map<String, Object>> groupByList, String indexName,
+			String indexType) throws IOException {
+		SearchResult result = search(searchCriteria, textFiltersMap, indexName,
+				indexType, groupByList, false);
+		List<Object> documents = result.getSourceAsObjectList(objectClass);
+		Map<String, Object> response = new HashMap<String, Object>();
+		response.put("objects", documents);
+
+		if (result.getAggregations() != null) {
+			LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) result
+					.getValue("aggregations");
+			response.put("aggregations",
+					getCountFromAggregation(aggregations, groupByList));
+		}
+		return response;
+	}
+
 	@SuppressWarnings({ "unchecked", "deprecation", "rawtypes" })
 	public List<Object> textSearch(Class objectClass,
 			Map<String, Object> matchCriterias,
@@ -207,24 +267,23 @@ public class ElasticSearchUtil {
 	public SearchResult search(String IndexName, String IndexType, String query)
 			throws IOException {
 		Search search = new Search.Builder(query).addIndex(IndexName)
-				.addType(IndexType).build();
+				.addType(IndexType).setParameter("size", resultSize)
+				.build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
+		if (result.getErrorMessage() != null) {
+			throw new IOException(result.getErrorMessage());
+		}
 		long endTime = System.currentTimeMillis();
 		long diff = endTime - startTime;
 		return result;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public Map<String, Object> getCountOfSearch(Class objectClass,
-			Map<String, Object> matchCriterias, String IndexName,
-			String IndexType, List<Map<String, Object>> groupByList)
-			throws IOException {
+	public Map<String, Object> getCountFromAggregation(
+			LinkedTreeMap<String, Object> aggregations,
+			List<Map<String, Object>> groupByList) {
 		Map<String, Object> countMap = new HashMap<String, Object>();
-		SearchResult result = search(matchCriterias, null, IndexName,
-				IndexType, groupByList, false);
-		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) result
-				.getValue("aggregations");
 		if (aggregations != null) {
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
@@ -272,6 +331,18 @@ public class ElasticSearchUtil {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Map<String, Object> getCountOfSearch(Class objectClass,
+			Map<String, Object> matchCriterias, String IndexName,
+			String IndexType, List<Map<String, Object>> groupByList)
+			throws IOException {
+		SearchResult result = search(matchCriterias, null, IndexName,
+				IndexType, groupByList, false);
+		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) result
+				.getValue("aggregations");
+		return getCountFromAggregation(aggregations, groupByList);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map<String, Object> getDistinctCountOfSearch(
 			Map<String, Object> matchCriterias, String IndexName,
 			String IndexType, List<Map<String, Object>> groupByList)
@@ -284,8 +355,7 @@ public class ElasticSearchUtil {
 		if (aggregations != null) {
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
-				String groupByParent = (String) aggregationsMap
-						.get("groupBy");
+				String groupByParent = (String) aggregationsMap.get("groupBy");
 				Map aggKeyMap = (Map) aggregations.get(groupByParent);
 				List<Map<String, Double>> aggKeyList = (List<Map<String, Double>>) aggKeyMap
 						.get("buckets");
@@ -294,15 +364,15 @@ public class ElasticSearchUtil {
 							.get("distinctKey");
 					Map aggChildKeyMap = (Map) aggKeyListMap.get("distinct_"
 							+ distinctKey + "s");
-					Long count = ((Double)aggChildKeyMap.get("value")).longValue();
-					String keyAsString = (String) aggKeyListMap.get("key_as_string");
-					if(keyAsString != null){
-						parentCountMap
-						.put(keyAsString, count);
-					}
-					else{
-						parentCountMap
-								.put((String) aggKeyListMap.get("key"), (Long)count);
+					Long count = ((Double) aggChildKeyMap.get("value"))
+							.longValue();
+					String keyAsString = (String) aggKeyListMap
+							.get("key_as_string");
+					if (keyAsString != null) {
+						parentCountMap.put(keyAsString, count);
+					} else {
+						parentCountMap.put((String) aggKeyListMap.get("key"),
+								(Long) count);
 					}
 				}
 				countMap.put(groupByParent, parentCountMap);
@@ -318,7 +388,7 @@ public class ElasticSearchUtil {
 			throws JsonGenerationException, JsonMappingException, IOException {
 
 		JSONBuilder builder = new JSONStringer();
-		builder.object();
+		builder.object().key("query").object().key("filtered").object();
 
 		if (matchCriterias != null) {
 			builder.key("query").object().key("bool").object().key("should")
@@ -335,6 +405,24 @@ public class ElasticSearchUtil {
 			}
 			builder.endArray().endObject().endObject();
 		}
+
+		if (textFiltersMap != null && !textFiltersMap.isEmpty()) {
+			builder.key("filter").object().key("bool").object().key("must")
+					.array();
+			for (Map.Entry<String, Object> entry : textFiltersMap.entrySet()) {
+				builder.object().key("terms").object().key(entry.getKey())
+						.array();
+				ArrayList<String> termValues = (ArrayList<String>) entry
+						.getValue();
+				for (String termValue : termValues) {
+					builder.value(termValue);
+				}
+				builder.endArray().endObject().endObject();
+			}
+			builder.endArray().endObject().endObject();
+		}
+
+		builder.endObject().endObject();
 
 		if (groupByList != null && !groupByList.isEmpty()) {
 			if (!isDistinct) {
@@ -373,65 +461,23 @@ public class ElasticSearchUtil {
 				builder.endObject();
 			}
 		}
-		
+
 		builder.endObject();
 		return builder.toString();
 	}
 
-	@SuppressWarnings({ "unchecked", "unused" })
-	private JSONBuilder addGroupByQuery(List<Map<String, Object>> groupByList,
-			boolean isDistinct) {
+	private String buildJsonForWildCardQuery(String textKeyWord,
+			String wordWildCard) {
+
+		/*
+		 * { "query": { "wildcard": { "word": "ಏ*" } } }
+		 */
 
 		JSONBuilder builder = new JSONStringer();
+		builder.object().key("query").object().key("wildcard").object()
+				.key(textKeyWord).value(wordWildCard).endObject().endObject()
+				.endObject();
 
-		if (!isDistinct) {
-			if (groupByList != null && !groupByList.isEmpty()) {
-				builder.key("aggs").object();
-				for (Map<String, Object> groupByMap : groupByList) {
-					String groupByParent = (String) groupByMap
-							.get("groupByParent");
-					List<String> groupByChildList = (List<String>) groupByMap
-							.get("groupByChildList");
-					builder.key("aggs").object().key(groupByParent).object()
-							.key("terms").object().key("field")
-							.value(groupByParent).endObject();
-					if (groupByChildList != null && !groupByChildList.isEmpty()) {
-						builder.key("aggs").object();
-						for (String childGroupBy : groupByChildList) {
-							builder.key(childGroupBy).object().key("terms")
-									.object().key("field").value(childGroupBy)
-									.endObject().endObject();
-						}
-						builder.endObject();
-					}
-					builder.endObject();
-				}
-				builder.endObject();
-			}
-		}
-		/*
-		 * { "aggs": { "sourceType": { "terms": { "field": "sourceType" },
-		 * "aggs": { "distinct_rootWords" : { "cardinality" : { "field" :
-		 * "rootWord" } } } } } }
-		 */
-		else {
-			if (groupByList != null && !groupByList.isEmpty()) {
-				builder.key("aggs").object();
-				for (Map<String, Object> groupByMap : groupByList) {
-					String groupBy = (String) groupByMap.get("groupBy");
-					String distinctKey = (String) groupByMap.get("distinctKey");
-					builder.key(groupBy).object().key("terms").object()
-							.key("field").value(groupBy).endObject();
-					builder.key("aggs").object();
-					builder.key("distinct_" + distinctKey + "s").object()
-							.key("cardinality").object().key("field")
-							.value(distinctKey).endObject().endObject();
-					builder.endObject().endObject();
-				}
-				builder.endObject();
-			}
-		}
-		return builder;
+		return builder.toString();
 	}
-
 }

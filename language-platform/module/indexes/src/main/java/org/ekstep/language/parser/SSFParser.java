@@ -3,8 +3,10 @@ package org.ekstep.language.parser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -52,22 +54,22 @@ public class SSFParser {
 				.getProperty("attributesTagIdentifier");
 	}
 
-	public static void parseSsfFilesFolder(String folderPath,
-			String sourceType, String source, String grade, String languageId) {
-		final File folder = new File(folderPath);
-		for (final File fileEntry : folder.listFiles()) {
-			if (fileEntry.isDirectory()) {
-				parseSsfFilesFolder(fileEntry.getAbsolutePath(), sourceType,
+	public static void parseSsfFiles(String filePath,
+			String sourceType, String source, String grade, String languageId) throws Exception{
+		final File file = new File(filePath);
+		if (file.isDirectory()) {
+			for (final File fileEntry : file.listFiles()) {
+				parseSsfFiles(fileEntry.getAbsolutePath(), sourceType,
 						source, grade, languageId);
-			} else {
-				parseSsfFile(fileEntry.getAbsolutePath(), sourceType, source,
-						grade, languageId);
 			}
+		} else {
+			parseSsfFile(file.getAbsolutePath(), sourceType, source, grade,
+					languageId);
 		}
 	}
 
 	public static void parseSsfFile(String filePath, String sourceType,
-			String source, String grade, String languageId) {
+			String source, String grade, String languageId) throws Exception {
 		String sentence = null;
 		BufferedReader br = null;
 		try {
@@ -81,8 +83,6 @@ public class SSFParser {
 						processSentence(sentence, sourceType, source, grade,
 								fileName), languageId);
 			}
-		} catch (Exception e) {
-			e.printStackTrace();
 		} finally {
 			if (br != null) {
 				try {
@@ -105,13 +105,13 @@ public class SSFParser {
 		Files.write(path, content.getBytes(charset));
 	}
 
-	public static void main(String args[]) {
+	public static void main(String args[]) throws Exception {
 		String fileName = "C:\\data\\testFolder\\test.txt";
 		parseSsfFile(fileName, "Books", "Scarlet", "1", "ka");
 	}
 
 	private static List<CitationBean> processSentence(String sentence,
-			String sourceType, String source, String grade, String fileName) {
+			String sourceType, String source, String grade, String fileName) throws Exception {
 		String[] sentenceTokens = sentence.split(SENTENCE_SPLITTER);
 		ArrayList<String> enhancedSentenceTokens = enhanceSentenceTokens(sentenceTokens);
 		boolean wordFound = false;
@@ -167,8 +167,8 @@ public class SSFParser {
 							pos = null;
 							tokenCountAfterWord = 0;
 						} catch (IndexOutOfBoundsException e) {
-							logger.error("Word attributes does not contain all required data.");
 							e.printStackTrace();
+							throw new Exception("Word attributes does not contain all required data.");
 						}
 					}
 				}
