@@ -7,15 +7,18 @@
     },{
         "name":"syllableCount",
         "index": 1,
-        "routingParam": false
+        "routingParam": false,
+        "datatype": "java.lang.Integer"
     },{
         "name":"startsWith",
         "index": 2,
-        "routingParam": false
+        "routingParam": false,
+        "datatype": "java.lang.String"
     },{
         "name":"minComplexity",
         "index": 3,
-        "routingParam": false
+        "routingParam": false,
+        "datatype": "java.lang.Double"
     }],
     "body": ""
 }

@@ -78,7 +78,8 @@ public class CreateSearchCriteria implements ICommand, Command {
                             List<Map> list = (List<Map>) map.get("filters");
                             if (null != list && !list.isEmpty()) {
                                 for (Map filterObj : list) {
-                                    Filter dto = (Filter) mapper.convertValue(filterObj, Filter.class);
+                                    String strObject = mapper.writeValueAsString(filterObj);
+                                    Filter dto = (Filter) mapper.readValue(strObject, Filter.class);
                                     if (null != dto)
                                         filters.add(dto);
                                 }

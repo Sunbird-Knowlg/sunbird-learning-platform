@@ -107,13 +107,15 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 Object count = citations.get("count");
                                 if (null != count)
                                     node.getMetadata().put("occurrenceCount", count);
+                                setCountsMetadata(node, citations, "sourceType", null);
                                 setCountsMetadata(node, citations, "source", "source");
-                                setCountsMetadata(node, citations, "grade", "grade");
                                 setCountsMetadata(node, citations, "grade", "grade");
                                 setCountsMetadata(node, citations, "pos", "pos");
                                 addTags(node, citations, "source");
                                 updatePosList(node, citations);
+                                updateSourceTypesList(node, citations);
                                 updateSourcesList(node, citations);
+                                updateGradeList(node, citations);
                                 node.getMetadata().put("status", "Live");
                                 Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                         "updateDataNode");
@@ -203,9 +205,17 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     private void updatePosList(Node node, Map<String, Object> citations) {
         updateListMetadata(node, citations, "pos", "pos");
     }
+    
+    private void updateSourceTypesList(Node node, Map<String, Object> citations) {
+        updateListMetadata(node, citations, "sourceType", "sourceTypes");
+    }
 
     private void updateSourcesList(Node node, Map<String, Object> citations) {
         updateListMetadata(node, citations, "source", "sources");
+    }
+    
+    private void updateGradeList(Node node, Map<String, Object> citations) {
+        updateListMetadata(node, citations, "grade", "grade");
     }
 
     @SuppressWarnings("unchecked")

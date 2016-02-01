@@ -30,6 +30,19 @@
           "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
         },
         {
+          "propertyName": "sourceTypes",
+          "title": "Source Types",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+        },
+        {
           "propertyName": "commisionedBy",
           "title": "Commisioned By",
           "description": "",
@@ -173,6 +186,19 @@
           "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
         },
         {
+          "propertyName": "grade",
+          "title": "Grade",
+          "description": "",
+          "category": "grammar",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
+        },
+        {
           "propertyName": "morphology",
           "title": "Morphology",
           "description": "",
@@ -239,19 +265,6 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select',  'order': 14 }"
-        },
-        {
-          "propertyName": "gradeLevel",
-          "title": "Grade Level",
-          "description": "",
-          "category": "pedagogy",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
         },
         {
           "propertyName": "ageBand",
