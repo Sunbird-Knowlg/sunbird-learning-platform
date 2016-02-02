@@ -33,6 +33,8 @@ public class IndexesActor extends LanguageBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(IndexesActor.class
 			.getName());
+	
+	private int DEFAULT_LIMIT = 10000;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -96,7 +98,7 @@ public class IndexesActor extends LanguageBaseActor {
 							.get(LanguageParams.to_date.name()) : null);
 					
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 
 					List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 					if (request.get(LanguageParams.groupBy.name()) != null) {
@@ -117,14 +119,14 @@ public class IndexesActor extends LanguageBaseActor {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					getRootWords(words, languageId, limit);
 				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.getWordId.name(), operation)) {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					getWordIds(words, languageId, limit);
 				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.getIndexInfo.name(), operation)) {
@@ -133,7 +135,7 @@ public class IndexesActor extends LanguageBaseActor {
 					List<String> groupByList = (List<String>) request
 							.get(LanguageParams.groupBy.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					Map<String, Object> groupByWordMap = new HashMap<String, Object>();
 					groupByWordMap.put("groupByParent",
 							LanguageParams.word.name());
@@ -161,7 +163,7 @@ public class IndexesActor extends LanguageBaseActor {
 					String wordWildCard = (String) request
 							.get(LanguageParams.word.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					wordWildCard(wordWildCard, languageId, limit);
 				} else {
 					LOGGER.info("Unsupported operation: " + operation);
