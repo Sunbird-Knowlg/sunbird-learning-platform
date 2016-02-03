@@ -18,6 +18,7 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
+import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.ElasticSearchUtil;
@@ -54,8 +55,11 @@ public class IndexesActor extends LanguageBaseActor {
 							.name());
 					String source = (String) request.get(LanguageParams.source
 							.name());
+					boolean skipCitations = request.get(LanguageParams.skipCitations
+							.name()) != null ? (boolean) request.get(LanguageParams.skipCitations
+							.name()):false;
 					SSFParser.parseSsfFiles(filePathOnServer, sourceType,
-							source, grade, languageId);
+							source, grade, skipCitations, languageId);
 					OK(getSender());
 				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.citationsCount.name(), operation)) {
@@ -120,6 +124,13 @@ public class IndexesActor extends LanguageBaseActor {
 							.get(LanguageParams.limit.name()) : null);
 					getRootWords(words, languageId, limit);
 				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.rootWordInfo.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
+							.get(LanguageParams.limit.name()) : null);
+					getRootWordInfo(words, languageId, limit);
+				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.getWordId.name(), operation)) {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
@@ -163,6 +174,20 @@ public class IndexesActor extends LanguageBaseActor {
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
 							.get(LanguageParams.limit.name()) : null);
 					wordWildCard(wordWildCard, languageId, limit);
+				} else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.morphologicalVariants.name(), operation)) {
+					List<Map<String, String>> words = (List<Map<String, String>>) request
+							.get(LanguageParams.words.name());
+					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
+							.get(LanguageParams.limit.name()) : null);
+					getMorphologicalVariants(words, languageId, limit);
+				}  else if (StringUtils.equalsIgnoreCase(
+						LanguageOperations.wordInfo.name(), operation)) {
+					List<String> words = (List<String>) request
+							.get(LanguageParams.words.name());
+					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
+							.get(LanguageParams.limit.name()) : null);
+					getWordInfo(words, languageId, limit);
 				} else {
 					LOGGER.info("Unsupported operation: " + operation);
 					unhandled(msg);
@@ -176,6 +201,29 @@ public class IndexesActor extends LanguageBaseActor {
 		}
 	}
 
+	private void getMorphologicalVariants(List<Map<String, String>> words,
+			String languageId, int limit) throws IOException {
+		ElasticSearchUtil util = new ElasticSearchUtil(limit);
+		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
+		String textKeyWord = "rootWord";
+		Map<String, Object> searchCriteria = new HashMap<String, Object>();
+		searchCriteria.put(textKeyWord, words);
+		List<Object> wordIndexes = util.textSearch(WordIndexBean.class,
+				searchCriteria, indexName, Constants.WORD_INDEX_TYPE);
+		Map<String, ArrayList<WordIndexBean>> rootWordsMap = new HashMap<String, ArrayList<WordIndexBean>>();
+		for (Object wordIndexTemp : wordIndexes) {
+			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
+			ArrayList<WordIndexBean> rootWordList = (ArrayList<WordIndexBean>) rootWordsMap.get(wordIndex.getRootWord());
+			if(rootWordList == null){
+				rootWordList =  new ArrayList<WordIndexBean>();
+			}
+			rootWordList.add(wordIndex);
+			rootWordsMap.put(wordIndex.getRootWord(), rootWordList);
+		}
+		OK(LanguageParams.morphological_variants.name(), rootWordsMap, getSender());
+		
+	}
+
 	private void wordWildCard(String wordWildCard, String languageId, int limit) throws Exception {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
@@ -185,10 +233,12 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.words.name(), words, getSender());		
 	}
 
+	@SuppressWarnings("rawtypes")
 	private void addCitations(List<Map<String, String>> citations,
 			String languageId) throws Exception {
 		WordUtil wordUtil = new WordUtil();
 		ObjectMapper mapper = new ObjectMapper();
+		Map<String, List> indexes = new HashMap<String, List>();
 		ArrayList<CitationBean> citationBeanList = new ArrayList<CitationBean>();
 		for (Map<String, String> map : citations) {
 			String jsonString = mapper.writeValueAsString(map);
@@ -204,7 +254,8 @@ public class IndexesActor extends LanguageBaseActor {
 					"Required parameters are missing",
 					ResponseCode.SERVER_ERROR, getSender());
 		} else {
-			wordUtil.addCitationsAndWordIndexToElasticSearch(citationBeanList,
+			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationBeanList);
+			wordUtil.addIndexesToElasticSearch(indexes,
 					languageId);
 			OK(getSender());
 		}
@@ -254,14 +305,19 @@ public class IndexesActor extends LanguageBaseActor {
 				+ languageId;
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		WordUtil wordUtil = new WordUtil();
-		ArrayList<String> wordIndexes = new ArrayList<String>();
+		Map<String, String> wordIndexes = new HashMap<String, String>();
 		for (Map<String, String> wordMap : words) {
 			String word = wordMap.get("word");
+			String rootWord = wordMap.get("rootWord");
+			if(rootWord == null){
+				rootWord = word;
+			}
 			String id = wordMap.get("id");
-			wordIndexes.add(wordUtil.getWordIndex(word, word, id,
+			wordIndexes.put(word, wordUtil.getWordIndex(word, rootWord, id,
 					new ObjectMapper()));
 		}
-		util.bulkIndexWithAutoGenerateIndexId(wordIndexName,
+		
+		util.bulkIndexWithIndexId(wordIndexName,
 				Constants.WORD_INDEX_TYPE, wordIndexes);
 		OK(getSender());
 	}
@@ -285,6 +341,47 @@ public class IndexesActor extends LanguageBaseActor {
 		OK(LanguageParams.root_words.name(), rootWordsMap, getSender());
 	}
 
+	private void getRootWordInfo(List<String> words, String languageId,
+			int limit) throws IOException {
+		ElasticSearchUtil util = new ElasticSearchUtil(limit);
+		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
+		String textKeyWord = "rootWord";
+		Map<String, Object> searchCriteria = new HashMap<String, Object>();
+		searchCriteria.put(textKeyWord, words);
+		List<Object> wordInfoIndexes = util.textSearch(WordInfoBean.class,
+				searchCriteria, indexName, Constants.WORD_INFO_INDEX_TYPE);
+		Map<String, ArrayList<WordInfoBean>> rootWordsMap = new HashMap<String, ArrayList<WordInfoBean>>();
+		for (Object wordIndexTemp : wordInfoIndexes) {
+			WordInfoBean wordInfo = (WordInfoBean) wordIndexTemp;
+			ArrayList<WordInfoBean> rootWordList = (ArrayList<WordInfoBean>) rootWordsMap.get(wordInfo.getRootWord());
+			if(rootWordList == null){
+				rootWordList =  new ArrayList<WordInfoBean>();
+			}
+			rootWordList.add(wordInfo);
+			rootWordsMap.put(wordInfo.getRootWord(), rootWordList);
+		}
+		OK(LanguageParams.root_word_info.name(), rootWordsMap, getSender());
+		
+	}
+	
+	private void getWordInfo(List<String> words, String languageId,
+			int limit) throws IOException {
+		ElasticSearchUtil util = new ElasticSearchUtil(limit);
+		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
+		String textKeyWord = "word";
+		Map<String, Object> searchCriteria = new HashMap<String, Object>();
+		searchCriteria.put(textKeyWord, words);
+		List<Object> wordInfoIndexes = util.textSearch(WordInfoBean.class,
+				searchCriteria, indexName, Constants.WORD_INFO_INDEX_TYPE);
+		Map<String, Object> wordsMap = new HashMap<String, Object>();
+		for (Object wordIndexTemp : wordInfoIndexes) {
+			WordInfoBean wordInfo = (WordInfoBean) wordIndexTemp;
+			wordsMap.put(wordInfo.getRootWord(), wordInfo);
+		}
+		OK(LanguageParams.word_info.name(), wordsMap, getSender());
+		
+	}
+	
 	private void getWordIds(List<String> words, String languageId, int limit)
 			throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
