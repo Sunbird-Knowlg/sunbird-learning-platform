@@ -28,18 +28,6 @@
           "indexed": true
         },
         {
-          "propertyName": "identifier",
-          "title": "Identifier",
-          "description": "",
-          "category": "general",
-          "dataType": "Text",
-          "required": true,
-          "displayProperty": "Hidden",
-          "defaultValue": "",
-          "renderingHints": "{'order': 3}",
-          "indexed": true
-        },
-        {
           "propertyName": "keywords",
           "title": "Keywords",
           "description": "",

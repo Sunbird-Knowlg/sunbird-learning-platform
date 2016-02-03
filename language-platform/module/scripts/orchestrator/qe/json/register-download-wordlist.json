@@ -1,0 +1,14 @@
+{
+    "name": "lang_qe_download_wordlist",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"wordlist",
+        "index": 1,
+        "routingParam": false,
+        "datatype": "java.lang.String"
+    }],
+    "body": ""
+}

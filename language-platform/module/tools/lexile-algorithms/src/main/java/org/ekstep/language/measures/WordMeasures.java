@@ -15,10 +15,11 @@ import org.ekstep.language.measures.meta.SyllableMap;
 import com.ilimi.common.exception.ServerException;
 
 public class WordMeasures {
-    
+
     static {
         SyllableMap.loadSyllables("te");
         SyllableMap.loadSyllables("hi");
+        SyllableMap.loadSyllables("ka");
     }
 
     public static WordComplexity getWordComplexity(String language, String word) {

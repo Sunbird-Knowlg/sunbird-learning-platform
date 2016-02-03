@@ -3,24 +3,49 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
+
+proc isNotNull {value} {
+	set exist false
+	java::try {
+		set hasValue [java::isnull $value]
+		if {$hasValue == 0} {
+			set exist true
+		}
+	} catch {Exception err} {
+    	set exist false
+	}
+	return $exist
+}
+
 set object_type "Word"
 
 set map [java::new HashMap]
 $map put "nodeType" "DATA_NODE"
 $map put "objectType" $object_type
 set filter_list [java::new ArrayList]
-set filter1 [java::new HashMap]
-$filter1 put "property" "syllableCount"
-$filter1 put "operator" "="
-$filter1 put "value" $syllableCount
-$filter_list add $filter1
 
-set filter2 [java::new HashMap]
-$filter2 put "property" "lemma"
-$filter2 put "operator" "startsWith"
-$filter2 put "value" $startsWith
-$filter_list add $filter2
+set isSyllableCount [isNotNull $syllableCount]
+if {$isSyllableCount} {
+	set filter1 [java::new HashMap]
+	$filter1 put "property" "syllableCount"
+	$filter1 put "operator" "="
+	$filter1 put "value" $syllableCount
+	$filter_list add $filter1
+}
 
+set isStartsWith [isNotNull $startsWith]
+if {$isStartsWith} {
+	set filter2 [java::new HashMap]
+	$filter2 put "property" "lemma"
+	$filter2 put "operator" "startsWith"
+	$filter2 put "value" $startsWith
+	$filter_list add $filter2
+}
+
+set isMinComplexity [isNotNull $minComplexity]
+if {!$isMinComplexity} {
+	set minComplexity [java::new Double 0]
+}
 set filter3 [java::new HashMap]
 $filter3 put "property" "orthographic_complexity"
 $filter3 put "operator" ">="
@@ -40,9 +65,9 @@ if {$check_error} {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set word_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
-			set metadata [java::prop $graph_node "metadata"]
-			set lemma [$metadata get "lemma"]
-			$word_list add $lemma
+			set wordMetadataRes [lang_qe_getWordMetadata $graph_node]
+			set wordMetadata [get_resp_value $wordMetadataRes "result"]
+			$word_list add $wordMetadata
 		}
 		$result_map put "words" $word_list
 	} catch {Exception err} {

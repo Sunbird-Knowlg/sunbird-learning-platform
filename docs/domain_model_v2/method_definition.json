@@ -1,7 +1,7 @@
 {
     "definitionNodes": [{
         "objectType": "Method",
-        "indexedMetadata": [{
+        "properties": [{
             "propertyName": "name",
             "title": "Name",
             "description": "Name of the method",
@@ -10,7 +10,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 1}"
+            "renderingHints": "{'inputType': 'text', 'order': 1}",
+            "indexed": true
         }, {
             "propertyName": "code",
             "title": "Code",
@@ -20,7 +21,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 2}"
+            "renderingHints": "{'inputType': 'text', 'order': 2}",
+            "indexed": true
         }, {
             "propertyName": "keywords",
             "title": "Keywords",
@@ -30,7 +32,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 7}"
+            "renderingHints": "{'inputType': 'table', 'order': 7}",
+            "indexed": true
         }, {
             "propertyName": "status",
             "title": "Status",
@@ -41,7 +44,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "Draft",
-            "renderingHints": "{'inputType': 'select', 'order': 9}"
+            "renderingHints": "{'inputType': 'select', 'order': 9}",
+            "indexed": true
         }, {
             "propertyName": "skills",
             "title": "Skills Used",
@@ -51,7 +55,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": true
         }, {
             "propertyName": "material",
             "title": "Material Presented",
@@ -61,7 +66,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": true
         }, {
             "propertyName": "numContent",
             "title": "Number of content items associated with this method",
@@ -71,9 +77,9 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 20}"
-        }],
-        "nonIndexedMetadata": [{
+            "renderingHints": "{'order': 20}",
+            "indexed": true
+        }, {
             "propertyName": "description",
             "title": "Description",
             "description": "Description of the node in 2-3 sentences.",
@@ -82,7 +88,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+            "renderingHints": "{'inputType': 'textarea', 'order': 4}",
+            "indexed": false
         }, {
             "propertyName": "createdBy",
             "title": "Created By",
@@ -92,7 +99,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 21}"
+            "renderingHints": "{'order': 21}",
+            "indexed": false
         }, {
             "propertyName": "createdOn",
             "title": "Created On",
@@ -102,7 +110,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 22}"
+            "renderingHints": "{'order': 22}",
+            "indexed": false
         }, {
             "propertyName": "lastUpdatedBy",
             "title": "Last Updated By",
@@ -112,7 +121,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 21}"
+            "renderingHints": "{'order': 21}",
+            "indexed": false
         }, {
             "propertyName": "lastUpdatedOn",
             "title": "Last Updated On",
@@ -122,7 +132,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 22}"
+            "renderingHints": "{'order': 22}",
+            "indexed": false
         }, {
             "propertyName": "version",
             "title": "Version",
@@ -132,7 +143,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 23}"
+            "renderingHints": "{'order': 23}",
+            "indexed": false
         }, {
             "propertyName": "versionDate",
             "title": "Version Date",
@@ -142,7 +154,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 24}"
+            "renderingHints": "{'order': 24}",
+            "indexed": false
         }, {
             "propertyName": "versionCreatedBy",
             "title": "Version Created By",
@@ -152,7 +165,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 25}"
+            "renderingHints": "{'order': 25}",
+            "indexed": false
         }, {
             "propertyName": "complexity",
             "title": "Complexity in Material Presentation",
@@ -162,7 +176,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": false
         }, {
             "propertyName": "cognitiveProcessing",
             "title": "Cognitive Processing",
@@ -172,7 +187,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": false
         }, {
             "propertyName": "interactivity",
             "title": "Type of Interactivity",
@@ -182,13 +198,14 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": false
         }],
         "inRelations": [{
             "relationName": "isParentOf",
             "title": "parent",
             "description": "Parent method for this method",
-            "required": true,
+            "required": false,
             "objectTypes": ["Method"],
             "renderingHints": "{'order': 26}"
         }],

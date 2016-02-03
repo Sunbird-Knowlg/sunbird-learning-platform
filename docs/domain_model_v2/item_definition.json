@@ -1,7 +1,7 @@
 {
     "definitionNodes": [{
         "objectType": "AssessmentItem",
-        "indexedMetadata": [{
+        "properties": [{
             "propertyName": "name",
             "title": "Name",
             "description": "",
@@ -10,7 +10,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 1}"
+            "renderingHints": "{'inputType': 'text', 'order': 1}",
+            "indexed": true
         }, {
             "propertyName": "code",
             "title": "Code",
@@ -20,7 +21,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 2}"
+            "renderingHints": "{'inputType': 'text', 'order': 2}",
+            "indexed": true
         }, {
             "propertyName": "language",
             "title": "Language",
@@ -31,7 +33,8 @@
             "range": ["English", "Hindi", "Assamese", "Bengali", "Gujarati", "Kannada", "Malayalam", "Marathi", "Nepali", "Oriya", "Punjabi", "Tamil", "Telugu", "Urdu", "Other"],
             "displayProperty": "Editable",
             "defaultValue": "English",
-            "renderingHints": "{'inputType': 'text', 'order': 5}"
+            "renderingHints": "{'inputType': 'text', 'order': 5}",
+            "indexed": true
         }, {
             "required": false,
             "dataType": "Text",
@@ -40,7 +43,6 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
             "indexed": true,
@@ -53,7 +55,6 @@
             "description": "Template/Layout used to render this item",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
             "indexed": true,
@@ -80,7 +81,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 7}"
+            "renderingHints": "{'inputType': 'table', 'order': 7}",
+            "indexed": true
         }, {
             "required": false,
             "dataType": "Select",
@@ -102,7 +104,6 @@
             "description": "",
             "category": "ownership",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
             "indexed": true,
@@ -115,10 +116,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -128,10 +128,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -141,10 +140,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -154,10 +152,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -167,10 +164,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -180,10 +176,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'number', 'order': 19 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -193,10 +188,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -206,10 +200,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": true,
@@ -222,20 +215,7 @@
             "range": ["EASY", "MEDIUM", "DIFFICULT", "RARE"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
-            "indexed": false,
-            "draft": false
-        }, {
-            "required": false,
-            "dataType": "Select",
-            "propertyName": "difficulty_level",
-            "title": "Difficulty Level",
-            "description": "",
-            "category": "general",
-            "displayProperty": "Editable",
-            "range": ["low", "medium", "high"],
-            "defaultValue": "",
-            "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -248,20 +228,7 @@
             "range": ["Knowledge", "Conceptual", "Application", "Problem Solving"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select',  'order': 14 }",
-            "indexed": false,
-            "draft": false
-        }, {
-            "required": false,
-            "dataType": "Text",
-            "propertyName": "sub_purpose",
-            "title": "Sub Purpose",
-            "description": "",
-            "category": "general",
-            "displayProperty": "Editable",
-            "range": [],
-            "defaultValue": "",
-            "renderingHints": "{ 'inputType': 'text', 'order': 14 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -274,7 +241,7 @@
             "range": ["Recall", "Skill", "Strategic Thinking", "Extended Thinking"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -287,7 +254,7 @@
             "range": ["assessment", "worksheet"],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select', 'order': 14 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -297,10 +264,9 @@
             "description": "Maximum possible score for this item",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -313,7 +279,7 @@
             "range": null,
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'select', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -323,10 +289,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -336,10 +301,9 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "{ 'inputType': 'number', 'order': 4 }",
-            "indexed": false,
+            "indexed": true,
             "draft": false
         }, {
             "required": false,
@@ -363,7 +327,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'text', 'order': 2}"
+            "renderingHints": "{'inputType': 'text', 'order': 2}",
+            "indexed": true
         }, {
             "required": false,
             "dataType": "JSON",
@@ -372,13 +337,11 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "range": [],
             "defaultValue": "",
             "renderingHints": "",
-            "indexed": false,
+            "indexed": true,
             "draft": false
-        }],
-        "nonIndexedMetadata": [{
+        }, {
             "propertyName": "description",
             "title": "Description",
             "description": "",
@@ -387,7 +350,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'textarea', 'order': 4}"
+            "renderingHints": "{'inputType': 'textarea', 'order': 4}",
+            "indexed": false
         }, {
             "propertyName": "learningObjective",
             "title": "Learning Objective",
@@ -397,7 +361,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 6}"
+            "renderingHints": "{'inputType': 'table', 'order': 6}",
+            "indexed": false
         }, {
             "propertyName": "example",
             "title": "Examples",
@@ -407,7 +372,8 @@
             "required": true,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'textarea', 'order': 8}"
+            "renderingHints": "{'inputType': 'textarea', 'order': 8}",
+            "indexed": false
         }, {
             "propertyName": "validators",
             "title": "Validators",
@@ -417,7 +383,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'table', 'order': 12}"
+            "renderingHints": "{'inputType': 'table', 'order': 12}",
+            "indexed": false
         }, {
             "propertyName": "references",
             "title": "References",
@@ -427,7 +394,8 @@
             "required": false,
             "displayProperty": "Editable",
             "defaultValue": "",
-            "renderingHints": "{'inputType': 'textarea', 'order': 14}"
+            "renderingHints": "{'inputType': 'textarea', 'order': 14}",
+            "indexed": false
         }, {
             "propertyName": "createdBy",
             "title": "Created By",
@@ -437,7 +405,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 21}"
+            "renderingHints": "{'order': 21}",
+            "indexed": false
         }, {
             "propertyName": "createdOn",
             "title": "Created On",
@@ -447,7 +416,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 22}"
+            "renderingHints": "{'order': 22}",
+            "indexed": false
         }, {
             "propertyName": "lastUpdatedBy",
             "title": "Last Updated By",
@@ -457,7 +427,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 21}"
+            "renderingHints": "{'order': 21}",
+            "indexed": false
         }, {
             "propertyName": "lastUpdatedOn",
             "title": "Last Updated On",
@@ -467,7 +438,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 22}"
+            "renderingHints": "{'order': 22}",
+            "indexed": false
         }, {
             "propertyName": "version",
             "title": "Version",
@@ -477,7 +449,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 23}"
+            "renderingHints": "{'order': 23}",
+            "indexed": false
         }, {
             "propertyName": "versionDate",
             "title": "Version Date",
@@ -487,7 +460,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 24}"
+            "renderingHints": "{'order': 24}",
+            "indexed": false
         }, {
             "propertyName": "versionCreatedBy",
             "title": "Version Created By",
@@ -497,7 +471,8 @@
             "required": false,
             "displayProperty": "Readonly",
             "defaultValue": "",
-            "renderingHints": "{'order': 25}"
+            "renderingHints": "{'order': 25}",
+            "indexed": false
         }],
         "inRelations": [],
         "outRelations": [{
