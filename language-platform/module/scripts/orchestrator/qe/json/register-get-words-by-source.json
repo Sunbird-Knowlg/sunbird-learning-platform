@@ -9,6 +9,21 @@
         "index": 1,
         "routingParam": false,
         "datatype": "java.util.HashMap"
+    },{
+        "name": "sort",
+        "datatype": "java.util.ArrayList",
+        "index": 2,
+        "routingParam": false
+    },{
+        "name": "order",
+        "datatype": "java.lang.String",
+        "index": 3,
+        "routingParam": false
+    },{
+        "name": "limit",
+        "datatype": "java.lang.Integer",
+        "index": 4,
+        "routingParam": false
     }],
     "body": ""
 }

@@ -150,6 +150,12 @@ public abstract class BaseManager {
         response.setResponseCode(code);
         return response;
     }
+    
+    protected Response OK() {
+        Response response = new Response();
+        response.setParams(getSucessStatus());
+        return response;
+    }
 
     protected Response OK(String responseIdentifier, Object vo) {
         Response response = new Response();

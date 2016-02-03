@@ -168,7 +168,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
             Set<String> keys = wordnetIdMap.keySet();
             List<String> words = new ArrayList<String>(keys);
             int start = 0;
-            int batch = 50;
+            int batch = 100;
             if (batch > words.size())
                 batch = words.size();
             while (start < words.size()) {
@@ -203,7 +203,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
             Set<String> keys = wordnetIdMap.keySet();
             List<String> words = new ArrayList<String>(keys);
             int start = 0;
-            int batch = 10;
+            int batch = 100;
             if (batch > words.size())
                 batch = words.size();
             while (start < words.size()) {
@@ -220,8 +220,8 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
                     if (null != map && !map.isEmpty())
                         indexResults.putAll(map);
                 }
-                start += 10;
-                batch += 10;
+                start += 100;
+                batch += 100;
                 if (batch > words.size())
                     batch = words.size();
             }
@@ -272,7 +272,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
             Map<String, String> rootWordMap, String outputDir) {
         if (null != wordRecords && wordRecords.size() > 0) {
             try {
-                String[] headerRows = new String[] { "identifier", "objectType", "lemma", "sources" };
+                String[] headerRows = new String[] { "identifier", "objectType", "lemma", "sources", "sourceTypes" };
                 List<String[]> rows = new ArrayList<String[]>();
                 rows.add(headerRows);
                 CSVRecord headerRecord = wordRecords.get(0);
@@ -280,7 +280,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
                 for (int i = 1; i < wordRecords.size(); i++) {
                     CSVRecord record = wordRecords.get(i);
                     if (record.size() == headersize) {
-                        String[] row = new String[4];
+                        String[] row = new String[5];
                         String wordnetId = record.get(0);
                         String lemma = record.get(2);
                         String wordId = wordIdMap.get(wordnetId);
@@ -295,6 +295,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
                         else
                             row[2] = lemma;
                         row[3] = "IndoWordnet";
+                        row[4] = "wordnets";
                         rows.add(row);
                     }
                 }
