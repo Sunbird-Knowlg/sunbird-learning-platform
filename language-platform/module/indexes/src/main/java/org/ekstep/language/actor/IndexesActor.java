@@ -212,14 +212,15 @@ public class IndexesActor extends LanguageBaseActor {
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordIndexes = util.textSearch(WordIndexBean.class,
 				searchCriteria, indexName, Constants.WORD_INDEX_TYPE);
-		Map<String, ArrayList<WordIndexBean>> rootWordsMap = new HashMap<String, ArrayList<WordIndexBean>>();
+		Map<String, ArrayList<String>> rootWordsMap = new HashMap<String, ArrayList<String>>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
-			ArrayList<WordIndexBean> rootWordList = (ArrayList<WordIndexBean>) rootWordsMap.get(wordIndex.getRootWord());
+			String word = wordIndex.getWord();
+			ArrayList<String> rootWordList = (ArrayList<String>) rootWordsMap.get(wordIndex.getRootWord());
 			if(rootWordList == null){
-				rootWordList =  new ArrayList<WordIndexBean>();
+				rootWordList =  new ArrayList<String>();
 			}
-			rootWordList.add(wordIndex);
+			rootWordList.add(word);
 			rootWordsMap.put(wordIndex.getRootWord(), rootWordList);
 		}
 		OK(LanguageParams.morphological_variants.name(), rootWordsMap, getSender());
