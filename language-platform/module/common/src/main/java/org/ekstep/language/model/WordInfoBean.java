@@ -5,6 +5,7 @@ public class WordInfoBean {
 	private String word;
 	private String rootWord;
 	private String pos;
+	private String category;
 	private String gender;
 	private String number;
 	private String pers;
@@ -12,20 +13,31 @@ public class WordInfoBean {
 	private String inflection;
 	private String rts;
 	
+	
 	public WordInfoBean(String word, String rootWord, String pos,
-			String gender, String number, String pers, String wordCase,
-			String inflection, String rts) {
+			String category, String gender, String number, String pers,
+			String grammaticalCase, String inflection, String rts) {
 		super();
 		this.word = word;
 		this.rootWord = rootWord;
 		this.pos = pos;
+		this.category = category;
 		this.gender = gender;
 		this.number = number;
 		this.pers = pers;
-		this.grammaticalCase = wordCase;
+		this.grammaticalCase = grammaticalCase;
 		this.inflection = inflection;
 		this.rts = rts;
 	}
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 	public String getWord() {
 		return word;
 	}

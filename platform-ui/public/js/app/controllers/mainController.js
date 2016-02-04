@@ -255,6 +255,10 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
         return this.postToService('/private/v1/player/content/create', data);
     }
 
+    this.getLangSearchDefinition = function(data) {
+        return this.postToService('/private/v1/player/language/search', data);
+    }
+
 }]);
 
 app.controller('PlayerController', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', '$location', '$anchorScroll', '$sce', function($scope, $timeout, $rootScope, $stateParams, $state, service, $location, $anchorScroll, $sce) {
@@ -1021,12 +1025,12 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
     $scope.seeMoreGames = false;
     $scope.showGames = false;
 
-    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
-        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
-        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
-        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
-        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
-        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive',
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive',
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg',
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml',
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg',
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4',
         'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
 
     $scope.newGame = {
@@ -1117,7 +1121,7 @@ app.controller('GameListController', ['$scope', '$timeout', '$rootScope', '$stat
                 $scope.showConformationMessage('alert-success','Game created successfully.');
                 $scope.buttonReset($event);
                 $("#writeIcon").trigger('click');
-                $scope.getGames(); 
+                $scope.getGames();
             }
         }).catch(function(err) {
             $scope.newContent.errorMessages = [];
@@ -1323,12 +1327,12 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
     $scope.seeMoreContents = false;
     $scope.showContents = false;
 
-    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive', 
-        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive', 
-        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg', 
-        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml', 
-        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg', 
-        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4', 
+    $scope.mimeTypes = ['application/vnd.ekstep.ecml-archive', 'application/vnd.ekstep.html-archive',
+        'application/vnd.android.package-archive', 'application/vnd.ekstep.content-archive',
+        'application/vnd.ekstep.content-collection', 'image/jpeg', 'image/jpg',
+        'image/png', 'image/tiff', 'image/bmp', 'image/gif', 'image/svg+xml',
+        'video/avi', 'video/mpeg', 'video/quicktime', 'video/3gpp', 'video/mpeg',
+        'video/mp4', 'video/ogg', 'video/webm', 'audio/mp3', 'audio/mp4',
         'audio/mpeg', 'audio/ogg', 'audio/webm', 'audio/x-wav'];
 
     $scope.resetNewContent = function() {
@@ -1438,7 +1442,7 @@ app.controller('ContentListController', ['$scope', '$timeout', '$rootScope', '$s
                 $scope.showConformationMessage('alert-success','Content created successfully.');
                 $scope.buttonReset($event);
                 $("#writeIcon").trigger('click');
-                $scope.getContents();    
+                $scope.getContents();
             }
         }).catch(function(err) {
             $scope.newContent.errorMessages = [];
@@ -1631,6 +1635,128 @@ app.controller('ContentController', ['$scope', '$timeout', '$rootScope', '$state
     $scope.getContentDefinition($scope.$parent.selectedTaxonomyId, $scope.$parent.selectedContentType);
 
 }]);
+
+// Language Controllers
+
+app.controller('LangSearchCtrl', ['$scope', '$timeout', '$rootScope', '$stateParams', '$state', 'PlayerService', function($scope, $timeout, $rootScope, $stateParams, $state, service) {
+    $scope.$parent.validationMessages = [];
+
+    $scope.$parent.categories = [
+        {id: 'word', label: "Word", editable: true, editMode: false},
+        {id: 'orthographicComplexity', label: "Orthographic Complexity", editable: true, editMode: false},
+        {id: 'phonologicComplexity', label: "Phonologic Complexity", editable: true, editMode: false},
+        {id: 'syllableCount', label: "Syllable Count", editable: true, editMode: false},
+        {id: 'sourceTypes', label: "Source Types", editable: true, editMode: false},
+        {id: 'sources', label: "Sources", editable: false, editMode: false},
+        {id: 'pos', label: "Parts of Speech", editable: false, editMode: false},
+        {id: 'grade', label: "Grade", editable: true, editMode: false},
+        {id: 'wordLists', label: "Word List(s)", editable: true, editMode: false}
+    ]
+
+    $scope.$parent.selectedTaxonomy = $scope.$parent.taxonomies[$scope.$parent.selectedTaxonomyId];
+    $scope.selectedContentId = $stateParams.languageId;
+
+    $scope.getLangSearchDefinition = function(languageId) {
+        service.getContentDefinition(taxonomyId, contentType).then(function(taxonomyDefs) {
+            var categories = _.uniq(_.pluck(taxonomyDefs.properties, 'category'));
+            var definitions = {
+
+            }
+            _.each(categories, function(category) {
+                definitions[category] = _.where(taxonomyDefs.properties, {'category': category});
+            });
+            $scope.$parent.selectedTaxonomy.properties = taxonomyDefs.properties;
+            $scope.$parent.selectedTaxonomy.definitions = definitions;
+            $scope.$parent.selectedTaxonomy.definitions.relations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.inRelations = taxonomyDefs.inRelations;
+            $scope.$parent.selectedTaxonomy.definitions.outRelations = taxonomyDefs.outRelations;
+            $scope.$parent.selectedTaxonomy.definitions.systemTags = taxonomyDefs.systemTags;
+            $scope.getContent($scope.selectedContentId, $scope.$parent.selectedTaxonomyId, $scope.$parent.selectedContentType);
+        }).catch(function(err) {
+            console.log('Error fetching content definitions - ', err);
+        });
+    }
+
+    $scope.getContent = function(contentId, taxonomyId, contentType) {
+        service.getContent(contentId, taxonomyId, contentType).then($scope.setContentResponse);
+    }
+
+    $scope.viewScreenShot = function(screenshot) {
+        $scope.selectedScreenshot = screenshot;
+        if (screenshot.mediaType == 'video') {
+            if (screenshot.mimeType == 'video/youtube') {
+                setTimeout(function() {
+                    document.getElementById('selectedScreenshotIframe').src = screenshot.mediaUrl;
+                }, 500);
+            }
+        }
+    }
+
+    $scope.setContentResponse = function(data) {console.log(data);
+        $scope.$parent.selectedConcept = data;
+        $scope.$parent.selectedConcept.newMetadata = [];
+        $scope.$parent.selectedConcept.relatedConceptsLimit = service.rhsSectionObjectsLimit;
+        $scope.$parent.selectedConcept.relatedContentsLimit = service.rhsSectionObjectsLimit;
+        $scope.resetRelations();
+        $scope.$parent.selectedConcept.filesToUpload = {};
+        $scope.$parent.selectedConcept.uploading = {};
+        $scope.$parent.unmodifiedConcept = angular.copy($scope.$parent.selectedConcept);
+        $scope.resetCategories();
+        setTimeout(function() {
+            $('.tool-tip').tooltip();
+            if ($scope.$parent.selectedConcept.screenshots && $scope.$parent.selectedConcept.screenshots.length > 0) {
+                $scope.resetSlider();
+            }
+        }, 500);
+    }
+
+    $scope.resetSlider = function() {
+        if ($scope.slider && $scope.slider != null) {
+            $scope.slider.destroySlider();
+        }
+        $scope.slider = $('.bxslider').bxSlider({
+            minSlides: 2,
+            maxSlides: 5,
+            slideWidth: 320,
+            slideMargin: 20,
+            pager: false,
+            infiniteLoop: false,
+            hideControlOnEnd: true,
+            responsive: false,
+            onSliderLoad: function() {
+                $('ul.bxslider li').width('auto');
+            }
+        });
+    }
+
+    $scope.saveChanges = function($event) {
+        $scope.buttonLoading($event);
+        $scope.$parent.conceptToBeUpdated.comment = $scope.commitMessage;
+        $scope.$parent.conceptToBeUpdated.contentType = $scope.$parent.selectedContentType;
+        // TODO: use 'conceptToBeUpdated' instead of 'selectedConcept' Once middleware APIs are ready with partial update
+        $scope.$parent.selectedConcept.taxonomyId = $scope.$parent.selectedTaxonomyId;
+        $scope.$parent.selectedConcept.selectedContentType = $scope.$parent.selectedContentType;
+        service.updateContent($scope.$parent.selectedConcept).then(function(data) {
+            $scope.buttonReset($event);
+            $scope.getContent($scope.$parent.selectedTaxonomyId);
+            $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
+            $scope.showConformationMessage('alert-success','Content updated successfully.');
+        }).catch(function(err) {
+            $scope.$parent.validationMessages = [];
+            $scope.$parent.validationMessages.push(err.errorMsg);
+            $scope.buttonReset($event);
+            $('#saveChangesModal').modal('hide');
+            $scope.$parent.resetCategories();
+            $scope.showConformationMessage('alert-danger','Error while updating Content.');
+        });
+    }
+
+    $scope.getContentDefinition($scope.$parent.selectedTaxonomyId, $scope.$parent.selectedContentType);
+
+}]);
+
+// Language Controllers ::  Till Here
 
 
 function loadTree($scope) {

@@ -161,13 +161,14 @@ public class SSFParser {
 						try {
 							String[] afAttributes = afTokens[1]
 									.split(ATTRIBUTES_SEPARATOR);
-							String rootWord = cleanAttibute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
-							String gender = cleanAttibute(afAttributes[Constants.TAG_INDEX_GENDER]);
-							String number = cleanAttibute(afAttributes[Constants.TAG_INDEX_NUMBER]);
-							String pers = cleanAttibute(afAttributes[Constants.TAG_INDEX_PERS]);
-							String wordCase = cleanAttibute(afAttributes[Constants.TAG_INDEX_CASE]);
-							String inflection = cleanAttibute(afAttributes[Constants.TAG_INDEX_INFLECTION]);
-							String rts = cleanAttibute(afAttributes[Constants.TAG_INDEX_RTS]);
+							String rootWord = cleanAttribute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
+							String category = cleanAttribute(afAttributes[Constants.TAG_INDEX_CATEGORY]);
+							String gender = cleanAttribute(afAttributes[Constants.TAG_INDEX_GENDER]);
+							String number = cleanAttribute(afAttributes[Constants.TAG_INDEX_NUMBER]);
+							String pers = cleanAttribute(afAttributes[Constants.TAG_INDEX_PERS]);
+							String wordCase = cleanAttribute(afAttributes[Constants.TAG_INDEX_CASE]);
+							String inflection = cleanAttribute(afAttributes[Constants.TAG_INDEX_INFLECTION]);
+							String rts = cleanAttribute(afAttributes[Constants.TAG_INDEX_RTS]);
 							if (rootWord != null && !rootWord.isEmpty()) {
 								if (!skipCitations) {
 									CitationBean citationObj = new CitationBean(
@@ -180,8 +181,8 @@ public class SSFParser {
 									citationList.add(citationObj);
 								}
 								WordInfoBean wordInfo = new WordInfoBean(word,
-										rootWord, pos, gender, number, pers,
-										wordCase, inflection, rts);
+										rootWord, pos, category, gender,
+										number, pers, wordCase, inflection, rts);
 								wordInfoList.add(wordInfo);
 							}
 
@@ -245,14 +246,14 @@ public class SSFParser {
 		return false;
 	}
 
-	private static String cleanAttibute(String attribute) {
+	private static String cleanAttribute(String attribute) {
 		attribute = attribute.replace("'", "");
 		attribute = attribute.replace("<", "");
 		attribute = attribute.replace(">", "");
 		attribute = attribute.replace("0", "");
 		return attribute;
 	}
-	
+
 	private static ArrayList<String> enhanceSentenceTokens(
 			String[] sentenceTokens) {
 		ArrayList<String> enhancedSentenceTokens = new ArrayList<String>();
