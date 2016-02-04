@@ -58,6 +58,22 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
+    protected Response getBulkOperationResponse(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.BULK_REQ_TIMEOUT);
+            Object obj = Await.result(future, LanguageRequestRouterPool.BULK_WAIT_TIMEOUT.duration());
+            if (obj instanceof Response) {
+                return (Response) obj;
+            } else {
+                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }   
+    }
+    
     protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
         Response response = new Response();
         response.setParams(getErrorStatus(errorCode, errorMessage));
