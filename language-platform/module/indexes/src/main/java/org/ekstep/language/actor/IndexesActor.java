@@ -178,7 +178,7 @@ public class IndexesActor extends LanguageBaseActor {
 					wordWildCard(wordWildCard, languageId, limit);
 				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.morphologicalVariants.name(), operation)) {
-					List<Map<String, String>> words = (List<Map<String, String>>) request
+					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
 							.get(LanguageParams.limit.name()) : null);
@@ -203,28 +203,43 @@ public class IndexesActor extends LanguageBaseActor {
 		}
 	}
 
-	private void getMorphologicalVariants(List<Map<String, String>> words,
+	@SuppressWarnings("unchecked")
+	private void getMorphologicalVariants(List<String> words,
 			String languageId, int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
+		ArrayList<String> rootWords = new ArrayList<String>();
+		Map<String, Object> rootWordsMap = getRootWordsMap(words, languageId, limit, util);
+		for(Map.Entry<String, Object> entry : rootWordsMap.entrySet()){
+			Map<String, Object> wordMap = (Map<String, Object>) entry.getValue();
+			String rootWord = (String) wordMap.get("rootWord");
+			rootWords.add(rootWord);
+		}
+		Map<String, ArrayList<String>> variantsMap = getVariants(rootWords, util, languageId);
+		OK(LanguageParams.morphological_variants.name(), variantsMap, getSender());
+	}
+
+	
+	
+	private Map<String, ArrayList<String>> getVariants(
+			ArrayList<String> rootWords, ElasticSearchUtil util, String languageId) throws IOException {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "rootWord";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
-		searchCriteria.put(textKeyWord, words);
+		searchCriteria.put(textKeyWord, rootWords);
 		List<Object> wordIndexes = util.textSearch(WordIndexBean.class,
 				searchCriteria, indexName, Constants.WORD_INDEX_TYPE);
-		Map<String, ArrayList<String>> rootWordsMap = new HashMap<String, ArrayList<String>>();
+		Map<String, ArrayList<String>> variantsMap = new HashMap<String, ArrayList<String>>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
 			String word = wordIndex.getWord();
-			ArrayList<String> rootWordList = (ArrayList<String>) rootWordsMap.get(wordIndex.getRootWord());
+			ArrayList<String> rootWordList = (ArrayList<String>) variantsMap.get(wordIndex.getRootWord());
 			if(rootWordList == null){
 				rootWordList =  new ArrayList<String>();
 			}
 			rootWordList.add(word);
-			rootWordsMap.put(wordIndex.getRootWord(), rootWordList);
+			variantsMap.put(wordIndex.getRootWord(), rootWordList);
 		}
-		OK(LanguageParams.morphological_variants.name(), rootWordsMap, getSender());
-		
+		return variantsMap;
 	}
 
 	private void wordWildCard(String wordWildCard, String languageId, int limit) throws Exception {
@@ -328,6 +343,12 @@ public class IndexesActor extends LanguageBaseActor {
 	private void getRootWords(List<String> words, String languageId, int limit)
 			throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
+		Map<String, Object> rootWordsMap = getRootWordsMap(words, languageId, limit, util);
+		OK(LanguageParams.root_words.name(), rootWordsMap, getSender());
+	}
+
+	private Map<String, Object> getRootWordsMap(List<String> words, String languageId, int limit, ElasticSearchUtil util)
+			throws IOException {
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
@@ -341,9 +362,9 @@ public class IndexesActor extends LanguageBaseActor {
 			wordMap.put("rootWord", wordIndex.getRootWord());
 			rootWordsMap.put(wordIndex.getWord(), wordMap);
 		}
-		OK(LanguageParams.root_words.name(), rootWordsMap, getSender());
+		return rootWordsMap;
 	}
-
+	
 	private void getRootWordInfo(List<String> words, String languageId,
 			int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);

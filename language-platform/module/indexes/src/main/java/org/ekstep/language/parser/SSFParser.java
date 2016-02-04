@@ -161,13 +161,13 @@ public class SSFParser {
 						try {
 							String[] afAttributes = afTokens[1]
 									.split(ATTRIBUTES_SEPARATOR);
-							String rootWord = cleanAttibute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
-							String gender = cleanAttibute(afAttributes[Constants.TAG_INDEX_GENDER]);
-							String number = cleanAttibute(afAttributes[Constants.TAG_INDEX_NUMBER]);
-							String pers = cleanAttibute(afAttributes[Constants.TAG_INDEX_PERS]);
-							String wordCase = cleanAttibute(afAttributes[Constants.TAG_INDEX_CASE]);
-							String inflection = cleanAttibute(afAttributes[Constants.TAG_INDEX_INFLECTION]);
-							String rts = cleanAttibute(afAttributes[Constants.TAG_INDEX_RTS]);
+							String rootWord = cleanAttribute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
+							String gender = cleanAttribute(afAttributes[Constants.TAG_INDEX_GENDER]);
+							String number = cleanAttribute(afAttributes[Constants.TAG_INDEX_NUMBER]);
+							String pers = cleanAttribute(afAttributes[Constants.TAG_INDEX_PERS]);
+							String wordCase = cleanAttribute(afAttributes[Constants.TAG_INDEX_CASE]);
+							String inflection = cleanAttribute(afAttributes[Constants.TAG_INDEX_INFLECTION]);
+							String rts = cleanAttribute(afAttributes[Constants.TAG_INDEX_RTS]);
 							if (rootWord != null && !rootWord.isEmpty()) {
 								if (!skipCitations) {
 									CitationBean citationObj = new CitationBean(
@@ -245,7 +245,7 @@ public class SSFParser {
 		return false;
 	}
 
-	private static String cleanAttibute(String attribute) {
+	private static String cleanAttribute(String attribute) {
 		attribute = attribute.replace("'", "");
 		attribute = attribute.replace("<", "");
 		attribute = attribute.replace(">", "");
