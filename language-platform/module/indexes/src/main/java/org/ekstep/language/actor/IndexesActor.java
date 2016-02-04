@@ -1,7 +1,6 @@
 package org.ekstep.language.actor;
 
 import java.io.IOException;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,11 +23,11 @@ import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.ElasticSearchUtil;
 import org.ekstep.language.util.WordUtil;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
+
+import akka.actor.ActorRef;
 
 public class IndexesActor extends LanguageBaseActor {
 
@@ -365,7 +364,8 @@ public class IndexesActor extends LanguageBaseActor {
 		return rootWordsMap;
 	}
 	
-	private void getRootWordInfo(List<String> words, String languageId,
+	@SuppressWarnings("unchecked")
+    private void getRootWordInfo(List<String> words, String languageId,
 			int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
@@ -374,21 +374,29 @@ public class IndexesActor extends LanguageBaseActor {
 		searchCriteria.put(textKeyWord, words);
 		List<Object> wordInfoIndexes = util.textSearch(WordInfoBean.class,
 				searchCriteria, indexName, Constants.WORD_INFO_INDEX_TYPE);
-		Map<String, ArrayList<WordInfoBean>> rootWordsMap = new HashMap<String, ArrayList<WordInfoBean>>();
+		Map<String, ArrayList<Map<String, Object>>> rootWordsMap = new HashMap<String, ArrayList<Map<String, Object>>>();
 		for (Object wordIndexTemp : wordInfoIndexes) {
-			WordInfoBean wordInfo = (WordInfoBean) wordIndexTemp;
-			ArrayList<WordInfoBean> rootWordList = (ArrayList<WordInfoBean>) rootWordsMap.get(wordInfo.getRootWord());
-			if(rootWordList == null){
-				rootWordList =  new ArrayList<WordInfoBean>();
-			}
-			rootWordList.add(wordInfo);
-			rootWordsMap.put(wordInfo.getRootWord(), rootWordList);
+		    try {
+		        Map<String, Object> wordInfo = mapper.convertValue(wordIndexTemp, Map.class);
+	            String rootword = (String) wordInfo.get("rootWord");
+	            ArrayList<Map<String, Object>> rootWordList = (ArrayList<Map<String, Object>>) rootWordsMap.get(rootword);
+	            if(rootWordList == null){
+	                rootWordList =  new ArrayList<Map<String, Object>>();
+	            }
+	            rootWordList.add(wordInfo);
+	            rootWordsMap.put(rootword, rootWordList);
+		    } catch (Exception e) {
+		        System.out.println(e.getMessage());
+		    }
 		}
 		OK(LanguageParams.root_word_info.name(), rootWordsMap, getSender());
 		
 	}
 	
-	private void getWordInfo(List<String> words, String languageId,
+	private ObjectMapper mapper = new ObjectMapper();
+	
+	@SuppressWarnings("unchecked")
+    private void getWordInfo(List<String> words, String languageId,
 			int limit) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil(limit);
 		String indexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + languageId;
@@ -399,8 +407,11 @@ public class IndexesActor extends LanguageBaseActor {
 				searchCriteria, indexName, Constants.WORD_INFO_INDEX_TYPE);
 		Map<String, Object> wordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordInfoIndexes) {
-			WordInfoBean wordInfo = (WordInfoBean) wordIndexTemp;
-			wordsMap.put(wordInfo.getRootWord(), wordInfo);
+		    try {
+		        Map<String, Object> infoMap = mapper.convertValue(wordIndexTemp, Map.class);
+		        wordsMap.put(infoMap.get("word").toString(), infoMap);
+		    } catch(Exception e) {
+		    }
 		}
 		OK(LanguageParams.word_info.name(), wordsMap, getSender());
 		

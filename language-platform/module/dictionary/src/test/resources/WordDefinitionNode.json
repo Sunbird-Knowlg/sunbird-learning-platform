@@ -594,7 +594,7 @@
           "renderingHints": "{ 'order': 25 }"
         },
         {
-          "propertyName": "pluralForms",
+          "propertyName": "plurality",
           "title": "Plural Forms",
           "description": "",
           "category": "supportability",
@@ -620,8 +620,68 @@
           "renderingHints": "{ 'order': 25 }"
         },
         {
+          "propertyName": "variants",
+          "title": "Morphological Variants",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+        },
+        {
+          "propertyName": "pos_categories",
+          "title": "POS Categories",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+        },
+        {
           "propertyName": "genders",
           "title": "Genders",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+        },
+        {
+          "propertyName": "person",
+          "title": "Person",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+        },
+        {
+          "propertyName": "cases",
+          "title": "Grammatical Cases",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+        },
+        {
+          "propertyName": "inflections",
+          "title": "Inflections",
           "description": "",
           "category": "supportability",
           "dataType": "List",

@@ -123,13 +123,13 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                         }
                         if (null != wordInfo && !wordInfo.isEmpty()) {
                             for (Map<String, Object> info : wordInfo) {
-                                updateListMetadata(node, info, "word", "variants");
-                                updateListMetadata(node, info, "category", "pos_categories");
-                                updateListMetadata(node, info, "gender", "genders");
-                                updateListMetadata(node, info, "number", "plurality");
-                                updateListMetadata(node, info, "pers", "person");
-                                updateListMetadata(node, info, "grammaticalCase", "cases");
-                                updateListMetadata(node, info, "inflection", "inflections");
+                                updateStringMetadata(node, info, "word", "variants");
+                                updateStringMetadata(node, info, "category", "pos_categories");
+                                updateStringMetadata(node, info, "gender", "genders");
+                                updateStringMetadata(node, info, "number", "plurality");
+                                updateStringMetadata(node, info, "pers", "person");
+                                updateStringMetadata(node, info, "grammaticalCase", "cases");
+                                updateStringMetadata(node, info, "inflection", "inflections");
                             }
                         }
                         node.getMetadata().put("status", "Live");
@@ -246,6 +246,30 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                 if (!sources.contains(key))
                     sources.add(key);
             }
+            node.getMetadata().put(metadataKey, sources);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void updateStringMetadata(Node node, Map<String, Object> citations, String indexKey, String metadataKey) {
+        String key = (String) citations.get(indexKey);
+        if (StringUtils.isNotBlank(key)) {
+            Object obj = node.getMetadata().get(metadataKey);
+            String[] arr = null;
+            List<String> sources = new ArrayList<String>();
+            if (null != obj) {
+                if (obj instanceof String[]) {
+                    arr = (String[]) obj;
+                } else {
+                    sources = (List<String>) obj;
+                }
+            }
+            if (null != arr && arr.length > 0) {
+                for (String str : arr)
+                    sources.add(str);
+            }
+            if (!sources.contains(key))
+                sources.add(key);
             node.getMetadata().put(metadataKey, sources);
         }
     }
