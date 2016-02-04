@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.controller;
 
 import java.io.File;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
@@ -263,36 +262,14 @@ public class ContentController extends BaseController {
         String apiId = "content.archive";
         LOGGER.info("Create Content Bundle | user-id: " + userId);
         try {
-            Request request = getBundleRequest(map);
-            Response response = contentManager.bundle(request);
+            Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
+            Response response = contentManager.bundle(request, null, "1.0");
             LOGGER.info("Archive | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Archive | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
-    }
-
-    @SuppressWarnings("unchecked")
-    private Request getBundleRequest(Map<String, Object> requestMap) {
-        Request request = getRequest(requestMap);
-        Map<String, Object> map = request.getRequest();
-        if (null != map && !map.isEmpty()) {
-            List<String> contentIdentifiers = (List<String>) map.get("content_identifiers");
-            String fileName = (String) map.get("file_name");
-            if (null == contentIdentifiers || contentIdentifiers.isEmpty())
-                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
-                        "Atleast one content identifier should be provided to create ECAR file");
-            if (StringUtils.isBlank(fileName))
-                throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
-                        "ECAR file name should not be blank");
-            request.put("content_identifiers", contentIdentifiers);
-            request.put("file_name", fileName);
-        } else if (null != map && map.isEmpty()) {
-            throw new MiddlewareException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(),
-                    "Invalid request body");
-        }
-        return request;
     }
 
     private Request getSearchRequest(Map<String, Object> requestMap, String objectType) {

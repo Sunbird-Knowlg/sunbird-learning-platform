@@ -342,7 +342,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response bundle(Request request) {
+    public Response bundle(Request request, String taxonomyId, String version) {
         ContentSearchCriteria criteria = new ContentSearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();
         String bundleFileName = (String) request.get("file_name");
@@ -354,11 +354,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata.addFilter(filter);
         criteria.setMetadata(metadata);
         List<Request> requests = new ArrayList<Request>();
-        for (String taxonomyId : TaxonomyManagerImpl.taxonomyIds) {
+        if (StringUtils.isNotBlank(taxonomyId)) {
             Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                     GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
             req.put(GraphDACParams.get_tags.name(), true);
             requests.add(req);
+        } else {
+            for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+                Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                        GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+                req.put(GraphDACParams.get_tags.name(), true);
+                requests.add(req);
+            }
         }
         Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
                 ContentAPIParams.contents.name());
@@ -388,7 +395,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                         "One or more of the input content identifier are not found");
             }
             String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
-            contentBundle.asyncCreateContentBundle(ctnts, fileName);
+            contentBundle.asyncCreateContentBundle(ctnts, fileName, version);
             String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/"
                     + fileName;
             String returnKey = ContentAPIParams.bundle.name();

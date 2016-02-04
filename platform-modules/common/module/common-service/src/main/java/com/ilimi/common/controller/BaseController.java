@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -25,7 +26,6 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
-
 
 public abstract class BaseController {
 
@@ -84,8 +84,8 @@ public abstract class BaseController {
         return status;
     }
 
-    protected void writeToResponse(ResponseParams params, String content, String contentType, HttpServletResponse response)
-            throws Exception {
+    protected void writeToResponse(ResponseParams params, String content, String contentType,
+            HttpServletResponse response) throws Exception {
         response.setContentType(contentType);
         OutputStream resOs = response.getOutputStream();
         OutputStream buffOs = new BufferedOutputStream(resOs);
@@ -150,14 +150,14 @@ public abstract class BaseController {
         }
         return false;
     }
-    
+
     protected Response copyResponse(Response res) {
         Response response = new Response();
         response.setResponseCode(res.getResponseCode());
         response.setParams(res.getParams());
         return response;
     }
-    
+
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
             response.setId(API_ID_PREFIX + "." + apiId);
@@ -185,6 +185,26 @@ public abstract class BaseController {
     private String getUUID() {
         UUID uid = UUID.randomUUID();
         return uid.toString();
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Request getBundleRequest(Map<String, Object> requestMap, String errorCode) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        if (null != map && !map.isEmpty()) {
+            List<String> contentIdentifiers = (List<String>) map.get("content_identifiers");
+            String fileName = (String) map.get("file_name");
+            if (null == contentIdentifiers || contentIdentifiers.isEmpty())
+                throw new MiddlewareException(errorCode,
+                        "Atleast one content identifier should be provided to create ECAR file");
+            if (StringUtils.isBlank(fileName))
+                throw new MiddlewareException(errorCode, "ECAR file name should not be blank");
+            request.put("content_identifiers", contentIdentifiers);
+            request.put("file_name", fileName);
+        } else if (null != map && map.isEmpty()) {
+            throw new MiddlewareException(errorCode, "Invalid request body");
+        }
+        return request;
     }
 
 }
