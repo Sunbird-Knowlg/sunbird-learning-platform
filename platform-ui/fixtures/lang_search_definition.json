@@ -1,0 +1,309 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "LangSearch",
+      "properties": [
+        {
+          "propertyName": "startWith",
+          "title": "Starts With",
+          "description": "",
+          "category": "word",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 1
+          }
+        },
+        {
+          "propertyName": "endsWith",
+          "title": "Ends With",
+          "description": "",
+          "category": "word",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 2
+          }
+        },
+        {
+          "propertyName": "lemmaValue",
+          "title": "Value",
+          "description": "",
+          "category": "word",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": {
+            "order": 3
+          }
+        },
+        {
+          "propertyName": "minOrthographicComplexity",
+          "title": "Min",
+          "description": "",
+          "category": "orthographicComplexity",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "textarea",
+            "order": 4
+          }
+        },
+        {
+          "propertyName": "maxOrthographicComplexity",
+          "title": "Max.",
+          "description": "",
+          "category": "orthographicComplexity",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 5
+          }
+        },
+        {
+          "propertyName": "orthographicComplexityValue",
+          "title": "Value",
+          "description": "",
+          "category": "orthographicComplexity",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "table",
+            "order": 7
+          }
+        },
+        {
+          "propertyName": "minPhonologicComplexity",
+          "title": "Min.",
+          "description": "",
+          "category": "phonologicComplexity",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "table",
+            "order": 8
+          }
+        },
+        {
+          "propertyName": "maxPhonologicComplexity",
+          "title": "Max.",
+          "description": "",
+          "category": "phonologicComplexity",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "table",
+            "order": 8
+          }
+        },
+        {
+          "propertyName": "phonologicComplexityValue",
+          "title": "Status",
+          "description": "",
+          "category": "phonologicComplexity",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": {
+            "inputType": "select",
+            "order": 9
+          }
+        },
+        {
+          "propertyName": "minSyllableCount",
+          "title": "Min.",
+          "description": "",
+          "category": "syllableCount",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "select",
+            "order": 9
+          }
+        },
+        {
+          "propertyName": "maxSyllableCount",
+          "title": "Max.",
+          "description": "",
+          "category": "syllableCount",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "table",
+            "order": 12
+          }
+        },
+        {
+          "propertyName": "syllableCountValue",
+          "title": "Value",
+          "description": "",
+          "category": "syllableCount",
+          "dataType": "number",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "table",
+            "order": 10
+          }
+        },
+        {
+          "propertyName": "sourceType",
+          "title": "Type of Word Source",
+          "description": "",
+          "category": "sourceTypes",
+          "dataType": "multi-select",
+          "range": [
+            "textbooks",
+            "wordnets"
+          ],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 14
+          }
+        },
+        {
+          "propertyName": "source",
+          "title": "Word Source",
+          "description": "",
+          "category": "sources",
+          "dataType": "multi-select",
+          "range": [
+            "IndoWordnet",
+            "Karnataka Govt Textbooks",
+            "Rajasthan Textbooks"
+          ],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 14
+          }
+        },
+        {
+          "propertyName": "wordPOS",
+          "title": "Word's Parts of Speech",
+          "description": "",
+          "category": "pos",
+          "dataType": "multi-select",
+          "range": [
+            "vm",
+            "nn",
+            "nst",
+            "wq",
+            "prp",
+            "dem",
+            "cc",
+            "jj",
+            "rb",
+            "qc",
+            "rp",
+            "qf"
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 14
+          }
+        },
+        {
+          "propertyName": "grade",
+          "title": "Grade",
+          "description": "",
+          "category": "grade",
+          "dataType": "multi-select",
+          "range": [
+            1,
+            2,
+            3,
+            4,
+            5
+          ],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 14
+          }
+        },
+        {
+          "propertyName": "wordList",
+          "title": "Word List",
+          "description": "",
+          "category": "wordLists",
+          "dataType": "Text",
+          "range": [],
+          "required": false,
+          "indexed": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": {
+            "inputType": "text",
+            "order": 14
+          }
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [],
+      "systemTags": []
+    }
+  ]
+}

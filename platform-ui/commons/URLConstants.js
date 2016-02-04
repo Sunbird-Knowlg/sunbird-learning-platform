@@ -20,3 +20,4 @@ exports.GET_CONTENT = '/taxonomy-service/v1/content/${id}';
 exports.GET_CONTENT_TAXONOMY_DEFS = '/taxonomy-service/taxonomy/${id}/definition/${contentType}';
 exports.UPDATE_CONTENT = '/taxonomy-service/v1/content/${id}?taxonomyId=${tid}&type=${type}';
 exports.SAVE_CONTENT = '/taxonomy-service/v1/content?taxonomyId=${tid}&type=${contentType}';
+exports.LANG_SEARCH = '/v1/language/dictionary/search/${languageId}';
