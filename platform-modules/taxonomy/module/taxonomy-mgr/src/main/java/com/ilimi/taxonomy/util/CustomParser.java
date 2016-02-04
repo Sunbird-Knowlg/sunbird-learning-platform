@@ -73,8 +73,8 @@ public class CustomParser  {
 
     public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
 		
-			String filePath1 = filePath+"index.ecml";
-			String assetDir = assetFolder+"assets";
+			String filePath1 = filePath+File.separator+"index.ecml";
+			String assetDir = assetFolder+File.separator+"assets";
 			File file1 = new File(assetDir);
 			if (!file1.exists()) {
 				file1.mkdir();

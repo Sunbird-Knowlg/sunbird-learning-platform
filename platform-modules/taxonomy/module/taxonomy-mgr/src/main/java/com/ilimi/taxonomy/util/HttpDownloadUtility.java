@@ -51,6 +51,10 @@ public class HttpDownloadUtility {
 
                 // opens input stream from the HTTP connection
                 InputStream inputStream = httpConn.getInputStream();
+                File saveFile =  new File(saveDir);
+                if (!saveFile.exists()) {
+					saveFile.mkdirs();
+				}
                 String saveFilePath = saveDir + File.separator + fileName;
 
                 // opens an output stream to save into file

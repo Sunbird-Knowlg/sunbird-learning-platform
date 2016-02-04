@@ -652,7 +652,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             try {
                 delete(directory);
                 if (!directory.exists()) {
-                    directory.mkdir();
+                    directory.mkdirs();
                 }
             } catch (IOException e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
@@ -705,14 +705,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Node node = (Node) responseNode.get(GraphDACParams.node.name());
         if (responseNode != null) {
             String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
-            HttpDownloadUtility.downloadFile(zipFilUrl, tempFileLocation);
+            String tempFileDwn = tempFileLocation+System.currentTimeMillis()+"_temp";
+            HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
             String zipFileTempLocation[] = null;
             String fileNameWithExtn = null;
             zipFileTempLocation = zipFilUrl.split("/");
             fileNameWithExtn = zipFileTempLocation[zipFileTempLocation.length - 1];
-            String zipFile = tempFileLocation + fileNameWithExtn;
+            String zipFile = tempFileDwn + File.separator+fileNameWithExtn;
             Response response = new Response();
-            response = extractContent(taxonomyId, zipFile, tempFileLocation);
+            response = extractContent(taxonomyId, zipFile, tempFileDwn);
             if (checkError(response)) {
                 return response;
             }
@@ -768,8 +769,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
      */
     @SuppressWarnings("unchecked")
     public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
-        String filePath = saveDir + "index.ecml";
-        String uploadFilePath = saveDir + "assets" + File.separator;
+        String filePath = saveDir +File.separator+ "index.ecml";
+        String uploadFilePath = saveDir +File.separator+ "assets" + File.separator;
         List<String> mediaIdNotUploaded = new ArrayList<>();
         Map<String, String> mediaIdURL = new HashMap<String, String>();
         UnzipUtility unzipper = new UnzipUtility();
@@ -879,9 +880,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             } else {
                 try {
                     delete(directory);
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
