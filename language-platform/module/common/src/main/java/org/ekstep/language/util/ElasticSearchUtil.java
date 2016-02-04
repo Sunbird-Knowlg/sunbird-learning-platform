@@ -26,8 +26,6 @@ import net.sf.json.util.JSONStringer;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
-import org.ekstep.language.model.CitationBean;
-import org.ekstep.language.model.WordIndexBean;
 
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -36,18 +34,20 @@ public class ElasticSearchUtil {
 	private JestClient client;
 	private String hostName;
 	private String port;
-	private int defaultResultSize = 10000;
-	private int resultSize = defaultResultSize;
+	private int defaultResultLimit = 10000;
+	private int resultLimit = defaultResultLimit;
 
 	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
 		super();
 		initialize();
-		this.resultSize = resultSize;
+		if (resultSize < defaultResultLimit) {
+			this.resultLimit = resultSize;
+		}
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":"
 				+ port).multiThreaded(true).build());
 		client = factory.getObject();
-		
+
 	}
 
 	public ElasticSearchUtil() throws UnknownHostException {
@@ -58,7 +58,7 @@ public class ElasticSearchUtil {
 				+ port).multiThreaded(true).build());
 		client = factory.getObject();
 	}
-	
+
 	public void initialize() {
 		hostName = PropertiesUtil.getProperty("elastic-search-host");
 		port = PropertiesUtil.getProperty("elastic-search-port");
@@ -267,8 +267,7 @@ public class ElasticSearchUtil {
 	public SearchResult search(String IndexName, String IndexType, String query)
 			throws IOException {
 		Search search = new Search.Builder(query).addIndex(IndexName)
-				.addType(IndexType).setParameter("size", resultSize)
-				.build();
+				.addType(IndexType).setParameter("size", resultLimit).build();
 		long startTime = System.currentTimeMillis();
 		SearchResult result = client.execute(search);
 		if (result.getErrorMessage() != null) {
