@@ -49,9 +49,9 @@ public class LanguageIndexTest {
 	@Test
 	public void testLanguageIndexAPI() throws JsonParseException, JsonMappingException, IOException, InterruptedException{
 		ElasticSearchUtil util = new ElasticSearchUtil();
-		util.deleteIndex("citation_index_ka");
-		util.deleteIndex("word_index_ka");
-		util.deleteIndex("word_info_index_ka");
+		util.deleteIndex("citation_index_test");
+		util.deleteIndex("word_index_test");
+		util.deleteIndex("word_info_index_test");
 		loadCitations(util);
 		Thread.sleep(20000);
 		getRootWords();
@@ -64,9 +64,9 @@ public class LanguageIndexTest {
 		getCitationsCount();
 		getWordInfo();
 		getRootWordInfo();
-		util.deleteIndex("citation_index_ka");
-		util.deleteIndex("word_index_ka");
-		util.deleteIndex("word_info_index_ka");
+		util.deleteIndex("citation_index_test");
+		util.deleteIndex("word_index_test");
+		util.deleteIndex("word_info_index_test");
 	}
 	
 	public void addWordIndex() throws JsonParseException, JsonMappingException,
@@ -74,7 +74,7 @@ public class LanguageIndexTest {
 		String contentString = "{\"request\":{\"words\":[{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"id\":\"ka_4421\"},{\"word\":\"ಹೇಳಿಸಿ\",\"rootWord\":\"ಹೇಳಿಸು\",\"id\":\"ka_4367\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/addWordIndex/ka";
+		String path = "/v1/language/indexes/addWordIndex/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -94,7 +94,7 @@ public class LanguageIndexTest {
 		String contentString = "{\"request\":{\"citations\":[{\"word\":\"ಪೂರ್ವ\",\"rootWord\":\"ಪೂರ್ವ\",\"pos\":\"NST\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಶಾಲೆ\",\"rootWord\":\"ಶಾಲೆ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಆಟ\",\"rootWord\":\"ಆಟ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಅಳಿಲು\",\"rootWord\":\"ಅಳಿಲು\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಗಂಟೆ\",\"rootWord\":\"ಗಂಟೆ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಕೋತಿ\",\"rootWord\":\"ಕೋತಿ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಹೇಳಿಸಿ\",\"rootWord\":\"ಹೇಳಿಸು\",\"pos\":\"VM\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಪಾಠ\",\"rootWord\":\"ಪಾಠ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಚಟುವಟಿಕೆ\",\"rootWord\":\"ಚಟುವಟಿಕೆ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಹುಡುಗ\",\"rootWord\":\"ಹುಡುಗ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಹುಡುಗಿ\",\"rootWord\":\"ಹುಡುಗಿ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಕೇಳಿಸಿ\",\"rootWord\":\"ಕೇಳಿಸು\",\"pos\":\"VM\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"},{\"word\":\"ಪಾಠ\",\"rootWord\":\"ಪಾಠ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"}]}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/addCitationIndex/ka";
+		String path = "/v1/language/indexes/addCitationIndex/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -117,7 +117,7 @@ public class LanguageIndexTest {
 		String contentString = "{\"request\":{\"file_path\":\""+str+"\",\"source_type\":\"textbooks\",\"grade\":\"1\",\"source\":\"Class1\"}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/loadCitations/ka";
+		String path = "/v1/language/indexes/loadCitations/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -130,8 +130,8 @@ public class LanguageIndexTest {
 		}
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
-		util.deleteIndex("citation_index_ka");
-		util.deleteIndex("word_index_ka");
+		util.deleteIndex("citation_index_test");
+		util.deleteIndex("word_index_test");
 		addCitationIndex();
 		addWordIndex();
 	}
@@ -149,7 +149,7 @@ public class LanguageIndexTest {
 		String contentString = builder.toString();
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/getRootWords/ka";
+		String path = "/v1/language/indexes/getRootWords/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -187,7 +187,7 @@ public class LanguageIndexTest {
 		String contentString = builder.toString();
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/getWordId/ka";
+		String path = "/v1/language/indexes/getWordId/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -218,7 +218,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":{\"rootWord\":\"ಮರ\",\"citations\":{\"pos\":{\"nn\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4421\"},\"ಹೇಳಿಸಿ\":{\"rootWord\":\"ಹೇಳಿಸು\",\"citations\":{\"pos\":{\"vm\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4367\"}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/getIndexInfo/ka";
+		String path = "/v1/language/indexes/getIndexInfo/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -245,7 +245,7 @@ public class LanguageIndexTest {
 		String expectedResult = "[{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"wordIdentifier\":\"ka_4421\"}]";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/wordWildCard/ka";
+		String path = "/v1/language/indexes/wordWildCard/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -272,7 +272,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":[\"ಮರ\"],\"ಹೇಳಿಸು\":[\"ಹೇಳಿಸು\",\"ಹೇಳಿಸಿ\"]}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/morphologicalVariants/ka";
+		String path = "/v1/language/indexes/morphologicalVariants/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -299,7 +299,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":{\"pos\":{\"nn\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"ಹೇಳಿಸಿ\":{\"pos\":{\"vm\":1},\"sourceType\":{\"textbooks\":1},\"count\":1}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/citationsCount/ka";
+		String path = "/v1/language/indexes/citationsCount/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -325,7 +325,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"sourceType\":{\"textbooks\":13},\"pos\":{\"nn\":10,\"vm\":2,\"nst\":1},\"grade\":{\"1\":13},\"source\":{\"Class1\":13}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/getWordMetrics/ka";
+		String path = "/v1/language/indexes/getWordMetrics/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
 					.header("user-id", "ilimi"));
@@ -351,7 +351,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":[{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"pos\":\"NN\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"}],\"ಹೇಳಿಸಿ\":[{\"word\":\"ಹೇಳಿಸಿ\",\"rootWord\":\"ಹೇಳಿಸು\",\"pos\":\"VM\",\"date\":\"04-Feb-2016 18:02:17\",\"sourceType\":\"textbooks\",\"source\":\"Class1\",\"grade\":\"1\",\"fileName\":\"testSsf.txt\"}]}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/citations/ka";
+		String path = "/v1/language/indexes/citations/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -378,7 +378,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"pos\":\"NN\",\"category\":\"n\",\"gender\":\"n\",\"number\":\"sg\",\"pers\":\"\",\"grammaticalCase\":\"d\",\"inflection\":\"\",\"rts\":\"\"},\"ಹೇಳಿಸು\":{\"word\":\"ಹೇಳಿಸಿ\",\"rootWord\":\"ಹೇಳಿಸು\",\"pos\":\"VM\",\"category\":\"v\",\"gender\":\"\",\"number\":\"pl\",\"pers\":\"2\",\"grammaticalCase\":\"\",\"inflection\":\"\",\"rts\":\"\"}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/wordInfo/ka";
+		String path = "/v1/language/indexes/wordInfo/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
@@ -405,7 +405,7 @@ public class LanguageIndexTest {
 		String expectedResult = "{\"ಮರ\":[{\"word\":\"ಮರ\",\"rootWord\":\"ಮರ\",\"pos\":\"NN\",\"category\":\"n\",\"gender\":\"n\",\"number\":\"sg\",\"pers\":\"\",\"grammaticalCase\":\"d\",\"inflection\":\"\",\"rts\":\"\"}]}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/indexes/rootWordInfo/ka";
+		String path = "/v1/language/indexes/rootWordInfo/test";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)
