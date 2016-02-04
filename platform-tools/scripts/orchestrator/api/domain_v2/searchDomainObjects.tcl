@@ -33,7 +33,6 @@ if {$check_error} {
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	set obj_list [java::new ArrayList]
 	java::for {Node graph_node} $graph_nodes {
-		puts "adding domain object" 
 		set domain_obj [convert_graph_node $graph_node $def_node]
 		$obj_list add $domain_obj
 	}

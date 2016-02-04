@@ -25,6 +25,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
+import org.ekstep.language.model.WordInfoBean;
 
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
@@ -169,94 +170,177 @@ public class WordUtil extends BaseManager {
 		return dateTimeString;
 	}
 
-	@SuppressWarnings("unchecked")
-	public void addCitationsAndWordIndexToElasticSearch(
-			List<CitationBean> citations, String language) throws Exception {
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void addIndexesToElasticSearch(Map<String, List> indexes,
+			String language) throws Exception {
+
+		List<CitationBean> citationsList = indexes
+				.get(Constants.CITATION_INDEX_COMMON_NAME);
+		List<WordInfoBean> wordInfoList = indexes
+				.get(Constants.WORD_INFO_INDEX_COMMON_NAME);
+
 		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_"
 				+ language;
 		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"
 				+ language;
+		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_"
+				+ language;
 
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayList<String> citiationIndexes = new ArrayList<String>();
-		ArrayList<String> wordIndexes = new ArrayList<String>();
+		Map<String, String> wordIndexesWithId = new HashMap<String, String>();
+		Map<String, String> wordIndexInfoWithId = new HashMap<String, String>();
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE,
 				elasticSearchUtil);
 		createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE,
 				elasticSearchUtil);
-
-		for (CitationBean citation : citations) {
-			if (citation.getDate() == null || citation.getDate().isEmpty()) {
-				citation.setDate(getFormattedDateTime(System
-						.currentTimeMillis()));
-			}
-
-			String wordIdentifier = getWordIdentifierFromIndex(language,
-					citation.getWord());
-			String wordIndexJson;
-			if (wordIdentifier != null) {
-				if (citation.getRootWord() == null
-						|| citation.getRootWord().isEmpty()) {
-					String rootWord = getRootWordsFromIndex(citation.getWord(),
-							language);
-					citation.setRootWord(rootWord);
+		createWordInfoIndex(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
+				elasticSearchUtil);
+		if (citationsList != null) {
+			for (CitationBean citation : citationsList) {
+				if (citation.getDate() == null || citation.getDate().isEmpty()) {
+					citation.setDate(getFormattedDateTime(System
+							.currentTimeMillis()));
 				}
-			} else if (wordIdentifier == null) {
-				if (citation.getRootWord() != null
-						&& !citation.getRootWord().isEmpty()) {
-					wordIdentifier = getWordIdentifierFromIndex(language,
-							citation.getRootWord());
-				} else {
-					citation.setRootWord(citation.getWord());
-				}
+				String wordIdentifier = getWordIdentifierFromIndex(language,
+						citation.getWord());
+				String wordIndexJson;
 				if (wordIdentifier != null) {
-					wordIndexJson = getWordIndex(citation.getWord(),
-							citation.getRootWord(), wordIdentifier, mapper);
-					wordIndexes.add(wordIndexJson);
-				} else {
-					Map<String, Object> wordMap = new HashMap<String, Object>();
-					wordMap.put("lemma", citation.getRootWord());
-					List<Map<String, Object>> wordList = new ArrayList<Map<String, Object>>();
-					wordList.add(wordMap);
-					Request request = new Request();
-					request.put("words", wordList);
-					Response response = create(language,
-							LanguageObjectTypes.Word.name(), request);
-					List<String> nodeIdList = (List<String>) response
-							.get("node_id");
-					if (nodeIdList != null && !nodeIdList.isEmpty()) {
-						wordIdentifier = nodeIdList.get(0);
-						wordIndexJson = null;
-						if (wordIdentifier != null) {
-							wordIndexJson = getWordIndex(
-									citation.getRootWord(),
-									citation.getRootWord(), wordIdentifier,
-									mapper);
-							wordIndexes.add(wordIndexJson);
-
-							if (!citation.getWord().equalsIgnoreCase(
-									citation.getRootWord())) {
+					if (citation.getRootWord() == null
+							|| citation.getRootWord().isEmpty()) {
+						String rootWord = getRootWordsFromIndex(
+								citation.getWord(), language);
+						citation.setRootWord(rootWord);
+					}
+				} else if (wordIdentifier == null) {
+					if (citation.getRootWord() != null
+							&& !citation.getRootWord().isEmpty()) {
+						wordIdentifier = getWordIdentifierFromIndex(language,
+								citation.getRootWord());
+					} else {
+						citation.setRootWord(citation.getWord());
+					}
+					if (wordIdentifier != null) {
+						wordIndexJson = getWordIndex(citation.getWord(),
+								citation.getRootWord(), wordIdentifier, mapper);
+						wordIndexesWithId
+								.put(citation.getWord(), wordIndexJson);
+					} else {
+						Map<String, Object> wordMap = new HashMap<String, Object>();
+						wordMap.put("lemma", citation.getRootWord());
+						List<Map<String, Object>> wordList = new ArrayList<Map<String, Object>>();
+						wordList.add(wordMap);
+						Request request = new Request();
+						request.put("words", wordList);
+						Response response = create(language,
+								LanguageObjectTypes.Word.name(), request);
+						List<String> nodeIdList = (List<String>) response
+								.get("node_id");
+						if (nodeIdList != null && !nodeIdList.isEmpty()) {
+							wordIdentifier = nodeIdList.get(0);
+							wordIndexJson = null;
+							if (wordIdentifier != null) {
 								wordIndexJson = getWordIndex(
-										citation.getWord(),
+										citation.getRootWord(),
 										citation.getRootWord(), wordIdentifier,
 										mapper);
-								wordIndexes.add(wordIndexJson);
+								wordIndexesWithId.put(citation.getRootWord(),
+										wordIndexJson);
+
+								if (!citation.getWord().equalsIgnoreCase(
+										citation.getRootWord())) {
+									wordIndexJson = getWordIndex(
+											citation.getWord(),
+											citation.getRootWord(),
+											wordIdentifier, mapper);
+									wordIndexesWithId.put(citation.getWord(),
+											wordIndexJson);
+								}
 							}
+						} else {
+							LOGGER.info("Unable to add word to graph");
 						}
-					} else {
-						LOGGER.info("Unable to add word to graph");
 					}
 				}
+				String citationJson = mapper.writeValueAsString(citation);
+				citiationIndexes.add(citationJson);
 			}
-			String citationJson = mapper.writeValueAsString(citation);
-			citiationIndexes.add(citationJson);
+			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(
+					citationIndexName, Constants.CITATION_INDEX_TYPE,
+					citiationIndexes);
+			elasticSearchUtil.bulkIndexWithIndexId(wordIndexName,
+					Constants.WORD_INDEX_TYPE, wordIndexesWithId);
 		}
-		elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName,
-				Constants.CITATION_INDEX_TYPE, citiationIndexes);
-		elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(wordIndexName,
-				Constants.WORD_INDEX_TYPE, wordIndexes);
+		if (wordInfoList != null) {
+			for (WordInfoBean wordInfo : wordInfoList) {
+				String wordInfoJson = mapper.writeValueAsString(wordInfo);
+				wordIndexInfoWithId.put(wordInfo.getWord(), wordInfoJson);
+			}
+			elasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName,
+					Constants.WORD_INFO_INDEX_TYPE, wordIndexInfoWithId);
+		}
+	}
+
+	private void createWordInfoIndex(String indexName, String indexType,
+			ElasticSearchUtil elasticSearchUtil) throws IOException {
+		JSONBuilder settingBuilder = new JSONStringer();
+		settingBuilder.object().key("settings").object().key("analysis")
+				.object().key("filter").object().key("nfkc_normalizer")
+				.object().key("type").value("icu_normalizer").key("name")
+				.value("nfkc").endObject().endObject().key("analyzer").object()
+				.key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array()
+				.value("nfkc_normalizer").endArray().endObject().endObject()
+				.endObject().endObject().endObject();
+
+		JSONBuilder mappingBuilder = new JSONStringer();
+		mappingBuilder.object()
+			.key(indexType).object()
+				.key("properties").object()
+					.key("word").object()
+						.key("type").value("string")
+						.key("analyzer").value("ind_normalizer")
+					.endObject()
+					.key("rootWord").object()
+						.key("type").value("string")
+						.key("analyzer").value("ind_normalizer")
+					.endObject()
+					.key("inflection").object()
+						.key("type").value("string")
+						.key("analyzer").value("ind_normalizer")
+					.endObject()
+					.key("pos").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+					.key("gender").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+					.key("number").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+					.key("pers").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+					.key("wordCase").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+					.key("rts").object()
+						.key("type").value("string")
+						.key("index").value("not_analyzed")
+					.endObject()
+				.endObject()
+			.endObject()
+		.endObject();
+
+		elasticSearchUtil.addIndex(indexName, indexType,
+				settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	public void createWordIndex(String indexName, String indexType,

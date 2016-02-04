@@ -34,5 +34,7 @@ public enum LanguageErrorCodes {
     
     SYSTEM_ERROR,
     
-    ERR_LANGUAGE_REQUEST_ROUTER_NOT_FOUND;
+    ERR_LANGUAGE_REQUEST_ROUTER_NOT_FOUND,
+    
+    ERR_PARSER_ERROR;
 }

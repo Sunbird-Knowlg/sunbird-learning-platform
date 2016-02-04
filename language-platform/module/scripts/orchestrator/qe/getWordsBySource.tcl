@@ -121,6 +121,19 @@ if {$searchNotNull} {
 	procAddListCriteria $filters "grade" $filter_list
 	$map put "filters" $filter_list
 }
+set limitNotNull [isNotNull $limit]
+if {$limitNotNull} {
+	$map put "resultSize" $limit	
+}
+set sortNotNull [isNotNull $sort]
+if {$sortNotNull} {
+	$map put "sortBy" $sort	
+}
+set orderNotNull [isNotNull $order]
+if {$orderNotNull} {
+	$map put "order" $order	
+}
+
 set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $language_id $search_criteria]
 set check_error [check_response_error $search_response]

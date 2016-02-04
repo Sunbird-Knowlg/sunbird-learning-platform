@@ -257,4 +257,70 @@ public class IndexesController extends BaseLanguageController {
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
+    
+    @RequestMapping(value = "/morphologicalVariants/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> getMorphologicalVariants(@PathVariable(value = "languageId") String languageId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "word.morphologicalVariants";
+        Request request = getRequestObject(map);
+        request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
+        request.setOperation(LanguageOperations.morphologicalVariants.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        LOGGER.info("List | Request: " + request);
+        try {
+            Response response = getResponse(request, LOGGER);
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/rootWordInfo/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> getRootWordInfo(@PathVariable(value = "languageId") String languageId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "rootWordInfo.get";
+        Request request = getRequestObject(map);
+        request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
+        request.setOperation(LanguageOperations.rootWordInfo.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        LOGGER.info("List | Request: " + request);
+        try {
+            Response response = getResponse(request, LOGGER);
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/wordInfo/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> getWordInfo(@PathVariable(value = "languageId") String languageId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "wordInfo.get";
+        Request request = getRequestObject(map);
+        request.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
+        request.setOperation(LanguageOperations.wordInfo.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        LOGGER.info("List | Request: " + request);
+        try {
+            Response response = getResponse(request, LOGGER);
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
 }

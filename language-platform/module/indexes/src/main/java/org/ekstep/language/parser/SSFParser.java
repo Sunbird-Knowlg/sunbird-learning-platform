@@ -13,12 +13,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.model.CitationBean;
+import org.ekstep.language.model.WordInfoBean;
 import org.ekstep.language.util.Constants;
 import org.ekstep.language.util.PropertiesUtil;
 import org.ekstep.language.util.WordUtil;
@@ -54,22 +57,24 @@ public class SSFParser {
 				.getProperty("attributesTagIdentifier");
 	}
 
-	public static void parseSsfFiles(String filePath,
-			String sourceType, String source, String grade, String languageId) throws Exception{
+	public static void parseSsfFiles(String filePath, String sourceType,
+			String source, String grade, boolean skipCitations,
+			String languageId) throws Exception {
 		final File file = new File(filePath);
 		if (file.isDirectory()) {
 			for (final File fileEntry : file.listFiles()) {
-				parseSsfFiles(fileEntry.getAbsolutePath(), sourceType,
-						source, grade, languageId);
+				parseSsfFiles(fileEntry.getAbsolutePath(), sourceType, source,
+						grade, skipCitations, languageId);
 			}
 		} else {
 			parseSsfFile(file.getAbsolutePath(), sourceType, source, grade,
-					languageId);
+					skipCitations, languageId);
 		}
 	}
 
 	public static void parseSsfFile(String filePath, String sourceType,
-			String source, String grade, String languageId) throws Exception {
+			String source, String grade, boolean skipCitations,
+			String languageId) throws Exception {
 		String sentence = null;
 		BufferedReader br = null;
 		try {
@@ -79,9 +84,9 @@ public class SSFParser {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(
 					filePath), "UTF8"));
 			while ((sentence = br.readLine()) != null) {
-				wordUtil.addCitationsAndWordIndexToElasticSearch(
+				wordUtil.addIndexesToElasticSearch(
 						processSentence(sentence, sourceType, source, grade,
-								fileName), languageId);
+								skipCitations, fileName), languageId);
 			}
 		} finally {
 			if (br != null) {
@@ -107,18 +112,22 @@ public class SSFParser {
 
 	public static void main(String args[]) throws Exception {
 		String fileName = "C:\\data\\testFolder\\test.txt";
-		parseSsfFile(fileName, "Books", "Scarlet", "1", "ka");
+		parseSsfFile(fileName, "Books", "Scarlet", "1", true, "ka");
 	}
 
-	private static List<CitationBean> processSentence(String sentence,
-			String sourceType, String source, String grade, String fileName) throws Exception {
+	@SuppressWarnings("rawtypes")
+	private static Map<String, List> processSentence(String sentence,
+			String sourceType, String source, String grade,
+			boolean skipCitations, String fileName) throws Exception {
 		String[] sentenceTokens = sentence.split(SENTENCE_SPLITTER);
 		ArrayList<String> enhancedSentenceTokens = enhanceSentenceTokens(sentenceTokens);
 		boolean wordFound = false;
 		String word = null;
 		String pos = null;
 		int tokenCountAfterWord = 0;
+		Map<String, List> indexes = new HashMap<String, List>();
 		List<CitationBean> citationList = new ArrayList<CitationBean>();
+		List<WordInfoBean> wordInfoList = new ArrayList<WordInfoBean>();
 		for (String token : enhancedSentenceTokens) {
 			tokenCountAfterWord++;
 
@@ -152,15 +161,28 @@ public class SSFParser {
 						try {
 							String[] afAttributes = afTokens[1]
 									.split(ATTRIBUTES_SEPARATOR);
-							String rootWord = afAttributes[Constants.TAG_INDEX_ROOT_WORD]
-									.replace("'", "");
+							String rootWord = cleanAttibute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
+							String gender = cleanAttibute(afAttributes[Constants.TAG_INDEX_GENDER]);
+							String number = cleanAttibute(afAttributes[Constants.TAG_INDEX_NUMBER]);
+							String pers = cleanAttibute(afAttributes[Constants.TAG_INDEX_PERS]);
+							String wordCase = cleanAttibute(afAttributes[Constants.TAG_INDEX_CASE]);
+							String inflection = cleanAttibute(afAttributes[Constants.TAG_INDEX_INFLECTION]);
+							String rts = cleanAttibute(afAttributes[Constants.TAG_INDEX_RTS]);
 							if (rootWord != null && !rootWord.isEmpty()) {
-								CitationBean citationObj = new CitationBean(
-										word, rootWord, pos,
-										wordUtil.getFormattedDateTime(System
-												.currentTimeMillis()),
-										sourceType, source, grade, fileName);
-								citationList.add(citationObj);
+								if (!skipCitations) {
+									CitationBean citationObj = new CitationBean(
+											word,
+											rootWord,
+											pos,
+											wordUtil.getFormattedDateTime(System
+													.currentTimeMillis()),
+											sourceType, source, grade, fileName);
+									citationList.add(citationObj);
+								}
+								WordInfoBean wordInfo = new WordInfoBean(word,
+										rootWord, pos, gender, number, pers,
+										wordCase, inflection, rts);
+								wordInfoList.add(wordInfo);
 							}
 
 							word = null;
@@ -168,7 +190,8 @@ public class SSFParser {
 							tokenCountAfterWord = 0;
 						} catch (IndexOutOfBoundsException e) {
 							e.printStackTrace();
-							throw new Exception("Word attributes does not contain all required data.");
+							throw new Exception(
+									"Word attributes does not contain all required data.");
 						}
 					}
 				}
@@ -178,7 +201,11 @@ public class SSFParser {
 			word = token;
 			tokenCountAfterWord = 0;
 		}
-		return citationList;
+		if (!skipCitations) {
+			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationList);
+		}
+		indexes.put(Constants.WORD_INFO_INDEX_COMMON_NAME, wordInfoList);
+		return indexes;
 	}
 
 	private static boolean discardWord(String token) {
@@ -218,6 +245,14 @@ public class SSFParser {
 		return false;
 	}
 
+	private static String cleanAttibute(String attribute) {
+		attribute = attribute.replace("'", "");
+		attribute = attribute.replace("<", "");
+		attribute = attribute.replace(">", "");
+		attribute = attribute.replace("0", "");
+		return attribute;
+	}
+	
 	private static ArrayList<String> enhanceSentenceTokens(
 			String[] sentenceTokens) {
 		ArrayList<String> enhancedSentenceTokens = new ArrayList<String>();
