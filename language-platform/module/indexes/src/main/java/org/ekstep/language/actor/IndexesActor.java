@@ -484,7 +484,7 @@ public class IndexesActor extends LanguageBaseActor {
 		WordUtil wordUtil = new WordUtil();
 		String indexName = Constants.CITATION_INDEX_COMMON_NAME + "_"
 				+ languageId;
-		String textKeyWord = "word";
+		
 		Map<String, Object> textFiltersMap = new HashMap<String, Object>();
 		if (sourceType != null) {
 			textFiltersMap.put("sourceType",
@@ -500,9 +500,9 @@ public class IndexesActor extends LanguageBaseActor {
 			textFiltersMap.put("fileName",
 					wordUtil.getList(mapper, fileName, null));
 		}
-
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
-		searchCriteria.put(textKeyWord, words);
+		searchCriteria.put("word", words);
+		searchCriteria.put("rootWord", words);
 		List<Object> citations = util.textFiltersSearch(CitationBean.class,
 				searchCriteria, textFiltersMap, indexName,
 				Constants.CITATION_INDEX_TYPE);

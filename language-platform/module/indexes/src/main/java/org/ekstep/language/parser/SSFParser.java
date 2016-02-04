@@ -162,6 +162,7 @@ public class SSFParser {
 							String[] afAttributes = afTokens[1]
 									.split(ATTRIBUTES_SEPARATOR);
 							String rootWord = cleanAttribute(afAttributes[Constants.TAG_INDEX_ROOT_WORD]);
+							String category = cleanAttribute(afAttributes[Constants.TAG_INDEX_CATEGORY]);
 							String gender = cleanAttribute(afAttributes[Constants.TAG_INDEX_GENDER]);
 							String number = cleanAttribute(afAttributes[Constants.TAG_INDEX_NUMBER]);
 							String pers = cleanAttribute(afAttributes[Constants.TAG_INDEX_PERS]);
@@ -180,8 +181,8 @@ public class SSFParser {
 									citationList.add(citationObj);
 								}
 								WordInfoBean wordInfo = new WordInfoBean(word,
-										rootWord, pos, gender, number, pers,
-										wordCase, inflection, rts);
+										rootWord, pos, category, gender,
+										number, pers, wordCase, inflection, rts);
 								wordInfoList.add(wordInfo);
 							}
 
@@ -252,7 +253,7 @@ public class SSFParser {
 		attribute = attribute.replace("0", "");
 		return attribute;
 	}
-	
+
 	private static ArrayList<String> enhanceSentenceTokens(
 			String[] sentenceTokens) {
 		ArrayList<String> enhancedSentenceTokens = new ArrayList<String>();
