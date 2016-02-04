@@ -21,7 +21,8 @@ var userHelper = require('../view_helpers/UserViewHelper')
     , commentHelper = require('../view_helpers/CommentViewHelper')
     , uploadHelper = require('../view_helpers/UploadViewHelper')
     , mediaHelper = require('../view_helpers/MediaViewHelper')
-    , contentHelper = require('../view_helpers/ContentViewHelper');
+    , contentHelper = require('../view_helpers/ContentViewHelper')
+    , langSearchHelper = require('../view_helpers/LangSearchViewHelper');
 
 module.exports = function(app, dirname, passport, connectroles) {
 
@@ -203,6 +204,8 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.get('/private/v1/player/content/:cid/:tid/:type', contentHelper.getContent);
     app.post('/private/v1/player/content/create', contentHelper.createContent);
     app.post('/private/v1/player/content/update', contentHelper.updateContent);
+
+    app.get('/private/v1/player/language/search', langSearchHelper.getLangSearchDefinition);
 
 
 };
