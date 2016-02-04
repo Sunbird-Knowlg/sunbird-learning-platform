@@ -53,7 +53,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                 }
 
             } catch (Exception e) {
-                throw new TclException(interp, "Unable to read response: " + e.getMessage());
+                throw new TclException(interp, e.getMessage());
             }
         } else {
             throw new TclNumArgsException(interp, 1, argv, "Invalid arguments to get_resp_value command");
@@ -61,7 +61,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-    private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) {
+    private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) throws Exception {
         Node node = new Node();
         if (null != map && !map.isEmpty()) {
             Map<String, String> inRelDefMap = new HashMap<String, String>();
@@ -83,6 +83,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                             node.setTags(tags);
                     } catch (Exception e) {
                         e.printStackTrace();
+                        throw e;
                     }
                 } else if (inRelDefMap.containsKey(entry.getKey())) {
                     try {
@@ -97,6 +98,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        throw e;
                     }
                 } else if (outRelDefMap.containsKey(entry.getKey())) {
                     try {
@@ -116,6 +118,7 @@ public class ConvertToGraphNode extends BaseSystemCommand implements ICommand, C
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
+                        throw e;
                     }
                 } else {
                     metadata.put(entry.getKey(), entry.getValue());
