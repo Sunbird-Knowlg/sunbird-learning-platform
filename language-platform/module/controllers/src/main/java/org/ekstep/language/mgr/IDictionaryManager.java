@@ -1,9 +1,13 @@
 package org.ekstep.language.mgr;
 
+import java.io.File;
+
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
 public interface IDictionaryManager {
+    
+    Response upload(File uploadedFile);
 
     Response create(String languageId, String objectType, Request request);
 

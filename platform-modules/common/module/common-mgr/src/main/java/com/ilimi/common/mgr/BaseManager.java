@@ -28,9 +28,8 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
 
-
 public abstract class BaseManager {
-    
+
     protected static final String PARAM_SUBJECT = "subject";
     protected static final String PARAM_FIELDS = "fields";
     protected static final String PARAM_LIMIT = "limit";
@@ -38,10 +37,9 @@ public abstract class BaseManager {
     protected static final String PARAM_STATUS = "status";
     protected static final String PARAM_TAGS = "tags";
     protected static final String PARAM_TTL = "ttl";
-    
+
     protected static final int DEFAULT_TTL = 24;
     protected static final int DEFAULT_LIMIT = 50;
-
 
     protected void setMetadataFields(Node node, String[] fields) {
         if (null != fields && fields.length > 0) {
@@ -83,7 +81,8 @@ public abstract class BaseManager {
                     Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
                     futures.add(future);
                 }
-                Future<Iterable<Object>> objects = Futures.sequence(futures, RequestRouterPool.getActorSystem().dispatcher());
+                Future<Iterable<Object>> objects = Futures.sequence(futures,
+                        RequestRouterPool.getActorSystem().dispatcher());
                 Iterable<Object> responses = Await.result(objects, RequestRouterPool.WAIT_TIMEOUT.duration());
                 if (null != responses) {
                     List<Object> list = new ArrayList<Object>();
@@ -101,7 +100,8 @@ public abstract class BaseManager {
                                 return res;
                             }
                         } else {
-                            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+                            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error",
+                                    ResponseCode.SERVER_ERROR);
                         }
                     }
                     response.put(returnParam, list);
@@ -142,15 +142,16 @@ public abstract class BaseManager {
         response.setResponseCode(responseCode);
         return response;
     }
-    
-    protected Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier, Object vo) {
+
+    protected Response ERROR(String errorCode, String errorMessage, ResponseCode code, String responseIdentifier,
+            Object vo) {
         Response response = new Response();
         response.put(responseIdentifier, vo);
         response.setParams(getErrorStatus(errorCode, errorMessage));
         response.setResponseCode(code);
         return response;
     }
-    
+
     protected Response OK() {
         Response response = new Response();
         response.setParams(getSucessStatus());
@@ -163,7 +164,7 @@ public abstract class BaseManager {
         response.setParams(getSucessStatus());
         return response;
     }
-    
+
     protected boolean checkError(Response response) {
         ResponseParams params = response.getParams();
         if (null != params) {
@@ -172,6 +173,14 @@ public abstract class BaseManager {
             }
         }
         return false;
+    }
+
+    protected String getErrorMessage(Response response) {
+        ResponseParams params = response.getParams();
+        if (null != params) {
+            return params.getErrmsg();
+        }
+        return null;
     }
 
     protected Response copyResponse(Response res) {
@@ -194,7 +203,7 @@ public abstract class BaseManager {
         params.setErrmsg(errorMessage);
         return params;
     }
-    
+
     private ResponseParams getSucessStatus() {
         ResponseParams params = new ResponseParams();
         params.setErr("0");
