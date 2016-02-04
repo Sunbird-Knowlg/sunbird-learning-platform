@@ -130,7 +130,7 @@ public class IndexesActor extends LanguageBaseActor {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					getRootWordInfo(words, languageId, limit);
 				} else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.getWordId.name(), operation)) {
@@ -181,14 +181,14 @@ public class IndexesActor extends LanguageBaseActor {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					getMorphologicalVariants(words, languageId, limit);
 				}  else if (StringUtils.equalsIgnoreCase(
 						LanguageOperations.wordInfo.name(), operation)) {
 					List<String> words = (List<String>) request
 							.get(LanguageParams.words.name());
 					int limit = (int) (request.get(LanguageParams.limit.name()) != null ? request
-							.get(LanguageParams.limit.name()) : null);
+							.get(LanguageParams.limit.name()) : DEFAULT_LIMIT);
 					getWordInfo(words, languageId, limit);
 				} else {
 					LOGGER.info("Unsupported operation: " + operation);
