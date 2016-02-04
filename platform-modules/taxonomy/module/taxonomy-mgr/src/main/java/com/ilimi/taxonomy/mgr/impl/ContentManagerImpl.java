@@ -816,36 +816,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                             parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
                                     olderName.renameTo(newName);
                                     String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                                    Node newItem = createNode(item,url[1],item.getIdentifier(),olderName);
                                     mediaIdURL.put(item.getIdentifier(), url[1]);
-                                    item.setObjectType("Content");
-                                    Map<String, Object> metadata = new HashMap<String, Object>();
-                                    metadata.put("name", item.getIdentifier());
-                                    metadata.put("code", item.getIdentifier());
-                                    metadata.put("body", "<content></content>");
-                                    metadata.put("status", "Live");
-                                    metadata.put("owner", "ekstep");
-                                    metadata.put("contentType", "Asset");
-                                    metadata.put("downloadUrl", url[1]);
-                                    if (metadata.get("pkgVersion") == null) {
-                                        metadata.put("pkgVersion", 1);
-                                    } else {
-                                        int version = (Integer) metadata.get("pkgVersion") + 1;
-                                        metadata.put("pkgVersion", version);
-                                    }
-                                    Object mimeType = getMimeType(new File(olderName.getName()));
-                                    metadata.put("mimeType", mimeType);
-                                    item.setMetadata(metadata);
                                     Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                             "validateNode");
-                                    validateReq.put(GraphDACParams.node.name(), item);
+                                    validateReq.put(GraphDACParams.node.name(), newItem);
                                     Response validateRes = getResponse(validateReq, LOGGER);
                                     if (checkError(validateRes)) {
                                         return validateRes;
                                     } else {
                                         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                                 "updateDataNode");
-                                        updateReq.put(GraphDACParams.node.name(), item);
-                                        updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
+                                        updateReq.put(GraphDACParams.node.name(), newItem);
+                                        updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
                                         getResponse(updateReq, LOGGER);
                                     }
                                 }
@@ -865,27 +848,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 olderName.renameTo(newName);
                                 String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
                                 mediaIdURL.put(mediaId, url[1]);
-                                // Creating Node
-                                Node item = new Node();
-                                item.setIdentifier(mediaId);
-                                item.setObjectType("Content");
-                                Map<String, Object> metadata = new HashMap<String, Object>();
-                                metadata.put("name", mediaId);
-                                metadata.put("code", mediaId);
-                                metadata.put("body", "<content></content>");
-                                metadata.put("status", "Live");
-                                metadata.put("owner", "ekstep");
-                                metadata.put("contentType", "Asset");
-                                metadata.put("downloadUrl", url[1]);
-                                if (metadata.get("pkgVersion") == null) {
-                                    metadata.put("pkgVersion", 1);
-                                } else {
-                                    int version = (Integer) metadata.get("pkgVersion") + 1;
-                                    metadata.put("pkgVersion", version);
-                                }
-                                Object mimeType = getMimeType(new File(olderName.getName()));
-                                metadata.put("mimeType", mimeType);
-                                item.setMetadata(metadata);
+                                Node item = createNode(new Node(),url[1],mediaId,olderName);
                                 // Creating a graph.
                                 Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                         "validateNode");
@@ -906,6 +869,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 CustomParser.readECMLFileDownload(saveDir, saveDir, mediaIdURL);
             }
             CustomParser.updateJsonInEcml(filePath, "items");
+            CustomParser.updateJsonInEcml(filePath, "data");
             response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
             // deleting unzip file
             File directory = new File(saveDir);
@@ -928,9 +892,31 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         return response;
     }
 
-    private Object getMimeType(File file) {
-        MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
+    private Node createNode(Node item, String url,String mediaId,File olderName) {
+    	item.setIdentifier(mediaId);
+        item.setObjectType("Content");
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put("name", mediaId);
+        metadata.put("code", mediaId);
+        metadata.put("body", "<content></content>");
+        metadata.put("status", "Live");
+        metadata.put("owner", "ekstep");
+        metadata.put("contentType", "Asset");
+        metadata.put("downloadUrl", url);
+        if (metadata.get("pkgVersion") == null) {
+            metadata.put("pkgVersion", 1);
+        } else {
+            int version = (Integer) metadata.get("pkgVersion") + 1;
+            metadata.put("pkgVersion", version);
+        }
+        Object mimeType = getMimeType(new File(olderName.getName()));
+        metadata.put("mimeType", mimeType);
+        item.setMetadata(metadata);
+		return item;
+	}
 
+	private Object getMimeType(File file) {
+        MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
         return mimeType.getContentType(file);
     }
 

@@ -171,7 +171,7 @@ public class CustomParser  {
     				controller =  (Element) attrList.item(i);
     				File file = new File(filePath);
     				String nameOfJsonFile = controller.getAttribute("id");
-    				String itemJsonPath = file.getParent()+"//items//"+nameOfJsonFile+".json";
+    				String itemJsonPath = file.getParent()+File.separator+type+File.separator+nameOfJsonFile+".json";
     				File jsonFile = new File(itemJsonPath);
     				if (jsonFile.exists()) {
     					controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
