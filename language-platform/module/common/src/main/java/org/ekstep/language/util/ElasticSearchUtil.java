@@ -10,6 +10,7 @@ import io.searchbox.core.Index;
 import io.searchbox.core.Search;
 import io.searchbox.core.SearchResult;
 import io.searchbox.indices.CreateIndex;
+import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.IndicesExists;
 import io.searchbox.indices.mapping.PutMapping;
 import io.searchbox.indices.settings.GetSettings;
@@ -135,6 +136,10 @@ public class ElasticSearchUtil {
 			String documentId) throws IOException {
 		client.execute(new Delete.Builder(documentId).index(indexName)
 				.type(documentType).build());
+	}
+	
+	public void deleteIndex(String indexName) throws IOException {
+		client.execute(new DeleteIndex.Builder(indexName).build());
 	}
 
 	public void bulkIndexWithIndexId(String indexName, String documentType,
