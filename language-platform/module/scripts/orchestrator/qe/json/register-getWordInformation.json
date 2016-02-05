@@ -1,0 +1,14 @@
+{
+    "name": "lang_qe_getWordInformation",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"words",
+        "index": 1,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }],
+    "body": ""
+}

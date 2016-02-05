@@ -36,5 +36,17 @@ public enum LanguageErrorCodes {
     
     ERR_LANGUAGE_REQUEST_ROUTER_NOT_FOUND,
     
-    ERR_PARSER_ERROR;
+    ERR_PARSER_ERROR,
+    
+    ERR_SEARCH_ERROR,
+    
+    ERR_CREATE_WORD,
+    
+    ERR_UPDATE_WORD,
+    
+    ERR_CREATE_SYNONYM,
+    
+    ERR_WORDS_NOT_FOUND,
+    
+    ERR_INVALID_UPLOAD_FILE;
 }

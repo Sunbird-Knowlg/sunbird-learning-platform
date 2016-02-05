@@ -48,13 +48,16 @@ public class ConvertResponseToCSV extends BaseSystemCommand implements ICommand,
                         interp.setResult(tclResp);
                     } else {
                         Object obj = response.get(param);
-                        List<Object> list = new ArrayList<Object>();
-                        if (!(obj instanceof List)) {
-                            list.add(obj);
-                        } else {
-                            list = (List<Object>) obj;
+                        String csv = "";
+                        if (null != obj) {
+                            List<Object> list = new ArrayList<Object>();
+                            if (!(obj instanceof List)) {
+                                list.add(obj);
+                            } else {
+                                list = (List<Object>) obj;
+                            }
+                            csv = getCSV(list);
                         }
-                        String csv = getCSV(list);
                         TclObject tclResp = ReflectObject.newInstance(interp, csv.getClass(), csv);
                         interp.setResult(tclResp);
                     }
@@ -73,11 +76,16 @@ public class ConvertResponseToCSV extends BaseSystemCommand implements ICommand,
             List<String[]> allRows = new ArrayList<String[]>();
             List<String[]> dataRows = new ArrayList<String[]>();
             Object obj = list.get(0);
-            if (obj instanceof Map) {
+            Map<String,Object> objectMap = null;
+            try {
+                objectMap = mapper.convertValue(obj, Map.class);
+            } catch (Exception e) {
+            }
+            if (null != objectMap) {
                 List<String> headers = new ArrayList<String>();
                 List<Map<String, Object>> rowMaps = new ArrayList<Map<String, Object>>();
                 for (Object val : list) {
-                    Map<String, Object> map = (Map<String, Object>) val;
+                    Map<String, Object> map = mapper.convertValue(val, Map.class);
                     if (null != map && !map.isEmpty()) {
                         Set<String> keys = map.keySet();
                         for (String key : keys) {

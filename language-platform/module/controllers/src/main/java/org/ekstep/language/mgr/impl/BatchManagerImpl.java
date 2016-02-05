@@ -94,14 +94,17 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             getNodeMap(nodes, nodeMap, words);
             if (null != words && !words.isEmpty()) {
                 Map<String, Object> indexesMap = new HashMap<String, Object>();
+                Map<String, Object> wordInfoMap = new HashMap<String, Object>();
                 List<String> groupList = Arrays.asList(groupBy);
                 getIndexInfo(languageId, indexesMap, words, groupList);
-                if (null != indexesMap && !indexesMap.isEmpty()) {
-                    System.out.println("Index info returned for " + indexesMap.size() + " words");
-                    for (Entry<String, Object> entry : indexesMap.entrySet()) {
-                        Node node = nodeMap.get(entry.getKey());
-                        Map<String, Object> index = (Map<String, Object>) entry.getValue();
-                        if (null != node && null != index) {
+                getWordInfo(languageId, wordInfoMap, words);
+                if (null != nodeMap && !nodeMap.isEmpty()) {
+                    for (Entry<String, Node> entry : nodeMap.entrySet()) {
+                        Node node = entry.getValue();
+                        String lemma = entry.getKey();
+                        Map<String, Object> index = (Map<String, Object>) indexesMap.get(lemma);
+                        List<Map<String, Object>> wordInfo = (List<Map<String, Object>>) wordInfoMap.get(lemma);
+                        if (null != index) {
                             Map<String, Object> citations = (Map<String, Object>) index.get("citations");
                             if (null != citations && !citations.isEmpty()) {
                                 Object count = citations.get("count");
@@ -116,20 +119,31 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 updateSourceTypesList(node, citations);
                                 updateSourcesList(node, citations);
                                 updateGradeList(node, citations);
-                                node.getMetadata().put("status", "Live");
-                                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                        "updateDataNode");
-                                updateReq.put(GraphDACParams.node.name(), node);
-                                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                                try {
-                                    System.out.println("Sending update req for : " + node.getIdentifier());
-                                    getResponse(updateReq, LOGGER);
-                                    System.out.println("Update complete for : " + node.getIdentifier());
-                                } catch (Exception e) {
-                                    System.out
-                                            .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
-                                }
                             }
+                        }
+                        if (null != wordInfo && !wordInfo.isEmpty()) {
+                            for (Map<String, Object> info : wordInfo) {
+                                updateStringMetadata(node, info, "word", "variants");
+                                updateStringMetadata(node, info, "category", "pos_categories");
+                                updateStringMetadata(node, info, "gender", "genders");
+                                updateStringMetadata(node, info, "number", "plurality");
+                                updateStringMetadata(node, info, "pers", "person");
+                                updateStringMetadata(node, info, "grammaticalCase", "cases");
+                                updateStringMetadata(node, info, "inflection", "inflections");
+                            }
+                        }
+                        node.getMetadata().put("status", "Live");
+                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                "updateDataNode");
+                        updateReq.put(GraphDACParams.node.name(), node);
+                        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                        try {
+                            System.out.println("Sending update req for : " + node.getIdentifier());
+                            getResponse(updateReq, LOGGER);
+                            System.out.println("Update complete for : " + node.getIdentifier());
+                        } catch (Exception e) {
+                            System.out
+                                    .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
                         }
                     }
                 }
@@ -235,13 +249,37 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             node.getMetadata().put(metadataKey, sources);
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    private void updateStringMetadata(Node node, Map<String, Object> citations, String indexKey, String metadataKey) {
+        String key = (String) citations.get(indexKey);
+        if (StringUtils.isNotBlank(key)) {
+            Object obj = node.getMetadata().get(metadataKey);
+            String[] arr = null;
+            List<String> sources = new ArrayList<String>();
+            if (null != obj) {
+                if (obj instanceof String[]) {
+                    arr = (String[]) obj;
+                } else {
+                    sources = (List<String>) obj;
+                }
+            }
+            if (null != arr && arr.length > 0) {
+                for (String str : arr)
+                    sources.add(str);
+            }
+            if (!sources.contains(key))
+                sources.add(key);
+            node.getMetadata().put(metadataKey, sources);
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private void getIndexInfo(String languageId, Map<String, Object> indexesMap, List<String> words,
             List<String> groupList) {
         if (null != words && !words.isEmpty()) {
             int start = 0;
-            int batch = 10;
+            int batch = 100;
             if (batch > words.size())
                 batch = words.size();
             while (start < words.size()) {
@@ -260,8 +298,38 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                         indexesMap.putAll(map);
                     }
                 }
-                start += 10;
-                batch += 10;
+                start += 100;
+                batch += 100;
+                if (batch > words.size())
+                    batch = words.size();
+            }
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void getWordInfo(String languageId, Map<String, Object> wordInfoMap, List<String> words) {
+        if (null != words && !words.isEmpty()) {
+            int start = 0;
+            int batch = 100;
+            if (batch > words.size())
+                batch = words.size();
+            while (start < words.size()) {
+                List<String> list = new ArrayList<String>();
+                for (int i = start; i < batch; i++) {
+                    list.add(words.get(i));
+                }
+                Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
+                        LanguageOperations.rootWordInfo.name());
+                langReq.put(LanguageParams.words.name(), list);
+                Response langRes = getLanguageResponse(langReq, LOGGER);
+                if (!checkError(langRes)) {
+                    Map<String, Object> map = (Map<String, Object>) langRes.get(LanguageParams.root_word_info.name());
+                    if (null != map && !map.isEmpty()) {
+                        wordInfoMap.putAll(map);
+                    }
+                }
+                start += 100;
+                batch += 100;
                 if (batch > words.size())
                     batch = words.size();
             }

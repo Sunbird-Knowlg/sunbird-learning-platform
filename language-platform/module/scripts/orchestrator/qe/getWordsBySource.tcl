@@ -103,6 +103,54 @@ proc procAddListCriteria {search property filter_list} {
 	}
 }
 
+proc procAddCountCriteria {obj prefix filter_list} {
+	set mapNotNull [isNotNull $obj]
+	if {$mapNotNull} {
+		java::try {
+			set map [java::cast Map $obj]
+			set key_list [$map keySet]
+			java::for {String key} $key_list {
+				set val [$map get $key]
+				set propValue [java::new String "count_"]
+				set propValue [java::new String [$propValue concat $prefix]]
+				set keyval [java::new String $key]
+				set keyval [java::new String [$keyval trim]]
+				set keyval [$keyval replaceAll "\\s+" "_"]
+				set propValue [$propValue concat $keyval]
+				puts "final propValue is $propValue"
+				puts "size is $val"
+				if {$val > 0} {
+					procCreateFilter $propValue ">=" $val $filter_list
+				}
+			}
+		} catch {Exception err} {
+			puts "Error adding criteria for $property"
+		}
+	}
+}
+
+
+proc procCheckCountCriteria {search filter_list} {
+	set criteria [$search get "count"]
+	set criteriaNotNull [isNotNull $criteria]
+	if {$criteriaNotNull} {
+		java::try {
+			set map [java::cast Map $criteria]
+			set sourceTypes [$map get "sourceTypes"]
+			set sources [$map get "sources"]
+			set grades [$map get "grades"]
+			set pos [$map get "pos"]
+
+			procAddCountCriteria $sourceTypes "" $filter_list
+			procAddCountCriteria $sources "source_" $filter_list
+			procAddCountCriteria $grades "grade_" $filter_list
+			procAddCountCriteria $pos "pos_" $filter_list
+		} catch {Exception err} {
+    		puts "Error adding criteria for $property"
+		}
+	}
+}
+
 set object_type "Word"
 set map [java::new HashMap]
 $map put "nodeType" "DATA_NODE"
@@ -119,6 +167,7 @@ if {$searchNotNull} {
 	procAddListCriteria $filters "sourceTypes" $filter_list
 	procAddListCriteria $filters "pos" $filter_list
 	procAddListCriteria $filters "grade" $filter_list
+	procCheckCountCriteria $filters $filter_list
 	$map put "filters" $filter_list
 }
 set limitNotNull [isNotNull $limit]
