@@ -73,8 +73,8 @@ public class CustomParser  {
 
     public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
 		
-			String filePath1 = filePath+"index.ecml";
-			String assetDir = assetFolder+"assets";
+			String filePath1 = filePath+File.separator+"index.ecml";
+			String assetDir = assetFolder+File.separator+"assets";
 			File file1 = new File(assetDir);
 			if (!file1.exists()) {
 				file1.mkdir();
@@ -171,7 +171,7 @@ public class CustomParser  {
     				controller =  (Element) attrList.item(i);
     				File file = new File(filePath);
     				String nameOfJsonFile = controller.getAttribute("id");
-    				String itemJsonPath = file.getParent()+"//items//"+nameOfJsonFile+".json";
+    				String itemJsonPath = file.getParent()+File.separator+type+File.separator+nameOfJsonFile+".json";
     				File jsonFile = new File(itemJsonPath);
     				if (jsonFile.exists()) {
     					controller.appendChild(doc.createCDATASection(readFile(jsonFile)));

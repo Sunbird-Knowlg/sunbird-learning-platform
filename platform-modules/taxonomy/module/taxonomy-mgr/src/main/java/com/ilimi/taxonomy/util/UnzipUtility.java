@@ -34,12 +34,18 @@ public class UnzipUtility {
         while (entry != null) {
             String filePath = destDirectory + File.separator + entry.getName();
             if (!entry.isDirectory()) {
+            	File file = new File(filePath);
+            	File parentFile = file.getParentFile();
+            	if(!parentFile.exists())
+            	{
+            		parentFile.mkdirs();
+            	}
                 // if the entry is a file, extracts it
                 extractFile(zipIn, filePath);
             } else {
                 // if the entry is a directory, make the directory
                 File dir = new File(filePath);
-                dir.mkdir();
+                dir.mkdirs();
             }
             zipIn.closeEntry();
             entry = zipIn.getNextEntry();
