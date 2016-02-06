@@ -64,7 +64,7 @@ public class SyllableMap {
         language = language.toLowerCase().trim();
         try {
             InputStream is = SyllableMap.class
-                    .getResourceAsStream(File.separator + language + File.separator + "Syllables.json");
+                    .getResourceAsStream("/" + language + "/" + "Syllables.json");
             Map map = mapper.readValue(is, Map.class);
             defaultVowelMap.put(language, (String) map.get("default_vowel"));
 

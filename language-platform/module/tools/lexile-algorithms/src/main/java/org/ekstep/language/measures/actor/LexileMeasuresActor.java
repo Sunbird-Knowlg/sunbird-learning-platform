@@ -27,7 +27,7 @@ import akka.actor.ActorRef;
 public class LexileMeasuresActor extends LanguageBaseActor {
 
     private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
-
+    
     @SuppressWarnings("unchecked")
     @Override
     public void onReceive(Object msg) throws Exception {

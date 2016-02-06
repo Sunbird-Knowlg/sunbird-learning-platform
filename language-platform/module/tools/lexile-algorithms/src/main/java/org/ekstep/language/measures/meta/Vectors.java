@@ -52,13 +52,13 @@ public class Vectors {
             incrMap.put(language.toLowerCase().trim(), langIncrMap);
         }
 
-        MetaLoader.loadVectors(File.separator + language.toLowerCase().trim() + File.separator + vectorFileName, langVectorMap,
+        MetaLoader.loadVectors("/" + language.toLowerCase().trim() + "/" + vectorFileName, langVectorMap,
                 langIncrMap);
         if (null != langVectorMap && !langVectorMap.isEmpty()) {
             Integer[] vector = langVectorMap.values().iterator().next();
             Double[] langWeightage = new Double[vector.length];
             MetaLoader.loadWeightage(
-                    File.separator + language.toLowerCase().trim() + File.separator + weightageFileName, langWeightage);
+                    "/" + language.toLowerCase().trim() + "/" + weightageFileName, langWeightage);
             weightageMap.put(language.toLowerCase().trim(), langWeightage);
         }
     }
