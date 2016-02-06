@@ -14,7 +14,12 @@ public class LanguageMap {
         languageMap.put("ka", "kannada");
         languageMap.put("ta", "tamil");
         languageMap.put("test", "testLanguage");
+        languageMap.put("testone", "testone");
+        languageMap.put("testoneload", "testoneload");
         languageMap.put("testload", "testLoadLanguage");
+        languageMap.put("testdictionary", "testdictionary");
+        languageMap.put("testcreatedictionary", "testcreatedictionary");
+        
     }
 
     public static boolean containsLanguage(String languageId) {

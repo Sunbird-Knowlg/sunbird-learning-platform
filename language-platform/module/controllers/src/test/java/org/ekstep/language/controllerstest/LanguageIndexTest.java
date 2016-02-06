@@ -58,8 +58,8 @@ public class LanguageIndexTest {
 	static ElasticSearchUtil util;
 	private static Logger LOGGER = LogManager.getLogger(SSFParser.class
 			.getName());
-	private static String TEST_LANGUAGE = "test";
-	private static String TEST_LOAD_LANGUAGE = "testload";
+	private static String TEST_LANGUAGE = "testone";
+	private static String TEST_LOAD_LANGUAGE = "testoneload";
 
 	static {
 		LanguageRequestRouterPool.init();
