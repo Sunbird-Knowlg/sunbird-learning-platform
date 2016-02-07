@@ -68,7 +68,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
                     "Taxonomy Id is blank");
-        Node item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
+        Node item = (Node) request.get(AssessmentAPIParams.AssessmentItem.name());
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
                     "AssessmentItem Object is blank");
@@ -77,7 +77,9 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Response validateRes = getResponse(validateReq, LOGGER);
 
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
-        if (checkError(validateRes)) {
+        assessmentErrors.clear(); // -- Temp
+//        if (checkError(validateRes)) {
+        if (false) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
                 messages.addAll(assessmentErrors);
@@ -122,7 +124,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (StringUtils.isBlank(id))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM_ID.name(),
                     "AssessmentItem Id is blank");
-        Node item = (Node) request.get(AssessmentAPIParams.assessment_item.name());
+        Node item = (Node) request.get(AssessmentAPIParams.AssessmentItem.name());
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
                     "AssessmentItem Object is blank");
@@ -243,7 +245,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             DefinitionDTO definition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
             List<String> jsonProps = getJSONProperties(definition);
             Map<String, Object> dto = getAssessmentItem(node, jsonProps, ifields);
-            response.put(AssessmentAPIParams.assessment_item.name(), dto);
+            response.put(AssessmentAPIParams.AssessmentItem.name(), dto);
         }
         return response;
     }
