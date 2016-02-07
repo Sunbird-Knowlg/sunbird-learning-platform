@@ -89,8 +89,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     protected static final String URL_FIELD = "URL";
     
-    private static final String GRAPH_ID = "domain";
-
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
         if (StringUtils.isBlank(taxonomyId))
@@ -315,7 +313,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
                 Object objFields = request.get(PARAM_FIELDS);
-                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, true);
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
@@ -442,7 +440,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
                 Object objFields = request.get(PARAM_FIELDS);
-                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, true);
                 for (Node node : nodes) {
                     if (null == fields || fields.isEmpty()) {
                         String subject = node.getGraphId();
@@ -488,7 +486,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         List<String> statusList = new ArrayList<String>();
         Object statusParam = request.get(PARAM_STATUS);
         if (null != statusParam)
-            statusList = getList(mapper, statusParam, PARAM_STATUS);
+            statusList = getList(mapper, statusParam, true);
         if (null == statusList || statusList.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_STATUS);
@@ -510,12 +508,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> list = getList(mapper, entry.getValue(), entry.getKey());
+                Object val = entry.getValue();
+                List<String> list = getList(mapper, val, false);
                 if (null != list && !list.isEmpty()) {
                     mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                } else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                    if (val instanceof String) {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                    } else {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                    }
                 }
             } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
+                List<String> tags = getList(mapper, entry.getValue(), true);
                 if (null != tags && !tags.isEmpty()) {
                     TagCriterion tc = new TagCriterion(tags);
                     sc.setTag(tc);
@@ -524,7 +529,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         sc.addMetadata(mc);
         Object objFields = request.get(PARAM_FIELDS);
-        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+        List<String> fields = getList(mapper, objFields, true);
         if (null == fields || fields.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
@@ -567,16 +572,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 
     @SuppressWarnings("rawtypes")
-    private List getList(ObjectMapper mapper, Object object, String propName) {
+    private List getList(ObjectMapper mapper, Object object, boolean returnList) {
         if (null != object) {
             try {
                 String strObject = mapper.writeValueAsString(object);
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                List<String> list = new ArrayList<String>();
-                list.add(object.toString());
-                return list;
+                if (returnList) {
+                    List<String> list = new ArrayList<String>();
+                    list.add(object.toString());
+                    return list;
+                }
             }
         }
         return null;
@@ -934,7 +941,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 	
 	  @SuppressWarnings({ "unchecked", "unused" })
-		private Map<String, Object> createAssessmentItemFromContent (String contentExtractedPath) {
+		private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath) {
 	    	if (null != contentExtractedPath) {
 	    		String[] allowedFileTypes = {"json"};
 	    		Iterator<File> fileList = FileUtils.iterateFiles(new File(contentExtractedPath), allowedFileTypes, false);
@@ -957,9 +964,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 									List<String> lstAssessmentItemId = new ArrayList<String>();
 									System.out.println("Entry in Assessment Item Array | " + lstMap);
 									for(Map<String, Object> map : lstMap) {
-										Request request = getAssessmentItemRequestObject(map, ContentAPIParams.AssessmentItem.name());
+										Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
 										if (null != request) {
-											Response response = assessmentMgr.createAssessmentItem(GRAPH_ID, request);
+											Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
 											LOGGER.info("Create Item | Response: " + response);
 											Map<String, Object> resMap = response.getResult();
 											if (null != resMap.get(ContentAPIParams.node_id.name())) {
@@ -967,7 +974,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 											}
 										}
 									}
-									createItemSet(lstAssessmentItemId);
+									createItemSet(taxonomyId, lstAssessmentItemId);
 								}
 							} else {
 								// TODO: Record the Error for the Give File as got null json
@@ -982,45 +989,45 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	    	return null;
 	    }
 
-	    @SuppressWarnings("unused")
-		private Response createItemSet(List<String> lstAssessmentItemId) {
+		private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
 	    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
 	    		Map<String, Object> map = new HashMap<String, Object>();
 	    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
-	    		Request request = getAssessmentItemRequestObject(map, ContentAPIParams.assessment_item_set.name());
+	    		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
 	    		if (null != request) {
-					Response response = assessmentMgr.createItemSet(GRAPH_ID, request);
+					Response response = assessmentMgr.createItemSet(taxonomyId, request);
 					LOGGER.info("Create Item | Response: " + response);
 				}
 	    	}
 	    	return null;
 	    }
 
-	    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType) {
+	    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
 	    	if (null != objectType && null != map) {
 	    		Map<String, Object> reqMap = new HashMap<String, Object>();
 	    		Map<String, Object> assessMap = new HashMap<String, Object>();
 	    		Map<String, Object> requestMap = new HashMap<String, Object>();
 	    		reqMap.put(ContentAPIParams.objectType.name(), objectType);
 	    		reqMap.put(ContentAPIParams.metadata.name(), map);
+	    		reqMap.put("skipValidations", true);
 	    		if (null != map.get(ContentAPIParams.identifier.name()))
 	    			reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
-	    		assessMap.put(objectType, reqMap);
+	    		assessMap.put(param, reqMap);
 	    		requestMap.put(ContentAPIParams.request.name(), assessMap);
-	    		return getRequestObjectForAssessmentMgr(requestMap, objectType);
+	    		return getRequestObjectForAssessmentMgr(requestMap, param);
 	    	}
 	    	return null;
 	    }
 
-	    private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String objectType) {
+	    private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
 	        Request request = getRequest(requestMap);
 	        Map<String, Object> map = request.getRequest();
 	        if (null != map && !map.isEmpty()) {
 	            try {
-	                Object obj = map.get(objectType);
+	                Object obj = map.get(param);
 	                if (null != obj) {
 	                    Node item = (Node) mapper.convertValue(obj, Node.class);
-	                    request.put(objectType, item);
+	                    request.put(param, item);
 	                }
 	            } catch (Exception e) {
 	                e.printStackTrace();

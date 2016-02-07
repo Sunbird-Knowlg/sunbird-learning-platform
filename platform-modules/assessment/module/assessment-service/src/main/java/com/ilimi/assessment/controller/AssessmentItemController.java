@@ -152,10 +152,10 @@ public class AssessmentItemController extends BaseController {
         Map<String, Object> map = request.getRequest();
         if (null != map && !map.isEmpty()) {
             try {
-                Object objConcept = map.get(AssessmentAPIParams.AssessmentItem.name());
+                Object objConcept = map.get(AssessmentAPIParams.assessment_item.name());
                 if (null != objConcept) {
                     Node item = (Node) mapper.convertValue(objConcept, Node.class);
-                    request.put(AssessmentAPIParams.AssessmentItem.name(), item);
+                    request.put(AssessmentAPIParams.assessment_item.name(), item);
                 }
                 Object objDefinitions = map.get(AssessmentAPIParams.metadata_definitions.name());
                 if (null != objDefinitions) {
