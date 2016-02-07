@@ -55,7 +55,7 @@ public class DeleteAssessmentItemTest extends BaseCucumberTest{
 	 public void nodeNotFound(String questionId)  {
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/assessmentitem/" + questionId;
+    	String path = "/v1/assessmentitem/" + questionId;
     	params.put("taxonomyId", "numeracy");
     	params.put("cfields", "name");
     	header.put("user-id", "ilimi");

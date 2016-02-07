@@ -42,7 +42,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"difficulty_level\":\"low\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/questionnaire";
+    	String path = "/v1/questionnaire";
     	params.put("taxonomyId", "numeracy");
     	header.put("user-id", "ilimi");
     	ResultActions actions = resultActionPost(contentString, path, params, MediaType.APPLICATION_JSON, header, mockMvc);      
@@ -78,7 +78,7 @@ public class DeleteQuestionnaireTest extends BaseCucumberTest{
 		this.questionnaireId = questionnaireId;
 		Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
-    	String path = "/questionnaire/" + this.questionnaireId;
+    	String path = "/v1/questionnaire/" + this.questionnaireId;
     	if ("empty".equals(this.taxonomyId))
             params.put("taxonomyId", "");
         else if (!"absent".equals(this.taxonomyId))
