@@ -220,7 +220,6 @@ public abstract class DictionaryController extends BaseController {
                     request.put(objectType.toLowerCase().trim(), content);
                 }
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         return request;

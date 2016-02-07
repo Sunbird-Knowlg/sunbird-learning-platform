@@ -7,14 +7,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
-import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
@@ -50,8 +47,6 @@ public class LanguageSearchTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(SSFParser.class
-			.getName());
 	private static String TEST_LANGUAGE = "test";
 
 	static {

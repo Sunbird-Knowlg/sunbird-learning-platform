@@ -2,20 +2,15 @@ package org.ekstep.language.controllerstest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
-import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
@@ -36,8 +31,6 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import akka.util.Collections;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
@@ -54,8 +47,6 @@ public class LanguageDictionaryTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static Logger LOGGER = LogManager.getLogger(SSFParser.class
-			.getName());
 	private static String TEST_LANGUAGE = "testdictionary";
 	private static String TEST_CREATE_LANGUAGE = "testcreatedictionary";
 
@@ -126,7 +117,6 @@ public class LanguageDictionaryTest {
 		Assert.assertEquals(expectedResult, resultString);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void updateWordTest() throws JsonParseException,
 			JsonMappingException, IOException {
@@ -155,7 +145,6 @@ public class LanguageDictionaryTest {
 		Assert.assertEquals(expectedResult, resultString);
 	}
 
-	@SuppressWarnings("rawtypes")
 	@Test
 	public void addRelation() throws JsonParseException, JsonMappingException,
 			IOException {
@@ -182,7 +171,6 @@ public class LanguageDictionaryTest {
 		Assert.assertEquals(expectedResult, resultString);
 	}
 
-	@SuppressWarnings("unused")
 	@Test
 	public void upload() throws JsonParseException, JsonMappingException,
 			IOException {
@@ -287,7 +275,6 @@ public class LanguageDictionaryTest {
 		Assert.assertEquals(expectedResult, resultString);
 	}
 
-	@SuppressWarnings("unchecked")
 	@Test
 	public void getWords() throws JsonParseException, JsonMappingException,
 			IOException {

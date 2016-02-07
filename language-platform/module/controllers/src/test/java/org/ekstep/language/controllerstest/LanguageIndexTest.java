@@ -61,7 +61,7 @@ public class LanguageIndexTest {
 	private static String TEST_LANGUAGE = "testone";
 	private static String TEST_LOAD_LANGUAGE = "testoneload";
 
-	static {
+	/*static {
 		LanguageRequestRouterPool.init();
 	}
 
@@ -80,7 +80,7 @@ public class LanguageIndexTest {
 		util.deleteIndex("citation_index_" + TEST_LOAD_LANGUAGE);
 		util.deleteIndex("word_index_" + TEST_LOAD_LANGUAGE);
 		util.deleteIndex("word_info_index_" + TEST_LOAD_LANGUAGE);
-		boolean response = loadCitations();
+		loadCitations();
 		Thread.sleep(5000);
 		util.deleteIndex("citation_index_" + TEST_LANGUAGE);
 		util.deleteIndex("word_index_" + TEST_LANGUAGE);
@@ -651,5 +651,5 @@ public class LanguageIndexTest {
 	
 	public static void deleteDefinitionStatic(String language) {
 		taxonomyManager.delete(language);
-	}
+	}*/
 }

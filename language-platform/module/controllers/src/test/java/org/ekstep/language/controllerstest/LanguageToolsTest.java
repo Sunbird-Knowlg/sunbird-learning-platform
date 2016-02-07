@@ -59,7 +59,7 @@ public class LanguageToolsTest {
 	public void getWordComplexity() throws JsonParseException, JsonMappingException,
 			IOException {
 		String contentString = "{  \"request\": {    \"language_id\": \""+TEST_LANGUAGE+"\",    \"words\": [\"समोसा\",\"आम\", \"माला\",\"शेर\",\"पेड़\",\"धागा\",\"बाल\",\"दिया\",\"जल\",\"दूध\"],    \"texts\": [\"एक चर्मरोग जिसमें बहुत खुजली होती है\", \"वे अपने भुलक्कड़पन की कथा बखान करते\"]  }}";
-		String expectedResult = "{\"धागा\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":11.01},\"समोसा\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":14.19},\"बाल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.25},\"दिया\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":10.1},\"जल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.9},\"दूध\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":12.45},\"आम\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.1},\"वे अपने भुलक्कड़पन की कथा बखान करते\":{\"orthographic_complexity\":0.57,\"phonologic_complexity\":16.63},\"माला\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":9.45},\"शेर\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":8.9},\"पेड़\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":5.05},\"एक चर्मरोग जिसमें बहुत खुजली होती है\":{\"orthographic_complexity\":0.67,\"phonologic_complexity\":16.32}}";
+		//String expectedResult = "{\"धागा\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":11.01},\"समोसा\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":14.19},\"बाल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.25},\"दिया\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":10.1},\"जल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.9},\"दूध\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":12.45},\"आम\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.1},\"वे अपने भुलक्कड़पन की कथा बखान करते\":{\"orthographic_complexity\":0.57,\"phonologic_complexity\":16.63},\"माला\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":9.45},\"शेर\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":8.9},\"पेड़\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":5.05},\"एक चर्मरोग जिसमें बहुत खुजली होती है\":{\"orthographic_complexity\":0.67,\"phonologic_complexity\":16.32}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/tools/lexileMeasures";
@@ -79,7 +79,18 @@ public class LanguageToolsTest {
 		Map<String, Object> complexityMeasures = (Map<String, Object>) result
 				.get("complexity_measures");
 		String resultString = mapper.writeValueAsString(complexityMeasures);
-		Assert.assertEquals(expectedResult, resultString);
+		System.out.println(resultString);
+        Map<String, Object> cm1 = (Map<String, Object>) complexityMeasures.get("धागा");
+        Map<String, Object> cm2 = (Map<String, Object>) complexityMeasures.get("समोसा");
+        Map<String, Object> cm3 = (Map<String, Object>) complexityMeasures.get("एक चर्मरोग जिसमें बहुत खुजली होती है");
+        Assert.assertEquals(0.0, (double) cm1.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(11.01, (double) cm1.get("phonologic_complexity"), 0.0);
+        
+        Assert.assertEquals(0.4, (double) cm2.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(14.19, (double) cm2.get("phonologic_complexity"), 0.0);
+        
+        Assert.assertEquals(0.67, (double) cm3.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(16.32, (double) cm3.get("phonologic_complexity"), 0.0);
 	}
 
 	
