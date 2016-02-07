@@ -211,7 +211,7 @@ public class UpdateConceptTest extends BaseCucumberTest{
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Metadata status should be one of: [Draft, Active, Retired]", msg.get(0)); 
+        Assert.assertEquals("java.lang.Integer cannot be cast to java.lang.String", msg.get(0)); 
         Assert.assertEquals("Node Metadata validation failed", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 	}
