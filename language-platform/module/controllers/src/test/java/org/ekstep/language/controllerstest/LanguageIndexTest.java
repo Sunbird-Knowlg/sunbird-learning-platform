@@ -61,7 +61,7 @@ public class LanguageIndexTest {
 	private static String TEST_LANGUAGE = "testone";
 	private static String TEST_LOAD_LANGUAGE = "testoneload";
 
-	/*static {
+	static {
 		LanguageRequestRouterPool.init();
 	}
 
@@ -651,5 +651,5 @@ public class LanguageIndexTest {
 	
 	public static void deleteDefinitionStatic(String language) {
 		taxonomyManager.delete(language);
-	}*/
+	}
 }
