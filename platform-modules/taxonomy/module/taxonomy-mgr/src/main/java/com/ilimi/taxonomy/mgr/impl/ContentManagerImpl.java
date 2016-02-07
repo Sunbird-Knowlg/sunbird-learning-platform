@@ -985,15 +985,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	    @SuppressWarnings("unused")
 		private Response createItemSet(List<String> lstAssessmentItemId) {
 	    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
-	    		for (String assessmentItemId : lstAssessmentItemId) {
-		    		Map<String, Object> map = new HashMap<String, Object>();
-		    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
-		    		Request request = getAssessmentItemRequestObject(map, ContentAPIParams.assessment_item_set.name());
-		    		if (null != request) {
-						Response response = assessmentMgr.createItemSet(GRAPH_ID, request);
-						LOGGER.info("Create Item | Response: " + response);
-					}
-	    		}
+	    		Map<String, Object> map = new HashMap<String, Object>();
+	    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
+	    		Request request = getAssessmentItemRequestObject(map, ContentAPIParams.assessment_item_set.name());
+	    		if (null != request) {
+					Response response = assessmentMgr.createItemSet(GRAPH_ID, request);
+					LOGGER.info("Create Item | Response: " + response);
+				}
 	    	}
 	    	return null;
 	    }
