@@ -1,6 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -40,7 +41,16 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                     Node node = (Node) obj1;
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     DefinitionDTO def = (DefinitionDTO) obj2;
-                    Map<String, Object> map = convertGraphNode(node, node.getGraphId(), def, null);
+                    List<String> fields = null;
+                    if (null != def && null != def.getMetadata()) {
+                        String[] arr = (String[]) def.getMetadata().get("fields");
+                        if (null != arr && arr.length > 0) {
+                            List<String> arrFields = Arrays.asList(arr);
+                            fields = new ArrayList<String>();
+                            fields.addAll(arrFields);
+                        }
+                    }
+                    Map<String, Object> map = convertGraphNode(node, node.getGraphId(), def, fields);
                     TclObject tclResp = ReflectObject.newInstance(interp, map.getClass(), map);
                     interp.setResult(tclResp);
                 }
@@ -60,8 +70,9 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
             Map<String, Object> metadata = node.getMetadata();
             if (null != metadata && !metadata.isEmpty()) {
                 for (Entry<String, Object> entry : metadata.entrySet()) {
-                    if (null != fieldList && fieldList.contains(entry.getKey())) {
-                        map.put(entry.getKey(), entry.getValue());
+                    if (null != fieldList && !fieldList.isEmpty()) {
+                        if (fieldList.contains(entry.getKey()))
+                            map.put(entry.getKey(), entry.getValue());
                     } else {
                         map.put(entry.getKey(), entry.getValue());
                     }

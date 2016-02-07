@@ -49,7 +49,7 @@ public class CreateSearchCriteria implements ICommand, Command {
                             if (StringUtils.isNotBlank(nodeType))
                                 sc.setNodeType(nodeType);
                         } else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-                            List<String> tags = (List<String>) map.get("tags");
+                            List<String> tags = getList(entry.getValue(), true);
                             if (null != tags && !tags.isEmpty()) {
                                 TagCriterion tc = new TagCriterion(tags);
                                 sc.setTag(tc);
@@ -70,9 +70,13 @@ public class CreateSearchCriteria implements ICommand, Command {
                             Integer startPosition = (Integer) map.get("startPosition");
                             if (null != startPosition && startPosition.intValue() > 0)
                                 sc.setStartPosition(startPosition);
+                        }  else if (StringUtils.equalsIgnoreCase("status", entry.getKey())) {
+                            List<String> list = getList(entry.getValue(), true);
+                            if (null != list && !list.isEmpty())
+                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
                         } else if (StringUtils.equalsIgnoreCase("sortBy", entry.getKey())) {
-                            sortFields = getList(map.get("sortBy"));
-                        }  else if (StringUtils.equalsIgnoreCase("order", entry.getKey())) {
+                            sortFields = getList(map.get("sortBy"), true);
+                        } else if (StringUtils.equalsIgnoreCase("order", entry.getKey())) {
                             order = (String) map.get("order");
                         } else if (StringUtils.equalsIgnoreCase("filters", entry.getKey())) {
                             List<Map> list = (List<Map>) map.get("filters");
@@ -85,9 +89,17 @@ public class CreateSearchCriteria implements ICommand, Command {
                                 }
                             }
                         } else {
-                            List<String> list = getList(entry.getValue());
+                            Object val = entry.getValue();
+                            List<String> list = getList(val, false);
                             if (null != list && !list.isEmpty())
                                 filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                            else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                                if (val instanceof String) {
+                                    filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                                } else {
+                                    filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                                }
+                            }
                         }
                     }
                 }
@@ -119,19 +131,20 @@ public class CreateSearchCriteria implements ICommand, Command {
     }
 
     private ObjectMapper mapper = new ObjectMapper();
-
+    
     @SuppressWarnings("rawtypes")
-    private List getList(Object object) {
-        if (null != object) {
+    private List getList(Object object, boolean returnList) {
+        if (null != object && StringUtils.isNotBlank(object.toString())) {
             try {
                 String strObject = mapper.writeValueAsString(object);
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                List<String> list = new ArrayList<String>();
-                if (null != object && StringUtils.isNotBlank(object.toString()))
+                if (returnList) {
+                    List<String> list = new ArrayList<String>();
                     list.add(object.toString());
-                return list;
+                    return list;
+                }
             }
         }
         return null;

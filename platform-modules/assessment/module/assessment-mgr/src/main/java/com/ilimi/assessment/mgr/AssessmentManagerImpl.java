@@ -75,16 +75,20 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
+        
+        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        if (null == skipValidation)
+            skipValidation = false;
 
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
-        if (checkError(validateRes)) {
+        if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
                 messages.addAll(assessmentErrors);
             }
             return validateRes;
         } else {
-            if (assessmentErrors.size() > 0) {
+            if (assessmentErrors.size() > 0 && !skipValidation) {
                 return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(),
                         "AssessmentItem validation failed", ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(),
                         assessmentErrors);
@@ -692,15 +696,18 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), node);
         Response validateRes = getResponse(validateReq, LOGGER);
+        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        if (null == skipValidation)
+            skipValidation = false;
         List<String> assessmentErrors = validator.validateAssessmentItemSet(node);
-        if (checkError(validateRes)) {
+        if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
                 messages.addAll(assessmentErrors);
             }
             return validateRes;
         } else {
-            if (assessmentErrors.size() > 0) {
+            if (assessmentErrors.size() > 0 && !skipValidation) {
                 return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(),
                         "AssessmentItemSet validation failed", ResponseCode.CLIENT_ERROR,
                         GraphDACParams.messages.name(), assessmentErrors);

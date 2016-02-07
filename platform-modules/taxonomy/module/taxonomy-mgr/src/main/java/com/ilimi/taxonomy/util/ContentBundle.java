@@ -42,7 +42,7 @@ public class ContentBundle {
     protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
     @Async
-    public void asyncCreateContentBundle(List<Map<String, Object>> contents, String fileName) {
+    public void asyncCreateContentBundle(List<Map<String, Object>> contents, String fileName, String version) {
         String bundleFileName = BUNDLE_PATH + File.separator + fileName;
         System.out.println("Async method invoked....");
         List<String> urlFields = new ArrayList<String>();
@@ -70,7 +70,9 @@ public class ContentBundle {
         }
         List<File> downloadedFiles = getContentBundle(downloadUrls);
         try {
-            String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"1.0\", \"ts\": \""
+            if (StringUtils.isBlank(version))
+                version = "1.0";
+            String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"" + version + "\", \"ts\": \""
                     + getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID()
                     + "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
             String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";

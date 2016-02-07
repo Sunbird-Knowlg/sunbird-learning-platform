@@ -129,7 +129,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     @SuppressWarnings("unchecked")
     private List<String> getFields(Request request, DefinitionDTO definition) {
         Object objFields = request.get(PARAM_FIELDS);
-        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+        List<String> fields = getList(mapper, objFields, true);
         if (null == fields || fields.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
@@ -160,7 +160,7 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
         List<String> statusList = new ArrayList<String>();
         Object statusParam = request.get(PARAM_STATUS);
         if (null != statusParam)
-            statusList = getList(mapper, statusParam, PARAM_STATUS);
+            statusList = getList(mapper, statusParam, true);
         if (null == statusList || statusList.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_STATUS);
@@ -183,12 +183,19 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> list = getList(mapper, entry.getValue(), entry.getKey());
+                Object val = entry.getValue();
+                List<String> list = getList(mapper, val, false);
                 if (null != list && !list.isEmpty()) {
                     mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                } else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                    if (val instanceof String) {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                    } else {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                    }
                 }
             } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
+                List<String> tags = getList(mapper, entry.getValue(), true);
                 if (null != tags && !tags.isEmpty()) {
                     TagCriterion tc = new TagCriterion(tags);
                     sc.setTag(tc);
@@ -240,16 +247,18 @@ public class GameManagerImpl extends BaseManager implements IGameManager {
     }
 
     @SuppressWarnings("rawtypes")
-    private List getList(ObjectMapper mapper, Object object, String propName) {
-        if (null != object) {
+    private List getList(ObjectMapper mapper, Object object, boolean returnList) {
+        if (null != object && StringUtils.isNotBlank(object.toString())) {
             try {
                 String strObject = mapper.writeValueAsString(object);
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                List<String> list = new ArrayList<String>();
-                list.add(object.toString());
-                return list;
+                if (returnList) {
+                    List<String> list = new ArrayList<String>();
+                    list.add(object.toString());
+                    return list;
+                }
             }
         }
         return null;

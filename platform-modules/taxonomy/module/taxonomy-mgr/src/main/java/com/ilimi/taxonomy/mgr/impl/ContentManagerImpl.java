@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,7 +21,9 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
@@ -60,6 +63,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @Autowired
     private ContentBundle contentBundle;
+    
+    @Autowired
+    private IAssessmentManager assessmentMgr;
 
     private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
 
@@ -82,7 +88,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     private static final String ecarFolderName = "ecar_files";
 
     protected static final String URL_FIELD = "URL";
-
+    
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
         if (StringUtils.isBlank(taxonomyId))
@@ -307,7 +313,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
                 Object objFields = request.get(PARAM_FIELDS);
-                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, true);
                 for (List<Node> list : nodes) {
                     if (null != list && !list.isEmpty()) {
                         for (Node node : list) {
@@ -342,7 +348,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response bundle(Request request) {
+    public Response bundle(Request request, String taxonomyId, String version) {
         ContentSearchCriteria criteria = new ContentSearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();
         String bundleFileName = (String) request.get("file_name");
@@ -354,11 +360,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata.addFilter(filter);
         criteria.setMetadata(metadata);
         List<Request> requests = new ArrayList<Request>();
-        for (String taxonomyId : TaxonomyManagerImpl.taxonomyIds) {
+        if (StringUtils.isNotBlank(taxonomyId)) {
             Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                     GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
             req.put(GraphDACParams.get_tags.name(), true);
             requests.add(req);
+        } else {
+            for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+                Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                        GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+                req.put(GraphDACParams.get_tags.name(), true);
+                requests.add(req);
+            }
         }
         Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
                 ContentAPIParams.contents.name());
@@ -388,7 +401,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                         "One or more of the input content identifier are not found");
             }
             String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
-            contentBundle.asyncCreateContentBundle(ctnts, fileName);
+            contentBundle.asyncCreateContentBundle(ctnts, fileName, version);
             String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/"
                     + fileName;
             String returnKey = ContentAPIParams.bundle.name();
@@ -427,7 +440,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
             if (null != nodes && !nodes.isEmpty()) {
                 Object objFields = request.get(PARAM_FIELDS);
-                List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+                List<String> fields = getList(mapper, objFields, true);
                 for (Node node : nodes) {
                     if (null == fields || fields.isEmpty()) {
                         String subject = node.getGraphId();
@@ -473,7 +486,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         List<String> statusList = new ArrayList<String>();
         Object statusParam = request.get(PARAM_STATUS);
         if (null != statusParam)
-            statusList = getList(mapper, statusParam, PARAM_STATUS);
+            statusList = getList(mapper, statusParam, true);
         if (null == statusList || statusList.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_STATUS);
@@ -495,12 +508,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     && !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
                     && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> list = getList(mapper, entry.getValue(), entry.getKey());
+                Object val = entry.getValue();
+                List<String> list = getList(mapper, val, false);
                 if (null != list && !list.isEmpty()) {
                     mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                } else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                    if (val instanceof String) {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                    } else {
+                        mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                    }
                 }
             } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
-                List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
+                List<String> tags = getList(mapper, entry.getValue(), true);
                 if (null != tags && !tags.isEmpty()) {
                     TagCriterion tc = new TagCriterion(tags);
                     sc.setTag(tc);
@@ -509,7 +529,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         sc.addMetadata(mc);
         Object objFields = request.get(PARAM_FIELDS);
-        List<String> fields = getList(mapper, objFields, PARAM_FIELDS);
+        List<String> fields = getList(mapper, objFields, true);
         if (null == fields || fields.isEmpty()) {
             if (null != definition && null != definition.getMetadata()) {
                 String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
@@ -552,16 +572,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 
     @SuppressWarnings("rawtypes")
-    private List getList(ObjectMapper mapper, Object object, String propName) {
+    private List getList(ObjectMapper mapper, Object object, boolean returnList) {
         if (null != object) {
             try {
                 String strObject = mapper.writeValueAsString(object);
                 List list = mapper.readValue(strObject.toString(), List.class);
                 return list;
             } catch (Exception e) {
-                List<String> list = new ArrayList<String>();
-                list.add(object.toString());
-                return list;
+                if (returnList) {
+                    List<String> list = new ArrayList<String>();
+                    list.add(object.toString());
+                    return list;
+                }
             }
         }
         return null;
@@ -652,7 +674,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             try {
                 delete(directory);
                 if (!directory.exists()) {
-                    directory.mkdir();
+                    directory.mkdirs();
                 }
             } catch (IOException e) {
                 throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
@@ -705,14 +727,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Node node = (Node) responseNode.get(GraphDACParams.node.name());
         if (responseNode != null) {
             String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
-            HttpDownloadUtility.downloadFile(zipFilUrl, tempFileLocation);
+            String tempFileDwn = tempFileLocation+System.currentTimeMillis()+"_temp";
+            HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
             String zipFileTempLocation[] = null;
             String fileNameWithExtn = null;
             zipFileTempLocation = zipFilUrl.split("/");
             fileNameWithExtn = zipFileTempLocation[zipFileTempLocation.length - 1];
-            String zipFile = tempFileLocation + fileNameWithExtn;
+            String zipFile = tempFileDwn + File.separator+fileNameWithExtn;
             Response response = new Response();
-            response = extractContent(taxonomyId, zipFile, tempFileLocation);
+            response = extractContent(taxonomyId, zipFile, tempFileDwn);
             if (checkError(response)) {
                 return response;
             }
@@ -768,8 +791,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
      */
     @SuppressWarnings("unchecked")
     public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
-        String filePath = saveDir + "index.ecml";
-        String uploadFilePath = saveDir + "assets" + File.separator;
+        String filePath = saveDir +File.separator+ "index.ecml";
+        String uploadFilePath = saveDir +File.separator+ "assets" + File.separator;
         List<String> mediaIdNotUploaded = new ArrayList<>();
         Map<String, String> mediaIdURL = new HashMap<String, String>();
         UnzipUtility unzipper = new UnzipUtility();
@@ -816,36 +839,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                             parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
                                     olderName.renameTo(newName);
                                     String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
+                                    Node newItem = createNode(item,url[1],item.getIdentifier(),olderName);
                                     mediaIdURL.put(item.getIdentifier(), url[1]);
-                                    item.setObjectType("Content");
-                                    Map<String, Object> metadata = new HashMap<String, Object>();
-                                    metadata.put("name", item.getIdentifier());
-                                    metadata.put("code", item.getIdentifier());
-                                    metadata.put("body", "<content></content>");
-                                    metadata.put("status", "Live");
-                                    metadata.put("owner", "ekstep");
-                                    metadata.put("contentType", "Asset");
-                                    metadata.put("downloadUrl", url[1]);
-                                    if (metadata.get("pkgVersion") == null) {
-                                        metadata.put("pkgVersion", 1);
-                                    } else {
-                                        int version = (Integer) metadata.get("pkgVersion") + 1;
-                                        metadata.put("pkgVersion", version);
-                                    }
-                                    Object mimeType = getMimeType(new File(olderName.getName()));
-                                    metadata.put("mimeType", mimeType);
-                                    item.setMetadata(metadata);
                                     Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                             "validateNode");
-                                    validateReq.put(GraphDACParams.node.name(), item);
+                                    validateReq.put(GraphDACParams.node.name(), newItem);
                                     Response validateRes = getResponse(validateReq, LOGGER);
                                     if (checkError(validateRes)) {
                                         return validateRes;
                                     } else {
                                         Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                                 "updateDataNode");
-                                        updateReq.put(GraphDACParams.node.name(), item);
-                                        updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
+                                        updateReq.put(GraphDACParams.node.name(), newItem);
+                                        updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
                                         getResponse(updateReq, LOGGER);
                                     }
                                 }
@@ -865,27 +871,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 olderName.renameTo(newName);
                                 String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
                                 mediaIdURL.put(mediaId, url[1]);
-                                // Creating Node
-                                Node item = new Node();
-                                item.setIdentifier(mediaId);
-                                item.setObjectType("Content");
-                                Map<String, Object> metadata = new HashMap<String, Object>();
-                                metadata.put("name", mediaId);
-                                metadata.put("code", mediaId);
-                                metadata.put("body", "<content></content>");
-                                metadata.put("status", "Live");
-                                metadata.put("owner", "ekstep");
-                                metadata.put("contentType", "Asset");
-                                metadata.put("downloadUrl", url[1]);
-                                if (metadata.get("pkgVersion") == null) {
-                                    metadata.put("pkgVersion", 1);
-                                } else {
-                                    int version = (Integer) metadata.get("pkgVersion") + 1;
-                                    metadata.put("pkgVersion", version);
-                                }
-                                Object mimeType = getMimeType(new File(olderName.getName()));
-                                metadata.put("mimeType", mimeType);
-                                item.setMetadata(metadata);
+                                Node item = createNode(new Node(),url[1],mediaId,olderName);
                                 // Creating a graph.
                                 Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                         "validateNode");
@@ -906,6 +892,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 CustomParser.readECMLFileDownload(saveDir, saveDir, mediaIdURL);
             }
             CustomParser.updateJsonInEcml(filePath, "items");
+            CustomParser.updateJsonInEcml(filePath, "data");
             response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
             // deleting unzip file
             File directory = new File(saveDir);
@@ -915,9 +902,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             } else {
                 try {
                     delete(directory);
-                    if (!directory.exists()) {
-                        directory.mkdir();
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -928,10 +912,160 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         return response;
     }
 
-    private Object getMimeType(File file) {
-        MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
+    private Node createNode(Node item, String url,String mediaId,File olderName) {
+    	item.setIdentifier(mediaId);
+        item.setObjectType("Content");
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put("name", mediaId);
+        metadata.put("code", mediaId);
+        metadata.put("body", "<content></content>");
+        metadata.put("status", "Live");
+        metadata.put("owner", "ekstep");
+        metadata.put("contentType", "Asset");
+        metadata.put("downloadUrl", url);
+        if (metadata.get("pkgVersion") == null) {
+            metadata.put("pkgVersion", 1);
+        } else {
+            int version = (Integer) metadata.get("pkgVersion") + 1;
+            metadata.put("pkgVersion", version);
+        }
+        Object mimeType = getMimeType(new File(olderName.getName()));
+        metadata.put("mimeType", mimeType);
+        item.setMetadata(metadata);
+		return item;
+	}
 
+	private Object getMimeType(File file) {
+        MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
         return mimeType.getContentType(file);
     }
+	
+	  @SuppressWarnings({ "unchecked", "unused" })
+		private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath) {
+	    	if (null != contentExtractedPath) {
+	    		String[] allowedFileTypes = {"json"};
+	    		Iterator<File> fileList = FileUtils.iterateFiles(new File(contentExtractedPath), allowedFileTypes, false);
+	            while(fileList.hasNext()){
+	            	File file = (File) fileList.next();
+	                System.out.println(((File) fileList.next()).getName());
+	                if (file.exists()) {
+	                	try {
+							Map<String,Object> fileJSON =
+							        new ObjectMapper().readValue(file, HashMap.class);
+							if (null != fileJSON) {
+								Map<String, Object> itemSet = (Map<String, Object>) fileJSON.get(ContentAPIParams.items.name());
+								System.out.println("Item JSON | " + itemSet);
+								List<Object> lstAssessmentItem = new ArrayList<Object>();
+								for(Entry<String, Object> entry : itemSet.entrySet()) {
+									System.out.println("Entry in Assessment Item | " + entry.getValue());
+									Object assessmentItem = (Object) entry.getValue();
+									lstAssessmentItem.add(assessmentItem);
+									List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
+									List<String> lstAssessmentItemId = new ArrayList<String>();
+									System.out.println("Entry in Assessment Item Array | " + lstMap);
+									for(Map<String, Object> map : lstMap) {
+										Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
+										if (null != request) {
+											Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
+											LOGGER.info("Create Item | Response: " + response);
+											Map<String, Object> resMap = response.getResult();
+											if (null != resMap.get(ContentAPIParams.node_id.name())) {
+												lstAssessmentItemId.add(resMap.get(ContentAPIParams.node_id.name()).toString());
+											}
+										}
+									}
+									createItemSet(taxonomyId, lstAssessmentItemId);
+								}
+							} else {
+								// TODO: Record the Error for the Give File as got null json
+							}
+						} catch (IOException e) {
+							// TODO: Record the Error for the Give File as unable to parse its json
+							e.printStackTrace();
+						}
+	                }
+	            }
+	    	}
+	    	return null;
+	    }
+
+		private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
+	    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
+	    		Map<String, Object> map = new HashMap<String, Object>();
+	    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
+	    		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
+	    		if (null != request) {
+					Response response = assessmentMgr.createItemSet(taxonomyId, request);
+					LOGGER.info("Create Item | Response: " + response);
+				}
+	    	}
+	    	return null;
+	    }
+
+	    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
+	    	if (null != objectType && null != map) {
+	    		Map<String, Object> reqMap = new HashMap<String, Object>();
+	    		Map<String, Object> assessMap = new HashMap<String, Object>();
+	    		Map<String, Object> requestMap = new HashMap<String, Object>();
+	    		reqMap.put(ContentAPIParams.objectType.name(), objectType);
+	    		reqMap.put(ContentAPIParams.metadata.name(), map);
+	    		reqMap.put("skipValidations", true);
+	    		if (null != map.get(ContentAPIParams.identifier.name()))
+	    			reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
+	    		assessMap.put(param, reqMap);
+	    		requestMap.put(ContentAPIParams.request.name(), assessMap);
+	    		return getRequestObjectForAssessmentMgr(requestMap, param);
+	    	}
+	    	return null;
+	    }
+
+	    private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
+	        Request request = getRequest(requestMap);
+	        Map<String, Object> map = request.getRequest();
+	        if (null != map && !map.isEmpty()) {
+	            try {
+	                Object obj = map.get(param);
+	                if (null != obj) {
+	                    Node item = (Node) mapper.convertValue(obj, Node.class);
+	                    request.put(param, item);
+	                }
+	            } catch (Exception e) {
+	                e.printStackTrace();
+	            }
+	        }
+	        return request;
+	    }
+
+	    @SuppressWarnings("unchecked")
+	    protected Request getRequest(Map<String, Object> requestMap) {
+	        Request request = new Request();
+	        if (null != requestMap && !requestMap.isEmpty()) {
+	            String id = (String) requestMap.get("id");
+	            String ver = (String) requestMap.get("ver");
+	            String ts = (String) requestMap.get("ts");
+	            request.setId(id);
+	            request.setVer(ver);
+	            request.setTs(ts);
+	            Object reqParams = requestMap.get("params");
+	            if (null != reqParams) {
+	                try {
+	                    RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
+	                    request.setParams(params);
+	                } catch (Exception e) {
+	                }
+	            }
+	            Object requestObj = requestMap.get("request");
+	            if (null != requestObj) {
+	                try {
+	                    String strRequest = mapper.writeValueAsString(requestObj);
+	                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+	                    if (null != map && !map.isEmpty())
+	                        request.setRequest(map);
+	                } catch (Exception e) {
+	                }
+	            }
+	        }
+	        return request;
+	    }
 
 }

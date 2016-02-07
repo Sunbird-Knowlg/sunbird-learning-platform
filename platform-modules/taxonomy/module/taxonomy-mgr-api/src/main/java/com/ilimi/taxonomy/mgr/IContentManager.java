@@ -31,6 +31,6 @@ public interface IContentManager {
 	
 	Response  publish(String taxonomyId ,String contentId);
 
-	Response bundle(Request request);
+	Response bundle(Request request, String taxonomyId, String version);
 
 }
