@@ -71,7 +71,7 @@ public class GetTaxonomyTest extends BaseCucumberTest{
 			e.printStackTrace();
 		}  
 		Response resp = jasonToObject(actions);
-		Assert.assertEquals("Node "+error+" found: " + taxonomyId, resp.getParams().getErrmsg());
+		Assert.assertEquals("com.ilimi.common.exception.ResourceNotFoundException: Node "+error+" found: " + taxonomyId, resp.getParams().getErrmsg());
 		Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
 	}
 }

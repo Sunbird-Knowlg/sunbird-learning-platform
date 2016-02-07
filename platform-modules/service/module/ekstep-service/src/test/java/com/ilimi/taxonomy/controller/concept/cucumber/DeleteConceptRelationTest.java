@@ -117,7 +117,7 @@ public class DeleteConceptRelationTest extends BaseCucumberTest{
 		} 
     	Response resp = jasonToObject(actions);
     	basicAssertion(resp);
-    	Assert.assertEquals("Node not found: " + conceptId1 , resp.getParams().getErrmsg()); 
+    	Assert.assertEquals("com.ilimi.common.exception.ResourceNotFoundException: Node not found: " + conceptId1 , resp.getParams().getErrmsg()); 
     	Assert.assertEquals("ERR_GRAPH_NODE_NOT_FOUND", resp.getParams().getErr());
     }
 	
@@ -140,7 +140,7 @@ public class DeleteConceptRelationTest extends BaseCucumberTest{
 		} 
     	Response resp = jasonToObject(actions);
         basicAssertion(resp);
-        Assert.assertEquals("UnSupported Relation: isParent", resp.getParams().getErrmsg());
+        Assert.assertEquals("com.ilimi.common.exception.ClientException: UnSupported Relation: isParent", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_RELATION_CREATE", resp.getParams().getErr());               
     }
 	

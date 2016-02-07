@@ -155,7 +155,7 @@ public class DeleteConceptTest extends BaseCucumberTest{
 		} 
     	Response resp = jasonToObject(actions);
     	basicAssertion(resp);
-    	Assert.assertEquals( "Node not found: " + ConceptId, resp.getParams().getErrmsg()); 
+    	Assert.assertEquals( "com.ilimi.common.exception.ResourceNotFoundException: Node not found: " + ConceptId, resp.getParams().getErrmsg()); 
     	Assert.assertEquals("ERR_GRAPH_NODE_NOT_FOUND", resp.getParams().getErr());
     }
 	

@@ -99,7 +99,7 @@ public class GetConceptTest extends BaseCucumberTest{
          Response resp = jasonToObject(actions);
          basicAssertion(resp);
          Assert.assertEquals("ERR_GRAPH_SEARCH_UNKNOWN_ERROR", resp.getParams().getErr());
-         Assert.assertEquals("Node "+error+" found: ilimi", resp.getParams().getErrmsg());
+         Assert.assertEquals("com.ilimi.common.exception.ResourceNotFoundException: Node "+error+" found: ilimi", resp.getParams().getErrmsg());
     }
     
     @Then("^I should get the concept with name (.*)$")

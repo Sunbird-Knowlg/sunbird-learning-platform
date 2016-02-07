@@ -38,7 +38,7 @@ public class CreateQuestionnaireTest extends BaseCucumberTest {
     public void getquestionnaire(String questionnaireId) {
         Map<String, String> params = new HashMap<String, String>();
         Map<String, String> header = new HashMap<String, String>();
-        String path = "/questionnaire/" + questionnaireId;
+        String path = "/v1/questionnaire/" + questionnaireId;
         params.put("taxonomyId", "numeracy");
         params.put("cfields", "name");
         header.put("user-id", "ilimi");
@@ -66,7 +66,7 @@ public class CreateQuestionnaireTest extends BaseCucumberTest {
         String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
         Map<String, String> params = new HashMap<String, String>();
         Map<String, String> header = new HashMap<String, String>();
-        String path = "/questionnaire";
+        String path = "/v1/questionnaire";
         header.put("user-id", "ilimi");
         if ("empty".equals(this.taxonomyId))
             params.put("taxonomyId", "");

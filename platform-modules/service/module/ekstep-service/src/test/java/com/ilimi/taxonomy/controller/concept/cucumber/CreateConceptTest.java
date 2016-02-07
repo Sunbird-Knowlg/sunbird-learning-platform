@@ -182,7 +182,7 @@ public class CreateConceptTest extends BaseCucumberTest {
         Map<String, Object> result = resp.getResult();
         @SuppressWarnings("unchecked")
 		ArrayList<String>   msg = (ArrayList<String>) result.get("messages");
-        Assert.assertEquals("Node "+error+" found: tempNode", msg.get(0));
+        Assert.assertEquals("com.ilimi.common.exception.ResourceNotFoundException: Node "+error+" found: tempNode", msg.get(0));
         Assert.assertEquals("Failed to update relations and tags", resp.getParams().getErrmsg());
         Assert.assertEquals("ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED", resp.getParams().getErr());
 	}
