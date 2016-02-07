@@ -1,4 +1,4 @@
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 
 import static com.jayway.restassured.RestAssured.baseURI;
@@ -17,6 +17,7 @@ public class BaseTest
 	public String contentType = "application/json";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
+	//public String apiVersion = "v2";
 	
 	/**
 	 * sets baseURI and basePath
@@ -24,9 +25,9 @@ public class BaseTest
 	public void setURI()
 	{
 		//TO-DO: This will be read from config file, soon.
-		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		baseURI ="http://localhost:9090/ekstep-service"; 
-		basePath = "v2/";
+		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
+		//baseURI ="http://localhost:9090/ekstep-service"; 
+		//basePath = apiVersion;
 	}
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder

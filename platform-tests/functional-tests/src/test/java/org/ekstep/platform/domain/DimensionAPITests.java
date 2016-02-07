@@ -1,4 +1,4 @@
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -30,7 +30,7 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/numeracy/dimensions").
+			get("v2/domains/numeracy/dimensions").
 		then().
 			spec(get200ResponseSpec()).
 	        body("result.dimensions.status", hasItems(liveStatus));
@@ -43,7 +43,7 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/dimensions/LD6").
+			get("v2/domains/literacy/dimensions/LD6").
 		then().
 			spec(get200ResponseSpec());
 	}
@@ -60,7 +60,7 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/abc/dimensions").
+			get("v2/domains/abc/dimensions").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -72,14 +72,14 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/dimensions/xyz").
+			get("v2/domains/literacy/dimensions/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
 	
 	//Create Dimension Valid
 	@Test
-	public void createConceptExpectSuccess()
+	public void createDimensionExpectSuccess()
 	{
 		//saveDimension API call 
 		setURI();
@@ -89,7 +89,7 @@ public class DimensionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/dimensions").
+			post("v2/domains/literacy/dimensions").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -99,14 +99,14 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/dimensions/LD1_TEST").
+			get("v2/domains/literacy/dimensions/LD1_TEST").
 		then().
 			spec(get200ResponseSpec());		
 	}
 	
 	
 	@Test
-	public void createConceptWithEmptyParentExpect4xx()
+	public void createDimensionWithEmptyParentExpect4xx()
 	{
 		//saveDimension API call 
 		setURI();
@@ -116,7 +116,7 @@ public class DimensionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/dimensions").
+			post("v2/domains/literacy/dimensions").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -129,14 +129,14 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/dimensions/LD_TEST_EMPTY_PARENT10").
+			get("v2/domains/literacy/dimensions/LD_TEST_EMPTY_PARENT10").
 		then().
 			log().all().
 			spec(get400ResponseSpec());			
 	}
 	
 	@Test
-	public void createConceptWithNonExistingParentExpect4xx()
+	public void createDimensionWithNonExistingParentExpect4xx()
 	{
 		//saveDimension API call 
 		setURI();
@@ -146,7 +146,7 @@ public class DimensionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/dimensions").
+			post("v2/domains/literacy/dimensions").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -157,7 +157,7 @@ public class DimensionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/dimensions/LD_TEST_NON_PARENT").
+			get("v2/domains/literacy/dimensions/LD_TEST_NON_PARENT").
 		then().
 			spec(get400ResponseSpec());		
 
@@ -175,7 +175,7 @@ public class DimensionAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				post("domains/literacy/dimensions/search").
+				post("v2/domains/literacy/dimensions/search").
 			then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -193,7 +193,7 @@ public class DimensionAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("domains/literacy/dimensions/LD01").
+				patch("v2/domains/literacy/dimensions/LD01").
 			then().
 				log().all().
 				spec(get200ResponseSpec());

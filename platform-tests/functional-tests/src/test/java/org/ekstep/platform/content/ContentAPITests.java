@@ -1,6 +1,5 @@
 package org.ekstep.platform.content;
 
-import org.ekstep.lp.domain.BaseTest;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 import static org.hamcrest.CoreMatchers.equalTo;
@@ -10,6 +9,7 @@ import static org.hamcrest.Matchers.equalTo;
 import java.util.HashMap;
 import java.util.*;
 
+import org.ekstep.platform.domain.BaseTest;
 import org.junit.Test;
 
 
@@ -38,11 +38,11 @@ public class ContentAPITests extends BaseTest {
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonGetContentList).
+				body(jsonGetContentList).
 			with().
 				contentType("application/json").
 			when().
-				patch("content/list").
+				patch("v2/content/list").
 			then().
 				log().all().
 				spec(get200ResponseSpec());
@@ -61,7 +61,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("content/list").
+				patch("v2/content/list").
 			then().
 				log().all().
 				spec(get400ResponseSpec());
@@ -80,7 +80,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("content/search").
+				patch("v2/content/search").
 			then().
 				log().all().
 				spec(get200ResponseSpec());
@@ -97,7 +97,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("content/search").
+				patch("v2/content/search").
 			then().
 				log().all().
 				spec(get400ResponseSpec());
@@ -111,7 +111,7 @@ public class ContentAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("content/org.ekstep.num.addition.by.grouping").
+			get("v2/content/org.ekstep.num.addition.by.grouping").
 		then().
 			spec(get200ResponseSpec());
 	        
@@ -128,7 +128,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("content").
+			post("v2/content").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -144,7 +144,7 @@ public class ContentAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("v2/content").
 		then().
 			log().all().
 			spec(get200ResponseSpec());		
@@ -161,7 +161,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("content/content_collection_8").
+				patch("v2/content/content_collection_8").
 			then().
 				log().all().
 				spec(get200ResponseSpec());
@@ -177,7 +177,7 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				patch("content/not_existing").
+				patch("v2/content/not_existing").
 			then().
 				log().all().
 				spec(get400ResponseSpec());
@@ -199,11 +199,12 @@ public class ContentAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("content").
+			post("v2/content").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
 				
+		
 		//Publish Content
 		setURI();
 		given().

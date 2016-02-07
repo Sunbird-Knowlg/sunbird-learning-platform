@@ -1,6 +1,7 @@
 
 
 import static com.jayway.restassured.RestAssured.baseURI;
+import static com.jayway.restassured.RestAssured.basePath;
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
@@ -18,6 +19,8 @@ public class BaseTest
 	public void setURI()
 	{
 		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+		//baseURI ="http://localhost:9090/taxonomy-service";
+		//basePath = "v2/";
 	}
 	/**
 	 * adds the given content_type and user_id to the request header

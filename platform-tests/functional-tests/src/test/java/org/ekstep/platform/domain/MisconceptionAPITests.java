@@ -1,6 +1,6 @@
 
 	
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -18,7 +18,7 @@ public class MisconceptionAPITests extends BaseTest {
 	
 	String JsonSaveMisconceptionValid ="{\"request\":{ \"object\":{ \"description\":\"Doesn't understand carry-over QA\",\"name\":\"Carry Over QA\",\"code\":\"Num:MC1:QA\",\"identifier\":\"Num:MC1:QA\",\"missing_concept\": \"Num:C1\"}}}";
 			
-	//TO-DO: once definition of method is confirmed, form these bodies.
+	//TO-DO: once definition of misconception is confirmed, form these bodies.
 	String JsonSaveMisconceptionWithEmptyParent = ""; 
 	String JsonSaveMisconceptionWithInvalidParent = ""; 	
 	String JsonUpdateMisconceptionValid = "{\"request\":{\"object\":{ \"description\":\"Dimension_Valid_TEST Updated\",\"name\":\"LD1_TEST_U\",\"code\":\"Lit:Dim:1TestU\",\"identifier\":\"STATISTICS_TEST\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"literacy\"}]}}}";
@@ -31,10 +31,10 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions").
+			get("v2/domains/literacy/misconceptions").
 		then().
 			spec(get200ResponseSpec());
-	        //body("result.dimensions.status", hasItems(liveStatus));
+	        
 	}
 	
 	@Test
@@ -44,7 +44,7 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconception/Num:MC1:QA").
+			get("v2/domains/literacy/misconception/Num:MC1:QA").
 		then().
 			spec(get200ResponseSpec());
 	}
@@ -57,7 +57,7 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/abc/misconceptions").
+			get("v2/domains/abc/misconceptions").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -69,12 +69,12 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions/xyz").
+			get("v2/domains/literacy/misconceptions/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
 	
-	//Create Dimension Valid
+	//Create Misconception Valid
 	@Test
 	public void createMisconceptionExpectSuccess()
 	{
@@ -86,7 +86,7 @@ public class MisconceptionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/misconceptions").
+			post("v2/domains/literacy/misconceptions").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -96,7 +96,7 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions/Num:MC1:QA").
+			get("v2/domains/literacy/misconceptions/Num:MC1:QA").
 		then().
 			spec(get200ResponseSpec());		
 	}
@@ -105,7 +105,7 @@ public class MisconceptionAPITests extends BaseTest {
 	@Test
 	public void createMisconceptionWithEmptyParentExpect4xx()
 	{
-		//saveDimension API call 
+		//createMisconception API call 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
@@ -113,7 +113,7 @@ public class MisconceptionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/misconceptions").
+			post("v2/domains/literacy/misconceptions").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -126,7 +126,7 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions/NUM:C1:QA2").
+			get("v2/domains/literacy/misconceptions/NUM:C1:QA2").
 		then().
 			log().all().
 			spec(get400ResponseSpec());			
@@ -143,7 +143,7 @@ public class MisconceptionAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/misconceptions").
+			post("v2/domains/literacy/misconceptions").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -154,7 +154,7 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions/NUM:C1:QA3").
+			get("v2/domains/literacy/misconceptions/NUM:C1:QA3").
 		then().
 			spec(get400ResponseSpec());		
 
@@ -172,14 +172,14 @@ public class MisconceptionAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				post("domains/literacy/methods/search").
+				post("v2/domains/literacy/methods/search").
 			then().
 			log().all().
 			spec(get200ResponseSpec());
 			//body("id", equalTo("orchestrator.searchDomainObjects"));
 	}
 		
-		//Update Dimension
+		//Update Misconception
 		@Test
 		public void updateMisconceptionValidInputsExpectSuccess200()
 		{
@@ -190,11 +190,11 @@ public class MisconceptionAPITests extends BaseTest {
 				with().
 					contentType("application/json").
 				when().
-					patch("domains/literacy/methods/LD01").
+					patch("v2/domains/literacy/misconception/NUM:C1:M").
 				then().
 					log().all().
 					spec(get200ResponseSpec());
-				//body("id", equalTo("orchestrator.searchDomainObjects"));
+				
 		}
 		
 		//Delete Method
@@ -205,7 +205,7 @@ public class MisconceptionAPITests extends BaseTest {
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				delete("domains/literacy/misconception/NUM:C1:M").
+				delete("v2/domains/literacy/misconception/NUM:C1:M").
 			then().
 				log().all().
 				spec(get200ResponseSpec());

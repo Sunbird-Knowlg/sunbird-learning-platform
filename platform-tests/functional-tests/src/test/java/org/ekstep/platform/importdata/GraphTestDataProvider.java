@@ -9,7 +9,11 @@ public class GraphTestDataProvider {
         return new Object[][]{
                 {"domain", "domain_definition_v2.json", "Domain Definition"},
                 {"domain", "dimension_definition_v2.json", "Dimension Definition"},
-                {"domain", "concept_definition_v2.json", "Concept Definition"}             
+                {"domain", "concept_definition_v2.json", "Concept Definition"}, 
+                {"domain", "method_definition_v2.json", "Method Definition"},
+                {"domain", "misconception_definition_v2.json", "Misconception Definition"}, 
+                {"domain", "content_definition_v2.json", "Content Definition"},
+                
                 
        };
     }

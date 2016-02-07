@@ -1,4 +1,4 @@
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.*;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -29,8 +29,9 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains").
+			get("v2/domains").
 		then().
+			log().all().
 			spec(get200ResponseSpec()).
 	        body("result.domains.size()", is(noOfLiveDomains)).
 	        body("result.domains.status", hasItems(liveStatus)).
@@ -44,7 +45,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy").
+			get("v2/domains/literacy").
 		then().
 			spec(get200ResponseSpec()).
 			body("result.domain.status", equalTo(liveStatus));
@@ -63,7 +64,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,invalidUserId)).
 		when().
-			get("domains").
+			get("v2/domains").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -76,7 +77,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains#").
+			get("v2/domains#").
 		then().
 			log().all().
 			spec(get500ResponseSpec());
@@ -89,7 +90,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains%").
+			get("v2/domains%").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -102,7 +103,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains$").
+			get("v2/domains$").
 		then().
 			log().all().
 			spec(get500HTMLResponseSpec());
@@ -119,7 +120,7 @@ public class DomainAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/nume").
+			get("v2/domains/nume").
 		then().
 			log().all().
 			spec(get404ResponseSpec());
@@ -138,12 +139,56 @@ public class DomainAPITests extends BaseTest
 			with().
 				contentType(JSON).
 		when().
-			post("domains/numeracy").
+			post("v2/domains/numeracy").
 		then().
 			log().all().
 			body("id", equalTo("orchestrator.searchDomainObjects"));
 	}
 	
-	//TO_DO: getDomainGraph 
+	//getDomainGraph 
+	
+	public class GraphSearchAPITests extends BaseTest 
+	{
+		//Get Domain Graph
+		@Test
+		public void getDomainGraphExpectSuccess200()
+		{
+			setURI();
+			given().
+				spec(getRequestSpec(contentType,validuserId)).
+			when().
+				get("v2/domains/graph/literacy").
+			then().
+				//log().all().
+				spec(get200ResponseSpec());
+		}
+
+		@Test
+		public void getDomainGraphOfNonExistingDomainExpect4xx()
+		{
+			setURI();
+			given().
+				spec(getRequestSpec(contentType,validuserId)).
+			when().
+				get("v2/domains/graph/xyz").
+			then().
+				//log().all().
+				spec(get404ResponseSpec());
+		}
+		
+		@Test
+		public void getDomainGraphWithoutHeaderExpect400()
+		{
+			setURI();
+			given().
+				//spec(getRequestSpec(contentType,validuserId)).
+			when().
+				get("v2/domains/graph/literacy").
+			then().
+				log().all().
+				spec(get400ResponseSpec());
+		}
+	}
+
 }
 

@@ -1,4 +1,4 @@
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -7,13 +7,20 @@ import static org.hamcrest.CoreMatchers.hasItems;
 import static org.hamcrest.CoreMatchers.is;
 
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration({"classpath:servlet-context.xml"})
+@WebAppConfiguration
 public class ConceptAPITests extends BaseTest {
 
 	int noOfConceptsAvailable = 70;
 	
-	String conceptsUrl = "domains/literacy/concepts";
-	String invalidConceptsUrl = "domains/literacy/abc";
+	String conceptsUrl = "v2/domains/literacy/concepts";
+	String invalidConceptsUrl = "v2/domains/literacy/abc";
 	
 	String jsonBodyForCreateConcept = "{\"request\": {\"object\": {\"identifier\": \"TEST_CONCEPT\",\"description\": \"Test\",\"name\": \"Test\",\"code\": \"Lit:Dim:98\",\"parent\": [{\"identifier\": \"LD5\",\"name\": \"Reading Comprehension\",\"objectType\": \"Dimension\",\"relation\": \"isParentOf\"}]}}}";
 	String jsonBodyForCreateDuplicateConcept = "{\"request\": {\"object\": {\"identifier\": \"TEST_DUPL_CONCEPT\",\"description\": \"Duplicate Test\",\"name\": \"Duplicate_Test\",\"code\": \"Lit:Dim:Dupl\",\"parent\": [{\"identifier\": \"LD5\",\"name\": \"Reading Comprehension\",\"objectType\": \"Dimension\",\"relation\": \"isParentOf\"}]}}}";
@@ -54,7 +61,7 @@ public class ConceptAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/LO18").
+			get("v2/domains/literacy/LO18").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -72,7 +79,7 @@ public class ConceptAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/abc/concepts").
+			get("v2/domains/abc/concepts").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -84,7 +91,7 @@ public class ConceptAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/concepts/xyz").
+			get("v2/domains/literacy/concepts/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -99,7 +106,7 @@ public class ConceptAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/concepts").
+			post("v2/domains/literacy/concepts").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -116,7 +123,7 @@ public class ConceptAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/liter/concepts").
+			post("v2/domains/liter/concepts").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -134,7 +141,7 @@ public class ConceptAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("domains/literacy/concepts").
+			post("v2/domains/literacy/concepts").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -145,7 +152,7 @@ public class ConceptAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/concepts").
+			post("v2/domains/literacy/concepts").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -162,7 +169,7 @@ public class ConceptAPITests extends BaseTest {
 		with().
 			contentType("application/json").
 		when().
-			post("domains/numeracy/concepts/search").
+			post("v2/domains/numeracy/concepts/search").
 		then().
 			log().all().
 			spec(get200ResponseSpec()).
@@ -181,7 +188,7 @@ public class ConceptAPITests extends BaseTest {
 		with().
 			contentType("application/json").
 		when().
-			post("domains/numeracy/concepts/search").
+			post("v2/domains/numeracy/concepts/search").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
@@ -198,14 +205,12 @@ public class ConceptAPITests extends BaseTest {
 		with().
 			contentType("application/json").
 		when().
-			post("domains/abc/concepts/search").
+			post("v2/domains/abc/concepts/search").
 		then().
 			log().all().
 			spec(get400ResponseSpec());
 			
 	}
-	
-	
 	
 	
 	

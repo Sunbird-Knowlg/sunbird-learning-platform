@@ -1,4 +1,4 @@
-package org.ekstep.lp.domain;
+package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
@@ -30,7 +30,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods").
+			get("v2/domains/literacy/methods").
 		then().
 			spec(get200ResponseSpec());
 	        //body("result.dimensions.status", hasItems(liveStatus));
@@ -43,7 +43,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods/Method1").
+			get("v2/domains/literacy/methods/Method1").
 		then().
 			spec(get200ResponseSpec());
 	}
@@ -56,7 +56,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/abc/methods").
+			get("v2/domains/abc/methods").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -68,7 +68,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods/xyz").
+			get("v2/domains/literacy/methods/xyz").
 		then().
 			spec(get404ResponseSpec());
 	}
@@ -85,7 +85,7 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/methods").
+			post("v2/domains/literacy/methods").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -95,7 +95,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods/Num:C1:QA").
+			get("v2/domains/literacy/methods/Num:C1:QA").
 		then().
 			spec(get200ResponseSpec());		
 	}
@@ -112,7 +112,7 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/methods").
+			post("v2/domains/literacy/methods").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -125,7 +125,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods/NUM:C1:QA2").
+			get("v2/domains/literacy/methods/NUM:C1:QA2").
 		then().
 			log().all().
 			spec(get400ResponseSpec());			
@@ -142,7 +142,7 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType(JSON).
 		when().
-			post("domains/literacy/methods").
+			post("v2/domains/literacy/methods").
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
@@ -153,7 +153,7 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/methods/NUM:C1:QA3").
+			get("v2/domains/literacy/methods/NUM:C1:QA3").
 		then().
 			spec(get400ResponseSpec());		
 
@@ -171,7 +171,7 @@ public class MethodAPITests extends BaseTest {
 			with().
 				contentType("application/json").
 			when().
-				post("domains/literacy/methods/search").
+				post("v2/domains/literacy/methods/search").
 			then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -189,7 +189,7 @@ public class MethodAPITests extends BaseTest {
 				with().
 					contentType("application/json").
 				when().
-					patch("domains/literacy/methods/LD01").
+					patch("v2/domains/literacy/methods/LD01").
 				then().
 					log().all().
 					spec(get200ResponseSpec());
@@ -204,7 +204,7 @@ public class MethodAPITests extends BaseTest {
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				delete("domains/literacy/methods/NUM:C1:M").
+				delete("v2/domains/literacy/methods/NUM:C1:M").
 			then().
 				log().all().
 				spec(get200ResponseSpec());
