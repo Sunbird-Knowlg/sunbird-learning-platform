@@ -37,4 +37,8 @@ public class LanguageRequestRouterPool {
         }
         return actor;
     }
+    
+    public static void destroy() {
+    	actor = null;
+    }
 }

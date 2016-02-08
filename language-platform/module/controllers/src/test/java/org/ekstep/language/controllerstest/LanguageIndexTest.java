@@ -241,7 +241,8 @@ public class LanguageIndexTest {
 			Assert.assertEquals(entry.getValue(), rootword);
 		}
 	}
-
+	
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void getWordIds() throws JsonParseException, JsonMappingException,
@@ -286,7 +287,7 @@ public class LanguageIndexTest {
 	public void getIndexInfo() throws JsonParseException, JsonMappingException,
 			IOException {
 		String contentString = "{ \"request\": {   \"words\": [\"ಮರ\", \"ಹೇಳಿಸಿ\"] ,   \"groupBy\" : [\"pos\", \"sourceType\"],   \"limit\": 1000 }}";
-		String expectedResult = "{\"ಮರ\":{\"rootWord\":\"ಮರ\",\"citations\":{\"pos\":{\"nn\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4421\"},\"ಹೇಳಿಸಿ\":{\"rootWord\":\"ಹೇಳಿಸು\",\"citations\":{\"pos\":{\"vm\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4367\"}}";
+		String expectedResult = "{\"ಮರ\":{\"rootWord\":\"ಮರ\",\"citations\":{\"pos\":{\"NN\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4421\"},\"ಹೇಳಿಸಿ\":{\"rootWord\":\"ಹೇಳಿಸು\",\"citations\":{\"pos\":{\"VM\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"wordId\":\"ka_4367\"}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/indexes/getIndexInfo/" + TEST_LANGUAGE;
@@ -442,7 +443,7 @@ public class LanguageIndexTest {
 	public void getCitationsCount() throws JsonParseException,
 			JsonMappingException, IOException {
 		String contentString = "{\"request\":{\"words\":[\"ಮರ\",\"ಹೇಳಿಸಿ\"],\"groupBy\":[\"pos\",\"sourceType\"],\"limit\":1000}}";
-		String expectedResult = "{\"ಮರ\":{\"pos\":{\"nn\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"ಹೇಳಿಸಿ\":{\"pos\":{\"vm\":1},\"sourceType\":{\"textbooks\":1},\"count\":1}}";
+		String expectedResult = "{\"ಮರ\":{\"pos\":{\"NN\":1},\"sourceType\":{\"textbooks\":1},\"count\":1},\"ಹೇಳಿಸಿ\":{\"pos\":{\"VM\":1},\"sourceType\":{\"textbooks\":1},\"count\":1}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/indexes/citationsCount/" + TEST_LANGUAGE;
@@ -469,7 +470,7 @@ public class LanguageIndexTest {
 	@Test
 	public void getWordMetrics() throws JsonParseException,
 			JsonMappingException, IOException {
-		String expectedResult = "{\"sourceType\":{\"textbooks\":13},\"pos\":{\"nn\":10,\"vm\":2,\"nst\":1},\"grade\":{\"1\":13},\"source\":{\"Class1\":13}}";
+		String expectedResult = "{\"sourceType\":{\"textbooks\":13},\"pos\":{\"NN\":10,\"VM\":2,\"NST\":1},\"grade\":{\"1\":13},\"source\":{\"Class1\":13}}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/indexes/getWordMetrics/" + TEST_LANGUAGE;

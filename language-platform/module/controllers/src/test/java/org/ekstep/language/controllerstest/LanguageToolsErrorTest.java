@@ -31,7 +31,7 @@ import com.ilimi.common.dto.Response;
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class LanguageToolsTest {
+public class LanguageToolsErrorTest {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -41,18 +41,9 @@ public class LanguageToolsTest {
 	private static String TEST_LANGUAGE = "hi";
 
 	static {
-		LanguageRequestRouterPool.init();
+		LanguageRequestRouterPool.destroy();
 	}
 
-	@BeforeClass
-	public static void init() throws Exception {
-
-	}
-
-	@AfterClass
-	public static void close() throws IOException, InterruptedException {
-		
-	}
 
 	@SuppressWarnings("unchecked")
 	@Test
@@ -67,29 +58,13 @@ public class LanguageToolsTest {
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(contentString.getBytes())
 					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse()
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		Response resp = jsonToObject(actions);
-		Assert.assertEquals("successful", resp.getParams().getStatus());
-		Map<String, Object> result = resp.getResult();
-		Map<String, Object> complexityMeasures = (Map<String, Object>) result
-				.get("complexity_measures");
-		String resultString = mapper.writeValueAsString(complexityMeasures);
-		System.out.println(resultString);
-        Map<String, Object> cm1 = (Map<String, Object>) complexityMeasures.get("धागा");
-        Map<String, Object> cm2 = (Map<String, Object>) complexityMeasures.get("समोसा");
-        Map<String, Object> cm3 = (Map<String, Object>) complexityMeasures.get("एक चर्मरोग जिसमें बहुत खुजली होती है");
-        Assert.assertEquals(0.0, (double) cm1.get("orthographic_complexity"), 0.0);
-        Assert.assertEquals(11.01, (double) cm1.get("phonologic_complexity"), 0.0);
-        
-        Assert.assertEquals(0.4, (double) cm2.get("orthographic_complexity"), 0.0);
-        Assert.assertEquals(14.19, (double) cm2.get("phonologic_complexity"), 0.0);
-        
-        Assert.assertEquals(0.67, (double) cm3.get("orthographic_complexity"), 0.0);
-        Assert.assertEquals(16.32, (double) cm3.get("phonologic_complexity"), 0.0);
+		Assert.assertEquals("failed", resp.getParams().getStatus());
 	}
 
 	

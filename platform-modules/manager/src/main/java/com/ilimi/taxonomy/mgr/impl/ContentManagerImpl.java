@@ -669,11 +669,17 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata = node.getMetadata();
         String contentBody = (String) metadata.get("body");
+        String contentType = checkBodyContentType(contentBody);
         ReadProperties readPro = new ReadProperties();
         String tempFile = null;
         try {
             tempFile = readPro.getPropValues("source.folder");
-            File file = new File(tempFile + "index.ecml");
+            File file = null;
+			if (contentType.equalsIgnoreCase("ecml")) {
+				file = new File(tempFile + "index.ecml");
+			}else if (contentType.equalsIgnoreCase("json")) {
+				file = new File(tempFile + "index.json");
+			}
             if (!file.exists()) {
                 file.createNewFile();
             }
@@ -693,13 +699,24 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
                 }
             }
-            response = parseContent(taxonomyId, contentId, tempFile, fileName);
+            response = parseContent(taxonomyId, contentId, tempFile, fileName,contentType);
         } catch (IOException e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         }
         return response;
     }
-
+    
+    private String checkBodyContentType(String contentBody) {
+    	if (StringUtils.isNotEmpty(contentBody)) {
+    		if (StringUtils.startsWith(contentBody, "<")) {
+    			return "ecml";
+    		}else if (StringUtils.startsWithAny(contentBody, new String[]{"{","["})) {
+    			return "json";
+    		}
+		}
+    	return null;
+	}
+	
     /**
      * this method parse ECML file and find src to download media type in assets
      * folder and finally zip parent folder.
@@ -707,7 +724,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
      * @param filePath
      * @param saveDir
      */
-    public Response parseContent(String taxonomyId, String contentId, String filePath, String fileName) {
+    public Response parseContent(String taxonomyId, String contentId, String filePath, String fileName,String contentType) {
         ReadProperties readPro = new ReadProperties();
         String sourceFolder = null;
         try {
@@ -717,7 +734,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         Response response = new Response();
         Map<String, String> map = null;
-        CustomParser.readECMLFileDownload(filePath, sourceFolder, map);
+        if (contentType.equalsIgnoreCase("json")) {
+			CustomParser.readJsonFileDownload(filePath,sourceFolder);
+		}else if (contentType.equalsIgnoreCase("ecml")) {
+			CustomParser.readECMLFileDownload(filePath, sourceFolder, map);
+		}
         String zipFilePathName = sourceFolder + fileName + ".zip";
         List<String> fileList = new ArrayList<String>();
         AppZip appZip = new AppZip(fileList, zipFilePathName, sourceFolder);

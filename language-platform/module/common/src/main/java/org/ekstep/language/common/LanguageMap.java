@@ -19,6 +19,7 @@ public class LanguageMap {
         languageMap.put("testload", "testLoadLanguage");
         languageMap.put("testdictionary", "testdictionary");
         languageMap.put("testcreatedictionary", "testcreatedictionary");
+        languageMap.put("testsearch", "testsearch");
         
     }
 
