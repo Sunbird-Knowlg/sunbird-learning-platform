@@ -50,6 +50,12 @@ public class GraphImportTest {
         try {
             long t1 = System.currentTimeMillis();
             Request request = new Request();
+            //Delete the existing graphs before executing
+            request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+            request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+            request.setOperation("deleteGraph");
+            Patterns.ask(reqRouter, request, t);
+            //Import new graphs
             request.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
             request.setManagerName(GraphEngineManagers.NODE_MANAGER);
             request.setOperation("importDefinitions");
