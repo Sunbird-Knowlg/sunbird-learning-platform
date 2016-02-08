@@ -604,7 +604,7 @@ public class DataNode extends AbstractNode {
                         }
                     }
                     if (!found) {
-                        messages.add("Required " + direction + " incoming relation " + def.getRelationName()
+                        messages.add("Required " + direction + " relation " + def.getRelationName()
                                 + " is missing");
                     }
                 }

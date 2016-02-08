@@ -3,15 +3,20 @@ package org.ekstep.language.controllerstest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
+import org.ekstep.language.parser.SSFParser;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
 import org.ekstep.language.util.ElasticSearchUtil;
@@ -33,12 +38,19 @@ import org.springframework.web.context.WebApplicationContext;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration({ "classpath:servlet-context.xml" })
-public class LanguageSearchTest {
+public class LanguageParserTest extends BaseManager {
 
 	@Autowired
 	private WebApplicationContext context;
@@ -47,47 +59,159 @@ public class LanguageSearchTest {
 	private static ObjectMapper mapper = new ObjectMapper();
 	private ResultActions actions;
 	static ElasticSearchUtil util;
-	private static String TEST_LANGUAGE = "testsearch";
+	private static String TEST_LANGUAGE = "testparser";
+	private static Logger LOGGER = LogManager.getLogger(LanguageParserTest.class.getName());
 
 	static {
 		LanguageRequestRouterPool.init();
 	}
 
-/*	@BeforeClass
+	@BeforeClass
 	public static void init() throws Exception {
 		// Definitions
 		deleteDefinitionStatic(TEST_LANGUAGE);
 		createDefinitionsStatic(TEST_LANGUAGE);
-		createWord();
+		// createData();
 	}
 
 	@AfterClass
 	public static void close() throws IOException, InterruptedException {
-		deleteDefinitionStatic(TEST_LANGUAGE);
-	}*/
-	
-	@Test
-	public void searchWord(){
-		
+		// deleteDefinitionStatic(TEST_LANGUAGE);
 	}
 
-	@SuppressWarnings("rawtypes")
-	private static void createWord() throws JsonParseException,
-			JsonMappingException, IOException {
-		String contentString = "{\"request\":{\"words\":[{\"identifier\":\"en_w_710\",\"lemma\":\"newtestword\",\"difficultyLevel\":\"Easy\",\"synonyms\":[{\"identifier\":\"202707688\",\"gloss\":\"newsynonym\"}],\"antonyms\":[{\"name\":\"newtestwordantonym\"}],\"tags\":[\"English\",\"API\"]}]}}";
-		String expectedResult = "[\"en_w_710\"]";
-		Map<String, Object> map = mapper.readValue(contentString,
-				new TypeReference<Map<String, Object>>() {
-				});
-		Request request = RequestResponseTestHelper.getRequest(map);
-		Response response = dictionaryManager.create(TEST_LANGUAGE, "Word",
-				request);
+	@Test
+	public void createData() throws JsonParseException, JsonMappingException, IOException {
+		Map<String, Object> metaData = new HashMap<String, Object>();
+		Node word = new Node("w_1", SystemNodeTypes.DATA_NODE.name(), "Word");
+		metaData.put("lemma", "wordOne");
+		word.setMetadata(metaData);
+		Response res = null;
+		Request req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), word);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+		
+		word = new Node("w_2", SystemNodeTypes.DATA_NODE.name(), "Word");
+		metaData = new HashMap<String, Object>();
+		metaData.put("lemma", "wordTwo");
+		word.setMetadata(metaData);
+		res = null;
+		req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), word);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+		
+		word = new Node("w_3", SystemNodeTypes.DATA_NODE.name(), "Word");
+		metaData = new HashMap<String, Object>();
+		metaData.put("lemma", "wordThree");
+		word.setMetadata(metaData);
+		res = null;
+		req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), word);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+		
+		Node synset = new Node("s_3", SystemNodeTypes.DATA_NODE.name(), "Synset");
+		res = null;
+		req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), synset);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+
+		synset = new Node("s_1", SystemNodeTypes.DATA_NODE.name(), "Synset");
+		List<Relation> outRels = new ArrayList<Relation>();
+		Relation outRel = new Relation(null, RelationTypes.SYNONYM.relationName(), "w_1");
+		outRels.add(outRel);
+		outRel = new Relation(null, RelationTypes.SYNONYM.relationName(), "w_2");
+		outRels.add(outRel);
+		outRel = new Relation(null, RelationTypes.HYPERNYM.relationName(), "s_3");
+		outRels.add(outRel);
+		synset.setOutRelations(outRels);
+		res = null;
+		req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), synset);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+		
+		synset = new Node("s_2", SystemNodeTypes.DATA_NODE.name(), "Synset");
+		outRels = new ArrayList<Relation>();
+		outRel = new Relation(null, RelationTypes.SYNONYM.relationName(), "w_3");
+		outRels.add(outRel);
+		outRel = new Relation(null, RelationTypes.HYPERNYM.relationName(), "s_3");
+		outRels.add(outRel);
+		synset.setOutRelations(outRels);
+		res = null;
+		req = getRequest(TEST_LANGUAGE, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		req.put(GraphDACParams.node.name(), synset);
+		res = getResponse(req, LOGGER);
+		Assert.assertEquals("successful", res.getParams().getStatus());
+		parserTest();
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	private void parserTest() throws JsonParseException, JsonMappingException, IOException {
+		String contentString = "{\"request\":{\"language_id\":\"testparser\",\"wordSuggestions\":true,\"relatedWords\":true,\"translations\":true,\"equivalentWords\":true,\"limit\":10,\"content\":\"wordOne\"}}";
+		String word = "wordOne";
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/parser";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(contentString.getBytes())
+					.header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Response response = jsonToObject(actions);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
-		List nodeIds = (List) result.get("node_id");
-		String resultString = mapper.writeValueAsString(nodeIds);
-		Assert.assertEquals(expectedResult, resultString);
-
+		Map<String, Object> wordMap = (Map<String, Object>) result.get(word);
+		List<String> equivalentWords = (List<String>) wordMap.get("equivalentWords");
+		Assert.assertTrue(equivalentWords.contains("wordTwo"));
+		List<String> relatedWords = (List<String>) wordMap.get("relatedWords");
+		Assert.assertTrue(relatedWords.contains("wordTwo"));
+		Assert.assertTrue(relatedWords.contains("wordThree"));
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	@Test
+	public void parserTeluguTest() throws JsonParseException, JsonMappingException, IOException {
+		String contentString = "{\"request\":{\"language_id\":\"te\",\"wordSuggestions\":true,\"relatedWords\":true,\"translations\":true,\"equivalentWords\":true,\"limit\":10,\"content\":\"wordOne\"}}";
+		String word = "wordOne";
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/parser";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(contentString.getBytes())
+					.header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response response = jsonToObject(actions);
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		Map<String, Object> wordMap = (Map<String, Object>) result.get(word);
+		List<String> equivalentWords = (List<String>) wordMap.get("equivalentWords");
+		Assert.assertTrue(equivalentWords.contains("తండ్రి"));
+		Assert.assertTrue(equivalentWords.contains("ఇనుము"));
+		Assert.assertTrue(equivalentWords.contains("సంఘర్షణ"));
+		List<String> relatedWords = (List<String>) wordMap.get("relatedWords");
+		Assert.assertTrue(relatedWords.contains("తండ్రి"));
+		Assert.assertTrue(relatedWords.contains("ఇనుము"));
+		Assert.assertTrue(relatedWords.contains("సంఘర్షణ"));
+		List<String> suggestions = (List<String>) wordMap.get("suggestions");
+		Assert.assertTrue(suggestions.contains("తండ్రి"));
+		Assert.assertTrue(suggestions.contains("ఇనుము"));
+		Assert.assertTrue(suggestions.contains("సంఘర్షణ"));
+		
 	}
 
 	public static void createDefinitionsStatic(String language) {
@@ -100,7 +224,7 @@ public class LanguageSearchTest {
 	public static void deleteDefinitionStatic(String language) {
 		taxonomyManager.delete(language);
 	}
-	
+
 	public static Response jsonToObject(ResultActions actions) {
 		String content = null;
 		Response resp = null;

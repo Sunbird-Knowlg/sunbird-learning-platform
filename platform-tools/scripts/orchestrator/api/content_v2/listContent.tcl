@@ -16,6 +16,16 @@ if {$is_status_null == 1} {
 	$search put "status" "Live"
 }
 
+set filter_list [java::new ArrayList]
+$filter_list add "Story"
+$filter_list add "Worksheet"
+$filter_list add "Game"
+$filter_list add "Simulation"
+$filter_list add "Puzzle"
+$filter_list add "Diagnostic"
+$filter_list add "Collection"
+$search put "contentType" $filter_list
+
 set sort [$search get "sort"]
 set limit [$search get "limit"]
 $search put "sortBy" $sort

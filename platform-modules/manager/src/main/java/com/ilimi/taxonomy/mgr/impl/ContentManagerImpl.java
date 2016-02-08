@@ -14,6 +14,7 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,6 +22,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
@@ -797,6 +799,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public Response extract(String taxonomyId, String contentId) {
         Response updateRes = null;
         ReadProperties readPro = new ReadProperties();
@@ -837,6 +840,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     metadata.put("appIcon", newUrl);
             }
             node.setMetadata(metadata);
+            node.setOutRelations(new ArrayList<Relation>());
             Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
             validateReq.put(GraphDACParams.node.name(), node);
             Response validateRes = getResponse(validateReq, LOGGER);
@@ -847,6 +851,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 updateReq.put(GraphDACParams.node.name(), node);
                 updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                 updateRes = getResponse(updateReq, LOGGER);
+            }
+            List<Relation> outRelations = (List<Relation>) response.get("outRelations");
+            System.out.println("Out relations size: " + outRelations.size());
+            if (null != outRelations && !outRelations.isEmpty()) {
+                for (Relation outRel : outRelations) {
+                    addRelation(taxonomyId, node.getIdentifier(), outRel.getRelationType(), outRel.getEndNodeId());
+                }
             }
         }
         return updateRes;
@@ -887,7 +898,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Response response = new Response();
         try {
             unzipper.unzip(zipFilePath, saveDir);
-            createAssessmentItemFromContent(taxonomyId, saveDir, contentId);
+            List<Relation> outRelations = new ArrayList<Relation>();
+            createAssessmentItemFromContent(taxonomyId, saveDir, contentId, outRelations);
             Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath, saveDir);
             Set<String> mediaIdList1 = mediaIdMap.keySet();
             List<String> mediaIdList = new ArrayList<String>();
@@ -983,6 +995,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             CustomParser.updateJsonInEcml(filePath, "items");
             CustomParser.updateJsonInEcml(filePath, "data");
             response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
+            response.put("outRelations", outRelations);
             // deleting unzip file
             File directory = new File(saveDir);
             if (!directory.exists()) {
@@ -1020,8 +1033,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         Object mimeType = getMimeType(new File(olderName.getName()));
         metadata.put("mimeType", mimeType);
+        String mediaType = getMediaType(olderName.getName());
+        metadata.put("mediaType", mediaType);
         item.setMetadata(metadata);
         return item;
+    }
+    
+    private String getMediaType(String fileName) {
+        String mediaType = "image";
+        if (StringUtils.isNotBlank(fileName)) {
+            if (fileName.endsWith(".pdf")) {
+                mediaType = "pdf";
+            } else if (fileName.endsWith(".mp4") || fileName.endsWith(".avi") || fileName.endsWith(".3gpp") || fileName.endsWith(".webm")) {
+                mediaType = "video";
+            } else if (fileName.endsWith(".mp3") || fileName.endsWith(".ogg") || fileName.endsWith(".wav")) {
+                mediaType = "audio";
+            } else if (fileName.endsWith(".txt") || fileName.endsWith(".json") || fileName.endsWith(".xml")) {
+                mediaType = "text";
+            }
+        }
+        return mediaType;
     }
 
     private Object getMimeType(File file) {
@@ -1030,7 +1061,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
 
     @SuppressWarnings({ "unchecked" })
-	private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath, String contentId) {
+	private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath, 
+	        String contentId, List<Relation> outRelations) {
     	if (null != contentExtractedPath) {
     		List<File> fileList = getControllerFileList(contentExtractedPath);
     		Map<String, Object> mapResDetail = new HashMap<String, Object>();
@@ -1043,54 +1075,58 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						        new ObjectMapper().readValue(file, HashMap.class);
 						if (null != fileJSON) {
 							Map<String, Object> itemSet = (Map<String, Object>) fileJSON.get(ContentAPIParams.items.name());
-							System.out.println("Item JSON | " + itemSet);
 							List<Object> lstAssessmentItem = new ArrayList<Object>();
 							for(Entry<String, Object> entry : itemSet.entrySet()) {
-								System.out.println("Entry in Assessment Item | " + entry.getValue());
 								Object assessmentItem = (Object) entry.getValue();
 								lstAssessmentItem.add(assessmentItem);
 								List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
 								List<String> lstAssessmentItemId = new ArrayList<String>();
 								Map<String, Object> assessResMap = new HashMap<String, Object>();
 								Map<String, String> mapAssessItemRes = new HashMap<String, String>();
-								System.out.println("Entry in Assessment Item Array | " + lstMap);
 								Map<String, Object> mapRelation = new HashMap<String, Object>();
 								for(Map<String, Object> map : lstMap) {
 									Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
 									if (null != request) {
-										Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
-										if (null != map.get(ContentAPIParams.concepts.name())) {
-											mapRelation.put(map.get(ContentAPIParams.identifier.name()).toString(), map.get(ContentAPIParams.concepts.name()));
+									    Node itemNode = (Node) request.get(ContentAPIParams.assessment_item.name());
+										Response response = null;
+										if (StringUtils.isBlank(itemNode.getIdentifier())) {
+										    response = assessmentMgr.createAssessmentItem(taxonomyId, request);
+										} else {
+										    response = assessmentMgr.updateAssessmentItem(itemNode.getIdentifier(), taxonomyId, request);
 										}
 										LOGGER.info("Create Item | Response: " + response);
 										Map<String, Object> resMap = response.getResult();
 										if (null != resMap.get(ContentAPIParams.node_id.name())) {
-											lstAssessmentItemId.add(resMap.get(ContentAPIParams.node_id.name()).toString());
+										    String identifier = resMap.get(ContentAPIParams.node_id.name()).toString();
+										    mapRelation.put(identifier, map.get(ContentAPIParams.concepts.name()));
+											lstAssessmentItemId.add(identifier);
 											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), "Node " + resMap.get(ContentAPIParams.node_id.name()).toString() + " Added Successfully");
 										} else {
+										    System.out.println("Item validation failed: " + resMap.get(ContentAPIParams.messages.name()).toString());
 											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), resMap.get(ContentAPIParams.messages.name()).toString());
 										}
 									}
 								}
 								assessResMap.put(ContentAPIParams.assessment_item.name(), mapAssessItemRes);
-								Response itemSetRes = createItemSet(taxonomyId, lstAssessmentItemId);
+								Response itemSetRes = createItemSet(taxonomyId, lstAssessmentItemId, fileJSON);
 								if (null != itemSetRes) {
 									Map<String, Object> mapItemSetRes = itemSetRes.getResult();
 									assessResMap.put(ContentAPIParams.assessment_item_set.name(), mapItemSetRes);
-									if (null != mapAssessItemRes.get(ContentAPIParams.node_id.name())) {
-										String itemSetNodeId = mapAssessItemRes.get(ContentAPIParams.node_id.name());
-										Response itemSetRelationRes = addRelation(taxonomyId, "ItemSet", itemSetNodeId, "associatedTo", contentId);
-										LOGGER.info("Create Item | Create Relation | Response: " + itemSetRelationRes);
+									String itemSetNodeId = (String) mapItemSetRes.get(ContentAPIParams.set_id.name());
+									System.out.println("itemSetNodeId: " + itemSetNodeId);
+									if (StringUtils.isNotBlank(itemSetNodeId)) {
+									    Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), itemSetNodeId);
+									    outRelations.add(outRel);
 									}
 								}
-								List<String> lstAssessItemRelRes = createRelation(taxonomyId, mapRelation, "associatedTo", contentId);
+								List<String> lstAssessItemRelRes = createRelation(taxonomyId, mapRelation, outRelations);
 								assessResMap.put(ContentAPIParams.AssessmentItemRelation.name(), lstAssessItemRelRes);
 								mapResDetail.put(file.getName(), assessResMap);
 							}
 						} else {
 							mapResDetail.put(file.getName(), "Error : Invalid JSON");
 						}
-					} catch (IOException e) {
+					} catch (Exception e) {
 						mapResDetail.put(file.getName(), "Error : Unable to Parse JSON");
 						e.printStackTrace();
 					}
@@ -1102,11 +1138,29 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     	}
     	return null;
     }
-
-	private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
-    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0 && !StringUtils.isBlank(taxonomyId)) {
+    
+	private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId, Map<String,Object> fileJSON) {
+    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0 && StringUtils.isNotBlank(taxonomyId)) {
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
+    		Integer totalItems = (Integer) fileJSON.get("total_items");
+    		if (null == totalItems || totalItems > lstAssessmentItemId.size()) 
+    		    totalItems = lstAssessmentItemId.size();
+    		map.put("total_items", totalItems);
+    		Integer maxScore = (Integer) fileJSON.get("max_score");
+    		if (null == maxScore)
+    		    maxScore = totalItems;
+    		map.put("max_score", maxScore);
+    		String title = (String) fileJSON.get("title");
+    		if (StringUtils.isNotBlank(title))
+    		    map.put("title", title);
+    		map.put("type", QuestionnaireType.materialised.name());
+    		String identifier = (String) fileJSON.get("identifier");
+    		if (StringUtils.isNotBlank(identifier)) {
+    		    map.put("code", identifier);
+    		} else {
+    		    map.put("code", "item_set_" + RandomUtils.nextInt(1, 10000));
+    		}
     		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
     		if (null != request) {
 				Response response = assessmentMgr.createItemSet(taxonomyId, request);
@@ -1116,6 +1170,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     	}
     	return null;
     }
+	
+	private String[] qlevels = new String[]{"EASY", "MEDIUM", "DIFFICULT", "RARE"};
+	private List<String> qlevelList = Arrays.asList(qlevels);
 
     private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
     	if (null != objectType && null != map) {
@@ -1124,16 +1181,43 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     		Map<String, Object> requestMap = new HashMap<String, Object>();
     		reqMap.put(ContentAPIParams.objectType.name(), objectType);
     		reqMap.put(ContentAPIParams.metadata.name(), map);
-    		if (null != map.get(ContentAPIParams.identifier.name()))
-    			reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
+    		String identifier = null;
+    		if (null != map.get("qid")) {
+    		    String qid = (String) map.get("qid");
+    		    if (StringUtils.isNotBlank(qid))
+    		        identifier = qid;
+    		}
+    		if (StringUtils.isBlank(identifier)) {
+    		    if (null != map.get(ContentAPIParams.identifier.name())) {
+    		        String id = (String) map.get(ContentAPIParams.identifier.name());
+                    if (StringUtils.isNotBlank(id))
+                        identifier = id;
+    		    }
+    		}
+    		if (StringUtils.isNotBlank(identifier)) {
+    		    reqMap.put(ContentAPIParams.identifier.name(), identifier);
+    		    map.put("code", identifier);
+    		    map.put("name", identifier);
+    		} else {
+    		    map.put("name", "Assessment Item");
+    		    map.put("code", "item_" + RandomUtils.nextInt(1, 10000));
+    		}
+    		String qlevel = (String) map.get("qlevel");
+    		if (StringUtils.isBlank(qlevel)) {
+    		    qlevel = "MEDIUM";
+    		} else {
+    		    if (!qlevelList.contains(qlevel))
+    		        qlevel = "MEDIUM";
+    		}
+    		map.put("qlevel", qlevel);
     		assessMap.put(param, reqMap);
     		requestMap.put(ContentAPIParams.skipValidations.name(), true);
-    		requestMap.put(ContentAPIParams.request.name(), assessMap);
-    		return getRequestObjectForAssessmentMgr(requestMap, param);
+            requestMap.put(ContentAPIParams.request.name(), assessMap);
+            return getRequestObjectForAssessmentMgr(requestMap, param);
     	}
     	return null;
     }
-
+    
     private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
@@ -1143,9 +1227,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 if (null != obj) {
                     Node item = (Node) mapper.convertValue(obj, Node.class);
                     request.put(param, item);
-                    if (null != requestMap.get(ContentAPIParams.skipValidations.name()) && StringUtils.equalsIgnoreCase(requestMap.get("skipValidations").toString(), "true")) {
-                    	request.put(ContentAPIParams.skipValidations.name(), true);
-                    }
+                    request.put(ContentAPIParams.skipValidations.name(), true);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -1153,19 +1235,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         return request;
     }
+
     
     @SuppressWarnings("unchecked")
-	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation, String relation, String contentId) {
-    	if (null != mapRelation && !mapRelation.isEmpty() && !StringUtils.isBlank(relation) && !StringUtils.isBlank(relation)) {
-    		String objectType = "concept";
+	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation, List<Relation> outRelations) {
+    	if (null != mapRelation && !mapRelation.isEmpty()) {
     		List<String> lstResponse = new ArrayList<String>();
     		for (Entry<String, Object> entry : mapRelation.entrySet()) {
     			List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
     			for (Map<String, Object> conceptMap : lstConceptMap) {
-    				if (null != conceptMap.get(ContentAPIParams.relations.name()))
-    					relation =  conceptMap.get(ContentAPIParams.relations.name()).toString();
-    				Response response = addRelation(taxonomyId, objectType, entry.getKey(), relation, conceptMap.get(ContentAPIParams.identifier.name()).toString());
+    				String conceptId = conceptMap.get(ContentAPIParams.identifier.name()).toString();
+    				Response response = addRelation(taxonomyId, entry.getKey(), RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
     				lstResponse.add(response.getResult().toString());
+    				Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+    				outRelations.add(outRel);
     			}
     		}
     		return lstResponse;
@@ -1173,12 +1256,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     	return null;
     }
     
-    public Response addRelation(String taxonomyId, String objectType, String objectId1, String relation,
+    public Response addRelation(String taxonomyId, String objectId1, String relation,
             String objectId2) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid taxonomy Id");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(), "ObjectType is blank");
         if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Object Id is blank");
         if (StringUtils.isBlank(relation))
@@ -1187,7 +1268,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         request.put(GraphDACParams.start_node_id.name(), objectId1);
         request.put(GraphDACParams.relation_type.name(), relation);
         request.put(GraphDACParams.end_node_id.name(), objectId2);
-        return getResponse(request, LOGGER);
+        Response response = getResponse(request, LOGGER);
+        return response;
     }
 
     @SuppressWarnings("unchecked")
