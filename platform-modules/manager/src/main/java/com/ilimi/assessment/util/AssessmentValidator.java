@@ -123,8 +123,39 @@ public class AssessmentValidator extends BaseManager {
         return errorMessages;
     }
 
+    @SuppressWarnings("rawtypes")
     public List<String> validateAssessmentItemSet(Node item) {
         List<String> errorMessages = new ArrayList<String>();
+        Map<String, Object> metadata = item.getMetadata();
+        if (null != metadata && !metadata.isEmpty()) {
+            String type = getQuestionnaireType(item);
+            if (!QuestionnaireType.isValidQuestionnaireType(type)) {
+                errorMessages.add("Invalid Item Set type: " + type);
+            } else {
+                if (QuestionnaireType.materialised.name().equals(type)) {
+                    try {
+                        List list = mapper.readValue(mapper.writeValueAsString(metadata.get("memberIds")), List.class);
+                        if (null == list || list.size() <= 0) {
+                            errorMessages.add("Cannot create Item Set with no member items");
+                        } else {
+                            Integer total = (Integer) metadata.get("total_items");
+                            if (null == total) {
+                                total = list.size();
+                                metadata.put("total_items", total);
+                            }
+                            if (list.size() < total) {
+                                errorMessages.add("Item Set should have atleast " + total + " assessment items");
+                            }
+                        }
+                    } catch (Exception e) {
+                        errorMessages.add("Invalid Item Set members list");
+                    }
+                    
+                } else {
+                    errorMessages.add("Unsupported Item Set type: " + type);
+                }
+            }
+        }
         return errorMessages;
     }
 
