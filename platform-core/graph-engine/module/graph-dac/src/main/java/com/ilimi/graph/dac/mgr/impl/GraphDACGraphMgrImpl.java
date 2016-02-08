@@ -98,14 +98,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     schema.constraintFor(NODE_LABEL).assertPropertyIsUnique(prop).create();
                 }
                 tx.success();
+                tx.close();
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -128,14 +128,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     schema.indexFor(NODE_LABEL).on(prop).create();
                 }
                 tx.success();
+                tx.close();
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -432,14 +432,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     }
                 }
                 tx.success();
+                tx.close();
                 OK(getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         } else {
             OK(getSender());
@@ -465,14 +465,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 if (null != rel && rel.hasProperty(key))
                     rel.removeProperty(key);
                 tx.success();
+                tx.close();
                 OK(getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         } else {
             OK(getSender());
@@ -545,14 +545,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     }
                 }
                 tx.success();
+                tx.close();
                 OK(getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }
@@ -579,14 +579,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     collection.delete();
                 }
                 tx.success();
+                tx.close();
                 OK(getSender());
             } catch (Exception e) {
-                if (null != tx)
+                if (null != tx) {
                     tx.failure();
-                ERROR(e, getSender());
-            } finally {
-                if (null != tx)
                     tx.close();
+                }
+                ERROR(e, getSender());
             }
         }
     }

@@ -644,14 +644,6 @@ public class Set extends AbstractCollection {
                     Response res = (Response) arg1;
                     String setId = (String) res.get(GraphDACParams.node_id.name());
                     setNodeId(setId);
-                    ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-                    Request request = new Request(req);
-                    request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-                    request.setOperation("createSet");
-                    request.put(GraphDACParams.set_id.name(), setId);
-                    request.put(GraphDACParams.members.name(), memberIds);
-                    Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
-
                     if (null != memberIds && memberIds.size() > 0) {
                         Request dacRequest = new Request(req);
                         dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
@@ -661,6 +653,13 @@ public class Set extends AbstractCollection {
                         dacRequest.put(GraphDACParams.members.name(), memberIds);
                         dacRouter.tell(dacRequest, manager.getSelf());
                     }
+                    ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+                    Request request = new Request(req);
+                    request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+                    request.setOperation("createSet");
+                    request.put(GraphDACParams.set_id.name(), setId);
+                    request.put(GraphDACParams.members.name(), memberIds);
+                    Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
                     if (null != criteria) {
                         updateIndex(req, criteria);
                     } else {

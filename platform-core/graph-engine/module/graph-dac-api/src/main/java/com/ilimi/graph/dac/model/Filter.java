@@ -103,7 +103,7 @@ public class Filter implements Serializable {
             sc.params.put("" + pIndex, value);
             pIndex += 1;
         } else if (SearchConditions.OP_NOT_EQUAL.equals(getOperator())) {
-            sb.append(" ").append(param).append(property).append(" != {").append(pIndex).append("} ");
+            sb.append(" NOT ").append(param).append(property).append(" = {").append(pIndex).append("} ");
             sc.params.put("" + pIndex, value);
             pIndex += 1;
         } else if (SearchConditions.OP_IN.equals(getOperator())) {

@@ -80,7 +80,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Boolean skipValidation = (Boolean) request.get("skipValidations");
         if (null == skipValidation)
             skipValidation = false;
-
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
         if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
@@ -134,15 +133,19 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
+        
+        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        if (null == skipValidation)
+            skipValidation = false;
         List<String> assessmentErrors = validator.validateAssessmentItem(item);
-        if (checkError(validateRes)) {
+        if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
                 messages.addAll(assessmentErrors);
             }
             return validateRes;
         } else {
-            if (assessmentErrors.size() > 0) {
+            if (assessmentErrors.size() > 0 && !skipValidation) {
                 return ERROR(GraphEngineErrorCodes.ERR_GRAPH_NODE_VALIDATION_FAILED.name(), "Node validation failed",
                         ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), assessmentErrors);
             } else {
@@ -267,7 +270,6 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
     private Map<String, Object> getAssessmentItem(Node node, List<String> jsonProps, String[] ifields) {
         Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata.put("identifier", node.getIdentifier());
         metadata.put("subject", node.getGraphId());
         Map<String, Object> nodeMetadata = node.getMetadata();
         if (null != nodeMetadata && !nodeMetadata.isEmpty()) {
@@ -317,6 +319,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             if (null != concepts && !concepts.isEmpty())
                 metadata.put("concepts", concepts);
         }
+        metadata.put("identifier", node.getIdentifier());
         return metadata;
     }
 
