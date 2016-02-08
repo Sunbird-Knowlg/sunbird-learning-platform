@@ -670,23 +670,28 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         String contentType = checkBodyContentType(contentBody);
         ReadProperties readPro = new ReadProperties();
         String tempFile = null;
+        String tempWithTimeStamp = null;
         try {
             tempFile = readPro.getPropValues("source.folder");
+            tempWithTimeStamp = tempFile  +System.currentTimeMillis() + "_temp";
             File file = null;
 			if (contentType.equalsIgnoreCase("ecml")) {
-				file = new File(tempFile + "index.ecml");
+				file = new File(tempWithTimeStamp+ File.separator + "index.ecml");
 			}else if (contentType.equalsIgnoreCase("json")) {
-				file = new File(tempFile + "index.json");
+				file = new File(tempWithTimeStamp + File.separator+ "index.json");
 			}
-            if (!file.exists()) {
-                file.createNewFile();
+            if (!file.getParentFile().exists()) {
+            	file.getParentFile().mkdirs();
+            	if (!file.exists()) {
+            		file.createNewFile();
+				}
             }
             FileUtils.writeStringToFile(file, contentBody);
             String appIcon = (String) metadata.get("appIcon");
             if (StringUtils.isNotBlank(appIcon)) {
-                HttpDownloadUtility.downloadFile(appIcon, tempFile);
+                HttpDownloadUtility.downloadFile(appIcon, tempWithTimeStamp);
                 String logoname = appIcon.substring(appIcon.lastIndexOf('/') + 1);
-                File olderName = new File(tempFile + logoname);
+                File olderName = new File(tempWithTimeStamp + logoname);
                 try {
                     if (null != olderName && olderName.exists() && olderName.isFile()) {
                         String parentFolderName = olderName.getParent();
@@ -697,7 +702,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                     throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
                 }
             }
-            response = parseContent(taxonomyId, contentId, tempFile, fileName,contentType);
+            response = parseContent(taxonomyId, contentId, tempWithTimeStamp, fileName,contentType);
         } catch (IOException e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         }
