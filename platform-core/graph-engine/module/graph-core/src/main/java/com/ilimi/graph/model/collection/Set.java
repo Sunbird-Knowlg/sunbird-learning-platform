@@ -52,7 +52,6 @@ public class Set extends AbstractCollection {
     public static final String SET_TYPE_KEY = "SET_TYPE";
     private SearchCriteria criteria;
     private String setObjectType;
-    private String memberObjectType;
     private String setCriteria;
     private String setType = SET_TYPES.MATERIALISED_SET.name();
     private List<String> memberIds;
@@ -530,7 +529,7 @@ public class Set extends AbstractCollection {
     public String getSystemNodeType() {
         return SystemNodeTypes.SET.name();
     }
-
+    
     public String getSetCriteria() {
         return setCriteria;
     }

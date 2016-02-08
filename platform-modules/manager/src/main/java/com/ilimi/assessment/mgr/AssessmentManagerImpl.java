@@ -76,7 +76,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
         validateReq.put(GraphDACParams.node.name(), item);
         Response validateRes = getResponse(validateReq, LOGGER);
-        
+
         Boolean skipValidation = (Boolean) request.get("skipValidations");
         if (null == skipValidation)
             skipValidation = false;
@@ -799,7 +799,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
 
     @SuppressWarnings("unchecked")
     @Override
-    public Response getItemSet(String id, String taxonomyId, String[] isfields) {
+    public Response getItemSet(String id, String taxonomyId, String[] isfields, boolean expandItems) {
         if (StringUtils.isBlank(taxonomyId))
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_TAXONOMY_ID.name(),
                     "Taxonomy Id is blank");
@@ -820,46 +820,48 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             List<String> items = getSetMembers(taxonomyId, id);
             ItemSetDTO dto = new ItemSetDTO(node, items, isfields, jsonProps);
             Map<String, Object> itemSetMap = dto.returnMap();
-            itemSetMap.remove("items");
-            if (null != items && !items.isEmpty()) {
-                Response searchRes = searchItems(taxonomyId, items);
-                if (checkError(searchRes)) {
-                    return response;
-                } else {
-                    DefinitionDTO itemDefinition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
-                    List<String> itemJsonProps = getJSONProperties(itemDefinition);
-                    List<Object> list = (List<Object>) searchRes.get(AssessmentAPIParams.assessment_items.name());
-                    List<Map<String, Object>> itemMaps = new ArrayList<Map<String, Object>>();
-                    if (null != list && !list.isEmpty()) {
-                        for (Object obj : list) {
-                            List<Node> nodeList = (List<Node>) obj;
-                            for (Node itemNode : nodeList) {
-                                Map<String, Object> itemDto = getAssessmentItem(itemNode, itemJsonProps, null);
-                                itemMaps.add(itemDto);
+            if (expandItems) {
+                itemSetMap.remove("items");
+                if (null != items && !items.isEmpty()) {
+                    Response searchRes = searchItems(taxonomyId, items);
+                    if (checkError(searchRes)) {
+                        return response;
+                    } else {
+                        DefinitionDTO itemDefinition = getDefinition(taxonomyId, ITEM_SET_MEMBERS_TYPE);
+                        List<String> itemJsonProps = getJSONProperties(itemDefinition);
+                        List<Object> list = (List<Object>) searchRes.get(AssessmentAPIParams.assessment_items.name());
+                        List<Map<String, Object>> itemMaps = new ArrayList<Map<String, Object>>();
+                        if (null != list && !list.isEmpty()) {
+                            for (Object obj : list) {
+                                List<Node> nodeList = (List<Node>) obj;
+                                for (Node itemNode : nodeList) {
+                                    Map<String, Object> itemDto = getAssessmentItem(itemNode, itemJsonProps, null);
+                                    itemMaps.add(itemDto);
+                                }
                             }
                         }
+                        Integer total = (Integer) itemSetMap.get("total_items");
+                        if (null == total) {
+                            total = itemMaps.size();
+                            itemSetMap.put("total_items", total);
+                        }
+                        Map<String, Object> itemSetCountMap = new HashMap<String, Object>();
+                        itemSetCountMap.put("id", node.getIdentifier());
+                        itemSetCountMap.put("count", total);
+                        List<Map<String, Object>> itemSetCountMaps = new ArrayList<Map<String, Object>>();
+                        itemSetCountMaps.add(itemSetCountMap);
+                        itemSetMap.put("item_sets", itemSetCountMaps);
+                        Map<String, Object> itemMap = new HashMap<String, Object>();
+                        itemMap.put(node.getIdentifier(), itemMaps);
+                        itemSetMap.put("items", itemMap);
                     }
-                    Integer total = (Integer) itemSetMap.get("total_items");
-                    if (null == total) {
-                        total = itemMaps.size();
-                        itemSetMap.put("total_items", total);
-                    }
-                    Map<String, Object> itemSetCountMap = new HashMap<String, Object>();
-                    itemSetCountMap.put("id", node.getIdentifier());
-                    itemSetCountMap.put("count", total);
-                    List<Map<String, Object>> itemSetCountMaps = new ArrayList<Map<String, Object>>();
-                    itemSetCountMaps.add(itemSetCountMap);
-                    itemSetMap.put("item_sets", itemSetCountMaps);
-                    Map<String, Object> itemMap = new HashMap<String, Object>();
-                    itemMap.put(node.getIdentifier(), itemMaps);
-                    itemSetMap.put("items", itemMap);
                 }
             }
             response.put(AssessmentAPIParams.assessment_item_set.name(), itemSetMap);
         }
         return response;
     }
-    
+
     private Response searchItems(String taxonomyId, List<String> itemIds) {
         SearchCriteria criteria = new SearchCriteria();
         List<Filter> filters = new ArrayList<Filter>();

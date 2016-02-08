@@ -128,7 +128,7 @@ public interface IAssessmentManager {
      * @response AssessmentManagerParams.ITEM_SET - Set 
      *           
      */
-    public Response getItemSet(String id, String taxonomyId, String[] isfields);
+    public Response getItemSet(String id, String taxonomyId, String[] isfields, boolean expandItems);
     
     /**
      * 

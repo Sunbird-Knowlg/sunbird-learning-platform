@@ -94,7 +94,27 @@ public class AssessmentItemSetController extends BaseController {
         LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
                 + userId);
         try {
-            Response response = assessmentManager.getItemSet(id, taxonomyId, isfields);
+            Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, false);
+            LOGGER.info("Find | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+
+    @RequestMapping(value = "/generate/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
+            @RequestParam(value = "isfields", required = false) String[] isfields,
+            @RequestHeader(value = "user-id") String userId) {
+
+        String apiId = "assessment_item_set.find";
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
+                + userId);
+        try {
+            Response response = assessmentManager.getItemSet(id, taxonomyId, isfields, true);
             LOGGER.info("Find | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {

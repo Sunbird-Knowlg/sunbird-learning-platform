@@ -35,6 +35,7 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
 
     private String id;
     protected Map<String, Object> metadata;
+    protected String memberObjectType;
 
     public AbstractCollection(BaseGraphManager manager, String graphId, String id, Map<String, Object> metadata) {
         super(manager, graphId);
@@ -49,6 +50,10 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
     public void setMetadata(Map<String, Object> metadata) {
         this.metadata = metadata;
         checkMetadata(this.metadata);
+    }
+    
+    public String getMemberObjectType() {
+        return memberObjectType;
     }
 
     @Override
@@ -157,6 +162,10 @@ public abstract class AbstractCollection extends AbstractDomainObject implements
                             for (Node node : nodes) {
                                 if (!StringUtils.equals(SystemNodeTypes.DATA_NODE.name(), node.getNodeType()))
                                     return false;
+                                if (StringUtils.isNotBlank(getMemberObjectType())) {
+                                    if (!StringUtils.equals(getMemberObjectType(), node.getObjectType()))
+                                        return false;
+                                }
                             }
                             return true;
                         }

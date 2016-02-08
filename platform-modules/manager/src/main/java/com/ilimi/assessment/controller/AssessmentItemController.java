@@ -104,6 +104,25 @@ public class AssessmentItemController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/generate/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> generate(@PathVariable(value = "id") String id,
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
+            @RequestParam(value = "ifields", required = false) String[] ifields,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "assessment_item.find";
+        LOGGER.info("Find Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + ifields + " | user-id: "
+                + userId);
+        try {
+            Response response = assessmentManager.getAssessmentItem(id, taxonomyId, ifields);
+            LOGGER.info("Find Item | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find Item | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
