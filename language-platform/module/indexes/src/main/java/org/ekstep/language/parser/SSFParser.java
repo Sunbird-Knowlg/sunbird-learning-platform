@@ -110,11 +110,6 @@ public class SSFParser {
 		Files.write(path, content.getBytes(charset));
 	}
 
-	public static void main(String args[]) throws Exception {
-		String fileName = "C:\\data\\testFolder\\test.txt";
-		parseSsfFile(fileName, "Books", "Scarlet", "1", true, "ka");
-	}
-
 	@SuppressWarnings("rawtypes")
 	private static Map<String, List> processSentence(String sentence,
 			String sourceType, String source, String grade,

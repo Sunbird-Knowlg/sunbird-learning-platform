@@ -52,8 +52,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 public class WordUtil extends BaseManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static Logger LOGGER = LogManager.getLogger(WordUtil.class
-			.getName());
+	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
@@ -68,15 +67,13 @@ public class WordUtil extends BaseManager {
 			request.setTs(ts);
 			Object reqParams = requestMap.get("params");
 			if (null != reqParams) {
-				RequestParams params = (RequestParams) mapper.convertValue(
-						reqParams, RequestParams.class);
+				RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
 				request.setParams(params);
 			}
 			Object requestObj = requestMap.get("request");
 			if (null != requestObj) {
 				String strRequest = mapper.writeValueAsString(requestObj);
-				Map<String, Object> map = mapper.readValue(strRequest,
-						Map.class);
+				Map<String, Object> map = mapper.readValue(strRequest, Map.class);
 				if (null != map && !map.isEmpty())
 					request.setRequest(map);
 			}
@@ -113,18 +110,15 @@ public class WordUtil extends BaseManager {
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public String getWordIdentifierFromGraph(String languageId, String word)
-			throws Exception {
+	public String getWordIdentifierFromGraph(String languageId, String word) throws Exception {
 		Map<String, Object> map = new LinkedHashMap<String, Object>();
 		LinkedHashMap<String, List> lemmaMap = new LinkedHashMap<String, List>();
 		lemmaMap.put("lemma", getList(mapper, word, null));
 		map.put("request", lemmaMap);
 		Request request = getRequest(map);
-		Response response = list(languageId, LanguageObjectTypes.Word.name(),
-				request);
+		Response response = list(languageId, LanguageObjectTypes.Word.name(), request);
 		LOGGER.info("Search | Response: " + response);
-		List<Map<String, Object>> list = (List<Map<String, Object>>) response
-				.get("words");
+		List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
 		if (list != null && !list.isEmpty()) {
 			Map<String, Object> wordMap = list.get(0);
 			return (String) wordMap.get("identifier");
@@ -133,15 +127,14 @@ public class WordUtil extends BaseManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	public String getWordIdentifierFromIndex(String languageId, String word)
-			throws IOException {
+	public String getWordIdentifierFromIndex(String languageId, String word) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class,
-				searchCriteria, indexName, Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
@@ -150,8 +143,7 @@ public class WordUtil extends BaseManager {
 			wordIdsMap.put(wordIndex.getWord(), wordMap);
 		}
 		if (wordIdsMap.get(word) != null) {
-			return (String) ((Map<String, Object>) wordIdsMap.get(word))
-					.get("wordId");
+			return (String) ((Map<String, Object>) wordIdsMap.get(word)).get("wordId");
 		}
 		return null;
 	}
@@ -159,8 +151,7 @@ public class WordUtil extends BaseManager {
 	public String getFormattedDateTime(long dateTime) {
 		String dateTimeString = "";
 		try {
-			SimpleDateFormat formatter = new SimpleDateFormat(
-					"dd-MMM-yyyy HH:mm:ss");
+			SimpleDateFormat formatter = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss");
 			Calendar cal = Calendar.getInstance();
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
@@ -171,20 +162,14 @@ public class WordUtil extends BaseManager {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public void addIndexesToElasticSearch(Map<String, List> indexes,
-			String language) throws Exception {
+	public void addIndexesToElasticSearch(Map<String, List> indexes, String language) throws Exception {
 
-		List<CitationBean> citationsList = indexes
-				.get(Constants.CITATION_INDEX_COMMON_NAME);
-		List<WordInfoBean> wordInfoList = indexes
-				.get(Constants.WORD_INFO_INDEX_COMMON_NAME);
+		List<CitationBean> citationsList = indexes.get(Constants.CITATION_INDEX_COMMON_NAME);
+		List<WordInfoBean> wordInfoList = indexes.get(Constants.WORD_INFO_INDEX_COMMON_NAME);
 
-		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_"
-				+ language;
-		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_"
-				+ language;
-		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_"
-				+ language;
+		String citationIndexName = Constants.CITATION_INDEX_COMMON_NAME + "_" + language;
+		String wordIndexName = Constants.WORD_INDEX_COMMON_NAME + "_" + language;
+		String wordInfoIndexName = Constants.WORD_INFO_INDEX_COMMON_NAME + "_" + language;
 
 		ObjectMapper mapper = new ObjectMapper();
 		ArrayList<String> citiationIndexes = new ArrayList<String>();
@@ -192,41 +177,31 @@ public class WordUtil extends BaseManager {
 		Map<String, String> wordIndexInfoWithId = new HashMap<String, String>();
 		ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
-		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE,
-				elasticSearchUtil);
-		createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE,
-				elasticSearchUtil);
-		createWordInfoIndex(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
-				elasticSearchUtil);
+		createCitationIndex(citationIndexName, Constants.CITATION_INDEX_TYPE, elasticSearchUtil);
+		createWordIndex(wordIndexName, Constants.WORD_INDEX_TYPE, elasticSearchUtil);
+		createWordInfoIndex(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE, elasticSearchUtil);
 		if (citationsList != null) {
 			for (CitationBean citation : citationsList) {
 				if (citation.getDate() == null || citation.getDate().isEmpty()) {
-					citation.setDate(getFormattedDateTime(System
-							.currentTimeMillis()));
+					citation.setDate(getFormattedDateTime(System.currentTimeMillis()));
 				}
-				String wordIdentifier = getWordIdentifierFromIndex(language,
-						citation.getWord());
+				String wordIdentifier = getWordIdentifierFromIndex(language, citation.getWord());
 				String wordIndexJson;
 				if (wordIdentifier != null) {
-					if (citation.getRootWord() == null
-							|| citation.getRootWord().isEmpty()) {
-						String rootWord = getRootWordsFromIndex(
-								citation.getWord(), language);
+					if (citation.getRootWord() == null || citation.getRootWord().isEmpty()) {
+						String rootWord = getRootWordsFromIndex(citation.getWord(), language);
 						citation.setRootWord(rootWord);
 					}
 				} else if (wordIdentifier == null) {
-					if (citation.getRootWord() != null
-							&& !citation.getRootWord().isEmpty()) {
-						wordIdentifier = getWordIdentifierFromIndex(language,
-								citation.getRootWord());
+					if (citation.getRootWord() != null && !citation.getRootWord().isEmpty()) {
+						wordIdentifier = getWordIdentifierFromIndex(language, citation.getRootWord());
 					} else {
 						citation.setRootWord(citation.getWord());
 					}
 					if (wordIdentifier != null) {
-						wordIndexJson = getWordIndex(citation.getWord(),
-								citation.getRootWord(), wordIdentifier, mapper);
-						wordIndexesWithId
-								.put(citation.getWord(), wordIndexJson);
+						wordIndexJson = getWordIndex(citation.getWord(), citation.getRootWord(), wordIdentifier,
+								mapper);
+						wordIndexesWithId.put(citation.getWord(), wordIndexJson);
 					} else {
 						Map<String, Object> wordMap = new HashMap<String, Object>();
 						wordMap.put("lemma", citation.getRootWord());
@@ -234,29 +209,20 @@ public class WordUtil extends BaseManager {
 						wordList.add(wordMap);
 						Request request = new Request();
 						request.put("words", wordList);
-						Response response = create(language,
-								LanguageObjectTypes.Word.name(), request);
-						List<String> nodeIdList = (List<String>) response
-								.get("node_id");
+						Response response = create(language, LanguageObjectTypes.Word.name(), request);
+						List<String> nodeIdList = (List<String>) response.get("node_id");
 						if (nodeIdList != null && !nodeIdList.isEmpty()) {
 							wordIdentifier = nodeIdList.get(0);
 							wordIndexJson = null;
 							if (wordIdentifier != null) {
-								wordIndexJson = getWordIndex(
-										citation.getRootWord(),
-										citation.getRootWord(), wordIdentifier,
-										mapper);
-								wordIndexesWithId.put(citation.getRootWord(),
-										wordIndexJson);
+								wordIndexJson = getWordIndex(citation.getRootWord(), citation.getRootWord(),
+										wordIdentifier, mapper);
+								wordIndexesWithId.put(citation.getRootWord(), wordIndexJson);
 
-								if (!citation.getWord().equalsIgnoreCase(
-										citation.getRootWord())) {
-									wordIndexJson = getWordIndex(
-											citation.getWord(),
-											citation.getRootWord(),
+								if (!citation.getWord().equalsIgnoreCase(citation.getRootWord())) {
+									wordIndexJson = getWordIndex(citation.getWord(), citation.getRootWord(),
 											wordIdentifier, mapper);
-									wordIndexesWithId.put(citation.getWord(),
-											wordIndexJson);
+									wordIndexesWithId.put(citation.getWord(), wordIndexJson);
 								}
 							}
 						} else {
@@ -267,157 +233,101 @@ public class WordUtil extends BaseManager {
 				String citationJson = mapper.writeValueAsString(citation);
 				citiationIndexes.add(citationJson);
 			}
-			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(
-					citationIndexName, Constants.CITATION_INDEX_TYPE,
+			elasticSearchUtil.bulkIndexWithAutoGenerateIndexId(citationIndexName, Constants.CITATION_INDEX_TYPE,
 					citiationIndexes);
-			elasticSearchUtil.bulkIndexWithIndexId(wordIndexName,
-					Constants.WORD_INDEX_TYPE, wordIndexesWithId);
+			elasticSearchUtil.bulkIndexWithIndexId(wordIndexName, Constants.WORD_INDEX_TYPE, wordIndexesWithId);
 		}
 		if (wordInfoList != null) {
 			for (WordInfoBean wordInfo : wordInfoList) {
 				String wordInfoJson = mapper.writeValueAsString(wordInfo);
 				wordIndexInfoWithId.put(wordInfo.getWord(), wordInfoJson);
 			}
-			elasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName,
-					Constants.WORD_INFO_INDEX_TYPE, wordIndexInfoWithId);
+			elasticSearchUtil.bulkIndexWithIndexId(wordInfoIndexName, Constants.WORD_INFO_INDEX_TYPE,
+					wordIndexInfoWithId);
 		}
 	}
 
-	private void createWordInfoIndex(String indexName, String indexType,
-			ElasticSearchUtil elasticSearchUtil) throws IOException {
+	private void createWordInfoIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+			throws IOException {
 		JSONBuilder settingBuilder = new JSONStringer();
-		settingBuilder.object().key("settings").object().key("analysis")
-				.object().key("filter").object().key("nfkc_normalizer")
-				.object().key("type").value("icu_normalizer").key("name")
-				.value("nfkc").endObject().endObject().key("analyzer").object()
-				.key("ind_normalizer").object().key("tokenizer")
-				.value("icu_tokenizer").key("filter").array()
-				.value("nfkc_normalizer").endArray().endObject().endObject()
-				.endObject().endObject().endObject();
+		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
 
 		JSONBuilder mappingBuilder = new JSONStringer();
-		mappingBuilder.object()
-			.key(indexType).object()
-				.key("properties").object()
-					.key("word").object()
-						.key("type").value("string")
-						.key("analyzer").value("ind_normalizer")
-					.endObject()
-					.key("rootWord").object()
-						.key("type").value("string")
-						.key("analyzer").value("ind_normalizer")
-					.endObject()
-					.key("inflection").object()
-						.key("type").value("string")
-						.key("analyzer").value("ind_normalizer")
-					.endObject()
-					.key("pos").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-					.key("gender").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-					.key("number").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-					.key("pers").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-					.key("wordCase").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-					.key("rts").object()
-						.key("type").value("string")
-						.key("index").value("not_analyzed")
-					.endObject()
-				.endObject()
-			.endObject()
-		.endObject();
-
-		elasticSearchUtil.addIndex(indexName, indexType,
-				settingBuilder.toString(), mappingBuilder.toString());
-	}
-
-	public void createWordIndex(String indexName, String indexType,
-			ElasticSearchUtil elasticSearchUtil) throws IOException {
-		JSONBuilder settingBuilder = new JSONStringer();
-		settingBuilder.object().key("settings").object().key("analysis")
-				.object().key("filter").object().key("nfkc_normalizer")
-				.object().key("type").value("icu_normalizer").key("name")
-				.value("nfkc").endObject().endObject().key("analyzer").object()
-				.key("ind_normalizer").object().key("tokenizer")
-				.value("icu_tokenizer").key("filter").array()
-				.value("nfkc_normalizer").endArray().endObject().endObject()
-				.endObject().endObject().endObject();
-
-		JSONBuilder mappingBuilder = new JSONStringer();
-		mappingBuilder.object().key(indexType).object().key("properties")
-				.object().key("word").object().key("type").value("string")
-				.key("analyzer").value("ind_normalizer").key("fields").object()
-				.key("hash").object().key("type").value("murmur3").endObject()
-				.endObject().endObject().key("rootWord").object().key("type")
-				.value("string").key("analyzer").value("ind_normalizer")
-				.key("fields").object().key("hash").object().key("type")
-				.value("murmur3").endObject().endObject().endObject()
-				.key("date").object().key("type").value("date").key("format")
-				.value("dd-MMM-yyyy HH:mm:ss").endObject().endObject()
-				.endObject().endObject();
-
-		elasticSearchUtil.addIndex(indexName, indexType,
-				settingBuilder.toString(), mappingBuilder.toString());
-	}
-
-	public void createCitationIndex(String indexName, String indexType,
-			ElasticSearchUtil elasticSearchUtil) throws IOException {
-		JSONBuilder settingBuilder = new JSONStringer();
-		settingBuilder.object().key("settings").object().key("analysis")
-				.object().key("filter").object().key("nfkc_normalizer")
-				.object().key("type").value("icu_normalizer").key("name")
-				.value("nfkc").endObject().endObject().key("analyzer").object()
-				.key("ind_normalizer").object().key("tokenizer")
-				.value("icu_tokenizer").key("filter").array()
-				.value("nfkc_normalizer").endArray().endObject().endObject()
-				.endObject().endObject().endObject();
-
-		JSONBuilder mappingBuilder = new JSONStringer();
-		mappingBuilder.object().key(indexType).object().key("properties")
-				.object().key("word").object().key("type").value("string")
-				.key("analyzer").value("ind_normalizer").key("fields").object()
-				.key("hash").object().key("type").value("murmur3").endObject()
-				.endObject().endObject().key("rootWord").object().key("type")
-				.value("string").key("analyzer").value("ind_normalizer")
-				.key("fields").object().key("hash").object().key("type")
-				.value("murmur3").endObject().endObject().endObject()
-				.key("date").object().key("type").value("date").key("format")
-				.value("dd-MMM-yyyy HH:mm:ss").endObject().key("sourceType")
-				.object().key("type").value("string").key("index")
-				.value("not_analyzed").endObject().key("source").object()
-				.key("type").value("string").key("index").value("not_analyzed")
-				.endObject().key("fileName").object().key("type")
-				.value("string").key("index").value("not_analyzed").endObject()
-				.key("grade").object().key("type").value("string").key("index")
-				.value("not_analyzed").endObject().endObject().endObject()
+		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").endObject().key("rootWord").object()
+				.key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("inflection")
+				.object().key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("pos")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("gender")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("number")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("pers")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("wordCase")
+				.object().key("type").value("string").key("index").value("not_analyzed").endObject().key("rts").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
 				.endObject();
 
-		elasticSearchUtil.addIndex(indexName, indexType,
-				settingBuilder.toString(), mappingBuilder.toString());
+		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+	}
+
+	public void createWordIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+			throws IOException {
+		JSONBuilder settingBuilder = new JSONStringer();
+		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
+
+		JSONBuilder mappingBuilder = new JSONStringer();
+		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
+				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
+				.endObject();
+
+		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
+	}
+
+	public void createCitationIndex(String indexName, String indexType, ElasticSearchUtil elasticSearchUtil)
+			throws IOException {
+		JSONBuilder settingBuilder = new JSONStringer();
+		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
+
+		JSONBuilder mappingBuilder = new JSONStringer();
+		mappingBuilder.object().key(indexType).object().key("properties").object().key("word").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("rootWord").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").key("fields").object().key("hash").object()
+				.key("type").value("murmur3").endObject().endObject().endObject().key("date").object().key("type")
+				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().key("sourceType").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("source").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("fileName").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("pos").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().key("grade").object()
+				.key("type").value("string").key("index").value("not_analyzed").endObject().endObject().endObject()
+				.endObject();
+
+		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	public String getRootWordsFromIndex(String word, String languageId)
-			throws IOException {
+	public String getRootWordsFromIndex(String word, String languageId) throws IOException {
 		ElasticSearchUtil util = new ElasticSearchUtil();
 		String indexName = Constants.WORD_INDEX_COMMON_NAME + "_" + languageId;
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
-		List<Object> wordIndexes = util.textSearch(WordIndexBean.class,
-				searchCriteria, indexName, Constants.WORD_INDEX_TYPE);
+		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
+				Constants.WORD_INDEX_TYPE);
 		Map<String, Object> rootWordsMap = new HashMap<String, Object>();
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
@@ -427,14 +337,12 @@ public class WordUtil extends BaseManager {
 		}
 
 		if (rootWordsMap.get(word) != null) {
-			return (String) ((Map<String, Object>) rootWordsMap.get(word))
-					.get("rootWord");
+			return (String) ((Map<String, Object>) rootWordsMap.get(word)).get("rootWord");
 		}
 		return null;
 	}
 
-	public String getWordIndex(String word, String rootWord,
-			String wordIdentifier, ObjectMapper mapper)
+	public String getWordIndex(String word, String rootWord, String wordIdentifier, ObjectMapper mapper)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		String wordIndexJson = null;
 		Map<String, String> wordIndex = new HashMap<String, String>();
@@ -447,11 +355,8 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings("unchecked")
 	public Response list(String languageId, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId)
-				|| !LanguageMap.containsLanguage(languageId))
-			throw new ClientException(
-					LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
-					"Invalid Language Id");
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(objectType);
@@ -464,30 +369,21 @@ public class WordUtil extends BaseManager {
 		if (null != statusParam) {
 			statusList = getList(mapper, statusParam, PARAM_STATUS);
 			if (null != statusList && !statusList.isEmpty())
-				filters.add(new Filter(PARAM_STATUS, SearchConditions.OP_IN,
-						statusList));
+				filters.add(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
 		}
 		if (null != request.getRequest() && !request.getRequest().isEmpty()) {
 			for (Entry<String, Object> entry : request.getRequest().entrySet()) {
 				if (!StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
-						&& !StringUtils.equalsIgnoreCase(PARAM_LIMIT,
-								entry.getKey())
-						&& !StringUtils.equalsIgnoreCase(PARAM_STATUS,
-								entry.getKey())
-						&& !StringUtils.equalsIgnoreCase("word-lists",
-								entry.getKey())
-						&& !StringUtils.equalsIgnoreCase(PARAM_TAGS,
-								entry.getKey())) {
-					List<String> list = getList(mapper, entry.getValue(),
-							entry.getKey());
+						&& !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
+						&& !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
+						&& !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())
+						&& !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+					List<String> list = getList(mapper, entry.getValue(), entry.getKey());
 					if (null != list && !list.isEmpty()) {
-						filters.add(new Filter(entry.getKey(),
-								SearchConditions.OP_IN, list));
+						filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
 					}
-				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS,
-						entry.getKey())) {
-					List<String> tags = getList(mapper, entry.getValue(),
-							entry.getKey());
+				} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+					List<String> tags = getList(mapper, entry.getValue(), entry.getKey());
 					if (null != tags && !tags.isEmpty()) {
 						TagCriterion tc = new TagCriterion(tags);
 						sc.setTag(tc);
@@ -499,22 +395,19 @@ public class WordUtil extends BaseManager {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
 			sc.addMetadata(mc);
 		}
-		Request req = getRequest(languageId,
-				GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+		Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		req.put(GraphDACParams.get_tags.name(), true);
 		Response listRes = getResponse(req, LOGGER);
 		if (checkError(listRes))
 			return listRes;
 		else {
-			List<Node> nodes = (List<Node>) listRes
-					.get(GraphDACParams.node_list.name());
+			List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
 			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 			if (null != nodes && !nodes.isEmpty()) {
 				String[] fields = getFields(request);
 				for (Node node : nodes) {
-					Map<String, Object> map = convertGraphNode(node,
-							languageId, fields);
+					Map<String, Object> map = convertGraphNode(node, languageId, fields);
 					if (null != map && !map.isEmpty()) {
 						list.add(map);
 					}
@@ -539,8 +432,7 @@ public class WordUtil extends BaseManager {
 		return null;
 	}
 
-	private Map<String, Object> convertGraphNode(Node node, String languageId,
-			String[] fields) {
+	private Map<String, Object> convertGraphNode(Node node, String languageId, String[] fields) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != node) {
 			if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
@@ -570,10 +462,8 @@ public class WordUtil extends BaseManager {
 		List<NodeDTO> hyponyms = new ArrayList<NodeDTO>();
 		List<NodeDTO> homonyms = new ArrayList<NodeDTO>();
 		List<NodeDTO> meronyms = new ArrayList<NodeDTO>();
-		getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms,
-				homonyms, meronyms);
-		getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms,
-				homonyms, meronyms);
+		getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms);
+		getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms);
 		if (!synonyms.isEmpty())
 			map.put("synonyms", synonyms);
 		if (!antonyms.isEmpty())
@@ -588,101 +478,65 @@ public class WordUtil extends BaseManager {
 			map.put("meronyms", meronyms);
 	}
 
-	private void getInRelationsData(Node node,
-			List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
-			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms,
-			List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
+	private void getInRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
+			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			for (Relation inRel : node.getInRelations()) {
-				if (StringUtils.equalsIgnoreCase(
-						RelationTypes.SYNONYM.relationName(),
-						inRel.getRelationType())) {
-					if (null != inRel.getStartNodeMetadata()
-							&& !inRel.getStartNodeMetadata().isEmpty()) {
-						inRel.getStartNodeMetadata().remove(
-								SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-						inRel.getStartNodeMetadata().remove(
-								SystemProperties.IL_SYS_NODE_TYPE.name());
-						inRel.getStartNodeMetadata().remove(
-								SystemProperties.IL_UNIQUE_ID.name());
+				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), inRel.getRelationType())) {
+					if (null != inRel.getStartNodeMetadata() && !inRel.getStartNodeMetadata().isEmpty()) {
+						inRel.getStartNodeMetadata().remove(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+						inRel.getStartNodeMetadata().remove(SystemProperties.IL_SYS_NODE_TYPE.name());
+						inRel.getStartNodeMetadata().remove(SystemProperties.IL_UNIQUE_ID.name());
 						synonyms.add(inRel.getStartNodeMetadata());
 					}
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.ANTONYM.relationName(),
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.ANTONYM.relationName(),
 						inRel.getRelationType())) {
-					antonyms.add(new NodeDTO(inRel.getStartNodeId(), inRel
-							.getStartNodeName(),
-							inRel.getStartNodeObjectType(), inRel
-									.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.HYPERNYM.relationName(),
+					antonyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+							inRel.getStartNodeObjectType(), inRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPERNYM.relationName(),
 						inRel.getRelationType())) {
-					hypernyms.add(new NodeDTO(inRel.getStartNodeId(), inRel
-							.getStartNodeName(),
-							inRel.getStartNodeObjectType(), inRel
-									.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.HYPONYM.relationName(),
+					hypernyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+							inRel.getStartNodeObjectType(), inRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(),
 						inRel.getRelationType())) {
-					hyponyms.add(new NodeDTO(inRel.getStartNodeId(), inRel
-							.getStartNodeName(),
-							inRel.getStartNodeObjectType(), inRel
-									.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.MERONYM.relationName(),
+					hyponyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+							inRel.getStartNodeObjectType(), inRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.MERONYM.relationName(),
 						inRel.getRelationType())) {
-					meronyms.add(new NodeDTO(inRel.getStartNodeId(), inRel
-							.getStartNodeName(),
-							inRel.getStartNodeObjectType(), inRel
-									.getRelationType()));
+					meronyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+							inRel.getStartNodeObjectType(), inRel.getRelationType()));
 				}
 			}
 		}
 	}
 
-	private void getOutRelationsData(Node node,
-			List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
-			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms,
-			List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
+	private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
+			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			for (Relation outRel : node.getOutRelations()) {
-				if (StringUtils.equalsIgnoreCase(
-						RelationTypes.SYNONYM.relationName(),
-						outRel.getRelationType())) {
-					if (null != outRel.getEndNodeMetadata()
-							&& !outRel.getEndNodeMetadata().isEmpty()) {
-						outRel.getEndNodeMetadata().remove(
-								SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-						outRel.getEndNodeMetadata().remove(
-								SystemProperties.IL_SYS_NODE_TYPE.name());
-						outRel.getEndNodeMetadata().remove(
-								SystemProperties.IL_UNIQUE_ID.name());
+				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), outRel.getRelationType())) {
+					if (null != outRel.getEndNodeMetadata() && !outRel.getEndNodeMetadata().isEmpty()) {
+						outRel.getEndNodeMetadata().remove(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+						outRel.getEndNodeMetadata().remove(SystemProperties.IL_SYS_NODE_TYPE.name());
+						outRel.getEndNodeMetadata().remove(SystemProperties.IL_UNIQUE_ID.name());
 						synonyms.add(outRel.getEndNodeMetadata());
 					}
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.ANTONYM.relationName(),
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.ANTONYM.relationName(),
 						outRel.getRelationType())) {
-					antonyms.add(new NodeDTO(outRel.getEndNodeId(), outRel
-							.getEndNodeName(), outRel.getEndNodeObjectType(),
-							outRel.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.HYPERNYM.relationName(),
+					antonyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+							outRel.getEndNodeObjectType(), outRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPERNYM.relationName(),
 						outRel.getRelationType())) {
-					hypernyms.add(new NodeDTO(outRel.getEndNodeId(), outRel
-							.getEndNodeName(), outRel.getEndNodeObjectType(),
-							outRel.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.HYPONYM.relationName(),
+					hypernyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+							outRel.getEndNodeObjectType(), outRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.HYPONYM.relationName(),
 						outRel.getRelationType())) {
-					hyponyms.add(new NodeDTO(outRel.getEndNodeId(), outRel
-							.getEndNodeName(), outRel.getEndNodeObjectType(),
-							outRel.getRelationType()));
-				} else if (StringUtils.equalsIgnoreCase(
-						RelationTypes.MERONYM.relationName(),
+					hyponyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+							outRel.getEndNodeObjectType(), outRel.getRelationType()));
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.MERONYM.relationName(),
 						outRel.getRelationType())) {
-					meronyms.add(new NodeDTO(outRel.getEndNodeId(), outRel
-							.getEndNodeName(), outRel.getEndNodeObjectType(),
-							outRel.getRelationType()));
+					meronyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+							outRel.getEndNodeObjectType(), outRel.getRelationType()));
 				}
 			}
 		}
@@ -691,29 +545,20 @@ public class WordUtil extends BaseManager {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response create(String languageId, String objectType, Request request)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		if (StringUtils.isBlank(languageId)
-				|| !LanguageMap.containsLanguage(languageId))
-			throw new ClientException(
-					LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
-					"Invalid Language Id");
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
-			throw new ClientException(
-					LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(),
-					"ObjectType is blank");
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
 		List<Map> items = (List<Map>) request.get("words");
 		List<Node> nodeList = new ArrayList<Node>();
 		if (null == items || items.size() <= 0)
-			throw new ClientException(
-					LanguageErrorCodes.ERR_INVALID_OBJECT.name(), objectType
-							+ " Object is blank");
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(), objectType + " Object is blank");
 		if (null != items && !items.isEmpty()) {
-			Request requestDefinition = getRequest(languageId,
-					GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), objectType);
 			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
 			if (!checkError(responseDefiniton)) {
-				DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-						.get(GraphDACParams.definition_node.name());
+				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 				for (Map item : items) {
 					Node node = convertToGraphNode(item, definition);
 					nodeList.add(node);
@@ -725,15 +570,13 @@ public class WordUtil extends BaseManager {
 		List<String> lstNodeId = new ArrayList<String>();
 		for (Node node : nodeList) {
 			node.setObjectType(objectType);
-			Request validateReq = getRequest(languageId,
-					GraphEngineManagers.NODE_MANAGER, "validateNode");
+			Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
 			validateReq.put(GraphDACParams.node.name(), node);
 			Response validateRes = getResponse(validateReq, LOGGER);
 			if (checkError(validateRes)) {
 				return validateRes;
 			} else {
-				Request createReq = getRequest(languageId,
-						GraphEngineManagers.NODE_MANAGER, "createDataNode");
+				Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
 				createReq.put(GraphDACParams.node.name(), node);
 				Response res = getResponse(createReq, LOGGER);
 				if (checkError(res)) {
@@ -762,9 +605,8 @@ public class WordUtil extends BaseManager {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private Node convertToGraphNode(Map<String, Object> map,
-			DefinitionDTO definition) throws JsonGenerationException,
-			JsonMappingException, IOException {
+	private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition)
+			throws JsonGenerationException, JsonMappingException, IOException {
 		Node node = new Node();
 		if (null != map && !map.isEmpty()) {
 			Map<String, String> inRelDefMap = new HashMap<String, String>();
@@ -776,37 +618,29 @@ public class WordUtil extends BaseManager {
 			for (Entry<String, Object> entry : map.entrySet()) {
 				if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
 					node.setIdentifier((String) entry.getValue());
-				} else if (StringUtils.equalsIgnoreCase("objectType",
-						entry.getKey())) {
+				} else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
 					node.setObjectType((String) entry.getValue());
 				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
-					String objectStr = mapper.writeValueAsString(entry
-							.getValue());
+					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<String> tags = mapper.readValue(objectStr, List.class);
 					if (null != tags && !tags.isEmpty())
 						node.setTags(tags);
 				} else if (inRelDefMap.containsKey(entry.getKey())) {
-					String objectStr = mapper.writeValueAsString(entry
-							.getValue());
+					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<Map> list = mapper.readValue(objectStr, List.class);
 					if (null != list && !list.isEmpty()) {
 						for (Map obj : list) {
-							NodeDTO dto = (NodeDTO) mapper.convertValue(obj,
-									NodeDTO.class);
-							inRelations.add(new Relation(dto.getIdentifier(),
-									inRelDefMap.get(entry.getKey()), null));
+							NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
+							inRelations.add(new Relation(dto.getIdentifier(), inRelDefMap.get(entry.getKey()), null));
 						}
 					}
 				} else if (outRelDefMap.containsKey(entry.getKey())) {
-					String objectStr = mapper.writeValueAsString(entry
-							.getValue());
+					String objectStr = mapper.writeValueAsString(entry.getValue());
 					List<Map> list = mapper.readValue(objectStr, List.class);
 					if (null != list && !list.isEmpty()) {
 						for (Map obj : list) {
-							NodeDTO dto = (NodeDTO) mapper.convertValue(obj,
-									NodeDTO.class);
-							outRelations.add(new Relation(null, outRelDefMap
-									.get(entry.getKey()), dto.getIdentifier()));
+							NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
+							outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), dto.getIdentifier()));
 						}
 					}
 				} else {
@@ -820,34 +654,27 @@ public class WordUtil extends BaseManager {
 		return node;
 	}
 
-	private void getRelDefMaps(DefinitionDTO definition,
-			Map<String, String> inRelDefMap, Map<String, String> outRelDefMap) {
+	private void getRelDefMaps(DefinitionDTO definition, Map<String, String> inRelDefMap,
+			Map<String, String> outRelDefMap) {
 		if (null != definition) {
-			if (null != definition.getInRelations()
-					&& !definition.getInRelations().isEmpty()) {
+			if (null != definition.getInRelations() && !definition.getInRelations().isEmpty()) {
 				for (RelationDefinition rDef : definition.getInRelations()) {
-					if (StringUtils.isNotBlank(rDef.getTitle())
-							&& StringUtils.isNotBlank(rDef.getRelationName())) {
-						inRelDefMap
-								.put(rDef.getTitle(), rDef.getRelationName());
+					if (StringUtils.isNotBlank(rDef.getTitle()) && StringUtils.isNotBlank(rDef.getRelationName())) {
+						inRelDefMap.put(rDef.getTitle(), rDef.getRelationName());
 					}
 				}
 			}
-			if (null != definition.getOutRelations()
-					&& !definition.getOutRelations().isEmpty()) {
+			if (null != definition.getOutRelations() && !definition.getOutRelations().isEmpty()) {
 				for (RelationDefinition rDef : definition.getOutRelations()) {
-					if (StringUtils.isNotBlank(rDef.getTitle())
-							&& StringUtils.isNotBlank(rDef.getRelationName())) {
-						outRelDefMap.put(rDef.getTitle(),
-								rDef.getRelationName());
+					if (StringUtils.isNotBlank(rDef.getTitle()) && StringUtils.isNotBlank(rDef.getRelationName())) {
+						outRelDefMap.put(rDef.getTitle(), rDef.getRelationName());
 					}
 				}
 			}
 		}
 	}
 
-	public ArrayList<String> validateCitationsList(
-			List<CitationBean> citationBeanList) {
+	public ArrayList<String> validateCitationsList(List<CitationBean> citationBeanList) {
 		ArrayList<String> errorMessageList = new ArrayList<String>();
 		for (CitationBean citation : citationBeanList) {
 			if (citation.getWord() == null || citation.getWord().isEmpty()) {

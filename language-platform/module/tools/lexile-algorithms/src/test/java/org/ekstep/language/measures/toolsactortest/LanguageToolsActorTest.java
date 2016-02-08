@@ -41,22 +41,11 @@ public class LanguageToolsActorTest {
 		LanguageRequestRouterPool.init();
 	}
 
-	@BeforeClass
-	public static void init() throws Exception {
-
-	}
-
-	@AfterClass
-	public static void close() throws IOException, InterruptedException {
-		
-	}
-
 	@SuppressWarnings("unchecked")
 	@Test
 	public void computeComplexity() throws JsonParseException, JsonMappingException,
 			IOException {
 		String contentString = "{  \"request\": {    \"language_id\": \""+TEST_LANGUAGE+"\",    \"words\": [\"समोसा\",\"आम\", \"माला\",\"शेर\",\"पेड़\",\"धागा\",\"बाल\",\"दिया\",\"जल\",\"दूध\"],    \"texts\": [\"एक चर्मरोग जिसमें बहुत खुजली होती है\", \"वे अपने भुलक्कड़पन की कथा बखान करते\"]  }}";
-		//String expectedResult = "{\"धागा\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":11.01},\"समोसा\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":14.19},\"बाल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.25},\"दिया\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":10.1},\"जल\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.9},\"दूध\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":12.45},\"आम\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":8.1},\"वे अपने भुलक्कड़पन की कथा बखान करते\":{\"orthographic_complexity\":0.57,\"phonologic_complexity\":16.63},\"माला\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":9.45},\"शेर\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":8.9},\"पेड़\":{\"orthographic_complexity\":0.4,\"phonologic_complexity\":5.05},\"एक चर्मरोग जिसमें बहुत खुजली होती है\":{\"orthographic_complexity\":0.67,\"phonologic_complexity\":16.32}}";
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -77,8 +66,6 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		Map<String, Object> complexityMeasures = (Map<String, Object>) result
 				.get("complexity_measures");
-		String resultString = mapper.writeValueAsString(complexityMeasures);
-		System.out.println(resultString);
 		ComplexityMeasures cm1 = (ComplexityMeasures) complexityMeasures.get("धागा");
 		ComplexityMeasures cm2 = (ComplexityMeasures) complexityMeasures.get("समोसा");
 		ComplexityMeasures cm3 = (ComplexityMeasures) complexityMeasures.get("एक चर्मरोग जिसमें बहुत खुजली होती है");
@@ -96,13 +83,11 @@ public class LanguageToolsActorTest {
 	public void getWordComplexity() throws JsonParseException, JsonMappingException,
 			IOException {
 		String contentString = "{\"request\":{\"language_id\":\"hi\",\"word\":\"समोसा\"}}";
-		String expectedResult = "{\"orthographic_complexity\":0.4,\"phonologic_complexity\":14.19}";
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});
         String apiId = "language.wordcomplexity";
         Request request = RequestResponseTestHelper.getRequest(map);
-        // TODO: return error response if language value is blank
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
         request.setOperation(LanguageOperations.computeWordComplexity.name());
         request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
@@ -118,8 +103,8 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		ComplexityMeasures wordComplexity = (ComplexityMeasures) result
 				.get("word_complexity");
-		String resultString = mapper.writeValueAsString(wordComplexity);
-		Assert.assertEquals(expectedResult, resultString);
+		Assert.assertEquals(wordComplexity.getOrthographic_complexity(), new Double(0.4));
+		Assert.assertEquals(wordComplexity.getPhonologic_complexity(), new Double(14.19));
 	}
 
 	@Test
@@ -127,7 +112,6 @@ public class LanguageToolsActorTest {
 			IOException {
 	    SyllableMap.loadSyllables("hi");
 	    String contentString = "{\"request\":{\"language_id\":\"hi\",\"text\":\"एकचर्मरोगजिसमेंबहुतखुजलीहोतीहै\"}}";
-	    String expectedResult = "{\"orthographic_complexity\":4.7,\"phonologic_complexity\":114.23}";
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -148,16 +132,19 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		ComplexityMeasures textComplexity = (ComplexityMeasures) result
 				.get("text_complexity");
-		String resultString = mapper.writeValueAsString(textComplexity);
-		Assert.assertEquals(expectedResult, resultString);
+		Assert.assertEquals(textComplexity.getOrthographic_complexity(), new Double(4.7));
+		Assert.assertEquals(textComplexity.getPhonologic_complexity(), new Double(114.23));
 	}
 	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void getWordFeatures() throws JsonParseException, JsonMappingException,
 			IOException {
-		String contentString = "{\"request\":{\"language_id\":\"hi\",\"words\":[\"धागा\"]}}";
-		String expectedResult = "{\"धागा\":{\"word\":\"धागा\",\"rts\":null,\"count\":2,\"notation\":\"CVCV\",\"unicode\":\"\\\\0927\\\\093e \\\\0917\\\\093e\",\"orthoVec\":[0,0,0,0,0,0,0],\"phonicVec\":[2,0,0,3,1,0,2,3,0,0,1,0,0,2],\"orthoComplexity\":0.0,\"phonicComplexity\":11.01,\"measures\":{\"orthographic_complexity\":0.0,\"phonologic_complexity\":11.01}}}";
+		String contentString = "{\"request\":{\"language_id\":\"hi\",\"word\":\"धागा\"}}";
+		String word="धागा";
+		String wordUnicode="\\0927\\093e \\0917\\093e";
+		Double phonicComplexity = 11.01;
+		Double orthoComplexity = 0.0;
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -178,9 +165,73 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		Map<String, WordComplexity> wordFeatures = (Map<String, WordComplexity>) result
 				.get("word_features");
-		String resultString = mapper.writeValueAsString(wordFeatures);
-		System.out.println(resultString);
-		Assert.assertEquals(expectedResult, resultString);
+		WordComplexity wordComplexity= wordFeatures.get(word);
+		Assert.assertEquals(wordComplexity.getWord(), word);
+		Assert.assertEquals(wordComplexity.getUnicode(), wordUnicode);
+		Assert.assertEquals(wordComplexity.getOrthoComplexity(), orthoComplexity);
+		Assert.assertEquals(wordComplexity.getPhonicComplexity(), phonicComplexity);
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Test
+	public void getWordsFeatures() throws JsonParseException, JsonMappingException,
+			IOException {
+		String contentString = "{\"request\":{\"language_id\":\"hi\",\"words\":[\"धागा\"]}}";
+		String word="धागा";
+		String wordUnicode="\\0927\\093e \\0917\\093e";
+		Double phonicComplexity = 11.01;
+		Double orthoComplexity = 0.0;
+		Map<String, Object> map = mapper.readValue(contentString,
+				new TypeReference<Map<String, Object>>() {
+				});
+        String apiId = "wordFeatures.get";
+        Request request = RequestResponseTestHelper.getRequest(map);
+        request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
+        request.setOperation(LanguageOperations.getWordFeatures.name());
+        request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
+		LOGGER.info("List | Request: " + request);
+		Response response = RequestResponseTestHelper.getResponse(
+				request, LOGGER);
+		LOGGER.info("List | Response: " + response);
+		RequestResponseTestHelper.getResponseEntity(response, apiId,
+				(null != request.getParams()) ? request.getParams().getMsgid()
+						: null);
+		
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		Map<String, WordComplexity> wordFeatures = (Map<String, WordComplexity>) result
+				.get("word_features");
+		WordComplexity wordComplexity= wordFeatures.get(word);
+		Assert.assertEquals(wordComplexity.getWord(), word);
+		Assert.assertEquals(wordComplexity.getUnicode(), wordUnicode);
+		Assert.assertEquals(wordComplexity.getOrthoComplexity(), orthoComplexity);
+		Assert.assertEquals(wordComplexity.getPhonicComplexity(), phonicComplexity);
+	}
+	
+	@SuppressWarnings({ "unused" })
+	@Test
+	public void loadLanguageVectors() throws JsonParseException, JsonMappingException,
+			IOException {
+		String contentString = "{\"request\":{\"language_id\":\"hi\"}}";
+		Map<String, Object> map = mapper.readValue(contentString,
+				new TypeReference<Map<String, Object>>() {
+				});
+        String apiId = "loadLanguageVectors.put";
+        Request request = RequestResponseTestHelper.getRequest(map);
+        request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
+        request.setOperation(LanguageOperations.loadLanguageVectors.name());
+        request.getContext().put(LanguageParams.language_id.name(), TEST_LANGUAGE);
+		LOGGER.info("List | Request: " + request);
+		Response response = RequestResponseTestHelper.getResponse(
+				request, LOGGER);
+		LOGGER.info("List | Response: " + response);
+		RequestResponseTestHelper.getResponseEntity(response, apiId,
+				(null != request.getParams()) ? request.getParams().getMsgid()
+						: null);
+		
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		System.out.println("Test");
 	}
 	
 	public static Response jsonToObject(ResultActions actions) {

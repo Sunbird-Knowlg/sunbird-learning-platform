@@ -106,6 +106,7 @@
               					<exclude>**/dto/**</exclude>
               					<exclude>**/enums/**</exclude>
               					<exclude>**/batch/**</exclude>
+              					<exclude>**/models/**</exclude>
             				</excludes>
           				</instrumentation>
           				<check>
