@@ -23,7 +23,7 @@ public interface IContentManager {
 
     Response upload(String id, String taxonomyId, File uploadedFile, String folder);
     
-    Response  extractContent(String taxonomyId ,String zipFilePath,String saveDir);
+    Response  extractContent(String taxonomyId ,String zipFilePath,String saveDir, String contentId);
 
 	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir);
 	

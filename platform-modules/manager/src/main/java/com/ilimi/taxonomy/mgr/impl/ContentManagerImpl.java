@@ -5,13 +5,13 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import javax.activation.MimetypesFileTypeMap;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -60,6 +60,11 @@ import com.ilimi.taxonomy.util.CustomParser;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
 import com.ilimi.taxonomy.util.ReadProperties;
 import com.ilimi.taxonomy.util.UnzipUtility;
+
+import javax.xml.parsers.DocumentBuilder;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
@@ -792,7 +797,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             fileNameWithExtn = zipFileTempLocation[zipFileTempLocation.length - 1];
             String zipFile = tempFileDwn + File.separator + fileNameWithExtn;
             Response response = new Response();
-            response = extractContent(taxonomyId, zipFile, tempFileDwn);
+            response = extractContent(taxonomyId, zipFile, tempFileDwn, contentId);
             if (checkError(response)) {
                 return response;
             }
@@ -847,7 +852,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
      * @param saveDir
      */
     @SuppressWarnings("unchecked")
-    public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
+    public Response extractContent(String taxonomyId, String zipFilePath, String saveDir, String contentId) {
         String filePath = saveDir + File.separator + "index.ecml";
         String uploadFilePath = saveDir + File.separator + "assets" + File.separator;
         List<String> mediaIdNotUploaded = new ArrayList<>();
@@ -856,6 +861,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Response response = new Response();
         try {
             unzipper.unzip(zipFilePath, saveDir);
+            createAssessmentItemFromContent(taxonomyId, saveDir, contentId);
             Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath, saveDir);
             Set<String> mediaIdList1 = mediaIdMap.keySet();
             List<String> mediaIdList = new ArrayList<String>();
@@ -997,88 +1003,109 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         return mimeType.getContentType(file);
     }
 
-    @SuppressWarnings({ "unchecked", "unused" })
-    private Map<String, Object> createAssessmentItemFromContent(String taxonomyId, String contentExtractedPath) {
-        if (null != contentExtractedPath) {
-            String[] allowedFileTypes = { "json" };
-            Iterator<File> fileList = FileUtils.iterateFiles(new File(contentExtractedPath), allowedFileTypes, false);
-            while (fileList.hasNext()) {
-                File file = (File) fileList.next();
-                System.out.println(((File) fileList.next()).getName());
+    @SuppressWarnings({ "unchecked" })
+	private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath, String contentId) {
+    	if (null != contentExtractedPath) {
+    		List<File> fileList = getControllerFileList(contentExtractedPath);
+    		Map<String, Object> mapResDetail = new HashMap<String, Object>();
+    		if (null == fileList) return null;
+            for (File file : fileList){
+                System.out.println(file.getName());
                 if (file.exists()) {
-                    try {
-                        Map<String, Object> fileJSON = new ObjectMapper().readValue(file, HashMap.class);
-                        if (null != fileJSON) {
-                            Map<String, Object> itemSet = (Map<String, Object>) fileJSON
-                                    .get(ContentAPIParams.items.name());
-                            System.out.println("Item JSON | " + itemSet);
-                            List<Object> lstAssessmentItem = new ArrayList<Object>();
-                            for (Entry<String, Object> entry : itemSet.entrySet()) {
-                                System.out.println("Entry in Assessment Item | " + entry.getValue());
-                                Object assessmentItem = (Object) entry.getValue();
-                                lstAssessmentItem.add(assessmentItem);
-                                List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
-                                List<String> lstAssessmentItemId = new ArrayList<String>();
-                                System.out.println("Entry in Assessment Item Array | " + lstMap);
-                                for (Map<String, Object> map : lstMap) {
-                                    Request request = getAssessmentItemRequestObject(map, "AssessmentItem",
-                                            ContentAPIParams.assessment_item.name());
-                                    if (null != request) {
-                                        Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
-                                        LOGGER.info("Create Item | Response: " + response);
-                                        Map<String, Object> resMap = response.getResult();
-                                        if (null != resMap.get(ContentAPIParams.node_id.name())) {
-                                            lstAssessmentItemId
-                                                    .add(resMap.get(ContentAPIParams.node_id.name()).toString());
-                                        }
-                                    }
-                                }
-                                createItemSet(taxonomyId, lstAssessmentItemId);
-                            }
-                        } else {
-                            // TODO: Record the Error for the Give File as got
-                            // null json
-                        }
-                    } catch (IOException e) {
-                        // TODO: Record the Error for the Give File as unable to
-                        // parse its json
-                        e.printStackTrace();
-                    }
+                	try {
+						Map<String,Object> fileJSON =
+						        new ObjectMapper().readValue(file, HashMap.class);
+						if (null != fileJSON) {
+							Map<String, Object> itemSet = (Map<String, Object>) fileJSON.get(ContentAPIParams.items.name());
+							System.out.println("Item JSON | " + itemSet);
+							List<Object> lstAssessmentItem = new ArrayList<Object>();
+							for(Entry<String, Object> entry : itemSet.entrySet()) {
+								System.out.println("Entry in Assessment Item | " + entry.getValue());
+								Object assessmentItem = (Object) entry.getValue();
+								lstAssessmentItem.add(assessmentItem);
+								List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
+								List<String> lstAssessmentItemId = new ArrayList<String>();
+								Map<String, Object> assessResMap = new HashMap<String, Object>();
+								Map<String, String> mapAssessItemRes = new HashMap<String, String>();
+								System.out.println("Entry in Assessment Item Array | " + lstMap);
+								Map<String, Object> mapRelation = new HashMap<String, Object>();
+								for(Map<String, Object> map : lstMap) {
+									Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
+									if (null != request) {
+										Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
+										if (null != map.get(ContentAPIParams.concepts.name())) {
+											mapRelation.put(map.get(ContentAPIParams.identifier.name()).toString(), map.get(ContentAPIParams.concepts.name()));
+										}
+										LOGGER.info("Create Item | Response: " + response);
+										Map<String, Object> resMap = response.getResult();
+										if (null != resMap.get(ContentAPIParams.node_id.name())) {
+											lstAssessmentItemId.add(resMap.get(ContentAPIParams.node_id.name()).toString());
+											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), "Node " + resMap.get(ContentAPIParams.node_id.name()).toString() + " Added Successfully");
+										} else {
+											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), resMap.get(ContentAPIParams.messages.name()).toString());
+										}
+									}
+								}
+								assessResMap.put(ContentAPIParams.assessment_item.name(), mapAssessItemRes);
+								Response itemSetRes = createItemSet(taxonomyId, lstAssessmentItemId);
+								if (null != itemSetRes) {
+									Map<String, Object> mapItemSetRes = itemSetRes.getResult();
+									assessResMap.put(ContentAPIParams.assessment_item_set.name(), mapItemSetRes);
+									if (null != mapAssessItemRes.get(ContentAPIParams.node_id.name())) {
+										String itemSetNodeId = mapAssessItemRes.get(ContentAPIParams.node_id.name());
+										Response itemSetRelationRes = addRelation(taxonomyId, "ItemSet", itemSetNodeId, "associatedTo", contentId);
+										LOGGER.info("Create Item | Create Relation | Response: " + itemSetRelationRes);
+									}
+								}
+								List<String> lstAssessItemRelRes = createRelation(taxonomyId, mapRelation, "associatedTo", contentId);
+								assessResMap.put(ContentAPIParams.AssessmentItemRelation.name(), lstAssessItemRelRes);
+								mapResDetail.put(file.getName(), assessResMap);
+							}
+						} else {
+							mapResDetail.put(file.getName(), "Error : Invalid JSON");
+						}
+					} catch (IOException e) {
+						mapResDetail.put(file.getName(), "Error : Unable to Parse JSON");
+						e.printStackTrace();
+					}
+                } else {
+                	mapResDetail.put(file.getName(), "Error: File doesn't Exist");
                 }
             }
-        }
-        return null;
+            return mapResDetail;
+    	}
+    	return null;
     }
 
-    private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
-        if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
-            Request request = getAssessmentItemRequestObject(map, "ItemSet",
-                    ContentAPIParams.assessment_item_set.name());
-            if (null != request) {
-                Response response = assessmentMgr.createItemSet(taxonomyId, request);
-                LOGGER.info("Create Item | Response: " + response);
-            }
-        }
-        return null;
+	private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
+    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0 && !StringUtils.isBlank(taxonomyId)) {
+    		Map<String, Object> map = new HashMap<String, Object>();
+    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
+    		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
+    		if (null != request) {
+				Response response = assessmentMgr.createItemSet(taxonomyId, request);
+				LOGGER.info("Create Item | Response: " + response);
+				return response;
+			}
+    	}
+    	return null;
     }
 
     private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
-        if (null != objectType && null != map) {
-            Map<String, Object> reqMap = new HashMap<String, Object>();
-            Map<String, Object> assessMap = new HashMap<String, Object>();
-            Map<String, Object> requestMap = new HashMap<String, Object>();
-            reqMap.put(ContentAPIParams.objectType.name(), objectType);
-            reqMap.put(ContentAPIParams.metadata.name(), map);
-            reqMap.put("skipValidations", true);
-            if (null != map.get(ContentAPIParams.identifier.name()))
-                reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
-            assessMap.put(param, reqMap);
-            requestMap.put(ContentAPIParams.request.name(), assessMap);
-            return getRequestObjectForAssessmentMgr(requestMap, param);
-        }
-        return null;
+    	if (null != objectType && null != map) {
+    		Map<String, Object> reqMap = new HashMap<String, Object>();
+    		Map<String, Object> assessMap = new HashMap<String, Object>();
+    		Map<String, Object> requestMap = new HashMap<String, Object>();
+    		reqMap.put(ContentAPIParams.objectType.name(), objectType);
+    		reqMap.put(ContentAPIParams.metadata.name(), map);
+    		if (null != map.get(ContentAPIParams.identifier.name()))
+    			reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
+    		assessMap.put(param, reqMap);
+    		requestMap.put(ContentAPIParams.skipValidations.name(), true);
+    		requestMap.put(ContentAPIParams.request.name(), assessMap);
+    		return getRequestObjectForAssessmentMgr(requestMap, param);
+    	}
+    	return null;
     }
 
     private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
@@ -1090,12 +1117,51 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 if (null != obj) {
                     Node item = (Node) mapper.convertValue(obj, Node.class);
                     request.put(param, item);
+                    if (null != requestMap.get(ContentAPIParams.skipValidations.name()) && StringUtils.equalsIgnoreCase(requestMap.get("skipValidations").toString(), "true")) {
+                    	request.put(ContentAPIParams.skipValidations.name(), true);
+                    }
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
         return request;
+    }
+    
+    @SuppressWarnings("unchecked")
+	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation, String relation, String contentId) {
+    	if (null != mapRelation && !mapRelation.isEmpty() && !StringUtils.isBlank(relation) && !StringUtils.isBlank(relation)) {
+    		String objectType = "concept";
+    		List<String> lstResponse = new ArrayList<String>();
+    		for (Entry<String, Object> entry : mapRelation.entrySet()) {
+    			List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
+    			for (Map<String, Object> conceptMap : lstConceptMap) {
+    				if (null != conceptMap.get(ContentAPIParams.relations.name()))
+    					relation =  conceptMap.get(ContentAPIParams.relations.name()).toString();
+    				Response response = addRelation(taxonomyId, objectType, entry.getKey(), relation, conceptMap.get(ContentAPIParams.identifier.name()).toString());
+    				lstResponse.add(response.getResult().toString());
+    			}
+    		}
+    		return lstResponse;
+    	}
+    	return null;
+    }
+    
+    public Response addRelation(String taxonomyId, String objectType, String objectId1, String relation,
+            String objectId2) {
+        if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid taxonomy Id");
+        if (StringUtils.isBlank(objectType))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(), "ObjectType is blank");
+        if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Object Id is blank");
+        if (StringUtils.isBlank(relation))
+            throw new ClientException(ContentErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
+        Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+        request.put(GraphDACParams.start_node_id.name(), objectId1);
+        request.put(GraphDACParams.relation_type.name(), relation);
+        request.put(GraphDACParams.end_node_id.name(), objectId2);
+        return getResponse(request, LOGGER);
     }
 
     @SuppressWarnings("unchecked")
@@ -1128,6 +1194,30 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             }
         }
         return request;
+    }
+    
+    private List<File> getControllerFileList(String contentExtractedPath){
+    	try {
+    		String indexFile = contentExtractedPath + File.separator + "index.ecml";
+    		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+    		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+    		Document doc = docBuilder.parse(indexFile);
+    		NodeList attrList = doc.getElementsByTagName("controller");
+    		List<File> lstControllerFile = new ArrayList<File>();
+    		for (int i = 0; i < attrList.getLength(); i++) {
+    			Element controller =  (Element) attrList.item(i);
+    			if (controller.getAttribute("type").equalsIgnoreCase("Items")) {
+    				controller =  (Element) attrList.item(i);
+    				if (!StringUtils.isBlank(controller.getAttribute("id"))) {
+    					lstControllerFile.add(new File(contentExtractedPath + File.separator + "items" + File.separator + controller.getAttribute("id") + ".json"));
+    				}
+				}
+			}
+    		return lstControllerFile;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
     }
 
 }
