@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.assessment.mgr.IAssessmentManager;
+import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
@@ -33,12 +34,14 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -63,7 +66,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
     @Autowired
     private ContentBundle contentBundle;
-    
+
     @Autowired
     private IAssessmentManager assessmentMgr;
 
@@ -88,7 +91,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     private static final String ecarFolderName = "ecar_files";
 
     protected static final String URL_FIELD = "URL";
-    
+
     @Override
     public Response create(String taxonomyId, String objectType, Request request) {
         if (StringUtils.isBlank(taxonomyId))
@@ -349,11 +352,98 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     @SuppressWarnings("unchecked")
     @Override
     public Response bundle(Request request, String taxonomyId, String version) {
-        ContentSearchCriteria criteria = new ContentSearchCriteria();
-        List<Filter> filters = new ArrayList<Filter>();
         String bundleFileName = (String) request.get("file_name");
         bundleFileName = bundleFileName.replaceAll("\\s+", "_");
         List<String> contentIds = (List<String>) request.get("content_identifiers");
+        Response response = searchNodes(taxonomyId, contentIds);
+        Response listRes = copyResponse(response);
+        if (checkError(response)) {
+            return response;
+        } else {
+            List<Object> nodes = (List<Object>) response.get(ContentAPIParams.contents.name());
+            List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+            Map<String, Node> nodeMap = new HashMap<String, Node>();
+            List<String> childrenIds = new ArrayList<String>();
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Object obj : nodes) {
+                    List<Node> list = (List<Node>) obj;
+                    for (Node node : list) {
+                        nodeMap.put(node.getIdentifier(), node);
+                        if (null == node.getMetadata())
+                            node.setMetadata(new HashMap<String, Object>());
+                        node.getMetadata().put("identifier", node.getIdentifier());
+                        node.getMetadata().put("objectType", node.getObjectType());
+                        node.getMetadata().put("subject", node.getGraphId());
+                        if (null != node.getTags() && !node.getTags().isEmpty())
+                            node.getMetadata().put("tags", node.getTags());
+                        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+                            List<NodeDTO> children = new ArrayList<NodeDTO>();
+                            for (Relation rel : node.getOutRelations()) {
+                                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+                                        rel.getRelationType())
+                                        && StringUtils.equalsIgnoreCase(node.getObjectType(),
+                                                rel.getEndNodeObjectType())) {
+                                    childrenIds.add(rel.getEndNodeId());
+                                    children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
+                                            rel.getEndNodeObjectType(), rel.getRelationType(),
+                                            rel.getMetadata()));
+                                }
+                            }
+                            if (!children.isEmpty()) {
+                                node.getMetadata().put("children", children);
+                            }
+                        }
+                        ctnts.add(node.getMetadata());
+                    }
+                }
+                List<String> searchIds = new ArrayList<String>();
+                for (String nodeId : childrenIds) {
+                    if (!nodeMap.containsKey(nodeId)) {
+                        searchIds.add(nodeId);
+                    }
+                }
+                if (!searchIds.isEmpty()) {
+                    Response searchRes = searchNodes(taxonomyId, searchIds);
+                    if (checkError(searchRes)) {
+                        return response;
+                    } else {
+                        List<Object> list = (List<Object>) searchRes.get(ContentAPIParams.contents.name());
+                        if (null != list && !list.isEmpty()) {
+                            for (Object obj : list) {
+                                List<Node> nodeList = (List<Node>) obj;
+                                for (Node node : nodeList) {
+                                    nodeMap.put(node.getIdentifier(), node);
+                                    if (null == node.getMetadata())
+                                        node.setMetadata(new HashMap<String, Object>());
+                                    node.getMetadata().put("identifier", node.getIdentifier());
+                                    node.getMetadata().put("objectType", node.getObjectType());
+                                    node.getMetadata().put("subject", node.getGraphId());
+                                    if (null != node.getTags() && !node.getTags().isEmpty())
+                                        node.getMetadata().put("tags", node.getTags());
+                                    ctnts.add(node.getMetadata());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (ctnts.size() < contentIds.size()) {
+                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                        "One or more of the input content identifier are not found");
+            }
+            String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
+            contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
+            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/"
+                    + fileName;
+            String returnKey = ContentAPIParams.bundle.name();
+            listRes.put(returnKey, url);
+            return listRes;
+        }
+    }
+    
+    private Response searchNodes(String taxonomyId, List<String> contentIds) {
+        ContentSearchCriteria criteria = new ContentSearchCriteria();
+        List<Filter> filters = new ArrayList<Filter>();
         Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
         filters.add(filter);
         MetadataCriterion metadata = MetadataCriterion.create(filters);
@@ -375,39 +465,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
                 ContentAPIParams.contents.name());
-        Response listRes = copyResponse(response);
-        if (checkError(response)) {
-            return response;
-        } else {
-            List<Object> nodes = (List<Object>) response.get(ContentAPIParams.contents.name());
-            List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-            if (null != nodes && !nodes.isEmpty()) {
-                for (Object obj : nodes) {
-                    List<Node> list = (List<Node>) obj;
-                    for (Node node : list) {
-                        if (null != node.getMetadata()) {
-                            node.getMetadata().put("identifier", node.getIdentifier());
-                            node.getMetadata().put("objectType", node.getObjectType());
-                            node.getMetadata().put("subject", node.getGraphId());
-                            if (null != node.getTags() && !node.getTags().isEmpty())
-                                node.getMetadata().put("tags", node.getTags());
-                            ctnts.add(node.getMetadata());
-                        }
-                    }
-                }
-            }
-            if (contentIds.size() != ctnts.size()) {
-                throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-                        "One or more of the input content identifier are not found");
-            }
-            String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
-            contentBundle.asyncCreateContentBundle(ctnts, fileName, version);
-            String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName + "/"
-                    + fileName;
-            String returnKey = ContentAPIParams.bundle.name();
-            listRes.put(returnKey, url);
-            return listRes;
-        }
+        return response;
     }
 
     @SuppressWarnings("unchecked")
@@ -621,8 +679,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 try {
                     if (null != olderName && olderName.exists() && olderName.isFile()) {
                         String parentFolderName = olderName.getParent();
-                        File newName = new File(
-                                parentFolderName + File.separator + "logo.png");
+                        File newName = new File(parentFolderName + File.separator + "logo.png");
                         olderName.renameTo(newName);
                     }
                 } catch (Exception ex) {
@@ -727,13 +784,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Node node = (Node) responseNode.get(GraphDACParams.node.name());
         if (responseNode != null) {
             String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
-            String tempFileDwn = tempFileLocation+System.currentTimeMillis()+"_temp";
+            String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
             HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
             String zipFileTempLocation[] = null;
             String fileNameWithExtn = null;
             zipFileTempLocation = zipFilUrl.split("/");
             fileNameWithExtn = zipFileTempLocation[zipFileTempLocation.length - 1];
-            String zipFile = tempFileDwn + File.separator+fileNameWithExtn;
+            String zipFile = tempFileDwn + File.separator + fileNameWithExtn;
             Response response = new Response();
             response = extractContent(taxonomyId, zipFile, tempFileDwn);
             if (checkError(response)) {
@@ -763,7 +820,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         }
         return updateRes;
     }
-    
+
     private String uploadFile(String folder, String filename) {
         File olderName = new File(folder + filename);
         try {
@@ -791,8 +848,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
      */
     @SuppressWarnings("unchecked")
     public Response extractContent(String taxonomyId, String zipFilePath, String saveDir) {
-        String filePath = saveDir +File.separator+ "index.ecml";
-        String uploadFilePath = saveDir +File.separator+ "assets" + File.separator;
+        String filePath = saveDir + File.separator + "index.ecml";
+        String uploadFilePath = saveDir + File.separator + "assets" + File.separator;
         List<String> mediaIdNotUploaded = new ArrayList<>();
         Map<String, String> mediaIdURL = new HashMap<String, String>();
         UnzipUtility unzipper = new UnzipUtility();
@@ -835,11 +892,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 File olderName = new File(uploadFilePath + mediaIdMap.get(item.getIdentifier()));
                                 if (olderName.exists() && olderName.isFile()) {
                                     String parentFolderName = olderName.getParent();
-                                    File newName = new File(
-                                            parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
+                                    File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
+                                            + olderName.getName());
                                     olderName.renameTo(newName);
                                     String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
-                                    Node newItem = createNode(item,url[1],item.getIdentifier(),olderName);
+                                    Node newItem = createNode(item, url[1], item.getIdentifier(), olderName);
                                     mediaIdURL.put(item.getIdentifier(), url[1]);
                                     Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                             "validateNode");
@@ -871,7 +928,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                 olderName.renameTo(newName);
                                 String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
                                 mediaIdURL.put(mediaId, url[1]);
-                                Node item = createNode(new Node(),url[1],mediaId,olderName);
+                                Node item = createNode(new Node(), url[1], mediaId, olderName);
                                 // Creating a graph.
                                 Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                         "validateNode");
@@ -912,8 +969,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         return response;
     }
 
-    private Node createNode(Node item, String url,String mediaId,File olderName) {
-    	item.setIdentifier(mediaId);
+    private Node createNode(Node item, String url, String mediaId, File olderName) {
+        item.setIdentifier(mediaId);
         item.setObjectType("Content");
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put("name", mediaId);
@@ -932,140 +989,145 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         Object mimeType = getMimeType(new File(olderName.getName()));
         metadata.put("mimeType", mimeType);
         item.setMetadata(metadata);
-		return item;
-	}
+        return item;
+    }
 
-	private Object getMimeType(File file) {
+    private Object getMimeType(File file) {
         MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
         return mimeType.getContentType(file);
     }
-	
-	  @SuppressWarnings({ "unchecked", "unused" })
-		private Map<String, Object> createAssessmentItemFromContent (String taxonomyId, String contentExtractedPath) {
-	    	if (null != contentExtractedPath) {
-	    		String[] allowedFileTypes = {"json"};
-	    		Iterator<File> fileList = FileUtils.iterateFiles(new File(contentExtractedPath), allowedFileTypes, false);
-	            while(fileList.hasNext()){
-	            	File file = (File) fileList.next();
-	                System.out.println(((File) fileList.next()).getName());
-	                if (file.exists()) {
-	                	try {
-							Map<String,Object> fileJSON =
-							        new ObjectMapper().readValue(file, HashMap.class);
-							if (null != fileJSON) {
-								Map<String, Object> itemSet = (Map<String, Object>) fileJSON.get(ContentAPIParams.items.name());
-								System.out.println("Item JSON | " + itemSet);
-								List<Object> lstAssessmentItem = new ArrayList<Object>();
-								for(Entry<String, Object> entry : itemSet.entrySet()) {
-									System.out.println("Entry in Assessment Item | " + entry.getValue());
-									Object assessmentItem = (Object) entry.getValue();
-									lstAssessmentItem.add(assessmentItem);
-									List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
-									List<String> lstAssessmentItemId = new ArrayList<String>();
-									System.out.println("Entry in Assessment Item Array | " + lstMap);
-									for(Map<String, Object> map : lstMap) {
-										Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
-										if (null != request) {
-											Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
-											LOGGER.info("Create Item | Response: " + response);
-											Map<String, Object> resMap = response.getResult();
-											if (null != resMap.get(ContentAPIParams.node_id.name())) {
-												lstAssessmentItemId.add(resMap.get(ContentAPIParams.node_id.name()).toString());
-											}
-										}
-									}
-									createItemSet(taxonomyId, lstAssessmentItemId);
-								}
-							} else {
-								// TODO: Record the Error for the Give File as got null json
-							}
-						} catch (IOException e) {
-							// TODO: Record the Error for the Give File as unable to parse its json
-							e.printStackTrace();
-						}
-	                }
-	            }
-	    	}
-	    	return null;
-	    }
 
-		private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
-	    	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
-	    		Map<String, Object> map = new HashMap<String, Object>();
-	    		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
-	    		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
-	    		if (null != request) {
-					Response response = assessmentMgr.createItemSet(taxonomyId, request);
-					LOGGER.info("Create Item | Response: " + response);
-				}
-	    	}
-	    	return null;
-	    }
+    @SuppressWarnings({ "unchecked", "unused" })
+    private Map<String, Object> createAssessmentItemFromContent(String taxonomyId, String contentExtractedPath) {
+        if (null != contentExtractedPath) {
+            String[] allowedFileTypes = { "json" };
+            Iterator<File> fileList = FileUtils.iterateFiles(new File(contentExtractedPath), allowedFileTypes, false);
+            while (fileList.hasNext()) {
+                File file = (File) fileList.next();
+                System.out.println(((File) fileList.next()).getName());
+                if (file.exists()) {
+                    try {
+                        Map<String, Object> fileJSON = new ObjectMapper().readValue(file, HashMap.class);
+                        if (null != fileJSON) {
+                            Map<String, Object> itemSet = (Map<String, Object>) fileJSON
+                                    .get(ContentAPIParams.items.name());
+                            System.out.println("Item JSON | " + itemSet);
+                            List<Object> lstAssessmentItem = new ArrayList<Object>();
+                            for (Entry<String, Object> entry : itemSet.entrySet()) {
+                                System.out.println("Entry in Assessment Item | " + entry.getValue());
+                                Object assessmentItem = (Object) entry.getValue();
+                                lstAssessmentItem.add(assessmentItem);
+                                List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
+                                List<String> lstAssessmentItemId = new ArrayList<String>();
+                                System.out.println("Entry in Assessment Item Array | " + lstMap);
+                                for (Map<String, Object> map : lstMap) {
+                                    Request request = getAssessmentItemRequestObject(map, "AssessmentItem",
+                                            ContentAPIParams.assessment_item.name());
+                                    if (null != request) {
+                                        Response response = assessmentMgr.createAssessmentItem(taxonomyId, request);
+                                        LOGGER.info("Create Item | Response: " + response);
+                                        Map<String, Object> resMap = response.getResult();
+                                        if (null != resMap.get(ContentAPIParams.node_id.name())) {
+                                            lstAssessmentItemId
+                                                    .add(resMap.get(ContentAPIParams.node_id.name()).toString());
+                                        }
+                                    }
+                                }
+                                createItemSet(taxonomyId, lstAssessmentItemId);
+                            }
+                        } else {
+                            // TODO: Record the Error for the Give File as got
+                            // null json
+                        }
+                    } catch (IOException e) {
+                        // TODO: Record the Error for the Give File as unable to
+                        // parse its json
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }
+        return null;
+    }
 
-	    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
-	    	if (null != objectType && null != map) {
-	    		Map<String, Object> reqMap = new HashMap<String, Object>();
-	    		Map<String, Object> assessMap = new HashMap<String, Object>();
-	    		Map<String, Object> requestMap = new HashMap<String, Object>();
-	    		reqMap.put(ContentAPIParams.objectType.name(), objectType);
-	    		reqMap.put(ContentAPIParams.metadata.name(), map);
-	    		reqMap.put("skipValidations", true);
-	    		if (null != map.get(ContentAPIParams.identifier.name()))
-	    			reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
-	    		assessMap.put(param, reqMap);
-	    		requestMap.put(ContentAPIParams.request.name(), assessMap);
-	    		return getRequestObjectForAssessmentMgr(requestMap, param);
-	    	}
-	    	return null;
-	    }
+    private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId) {
+        if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0) {
+            Map<String, Object> map = new HashMap<String, Object>();
+            map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
+            Request request = getAssessmentItemRequestObject(map, "ItemSet",
+                    ContentAPIParams.assessment_item_set.name());
+            if (null != request) {
+                Response response = assessmentMgr.createItemSet(taxonomyId, request);
+                LOGGER.info("Create Item | Response: " + response);
+            }
+        }
+        return null;
+    }
 
-	    private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
-	        Request request = getRequest(requestMap);
-	        Map<String, Object> map = request.getRequest();
-	        if (null != map && !map.isEmpty()) {
-	            try {
-	                Object obj = map.get(param);
-	                if (null != obj) {
-	                    Node item = (Node) mapper.convertValue(obj, Node.class);
-	                    request.put(param, item);
-	                }
-	            } catch (Exception e) {
-	                e.printStackTrace();
-	            }
-	        }
-	        return request;
-	    }
+    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
+        if (null != objectType && null != map) {
+            Map<String, Object> reqMap = new HashMap<String, Object>();
+            Map<String, Object> assessMap = new HashMap<String, Object>();
+            Map<String, Object> requestMap = new HashMap<String, Object>();
+            reqMap.put(ContentAPIParams.objectType.name(), objectType);
+            reqMap.put(ContentAPIParams.metadata.name(), map);
+            reqMap.put("skipValidations", true);
+            if (null != map.get(ContentAPIParams.identifier.name()))
+                reqMap.put(ContentAPIParams.identifier.name(), map.get(ContentAPIParams.identifier.name()));
+            assessMap.put(param, reqMap);
+            requestMap.put(ContentAPIParams.request.name(), assessMap);
+            return getRequestObjectForAssessmentMgr(requestMap, param);
+        }
+        return null;
+    }
 
-	    @SuppressWarnings("unchecked")
-	    protected Request getRequest(Map<String, Object> requestMap) {
-	        Request request = new Request();
-	        if (null != requestMap && !requestMap.isEmpty()) {
-	            String id = (String) requestMap.get("id");
-	            String ver = (String) requestMap.get("ver");
-	            String ts = (String) requestMap.get("ts");
-	            request.setId(id);
-	            request.setVer(ver);
-	            request.setTs(ts);
-	            Object reqParams = requestMap.get("params");
-	            if (null != reqParams) {
-	                try {
-	                    RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
-	                    request.setParams(params);
-	                } catch (Exception e) {
-	                }
-	            }
-	            Object requestObj = requestMap.get("request");
-	            if (null != requestObj) {
-	                try {
-	                    String strRequest = mapper.writeValueAsString(requestObj);
-	                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
-	                    if (null != map && !map.isEmpty())
-	                        request.setRequest(map);
-	                } catch (Exception e) {
-	                }
-	            }
-	        }
-	        return request;
-	    }
+    private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
+        Request request = getRequest(requestMap);
+        Map<String, Object> map = request.getRequest();
+        if (null != map && !map.isEmpty()) {
+            try {
+                Object obj = map.get(param);
+                if (null != obj) {
+                    Node item = (Node) mapper.convertValue(obj, Node.class);
+                    request.put(param, item);
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return request;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected Request getRequest(Map<String, Object> requestMap) {
+        Request request = new Request();
+        if (null != requestMap && !requestMap.isEmpty()) {
+            String id = (String) requestMap.get("id");
+            String ver = (String) requestMap.get("ver");
+            String ts = (String) requestMap.get("ts");
+            request.setId(id);
+            request.setVer(ver);
+            request.setTs(ts);
+            Object reqParams = requestMap.get("params");
+            if (null != reqParams) {
+                try {
+                    RequestParams params = (RequestParams) mapper.convertValue(reqParams, RequestParams.class);
+                    request.setParams(params);
+                } catch (Exception e) {
+                }
+            }
+            Object requestObj = requestMap.get("request");
+            if (null != requestObj) {
+                try {
+                    String strRequest = mapper.writeValueAsString(requestObj);
+                    Map<String, Object> map = mapper.readValue(strRequest, Map.class);
+                    if (null != map && !map.isEmpty())
+                        request.setRequest(map);
+                } catch (Exception e) {
+                }
+            }
+        }
+        return request;
+    }
 
 }

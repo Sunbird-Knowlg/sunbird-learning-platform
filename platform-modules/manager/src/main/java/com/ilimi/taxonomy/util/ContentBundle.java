@@ -42,7 +42,7 @@ public class ContentBundle {
     protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
     @Async
-    public void asyncCreateContentBundle(List<Map<String, Object>> contents, String fileName, String version) {
+    public void asyncCreateContentBundle(List<Map<String, Object>> contents, List<String> children, String fileName, String version) {
         String bundleFileName = BUNDLE_PATH + File.separator + fileName;
         System.out.println("Async method invoked....");
         List<String> urlFields = new ArrayList<String>();
@@ -52,6 +52,8 @@ public class ContentBundle {
         Map<String, String> downloadUrls = new HashMap<String, String>();
         for (Map<String, Object> content : contents) {
             String identifier = (String) content.get("identifier");
+            if (children.contains(identifier))
+                content.put("visibility", "Parent");
             String mimeType = (String) content.get("mimeType");
             if (StringUtils.equalsIgnoreCase("application/vnd.android.package-archive", mimeType.trim())) {
                 urlFields.remove("downloadUrl");
