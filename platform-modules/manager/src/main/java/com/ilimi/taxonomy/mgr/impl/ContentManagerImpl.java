@@ -705,33 +705,16 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     }
     
     private String checkBodyContentType(String contentBody) {
-		if (isJSONValid(contentBody)) {
-			return "json";
-		}else if (isECMLValid(contentBody)) {
-			return "exml";
+    	if (StringUtils.isNotEmpty(contentBody)) {
+    		if (StringUtils.startsWith(contentBody, "<")) {
+    			return "ecml";
+    		}else if (StringUtils.startsWithAny(contentBody, new String[]{"{","["})) {
+    			return "json";
+    		}
 		}
-		throw new ServerException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-				"ContentBody is not valid "); 
+    	return null;
 	}
-	private static boolean isJSONValid(String contentBody) {
-		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			mapper.readTree(contentBody);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-	private static boolean isECMLValid(String contentBody){
-		try {
-			DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			parser.parse(contentBody);
-			return true;
-		} catch (Exception e) {
-			return false;
-		}
-	}
-
+	
     /**
      * this method parse ECML file and find src to download media type in assets
      * folder and finally zip parent folder.
