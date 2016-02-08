@@ -156,7 +156,7 @@
             "materialised",
             "dynamic"
           ],
-          "defaultValue": "",
+          "defaultValue": "materialised",
           "renderingHints": "{ 'inputType': 'select',  'order': 9 }",
           "indexed": true,
           "draft": false

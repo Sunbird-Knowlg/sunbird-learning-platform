@@ -36,13 +36,16 @@ import com.ilimi.graph.dac.model.Node;
 public class AssessmentItemSetController extends BaseController {
 
     private static Logger LOGGER = LogManager.getLogger(AssessmentItemSetController.class.getName());
-    
+
+    private static final String V2_GRAPH_ID = "domain";
+
     @Autowired
     private IAssessmentManager assessmentManager;
-    
+
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> create(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    public ResponseEntity<Response> create(
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         String apiId = "assessment_item_set.create";
         Request request = getRequestObject(map);
@@ -50,39 +53,46 @@ public class AssessmentItemSetController extends BaseController {
         try {
             Response response = assessmentManager.createItemSet(taxonomyId, request);
             LOGGER.info("Create | Response: " + response);
-            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
-    
+
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.PATCH)
     @ResponseBody
     public ResponseEntity<Response> update(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestBody Map<String, Object> map,
-            @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         String apiId = "assessment_item_set.update";
         Request request = getRequestObject(map);
-        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request + " | user-id: " + userId);
+        LOGGER.info("Update Item | TaxonomyId: " + taxonomyId + " | Id: " + id + " | Request: " + request
+                + " | user-id: " + userId);
         try {
             Response response = assessmentManager.updateItemSet(id, taxonomyId, request);
             LOGGER.info("Update | Response: " + response);
-            return getResponseEntity(response, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         } catch (Exception e) {
             LOGGER.error("Update | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, (null != request.getParams()) ? request.getParams().getMsgid() : null);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
-    
+
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId,
-            @RequestParam(value = "isfields", required = false) String[] isfields, @RequestHeader(value = "user-id") String userId) {
-        
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
+            @RequestParam(value = "isfields", required = false) String[] isfields,
+            @RequestHeader(value = "user-id") String userId) {
+
         String apiId = "assessment_item_set.find";
-        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: " + userId);
+        LOGGER.info("Find | TaxonomyId: " + taxonomyId + " | Id: " + id + " | ifields: " + isfields + " | user-id: "
+                + userId);
         try {
             Response response = assessmentManager.getItemSet(id, taxonomyId, isfields);
             LOGGER.info("Find | Response: " + response);
@@ -92,10 +102,11 @@ public class AssessmentItemSetController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> search(@RequestParam(value = "taxonomyId", required = true) String taxonomyId,
+    public ResponseEntity<Response> search(
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
             @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
         String apiId = "assessment_item_set.search";
         LOGGER.info("Search | TaxonomyId: " + taxonomyId + " | user-id: " + userId);
@@ -109,11 +120,12 @@ public class AssessmentItemSetController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.DELETE)
     @ResponseBody
     public ResponseEntity<Response> delete(@PathVariable(value = "id") String id,
-            @RequestParam(value = "taxonomyId", required = true) String taxonomyId, @RequestHeader(value = "user-id") String userId) {
+            @RequestParam(value = "taxonomyId", required = false, defaultValue = V2_GRAPH_ID) String taxonomyId,
+            @RequestHeader(value = "user-id") String userId) {
         String apiId = "assessment_item_set.delete";
         LOGGER.info("Delete | TaxonomyId: " + taxonomyId + " | Id: " + id + " | user-id: " + userId);
         try {
@@ -125,7 +137,7 @@ public class AssessmentItemSetController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
-    
+
     private Request getSearchRequest(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
@@ -134,14 +146,15 @@ public class AssessmentItemSetController extends BaseController {
                 ItemSetSearchCriteria criteria = mapper.convertValue(map, ItemSetSearchCriteria.class);
                 request.put(AssessmentAPIParams.assessment_search_criteria.name(), criteria);
             } catch (Exception e) {
-                throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(), "Invalid search criteria.", e);
+                throw new MiddlewareException(AssessmentErrorCodes.ERR_ASSESSMENT_INVALID_SEARCH_CRITERIA.name(),
+                        "Invalid search criteria.", e);
             }
-        } else if(null != map && map.isEmpty()) {
+        } else if (null != map && map.isEmpty()) {
             request.put(AssessmentAPIParams.assessment_search_criteria.name(), new ItemSetSearchCriteria());
         }
         return request;
     }
-    
+
     private Request getRequestObject(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
