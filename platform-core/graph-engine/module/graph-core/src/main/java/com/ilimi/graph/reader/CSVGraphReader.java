@@ -189,7 +189,7 @@ public class CSVGraphReader implements GraphReader {
                         } else if (StringUtils.equalsIgnoreCase("number", datatype)) {
                             try {
                                 BigDecimal bd = new BigDecimal(val.toString());
-                                value = bd;
+                                value = bd.doubleValue();
                             } catch (Exception e) {
                             }
                         } else if (StringUtils.equalsIgnoreCase("boolean", datatype)) {

@@ -670,7 +670,7 @@ public class DataNode extends AbstractNode {
                 } else if (StringUtils.equalsIgnoreCase("number", datatype)) {
                     try {
                         BigDecimal bd = new BigDecimal(value.toString());
-                        value = bd;
+                        value = bd.doubleValue();
                     } catch (Exception e) {
                     }
                 }
