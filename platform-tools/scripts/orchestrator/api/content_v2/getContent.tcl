@@ -73,7 +73,8 @@ if {$check_error} {
 	set graph_node [get_resp_value $resp_get_node "node"]
 	set resp_def_node [getDefinition $graph_id $object_type]
 	set def_node [get_resp_value $resp_def_node "definition_node"]
-	set resp_object [convert_graph_node $graph_node $def_node]
+	set fieldList [java::new java.util.ArrayList]
+	set resp_object [convert_graph_node $graph_node $def_node $fieldList]
 	proc_updateLanguageCode $resp_object
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object

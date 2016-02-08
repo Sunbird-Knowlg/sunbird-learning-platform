@@ -28,9 +28,10 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
         return "convert_graph_node";
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
-        if (argv.length == 3) {
+        if (argv.length >= 3) {
             try {
                 TclObject tclObject1 = argv[1];
                 TclObject tclObject2 = argv[2];
@@ -42,12 +43,18 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                     Object obj2 = ReflectObject.get(interp, tclObject2);
                     DefinitionDTO def = (DefinitionDTO) obj2;
                     List<String> fields = null;
-                    if (null != def && null != def.getMetadata()) {
-                        String[] arr = (String[]) def.getMetadata().get("fields");
-                        if (null != arr && arr.length > 0) {
-                            List<String> arrFields = Arrays.asList(arr);
-                            fields = new ArrayList<String>();
-                            fields.addAll(arrFields);
+                    if (argv.length > 3) {
+                        TclObject tclObject3 = argv[3];
+                        Object obj3 = ReflectObject.get(interp, tclObject3);
+                        fields = (List<String>) obj3;
+                    } else {
+                        if (null != def && null != def.getMetadata()) {
+                            String[] arr = (String[]) def.getMetadata().get("fields");
+                            if (null != arr && arr.length > 0) {
+                                List<String> arrFields = Arrays.asList(arr);
+                                fields = new ArrayList<String>();
+                                fields.addAll(arrFields);
+                            }
                         }
                     }
                     Map<String, Object> map = convertGraphNode(node, node.getGraphId(), def, fields);

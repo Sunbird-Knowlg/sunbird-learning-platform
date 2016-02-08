@@ -19,6 +19,14 @@ $search put "resultSize" $limit
 $search remove "sort"
 $search remove "limit"
 
+set returnFields false
+set fieldList [$search get "fields"]
+set is_fieldList_null [java::isnull $fieldList]
+if {$is_fieldList_null == 0} {
+	$search remove "fields"
+	set returnFields true
+}
+
 set search_criteria [create_search_criteria $search]
 set graph_id "domain"
 set search_response [searchNodes $graph_id $search_criteria]
@@ -32,7 +40,11 @@ if {$check_error} {
 	set def_node [get_resp_value $resp_def_node "definition_node"]
 	set obj_list [java::new ArrayList]
 	java::for {Node graph_node} $graph_nodes {
-		set domain_obj [convert_graph_node $graph_node $def_node]
+		if {$returnFields} {
+			set domain_obj [convert_graph_node $graph_node $def_node $fieldList]
+		} else {
+			set domain_obj [convert_graph_node $graph_node $def_node]
+		}
 		$obj_list add $domain_obj
 	}
 	set result_map [java::new HashMap]
