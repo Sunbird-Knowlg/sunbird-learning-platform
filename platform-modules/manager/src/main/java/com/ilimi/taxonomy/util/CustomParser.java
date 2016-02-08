@@ -1,10 +1,15 @@
 package com.ilimi.taxonomy.util;
 
+import gherkin.JSONParser;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -19,6 +24,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
@@ -27,6 +33,14 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.MappingJsonFactory;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 
 public class CustomParser  {
@@ -193,6 +207,77 @@ public class CustomParser  {
     public static void main(String[] args) {
 		//C:\ilimi\StoryFolder\1452487631391_PrathamStories_Day_1_JAN_9_2016\items//C:\\ilimi\\download\\test\\index.ecml", "items
     	updateJsonInEcml("C:\\ilimi\\StoryFolder\\1452487631391_PrathamStories_Day_1_JAN_9_2016\\index.ecml", "items");
+    	readJsonFileDownload(null,null);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void readJsonFileDownload(String filePath, String sourceFolder) {
+		String assetDir = sourceFolder+File.separator+"assets";
+		String jsonFilePath= filePath+File.separator+"index.json";
+		String jsonString = readFile(new File(jsonFilePath));
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> listOfMedia = new ArrayList<>();
+		Map<String, String> idSrcMap = new HashMap<>();
+		try {
+			Map<String, Object> jsonMap = mapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+			Map<String, Object> jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+			Map<String, Object> jsonManifestMap = (Map<String, Object>) jsonThemeMap.get("manifest");
+			listOfMedia = (List<Map<String, Object>>) jsonManifestMap.get("media");
+			Iterator medias =listOfMedia.iterator();
+			while (medias.hasNext()) {
+				Map<String, Object> media = (Map<String, Object>) medias.next();
+				idSrcMap.put((String)media.get("id"), (String)media.get("src"));
+			}
+			Iterator mediaEntries = idSrcMap.entrySet().iterator();
+			while (mediaEntries.hasNext()) {
+			    Map.Entry entry = (Map.Entry) mediaEntries.next();
+			    String src= (String)entry.getValue();
+			    HttpDownloadUtility.downloadFile(src, assetDir);
+			    fileNameInURL =  src.split("/");
+         		fileNameWithExtn = fileNameInURL[fileNameInURL.length-1];
+         		idSrcMap.put((String)entry.getKey(), fileNameWithExtn);
+			}
+			List<Map<String, Object>> updatedListOfMedia =updateJsonMedia(jsonMap,idSrcMap);
+			if (updatedListOfMedia.isEmpty() || updatedListOfMedia!=null) {
+				jsonManifestMap.put("media", updatedListOfMedia);
+			}
+			String updatedJsonString = mapper.writeValueAsString(jsonMap);
+			if (StringUtils.isNoneBlank(updatedJsonString)) {
+				File file  = new File(jsonFilePath);
+				FileUtils.writeStringToFile(file, updatedJsonString);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		
+		
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private static List<Map<String, Object>> updateJsonMedia(Map<String, Object> jsonMap,
+			Map<String, String> idSrcMap) {
+		List<Map<String, Object>> listOfMedia = new ArrayList<>();
+		List<Map<String, Object>> updatedListOfMedia = new ArrayList<>();
+		try {
+			Map<String, Object> jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+			Map<String, Object> jsonManifestMap = (Map<String, Object>) jsonThemeMap.get("manifest");
+			listOfMedia = (List<Map<String, Object>>) jsonManifestMap.get("media");
+			Iterator medias =listOfMedia.iterator();
+			while (medias.hasNext()) {
+				Map<String, Object> media = (Map<String, Object>) medias.next();
+				String id = (String)media.get("id");
+				String src = (String)media.get("src");
+				if (StringUtils.isNoneBlank(id)) {
+					media.put("src", idSrcMap.get(id));
+					updatedListOfMedia.add(media);
+				}
+			}
+			return updatedListOfMedia;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
     
     

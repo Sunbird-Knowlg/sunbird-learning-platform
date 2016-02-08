@@ -25,7 +25,7 @@ public interface IContentManager {
     
     Response  extractContent(String taxonomyId ,String zipFilePath,String saveDir, String contentId);
 
-	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir);
+	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir,String contentType);
 	
 	Response  extract(String taxonomyId ,String contentId);
 	
