@@ -26,6 +26,12 @@
             "index": 4,
             "datatype": "java.lang.Integer",
             "routingParam": false
+        },
+        {
+            "name": "fields",
+            "index": 5,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
         }
     ],
     "requestPath": {
@@ -38,7 +44,8 @@
         "requestParams": [
           "sort",
           "order",
-          "limit"
+          "limit",
+          "fields"
         ]
     },
     "body": ""

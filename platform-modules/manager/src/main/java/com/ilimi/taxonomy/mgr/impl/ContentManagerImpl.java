@@ -1131,7 +1131,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 								Map<String, String> mapAssessItemRes = new HashMap<String, String>();
 								Map<String, Object> mapRelation = new HashMap<String, Object>();
 								for(Map<String, Object> map : lstMap) {
-									Request request = getAssessmentItemRequestObject(map, "AssessmentItem", ContentAPIParams.assessment_item.name());
+									Request request = getAssessmentItemRequestObject(map, "AssessmentItem", contentId, ContentAPIParams.assessment_item.name());
 									if (null != request) {
 									    Node itemNode = (Node) request.get(ContentAPIParams.assessment_item.name());
 										Response response = null;
@@ -1154,7 +1154,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 									}
 								}
 								assessResMap.put(ContentAPIParams.assessment_item.name(), mapAssessItemRes);
-								Response itemSetRes = createItemSet(taxonomyId, lstAssessmentItemId, fileJSON);
+								Response itemSetRes = createItemSet(taxonomyId, contentId, lstAssessmentItemId, fileJSON);
 								if (null != itemSetRes) {
 									Map<String, Object> mapItemSetRes = itemSetRes.getResult();
 									assessResMap.put(ContentAPIParams.assessment_item_set.name(), mapItemSetRes);
@@ -1185,7 +1185,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     	return null;
     }
     
-	private Response createItemSet(String taxonomyId, List<String> lstAssessmentItemId, Map<String,Object> fileJSON) {
+	private Response createItemSet(String taxonomyId, String contentId, List<String> lstAssessmentItemId, Map<String,Object> fileJSON) {
     	if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0 && StringUtils.isNotBlank(taxonomyId)) {
     		Map<String, Object> map = new HashMap<String, Object>();
     		map.put(ContentAPIParams.memberIds.name(), lstAssessmentItemId);
@@ -1207,7 +1207,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     		} else {
     		    map.put("code", "item_set_" + RandomUtils.nextInt(1, 10000));
     		}
-    		Request request = getAssessmentItemRequestObject(map, "ItemSet", ContentAPIParams.assessment_item_set.name());
+    		Request request = getAssessmentItemRequestObject(map, "ItemSet", contentId, ContentAPIParams.assessment_item_set.name());
     		if (null != request) {
 				Response response = assessmentMgr.createItemSet(taxonomyId, request);
 				LOGGER.info("Create Item | Response: " + response);
@@ -1220,7 +1220,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private String[] qlevels = new String[]{"EASY", "MEDIUM", "DIFFICULT", "RARE"};
 	private List<String> qlevelList = Arrays.asList(qlevels);
 
-    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String param) {
+    private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String contentId, String param) {
     	if (null != objectType && null != map) {
     		Map<String, Object> reqMap = new HashMap<String, Object>();
     		Map<String, Object> assessMap = new HashMap<String, Object>();
@@ -1248,6 +1248,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     		    map.put("name", "Assessment Item");
     		    map.put("code", "item_" + RandomUtils.nextInt(1, 10000));
     		}
+    		map.put("usedIn", contentId);
     		String qlevel = (String) map.get("qlevel");
     		if (StringUtils.isBlank(qlevel)) {
     		    qlevel = "MEDIUM";

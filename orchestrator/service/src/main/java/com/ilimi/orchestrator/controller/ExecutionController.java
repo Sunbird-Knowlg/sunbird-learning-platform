@@ -100,6 +100,26 @@ public class ExecutionController extends BaseOrchestratorController {
         List<OrchestratorScript> scripts = manager.getAllScripts();
         OrchestratorScriptMap.loadScripts(scripts, commands);
     }
+    
+    private String escapeSpecialChars(String param) {
+        if (StringUtils.isNotBlank(param)) {
+            param = param.replace("\\", "\\\\");
+            param = param.replace("$", "\\$");
+        }
+        return param;
+    }
+    
+    public static void main(String[] args) {
+        try {
+            String url = "/v2/domains/literacy/*";
+            String param = "dimensions$";
+            param = param.replace("\\", "\\\\");
+            param = param.replace("$", "\\$");
+            System.out.println(url.replaceFirst("\\*", param));
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private OrchestratorScript getScript(String path, String type) {
         Map<String, OrchestratorScript> map = OrchestratorScriptMap.scriptMap.get(type);
@@ -122,6 +142,7 @@ public class ExecutionController extends BaseOrchestratorController {
                                 } else {
                                     param = path.substring(index);
                                 }
+                                param = escapeSpecialChars(param);
                                 url = url.replaceFirst("\\*", param);
                             }
                             index = url.indexOf("*", 0);
