@@ -118,6 +118,63 @@ public class LanguageDictionaryTest {
 		Assert.assertEquals(expectedResult, resultString);
 	}
 
+	@SuppressWarnings("rawtypes")
+	public void createWordForTranslation() throws JsonParseException,
+			JsonMappingException, IOException {
+		String contentString = "{\"request\":{\"words\":[{\"identifier\":\"en_w_709\",\"lemma\":\"newtestword\",\"difficultyLevel\":\"Easy\",\"synonyms\":[{\"identifier\":\"202707688\",\"gloss\":\"newsynonym\"}],\"antonyms\":[{\"name\":\"newtestwordantonym\"}],\"translations\":[{\"words\":[\"सालाना\",\"वार्षिक\",\"प्रकार\"],\"language_id\":\"hi\"},{\"words\":[\"ಅಳತೊಡಗಿದ\",\"ಪ್ರಧಾನಿಯಾದ\",\"ಹಾರಿಸಿದರು\"],\"language_id\":\"ka\"}],\"tags\":[\"English\",\"API\"]}]}}";
+		String expectedResult = "[\"en_w_709\"]";
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/dictionary/word/" + TEST_CREATE_LANGUAGE;
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(contentString.getBytes())
+					.header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Response response = jsonToObject(actions);
+		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		List nodeIds = (List) result.get("node_id");
+		String resultString = mapper.writeValueAsString(nodeIds);
+		Assert.assertEquals(expectedResult, resultString);
+	}
+
+	@SuppressWarnings({ "unchecked"})
+	@Test
+	public void translateWord() throws JsonParseException, JsonMappingException,
+			IOException {
+		createWordForTranslation();
+		String expectedResult = "[{\"words\":[\"सालाना\",\"वार्षिक\",\"प्रकार\"],\"language_id\":\"hi\"},{\"words\":[\"ಅಳತೊಡಗಿದ\",\"ಪ್ರಧಾನಿಯಾದ\",\"ಹಾರಿಸಿದರು\"],\"language_id\":\"ka\"}]";
+		String lemma = "en_w_709";
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/dictionary/word/"+TEST_CREATE_LANGUAGE+"/translation";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
+					.param("words", new String[]{"en_w_709"})
+					.param("languages", new String[]{"hi"})
+					.header("user-id", "ilimi"));
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response resp = jsonToObject(actions);
+		Assert.assertEquals("successful", resp.getParams().getStatus());
+		Map<String, Object> result = resp.getResult();
+		Map<String, Object> wordMap = (Map<String, Object>) result
+				.get("translations");
+		String translations = (String) wordMap
+				.get(lemma);
+		Assert.assertEquals(expectedResult, translations);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Test
 	public void searchWord() throws JsonParseException, JsonMappingException,
