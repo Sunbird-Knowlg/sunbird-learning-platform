@@ -3,6 +3,19 @@ java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
+proc proc_isNotNull {value} {
+	set exist false
+	java::try {
+		set hasValue [java::isnull $value]
+		if {$hasValue == 0} {
+			set exist true
+		}
+	} catch {Exception err} {
+    	set exist false
+	}
+	return $exist
+}
+
 proc proc_isEmpty {value} {
 	set exist false
 	java::try {
@@ -32,18 +45,31 @@ $content put "identifier" $content_id
 
 set osId_Error false
 set contentType [$content get "contentType"]
-set contentTypeEmpty [proc_isEmpty $contentType]
+set contentTypeNotNull [proc_isNotNull $contentType]
+set contentTypeEmpty false 
+if {$contentTypeNotNull} {
+	set contentTypeEmpty [proc_isEmpty $contentType]
+}
 if {!$contentTypeEmpty} {
 	set osId [$content get "osId"]
-	set osIdEmpty [proc_isEmpty $osId]
-	set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
+	set osIdNotNull [proc_isNotNull $osId]
+	set osIdEmpty false
+	if {$osIdNotNull} {
+		set osIdEmpty [proc_isEmpty $osId]
+	}
+	set osIdCheck 1
+	if {$contentTypeNotNull} {
+		set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
+	}	
 	if {$osIdCheck != 1 && $osIdEmpty} {
 		set osId_Error true
 	}
 	if {$osId_Error} {
 		set result_map [java::new HashMap]
-		$result_map put "error" "OSId cannot be empty"
-		set response_list [create_response $result_map]
+		$result_map put "code" "ERR_CONTENT_INVALID_OSID"
+		$result_map put "message" "OSId cannot be empty"
+		$result_map put "responseCode" [java::new Integer 400]
+		set response_list [create_error_response $result_map]
 		return $response_list
 	} else {
 		set domain_obj [convert_to_graph_node $content $def_node]
@@ -52,7 +78,9 @@ if {!$contentTypeEmpty} {
 	}
 } else {
 	set result_map [java::new HashMap]
-	$result_map put "error" "Content Type cannot be empty"
-	set response_list [create_response $result_map]
+	$result_map put "code" "ERR_CONTENT_INVALID_CONTENT_TYPE"
+	$result_map put "message" "Content Type cannot be empty"
+	$result_map put "responseCode" [java::new Integer 400]
+	set response_list [create_error_response $result_map]
 	return $response_list
 }

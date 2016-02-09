@@ -7,9 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -44,6 +41,9 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONStringer;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -336,6 +336,35 @@ public class LanguageIndexTest {
 		}
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
+	}
+	
+	@Test
+	public void loadCitationsErrorTest() throws JsonParseException,
+			JsonMappingException, IOException {
+		URL filePath = LanguageIndexTest.class.getResource(
+				"/testData/");
+		
+		String str = filePath.getPath();
+		String contentString = "{\"request\":{\"file_path\":\""
+				+ str
+				+ "\",\"source_type\":\"textbooks\",\"grade\":\"1\",\"source\":\"Class1\"}}";
+
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/indexes/loadCitations/"
+				+ TEST_LOAD_LANGUAGE;
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(contentString.getBytes())
+					.header("user-id", "ilimi"));
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response resp = jsonToObject(actions);
+		Assert.assertEquals("failed", resp.getParams().getStatus());
 	}
 
 	@Test

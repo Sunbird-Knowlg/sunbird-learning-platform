@@ -367,73 +367,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         if (checkError(response)) {
             return response;
         } else {
-            List<Object> nodes = (List<Object>) response.get(ContentAPIParams.contents.name());
+            List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
             List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-            Map<String, Node> nodeMap = new HashMap<String, Node>();
             List<String> childrenIds = new ArrayList<String>();
-            if (null != nodes && !nodes.isEmpty()) {
-                for (Object obj : nodes) {
-                    List<Node> list = (List<Node>) obj;
-                    for (Node node : list) {
-                        nodeMap.put(node.getIdentifier(), node);
-                        if (null == node.getMetadata())
-                            node.setMetadata(new HashMap<String, Object>());
-                        node.getMetadata().put("identifier", node.getIdentifier());
-                        node.getMetadata().put("objectType", node.getObjectType());
-                        node.getMetadata().put("subject", node.getGraphId());
-                        if (null != node.getTags() && !node.getTags().isEmpty())
-                            node.getMetadata().put("tags", node.getTags());
-                        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
-                            List<NodeDTO> children = new ArrayList<NodeDTO>();
-                            for (Relation rel : node.getOutRelations()) {
-                                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
-                                        rel.getRelationType())
-                                        && StringUtils.equalsIgnoreCase(node.getObjectType(),
-                                                rel.getEndNodeObjectType())) {
-                                    childrenIds.add(rel.getEndNodeId());
-                                    children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
-                                            rel.getEndNodeObjectType(), rel.getRelationType(),
-                                            rel.getMetadata()));
-                                }
-                            }
-                            if (!children.isEmpty()) {
-                                node.getMetadata().put("children", children);
-                            }
-                        }
-                        ctnts.add(node.getMetadata());
-                    }
-                }
-                List<String> searchIds = new ArrayList<String>();
-                for (String nodeId : childrenIds) {
-                    if (!nodeMap.containsKey(nodeId)) {
-                        searchIds.add(nodeId);
-                    }
-                }
-                if (!searchIds.isEmpty()) {
-                    Response searchRes = searchNodes(taxonomyId, searchIds);
-                    if (checkError(searchRes)) {
-                        return response;
-                    } else {
-                        List<Object> list = (List<Object>) searchRes.get(ContentAPIParams.contents.name());
-                        if (null != list && !list.isEmpty()) {
-                            for (Object obj : list) {
-                                List<Node> nodeList = (List<Node>) obj;
-                                for (Node node : nodeList) {
-                                    nodeMap.put(node.getIdentifier(), node);
-                                    if (null == node.getMetadata())
-                                        node.setMetadata(new HashMap<String, Object>());
-                                    node.getMetadata().put("identifier", node.getIdentifier());
-                                    node.getMetadata().put("objectType", node.getObjectType());
-                                    node.getMetadata().put("subject", node.getGraphId());
-                                    if (null != node.getTags() && !node.getTags().isEmpty())
-                                        node.getMetadata().put("tags", node.getTags());
-                                    ctnts.add(node.getMetadata());
-                                }
-                            }
-                        }
-                    }
+            List<Node> nodes = new ArrayList<Node>();
+            if (null != list && !list.isEmpty()) {
+                for (Object obj : list) {
+                    List<Node> nodelist = (List<Node>) obj;
+                    if (null != nodelist && !nodelist.isEmpty())
+                        nodes.addAll(nodelist);
                 }
             }
+            getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
             if (ctnts.size() < contentIds.size()) {
                 throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
                         "One or more of the input content identifier are not found");
@@ -445,6 +390,77 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             String returnKey = ContentAPIParams.bundle.name();
             listRes.put(returnKey, url);
             return listRes;
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private void getContentBundleData(String taxonomyId, List<Node> nodes, List<Map<String, Object>> ctnts, List<String> childrenIds) {
+        Map<String, Node> nodeMap = new HashMap<String, Node>();
+        if (null != nodes && !nodes.isEmpty()) {
+            for (Node node : nodes) {
+                nodeMap.put(node.getIdentifier(), node);
+                Map<String, Object> metadata = new HashMap<String, Object>();
+                if (null == node.getMetadata())
+                    node.setMetadata(new HashMap<String, Object>());
+                metadata.putAll(node.getMetadata());
+                metadata.put("identifier", node.getIdentifier());
+                metadata.put("objectType", node.getObjectType());
+                metadata.put("subject", node.getGraphId());
+                metadata.remove("body");
+                if (null != node.getTags() && !node.getTags().isEmpty())
+                    metadata.put("tags", node.getTags());
+                if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+                    List<NodeDTO> children = new ArrayList<NodeDTO>();
+                    for (Relation rel : node.getOutRelations()) {
+                        if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+                                rel.getRelationType())
+                                && StringUtils.equalsIgnoreCase(node.getObjectType(),
+                                        rel.getEndNodeObjectType())) {
+                            childrenIds.add(rel.getEndNodeId());
+                            children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
+                                    rel.getEndNodeObjectType(), rel.getRelationType(),
+                                    rel.getMetadata()));
+                        }
+                    }
+                    if (!children.isEmpty()) {
+                        metadata.put("children", children);
+                    }
+                }
+                ctnts.add(metadata);
+            }
+            List<String> searchIds = new ArrayList<String>();
+            for (String nodeId : childrenIds) {
+                if (!nodeMap.containsKey(nodeId)) {
+                    searchIds.add(nodeId);
+                }
+            }
+            if (!searchIds.isEmpty()) {
+                Response searchRes = searchNodes(taxonomyId, searchIds);
+                if (checkError(searchRes)) {
+                    throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(), getErrorMessage(searchRes));
+                } else {
+                    List<Object> list = (List<Object>) searchRes.get(ContentAPIParams.contents.name());
+                    if (null != list && !list.isEmpty()) {
+                        for (Object obj : list) {
+                            List<Node> nodeList = (List<Node>) obj;
+                            for (Node node : nodeList) {
+                                nodeMap.put(node.getIdentifier(), node);
+                                Map<String, Object> metadata = new HashMap<String, Object>();
+                                if (null == node.getMetadata())
+                                    node.setMetadata(new HashMap<String, Object>());
+                                metadata.putAll(node.getMetadata());
+                                metadata.put("identifier", node.getIdentifier());
+                                metadata.put("objectType", node.getObjectType());
+                                metadata.put("subject", node.getGraphId());
+                                metadata.remove("body");
+                                if (null != node.getTags() && !node.getTags().isEmpty())
+                                    metadata.put("tags", node.getTags());
+                                ctnts.add(metadata);
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
     
@@ -749,12 +765,42 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         AppZip appZip = new AppZip(fileList, zipFilePathName, sourceFolder);
         appZip.generateFileList(new File(sourceFolder));
         appZip.zipIt(zipFilePathName);
-        long timeStempInMiliSec = System.currentTimeMillis();
         File olderName = new File(zipFilePathName);
         if (olderName.exists() && olderName.isFile()) {
-            File newName = new File(sourceFolder + File.separator + timeStempInMiliSec + olderName.getName());
+            File newName = new File(sourceFolder + File.separator + olderName.getName());
             olderName.renameTo(newName);
-            response = upload(contentId, taxonomyId, newName, folderName);
+            Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                    GraphDACParams.node_id.name(), contentId);
+            request.put(GraphDACParams.get_tags.name(), true);
+            Response getNodeRes = getResponse(request, LOGGER);
+            if (checkError(getNodeRes)) {
+                return getNodeRes;
+            }
+            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+            node.getMetadata().put("downloadUrl", newName);
+            List<Node> nodes = new ArrayList<Node>();
+            nodes.add(node);
+            List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+            List<String> childrenIds = new ArrayList<String>();
+            getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
+            String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
+            String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+            node.getMetadata().put("s3Key", urlArray[0]);
+            node.getMetadata().put("downloadUrl", urlArray[1]);
+            Integer pkgVersion = (Integer) node.getMetadata().get("pkgVersion");
+            if (null == pkgVersion || pkgVersion.intValue() < 1) {
+                pkgVersion = 1;
+            } else {
+                pkgVersion += 1;
+            }
+            node.getMetadata().put("pkgVersion", pkgVersion);
+            node.getMetadata().put("status", "Live");
+            Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+            updateReq.put(GraphDACParams.node.name(), node);
+            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+            Response updateRes = getResponse(updateReq, LOGGER);
+            updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
+            response = updateRes;
         }
         File directory = new File(sourceFolder);
         if (!directory.exists()) {

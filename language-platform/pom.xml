@@ -107,6 +107,10 @@
               					<exclude>**/enums/**</exclude>
               					<exclude>**/batch/**</exclude>
               					<exclude>**/models/**</exclude>
+              					<exclude>**/importer/**</exclude>
+              					<exclude>**/services/**</exclude>
+              					<!-- Import is not yet implemented -->
+              					<exclude>**/Import*/**</exclude>
             				</excludes>
           				</instrumentation>
           				<check>

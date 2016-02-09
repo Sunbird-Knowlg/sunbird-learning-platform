@@ -2,8 +2,6 @@ package org.ekstep.language.controllerstest;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
@@ -114,6 +112,26 @@ public class LanguageDictionaryErrorTest {
 	}
 
 	@Test
+	public void translateWord() throws JsonParseException, JsonMappingException,
+			IOException {
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/dictionary/word/"+TEST_CREATE_LANGUAGE+"/translation";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
+					.param("words", new String[]{"en_w_709"})
+					.param("languages", new String[]{"hi"})
+					.header("user-id", "ilimi"));
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		Response resp = jsonToObject(actions);
+		Assert.assertEquals("failed", resp.getParams().getStatus());
+	}
+	
+	@Test
 	public void addRelation() throws JsonParseException, JsonMappingException,
 			IOException {
 		MockMvc mockMvc;
@@ -141,7 +159,7 @@ public class LanguageDictionaryErrorTest {
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/dictionary/word/media/upload";
 		MockMultipartFile testFile = new MockMultipartFile("file",
-				"test/Ssf", "text/plain", "file".getBytes());
+				"test*[]Ssf", "text/plain", "file".getBytes());
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path)
 					.file(testFile).header("user-id", "ilimi"));
@@ -150,7 +168,7 @@ public class LanguageDictionaryErrorTest {
 		}
 
 		Response response = jsonToObject(actions);
-		Assert.assertEquals("successful", response.getParams().getStatus());
+		Assert.assertEquals("failed", response.getParams().getStatus());
 	}
 
 	@Test

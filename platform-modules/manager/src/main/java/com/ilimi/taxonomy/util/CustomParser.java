@@ -12,12 +12,10 @@ import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -34,6 +32,8 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 
 public class CustomParser  {
@@ -105,15 +105,10 @@ public class CustomParser  {
 	            transformer.transform(source, result);
 	            System.out.println("XML file updated successfully");
 	             
-	        } catch (SAXException e1) {
+	        } catch (Exception e1) {
 	            e1.printStackTrace();
-	        }catch (ParserConfigurationException  e) {
-				e.printStackTrace();
-			}catch (IOException e) {
-				e.printStackTrace();
-			}catch (TransformerException e) {
-				e.printStackTrace();
-			}
+	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e1.getMessage());
+	        }
 	}
 	
 	private static String fileNameInURL[] = null;
@@ -241,6 +236,7 @@ public class CustomParser  {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		
 		

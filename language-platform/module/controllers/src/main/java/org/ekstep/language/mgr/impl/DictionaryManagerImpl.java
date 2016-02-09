@@ -370,7 +370,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return words;
     }
 
-    @SuppressWarnings("null")
     @Override
     public Response translation(String languageId, String[] words, String[] languages) {
         if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -389,6 +388,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             if (checkError(getNodeRes)) {
                 return getNodeRes;
             } else {
+            	response = copyResponse(getNodeRes);
                 Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
                 map.put(word, node.getMetadata().get("translations"));
                 response.put("translations", map);
