@@ -679,7 +679,7 @@ public class DataNode extends AbstractNode {
         }
         return value;
     }
-
+    
     private void checkDataType(Object value, MetadataDefinition def, List<String> messages) {
         if (null != value) {
             String propName = def.getPropertyName();
@@ -709,13 +709,23 @@ public class DataNode extends AbstractNode {
                 if (null == range || range.isEmpty()) {
                     messages.add("Metadata " + propName + " should be one of: " + range);
                 } else {
-                    int length = Array.getLength(value);
-                    for (int i = 0; i < length; i++) {
-                        if (!checkRangeValue(range, Array.get(value, i))) {
-                            messages.add("Metadata " + propName + " should be one of: " + range);
-                            break;
+                    try {
+                        int length = Array.getLength(value);
+                        for (int i = 0; i < length; i++) {
+                            if (!checkRangeValue(range, Array.get(value, i))) {
+                                messages.add("Metadata " + propName + " should be one of: " + range);
+                                break;
+                            }
                         }
+                    } catch (Exception e) {
+                        messages.add("Metadata " + propName + " should be a list of values from: " + range);
                     }
+                }
+            }  else if (StringUtils.equalsIgnoreCase("list", dataType)) {
+                try {
+                    Array.getLength(value);
+                } catch (Exception e) {
+                    messages.add("Metadata " + propName + " should be a list");
                 }
             } else if (StringUtils.equalsIgnoreCase("json", dataType)) {
                 ObjectMapper mapper = new ObjectMapper();

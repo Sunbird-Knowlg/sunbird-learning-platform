@@ -105,12 +105,13 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
     }
 
     @Override
-    public Response getSubGraph(String graphId, String id, Integer depth) {
+    public Response getSubGraph(String graphId, String id, Integer depth, List<String> relations) {
         if (StringUtils.isBlank(id))
             throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Domain Id is blank");
         LOGGER.info("Find Taxonomy : " + id);
         Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverseSubGraph",
                 GraphDACParams.start_node_id.name(), id);
+        request.put(GraphDACParams.relations.name(), relations);
         if (null != depth && depth.intValue() > 0)
             request.put(GraphDACParams.depth.name(), depth);
         Response subGraphRes = getResponse(request, LOGGER);

@@ -16,6 +16,7 @@ if {$is_resultSize_null == 0} {
 	$map put "resultSize" $limit
 }
 $map put "order" $order
+$map put "status" "Live"
 set search_criteria [create_search_criteria $map]
 
 set returnFields false
