@@ -1143,13 +1143,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 										LOGGER.info("Create Item | Response: " + response);
 										Map<String, Object> resMap = response.getResult();
 										if (null != resMap.get(ContentAPIParams.node_id.name())) {
-										    String identifier = resMap.get(ContentAPIParams.node_id.name()).toString();
+										    String identifier = (String) resMap.get(ContentAPIParams.node_id.name());
 										    mapRelation.put(identifier, map.get(ContentAPIParams.concepts.name()));
 											lstAssessmentItemId.add(identifier);
-											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), "Node " + resMap.get(ContentAPIParams.node_id.name()).toString() + " Added Successfully");
+											mapAssessItemRes.put(identifier, "Assessment Item " + identifier + " Added Successfully");
 										} else {
-										    System.out.println("Item validation failed: " + resMap.get(ContentAPIParams.messages.name()).toString());
-											mapAssessItemRes.put(map.get(ContentAPIParams.identifier.name()).toString(), resMap.get(ContentAPIParams.messages.name()).toString());
+										    System.out.println("Item validation failed: " + resMap.get(ContentAPIParams.messages.name()));
+										    String id = (String) map.get(ContentAPIParams.identifier.name());
+										    if (StringUtils.isNotBlank(id))
+										        mapAssessItemRes.put(id, (String) resMap.get(ContentAPIParams.messages.name()));
 										}
 									}
 								}
@@ -1290,12 +1292,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     		List<String> lstResponse = new ArrayList<String>();
     		for (Entry<String, Object> entry : mapRelation.entrySet()) {
     			List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
-    			for (Map<String, Object> conceptMap : lstConceptMap) {
-    				String conceptId = conceptMap.get(ContentAPIParams.identifier.name()).toString();
-    				Response response = addRelation(taxonomyId, entry.getKey(), RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
-    				lstResponse.add(response.getResult().toString());
-    				Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
-    				outRelations.add(outRel);
+    			if (null != lstConceptMap && !lstConceptMap.isEmpty()) {
+    			    for (Map<String, Object> conceptMap : lstConceptMap) {
+                        String conceptId = (String) conceptMap.get(ContentAPIParams.identifier.name());
+                        Response response = addRelation(taxonomyId, entry.getKey(), RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+                        lstResponse.add(response.getResult().toString());
+                        Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+                        outRelations.add(outRel);
+                    }
     			}
     		}
     		return lstResponse;
