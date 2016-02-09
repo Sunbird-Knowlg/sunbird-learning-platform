@@ -24,7 +24,7 @@
   Scenario: Create a Question with invalid options.
     When Creating a Question Taxonomy id is numeracy with invalid question options for mcq
     Then return status of create Question is failed and response code is 400
-    And return error message as invalid assessment item property: options. is_answer is missing.
+    And return error message as no option found with answer.
     
     When Creating a Question Taxonomy id is numeracy with invalid question options for ftb
     Then return status of create Question is failed and response code is 400
@@ -32,11 +32,11 @@
     
     When Creating a Question Taxonomy id is numeracy with invalid question options for mtf
     Then return status of create Question is failed and response code is 400
-    And return error message as invalid assessment item property: rhs_options. index is missing.    
+    And return error message as invalid assessment item property: lhs_options. index is missing.    
     
     When Creating a Question Taxonomy id is numeracy with multiple answer for mcq
     Then return status of create Question is failed and response code is 400
-    And return error message as multiple answers found in a mcq assessment item.
+    And return error message as no option found with answer.
     
     When Creating a Question Taxonomy id is numeracy with no options for mcq
     Then return status of create Question is failed and response code is 400
@@ -68,16 +68,6 @@
     Then return status of create Question is failed and response code is 400
     And return error message as invalid assessment item property: options. is_answer is missing. 
 
-  Scenario: Create a Question with taxonomy is empty.
-    When Creating a Question Taxonomy id is empty with proper question data
-    Then return status of create Question is failed and response code is 400
-    And return error message as Taxonomy Id is blank
-
-  Scenario: Create a Question with taxonomy is absent.
-    When Creating a Question Taxonomy id is absent with proper question data
-    Then return status of create Question is failed and response code is 400
-    And return error message as Required String parameter 'taxonomyId' is not present
-
   Scenario: Create a Question when Content data is not in correct format or missing.
     When Creating a Question Taxonomy id is numeracy with question as blank
     Then return status of create Question is failed and response code is 400
@@ -101,7 +91,7 @@
     
     When Creating a Question Taxonomy id is numeracy with unsupported relation
     Then return status of create Question is failed and response code is 400
-    And return error message as Relation ilimi is not supported
+    And return error message as relation ilimi is not supported
     
     When Creating a Question Taxonomy id is numeracy with invalid data type
     Then return status of create Question is failed and response code is 400
