@@ -23,11 +23,15 @@ import java.util.concurrent.Future;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 @Component
 public class ContentBundle {
@@ -42,14 +46,24 @@ public class ContentBundle {
     protected static final String BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
 
     @Async
-    public void asyncCreateContentBundle(List<Map<String, Object>> contents, List<String> children, String fileName, String version) {
+    public void asyncCreateContentBundle(List<Map<String, Object>> contents, List<String> children, String fileName,
+            String version) {
+        try {
+            System.out.println("Async method invoked....");
+            createContentBundle(contents, children, fileName, version);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public String[] createContentBundle(List<Map<String, Object>> contents, List<String> children, String fileName,
+            String version) {
         String bundleFileName = BUNDLE_PATH + File.separator + fileName;
-        System.out.println("Async method invoked....");
         List<String> urlFields = new ArrayList<String>();
         urlFields.add("appIcon");
         urlFields.add("grayScaleAppIcon");
         urlFields.add("posterImage");
-        Map<String, String> downloadUrls = new HashMap<String, String>();
+        Map<Object, String> downloadUrls = new HashMap<Object, String>();
         for (Map<String, Object> content : contents) {
             String identifier = (String) content.get("identifier");
             if (children.contains(identifier))
@@ -62,10 +76,20 @@ public class ContentBundle {
             }
             for (Map.Entry<String, Object> entry : content.entrySet()) {
                 if (urlFields.contains(entry.getKey())) {
-                    if (HttpDownloadUtility.isValidUrl(entry.getValue())) {
-                        downloadUrls.put(entry.getValue().toString(), identifier.trim());
-                        entry.setValue(identifier.trim() + File.separator
-                                + entry.getValue().toString().substring(entry.getValue().toString().lastIndexOf('/') + 1));
+                    Object val = entry.getValue();
+                    if (val instanceof File) {
+                        File file = (File) val;
+                        downloadUrls.put(val, identifier.trim());
+                        entry.setValue(identifier.trim() + File.separator + file.getName());
+                    } else if (HttpDownloadUtility.isValidUrl(val)) {
+                        downloadUrls.put(val, identifier.trim());
+                        String file = entry.getValue().toString()
+                                .substring(entry.getValue().toString().lastIndexOf('/') + 1);
+                        if (file.endsWith(".ecar")) {
+                            entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+                        } else {
+                            entry.setValue(identifier.trim() + File.separator + file);
+                        }
                     }
                 }
             }
@@ -91,28 +115,69 @@ public class ContentBundle {
                     String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
                     System.out.println("AWS Upload is complete.... on URL : " + url.toString());
                     downloadedFiles.add(contentBundle);
+                    return url;
                 } catch (Throwable e) {
-                    e.printStackTrace();
+                    throw e;
                 } finally {
                     HttpDownloadUtility.DeleteFiles(downloadedFiles);
                 }
             }
+            return null;
         } catch (Exception e) {
             e.printStackTrace();
+            throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), e.getMessage());
         }
     }
 
-    private List<File> getContentBundle(final Map<String, String> downloadUrls) {
+    private List<File> getContentBundle(final Map<Object, String> downloadUrls) {
         List<File> files = new ArrayList<File>();
         try {
             ExecutorService pool = Executors.newFixedThreadPool(10);
             List<Callable<File>> tasks = new ArrayList<Callable<File>>(downloadUrls.size());
-            for (final String url : downloadUrls.keySet()) {
+            for (final Object val : downloadUrls.keySet()) {
                 tasks.add(new Callable<File>() {
                     public File call() throws Exception {
-                        createDirectoryIfNeeded(BUNDLE_PATH + File.separator + downloadUrls.get(url));
-                        return HttpDownloadUtility.downloadFile(url,
-                                BUNDLE_PATH + File.separator + downloadUrls.get(url));
+                        String id = downloadUrls.get(val);
+                        String destPath = BUNDLE_PATH + File.separator + id;
+                        createDirectoryIfNeeded(destPath);
+                        if (val instanceof File) {
+                            File file = (File) val;
+                            File newFile = new File(destPath + File.separator + file.getName());
+                            file.renameTo(newFile);
+                            return newFile;
+                        } else {
+                            String url = val.toString();
+                            if (url.endsWith(".ecar")) {
+                                File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
+                                UnzipUtility unzipper = new UnzipUtility();
+                                unzipper.unzip(ecarFile.getPath(), destPath + "_ecar");
+                                File ecarFolder = new File(destPath + "_ecar" + File.separator + id);
+                                File[] fileList = ecarFolder.listFiles();
+                                File zipFile = null;
+                                if (null != fileList && fileList.length > 0) {
+                                    for (File f : fileList) {
+                                        if (f.getName().endsWith(".zip")) {
+                                            zipFile = f;
+                                        }
+                                    }
+                                }
+                                if (null != zipFile) {
+                                    String newFileName = id + ".zip";
+                                    File contentDir = new File(destPath);
+                                    if (!contentDir.exists())
+                                        contentDir.mkdirs();
+                                    zipFile.renameTo(new File(contentDir + File.separator + newFileName));
+                                    File ecarTemp = new File(destPath + "_ecar");
+                                    FileUtils.deleteDirectory(ecarTemp);
+                                    File newFile = new File(contentDir + File.separator + newFileName);
+                                    return newFile;
+                                } else {
+                                    return null;
+                                }
+                            } else {
+                                return HttpDownloadUtility.downloadFile(url, destPath);
+                            }
+                        }
                     }
                 });
             }
@@ -144,7 +209,6 @@ public class ContentBundle {
                 fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1) + File.separator
                         + file.getName();
             }
-
             // new zip entry and copying inputstream with file to
             // zipOutputStream, after all closing streams
             zipOutputStream.putNextEntry(new ZipEntry(fileName));
