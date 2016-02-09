@@ -41,8 +41,10 @@ if {!$contentTypeEmpty} {
 	}
 	if {$osId_Error} {
 		set result_map [java::new HashMap]
-		$result_map put "error" "OSId cannot be empty"
-		set response_list [create_response $result_map]
+		$result_map put "code" "ERR_CONTENT_INVALID_OSID"
+		$result_map put "message" "OSId cannot be empty"
+		$result_map put "responseCode" [java::new Integer 400]
+		set response_list [create_error_response $result_map]
 		return $response_list
 	} else {
 		set domain_obj [convert_to_graph_node $content $def_node]
@@ -51,7 +53,9 @@ if {!$contentTypeEmpty} {
 	}
 } else {
 	set result_map [java::new HashMap]
-	$result_map put "error" "Content Type cannot be empty"
-	set response_list [create_response $result_map]
+	$result_map put "code" "ERR_CONTENT_INVALID_CONTENT_TYPE"
+	$result_map put "message" "Content Type cannot be empty"
+	$result_map put "responseCode" [java::new Integer 400]
+	set response_list [create_error_response $result_map]
 	return $response_list
 }
