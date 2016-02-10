@@ -176,7 +176,11 @@ public class CustomParser  {
     				String itemJsonPath = file.getParent()+File.separator+type+File.separator+nameOfJsonFile+".json";
     				File jsonFile = new File(itemJsonPath);
     				if (jsonFile.exists()) {
-    					controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
+    					if (isJSONValid(jsonFile)) {
+    						controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
+						}else{
+							throw new ServerException(ContentErrorCodes.ERR_CONTENT_JSON_INVALID.name(), "Json invalid for" +type);
+						}
 					}
 				}
 			}
@@ -192,10 +196,21 @@ public class CustomParser  {
 		}
     }
     
+    public static boolean isJSONValid(File jsonFile) {
+        try {
+           final ObjectMapper mapper = new ObjectMapper();
+           mapper.readTree(jsonFile);
+           return true;
+        } catch (IOException e) {
+           return false;
+        }
+      }
     public static void main(String[] args) {
 		//C:\ilimi\StoryFolder\1452487631391_PrathamStories_Day_1_JAN_9_2016\items//C:\\ilimi\\download\\test\\index.ecml", "items
-    	updateJsonInEcml("C:\\ilimi\\StoryFolder\\1452487631391_PrathamStories_Day_1_JAN_9_2016\\index.ecml", "items");
-    	readJsonFileDownload(null,null);
+    	//updateJsonInEcml("C:\\ilimi\\StoryFolder\\1452487631391_PrathamStories_Day_1_JAN_9_2016\\index.ecml", "items");
+    	//readJsonFileDownload(null,null);
+    	//File jsonFile = new File("C:\\ilimi\\download\\testjson\\sample_with_mcq.json");
+    	//isJSONValid(jsonFile);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

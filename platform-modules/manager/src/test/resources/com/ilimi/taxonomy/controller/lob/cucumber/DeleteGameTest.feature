@@ -12,6 +12,6 @@ Feature: Test all scenarios of delete Game.
   	When I Give input taxonomy ID absent and Game ID G1
     Then I should get Error Taxonomy Id is Required and status is 400            
 
-  Scenario: Delete a Game using identifier.
-  	When I Give input taxonomy ID numeracy and Game ID jeetu
-    Then I should get Error Node not found and status is 404
+ # Scenario: Delete a Game using identifier.
+ # 	When I Give input taxonomy ID numeracy and Game ID jeetu
+    #Then I should get Error Node not found and status is 404
