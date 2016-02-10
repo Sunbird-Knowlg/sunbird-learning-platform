@@ -14,17 +14,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import scala.Tuple2;
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -34,10 +23,12 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
+import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
@@ -60,6 +51,17 @@ import com.ilimi.graph.reader.GraphReaderFactory;
 import com.ilimi.graph.reader.JsonGraphReader;
 import com.ilimi.graph.writer.GraphWriterFactory;
 import com.ilimi.graph.writer.RDFGraphWriter;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import scala.Tuple2;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
 
 public class Graph extends AbstractDomainObject {
 
@@ -118,6 +120,55 @@ public class Graph extends AbstractDomainObject {
         try {
             final ExecutionContext ec = manager.getContext().dispatcher();
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            
+            // get all sets
+            final Request setNodesReq = new Request(req);
+            setNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+            setNodesReq.setOperation("getNodesByProperty");
+            Property setNodeProperty = new Property(SystemProperties.IL_SYS_NODE_TYPE.name(),
+                    SystemNodeTypes.SET.name());
+            setNodesReq.put(GraphDACParams.metadata.name(), setNodeProperty);
+            Future<Object> setNodesResponse = Patterns.ask(dacRouter, setNodesReq, timeout);
+            setNodesResponse.onComplete(new OnComplete<Object>() {
+                @Override
+                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                    if (null != arg0) {
+                        manager.handleException(arg0, getParent());
+                    } else {
+                        if (arg1 instanceof Response) {
+                            Response res = (Response) arg1;
+                            List<Node> setNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+                            if (null != setNodes && !setNodes.isEmpty()) {
+                                System.out.println("Total sets: " + setNodes.size());
+                                ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+                                for (Node node : setNodes) {
+                                    List<String> memberIds = new ArrayList<String>();
+                                    if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+                                        for (Relation rel : node.getOutRelations()) {
+                                            if (StringUtils.equalsIgnoreCase(RelationTypes.SET_MEMBERSHIP.relationName(), rel.getRelationType())) {
+                                                memberIds.add(rel.getEndNodeId());
+                                            }
+                                        }
+                                    }
+                                    if (null != memberIds && !memberIds.isEmpty()) {
+                                        System.out.println("Loading set: " + node.getIdentifier() + ", members: " + memberIds.size());
+                                        Request request = new Request(setNodesReq);
+                                        request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+                                        request.setOperation("createSet");
+                                        request.put(GraphDACParams.set_id.name(), node.getIdentifier());
+                                        request.put(GraphDACParams.members.name(), memberIds);
+                                        cacheRouter.tell(request, manager.getSelf());
+                                    }
+                                }
+                            }
+                        } else {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_LOAD_GRAPH_UNKNOWN_ERROR.name(),
+                                    "Failed to get set nodes", ResponseCode.SERVER_ERROR, getParent());
+                        }
+                    }
+                }
+            }, ec);
+            
             // get all definition nodes
             final Request defNodesReq = new Request(req);
             defNodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
@@ -136,6 +187,7 @@ public class Graph extends AbstractDomainObject {
                             Response res = (Response) arg1;
                             List<Node> defNodes = (List<Node>) res.get(GraphDACParams.node_list.name());
                             if (null != defNodes && !defNodes.isEmpty()) {
+                                System.out.println("Total def nodes: " + defNodes.size());
                                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                                 for (Node defNode : defNodes) {
                                     DefinitionNode node = new DefinitionNode(manager, defNode);
@@ -152,6 +204,8 @@ public class Graph extends AbstractDomainObject {
                     }
                 }
             }, ec);
+            
+            
         } catch (Exception e) {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_GRAPH_UNKNOWN_ERROR.name(), e.getMessage(),
                     e);

@@ -707,14 +707,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             FileUtils.writeStringToFile(file, contentBody);
             String appIcon = (String) metadata.get("appIcon");
             if (StringUtils.isNotBlank(appIcon)) {
-                HttpDownloadUtility.downloadFile(appIcon, tempWithTimeStamp);
-                String logoname = appIcon.substring(appIcon.lastIndexOf('/') + 1);
-                File olderName = new File(tempWithTimeStamp + logoname);
+                File logoFile = HttpDownloadUtility.downloadFile(appIcon, tempWithTimeStamp);
                 try {
-                    if (null != olderName && olderName.exists() && olderName.isFile()) {
-                        String parentFolderName = olderName.getParent();
+                    if (null != logoFile && logoFile.exists() && logoFile.isFile()) {
+                        String parentFolderName = logoFile.getParent();
                         File newName = new File(parentFolderName + File.separator + "logo.png");
-                        olderName.renameTo(newName);
+                        logoFile.renameTo(newName);
                     }
                 } catch (Exception ex) {
                     throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
@@ -762,8 +760,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
         String zipFilePathName = sourceFolder + fileName + ".zip";
         List<String> fileList = new ArrayList<String>();
-        AppZip appZip = new AppZip(fileList, zipFilePathName, sourceFolder);
-        appZip.generateFileList(new File(sourceFolder));
+        AppZip appZip = new AppZip(fileList, zipFilePathName, filePath);
+        appZip.generateFileList(new File(filePath));
         appZip.zipIt(zipFilePathName);
         File olderName = new File(zipFilePathName);
         if (olderName.exists() && olderName.isFile()) {

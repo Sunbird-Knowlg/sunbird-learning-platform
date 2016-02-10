@@ -27,9 +27,10 @@ public class HttpDownloadUtility {
      *            path of the directory to save the file
      */
     public static File downloadFile(String fileURL, String saveDir) {
+        HttpURLConnection httpConn = null;
         try {
             URL url = new URL(fileURL);
-            HttpURLConnection httpConn = (HttpURLConnection) url.openConnection();
+            httpConn = (HttpURLConnection) url.openConnection();
             int responseCode = httpConn.getResponseCode();
             // always check HTTP response code first
             if (responseCode == HttpURLConnection.HTTP_OK) {
@@ -72,9 +73,11 @@ public class HttpDownloadUtility {
             } else {
                 System.out.println("No file to download. Server replied HTTP code: " + responseCode);
             }
-            httpConn.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
+        } finally {
+            if (null != httpConn)
+                httpConn.disconnect();
         }
         return null;
     }
