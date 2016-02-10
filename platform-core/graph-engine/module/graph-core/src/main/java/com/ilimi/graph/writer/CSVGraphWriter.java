@@ -71,8 +71,6 @@ public class CSVGraphWriter implements GraphWriter {
 
     public Map<String, String> getNode(Node node, List<String> headers) {
         Map<String, String> nodeMap = new HashMap<String, String>();
-        nodeMap.put(CSVGraphReader.PROPERTY_ID, node.getIdentifier());
-        nodeMap.put(CSVGraphReader.PROPERTY_OBJECT_TYPE, node.getObjectType());
         getKeys(node.getMetadata(), headers);
         Map<String, List<String>> relMap = new HashMap<String, List<String>>();
         if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -104,6 +102,8 @@ public class CSVGraphWriter implements GraphWriter {
             String rel = stringify(rels, ",");
             nodeMap.put(entry.getKey(), rel);
         }
+        nodeMap.put(CSVGraphReader.PROPERTY_ID, node.getIdentifier());
+        nodeMap.put(CSVGraphReader.PROPERTY_OBJECT_TYPE, node.getObjectType());
         return nodeMap;
     }
 
