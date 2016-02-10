@@ -81,7 +81,7 @@ public class CustomParser  {
     public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
 		
 			String filePath1 = filePath+File.separator+"index.ecml";
-			String assetDir = assetFolder+File.separator+"assets";
+			String assetDir = filePath+File.separator+"assets";
 			File file1 = new File(assetDir);
 			if (!file1.exists()) {
 				file1.mkdir();
@@ -200,7 +200,7 @@ public class CustomParser  {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void readJsonFileDownload(String filePath, String sourceFolder) {
-		String assetDir = sourceFolder+File.separator+"assets";
+		String assetDir = filePath+File.separator+"assets";
 		String jsonFilePath= filePath+File.separator+"index.json";
 		String jsonString = readFile(new File(jsonFilePath));
 		ObjectMapper mapper = new ObjectMapper();
