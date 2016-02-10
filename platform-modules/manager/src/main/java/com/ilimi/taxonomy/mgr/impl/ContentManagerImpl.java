@@ -785,9 +785,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
             node.getMetadata().put("s3Key", urlArray[0]);
             node.getMetadata().put("downloadUrl", urlArray[1]);
-            Integer pkgVersion = (Integer) node.getMetadata().get("pkgVersion");
+            Double pkgVersion = (Double) node.getMetadata().get("pkgVersion");
             if (null == pkgVersion || pkgVersion.intValue() < 1) {
-                pkgVersion = 1;
+                pkgVersion = 1.0;
             } else {
                 pkgVersion += 1;
             }
@@ -1072,7 +1072,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         if (metadata.get("pkgVersion") == null) {
             metadata.put("pkgVersion", 1);
         } else {
-            int version = (Integer) metadata.get("pkgVersion") + 1;
+            Double version = (Double) metadata.get("pkgVersion") + 1;
             metadata.put("pkgVersion", version);
         }
         Object mimeType = getMimeType(new File(olderName.getName()));
