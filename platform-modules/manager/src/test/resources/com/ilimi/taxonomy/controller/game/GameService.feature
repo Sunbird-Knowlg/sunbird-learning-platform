@@ -14,9 +14,6 @@ Feature: BDD test scenarios for Game Service
     When Status is Mock
     Then return status is successful and response code is 200 and games list size is gt 0
     
-    When Fields parameter is invalid
-    Then return status is failed and error code is ERR_GAME_INVALID_PARAM and message is Request Parameter 'fields' should be a list
-    
     When Fields parameter is name
     Then return status is successful and games list has only name
     

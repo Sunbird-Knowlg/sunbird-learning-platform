@@ -18,7 +18,7 @@ Feature: Test all scenarios of update concept.
     
   Scenario: Update a concept using wron identifier.
   	When i give Taxonomy ID numeracy and concept is Num:C1
-    Then i should get errMsg is node Not found
+    Then i should get errMsg is Node Metadata validation failed
     
   Scenario: Update a concept when object type is blank.
   	When i give Taxonomy ID numeracy and concept is Num:C1

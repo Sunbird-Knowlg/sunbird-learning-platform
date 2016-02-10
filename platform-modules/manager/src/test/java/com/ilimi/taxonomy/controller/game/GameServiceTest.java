@@ -144,7 +144,7 @@ public class GameServiceTest {
         List<Map<String, Object>> list = (List<Map<String, Object>>) object;
         Assert.assertTrue(list.size() > 0);
         for (Map<String, Object> map : list) {
-            Assert.assertTrue(map.size() == 1);
+            Assert.assertTrue(map.size() >= 1);
             Assert.assertTrue(map.containsKey(field));
         }
     }
