@@ -47,7 +47,7 @@
           "dataType": "Select",
           "range": [
             "Draft",
-            "Active",
+            "Live",
             "Retired"
           ],
           "required": false,

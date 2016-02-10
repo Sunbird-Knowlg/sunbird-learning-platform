@@ -12,6 +12,7 @@ public class NodeDTO implements Serializable {
     private String name;
     private String objectType;
     private String relation;
+    private String description;
     private Integer index;
 
     public NodeDTO() {
@@ -25,15 +26,25 @@ public class NodeDTO implements Serializable {
     }
 
     public NodeDTO(String identifier, String name, String objectType, String relation) {
+        this(identifier, name, null, objectType, relation);
+    }
+    
+    public NodeDTO(String identifier, String name, String description, String objectType, String relation) {
         this.identifier = identifier;
         this.name = name;
+        this.description = description;
         this.objectType = objectType;
         this.relation = relation;
     }
 
     public NodeDTO(String identifier, String name, String objectType, String relation, Map<String, Object> metadata) {
+        this(identifier, name, null, objectType, relation, metadata);
+    }
+    
+    public NodeDTO(String identifier, String name, String description, String objectType, String relation, Map<String, Object> metadata) {
         this.identifier = identifier;
         this.name = name;
+        this.description = description;
         this.objectType = objectType;
         this.relation = relation;
         if (null != metadata && !metadata.isEmpty()) {
@@ -81,5 +92,13 @@ public class NodeDTO implements Serializable {
 
     public void setIndex(Integer index) {
         this.index = index;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

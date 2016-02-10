@@ -10,6 +10,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
+import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -86,6 +87,21 @@ public class CreateSearchCriteria implements ICommand, Command {
                                     Filter dto = (Filter) mapper.readValue(strObject, Filter.class);
                                     if (null != dto)
                                         filters.add(dto);
+                                }
+                            }
+                        } else if (StringUtils.equalsIgnoreCase("relationCriteria", entry.getKey())) {
+                            List<Map> list = (List<Map>) map.get("relationCriteria");
+                            if (null != list && !list.isEmpty()) {
+                                for (Map relationMap : list) {
+                                    String relation = (String) relationMap.get("name");
+                                    String objectType = (String) relationMap.get("objectType");
+                                    if (StringUtils.isNotBlank(relation)) {
+                                        RelationCriterion rc = new RelationCriterion(relation, objectType);
+                                        List<String> identifiers = (List<String>) relationMap.get("identifiers");
+                                        if (null != identifiers && !identifiers.isEmpty())
+                                            rc.setIdentifiers(identifiers);
+                                        sc.addRelationCriterion(rc);
+                                    }
                                 }
                             }
                         } else {

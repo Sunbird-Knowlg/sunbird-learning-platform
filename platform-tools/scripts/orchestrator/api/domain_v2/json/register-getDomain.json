@@ -6,6 +6,12 @@
           "name": "domain_id",
           "index": 0,
           "routingParam": false
+        },
+        {
+            "name": "fields",
+            "index": 1,
+            "datatype": "java.util.ArrayList",
+            "routingParam": false
         }
     ],
     "requestPath": {
@@ -13,6 +19,9 @@
         "url": "/v2/domains/*",
         "pathParams": [
           "domain_id"
+        ],
+        "requestParams": [
+          "fields"
         ]
     },
     "body": ""

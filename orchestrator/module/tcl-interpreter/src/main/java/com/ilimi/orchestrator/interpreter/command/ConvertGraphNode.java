@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
@@ -81,7 +83,13 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                         if (fieldList.contains(entry.getKey()))
                             map.put(entry.getKey(), entry.getValue());
                     } else {
-                        map.put(entry.getKey(), entry.getValue());
+                        String key = entry.getKey();
+                        if (StringUtils.isNotBlank(key)) {
+                            char c[] = key.toCharArray();
+                            c[0] = Character.toLowerCase(c[0]);
+                            key = new String(c);
+                            map.put(key, entry.getValue());
+                        }
                     }
                 }
             }
@@ -98,7 +106,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             list = new ArrayList<NodeDTO>();
                             inRelMap.put(inRel.getRelationType() + inRel.getStartNodeObjectType(), list);
                         }
-                        list.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                        list.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(), getDescription(inRel.getStartNodeMetadata()),
                                 inRel.getStartNodeObjectType(), inRel.getRelationType()));
                     }
                 }
@@ -114,7 +122,7 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
                             list = new ArrayList<NodeDTO>();
                             outRelMap.put(key, list);
                         }
-                        list.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                        list.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(), getDescription(outRel.getEndNodeMetadata()),
                                 outRel.getEndNodeObjectType(), outRel.getRelationType(), outRel.getMetadata()));
                     }
                 }
@@ -125,6 +133,13 @@ public class ConvertGraphNode extends BaseSystemCommand implements ICommand, Com
             map.put("identifier", node.getIdentifier());
         }
         return map;
+    }
+    
+    private String getDescription(Map<String, Object> metadata) {
+        if (null != metadata && !metadata.isEmpty()) {
+            return (String) metadata.get("description");
+        }
+        return null;
     }
 
     private void updateReturnMap(Map<String, Object> map, Map<String, List<NodeDTO>> relMap,

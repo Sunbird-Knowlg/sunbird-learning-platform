@@ -65,7 +65,7 @@ public class ExecutionController extends BaseOrchestratorController {
     public ResponseEntity<Response> delete(HttpServletRequest request, HttpServletResponse response) {
         return executeScript(request, response, RequestTypes.DELETE.name(), null);
     }
-
+    
     private ResponseEntity<Response> executeScript(HttpServletRequest request, HttpServletResponse response,
             String type, Map<String, Object> map) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
@@ -73,7 +73,7 @@ public class ExecutionController extends BaseOrchestratorController {
         try {
             if (null == script) {
                 throw new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
-                        "Script not found for the request path: " + path);
+                        "Invalid request path: " + path);
             }
             Map<String, Object> params = getParams(request, script, path, map);
             Response resp = executor.execute(script, params);
@@ -90,6 +90,7 @@ public class ExecutionController extends BaseOrchestratorController {
             }
             return getResponseEntity(resp, script.getName());
         } catch (Exception e) {
+            e.printStackTrace();
             return getExceptionResponseEntity(e, path);
         }
     }
@@ -100,7 +101,15 @@ public class ExecutionController extends BaseOrchestratorController {
         List<OrchestratorScript> scripts = manager.getAllScripts();
         OrchestratorScriptMap.loadScripts(scripts, commands);
     }
-
+    
+    private String escapeSpecialChars(String param) {
+        if (StringUtils.isNotBlank(param)) {
+            param = param.replace("\\", "\\\\");
+            param = param.replace("$", "\\$");
+        }
+        return param;
+    }
+    
     private OrchestratorScript getScript(String path, String type) {
         Map<String, OrchestratorScript> map = OrchestratorScriptMap.scriptMap.get(type);
         if (null != map && !map.isEmpty()) {
@@ -122,6 +131,7 @@ public class ExecutionController extends BaseOrchestratorController {
                                 } else {
                                     param = path.substring(index);
                                 }
+                                param = escapeSpecialChars(param);
                                 url = url.replaceFirst("\\*", param);
                             }
                             index = url.indexOf("*", 0);
@@ -184,6 +194,7 @@ public class ExecutionController extends BaseOrchestratorController {
                         param = path.substring(index);
                     }
                     pathParamMap.put(reqPath.getPathParams().get(i), param);
+                    param = escapeSpecialChars(param);
                     url = url.replaceFirst("\\*", param);
                     index = url.indexOf("*", 0);
                 } else {

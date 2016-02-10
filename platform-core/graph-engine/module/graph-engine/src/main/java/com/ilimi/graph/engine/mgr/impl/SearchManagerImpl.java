@@ -252,7 +252,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
                 if (null != relations && !relations.isEmpty()) {
                     for (String relation : relations) {
                         traverser.traversal(Traverser.DEPTH_FIRST_TRAVERSAL)
-                                .traverseRelation(new RelationTraversal(relation));
+                                .traverseRelation(new RelationTraversal(relation, RelationTraversal.DIRECTION_OUT));
                     }
                 }
                 if (null != depth && depth.intValue() > 0)

@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 @Controller
@@ -28,12 +32,14 @@ public class DomainV2Controller extends BaseController {
     @RequestMapping(value = "/graph/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> find(@PathVariable(value = "id") String id,
-            @RequestParam(value = "depth", required = false) Integer depth,
+            @RequestParam(value = "depth", required = false, defaultValue = "5") Integer depth,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "domain.graph";
         LOGGER.info("domain.graph | Id: " + id + " | user-id: " + userId);
         try {
-            Response response = taxonomyManager.getSubGraph("domain", id, depth);
+            List<String> relations = new ArrayList<String>();
+            relations.add(RelationTypes.HIERARCHY.relationName());
+            Response response = taxonomyManager.getSubGraph("domain", id, depth, relations);
             LOGGER.info("Domain Graph | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
