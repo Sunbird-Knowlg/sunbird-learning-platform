@@ -275,11 +275,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
 
-        Integer pkgVersion = (Integer) node.getMetadata().get("pkgVersion");
+        Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
         if (null == pkgVersion || pkgVersion.intValue() < 1) {
             pkgVersion = 1;
         } else {
-            pkgVersion += 1;
+            pkgVersion = pkgVersion.doubleValue() + 1;
         }
         node.getMetadata().put("pkgVersion", pkgVersion);
 
@@ -735,7 +735,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
     	return null;
 	}
-	
+    
     /**
      * this method parse ECML file and find src to download media type in assets
      * folder and finally zip parent folder.
@@ -785,11 +785,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
             node.getMetadata().put("s3Key", urlArray[0]);
             node.getMetadata().put("downloadUrl", urlArray[1]);
-            Double pkgVersion = (Double) node.getMetadata().get("pkgVersion");
+            Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
             if (null == pkgVersion || pkgVersion.intValue() < 1) {
                 pkgVersion = 1.0;
             } else {
-                pkgVersion += 1;
+                pkgVersion = pkgVersion.doubleValue() + 1;;
             }
             node.getMetadata().put("pkgVersion", pkgVersion);
             node.getMetadata().put("status", "Live");

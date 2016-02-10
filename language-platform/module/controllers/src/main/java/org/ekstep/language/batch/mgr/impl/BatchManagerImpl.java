@@ -88,7 +88,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     public Response updateFrequencyCounts(String languageId) {
         List<Node> nodes = getAllWords(languageId);
         if (null != nodes && !nodes.isEmpty()) {
-            System.out.println("Total words: " + nodes.size());
             String[] groupBy = new String[] { "pos", "sourceType", "source", "grade" };
             List<String> words = new ArrayList<String>();
             Map<String, Node> nodeMap = new HashMap<String, Node>();
@@ -98,6 +97,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                 Map<String, Object> wordInfoMap = new HashMap<String, Object>();
                 List<String> groupList = Arrays.asList(groupBy);
                 getIndexInfo(languageId, indexesMap, words, groupList);
+                System.out.println("indexesMap size: " + indexesMap.size());
                 getWordInfo(languageId, wordInfoMap, words);
                 if (null != nodeMap && !nodeMap.isEmpty()) {
                     for (Entry<String, Node> entry : nodeMap.entrySet()) {
@@ -139,13 +139,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                         updateReq.put(GraphDACParams.node.name(), node);
                         updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                         try {
-                            System.out.println("Sending update req for : " + node.getIdentifier());
                             getResponse(updateReq, LOGGER);
-                            System.out.println("Update complete for : " + node.getIdentifier());
                         } catch (Exception e) {
                             System.out
                                     .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
                         }
+                        System.out.println("update complete");
                     }
                 }
             }
