@@ -1,4 +1,4 @@
-package com.ekstep.language.batch.mgr.impl;
+package org.ekstep.language.batch.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.batch.mgr.IBatchManager;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -17,7 +18,6 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.mgr.impl.BaseLanguageManager;
 import org.springframework.stereotype.Component;
 
-import com.ekstep.language.batch.mgr.IBatchManager;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;

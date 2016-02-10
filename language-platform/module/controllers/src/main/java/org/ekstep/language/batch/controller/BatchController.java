@@ -1,7 +1,9 @@
-package com.ekstep.language.batch.controller;
+package org.ekstep.language.batch.controller;
 
 import java.util.Map;
 
+import org.ekstep.language.batch.mgr.IBatchManager;
+import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.controller.BaseLanguageController;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -12,8 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.ekstep.language.batch.mgr.IBatchManager;
-import com.ekstep.language.batch.mgr.IWordnetCSVManager;
 import com.ilimi.common.dto.Response;
 
 @Controller

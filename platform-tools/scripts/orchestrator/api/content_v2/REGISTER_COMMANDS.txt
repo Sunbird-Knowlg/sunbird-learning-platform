@@ -1,0 +1,10 @@
+node registerScript.js api/content_v2/getContent.tcl api/content_v2/json/register-getContent.json register
+
+node registerScript.js api/content_v2/listContent.tcl api/content_v2/json/register-listContent.json register
+
+node registerScript.js api/content_v2/saveContent.tcl api/content_v2/json/register-saveContent.json register
+
+node registerScript.js api/content_v2/searchContent.tcl api/content_v2/json/register-searchContent.json register
+
+node registerScript.js api/content_v2/updateContent.tcl api/content_v2/json/register-updateContent.json register
+

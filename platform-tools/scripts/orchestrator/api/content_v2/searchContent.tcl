@@ -38,6 +38,30 @@ if {$object_null == 1} {
 		$search put "objectType" $object_type
 		$search put "nodeType" "DATA_NODE"
 
+		set concepts_list [$search get "concepts"]
+		set concepts_list_null [java::isnull $concepts_list]
+		if {$concepts_list_null == 0} {
+			set is_list [java::instanceof $concepts_list List]
+			if {$is_list == 1} {
+				set concepts_list_obj [java::cast List $concepts_list]
+				set concepts_list_size [$concepts_list_obj size]
+				if {$concepts_list_size > 0} {
+					set relations_list [java::new ArrayList]
+					set relation_query [java::new HashMap]
+					$relation_query put "name" "associatedTo"
+					$relation_query put "objectType" "Concept"
+					set concept_ids [java::new ArrayList]
+					java::for {String concept_id} $concepts_list_obj {
+						$concept_ids add $concept_id
+					}
+					$relation_query put "identifiers" $concept_ids
+					$relations_list add $relation_query
+					$search put "relationCriteria" $relations_list
+					$search remove "concepts"
+				}
+			}
+		}
+
 		set sort [$search get "sort"]
 		set limit [$search get "limit"]
 		$search put "sortBy" $sort

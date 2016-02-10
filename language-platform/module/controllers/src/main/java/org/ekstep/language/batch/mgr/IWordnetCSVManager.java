@@ -1,4 +1,4 @@
-package com.ekstep.language.batch.mgr;
+package org.ekstep.language.batch.mgr;
 
 import com.ilimi.common.dto.Response;
 

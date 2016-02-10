@@ -1,4 +1,4 @@
-package com.ekstep.language.batch.mgr.impl;
+package org.ekstep.language.batch.mgr.impl;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -18,13 +18,13 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.impl.BaseLanguageManager;
 import org.springframework.stereotype.Component;
 
-import com.ekstep.language.batch.mgr.IWordnetCSVManager;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;

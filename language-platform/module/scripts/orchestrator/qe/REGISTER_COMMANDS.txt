@@ -1,0 +1,11 @@
+node registerScript.js qe/downloadWordList.tcl qe/json/register-download-wordlist.json register
+
+node registerScript.js qe/get-synonyms.tcl qe/json/register-get-synonyms.json register
+
+node registerScript.js qe/getWordInformation.tcl qe/json/register-getWordInformation.json register
+
+node registerScript.js qe/getWordMetadata.tcl qe/json/register-get-word-metadata.json register
+
+node registerScript.js qe/getWordsBySource.tcl qe/json/register-get-words-by-source.json register
+
+node registerScript.js qe/orthographic-search.tcl qe/json/register-orthographic-search.json register
