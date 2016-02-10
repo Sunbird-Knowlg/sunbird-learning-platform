@@ -64,7 +64,7 @@ public abstract class DictionaryController extends BaseController {
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".save";
-		Request request = getRequestObject(map, objectType);
+		Request request = getRequest(map);
 		try {
 			Response response = dictionaryManager.create(languageId, objectType, request);
 			LOGGER.info("Create | Response: " + response);
