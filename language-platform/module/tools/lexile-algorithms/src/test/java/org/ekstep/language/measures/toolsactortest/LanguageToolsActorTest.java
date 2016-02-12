@@ -69,13 +69,13 @@ public class LanguageToolsActorTest {
 		ComplexityMeasures cm1 = (ComplexityMeasures) complexityMeasures.get("धागा");
 		ComplexityMeasures cm2 = (ComplexityMeasures) complexityMeasures.get("समोसा");
 		ComplexityMeasures cm3 = (ComplexityMeasures) complexityMeasures.get("एक चर्मरोग जिसमें बहुत खुजली होती है");
-		Assert.assertEquals(0.0, cm1.getOrthographic_complexity(), 0.0);
+		Assert.assertEquals(0.6, cm1.getOrthographic_complexity(), 0.0);
 		Assert.assertEquals(11.01, cm1.getPhonologic_complexity(), 0.0);
 		
-		Assert.assertEquals(0.4, cm2.getOrthographic_complexity(), 0.0);
+		Assert.assertEquals(1.0, cm2.getOrthographic_complexity(), 0.0);
         Assert.assertEquals(14.19, cm2.getPhonologic_complexity(), 0.0);
         
-        Assert.assertEquals(0.67, cm3.getOrthographic_complexity(), 0.0);
+        Assert.assertEquals(0.99, cm3.getOrthographic_complexity(), 0.0);
         Assert.assertEquals(16.32, cm3.getPhonologic_complexity(), 0.0);
 	}
 	
@@ -103,7 +103,7 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		ComplexityMeasures wordComplexity = (ComplexityMeasures) result
 				.get("word_complexity");
-		Assert.assertEquals(wordComplexity.getOrthographic_complexity(), new Double(0.4));
+		Assert.assertEquals(wordComplexity.getOrthographic_complexity(), new Double(1.0));
 		Assert.assertEquals(wordComplexity.getPhonologic_complexity(), new Double(14.19));
 	}
 
@@ -132,7 +132,7 @@ public class LanguageToolsActorTest {
 		Map<String, Object> result = response.getResult();
 		ComplexityMeasures textComplexity = (ComplexityMeasures) result
 				.get("text_complexity");
-		Assert.assertEquals(textComplexity.getOrthographic_complexity(), new Double(4.7));
+		Assert.assertEquals(textComplexity.getOrthographic_complexity(), new Double(6.9));
 		Assert.assertEquals(textComplexity.getPhonologic_complexity(), new Double(114.23));
 	}
 	
@@ -144,7 +144,7 @@ public class LanguageToolsActorTest {
 		String word="धागा";
 		String wordUnicode="\\0927\\093e \\0917\\093e";
 		Double phonicComplexity = 11.01;
-		Double orthoComplexity = 0.0;
+		Double orthoComplexity = 0.6;
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -180,7 +180,7 @@ public class LanguageToolsActorTest {
 		String word="धागा";
 		String wordUnicode="\\0927\\093e \\0917\\093e";
 		Double phonicComplexity = 11.01;
-		Double orthoComplexity = 0.0;
+		Double orthoComplexity = 0.6;
 		Map<String, Object> map = mapper.readValue(contentString,
 				new TypeReference<Map<String, Object>>() {
 				});

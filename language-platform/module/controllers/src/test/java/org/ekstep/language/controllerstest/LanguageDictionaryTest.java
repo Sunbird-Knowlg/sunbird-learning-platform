@@ -35,6 +35,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import com.ilimi.taxonomy.util.AWSUploader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
@@ -50,6 +51,9 @@ public class LanguageDictionaryTest {
 	static ElasticSearchUtil util;
 	private static String TEST_LANGUAGE = "testdictionary";
 	private static String TEST_CREATE_LANGUAGE = "testcreatedictionary";
+	private String bucketName = "ekstep-public";
+	String uploadfolder = "language_assets";
+	private String uploadFileName = "testSsf.txt";
 
 	static {
 		LanguageRequestRouterPool.init();
@@ -260,24 +264,50 @@ public class LanguageDictionaryTest {
 	}
 
 	@Test
-	public void upload() throws JsonParseException, JsonMappingException,
+	public void addRelationError() throws JsonParseException, JsonMappingException,
 			IOException {
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/dictionary/word/" + TEST_LANGUAGE
+				+ "/2654/synonym/en_w_800";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("user-id", "ilimi"));
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Response response = jsonToObject(actions);
+		Assert.assertEquals("failed", response.getParams().getStatus());
+	}
+	
+	@Test
+	public void upload() throws Exception {
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v1/language/dictionary/word/media/upload";
 		MockMultipartFile testFile = new MockMultipartFile("file",
-				"testSsf.txt", "text/plain", "file".getBytes());
+				uploadFileName, "text/plain", "file".getBytes());
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.fileUpload(path)
 					.file(testFile).header("user-id", "ilimi"));
-			/*Assert.assertEquals(200, actions.andReturn().getResponse()
-					.getStatus());*/
+			Assert.assertEquals(200, actions.andReturn().getResponse()
+					.getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
 		Response response = jsonToObject(actions);
 		Assert.assertEquals("successful", response.getParams().getStatus());
+		Map<String, Object> result = response.getResult();
+		
+		//Will be executed only the upload is successful, need not be moved out
+		String url = (String) result.get("url");
+		String fileName = url.substring(url.lastIndexOf('/') + 1);
+		AWSUploader.deleteFile(bucketName, uploadfolder + "/" + fileName);
 	}
 
 	@Test
@@ -300,20 +330,32 @@ public class LanguageDictionaryTest {
 		Response response = jsonToObject(actions);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 	}
+	
+	@Test
+	public void deleteRelationError() throws JsonParseException,
+			JsonMappingException, IOException {
+		MockMvc mockMvc;
+		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+		String path = "/v1/language/dictionary/word/" + TEST_CREATE_LANGUAGE
+				+ "/233444/synonym/en_w_800";
+		try {
+			actions = mockMvc.perform(MockMvcRequestBuilders.delete(path)
+					.contentType(MediaType.APPLICATION_JSON)
+					.header("user-id", "ilimi"));
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
+					.getStatus());
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		Response response = jsonToObject(actions);
+		Assert.assertEquals("failed", response.getParams().getStatus());
+	}
 
 	@SuppressWarnings("unchecked")
 	@Test
 	public void getWord() throws JsonParseException, JsonMappingException,
 			IOException {
-		/*String expectedResult = "{\"identifier\":\"en_w_707\",\"difficultyLevel\":\"Easy\",\"synonyms\":[{\"key1\":\"value1\",\"key2\":\"value2\",\"identifier\":\"202707688\",\"status\":\"Draft\"},{\"identifier\":\"201339774\",\"status\":\"Draft\"},{\"identifier\":\"108242255\",\"status\":\"Draft\"},{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_5\",\"gloss\":\"newsynonym\",\"status\":\"Draft\"}],\"antonyms\":[{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_6\",\"name\":\"newtestword3\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null},{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_8\",\"name\":\"newtestword431\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null}],\"lastUpdatedOn\":\"test\",\"lemma\":\"test_create_word_707\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\",\"tags\":[\"English\",\"API\"]}";*/
 		String identifier = "en_w_707";
 		String lemma = "newtestword";
 		MockMvc mockMvc;
@@ -368,32 +410,6 @@ public class LanguageDictionaryTest {
 	@Test
 	public void getWords() throws JsonParseException, JsonMappingException,
 			IOException {
-/*		String expectedResult = "{\"words\":[{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_6\",\"antonyms\":[{\"identifier\":\"en_w_707\",\"name\":\"test_create_word_707\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null}],\"lastUpdatedOn\":\"test\",\"lemma\":\"newtestword3\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\"},{\"lastUpdatedOn\":\"test\",\"lemma\":\"newtestword4\",\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_7\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\"},{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_8\",\"antonyms\":[{\"identifier\":\"en_w_707\",\"name\":\"test_create_word_707\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null}],\"lastUpdatedOn\":\"test\",\"lemma\":\"newtestword431\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\"},{\"lastUpdatedOn\":\"test\",\"lemma\":\"newtestword433\",\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_9\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\"},{\"identifier\":\"en_w_707\",\"difficultyLevel\":\"Easy\",\"synonyms\":[{\"key1\":\"value1\",\"key2\":\"value2\",\"identifier\":\"202707688\",\"status\":\"Draft\"},{\"identifier\":\"201339774\",\"status\":\"Draft\"},{\"identifier\":\"108242255\",\"status\":\"Draft\"},{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_5\",\"gloss\":\"newsynonym\",\"status\":\"Draft\"}],\"antonyms\":[{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_6\",\"name\":\"newtestword3\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null},{\"identifier\":\""
-				+ TEST_LANGUAGE
-				+ "_8\",\"name\":\"newtestword431\",\"objectType\":\"Word\",\"relation\":\"hasAntonym\",\"index\":null}],\"lastUpdatedOn\":\"test\",\"lemma\":\"test_create_word_707\",\"language\":\""
-				+ TEST_LANGUAGE
-				+ "\",\"createdOn\":\"test\",\"status\":\"Live\",\"tags\":[\"English\",\"API\"]}]}";*/
-
 		String lemma = "newtestword";
 		String lemmaAntonym = "newtestwordantonym";
 

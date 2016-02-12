@@ -7,7 +7,6 @@ import java.util.Map;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +25,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.dac.dto.AuditRecord;
-import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 public abstract class DictionaryController extends BaseController {
@@ -138,7 +136,6 @@ public abstract class DictionaryController extends BaseController {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> deleteRelation(@PathVariable(value = "languageId") String languageId,
@@ -149,14 +146,6 @@ public abstract class DictionaryController extends BaseController {
 		try {
 			Response response = dictionaryManager.deleteRelation(languageId, objectType, objectId1, relation,
 					objectId2);
-			List<String> messages = (List<String>) response.get("messages");
-			if (messages != null) {
-				String finalMessage = "";
-				for (String message : messages) {
-					finalMessage = finalMessage + ", "+ message;
-				}
-				throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), finalMessage.substring(2));
-			}
 			LOGGER.info("Delete Relation | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -229,7 +218,7 @@ public abstract class DictionaryController extends BaseController {
 		}
 	}
 
-	private Request getRequestObject(Map<String, Object> requestMap, String objectType) {
+	/*private Request getRequestObject(Map<String, Object> requestMap, String objectType) {
 		Request request = getRequest(requestMap);
 		Map<String, Object> map = request.getRequest();
 		ObjectMapper mapper = new ObjectMapper();
@@ -241,7 +230,7 @@ public abstract class DictionaryController extends BaseController {
 			}
 		}
 		return request;
-	}
+	}*/
 
 	protected abstract String getObjectType();
 
