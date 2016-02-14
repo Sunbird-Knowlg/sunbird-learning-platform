@@ -947,8 +947,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath, saveDir);
             Set<String> mediaIdList1 = mediaIdMap.keySet();
             List<String> mediaIdList = new ArrayList<String>();
-            if (null != mediaIdList1 && !mediaIdList1.isEmpty())
-                mediaIdList.addAll(mediaIdList1);
+            if (null != mediaIdList1 && !mediaIdList1.isEmpty()) {
+                for (String mediaId : mediaIdList1) {
+                    mediaIdList.add(contentId + "_" + mediaId);
+                }
+            }
             if (mediaIdList != null && !mediaIdList.isEmpty()) {
                 Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
                         GraphDACParams.node_ids.name(), mediaIdList);
@@ -975,9 +978,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                             if (null == item.getMetadata())
                                 item.setMetadata(new HashMap<String, Object>());
                             // Updating Node When AWS3 URL is blank
-                            if (item.getMetadata().get("downloadUrl") == null) {
+                            String downloadUrl = (String) item.getMetadata().get("downloadUrl");
+                            if (StringUtils.isBlank(downloadUrl)) {
                                 long timeStempInMiliSec = System.currentTimeMillis();
-                                File olderName = new File(uploadFilePath + mediaIdMap.get(item.getIdentifier()));
+                                File olderName = new File(uploadFilePath + mediaIdMap.get(getMediaId(item.getIdentifier(), contentId)));
                                 if (olderName.exists() && olderName.isFile()) {
                                     String parentFolderName = olderName.getParent();
                                     File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
@@ -985,7 +989,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                     olderName.renameTo(newName);
                                     String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
                                     Node newItem = createNode(item, url[1], item.getIdentifier(), olderName);
-                                    mediaIdURL.put(item.getIdentifier(), url[1]);
+                                    mediaIdURL.put(getMediaId(item.getIdentifier(), contentId), url[1]);
                                     Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
                                             "validateNode");
                                     validateReq.put(GraphDACParams.node.name(), newItem);
@@ -1001,21 +1005,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                                     }
                                 }
                             } else {
-                                mediaIdURL.put(item.getIdentifier(), item.getMetadata().get("downloadUrl").toString());
+                                mediaIdURL.put(getMediaId(item.getIdentifier(), contentId), downloadUrl);
                             }
                         }
                     }
                     if (mediaIdNotUploaded != null && !mediaIdNotUploaded.isEmpty()) {
                         for (String mediaId : mediaIdNotUploaded) {
                             long timeStempInMiliSec = System.currentTimeMillis();
-                            File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
+                            File olderName = new File(uploadFilePath + mediaIdMap.get(getMediaId(mediaId, contentId)));
                             if (olderName.exists() && olderName.isFile()) {
                                 String parentFolderName = olderName.getParent();
                                 File newName = new File(
                                         parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
                                 olderName.renameTo(newName);
                                 String[] url = AWSUploader.uploadFile("ekstep-public", "content", newName);
-                                mediaIdURL.put(mediaId, url[1]);
+                                mediaIdURL.put(getMediaId(mediaId, contentId), url[1]);
                                 Node item = createNode(new Node(), url[1], mediaId, olderName);
                                 // Creating a graph.
                                 Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
@@ -1056,6 +1060,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
         }
         return response;
+    }
+    
+    private String getMediaId(String nodeId, String contentId) {
+        if (StringUtils.isNotBlank(contentId)) {
+            return nodeId.substring(contentId.length() + 1);
+        }
+        return nodeId;
     }
 
     private Node createNode(Node item, String url, String mediaId, File olderName) {
