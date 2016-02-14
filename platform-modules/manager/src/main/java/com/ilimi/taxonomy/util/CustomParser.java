@@ -38,34 +38,48 @@ import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 public class CustomParser  {
 
-	
+	private  Document doc;
+
+	private static String fileNameInURL[] = null;
+	private static String fileNameWithExtn = null;
 	
 	/**
 	 * This method read ECML file 
 	 * @param file path for index.ecml
 	 * @return 
 	 * */
-	public static Map<String,String> readECMLFile(String filePath,String saveDir){
-		final Map<String,String> mediaId = new HashMap<String , String>();
+	
+	public CustomParser() {
+	}
+	public CustomParser(File xmlFile) {
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder;
+        try {
+            dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+            this.doc= doc;
+        }catch(Exception e){
+        	throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
+        }
+	}
+	public static Map<String,String> readECMLFile(String filePath){
+		final Map<String,String> mapOfMediaIdSRC = new HashMap<String , String>();
 		//final String saveDir1 = saveDir;
 		try {
-
 			SAXParserFactory factory = SAXParserFactory.newInstance();
 			SAXParser saxParser = factory.newSAXParser();
-
 			DefaultHandler handler = new DefaultHandler() {
-
 				public void startElement(String uri, String localName,String qName, 
 						Attributes attributes) throws SAXException {
 					if (qName.equalsIgnoreCase("media")) {
 						if (attributes.getValue("id")!=null) {
 							if (attributes.getValue("src")!=null) {
-								mediaId.put(attributes.getValue("id"),attributes.getValue("src"));
+								mapOfMediaIdSRC.put(attributes.getValue("id"),attributes.getValue("src"));
 							}
 						}
 					}
 				}
-
 				public void endElement(String uri, String localName,
 						String qName) throws SAXException {
 					//System.out.println("End Element :" + qName);
@@ -73,12 +87,12 @@ public class CustomParser  {
 			};
 			saxParser.parse(filePath, handler);
 		} catch (Exception e) {
-			e.printStackTrace();
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
 		}
-		return mediaId;
+		return mapOfMediaIdSRC;
 	}
 
-    public static void readECMLFileDownload(String filePath,String assetFolder,Map<String,String> mediaIdURLMap){
+    public static void readECMLFileDownload(String filePath,Map<String,String> mediaIdURLMap){
 		
 			String filePath1 = filePath+File.separator+"index.ecml";
 			String assetDir = filePath+File.separator+"assets";
@@ -110,9 +124,6 @@ public class CustomParser  {
 	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e1.getMessage());
 	        }
 	}
-	
-	private static String fileNameInURL[] = null;
-	private static String fileNameWithExtn = null;
 	private static void updateAttributeValue(Document doc,String saveDir,Map<String,String> mediaIdURLMap) {
         NodeList medias = doc.getElementsByTagName("media");
         Element media = null;
@@ -133,10 +144,36 @@ public class CustomParser  {
                  System.out.println(src);
                  media.setAttribute("src", fileNameWithExtn);
 			}
-           
-          
         }
     }
+	
+	public void updateSrcInEcml(String filePath,Map<String,String> mediaIdURLMap){
+		String assetDir = (new File(filePath)).getParent()+File.separator+"assets";
+        try {
+            doc.getDocumentElement().normalize();
+            NodeList medias = doc.getElementsByTagName("media");
+            Element media = null;
+            for(int i=0; i<medias.getLength();i++){
+            	media = (Element) medias.item(i);
+            	 String src = media.getAttribute("src");
+                 HttpDownloadUtility.downloadFile(src, assetDir);
+                 fileNameInURL =  src.split("/");
+         		fileNameWithExtn = fileNameInURL[fileNameInURL.length-1];
+                 System.out.println(src);
+                 media.setAttribute("src", fileNameWithExtn);
+            }
+            doc.getDocumentElement().normalize();
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
+            DOMSource source = new DOMSource(doc);
+            StreamResult result = new StreamResult(new File(filePath));
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.transform(source, result);
+        } catch (Exception e1) {
+            e1.printStackTrace();
+            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e1.getMessage());
+        }
+}
     /**
      * Read any type of file
      * @author Rajiv
@@ -160,43 +197,41 @@ public class CustomParser  {
      * @param filePath 
      * @param type : items or data
      * **/
-    public static void updateJsonInEcml(String filePath,final String type){
-    	try {
-    		DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-    		DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-    		Document doc = docBuilder.parse(filePath);
-    		NodeList attrList = doc.getElementsByTagName("controller");
-    		for (int i = 0; i < attrList.getLength(); i++) {
-    			//element = (Element) attrList.item(i);
-    			Element controller =  (Element) attrList.item(i);
-    			if (controller.getAttribute("type").equalsIgnoreCase(type)) {
-    				controller =  (Element) attrList.item(i);
-    				File file = new File(filePath);
-    				String nameOfJsonFile = controller.getAttribute("id");
-    				String itemJsonPath = file.getParent()+File.separator+type+File.separator+nameOfJsonFile+".json";
-    				File jsonFile = new File(itemJsonPath);
-    				if (jsonFile.exists()) {
-    					if (isJSONValid(jsonFile)) {
-    						controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
-						}else{
-							throw new ServerException(ContentErrorCodes.ERR_CONTENT_JSON_INVALID.name(), "Json invalid for" +type);
-						}
-					}
-				}
-			}
-    		doc.getDocumentElement().normalize();
-            TransformerFactory transformerFactory = TransformerFactory.newInstance();
-            Transformer transformer = transformerFactory.newTransformer();
-            DOMSource source = new DOMSource(doc);
-            StreamResult result = new StreamResult(new File(filePath));
-            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-            transformer.transform(source, result);
-		} catch (Exception e) {
-			e.printStackTrace();
+    public  void updateJsonInEcml(String filePath,List<String> listOfCtrlType){
+    	for (String type : listOfCtrlType) {
+    		try {
+        		NodeList attrList = doc.getElementsByTagName("controller");
+        		for (int i = 0; i < attrList.getLength(); i++) {
+        			Element controller =  (Element) attrList.item(i);
+        			if (controller.getAttribute("type").equalsIgnoreCase(type)) {
+        				controller =  (Element) attrList.item(i);
+        				File file = new File(filePath);
+        				String nameOfJsonFile = controller.getAttribute("id");
+        				String itemJsonPath = file.getParent()+File.separator+type+File.separator+nameOfJsonFile+".json";
+        				File jsonFile = new File(itemJsonPath);
+        				if (jsonFile.exists()) {
+        					if (isJSONValid(jsonFile)) {
+        						controller.appendChild(doc.createCDATASection(readFile(jsonFile)));
+    						}else{
+    							throw new ServerException(ContentErrorCodes.ERR_CONTENT_JSON_INVALID.name(), "Json invalid for" +type);
+    						}
+    					}
+    				}
+    			}
+        		doc.getDocumentElement().normalize();
+                TransformerFactory transformerFactory = TransformerFactory.newInstance();
+                Transformer transformer = transformerFactory.newTransformer();
+                DOMSource source = new DOMSource(doc);
+                StreamResult result = new StreamResult(new File(filePath));
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.transform(source, result);
+    		} catch (Exception e) {
+    			e.printStackTrace();
+    		}
 		}
     }
     
-    public static boolean isJSONValid(File jsonFile) {
+    public boolean isJSONValid(File jsonFile) {
         try {
            final ObjectMapper mapper = new ObjectMapper();
            mapper.readTree(jsonFile);
@@ -205,13 +240,6 @@ public class CustomParser  {
            return false;
         }
       }
-    public static void main(String[] args) {
-		//C:\ilimi\StoryFolder\1452487631391_PrathamStories_Day_1_JAN_9_2016\items//C:\\ilimi\\download\\test\\index.ecml", "items
-    	//updateJsonInEcml("C:\\ilimi\\StoryFolder\\1452487631391_PrathamStories_Day_1_JAN_9_2016\\index.ecml", "items");
-    	//readJsonFileDownload(null,null);
-    	//File jsonFile = new File("C:\\ilimi\\download\\testjson\\sample_with_mcq.json");
-    	//isJSONValid(jsonFile);
-	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void readJsonFileDownload(String filePath, String sourceFolder) {
@@ -253,9 +281,6 @@ public class CustomParser  {
 			e.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
-		
-		
-		
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
@@ -271,7 +296,6 @@ public class CustomParser  {
 			while (medias.hasNext()) {
 				Map<String, Object> media = (Map<String, Object>) medias.next();
 				String id = (String)media.get("id");
-				String src = (String)media.get("src");
 				if (StringUtils.isNoneBlank(id)) {
 					media.put("src", idSrcMap.get(id));
 					updatedListOfMedia.add(media);
@@ -283,6 +307,5 @@ public class CustomParser  {
 		}
 		return null;
 	}
-    
     
 }
