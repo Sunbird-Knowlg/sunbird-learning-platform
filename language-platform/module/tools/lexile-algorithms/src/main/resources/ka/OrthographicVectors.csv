@@ -22,7 +22,7 @@ Unicode,Akshara,Top Modifier,Right Modifier,Bottom Modifier,Left Modifier,Center
 0C9B,ಛ ,0,0,1,0,0,0,0,0
 0C9C,ಜ ,1,0,0,0,0,0,0,0
 0C9D,ಝ ,0,0,1,0,0,0,0,0
-0C9E,ಞ ,0,1,0,,0,0,0,0
+0C9E,ಞ ,0,1,0,0,0,0,0,0
 0C9F,ಟ ,0,0,0,0,0,0,0,0
 0CA0,ಠ,0,0,0,0,1,0,0,0
 0CA1,ಡ ,0,0,0,0,0,0,0,0
@@ -75,7 +75,7 @@ Unicode,Akshara,Top Modifier,Right Modifier,Bottom Modifier,Left Modifier,Center
 0C9Bm,ಛ ,0,0,1,0,0,1,0,0
 0C9Cm,ಜ ,1,0,0,0,0,1,0,0
 0C9Dm,ಝ ,0,0,1,0,0,1,0,0
-0C9Em,ಞ ,0,1,0,,0,1,0,0
+0C9Em,ಞ ,0,1,0,0,0,1,0,0
 0C9Fm,ಟ ,0,0,0,0,0,1,0,0
 0CA0m,ಠ,0,0,0,0,1,1,0,0
 0CA1m,ಡ ,0,0,0,0,0,1,0,0
