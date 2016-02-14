@@ -82,13 +82,13 @@ public class LanguageToolsTest {
         Map<String, Object> cm1 = (Map<String, Object>) complexityMeasures.get("धागा");
         Map<String, Object> cm2 = (Map<String, Object>) complexityMeasures.get("समोसा");
         Map<String, Object> cm3 = (Map<String, Object>) complexityMeasures.get("एक चर्मरोग जिसमें बहुत खुजली होती है");
-        Assert.assertEquals(0.0, (double) cm1.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(0.6, (double) cm1.get("orthographic_complexity"), 0.0);
         Assert.assertEquals(11.01, (double) cm1.get("phonologic_complexity"), 0.0);
         
-        Assert.assertEquals(0.4, (double) cm2.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(1.0, (double) cm2.get("orthographic_complexity"), 0.0);
         Assert.assertEquals(14.19, (double) cm2.get("phonologic_complexity"), 0.0);
         
-        Assert.assertEquals(0.67, (double) cm3.get("orthographic_complexity"), 0.0);
+        Assert.assertEquals(0.99, (double) cm3.get("orthographic_complexity"), 0.0);
         Assert.assertEquals(16.32, (double) cm3.get("phonologic_complexity"), 0.0);
 	}
 

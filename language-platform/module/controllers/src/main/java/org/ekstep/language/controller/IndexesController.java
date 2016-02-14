@@ -7,8 +7,6 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.mgr.IDictionaryManager;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,9 +22,6 @@ import com.ilimi.common.dto.Response;
 @Controller
 @RequestMapping("v1/language/indexes")
 public class IndexesController extends BaseLanguageController {
-
-    @Autowired
-    private IDictionaryManager dictionaryManager;
 
     private static Logger LOGGER = LogManager.getLogger(IndexesController.class.getName());
 
