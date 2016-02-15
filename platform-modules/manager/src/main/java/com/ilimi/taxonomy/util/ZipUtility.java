@@ -84,7 +84,7 @@ public class ZipUtility {
 	public void generateFileList(File node) {
 		// add file only
 		if (node.isFile()) {
-			fileList.add(generateZipEntry(node.getAbsoluteFile().toString()));
+			fileList.add(generateZipEntry(node.getPath().toString()));
 		}
 		if (node.isDirectory()) {
 			String[] subNote = node.list();

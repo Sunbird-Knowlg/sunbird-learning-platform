@@ -63,7 +63,6 @@ import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
-import com.ilimi.taxonomy.util.ReadProperties;
 import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
@@ -95,7 +94,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     private static final String bucketName = "ekstep-public";
     private static final String folderName = "content";
     private static final String ecarFolderName = "ecar_files";
-    private static final String tempFileLocation = "temp/";
+    private static final String tempFileLocation = "/temp/";
 
     protected static final String URL_FIELD = "URL";
 
@@ -686,11 +685,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata = node.getMetadata();
         String contentBody = (String) metadata.get("body");
         String contentType = checkBodyContentType(contentBody);
-        ReadProperties readPro = new ReadProperties();
         String tempFile = null;
         String tempWithTimeStamp = null;
         try {
-            tempFile = readPro.getPropValues("source.folder");
+            tempFile = tempFileLocation;
             tempWithTimeStamp = tempFile  +System.currentTimeMillis() + "_temp";
             File file = null;
 			if (contentType.equalsIgnoreCase("ecml")) {
@@ -784,7 +782,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	        if (null == pkgVersion || pkgVersion.intValue() < 1) {
 	            pkgVersion = 1.0;
 	        } else {
-	            pkgVersion = pkgVersion.doubleValue() + 1;;
+	            pkgVersion = pkgVersion.doubleValue() + 1;
 	        }
 	        node.getMetadata().put("pkgVersion", pkgVersion);
 	        node.getMetadata().put("status", "Live");
