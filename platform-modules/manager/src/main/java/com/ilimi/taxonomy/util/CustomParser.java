@@ -63,8 +63,8 @@ public class CustomParser  {
         	throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
         }
 	}
-	public static Map<String,String> readECMLFile(String filePath){
-		final Map<String,String> mapOfMediaIdSRC = new HashMap<String , String>();
+	public static Map<String,List<String>> readECMLFile(String filePath){
+		final Map<String,List<String>> mediaIdMap = new HashMap<String,List<String>>();
 		//final String saveDir1 = saveDir;
 		try {
 			SAXParserFactory factory = SAXParserFactory.newInstance();
@@ -73,11 +73,17 @@ public class CustomParser  {
 				public void startElement(String uri, String localName,String qName, 
 						Attributes attributes) throws SAXException {
 					if (qName.equalsIgnoreCase("media")) {
-						if (attributes.getValue("id")!=null) {
-							if (attributes.getValue("src")!=null) {
-								mapOfMediaIdSRC.put(attributes.getValue("id"),attributes.getValue("src"));
-							}
-						}
+					    String id = attributes.getValue("id");
+					    if (StringUtils.isNotBlank(id)) {
+					        String src = attributes.getValue("src");
+                            if (StringUtils.isNotBlank(src)) {
+                                String assetId = attributes.getValue("assetId");
+                                List<String> mediaValues = new ArrayList<String>();
+                                mediaValues.add(src);
+                                mediaValues.add(assetId);
+                                mediaIdMap.put(id, mediaValues);
+                            }
+					    }
 					}
 				}
 				public void endElement(String uri, String localName,
@@ -89,7 +95,7 @@ public class CustomParser  {
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
 		}
-		return mapOfMediaIdSRC;
+		return mediaIdMap;
 	}
 
     public static void readECMLFileDownload(String filePath,Map<String,String> mediaIdURLMap){
@@ -147,7 +153,7 @@ public class CustomParser  {
         }
     }
 	
-	public void updateSrcInEcml(String filePath,Map<String,String> mediaIdURLMap){
+	public void updateSrcInEcml(String filePath, Map<String, List<String>> mediaIdURLMap){
         try {
             doc.getDocumentElement().normalize();
             NodeList medias = doc.getElementsByTagName("media");
@@ -157,9 +163,15 @@ public class CustomParser  {
             	if (mediaIdURLMap!=null && !mediaIdURLMap.isEmpty()) {
             	    String mediaId = media.getAttribute("id");
             	    if (mediaIdURLMap.containsKey(mediaId)) {
-            	        String url = mediaIdURLMap.get(mediaId);
-            	        if (StringUtils.isNotBlank(url))
-            	            media.setAttribute("src", url);
+            	        List<String> list = mediaIdURLMap.get(mediaId);
+            	        if (null != list && list.size() == 2) {
+            	            String url = list.get(0);
+            	            if (StringUtils.isNotBlank(url))
+                                media.setAttribute("src", url);
+            	            String assetId = list.get(1);
+            	            if (StringUtils.isNotBlank(assetId))
+                                media.setAttribute("assetId", assetId);
+            	        }
             	    }
     			}
             }
