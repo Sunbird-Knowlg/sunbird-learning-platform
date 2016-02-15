@@ -148,19 +148,20 @@ public class CustomParser  {
     }
 	
 	public void updateSrcInEcml(String filePath,Map<String,String> mediaIdURLMap){
-		String assetDir = (new File(filePath)).getParent()+File.separator+"assets";
         try {
             doc.getDocumentElement().normalize();
             NodeList medias = doc.getElementsByTagName("media");
             Element media = null;
             for(int i=0; i<medias.getLength();i++){
             	media = (Element) medias.item(i);
-            	 String src = media.getAttribute("src");
-                 HttpDownloadUtility.downloadFile(src, assetDir);
-                 fileNameInURL =  src.split("/");
-         		fileNameWithExtn = fileNameInURL[fileNameInURL.length-1];
-                 System.out.println(src);
-                 media.setAttribute("src", fileNameWithExtn);
+            	if (mediaIdURLMap!=null && !mediaIdURLMap.isEmpty()) {
+            	    String mediaId = media.getAttribute("id");
+            	    if (mediaIdURLMap.containsKey(mediaId)) {
+            	        String url = mediaIdURLMap.get(mediaId);
+            	        if (StringUtils.isNotBlank(url))
+            	            media.setAttribute("src", url);
+            	    }
+    			}
             }
             doc.getDocumentElement().normalize();
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -242,7 +243,7 @@ public class CustomParser  {
       }
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public static void readJsonFileDownload(String filePath, String sourceFolder) {
+	public static void readJsonFileDownload(String filePath) {
 		String assetDir = filePath+File.separator+"assets";
 		String jsonFilePath= filePath+File.separator+"index.json";
 		String jsonString = readFile(new File(jsonFilePath));

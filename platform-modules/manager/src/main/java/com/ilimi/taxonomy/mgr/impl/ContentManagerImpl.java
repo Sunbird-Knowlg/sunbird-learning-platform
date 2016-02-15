@@ -747,7 +747,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	    Response response = new Response();
 	    Map<String, String> map = null;
 	    if (contentType.equalsIgnoreCase("json")) {
-			CustomParser.readJsonFileDownload(filePath,sourceFolder);
+			CustomParser.readJsonFileDownload(filePath);
 		}else if (contentType.equalsIgnoreCase("ecml")) {
 			CustomParser.readECMLFileDownload(filePath, map);
 		}
