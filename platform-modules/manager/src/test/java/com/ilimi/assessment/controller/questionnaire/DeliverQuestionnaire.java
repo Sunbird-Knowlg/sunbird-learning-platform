@@ -43,7 +43,7 @@ public class DeliverQuestionnaire extends BaseCucumberTest{
     public String createquestionnaire() {
 		MockMvc mockMvc;		
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String contentString = "{ \"request\": { \"questionnaire\": { \"objectType\": \"Questionnaire\", \"metadata\": { \"code\": \"QR1\", \"language\": \"English\", \"title\": \"Demo Questionnaire for Ekstep Platform\", \"description\": \"Description of Demo Questionnaire - Ekstep Platform\", \"instructions\": \"Instructions of Demo Questionnaire - Ekstep Platform\", \"used_for\": \"assessment\", \"type\": \"materialised\", \"duration\": 20, \"total_items\": 6, \"strict_sequencing\": false, \"allow_skip\": true, \"max_score\": 20, \"status\": \"Draft\", \"owner\": \"Ilimi\", \"copyright\": \"Ilimi\", \"license\": \"Ilimi\", \"items\": [ \"Q1\", \"Q4\",\"Q10\", \"Q5\", \"Q6\", \"Q7\", \"Q8\",\"Q9\" ] }, \"outRelations\": [ { \"relationType\": \"associatedTo\", \"endNodeId\": \"Num:C1:SC1\" } ] } } }";
+		String contentString = "{\"request\":{\"questionnaire\":{\"objectType\":\"Questionnaire\",\"metadata\":{\"code\":\"akshara.grade4.qpaper\",\"language\":\"English\",\"title\":\"Akshara Grade4 Questionnaire\",\"description\":\"Akshara Grade4 Questionnaire\",\"type\":\"materialised\",\"subject\":\"LIT\",\"duration\":30,\"domain\":\"numeracy\",\"total_items\":4,\"strict_sequencing\":false,\"allow_skip\":true,\"max_score\":15,\"status\":\"Live\",\"items\":[\"ques_1\",\"ques_2\",\"ques_3\",\"ques_4\"]}}}}";
         Map<String, String> params = new HashMap<String, String>();
     	Map<String, String> header = new HashMap<String, String>();
     	String path = "/v1/questionnaire";
