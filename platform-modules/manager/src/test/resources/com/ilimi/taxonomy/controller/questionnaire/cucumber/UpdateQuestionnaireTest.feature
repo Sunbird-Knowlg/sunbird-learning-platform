@@ -16,7 +16,7 @@ Feature: Test all scenarios of update questionnaire.
   Scenario: Update a questionnaire with wrong questionnaire id.
     When Updating a questionnaire Taxonomy id is numeracy and questionnaire id is ilimi with wrong questionnaire Id
     Then return status of update questionnaire is failed and response code is 404
-    And return error message by update questionnaire API is node not found: ilimi
+    And return error message by update questionnaire API is com.ilimi.common.exception.ResourceNotFoundException: node not found: ilimi
    
    Scenario: Update a Questionnaire with insufficient assessment items.
     When Updating a questionnaire Taxonomy id is numeracy and questionnaire id is Q1 with insufficient assessment items
