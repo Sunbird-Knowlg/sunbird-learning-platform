@@ -64,6 +64,7 @@ import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
+import com.ilimi.taxonomy.util.ReadProperties;
 import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
@@ -687,10 +688,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata = node.getMetadata();
         String contentBody = (String) metadata.get("body");
         String contentType = checkBodyContentType(contentBody);
+        ReadProperties readPro = new ReadProperties();
         String tempFile = null;
         String tempWithTimeStamp = null;
         try {
-            tempFile = tempFileLocation;
+            tempFile = readPro.getPropValues("source.folder");
             tempWithTimeStamp = tempFile  +System.currentTimeMillis() + "_temp";
             File file = null;
 			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
@@ -764,9 +766,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	    if (olderName.exists() && olderName.isFile()) {
 	        File newName = new File(sourceFolder + File.separator + olderName.getName());
 	        olderName.renameTo(newName);
-	        newName.setReadable(true, false);
-	        newName.setWritable(true, false);
-	        newName.setExecutable(true, false);
 	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 	                GraphDACParams.node_id.name(), contentId);
 	        request.put(GraphDACParams.get_tags.name(), true);

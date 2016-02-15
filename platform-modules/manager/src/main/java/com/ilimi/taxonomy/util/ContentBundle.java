@@ -80,6 +80,7 @@ public class ContentBundle {
                     System.out.println(entry.getKey() + " -- " + val);
                     if (val instanceof File) {
                         File file = (File) val;
+                        System.out.println("file size: " + file.length());
                         downloadUrls.put(val, identifier.trim());
                         entry.setValue(identifier.trim() + File.separator + file.getName());
                     } else if (HttpDownloadUtility.isValidUrl(val)) {
@@ -146,6 +147,7 @@ public class ContentBundle {
                             File newFile = new File(destPath + File.separator + file.getName());
                             file.renameTo(newFile);
                             System.out.println("File copied to " + newFile.getAbsolutePath());
+                            System.out.println("file size: " + newFile.length());
                             return newFile;
                         } else {
                             String url = val.toString();
