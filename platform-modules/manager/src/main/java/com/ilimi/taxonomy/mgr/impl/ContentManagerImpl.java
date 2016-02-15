@@ -407,6 +407,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 metadata.put("objectType", node.getObjectType());
                 metadata.put("subject", node.getGraphId());
                 metadata.remove("body");
+                metadata.remove("editorState");
                 if (null != node.getTags() && !node.getTags().isEmpty())
                     metadata.put("tags", node.getTags());
                 if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -763,6 +764,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	    if (olderName.exists() && olderName.isFile()) {
 	        File newName = new File(sourceFolder + File.separator + olderName.getName());
 	        olderName.renameTo(newName);
+	        newName.setReadable(true, false);
+	        newName.setWritable(true, false);
+	        newName.setExecutable(true, false);
 	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 	                GraphDACParams.node_id.name(), contentId);
 	        request.put(GraphDACParams.get_tags.name(), true);

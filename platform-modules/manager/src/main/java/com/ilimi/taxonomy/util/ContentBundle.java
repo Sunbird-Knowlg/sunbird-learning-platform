@@ -77,6 +77,7 @@ public class ContentBundle {
             for (Map.Entry<String, Object> entry : content.entrySet()) {
                 if (urlFields.contains(entry.getKey())) {
                     Object val = entry.getValue();
+                    System.out.println(entry.getKey() + " -- " + val);
                     if (val instanceof File) {
                         File file = (File) val;
                         downloadUrls.put(val, identifier.trim());
@@ -144,9 +145,11 @@ public class ContentBundle {
                             File file = (File) val;
                             File newFile = new File(destPath + File.separator + file.getName());
                             file.renameTo(newFile);
+                            System.out.println("File copied to " + newFile.getAbsolutePath());
                             return newFile;
                         } else {
                             String url = val.toString();
+                            System.out.println("Downloading file: " + url);
                             if (url.endsWith(".ecar")) {
                                 File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
                                 UnzipUtility unzipper = new UnzipUtility();
