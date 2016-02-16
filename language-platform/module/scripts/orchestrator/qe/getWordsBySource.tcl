@@ -1,7 +1,7 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package com.ilimi.graph.dac.model Node Relation
 
 
 proc isNotNull {value} {
@@ -13,6 +13,18 @@ proc isNotNull {value} {
 		}
 	} catch {Exception err} {
     	set exist false
+	}
+	return $exist
+}
+
+proc isNotEmpty {relations} {
+	set exist false
+	set hasRelations [java::isnull $relations]
+	if {$hasRelations == 0} {
+		set relationsSize [$relations size] 
+		if {$relationsSize > 0} {
+			set exist true
+		}
 	}
 	return $exist
 }
@@ -151,6 +163,108 @@ proc procCheckCountCriteria {search filter_list} {
 	}
 }
 
+proc procGetOutRelations {graph_node} {
+	set outRelations [java::prop $graph_node "outRelations"]
+	return $outRelations
+}
+
+proc procGetInRelations {graph_node} {
+	set inRelations [java::prop $graph_node "inRelations"]
+	return $inRelations
+}
+
+proc procGetSynonyms {inRelations} {
+	set wordMap [java::new HashMap]
+	set synsetIdList [java::new ArrayList]
+	set synsetList [java::new ArrayList]
+	java::for {Relation relation} $inRelations {
+		if {[java::prop $relation "startNodeObjectType"] == "Synset" && [java::prop $relation "relationType"] == "synonym"} {
+			set synsetId [java::prop $relation "startNodeId"]
+			$synsetIdList add $synsetId
+
+			set synsetMetadata [java::prop $relation "startNodeMetadata"]
+			set checkMetadata [isNotNull $synsetMetadata]
+			if {$checkMetadata} {
+				set syn_gloss [$synsetMetadata get "gloss"]
+				set checkGloss [isNotNull $syn_gloss]
+				if {$checkGloss} {
+					$synsetList add $syn_gloss	
+				}
+			}
+		}
+	}
+	$wordMap put "Synonyms" $synsetList
+	$wordMap put "Synset Ids" $synsetIdList
+	return $wordMap
+}
+
+proc procGetAntonyms {outRelations} {
+	set antonyms [java::new ArrayList]
+	java::for {Relation relation} $outRelations {
+		if {[java::prop $relation "endNodeObjectType"] == "Word" && [java::prop $relation "relationType"] == "hasAntonym"} {
+			set nodeMetadata [java::prop $relation "endNodeMetadata"]
+			set checkMetadata [isNotNull $nodeMetadata]
+			if {$checkMetadata} {
+				set antonym_lemma [$nodeMetadata get "lemma"]
+				set checkLemma [isNotNull $antonym_lemma]
+				if {$checkLemma} {
+					$antonyms add $antonym_lemma	
+				}
+			}
+		}
+	}
+	return $antonyms
+}
+
+proc procGetWordMetadata {node} {
+	set wordMap [java::new HashMap]
+	set isNodeNotNull [isNotNull $node]
+	if {$isNodeNotNull} {
+		$wordMap put "identifier" [java::prop $node "identifier"]
+		set metadata [java::prop $node "metadata"]
+		set checkMetadata [isNotNull $metadata]
+		if {$checkMetadata} {
+			$wordMap put "Lemma" [$metadata get "lemma"]
+			$wordMap put "Syllable Count" [$metadata get "syllableCount"]
+			$wordMap put "Phonological Complexity" [$metadata get "phonologic_complexity"]
+			$wordMap put "Orthographic Complexity" [$metadata get "orthographic_complexity"]
+			$wordMap put "Sources" [$metadata get "sources"]
+			$wordMap put "Grades" [$metadata get "grade"]
+			$wordMap put "POS Categories" [$metadata get "pos_categories"]
+			$wordMap put "POS Tags" [$metadata get "pos"]
+			$wordMap put "Source Types" [$metadata get "sourceTypes"]
+			$wordMap put "Frequency" [$metadata get "occurrenceCount"]
+			$wordMap put "Pronunciations" [$metadata get "pronunciations"]
+			$wordMap put "Pictures" [$metadata get "pictures"]
+			$wordMap put "Sample Usages" [$metadata get "sampleUsages"]
+			$wordMap put "Plurality" [$metadata get "plurality"]
+			$wordMap put "Cases" [$metadata get "cases"]
+			$wordMap put "Genders" [$metadata get "genders"]
+			$wordMap put "Variants" [$metadata get "variants"]
+			$wordMap put "Inflections" [$metadata get "inflections"]
+			$wordMap put "Grade 1 Count" [$metadata get "count_grade_1"]
+			$wordMap put "Grade 2 Count" [$metadata get "count_grade_2"]
+			$wordMap put "Grade 3 Count" [$metadata get "count_grade_3"]
+			$wordMap put "Default Meaning" ""
+		}
+		set inRelations [procGetInRelations $node]
+		set hasInRelations [isNotEmpty $inRelations]
+		if {$hasInRelations} {
+			set synsetMap [procGetSynonyms $inRelations]
+			$wordMap putAll $synsetMap	
+		}
+		set outRelations [procGetOutRelations $node]
+		set hasOutRelations [isNotEmpty $outRelations]
+		if {$hasOutRelations} {
+			set antonyms [procGetAntonyms $outRelations]
+			$wordMap put "antonyms" $antonyms
+		} else {
+			$wordMap put "antonyms" [java::new ArrayList]
+		}
+	}
+	return $wordMap
+}
+
 set object_type "Word"
 set map [java::new HashMap]
 $map put "nodeType" "DATA_NODE"
@@ -195,8 +309,7 @@ if {$check_error} {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set word_list [java::new ArrayList]
 		java::for {Node graph_node} $graph_nodes {
-			set wordMetadataRes [lang_qe_getWordMetadata $graph_node]
-			set wordMetadata [get_resp_value $wordMetadataRes "result"]
+			set wordMetadata [procGetWordMetadata $graph_node]
 			$word_list add $wordMetadata
 		}
 		$result_map put "words" $word_list

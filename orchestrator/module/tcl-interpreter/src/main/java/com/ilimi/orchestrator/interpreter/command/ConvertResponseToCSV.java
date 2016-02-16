@@ -138,17 +138,19 @@ public class ConvertResponseToCSV extends BaseSystemCommand implements ICommand,
                 if (val instanceof List) {
                     List list = (List) val;
                     String str = "";
-                    for (Object obj : list) {
-                        str += StringEscapeUtils.escapeCsv(obj.toString());
-                        str += ",";
+                    for (int j=0; j<list.size(); j++) {
+                        str += StringEscapeUtils.escapeCsv(list.get(j).toString());
+                        if (j < list.size() - 1)
+                            str += ",";
                     }
                     row[i] = str;
                 } else if (val instanceof Object[]) {
                     Object[] arr = (Object[]) val;
                     String str = "";
-                    for (Object obj : arr) {
-                        str += StringEscapeUtils.escapeCsv(obj.toString());
-                        str += ",";
+                    for (int j=0; j<arr.length; j++) {
+                        str += StringEscapeUtils.escapeCsv(arr[j].toString());
+                        if (j < arr.length - 1)
+                            str += ",";
                     }
                     row[i] = str;
                 } else {
