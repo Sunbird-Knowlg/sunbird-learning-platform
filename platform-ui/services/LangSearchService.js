@@ -24,3 +24,23 @@ exports.getLangSearchDefinition = function(cb, languageId) {
 		}
 	});
 }
+
+exports.langSearch = function(cb, data) {
+	var args = {
+		path: {
+			id: data.languageId
+		},
+		data: {
+			request: {
+				data.properties
+			}
+		}
+	}
+	mwService.getCall(urlConstants.LANG_SEARCH, args, function(err, data) {
+		if(err) {
+			cb(err);
+		} else {
+			cb(null, data.result.words);
+		}
+	});
+}

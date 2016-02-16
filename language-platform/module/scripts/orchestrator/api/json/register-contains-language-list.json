@@ -1,0 +1,14 @@
+{
+    "name": "containsLanguage",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/contains/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}
