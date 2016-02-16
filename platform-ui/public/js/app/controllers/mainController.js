@@ -272,7 +272,11 @@ app.service('PlayerService', ['$http', '$q', function($http, $q) {
   }
 
   this.getLangSearchDefinition = function(data) {
-    return this.getFromService('/private/v1/player/language/search/' + data);
+    return this.getFromService('/private/v1/player/language/searchDef/' + data);
+  }
+
+  this.langSearch = function(data) {
+    return this.postToService('/private/v1/player/language/search', data);
   }
 
 }]);
@@ -2001,7 +2005,11 @@ app.controller('LangSearchCtrl', ['$scope', '$timeout', '$rootScope', '$statePar
   $scope.langSearch = function($event) {
     console.log("LangSearchCtrl - ", $event);
     $scope.buttonLoading($event);
-    // Attach Search Service
+    service.langSearch($scope.$parent.conceptToBeUpdated).then(function(data) {
+      console.log("Search Result - ", data);
+    }).catch(function(err) {
+      console.log("Error - While Search Operation.");
+    });
   }
 
   $scope.saveChanges = function($event) {
