@@ -14,9 +14,13 @@
  */
 var async = require('async')
 	, demoservice = require('../services/LangSearchServiceFixtures')
-	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/LangSearchServiceFixtures') : require('../services/GameService'))
+	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/LangSearchServiceFixtures') : require('../services/LangSearchService'))
 	, util = require('../commons/Util');
 
 exports.getLangSearchDefinition = function(req, res) {
-	service.getLangSearchDefinition(util.responseCB(res), req.params.languageId);
+	demoservice.getLangSearchDefinition(util.responseCB(res), req.params.languageId);
+}
+
+exports.langSearch = function(req, res) {
+	service.langSearch(util.responseCB(res), req.body);
 }

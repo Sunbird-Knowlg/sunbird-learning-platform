@@ -1,0 +1,42 @@
+<style type="text/css">
+  .grayText {
+    color: #999 !important;
+    background: none repeat scroll 0 0 #f9f9f9 !important;
+  }
+  .gameTitleSection {
+    background: none repeat scroll 0 0 #f9f9f9;
+    margin-bottom: 10px;
+    margin-top: 10px;
+  }
+</style>
+<div class="MywallActivity">
+  <div class=" wallActivityHeader">
+    <div class="editContent">
+      <div class="headerAsk">
+        <h2 id="titleHeaderId">
+          <a class="tool-tip hide" data-original-title="Back to Games list" data-placement="bottom" data-toggle="tooltip" href="javascript:void(0);" ng-click="viewGameList()" title="Back to Games list">
+            <i class="writeBlackOne fa fa-angle-double-left" id="writeIcon"></i>
+          </a>
+          {{selectedLanguageName}}
+        </h2>
+      </div>
+      <div class="col-md-12 noPad padTop padBottom">
+        <div ng-include="'metadata_categories_template.html'"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div ng-include="'save_confirmation_template.html'"></div>
+<div ng-include="'comments_template.html'"></div>
+<div ng-include="'audit_log_template.html'"></div>
+
+<script type="text/javascript">
+  $('.mid-container-full').on("scroll", function(e) {
+    if (this.scrollTop > 100) {
+      $('#titleHeaderId').addClass('fix-title-head');
+    } else {
+      $('#titleHeaderId').removeClass('fix-title-head');
+    }
+  });
+</script>

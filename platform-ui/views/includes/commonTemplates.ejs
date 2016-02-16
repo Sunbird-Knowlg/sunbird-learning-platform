@@ -4,16 +4,16 @@
         <div class="modal-content" style="width: 650px;">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">X</button>
-                <h3>Confirm Changes</h3>
+                <h3>Confirm {{isSearchOperation == true ? "Search Criteria" : "Changes"}}</h3>
             </div>
             <div class="modal-body">
-                <div class="alert alert-warning">
+                <div class="alert alert-warning" ng-if="isSearchOperation == false">
                     Following is the commit message derived from the changes.
                 </div>
                 <textarea class="form-control" rows="4" ng-model="commitMessage"></textarea>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-primary" ng-click="saveChanges($event)" data-loading-text="Updating Concept...">Confirm</button>
+                <button class="btn btn-primary" ng-click="isSearchOperation == true ? langSearch($event) : saveChanges($event)" data-loading-text="Updating Concept...">Confirm</button>
             </div>
         </div>
     </div>
@@ -395,7 +395,7 @@
             <li ng-repeat="error in validationMessages">{{error}}</li>
         </ul>
     </div>
-    <button class="btn btn-primary pull-right" ng-click="confirmChanges()">Save Changes</button>
+    <button class="btn btn-primary pull-right" ng-click= "isSearchOperation === true ? languageSearch() : confirmChanges()">{{isSearchOperation === true ? "Search" : "Save Changes"}}</button>
     <a ng-click="showAllComments(selectedConcept.auditHistory)" class="pull-right marginRight5" style="margin-top: 10px; color: #c3c3c3;" ng-if="selectedConcept.auditHistory.length > 0"><span>last updated </span><span data-livestamp="{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedOn/1000}}"></span><span> by </span><span class="text-capitalize">{{selectedConcept.auditHistory[selectedConcept.auditHistory.length-1].lastModifiedBy}}</span></a>
 </div>
 </script>
