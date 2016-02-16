@@ -93,16 +93,19 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             Map<String, Node> nodeMap = new HashMap<String, Node>();
             getNodeMap(nodes, nodeMap, words);
             if (null != words && !words.isEmpty()) {
+                System.out.println("Total words: " + nodes.size());
                 Map<String, Object> indexesMap = new HashMap<String, Object>();
                 Map<String, Object> wordInfoMap = new HashMap<String, Object>();
                 List<String> groupList = Arrays.asList(groupBy);
                 getIndexInfo(languageId, indexesMap, words, groupList);
                 System.out.println("indexesMap size: " + indexesMap.size());
                 getWordInfo(languageId, wordInfoMap, words);
+                System.out.println("wordInfoMap size: " + wordInfoMap.size());
                 if (null != nodeMap && !nodeMap.isEmpty()) {
                     for (Entry<String, Node> entry : nodeMap.entrySet()) {
                         Node node = entry.getValue();
                         String lemma = entry.getKey();
+                        boolean update = false;
                         Map<String, Object> index = (Map<String, Object>) indexesMap.get(lemma);
                         List<Map<String, Object>> wordInfo = (List<Map<String, Object>>) wordInfoMap.get(lemma);
                         if (null != index) {
@@ -120,6 +123,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 updateSourceTypesList(node, citations);
                                 updateSourcesList(node, citations);
                                 updateGradeList(node, citations);
+                                update = true;
                             }
                         }
                         if (null != wordInfo && !wordInfo.isEmpty()) {
@@ -132,19 +136,22 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 updateStringMetadata(node, info, "grammaticalCase", "cases");
                                 updateStringMetadata(node, info, "inflection", "inflections");
                             }
+                            update = true;
                         }
-                        node.getMetadata().put("status", "Live");
-                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                "updateDataNode");
-                        updateReq.put(GraphDACParams.node.name(), node);
-                        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                        try {
-                            getResponse(updateReq, LOGGER);
-                        } catch (Exception e) {
-                            System.out
-                                    .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                        if (update) {
+                            node.getMetadata().put("status", "Live");
+                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                    "updateDataNode");
+                            updateReq.put(GraphDACParams.node.name(), node);
+                            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                            try {
+                                getResponse(updateReq, LOGGER);
+                                System.out.println("update complete for: " + node.getIdentifier());
+                            } catch (Exception e) {
+                                System.out
+                                        .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                            }
                         }
-                        System.out.println("update complete");
                     }
                 }
             }

@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -15,7 +16,6 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -64,6 +64,7 @@ import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
+import com.ilimi.taxonomy.util.ReadProperties;
 import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
@@ -95,7 +96,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     private static final String bucketName = "ekstep-public";
     private static final String folderName = "content";
     private static final String ecarFolderName = "ecar_files";
-    private static final String tempFileLocation = "/temp/";
+    private static final String tempFileLocation = "temp/";
 
     protected static final String URL_FIELD = "URL";
 
@@ -407,6 +408,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
                 metadata.put("objectType", node.getObjectType());
                 metadata.put("subject", node.getGraphId());
                 metadata.remove("body");
+                metadata.remove("editorState");
                 if (null != node.getTags() && !node.getTags().isEmpty())
                     metadata.put("tags", node.getTags());
                 if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
@@ -686,26 +688,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata = node.getMetadata();
         String contentBody = (String) metadata.get("body");
         String contentType = checkBodyContentType(contentBody);
-        if (StringUtils.isBlank(contentType)) 
-    		throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(), "Content of Body Either Invalid or Null");
+        ReadProperties readPro = new ReadProperties();
         String tempFile = null;
         String tempWithTimeStamp = null;
         try {
-            tempFile = tempFileLocation;
+            tempFile = readPro.getPropValues("source.folder");
             tempWithTimeStamp = tempFile  +System.currentTimeMillis() + "_temp";
             File file = null;
-			if (contentType.equalsIgnoreCase("ecml")) {
+			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
 				file = new File(tempWithTimeStamp+ File.separator + "index.ecml");
-			}else if (contentType.equalsIgnoreCase("json")) {
+			} else if (StringUtils.equalsIgnoreCase("json", contentType)) {
 				file = new File(tempWithTimeStamp + File.separator+ "index.json");
 			}
-            if (!file.getParentFile().exists()) {
-            	file.getParentFile().mkdirs();
-            	if (!file.exists()) {
-            		file.createNewFile();
-				}
-            }
-            FileUtils.writeStringToFile(file, contentBody);
+			if (null != file) {
+			    if (!file.getParentFile().exists()) {
+	                file.getParentFile().mkdirs();
+	                if (!file.exists()) {
+	                    file.createNewFile();
+	                }
+	            }
+	            FileUtils.writeStringToFile(file, contentBody);
+			}
             String appIcon = (String) metadata.get("appIcon");
             if (StringUtils.isNotBlank(appIcon)) {
                 File logoFile = HttpDownloadUtility.downloadFile(appIcon, tempWithTimeStamp);
@@ -728,37 +731,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     
     private String checkBodyContentType(String contentBody) {
     	if (StringUtils.isNotEmpty(contentBody)) {
-    		if (isECMLValid(contentBody)) {
+    		if (StringUtils.startsWith(contentBody, "<")) {
     			return "ecml";
-    		}else if (isJSONValid(contentBody)) {
+    		}else if (StringUtils.startsWithAny(contentBody, new String[]{"{","["})) {
     			return "json";
     		}
 		}
-    	return null;
+    	return "";
 	}
-    public boolean isJSONValid(String content) {
-		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			mapper.readTree(content);
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-	
-	public boolean isECMLValid(String content) {
-		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-		DocumentBuilder dBuilder;
-		try {
-			dBuilder = dbFactory.newDocumentBuilder();
-			dBuilder.parse(IOUtils.toInputStream(content, "UTF-8"));
-			return true;
-		}catch(Exception e){
-			return false;
-		}
-	}
-	
-
     
     /**
 	 * this method parse ECML file and find src to download media type in assets
@@ -769,77 +749,70 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 */
 	public Response parseContent(String taxonomyId, String contentId, String filePath, String fileName,String contentType) {
 		File file =  new File(filePath);
-		String fileLocation = filePath + File.separator + "index.ecml";
 		String sourceFolder = file.getParent()+File.separator;
 	    Response response = new Response();
-	    try {
-	    	 if (contentType.equalsIgnoreCase("json")) {
-	 			CustomParser.readJsonFileDownload(filePath);
-	 		}else if (contentType.equalsIgnoreCase("ecml")) {
-	 			new CustomParser(new File(fileLocation)).updateEcml(filePath);
-	 		}
-	 	    String zipFilePathName = sourceFolder + fileName + ".zip";
-	 	    List<String> fileList = new ArrayList<String>();
-	 	    ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
-	 	    appZip.generateFileList(new File(filePath));
-	 	    appZip.zipIt(zipFilePathName);
-	 	    File olderName = new File(zipFilePathName);
-	 	    if (olderName.exists() && olderName.isFile()) {
-	 	        File newName = new File(sourceFolder + File.separator + olderName.getName());
-	 	        olderName.renameTo(newName);
-	 	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-	 	                GraphDACParams.node_id.name(), contentId);
-	 	        request.put(GraphDACParams.get_tags.name(), true);
-	 	        Response getNodeRes = getResponse(request, LOGGER);
-	 	        if (checkError(getNodeRes)) {
-	 	            return getNodeRes;
-	 	        }
-	 	        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-	 	        node.getMetadata().put("downloadUrl", newName);
-	 	        List<Node> nodes = new ArrayList<Node>();
-	 	        nodes.add(node);
-	 	        List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-	 	        List<String> childrenIds = new ArrayList<String>();
-	 	        getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-	 	        String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
-	 	        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
-	 	        node.getMetadata().put("s3Key", urlArray[0]);
-	 	        node.getMetadata().put("downloadUrl", urlArray[1]);
-	 	        Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-	 	        if (null == pkgVersion || pkgVersion.intValue() < 1) {
-	 	            pkgVersion = 1.0;
-	 	        } else {
-	 	            pkgVersion = pkgVersion.doubleValue() + 1;
-	 	        }
-	 	        node.getMetadata().put("pkgVersion", pkgVersion);
-	 	        node.getMetadata().put("status", "Live");
-	 	        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-	 	        updateReq.put(GraphDACParams.node.name(), node);
-	 	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-	 	        Response updateRes = getResponse(updateReq, LOGGER);
-	 	        updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
-	 	        response = updateRes;
-	 	    }
-	 	   
-		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-		}finally{
-			 File directory = new File(sourceFolder);
-		 	    if (!directory.exists()) {
-		 	        System.out.println("Directory does not exist.");
-		 	        System.exit(0);
-		 	    } else {
-		 	        try {
-		 	            delete(directory);
-		 	            if (!directory.exists()) {
-		 	                directory.mkdirs();
-		 	            }
-		 	        } catch (IOException e) {
-		 	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-		 	        }
-		 	    }
+	    Map<String, String> map = null;
+	    if (contentType.equalsIgnoreCase("json")) {
+			CustomParser.readJsonFileDownload(filePath);
+		}else if (contentType.equalsIgnoreCase("ecml")) {
+			CustomParser.readECMLFileDownload(filePath, map);
 		}
-	   
+	    String zipFilePathName = sourceFolder + fileName + ".zip";
+	    List<String> fileList = new ArrayList<String>();
+	    ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
+	    appZip.generateFileList(new File(filePath));
+	    appZip.zipIt(zipFilePathName);
+	    File olderName = new File(zipFilePathName);
+	    if (olderName.exists() && olderName.isFile()) {
+	        File newName = new File(sourceFolder + File.separator + olderName.getName());
+	        olderName.renameTo(newName);
+	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+	                GraphDACParams.node_id.name(), contentId);
+	        request.put(GraphDACParams.get_tags.name(), true);
+	        Response getNodeRes = getResponse(request, LOGGER);
+	        if (checkError(getNodeRes)) {
+	            return getNodeRes;
+	        }
+	        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+	        node.getMetadata().put("downloadUrl", newName);
+	        List<Node> nodes = new ArrayList<Node>();
+	        nodes.add(node);
+	        List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+	        List<String> childrenIds = new ArrayList<String>();
+	        getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
+	        String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
+	        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+	        node.getMetadata().put("s3Key", urlArray[0]);
+	        node.getMetadata().put("downloadUrl", urlArray[1]);
+	        Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
+	        if (null == pkgVersion || pkgVersion.intValue() < 1) {
+	            pkgVersion = 1.0;
+	        } else {
+	            pkgVersion = pkgVersion.doubleValue() + 1;
+	        }
+	        node.getMetadata().put("pkgVersion", pkgVersion);
+	        node.getMetadata().put("status", "Live");
+	        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+	        updateReq.put(GraphDACParams.node.name(), node);
+	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+	        Response updateRes = getResponse(updateReq, LOGGER);
+	        updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
+	        response = updateRes;
+	    }
+	    File directory = new File(sourceFolder);
+	    if (!directory.exists()) {
+	        System.out.println("Directory does not exist.");
+	        System.exit(0);
+	    } else {
+	        try {
+	            delete(directory);
+	            if (!directory.exists()) {
+	                directory.mkdirs();
+	            }
+	        } catch (IOException e) {
+	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+	        }
+	    }
 	    return response;
 	}
 
@@ -882,8 +855,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
 			String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 			File zipFile = null;
+			System.out.println("zipFilUrl is " + zipFilUrl);
 			if (StringUtils.isNotBlank(zipFilUrl)) {
 				zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
+				System.out.println("zipFile is " + zipFile);
 			}
 			Response response = new Response();
 			response = extractContent(taxonomyId, zipFile, contentId);
@@ -954,7 +929,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		String zipFileDir = zipFile.getParent();
 		String filePath = zipFileDir + File.separator + "index.ecml";
 		String uploadFilePath = zipFileDir + File.separator + "assets" + File.separator;
-		Map<String, String> mediaIdURL = new HashMap<String, String>();
+		Map<String, List<String>> mediaIdURL = new HashMap<String, List<String>>();
 		List<String> listOfCtrlType = new ArrayList<>();
 		listOfCtrlType.add("items");
 		listOfCtrlType.add("data");
@@ -964,8 +939,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			unzipper.unzip(zipFilePath, zipFileDir);
 			List<Relation> outRelations = new ArrayList<Relation>();
 			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations);
-			Map<String, String> mediaIdMap = CustomParser.readECMLFile(filePath);
-			Set<String> mediaIdSet = mediaIdMap.keySet();
+	        Map<String,List<String>> mediaIdMap = CustomParser.readECMLFile(filePath);
+            Map<String, String> mediaSrcMap = new HashMap<String, String>();
+            Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
+            Set<String> mediaIdSet = new HashSet<String>();
+            for (Entry<String, List<String>> entry : mediaIdMap.entrySet()) {
+                String id = entry.getKey();
+                List<String> values = entry.getValue();
+                if (null != values && values.size() == 2) {
+                    String src = values.get(0);
+                    String assetId = values.get(1);
+                    String nodeId = null;
+                    if (StringUtils.isNotBlank(assetId)) {
+                        nodeId = assetId;
+                    } else {
+                        nodeId = contentId + "_" + id;
+                    }
+                    mediaIdSet.add(nodeId);
+                    mediaSrcMap.put(id, src);
+                    mediaAssetIdMap.put(nodeId, id);
+                }
+            }
 			CustomParser customParser = new CustomParser(new File(filePath));
 			if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
 				Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
@@ -976,9 +970,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					for (Node node : nodeList) {
 						if (mediaIdSet.contains(node.getIdentifier())) {
 							mediaIdSet.remove(node.getIdentifier());
-							if (node.getMetadata().get("downloadUrl") == null) {
+							String downloadUrl = (String) node.getMetadata().get("downloadUrl");
+							if (StringUtils.isBlank(downloadUrl)) {
 								long timeStempInMiliSec = System.currentTimeMillis();
-								File olderName = new File(uploadFilePath + mediaIdMap.get(node.getIdentifier()));
+								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(node.getIdentifier()));
+								File olderName = new File(uploadFilePath + mediaSrc);
 								if (olderName.exists() && olderName.isFile()) {
 									String parentFolderName = olderName.getParent();
 									File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
@@ -986,7 +982,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 									olderName.renameTo(newName);
 									String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
 									Node newItem = createNode(node, url[1], node.getIdentifier(), olderName);
-									mediaIdURL.put(node.getIdentifier(), url[1]);
+									List<String> values = new ArrayList<String>();
+									values.add(url[1]);
+									values.add(node.getIdentifier());
+									mediaIdURL.put(mediaAssetIdMap.get(node.getIdentifier()), values);
 									Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
 											"validateNode");
 									validateReq.put(GraphDACParams.node.name(), newItem);
@@ -1002,21 +1001,24 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 									}
 								}
 							} else {
-								mediaIdURL.put(node.getIdentifier(), node.getMetadata().get("downloadUrl").toString());
+							    List<String> values = new ArrayList<String>();
+                                values.add(downloadUrl);
+                                values.add(node.getIdentifier());
+								mediaIdURL.put(mediaAssetIdMap.get(node.getIdentifier()), values);
 							}
 						}
 					}
 					if (mediaIdSet != null && !mediaIdSet.isEmpty()) {
 						for (String mediaId : mediaIdSet) {
 							long timeStempInMiliSec = System.currentTimeMillis();
-							File olderName = new File(uploadFilePath + mediaIdMap.get(mediaId));
+							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(mediaId));
+							File olderName = new File(uploadFilePath + mediaSrc);
 							if (olderName.exists() && olderName.isFile()) {
 								String parentFolderName = olderName.getParent();
 								File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
 										+ olderName.getName());
 								olderName.renameTo(newName);
 								String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
-								mediaIdURL.put(mediaId, url[1]);
 								Node item = createNode(new Node(), url[1], mediaId, olderName);
 								// Creating a graph.
 								Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
@@ -1030,6 +1032,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 											"createDataNode");
 									createReq.put(GraphDACParams.node.name(), item);
 									getResponse(createReq, LOGGER);
+									List<String> values = new ArrayList<String>();
+	                                values.add(url[1]);
+	                                values.add(item.getIdentifier());
+	                                mediaIdURL.put(mediaAssetIdMap.get(mediaId), values);
 								}
 							}
 						}
