@@ -220,7 +220,6 @@ proc procGetWordMetadata {node} {
 	set wordMap [java::new HashMap]
 	set isNodeNotNull [isNotNull $node]
 	if {$isNodeNotNull} {
-		$wordMap put "identifier" [java::prop $node "identifier"]
 		set metadata [java::prop $node "metadata"]
 		set checkMetadata [isNotNull $metadata]
 		if {$checkMetadata} {
@@ -247,6 +246,7 @@ proc procGetWordMetadata {node} {
 			$wordMap put "Grade 3 Count" [$metadata get "count_grade_3"]
 			$wordMap put "Default Meaning" ""
 		}
+		$wordMap put "identifier" [java::prop $node "identifier"]
 		set inRelations [procGetInRelations $node]
 		set hasInRelations [isNotEmpty $inRelations]
 		if {$hasInRelations} {
