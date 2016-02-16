@@ -15,6 +15,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -685,6 +686,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
         metadata = node.getMetadata();
         String contentBody = (String) metadata.get("body");
         String contentType = checkBodyContentType(contentBody);
+        if (StringUtils.isBlank(contentType)) 
+    		throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(), "Content of Body Either Invalid or Null");
         String tempFile = null;
         String tempWithTimeStamp = null;
         try {
@@ -725,14 +728,37 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
     
     private String checkBodyContentType(String contentBody) {
     	if (StringUtils.isNotEmpty(contentBody)) {
-    		if (StringUtils.startsWith(contentBody, "<")) {
+    		if (isECMLValid(contentBody)) {
     			return "ecml";
-    		}else if (StringUtils.startsWithAny(contentBody, new String[]{"{","["})) {
+    		}else if (isJSONValid(contentBody)) {
     			return "json";
     		}
 		}
     	return null;
 	}
+    public boolean isJSONValid(String content) {
+		try {
+			final ObjectMapper mapper = new ObjectMapper();
+			mapper.readTree(content);
+			return true;
+		} catch (IOException e) {
+			return false;
+		}
+	}
+	
+	public boolean isECMLValid(String content) {
+		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		DocumentBuilder dBuilder;
+		try {
+			dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder.parse(IOUtils.toInputStream(content, "UTF-8"));
+			return true;
+		}catch(Exception e){
+			return false;
+		}
+	}
+	
+
     
     /**
 	 * this method parse ECML file and find src to download media type in assets
@@ -743,70 +769,77 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 */
 	public Response parseContent(String taxonomyId, String contentId, String filePath, String fileName,String contentType) {
 		File file =  new File(filePath);
+		String fileLocation = filePath + File.separator + "index.ecml";
 		String sourceFolder = file.getParent()+File.separator;
 	    Response response = new Response();
-	    Map<String, String> map = null;
-	    if (contentType.equalsIgnoreCase("json")) {
-			CustomParser.readJsonFileDownload(filePath);
-		}else if (contentType.equalsIgnoreCase("ecml")) {
-			CustomParser.readECMLFileDownload(filePath, map);
+	    try {
+	    	 if (contentType.equalsIgnoreCase("json")) {
+	 			CustomParser.readJsonFileDownload(filePath);
+	 		}else if (contentType.equalsIgnoreCase("ecml")) {
+	 			new CustomParser(new File(fileLocation)).updateEcml(filePath);
+	 		}
+	 	    String zipFilePathName = sourceFolder + fileName + ".zip";
+	 	    List<String> fileList = new ArrayList<String>();
+	 	    ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
+	 	    appZip.generateFileList(new File(filePath));
+	 	    appZip.zipIt(zipFilePathName);
+	 	    File olderName = new File(zipFilePathName);
+	 	    if (olderName.exists() && olderName.isFile()) {
+	 	        File newName = new File(sourceFolder + File.separator + olderName.getName());
+	 	        olderName.renameTo(newName);
+	 	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+	 	                GraphDACParams.node_id.name(), contentId);
+	 	        request.put(GraphDACParams.get_tags.name(), true);
+	 	        Response getNodeRes = getResponse(request, LOGGER);
+	 	        if (checkError(getNodeRes)) {
+	 	            return getNodeRes;
+	 	        }
+	 	        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+	 	        node.getMetadata().put("downloadUrl", newName);
+	 	        List<Node> nodes = new ArrayList<Node>();
+	 	        nodes.add(node);
+	 	        List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+	 	        List<String> childrenIds = new ArrayList<String>();
+	 	        getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
+	 	        String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
+	 	        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+	 	        node.getMetadata().put("s3Key", urlArray[0]);
+	 	        node.getMetadata().put("downloadUrl", urlArray[1]);
+	 	        Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
+	 	        if (null == pkgVersion || pkgVersion.intValue() < 1) {
+	 	            pkgVersion = 1.0;
+	 	        } else {
+	 	            pkgVersion = pkgVersion.doubleValue() + 1;
+	 	        }
+	 	        node.getMetadata().put("pkgVersion", pkgVersion);
+	 	        node.getMetadata().put("status", "Live");
+	 	        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+	 	        updateReq.put(GraphDACParams.node.name(), node);
+	 	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+	 	        Response updateRes = getResponse(updateReq, LOGGER);
+	 	        updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
+	 	        response = updateRes;
+	 	    }
+	 	   
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+		}finally{
+			 File directory = new File(sourceFolder);
+		 	    if (!directory.exists()) {
+		 	        System.out.println("Directory does not exist.");
+		 	        System.exit(0);
+		 	    } else {
+		 	        try {
+		 	            delete(directory);
+		 	            if (!directory.exists()) {
+		 	                directory.mkdirs();
+		 	            }
+		 	        } catch (IOException e) {
+		 	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+		 	        }
+		 	    }
 		}
-	    String zipFilePathName = sourceFolder + fileName + ".zip";
-	    List<String> fileList = new ArrayList<String>();
-	    ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
-	    appZip.generateFileList(new File(filePath));
-	    appZip.zipIt(zipFilePathName);
-	    File olderName = new File(zipFilePathName);
-	    if (olderName.exists() && olderName.isFile()) {
-	        File newName = new File(sourceFolder + File.separator + olderName.getName());
-	        olderName.renameTo(newName);
-	        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-	                GraphDACParams.node_id.name(), contentId);
-	        request.put(GraphDACParams.get_tags.name(), true);
-	        Response getNodeRes = getResponse(request, LOGGER);
-	        if (checkError(getNodeRes)) {
-	            return getNodeRes;
-	        }
-	        Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-	        node.getMetadata().put("downloadUrl", newName);
-	        List<Node> nodes = new ArrayList<Node>();
-	        nodes.add(node);
-	        List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-	        List<String> childrenIds = new ArrayList<String>();
-	        getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-	        String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
-	        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
-	        node.getMetadata().put("s3Key", urlArray[0]);
-	        node.getMetadata().put("downloadUrl", urlArray[1]);
-	        Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-	        if (null == pkgVersion || pkgVersion.intValue() < 1) {
-	            pkgVersion = 1.0;
-	        } else {
-	            pkgVersion = pkgVersion.doubleValue() + 1;
-	        }
-	        node.getMetadata().put("pkgVersion", pkgVersion);
-	        node.getMetadata().put("status", "Live");
-	        Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-	        updateReq.put(GraphDACParams.node.name(), node);
-	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-	        Response updateRes = getResponse(updateReq, LOGGER);
-	        updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
-	        response = updateRes;
-	    }
-	    File directory = new File(sourceFolder);
-	    if (!directory.exists()) {
-	        System.out.println("Directory does not exist.");
-	        System.exit(0);
-	    } else {
-	        try {
-	            delete(directory);
-	            if (!directory.exists()) {
-	                directory.mkdirs();
-	            }
-	        } catch (IOException e) {
-	            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-	        }
-	    }
+	   
 	    return response;
 	}
 
