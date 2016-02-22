@@ -1,0 +1,22 @@
+{
+    "actorPath": {
+      "manager": "INDEXES_ACTOR",
+      "operation": "wordInfo",
+      "router": "LANGUAGE_REQUEST_ROUTER"
+    },
+    "name": "lang_getWordsInformation",
+    "parameters": [
+      {
+        "index": 0,
+        "name": "language_id",
+        "routingParam": true
+      },
+      {
+        "index": 1,
+        "name": "words",
+        "routingParam": false,
+        "datatype": "java.util.ArrayList"
+      }
+    ],
+    "type": "COMMAND"
+  }
