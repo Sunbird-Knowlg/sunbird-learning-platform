@@ -1,1 +1,13 @@
 node registerCommand.js commands/register-lang_getWordsInformation.json update
+
+node registerCommand.js commands/register-lang_getCitationsCount.json update
+
+node registerCommand.js commands/register-lang_getRootWords.json update
+
+node registerCommand.js commands/register-lang_getRootWordInfo.json update
+
+node registerCommand.js commands/register-lang_getWordId.json update
+
+node registerCommand.js commands/register-lang_getIndexInfo.json update
+
+node registerCommand.js commands/register-lang_addWordIndex.json update
