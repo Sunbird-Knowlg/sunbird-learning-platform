@@ -23,3 +23,7 @@ node registerCommand.js commands/register-lang_getMorphologicalVariants.json upd
 node registerCommand.js commands/register-lang_getCitations.json update
 
 node registerCommand.js commands/register-lang_loadCitations.json update
+
+node registerCommand.js commands/register-lang_loadLanguageVectors.json update
+
+node registerCommand.js commands/register-lang_getWordFeatures.json update

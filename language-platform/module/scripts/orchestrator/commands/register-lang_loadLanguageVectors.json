@@ -1,0 +1,15 @@
+{
+    "actorPath": {
+      "manager": "LEXILE_MEASURES_ACTOR",
+      "operation": "loadLanguageVectors",
+      "router": "LANGUAGE_REQUEST_ROUTER"
+    },
+    "name": "lang_loadLanguageVectors",
+    "parameters": [
+      {
+        "index": 0,
+        "name": "language_id",
+        "routingParam": true
+      }],
+    "type": "COMMAND"
+ }

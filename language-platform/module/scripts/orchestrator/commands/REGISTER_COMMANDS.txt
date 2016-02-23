@@ -24,4 +24,10 @@ node registerCommand.js commands/register-lang_getCitations.json register
 
 node registerCommand.js commands/register-lang_loadCitations.json register
 
+node registerCommand.js commands/register-lang_loadLanguageVectors.json register
+
+node registerCommand.js commands/register-lang_getWordFeatures.json register
+
+
+
 
