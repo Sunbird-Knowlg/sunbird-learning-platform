@@ -21,11 +21,16 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
+import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageOperations;
+import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.neo4j.cypher.internal.compiler.v2_2.ast.rewriters.getDegreeOptimizer;
 
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
@@ -682,5 +687,45 @@ public class WordUtil extends BaseManager {
 			}
 		}
 		return errorMessageList;
+	}
+
+	@SuppressWarnings("rawtypes")
+	public void addWordFeatures(Map item, String languageId) {
+		Request langReq = getRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
+				LanguageOperations.getWordFeatures.name());
+		String lemma = (String) item.get("lemma");
+		if (lemma == null) {
+			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), "Lemma not found");
+		}
+		langReq.put(LanguageParams.word.name(), lemma);
+		Response langRes = getResponse(langReq, LOGGER);
+		if (checkError(langRes)) {
+			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), langRes.getParams().getErrmsg());
+		} else {
+			Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
+					.get(LanguageParams.word_features.name());
+			if (null != featureMap && !featureMap.isEmpty()) {
+				System.out.println("Word features returned for " + featureMap.size() + " words");
+				for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
+					WordComplexity wc = entry.getValue();
+					item.put("syllableCount", wc.getCount());
+					item.put("syllableNotation", wc.getNotation());
+					item.put("unicodeNotation", wc.getUnicode());
+					item.put("orthographic_complexity", wc.getOrthoComplexity());
+					item.put("phonologic_complexity", wc.getPhonicComplexity());
+					item.put("status", "Live");
+					/*Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+					updateReq.put(GraphDACParams.node.name(), node);
+					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+					try {
+						System.out.println("Sending update req for : " + node.getIdentifier());
+						getResponse(updateReq, LOGGER);
+						System.out.println("Update complete for : " + node.getIdentifier());
+					} catch (Exception e) {
+						System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+					}*/
+				}
+			}
+		}
 	}
 }

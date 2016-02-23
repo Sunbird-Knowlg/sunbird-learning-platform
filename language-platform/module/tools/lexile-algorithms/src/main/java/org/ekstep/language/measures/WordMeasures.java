@@ -12,7 +12,6 @@ import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
 
-import com.ilimi.common.exception.ServerException;
 
 public class WordMeasures {
 

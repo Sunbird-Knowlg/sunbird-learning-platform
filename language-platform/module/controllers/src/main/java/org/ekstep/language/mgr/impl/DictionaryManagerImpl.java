@@ -18,6 +18,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -51,6 +52,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
     private static final String LEMMA_PROPERTY = "lemma";
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
+    private WordUtil wordUtil = new WordUtil();
 
     static {
         DEFAULT_STATUS.add("Live");
@@ -99,6 +101,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
 								.get(GraphDACParams.definition_node.name());
 						for (Map item : items) {
+							wordUtil.addWordFeatures(item, languageId);
 							Node node = convertToGraphNode(languageId, objectType, item, definition);
 							nodeList.add(node);
 						}
