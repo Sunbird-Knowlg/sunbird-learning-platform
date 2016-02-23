@@ -1,4 +1,4 @@
-package org.ekstep.language.util;
+package org.ekstep.language.mgr.impl;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -9,9 +9,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -30,13 +27,14 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.ekstep.language.util.Constants;
+import org.ekstep.language.util.ElasticSearchUtil;
 
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -53,10 +51,13 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
-public class WordUtil extends BaseManager {
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONStringer;
+
+public class ControllerUtil extends BaseLanguageManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
-	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
@@ -688,4 +689,43 @@ public class WordUtil extends BaseManager {
 		return errorMessageList;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public void addWordFeatures(Map item, String languageId) {
+		Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
+				LanguageOperations.getWordFeatures.name());
+		String lemma = (String) item.get("lemma");
+		if (lemma == null) {
+			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), "Lemma not found");
+		}
+		langReq.put(LanguageParams.word.name(), lemma);
+		Response langRes = getLanguageResponse(langReq, LOGGER);
+		if (checkError(langRes)) {
+			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), langRes.getParams().getErrmsg());
+		} else {
+			Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
+					.get(LanguageParams.word_features.name());
+			if (null != featureMap && !featureMap.isEmpty()) {
+				System.out.println("Word features returned for " + featureMap.size() + " words");
+				for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
+					WordComplexity wc = entry.getValue();
+					item.put("syllableCount", wc.getCount());
+					item.put("syllableNotation", wc.getNotation());
+					item.put("unicodeNotation", wc.getUnicode());
+					item.put("orthographic_complexity", wc.getOrthoComplexity());
+					item.put("phonologic_complexity", wc.getPhonicComplexity());
+					item.put("status", "Live");
+					/*Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+					updateReq.put(GraphDACParams.node.name(), node);
+					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+					try {
+						System.out.println("Sending update req for : " + node.getIdentifier());
+						getResponse(updateReq, LOGGER);
+						System.out.println("Update complete for : " + node.getIdentifier());
+					} catch (Exception e) {
+						System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+					}*/
+				}
+			}
+		}
+	}
 }

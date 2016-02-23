@@ -52,7 +52,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
     private static final String LEMMA_PROPERTY = "lemma";
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
-    private WordUtil wordUtil = new WordUtil();
+    private ControllerUtil controllerUtil = new ControllerUtil();
 
     static {
         DEFAULT_STATUS.add("Live");
@@ -101,7 +101,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
 								.get(GraphDACParams.definition_node.name());
 						for (Map item : items) {
-							wordUtil.addWordFeatures(item, languageId);
+							controllerUtil.addWordFeatures(item, languageId);
 							Node node = convertToGraphNode(languageId, objectType, item, definition);
 							nodeList.add(node);
 						}
