@@ -18,7 +18,6 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -101,7 +100,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
 								.get(GraphDACParams.definition_node.name());
 						for (Map item : items) {
-							controllerUtil.addWordFeatures(item, languageId);
+							controllerUtil.updateWordFeatures(item, languageId);
+							controllerUtil.updateFrequencyCount(item, languageId);
 							Node node = convertToGraphNode(languageId, objectType, item, definition);
 							nodeList.add(node);
 						}
@@ -175,6 +175,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						getErrorMessage(responseDefiniton));
 			} else {
 				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+				controllerUtil.updateWordFeatures(item, languageId);
+				controllerUtil.updateFrequencyCount(item, languageId);
 				node = convertToGraphNode(languageId, objectType, item, definition);
 				node.setIdentifier(id);
 				node.setObjectType(objectType);
