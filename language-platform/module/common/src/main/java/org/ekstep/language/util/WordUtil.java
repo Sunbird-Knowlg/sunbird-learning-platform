@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,12 +18,8 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
-import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.common.enums.LanguageOperations;
-import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
@@ -52,6 +45,9 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
+
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONStringer;
 
 public class WordUtil extends BaseManager {
 
