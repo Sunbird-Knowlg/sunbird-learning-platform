@@ -6,7 +6,7 @@ var client = new Client();
 var host = "http://localhost:9090/ekstep-service";
 //var host = "http://52.77.241.169:8080/taxonomy-service";
 
-console.log('Test');
+console.log('');
 var scriptAsString = fs.readFileSync(process.argv[3]);
 var rl = readLine.createInterface({
 	input: fs.createReadStream(process.argv[2])
