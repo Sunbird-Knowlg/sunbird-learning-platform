@@ -11,3 +11,15 @@ node registerCommand.js commands/register-lang_getWordId.json update
 node registerCommand.js commands/register-lang_getIndexInfo.json update
 
 node registerCommand.js commands/register-lang_addWordIndex.json update
+
+node registerCommand.js commands/register-lang_getWordMetrics.json update
+
+node registerCommand.js commands/register-lang_addCitationIndex.json update
+
+node registerCommand.js commands/register-lang_wordWildCard.json update
+
+node registerCommand.js commands/register-lang_getMorphologicalVariants.json update
+
+node registerCommand.js commands/register-lang_getCitations.json update
+
+node registerCommand.js commands/register-lang_loadCitations.json update
