@@ -56,11 +56,13 @@ import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
+import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
@@ -76,9 +78,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@Autowired
 	private IAssessmentManager assessmentMgr;
+	
+	@Autowired
+	private ContentMimeTypeFactory contentFactory;
 
-	private static Logger LOGGER = LogManager.getLogger(IContentManager.class
-			.getName());
+	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
 
 	private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
@@ -104,28 +108,25 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@Override
 	public Response create(String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(objectType))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"ObjectType is blank");
 		Node item = (Node) request.get(ContentAPIParams.content.name());
 		if (null == item)
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
-					objectType + " Object is blank");
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), objectType
+					+ " Object is blank");
 		item.setObjectType(objectType);
-		Request validateReq = getRequest(taxonomyId,
-				GraphEngineManagers.NODE_MANAGER, "validateNode");
+		Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+				"validateNode");
 		validateReq.put(GraphDACParams.node.name(), item);
 		Response validateRes = getResponse(validateReq, LOGGER);
 		if (checkError(validateRes)) {
 			return validateRes;
 		} else {
-			Request createReq = getRequest(taxonomyId,
-					GraphEngineManagers.NODE_MANAGER, "createDataNode");
+			Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+					"createDataNode");
 			createReq.put(GraphDACParams.node.name(), item);
 			Response createRes = getResponse(createReq, LOGGER);
 			return createRes;
@@ -134,18 +135,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response findAll(String taxonomyId, String objectType,
-			Integer offset, Integer limit, String[] gfields) {
+	public Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit,
+			String[] gfields) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(objectType))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_OBJECT_TYPE.name(),
 					"Object Type is blank");
-		LOGGER.info("Find All Content : " + taxonomyId + ", ObjectType: "
-				+ objectType);
+		LOGGER.info("Find All Content : " + taxonomyId + ", ObjectType: " + objectType);
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(objectType);
@@ -154,8 +152,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			sc.setStartPosition(offset);
 		if (null != limit && limit.intValue() > 0)
 			sc.setResultSize(limit);
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		request.put(GraphDACParams.get_tags.name(), true);
 		Response findRes = getResponse(request, LOGGER);
@@ -163,8 +160,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (checkError(response))
 			return response;
 		else {
-			List<Node> nodes = (List<Node>) findRes
-					.get(GraphDACParams.node_list.name());
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 			if (null != nodes && !nodes.isEmpty()) {
 				if (null != gfields && gfields.length > 0) {
 					for (Node node : nodes) {
@@ -173,9 +169,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 				response.put(ContentAPIParams.contents.name(), nodes);
 			}
-			Request countReq = getRequest(taxonomyId,
-					GraphEngineManagers.SEARCH_MANAGER, "getNodesCount",
-					GraphDACParams.search_criteria.name(), sc);
+			Request countReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+					"getNodesCount", GraphDACParams.search_criteria.name(), sc);
 			Response countRes = getResponse(countReq, LOGGER);
 			if (checkError(countRes)) {
 				return countRes;
@@ -190,8 +185,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@Override
 	public Response find(String id, String taxonomyId, String[] fields) {
 		if (StringUtils.isBlank(id))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank");
 		if (StringUtils.isNotBlank(taxonomyId)) {
 			return getDataNode(taxonomyId, id);
@@ -214,8 +208,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	private Response getDataNode(String taxonomyId, String id) {
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		request.put(GraphDACParams.get_tags.name(), true);
 		Response getNodeRes = getResponse(request, LOGGER);
@@ -223,36 +216,31 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@Override
-	public Response update(String id, String taxonomyId, String objectType,
-			Request request) {
+	public Response update(String id, String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(id))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank");
 		if (StringUtils.isBlank(objectType))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"ObjectType is blank");
 		Node item = (Node) request.get(ContentAPIParams.content.name());
 		if (null == item)
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(),
-					objectType + " Object is blank");
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT.name(), objectType
+					+ " Object is blank");
 		item.setIdentifier(id);
 		item.setObjectType(objectType);
-		Request validateReq = getRequest(taxonomyId,
-				GraphEngineManagers.NODE_MANAGER, "validateNode");
+		Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+				"validateNode");
 		validateReq.put(GraphDACParams.node.name(), item);
 		Response validateRes = getResponse(validateReq, LOGGER);
 		if (checkError(validateRes)) {
 			return validateRes;
 		} else {
-			Request updateReq = getRequest(taxonomyId,
-					GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+					"updateDataNode");
 			updateReq.put(GraphDACParams.node.name(), item);
 			updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
 			Response updateRes = getResponse(updateReq, LOGGER);
@@ -263,37 +251,29 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@Override
 	public Response delete(String id, String taxonomyId) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(id))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank");
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.NODE_MANAGER, "deleteDataNode",
-				GraphDACParams.node_id.name(), id);
+		Request request = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+				"deleteDataNode", GraphDACParams.node_id.name(), id);
 		return getResponse(request, LOGGER);
 	}
 
 	@Override
-	public Response upload(String id, String taxonomyId, File uploadedFile,
-			String folder) {
+	public Response upload(String id, String taxonomyId, File uploadedFile, String folder) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank.");
 		if (StringUtils.isBlank(id))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Content Object Id is blank.");
 		if (null == uploadedFile) {
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_UPLOAD_OBJECT.name(),
 					"Upload file is blank.");
 		}
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
 		request.put(GraphDACParams.get_tags.name(), true);
 		Response getNodeRes = getResponse(request, LOGGER);
@@ -308,8 +288,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				folder = folderName;
 			urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
 		} catch (Exception e) {
-			throw new ServerException(
-					ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
 					"Error wihile uploading the File.", e);
 		}
 		node.getMetadata().put("s3Key", urlArray[0]);
@@ -323,8 +302,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		node.getMetadata().put("pkgVersion", pkgVersion);
 
-		Request updateReq = getRequest(taxonomyId,
-				GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+				"updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
 		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 		Response updateRes = getResponse(updateReq, LOGGER);
@@ -334,8 +313,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response listContents(String taxonomyId, String objectType,
-			Request request) {
+	public Response listContents(String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
 			taxonomyId = (String) request.get(PARAM_SUBJECT);
 		LOGGER.info("List Contents : " + taxonomyId);
@@ -344,29 +322,25 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (StringUtils.isNotBlank(taxonomyId)) {
 			DefinitionDTO definition = getDefinition(taxonomyId, objectType);
 			definitions.put(taxonomyId, definition);
-			Request req = getContentsListRequest(request, taxonomyId,
-					objectType, definition);
+			Request req = getContentsListRequest(request, taxonomyId, objectType, definition);
 			requests.add(req);
 		} else {
-			DefinitionDTO definition = getDefinition(
-					TaxonomyManagerImpl.taxonomyIds[0], objectType);
+			DefinitionDTO definition = getDefinition(TaxonomyManagerImpl.taxonomyIds[0], objectType);
 			// TODO: need to get definition from the specific taxonomy.
 			for (String id : TaxonomyManagerImpl.taxonomyIds) {
 				definitions.put(id, definition);
-				Request req = getContentsListRequest(request, id, objectType,
-						definition);
+				Request req = getContentsListRequest(request, id, objectType, definition);
 				requests.add(req);
 			}
 		}
-		Response response = getResponse(requests, LOGGER,
-				GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentAPIParams.contents.name());
 		Response listRes = copyResponse(response);
 		if (checkError(response))
 			return response;
 		else {
-			List<List<Node>> nodes = (List<List<Node>>) response
-					.get(ContentAPIParams.contents.name());
+			List<List<Node>> nodes = (List<List<Node>>) response.get(ContentAPIParams.contents
+					.name());
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			if (null != nodes && !nodes.isEmpty()) {
 				Object objFields = request.get(PARAM_FIELDS);
@@ -377,11 +351,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							if (null == fields || fields.isEmpty()) {
 								String subject = node.getGraphId();
 								if (null != definitions.get(subject)
-										&& null != definitions.get(subject)
-												.getMetadata()) {
-									String[] arr = (String[]) definitions
-											.get(subject).getMetadata()
-											.get(PARAM_FIELDS);
+										&& null != definitions.get(subject).getMetadata()) {
+									String[] arr = (String[]) definitions.get(subject)
+											.getMetadata().get(PARAM_FIELDS);
 									if (null != arr && arr.length > 0) {
 										fields = Arrays.asList(arr);
 									}
@@ -397,10 +369,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			listRes.put(returnKey, contents);
 			Integer ttl = null;
 			if (null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0])
-					&& null != definitions.get(
-							TaxonomyManagerImpl.taxonomyIds[0]).getMetadata())
-				ttl = (Integer) definitions
-						.get(TaxonomyManagerImpl.taxonomyIds[0]).getMetadata()
+					&& null != definitions.get(TaxonomyManagerImpl.taxonomyIds[0]).getMetadata())
+				ttl = (Integer) definitions.get(TaxonomyManagerImpl.taxonomyIds[0]).getMetadata()
 						.get(PARAM_TTL);
 			if (null == ttl || ttl.intValue() <= 0)
 				ttl = DEFAULT_TTL;
@@ -414,15 +384,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	public Response bundle(Request request, String taxonomyId, String version) {
 		String bundleFileName = (String) request.get("file_name");
 		bundleFileName = bundleFileName.replaceAll("\\s+", "_");
-		List<String> contentIds = (List<String>) request
-				.get("content_identifiers");
+		List<String> contentIds = (List<String>) request.get("content_identifiers");
 		Response response = searchNodes(taxonomyId, contentIds);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
 			return response;
 		} else {
-			List<Object> list = (List<Object>) response
-					.get(ContentAPIParams.contents.name());
+			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
 			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
 			List<String> childrenIds = new ArrayList<String>();
 			List<Node> nodes = new ArrayList<Node>();
@@ -435,17 +403,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
 			if (ctnts.size() < contentIds.size()) {
-				throw new ResourceNotFoundException(
-						ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"One or more of the input content identifier are not found");
 			}
-			String fileName = bundleFileName + "_" + System.currentTimeMillis()
-					+ ".ecar";
-			contentBundle.asyncCreateContentBundle(ctnts, childrenIds,
-					fileName, version);
-			String url = "https://" + bucketName
-					+ ".s3-ap-southeast-1.amazonaws.com/" + ecarFolderName
-					+ "/" + fileName;
+			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
+			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
+			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"
+					+ ecarFolderName + "/" + fileName;
 			String returnKey = ContentAPIParams.bundle.name();
 			listRes.put(returnKey, url);
 			return listRes;
@@ -470,21 +434,18 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				metadata.remove("editorState");
 				if (null != node.getTags() && !node.getTags().isEmpty())
 					metadata.put("tags", node.getTags());
-				if (null != node.getOutRelations()
-						&& !node.getOutRelations().isEmpty()) {
+				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();
 					for (Relation rel : node.getOutRelations()) {
 						if (StringUtils.equalsIgnoreCase(
-								RelationTypes.SEQUENCE_MEMBERSHIP
-										.relationName(), rel.getRelationType())
-								&& StringUtils.equalsIgnoreCase(
-										node.getObjectType(),
+								RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+								rel.getRelationType())
+								&& StringUtils.equalsIgnoreCase(node.getObjectType(),
 										rel.getEndNodeObjectType())) {
 							childrenIds.add(rel.getEndNodeId());
-							children.add(new NodeDTO(rel.getEndNodeId(), rel
-									.getEndNodeName(), rel
-									.getEndNodeObjectType(), rel
-									.getRelationType(), rel.getMetadata()));
+							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel
+									.getEndNodeObjectType(), rel.getRelationType(), rel
+									.getMetadata()));
 						}
 					}
 					if (!children.isEmpty()) {
@@ -502,12 +463,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (!searchIds.isEmpty()) {
 				Response searchRes = searchNodes(taxonomyId, searchIds);
 				if (checkError(searchRes)) {
-					throw new ServerException(
-							ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(),
+					throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(),
 							getErrorMessage(searchRes));
 				} else {
-					List<Object> list = (List<Object>) searchRes
-							.get(ContentAPIParams.contents.name());
+					List<Object> list = (List<Object>) searchRes.get(ContentAPIParams.contents
+							.name());
 					if (null != list && !list.isEmpty()) {
 						for (Object obj : list) {
 							List<Node> nodeList = (List<Node>) obj;
@@ -521,8 +481,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 								metadata.put("objectType", node.getObjectType());
 								metadata.put("subject", node.getGraphId());
 								metadata.remove("body");
-								if (null != node.getTags()
-										&& !node.getTags().isEmpty())
+								if (null != node.getTags() && !node.getTags().isEmpty())
 									metadata.put("tags", node.getTags());
 								ctnts.add(metadata);
 							}
@@ -536,32 +495,26 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private Response searchNodes(String taxonomyId, List<String> contentIds) {
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
 		List<Filter> filters = new ArrayList<Filter>();
-		Filter filter = new Filter("identifier", SearchConditions.OP_IN,
-				contentIds);
+		Filter filter = new Filter("identifier", SearchConditions.OP_IN, contentIds);
 		filters.add(filter);
 		MetadataCriterion metadata = MetadataCriterion.create(filters);
 		metadata.addFilter(filter);
 		criteria.setMetadata(metadata);
 		List<Request> requests = new ArrayList<Request>();
 		if (StringUtils.isNotBlank(taxonomyId)) {
-			Request req = getRequest(taxonomyId,
-					GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-					GraphDACParams.search_criteria.name(),
-					criteria.getSearchCriteria());
+			Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+					GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
 			req.put(GraphDACParams.get_tags.name(), true);
 			requests.add(req);
 		} else {
 			for (String tId : TaxonomyManagerImpl.taxonomyIds) {
-				Request req = getRequest(tId,
-						GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-						GraphDACParams.search_criteria.name(),
-						criteria.getSearchCriteria());
+				Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+						GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
 				req.put(GraphDACParams.get_tags.name(), true);
 				requests.add(req);
 			}
 		}
-		Response response = getResponse(requests, LOGGER,
-				GraphDACParams.node_list.name(),
+		Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
 				ContentAPIParams.contents.name());
 		return response;
 	}
@@ -569,15 +522,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@SuppressWarnings("unchecked")
 	public Response search(String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank.");
 		ContentSearchCriteria criteria = (ContentSearchCriteria) request
 				.get(ContentAPIParams.search_criteria.name());
 		if (null == criteria)
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA
-							.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_SEARCH_CRITERIA.name(),
 					"Search Criteria Object is blank");
 
 		Map<String, DefinitionDTO> definitions = new HashMap<String, DefinitionDTO>();
@@ -585,23 +535,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			DefinitionDTO definition = getDefinition(taxonomyId, objectType);
 			definitions.put(taxonomyId, definition);
 		} else {
-			DefinitionDTO definition = getDefinition(
-					TaxonomyManagerImpl.taxonomyIds[0], objectType);
+			DefinitionDTO definition = getDefinition(TaxonomyManagerImpl.taxonomyIds[0], objectType);
 			for (String id : TaxonomyManagerImpl.taxonomyIds) {
 				definitions.put(id, definition);
 			}
 		}
-		Request req = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-				GraphDACParams.search_criteria.name(),
-				criteria.getSearchCriteria());
+		Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
 		Response response = getResponse(req, LOGGER);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
 			return response;
 		} else {
-			List<Node> nodes = (List<Node>) response
-					.get(GraphDACParams.node_list.name());
+			List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 			List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 			if (null != nodes && !nodes.isEmpty()) {
 				Object objFields = request.get(PARAM_FIELDS);
@@ -610,10 +556,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					if (null == fields || fields.isEmpty()) {
 						String subject = node.getGraphId();
 						if (null != definitions.get(subject)
-								&& null != definitions.get(subject)
-										.getMetadata()) {
-							String[] arr = (String[]) definitions.get(subject)
-									.getMetadata().get(PARAM_FIELDS);
+								&& null != definitions.get(subject).getMetadata()) {
+							String[] arr = (String[]) definitions.get(subject).getMetadata()
+									.get(PARAM_FIELDS);
 							if (null != arr && arr.length > 0) {
 								fields = Arrays.asList(arr);
 							}
@@ -630,21 +575,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-				GraphDACParams.object_type.name(), objectType);
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+				"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
 		Response response = getResponse(request, LOGGER);
 		if (!checkError(response)) {
-			DefinitionDTO definition = (DefinitionDTO) response
-					.get(GraphDACParams.definition_node.name());
+			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node
+					.name());
 			return definition;
 		}
 		return null;
 	}
 
 	@SuppressWarnings("unchecked")
-	private Request getContentsListRequest(Request request, String taxonomyId,
-			String objectType, DefinitionDTO definition) {
+	private Request getContentsListRequest(Request request, String taxonomyId, String objectType,
+			DefinitionDTO definition) {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(objectType);
@@ -659,8 +603,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			statusList = getList(mapper, statusParam, true);
 		if (null == statusList || statusList.isEmpty()) {
 			if (null != definition && null != definition.getMetadata()) {
-				String[] arr = (String[]) definition.getMetadata().get(
-						PARAM_STATUS);
+				String[] arr = (String[]) definition.getMetadata().get(PARAM_STATUS);
 				if (null != arr && arr.length > 0) {
 					statusList = Arrays.asList(arr);
 				}
@@ -668,35 +611,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		if (null == statusList || statusList.isEmpty())
 			statusList = DEFAULT_STATUS;
-		MetadataCriterion mc = MetadataCriterion.create(Arrays
-				.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN,
-						statusList)));
+		MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter(PARAM_STATUS,
+				SearchConditions.OP_IN, statusList)));
 
 		// set metadata filter params
 		for (Entry<String, Object> entry : request.getRequest().entrySet()) {
 			if (!StringUtils.equalsIgnoreCase(PARAM_SUBJECT, entry.getKey())
-					&& !StringUtils.equalsIgnoreCase(PARAM_FIELDS,
-							entry.getKey())
-					&& !StringUtils.equalsIgnoreCase(PARAM_LIMIT,
-							entry.getKey())
+					&& !StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
+					&& !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
 					&& !StringUtils.equalsIgnoreCase(PARAM_UID, entry.getKey())
-					&& !StringUtils.equalsIgnoreCase(PARAM_STATUS,
-							entry.getKey())
-					&& !StringUtils
-							.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+					&& !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
+					&& !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
 				Object val = entry.getValue();
 				List<String> list = getList(mapper, val, false);
 				if (null != list && !list.isEmpty()) {
-					mc.addFilter(new Filter(entry.getKey(),
-							SearchConditions.OP_IN, list));
-				} else if (null != val
-						&& StringUtils.isNotBlank(val.toString())) {
+					mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+				} else if (null != val && StringUtils.isNotBlank(val.toString())) {
 					if (val instanceof String) {
-						mc.addFilter(new Filter(entry.getKey(),
-								SearchConditions.OP_LIKE, val.toString()));
+						mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val
+								.toString()));
 					} else {
-						mc.addFilter(new Filter(entry.getKey(),
-								SearchConditions.OP_EQUAL, val));
+						mc.addFilter(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
 					}
 				}
 			} else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
@@ -712,8 +647,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		List<String> fields = getList(mapper, objFields, true);
 		if (null == fields || fields.isEmpty()) {
 			if (null != definition && null != definition.getMetadata()) {
-				String[] arr = (String[]) definition.getMetadata().get(
-						PARAM_FIELDS);
+				String[] arr = (String[]) definition.getMetadata().get(PARAM_FIELDS);
 				if (null != arr && arr.length > 0) {
 					List<String> arrFields = Arrays.asList(arr);
 					fields = new ArrayList<String>();
@@ -727,14 +661,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			fields.add(SystemProperties.IL_UNIQUE_ID.name());
 		}
 		sc.setFields(fields);
-		Request req = getRequest(taxonomyId,
-				GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+		Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
 				GraphDACParams.search_criteria.name(), sc);
 		return req;
 	}
 
-	private void setLimit(Request request, SearchCriteria sc,
-			DefinitionDTO definition) {
+	private void setLimit(Request request, SearchCriteria sc, DefinitionDTO definition) {
 		Integer defaultLimit = null;
 		if (null != definition && null != definition.getMetadata())
 			defaultLimit = (Integer) definition.getMetadata().get(PARAM_LIMIT);
@@ -775,42 +707,34 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	public Response publish(String taxonomyId, String contentId) {
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
 					"Content Id is blank");
 		Response responseNode = getDataNode(taxonomyId, contentId);
 		if (checkError(responseNode))
-			throw new ResourceNotFoundException(
-					ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with id: " + contentId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		String fileName = System.currentTimeMillis() + "_"
-				+ node.getIdentifier();
+		String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata = node.getMetadata();
 		String contentBody = (String) metadata.get("body");
 		String contentType = checkBodyContentType(contentBody);
 		if (StringUtils.isBlank(contentType))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
 					"Content of Body Either Invalid or Null");
 		String tempFile = null;
 		String tempWithTimeStamp = null;
 		try {
 			tempFile = tempFileLocation;
-			tempWithTimeStamp = tempFile + File.separator
-					+ System.currentTimeMillis() + "_temp";
+			tempWithTimeStamp = tempFile + File.separator + System.currentTimeMillis() + "_temp";
 			File file = null;
 			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
-				file = new File(tempWithTimeStamp + File.separator
-						+ "index.ecml");
+				file = new File(tempWithTimeStamp + File.separator + "index.ecml");
 			} else if (StringUtils.equalsIgnoreCase("json", contentType)) {
-				file = new File(tempWithTimeStamp + File.separator
-						+ "index.json");
+				file = new File(tempWithTimeStamp + File.separator + "index.json");
 			}
 			if (null != file) {
 				if (!file.getParentFile().exists()) {
@@ -823,28 +747,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			String appIcon = (String) metadata.get("appIcon");
 			if (StringUtils.isNotBlank(appIcon)) {
-				File logoFile = HttpDownloadUtility.downloadFile(appIcon,
-						tempWithTimeStamp);
+				File logoFile = HttpDownloadUtility.downloadFile(appIcon, tempWithTimeStamp);
 				try {
-					if (null != logoFile && logoFile.exists()
-							&& logoFile.isFile()) {
+					if (null != logoFile && logoFile.exists() && logoFile.isFile()) {
 						String parentFolderName = logoFile.getParent();
-						File newName = new File(parentFolderName
-								+ File.separator + "logo.png");
+						File newName = new File(parentFolderName + File.separator + "logo.png");
 						logoFile.renameTo(newName);
 					}
 				} catch (Exception ex) {
-					throw new ServerException(
-							ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
+					throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
 							ex.getMessage());
 				}
 			}
-			response = parseContent(taxonomyId, contentId, tempWithTimeStamp,
-					fileName, contentType);
+			response = parseContent(taxonomyId, contentId, tempWithTimeStamp, fileName, contentType);
 		} catch (IOException e) {
-			throw new ServerException(
-					ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
-					e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		return response;
 	}
@@ -889,8 +806,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @param filePath
 	 * @param saveDir
 	 */
-	public Response parseContent(String taxonomyId, String contentId,
-			String filePath, String fileName, String contentType) {
+	public Response parseContent(String taxonomyId, String contentId, String filePath,
+			String fileName, String contentType) {
 		File file = new File(filePath);
 		String fileLocation = filePath + File.separator + "index.ecml";
 		String sourceFolder = file.getParent() + File.separator;
@@ -903,18 +820,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			String zipFilePathName = sourceFolder + fileName + ".zip";
 			List<String> fileList = new ArrayList<String>();
-			ZipUtility appZip = new ZipUtility(fileList, zipFilePathName,
-					filePath);
+			ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
 			appZip.generateFileList(new File(filePath));
 			appZip.zipIt(zipFilePathName);
 			File olderName = new File(zipFilePathName);
 			if (olderName.exists() && olderName.isFile()) {
-				File newName = new File(sourceFolder + File.separator
-						+ olderName.getName());
+				File newName = new File(sourceFolder + File.separator + olderName.getName());
 				olderName.renameTo(newName);
-				Request request = getRequest(taxonomyId,
-						GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-						GraphDACParams.node_id.name(), contentId);
+				Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+						"getDataNode", GraphDACParams.node_id.name(), contentId);
 				request.put(GraphDACParams.get_tags.name(), true);
 				Response getNodeRes = getResponse(request, LOGGER);
 				if (checkError(getNodeRes)) {
@@ -927,14 +841,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
 				List<String> childrenIds = new ArrayList<String>();
 				getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-				String bundleFileName = contentId + "_"
-						+ System.currentTimeMillis() + ".ecar";
-				String[] urlArray = contentBundle.createContentBundle(ctnts,
-						childrenIds, bundleFileName, "1.1");
+				String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
+				String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds,
+						bundleFileName, "1.1");
 				node.getMetadata().put("s3Key", urlArray[0]);
 				node.getMetadata().put("downloadUrl", urlArray[1]);
-				Number pkgVersion = (Number) node.getMetadata().get(
-						"pkgVersion");
+				Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
 				if (null == pkgVersion || pkgVersion.intValue() < 1) {
 					pkgVersion = 1.0;
 				} else {
@@ -942,20 +854,17 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 				node.getMetadata().put("pkgVersion", pkgVersion);
 				node.getMetadata().put("status", "Live");
-				Request updateReq = getRequest(taxonomyId,
-						GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+						"updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), node);
-				updateReq.put(GraphDACParams.node_id.name(),
-						node.getIdentifier());
+				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 				Response updateRes = getResponse(updateReq, LOGGER);
 				updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
 				response = updateRes;
 			}
 
 		} catch (Exception e) {
-			throw new ServerException(
-					ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
-					e.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		} finally {
 			File directory = new File(sourceFolder);
 			if (!directory.exists()) {
@@ -968,8 +877,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						directory.mkdirs();
 					}
 				} catch (IOException e) {
-					throw new ServerException(
-							ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+					throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
 							e.getMessage());
 				}
 			}
@@ -1007,28 +915,27 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	public Response extract(String taxonomyId, String contentId) {
 		Response updateRes = null;
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		if (StringUtils.isBlank(contentId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
 					"Content Id is blank");
 		Response responseNode = getDataNode(taxonomyId, contentId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (responseNode != null) {
-			String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
-			String tempFileDwn = tempFileLocation + System.currentTimeMillis()
-					+ "_temp";
+			String mimeType = (String) node.getMetadata().get("mimeType");
+			IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+			/*String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
+			String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 			File zipFile = null;
 			System.out.println("zipFilUrl is " + zipFilUrl);
 			if (StringUtils.isNotBlank(zipFilUrl)) {
-				zipFile = HttpDownloadUtility.downloadFile(zipFilUrl,
-						tempFileDwn);
+				zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
 				System.out.println("zipFile is " + zipFile);
-			}
+			}*/
 			Response response = new Response();
-			response = extractContent(taxonomyId, zipFile, contentId);
+			//response = extractContent(taxonomyId, zipFile, contentId);
+			response = mimeTypeManager.extract(node);
 			if (checkError(response)) {
 				return response;
 			}
@@ -1043,27 +950,25 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			node.setMetadata(metadata);
 			node.setOutRelations(new ArrayList<Relation>());
-			Request validateReq = getRequest(taxonomyId,
-					GraphEngineManagers.NODE_MANAGER, "validateNode");
+			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+					"validateNode");
 			validateReq.put(GraphDACParams.node.name(), node);
 			Response validateRes = getResponse(validateReq, LOGGER);
 			if (checkError(validateRes)) {
 				return validateRes;
 			} else {
-				Request updateReq = getRequest(taxonomyId,
-						GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+						"updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), node);
-				updateReq.put(GraphDACParams.node_id.name(),
-						node.getIdentifier());
+				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 				updateRes = getResponse(updateReq, LOGGER);
 			}
-			List<Relation> outRelations = (List<Relation>) response
-					.get("outRelations");
+			List<Relation> outRelations = (List<Relation>) response.get("outRelations");
 			System.out.println("Out relations size: " + outRelations.size());
 			if (null != outRelations && !outRelations.isEmpty()) {
 				for (Relation outRel : outRelations) {
-					addRelation(taxonomyId, node.getIdentifier(),
-							outRel.getRelationType(), outRel.getEndNodeId());
+					addRelation(taxonomyId, node.getIdentifier(), outRel.getRelationType(),
+							outRel.getEndNodeId());
 				}
 			}
 		}
@@ -1076,17 +981,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (null != olderName && olderName.exists() && olderName.isFile()) {
 				String parentFolderName = olderName.getParent();
 				File newName = new File(parentFolderName + File.separator
-						+ System.currentTimeMillis() + "_"
-						+ olderName.getName());
+						+ System.currentTimeMillis() + "_" + olderName.getName());
 				olderName.renameTo(newName);
-				String[] url = AWSUploader.uploadFile(bucketName, folderName,
-						newName);
+				String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
 				return url[1];
 			}
 		} catch (Exception ex) {
-			throw new ServerException(
-					ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
-					ex.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		}
 		return null;
 	}
@@ -1100,13 +1001,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	 * @param saveDir
 	 */
 	@SuppressWarnings({ "unchecked" })
-	public Response extractContent(String taxonomyId, File zipFile,
-			String contentId) {
+	public Response extractContent(String taxonomyId, File zipFile, String contentId) {
 		String zipFilePath = zipFile.getPath();
 		String zipFileDir = zipFile.getParent();
 		String filePath = zipFileDir + File.separator + "index.ecml";
-		String uploadFilePath = zipFileDir + File.separator + "assets"
-				+ File.separator;
+		String uploadFilePath = zipFileDir + File.separator + "assets" + File.separator;
 		Map<String, List<String>> mediaIdURL = new HashMap<String, List<String>>();
 		List<String> listOfCtrlType = new ArrayList<>();
 		listOfCtrlType.add("items");
@@ -1116,10 +1015,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		try {
 			unzipper.unzip(zipFilePath, zipFileDir);
 			List<Relation> outRelations = new ArrayList<Relation>();
-			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId,
-					outRelations);
-			Map<String, List<String>> mediaIdMap = CustomParser
-					.readECMLFile(filePath);
+			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations);
+			Map<String, List<String>> mediaIdMap = CustomParser.readECMLFile(filePath);
 			Map<String, String> mediaSrcMap = new HashMap<String, String>();
 			Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
 			Set<String> mediaIdSet = new HashSet<String>();
@@ -1142,64 +1039,45 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			CustomParser customParser = new CustomParser(new File(filePath));
 			if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
-				Request mediaReq = getRequest(taxonomyId,
-						GraphEngineManagers.SEARCH_MANAGER, "getDataNodes",
-						GraphDACParams.node_ids.name(), new ArrayList<>(
-								mediaIdSet));
+				Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+						"getDataNodes", GraphDACParams.node_ids.name(), new ArrayList<>(mediaIdSet));
 				Response mediaRes = getResponse(mediaReq, LOGGER);
-				List<Node> nodeList = (List<Node>) mediaRes
-						.get(GraphDACParams.node_list.name());
+				List<Node> nodeList = (List<Node>) mediaRes.get(GraphDACParams.node_list.name());
 				if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
 					for (Node node : nodeList) {
 						if (mediaIdSet.contains(node.getIdentifier())) {
 							mediaIdSet.remove(node.getIdentifier());
-							String downloadUrl = (String) node.getMetadata()
-									.get("downloadUrl");
+							String downloadUrl = (String) node.getMetadata().get("downloadUrl");
 							if (StringUtils.isBlank(downloadUrl)) {
-								long timeStempInMiliSec = System
-										.currentTimeMillis();
-								String mediaSrc = mediaSrcMap
-										.get(mediaAssetIdMap.get(node
-												.getIdentifier()));
-								File olderName = new File(uploadFilePath
-										+ mediaSrc);
+								long timeStempInMiliSec = System.currentTimeMillis();
+								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(node
+										.getIdentifier()));
+								File olderName = new File(uploadFilePath + mediaSrc);
 								if (olderName.exists() && olderName.isFile()) {
-									String parentFolderName = olderName
-											.getParent();
-									File newName = new File(parentFolderName
-											+ File.separator
-											+ timeStempInMiliSec
-											+ olderName.getName());
+									String parentFolderName = olderName.getParent();
+									File newName = new File(parentFolderName + File.separator
+											+ timeStempInMiliSec + olderName.getName());
 									olderName.renameTo(newName);
-									String[] url = AWSUploader.uploadFile(
-											bucketName, folderName, newName);
-									Node newItem = createNode(node, url[1],
-											node.getIdentifier(), olderName);
+									String[] url = AWSUploader.uploadFile(bucketName, folderName,
+											newName);
+									Node newItem = createNode(node, url[1], node.getIdentifier(),
+											olderName);
 									List<String> values = new ArrayList<String>();
 									values.add(url[1]);
 									values.add(node.getIdentifier());
-									mediaIdURL.put(mediaAssetIdMap.get(node
-											.getIdentifier()), values);
-									Request validateReq = getRequest(
-											taxonomyId,
-											GraphEngineManagers.NODE_MANAGER,
-											"validateNode");
-									validateReq.put(GraphDACParams.node.name(),
-											newItem);
-									Response validateRes = getResponse(
-											validateReq, LOGGER);
+									mediaIdURL.put(mediaAssetIdMap.get(node.getIdentifier()),
+											values);
+									Request validateReq = getRequest(taxonomyId,
+											GraphEngineManagers.NODE_MANAGER, "validateNode");
+									validateReq.put(GraphDACParams.node.name(), newItem);
+									Response validateRes = getResponse(validateReq, LOGGER);
 									if (checkError(validateRes)) {
 										return validateRes;
 									} else {
-										Request updateReq = getRequest(
-												taxonomyId,
-												GraphEngineManagers.NODE_MANAGER,
-												"updateDataNode");
-										updateReq.put(
-												GraphDACParams.node.name(),
-												newItem);
-										updateReq.put(
-												GraphDACParams.node_id.name(),
+										Request updateReq = getRequest(taxonomyId,
+												GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+										updateReq.put(GraphDACParams.node.name(), newItem);
+										updateReq.put(GraphDACParams.node_id.name(),
 												newItem.getIdentifier());
 										getResponse(updateReq, LOGGER);
 									}
@@ -1208,51 +1086,39 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 								List<String> values = new ArrayList<String>();
 								values.add(downloadUrl);
 								values.add(node.getIdentifier());
-								mediaIdURL.put(mediaAssetIdMap.get(node
-										.getIdentifier()), values);
+								mediaIdURL.put(mediaAssetIdMap.get(node.getIdentifier()), values);
 							}
 						}
 					}
 					if (mediaIdSet != null && !mediaIdSet.isEmpty()) {
 						for (String mediaId : mediaIdSet) {
-							long timeStempInMiliSec = System
-									.currentTimeMillis();
-							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap
-									.get(mediaId));
+							long timeStempInMiliSec = System.currentTimeMillis();
+							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(mediaId));
 							File olderName = new File(uploadFilePath + mediaSrc);
 							if (olderName.exists() && olderName.isFile()) {
 								String parentFolderName = olderName.getParent();
-								File newName = new File(parentFolderName
-										+ File.separator + timeStempInMiliSec
-										+ olderName.getName());
+								File newName = new File(parentFolderName + File.separator
+										+ timeStempInMiliSec + olderName.getName());
 								olderName.renameTo(newName);
-								String[] url = AWSUploader.uploadFile(
-										bucketName, folderName, newName);
-								Node item = createNode(new Node(), url[1],
-										mediaId, olderName);
+								String[] url = AWSUploader.uploadFile(bucketName, folderName,
+										newName);
+								Node item = createNode(new Node(), url[1], mediaId, olderName);
 								// Creating a graph.
 								Request validateReq = getRequest(taxonomyId,
-										GraphEngineManagers.NODE_MANAGER,
-										"validateNode");
-								validateReq.put(GraphDACParams.node.name(),
-										item);
-								Response validateRes = getResponse(validateReq,
-										LOGGER);
+										GraphEngineManagers.NODE_MANAGER, "validateNode");
+								validateReq.put(GraphDACParams.node.name(), item);
+								Response validateRes = getResponse(validateReq, LOGGER);
 								if (checkError(validateRes)) {
 									return validateRes;
 								} else {
 									Request createReq = getRequest(taxonomyId,
-											GraphEngineManagers.NODE_MANAGER,
-											"createDataNode");
-									createReq.put(GraphDACParams.node.name(),
-											item);
+											GraphEngineManagers.NODE_MANAGER, "createDataNode");
+									createReq.put(GraphDACParams.node.name(), item);
 									getResponse(createReq, LOGGER);
 									List<String> values = new ArrayList<String>();
 									values.add(url[1]);
 									values.add(item.getIdentifier());
-									mediaIdURL.put(
-											mediaAssetIdMap.get(mediaId),
-											values);
+									mediaIdURL.put(mediaAssetIdMap.get(mediaId), values);
 								}
 							}
 						}
@@ -1264,9 +1130,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
 			response.put("outRelations", outRelations);
 		} catch (Exception ex) {
-			throw new ServerException(
-					ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
-					ex.getMessage());
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		} finally {
 			File directory = new File(zipFileDir);
 			if (!directory.exists()) {
@@ -1283,8 +1147,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	private Node createNode(Node item, String url, String mediaId,
-			File olderName) {
+	private Node createNode(Node item, String url, String mediaId, File olderName) {
 		item.setIdentifier(mediaId);
 		item.setObjectType("Content");
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -1334,9 +1197,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings({ "unchecked" })
-	private Map<String, Object> createAssessmentItemFromContent(
-			String taxonomyId, String contentExtractedPath, String contentId,
-			List<Relation> outRelations) {
+	private Map<String, Object> createAssessmentItemFromContent(String taxonomyId,
+			String contentExtractedPath, String contentId, List<Relation> outRelations) {
 		if (null != contentExtractedPath) {
 			List<File> fileList = getControllerFileList(contentExtractedPath);
 			Map<String, Object> mapResDetail = new HashMap<String, Object>();
@@ -1346,16 +1208,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				System.out.println(file.getName());
 				if (file.exists()) {
 					try {
-						Map<String, Object> fileJSON = new ObjectMapper()
-								.readValue(file, HashMap.class);
+						Map<String, Object> fileJSON = new ObjectMapper().readValue(file,
+								HashMap.class);
 						if (null != fileJSON) {
 							Map<String, Object> itemSet = (Map<String, Object>) fileJSON
 									.get(ContentAPIParams.items.name());
 							List<Object> lstAssessmentItem = new ArrayList<Object>();
-							for (Entry<String, Object> entry : itemSet
-									.entrySet()) {
-								Object assessmentItem = (Object) entry
-										.getValue();
+							for (Entry<String, Object> entry : itemSet.entrySet()) {
+								Object assessmentItem = (Object) entry.getValue();
 								lstAssessmentItem.add(assessmentItem);
 								List<Map<String, Object>> lstMap = (List<Map<String, Object>>) assessmentItem;
 								List<String> lstAssessmentItemId = new ArrayList<String>();
@@ -1363,106 +1223,74 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 								Map<String, String> mapAssessItemRes = new HashMap<String, String>();
 								Map<String, Object> mapRelation = new HashMap<String, Object>();
 								for (Map<String, Object> map : lstMap) {
-									Request request = getAssessmentItemRequestObject(
-											map, "AssessmentItem", contentId,
-											ContentAPIParams.assessment_item
-													.name());
+									Request request = getAssessmentItemRequestObject(map,
+											"AssessmentItem", contentId,
+											ContentAPIParams.assessment_item.name());
 									if (null != request) {
 										Node itemNode = (Node) request
-												.get(ContentAPIParams.assessment_item
-														.name());
+												.get(ContentAPIParams.assessment_item.name());
 										Response response = null;
-										if (StringUtils.isBlank(itemNode
-												.getIdentifier())) {
-											response = assessmentMgr
-													.createAssessmentItem(
-															taxonomyId, request);
+										if (StringUtils.isBlank(itemNode.getIdentifier())) {
+											response = assessmentMgr.createAssessmentItem(
+													taxonomyId, request);
 										} else {
-											response = assessmentMgr
-													.updateAssessmentItem(
-															itemNode.getIdentifier(),
-															taxonomyId, request);
+											response = assessmentMgr.updateAssessmentItem(
+													itemNode.getIdentifier(), taxonomyId, request);
 										}
-										LOGGER.info("Create Item | Response: "
-												+ response);
-										Map<String, Object> resMap = response
-												.getResult();
-										if (null != resMap
-												.get(ContentAPIParams.node_id
-														.name())) {
+										LOGGER.info("Create Item | Response: " + response);
+										Map<String, Object> resMap = response.getResult();
+										if (null != resMap.get(ContentAPIParams.node_id.name())) {
 											String identifier = (String) resMap
-													.get(ContentAPIParams.node_id
-															.name());
-											mapRelation
-													.put(identifier,
-															map.get(ContentAPIParams.concepts
-																	.name()));
+													.get(ContentAPIParams.node_id.name());
+											mapRelation.put(identifier,
+													map.get(ContentAPIParams.concepts.name()));
 											lstAssessmentItemId.add(identifier);
-											mapAssessItemRes
-													.put(identifier,
-															"Assessment Item "
-																	+ identifier
-																	+ " Added Successfully");
+											mapAssessItemRes.put(identifier, "Assessment Item "
+													+ identifier + " Added Successfully");
 										} else {
-											System.out
-													.println("Item validation failed: "
-															+ resMap.get(ContentAPIParams.messages
-																	.name()));
+											System.out.println("Item validation failed: "
+													+ resMap.get(ContentAPIParams.messages.name()));
 											String id = (String) map
-													.get(ContentAPIParams.identifier
-															.name());
+													.get(ContentAPIParams.identifier.name());
 											if (StringUtils.isNotBlank(id))
-												mapAssessItemRes
-														.put(id,
-																(String) resMap
-																		.get(ContentAPIParams.messages
-																				.name()));
+												mapAssessItemRes.put(id, (String) resMap
+														.get(ContentAPIParams.messages.name()));
 										}
 									}
 								}
-								assessResMap
-										.put(ContentAPIParams.assessment_item
-												.name(), mapAssessItemRes);
-								Response itemSetRes = createItemSet(taxonomyId,
-										contentId, lstAssessmentItemId,
-										fileJSON);
+								assessResMap.put(ContentAPIParams.assessment_item.name(),
+										mapAssessItemRes);
+								Response itemSetRes = createItemSet(taxonomyId, contentId,
+										lstAssessmentItemId, fileJSON);
 								if (null != itemSetRes) {
-									Map<String, Object> mapItemSetRes = itemSetRes
-											.getResult();
-									assessResMap
-											.put(ContentAPIParams.assessment_item_set
-													.name(), mapItemSetRes);
+									Map<String, Object> mapItemSetRes = itemSetRes.getResult();
+									assessResMap.put(ContentAPIParams.assessment_item_set.name(),
+											mapItemSetRes);
 									String itemSetNodeId = (String) mapItemSetRes
 											.get(ContentAPIParams.set_id.name());
-									System.out.println("itemSetNodeId: "
-											+ itemSetNodeId);
+									System.out.println("itemSetNodeId: " + itemSetNodeId);
 									if (StringUtils.isNotBlank(itemSetNodeId)) {
 										Relation outRel = new Relation(null,
-												RelationTypes.ASSOCIATED_TO
-														.relationName(),
+												RelationTypes.ASSOCIATED_TO.relationName(),
 												itemSetNodeId);
 										outRelations.add(outRel);
 									}
 								}
-								List<String> lstAssessItemRelRes = createRelation(
-										taxonomyId, mapRelation, outRelations);
-								assessResMap.put(
-										ContentAPIParams.AssessmentItemRelation
-												.name(), lstAssessItemRelRes);
+								List<String> lstAssessItemRelRes = createRelation(taxonomyId,
+										mapRelation, outRelations);
+								assessResMap.put(ContentAPIParams.AssessmentItemRelation.name(),
+										lstAssessItemRelRes);
 								mapResDetail.put(file.getName(), assessResMap);
 							}
 						} else {
-							mapResDetail.put(file.getName(),
-									"Error : Invalid JSON");
+							mapResDetail.put(file.getName(), "Error : Invalid JSON");
 						}
 					} catch (Exception e) {
-						mapResDetail.put(file.getName(),
-								"Error : Unable to Parse JSON");
+						mapResDetail.put(file.getName(), "Error : Unable to Parse JSON");
 						e.printStackTrace();
 					}
 				} else {
-					mapResDetail.put(file.getName(),
-							"Error: File doesn't Exist");
+					mapResDetail.put(file.getName(), "Error: File doesn't Exist");
 				}
 			}
 			return mapResDetail;
@@ -1494,11 +1322,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			} else {
 				map.put("code", "item_set_" + RandomUtils.nextInt(1, 10000));
 			}
-			Request request = getAssessmentItemRequestObject(map, "ItemSet",
-					contentId, ContentAPIParams.assessment_item_set.name());
+			Request request = getAssessmentItemRequestObject(map, "ItemSet", contentId,
+					ContentAPIParams.assessment_item_set.name());
 			if (null != request) {
-				Response response = assessmentMgr.createItemSet(taxonomyId,
-						request);
+				Response response = assessmentMgr.createItemSet(taxonomyId, request);
 				LOGGER.info("Create Item | Response: " + response);
 				return response;
 			}
@@ -1506,12 +1333,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
-	private String[] qlevels = new String[] { "EASY", "MEDIUM", "DIFFICULT",
-			"RARE" };
+	private String[] qlevels = new String[] { "EASY", "MEDIUM", "DIFFICULT", "RARE" };
 	private List<String> qlevelList = Arrays.asList(qlevels);
 
-	private Request getAssessmentItemRequestObject(Map<String, Object> map,
-			String objectType, String contentId, String param) {
+	private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType,
+			String contentId, String param) {
 		if (null != objectType && null != map) {
 			Map<String, Object> reqMap = new HashMap<String, Object>();
 			Map<String, Object> assessMap = new HashMap<String, Object>();
@@ -1526,8 +1352,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			if (StringUtils.isBlank(identifier)) {
 				if (null != map.get(ContentAPIParams.identifier.name())) {
-					String id = (String) map.get(ContentAPIParams.identifier
-							.name());
+					String id = (String) map.get(ContentAPIParams.identifier.name());
 					if (StringUtils.isNotBlank(id))
 						identifier = id;
 				}
@@ -1557,8 +1382,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
-	private Request getRequestObjectForAssessmentMgr(
-			Map<String, Object> requestMap, String param) {
+	private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
 		Request request = getRequest(requestMap);
 		Map<String, Object> map = request.getRequest();
 		if (null != map && !map.isEmpty()) {
@@ -1577,8 +1401,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<String> createRelation(String taxonomyId,
-			Map<String, Object> mapRelation, List<Relation> outRelations) {
+	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation,
+			List<Relation> outRelations) {
 		if (null != mapRelation && !mapRelation.isEmpty()) {
 			List<String> lstResponse = new ArrayList<String>();
 			for (Entry<String, Object> entry : mapRelation.entrySet()) {
@@ -1586,16 +1410,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						.getValue();
 				if (null != lstConceptMap && !lstConceptMap.isEmpty()) {
 					for (Map<String, Object> conceptMap : lstConceptMap) {
-						String conceptId = (String) conceptMap
-								.get(ContentAPIParams.identifier.name());
-						Response response = addRelation(taxonomyId,
-								entry.getKey(),
-								RelationTypes.ASSOCIATED_TO.relationName(),
-								conceptId);
+						String conceptId = (String) conceptMap.get(ContentAPIParams.identifier
+								.name());
+						Response response = addRelation(taxonomyId, entry.getKey(),
+								RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
 						lstResponse.add(response.getResult().toString());
 						Relation outRel = new Relation(null,
-								RelationTypes.ASSOCIATED_TO.relationName(),
-								conceptId);
+								RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
 						outRelations.add(outRel);
 					}
 				}
@@ -1605,22 +1426,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
-	public Response addRelation(String taxonomyId, String objectId1,
-			String relation, String objectId2) {
+	public Response addRelation(String taxonomyId, String objectId1, String relation,
+			String objectId2) {
 		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
 					"Invalid taxonomy Id");
 		if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
-			throw new ClientException(
-					ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(),
 					"Object Id is blank");
 		if (StringUtils.isBlank(relation))
-			throw new ClientException(
-					ContentErrorCodes.ERR_INVALID_RELATION_NAME.name(),
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_RELATION_NAME.name(),
 					"Relation name is blank");
-		Request request = getRequest(taxonomyId,
-				GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER,
+				"createRelation");
 		request.put(GraphDACParams.start_node_id.name(), objectId1);
 		request.put(GraphDACParams.relation_type.name(), relation);
 		request.put(GraphDACParams.end_node_id.name(), objectId2);
@@ -1641,8 +1459,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Object reqParams = requestMap.get("params");
 			if (null != reqParams) {
 				try {
-					RequestParams params = (RequestParams) mapper.convertValue(
-							reqParams, RequestParams.class);
+					RequestParams params = (RequestParams) mapper.convertValue(reqParams,
+							RequestParams.class);
 					request.setParams(params);
 				} catch (Exception e) {
 				}
@@ -1651,8 +1469,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (null != requestObj) {
 				try {
 					String strRequest = mapper.writeValueAsString(requestObj);
-					Map<String, Object> map = mapper.readValue(strRequest,
-							Map.class);
+					Map<String, Object> map = mapper.readValue(strRequest, Map.class);
 					if (null != map && !map.isEmpty())
 						request.setRequest(map);
 				} catch (Exception e) {
@@ -1664,10 +1481,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	private List<File> getControllerFileList(String contentExtractedPath) {
 		try {
-			String indexFile = contentExtractedPath + File.separator
-					+ "index.ecml";
-			DocumentBuilderFactory docFactory = DocumentBuilderFactory
-					.newInstance();
+			String indexFile = contentExtractedPath + File.separator + "index.ecml";
+			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document doc = docBuilder.parse(indexFile);
 			NodeList attrList = doc.getElementsByTagName("controller");
@@ -1677,9 +1492,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				if (controller.getAttribute("type").equalsIgnoreCase("Items")) {
 					controller = (Element) attrList.item(i);
 					if (!StringUtils.isBlank(controller.getAttribute("id"))) {
-						lstControllerFile.add(new File(contentExtractedPath
-								+ File.separator + "items" + File.separator
-								+ controller.getAttribute("id") + ".json"));
+						lstControllerFile.add(new File(contentExtractedPath + File.separator
+								+ "items" + File.separator + controller.getAttribute("id")
+								+ ".json"));
 					}
 				}
 			}

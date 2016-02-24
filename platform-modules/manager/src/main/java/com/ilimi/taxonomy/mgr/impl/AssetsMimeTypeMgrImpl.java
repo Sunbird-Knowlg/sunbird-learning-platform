@@ -1,8 +1,13 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import org.springframework.stereotype.Component;
+
+import com.ilimi.common.dto.Response;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
-public class AssetsMimeTypeMgrImpl implements IMimeTypeManager {
+@Component
+public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	@Override
 	public void upload() {
@@ -11,8 +16,9 @@ public class AssetsMimeTypeMgrImpl implements IMimeTypeManager {
 	}
 
 	@Override
-	public void extract() {
+	public Response extract(Node node) {
 		// TODO Auto-generated method stub
+		return new Response();
 
 	}
 
