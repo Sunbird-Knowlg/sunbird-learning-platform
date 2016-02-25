@@ -23,9 +23,9 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	}
 
 	@Override
-	public void publish() {
+	public Response publish(Node node) {
 		// TODO Auto-generated method stub
-
+		return new Response();
 	}
 
 	@Override
