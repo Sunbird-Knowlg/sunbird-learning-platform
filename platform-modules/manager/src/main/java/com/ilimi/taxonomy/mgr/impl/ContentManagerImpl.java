@@ -717,7 +717,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with id: " + contentId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		/*String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata = node.getMetadata();
 		String contentBody = (String) metadata.get("body");
@@ -726,9 +728,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
 					"Content of Body Either Invalid or Null");
 		String tempFile = null;
-		String tempWithTimeStamp = null;
+		String tempWithTimeStamp = null;*/
 		try {
-			tempFile = tempFileLocation;
+			/*tempFile = tempFileLocation;
 			tempWithTimeStamp = tempFile + File.separator + System.currentTimeMillis() + "_temp";
 			File file = null;
 			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
@@ -758,9 +760,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
 							ex.getMessage());
 				}
-			}
-			response = parseContent(taxonomyId, contentId, tempWithTimeStamp, fileName, contentType);
-		} catch (IOException e) {
+			}*/
+			response = mimeTypeManager.publish(node);
+			//response = parseContent(taxonomyId, contentId, tempWithTimeStamp, fileName, contentType);
+		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		return response;

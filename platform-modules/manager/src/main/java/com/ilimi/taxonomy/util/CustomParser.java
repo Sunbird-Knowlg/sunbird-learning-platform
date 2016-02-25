@@ -33,6 +33,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 public class CustomParser {
@@ -337,5 +338,24 @@ public class CustomParser {
 		}
 		return null;
 	}
+	
+	public static File getZipFile(File ecarFileName,Node node) {
+		String filePath = ecarFileName.getParent() + File.separator
+				+ ecarFileName.getName().split("\\.")[0] + File.separator + node.getIdentifier();
+		String[] extensions = new String[] { "zip" };
+		List<File> files = (List<File>) FileUtils.listFiles(new File(filePath), extensions, true);
+		return files.get(0);
+	}
+	/*public static void main(String[] args) {
+		System.out.println("in");
+		try {
+			File file =new  File("C:\\temp\\contentPublish_4_1456399412338.ecar");
+			getZipFile(file);
+			System.out.println("done");
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}*/
 
 }
