@@ -12,8 +12,8 @@ public class ContentMimeTypeFactory {
 	@Autowired @Qualifier("ECMLMimeTypeMgrImpl") IMimeTypeManager ECMLMimeTypeMgr;
     @Autowired @Qualifier("HTMLMimeTypeMgrImpl") IMimeTypeManager HTMLMimeTypeMgr;
     @Autowired @Qualifier("APKMimeTypeMgrImpl") IMimeTypeManager APKMimeTypeMgr;
-    //@Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager CollectionMimeTypeMgr;
-    //@Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager AssetsMimeTypeMgr;
+    @Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager collectionMimeTypeMgr;
+    @Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager assetsMimeTypeMgr;
     public IMimeTypeManager getImplForService(String mimeType){
     	IMimeTypeManager manager = ECMLMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
@@ -27,10 +27,10 @@ public class ContentMimeTypeFactory {
 				manager = APKMimeTypeMgr;
 				break;
 			case "collection":
-				manager = APKMimeTypeMgr;
+				manager = collectionMimeTypeMgr;
 				break;
 			case "assets":
-				manager = APKMimeTypeMgr;
+				manager = assetsMimeTypeMgr;
 				break;
 			default:
 				manager = ECMLMimeTypeMgr;
