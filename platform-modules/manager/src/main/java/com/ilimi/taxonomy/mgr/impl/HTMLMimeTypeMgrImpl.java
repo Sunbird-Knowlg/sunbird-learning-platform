@@ -1,6 +1,5 @@
 package com.ilimi.taxonomy.mgr.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
@@ -8,7 +7,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 @Component
-@Qualifier("HTMLMimeTypeMgrImpl")
+//@Qualifier("HTMLMimeTypeMgrImpl")
 public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	@Override
