@@ -16,7 +16,7 @@ public interface IMimeTypeManager {
 	
 	public Response extract(Node node);
 	
-	public void publish();
+	public Response publish(Node node);
 	
 	public void bundle();
 	

@@ -17,7 +17,7 @@ public class ContentMimeTypeFactory {
     public IMimeTypeManager getImplForService(String mimeType){
     	IMimeTypeManager manager = ECMLMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
-			case "ecml":
+			case "application/octet-stream":
 				manager = ECMLMimeTypeMgr;
 				break;
 			case "html":

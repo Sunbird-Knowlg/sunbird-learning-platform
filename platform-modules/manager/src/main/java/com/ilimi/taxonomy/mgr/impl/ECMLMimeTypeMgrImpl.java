@@ -653,7 +653,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}else{
 			response = compress(node,tempFolderWithTimeStamp);
 		}
-		
 		return response;
 	}
 	
@@ -740,6 +739,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 						bundleFileName, "1.1");
 				nodePublish.getMetadata().put("s3Key", urlArray[0]);
 				nodePublish.getMetadata().put("downloadUrl", urlArray[1]);
+				nodePublish.getMetadata().put("artifactUrl", urlArray[1]);
 				Number pkgVersion = (Number) nodePublish.getMetadata().get("pkgVersion");
 				if (null == pkgVersion || pkgVersion.intValue() < 1) {
 					pkgVersion = 1.0;
@@ -784,9 +784,10 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		File ecarFile = HttpDownloadUtility.downloadFile((String)node.getMetadata().get("artifactUrl"), tempFolderWithTimeStamp);
 		try {
 			UnzipUtility unzip = new UnzipUtility();
-			unzip.unzip(ecarFile.getPath(), ecarFile.getParent());
+			String unZipLocation = ecarFile.getParent()+File.separator+ecarFile.getName().split("\\.")[0];
+			unzip.unzip(ecarFile.getPath(), unZipLocation);
 			File olderZipFile = CustomParser.getZipFile(ecarFile,node);
-			File newName = new File(ecarFile.getParent() + File.separator + olderZipFile.getName());
+			File newName = new File(unZipLocation + File.separator + node.getIdentifier()+File.separator+ olderZipFile.getName());
 			node.getMetadata().put("downloadUrl", newName);
 			List<Node> nodes = new ArrayList<Node>();
 			nodes.add(node);
@@ -815,7 +816,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
 			response = updateRes;
 		} catch (Exception e) {
-			// TODO: handle exception
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		return response;
 	}

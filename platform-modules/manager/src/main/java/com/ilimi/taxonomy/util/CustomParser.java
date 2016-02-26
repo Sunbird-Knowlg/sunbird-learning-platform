@@ -342,7 +342,7 @@ public class CustomParser {
 	public static File getZipFile(File ecarFileName,Node node) {
 		String filePath = ecarFileName.getParent() + File.separator
 				+ ecarFileName.getName().split("\\.")[0] + File.separator + node.getIdentifier();
-		String[] extensions = new String[] { "zip" };
+		String[] extensions = new String[] { "zip" ,"html","htm","apk"};
 		List<File> files = (List<File>) FileUtils.listFiles(new File(filePath), extensions, true);
 		return files.get(0);
 	}
