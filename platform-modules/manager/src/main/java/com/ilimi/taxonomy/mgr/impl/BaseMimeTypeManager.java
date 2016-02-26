@@ -64,11 +64,6 @@ public class BaseMimeTypeManager extends BaseManager{
 		return map;
 	}
 	
-	public Response updateContentNode(Request request) {
-		Response response = new Response();
-		return response;
-	}
-	
 	public Response getContentNode(Request request) {
 		Response response = new Response();
 		return response;

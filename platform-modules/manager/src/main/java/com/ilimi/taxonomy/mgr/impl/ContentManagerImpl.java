@@ -924,21 +924,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
 					"Content Id is blank");
 		Response responseNode = getDataNode(taxonomyId, contentId);
+		if (checkError(responseNode))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with id: " + contentId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		if (responseNode != null) {
+		if (node != null) {
 			String mimeType = (String) node.getMetadata().get("mimeType");
 			IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-			/*String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
-			String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
-			File zipFile = null;
-			System.out.println("zipFilUrl is " + zipFilUrl);
-			if (StringUtils.isNotBlank(zipFilUrl)) {
-				zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
-				System.out.println("zipFile is " + zipFile);
-			}*/
-			Response response = new Response();
-			//response = extractContent(taxonomyId, zipFile, contentId);
-			response = mimeTypeManager.extract(node);
+			Response response =  mimeTypeManager.extract(node);
 			if (checkError(response)) {
 				return response;
 			}

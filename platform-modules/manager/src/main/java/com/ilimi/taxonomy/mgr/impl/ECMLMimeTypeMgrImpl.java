@@ -65,20 +65,19 @@ import com.ilimi.taxonomy.util.ZipUtility;
 
 @Component
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
-	
+
 	@Autowired
 	private IAssessmentManager assessmentMgr;
 	@Autowired
 	private ContentBundle contentBundle;
 
-	
 	private static final String bucketName = "ekstep-public";
 	private static final String folderName = "content";
 	private static final String tempFileLocation = "/temp/";
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
-	
+
 	@Override
 	public void upload() {
 		// TODO Auto-generated method stub
@@ -91,21 +90,16 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File zipFile = null;
-		System.out.println("zipFilUrl is " + zipFilUrl);
 		if (StringUtils.isNotBlank(zipFilUrl)) {
 			zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
-			System.out.println("zipFile is " + zipFile);
 		}
 		String zipFilePath = zipFile.getPath();
 		String zipFileDir = zipFile.getParent();
 		String filePath = zipFileDir + File.separator + "index.ecml";
 		String uploadFilePath = zipFileDir + File.separator + "assets" + File.separator;
 		Map<String, List<String>> mediaIdURL = new HashMap<String, List<String>>();
-		List<String> listOfCtrlType = new ArrayList<>();
-		listOfCtrlType.add("items");
-		listOfCtrlType.add("data");
 		String taxonomyId = node.getGraphId();
-		String contentId =  node.getIdentifier();
+		String contentId = node.getIdentifier();
 		UnzipUtility unzipper = new UnzipUtility();
 		Response response = new Response();
 		try {
@@ -135,7 +129,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 			CustomParser customParser = new CustomParser(new File(filePath));
 			if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
-				Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,"getDataNodes", GraphDACParams.node_ids.name(), new ArrayList<>(mediaIdSet));
+				Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+						"getDataNodes", GraphDACParams.node_ids.name(), new ArrayList<>(mediaIdSet));
 				Response mediaRes = getResponse(mediaReq, LOGGER);
 				List<Node> nodeList = (List<Node>) mediaRes.get(GraphDACParams.node_list.name());
 				if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
@@ -155,8 +150,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 									olderName.renameTo(newName);
 									String[] url = AWSUploader.uploadFile(bucketName, folderName,
 											newName);
-									Node newItem = createNode(nodeExt, url[1], nodeExt.getIdentifier(),
-											olderName);
+									Node newItem = createNode(nodeExt, url[1],
+											nodeExt.getIdentifier(), olderName);
 									List<String> values = new ArrayList<String>();
 									values.add(url[1]);
 									values.add(nodeExt.getIdentifier());
@@ -181,7 +176,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 								List<String> values = new ArrayList<String>();
 								values.add(downloadUrl);
 								values.add(nodeExt.getIdentifier());
-								mediaIdURL.put(mediaAssetIdMap.get(nodeExt.getIdentifier()), values);
+								mediaIdURL
+										.put(mediaAssetIdMap.get(nodeExt.getIdentifier()), values);
 							}
 						}
 					}
@@ -221,6 +217,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 				}
 				customParser.updateSrcInEcml(filePath, mediaIdURL);
 			}
+			List<String> listOfCtrlType = new ArrayList<>();
+			listOfCtrlType.add("items");
+			listOfCtrlType.add("data");
 			customParser.updateJsonInEcml(filePath, listOfCtrlType);
 			response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
 			response.put("outRelations", outRelations);
@@ -242,11 +241,11 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return response;
 
 	}
-	
+
 	private Node createNode(Node item, String url, String mediaId, File olderName) {
 		item.setIdentifier(mediaId);
 		item.setObjectType("Content");
-		Map<String, Object> metadata = new HashMap<String, Object>();
+		Map<String, Object> metadata = item.getMetadata();
 		metadata.put("name", mediaId);
 		metadata.put("code", mediaId);
 		metadata.put("body", "<content></content>");
@@ -267,10 +266,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		item.setMetadata(metadata);
 		return item;
 	}
+
 	private Object getMimeType(File file) {
 		MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
 		return mimeType.getContentType(file);
 	}
+
 	private String getMediaType(String fileName) {
 		String mediaType = "image";
 		if (StringUtils.isNotBlank(fileName)) {
@@ -391,6 +392,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 		return null;
 	}
+
 	@SuppressWarnings("unchecked")
 	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation,
 			List<Relation> outRelations) {
@@ -416,6 +418,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 		return null;
 	}
+
 	private List<File> getControllerFileList(String contentExtractedPath) {
 		try {
 			String indexFile = contentExtractedPath + File.separator + "index.ecml";
@@ -441,6 +444,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			return null;
 		}
 	}
+
 	private Response createItemSet(String taxonomyId, String contentId,
 			List<String> lstAssessmentItemId, Map<String, Object> fileJSON) {
 		if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0
@@ -524,6 +528,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 		return null;
 	}
+
 	private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
 		Request request = getRequest(requestMap);
 		Map<String, Object> map = request.getRequest();
@@ -594,66 +599,72 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 		return request;
 	}
-	 protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
-	        if (null != requests && !requests.isEmpty()) {
-	            ActorRef router = RequestRouterPool.getRequestRouter();
-	            try {
-	                List<Future<Object>> futures = new ArrayList<Future<Object>>();
-	                for (Request request : requests) {
-	                    Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
-	                    futures.add(future);
-	                }
-	                Future<Iterable<Object>> objects = Futures.sequence(futures,
-	                        RequestRouterPool.getActorSystem().dispatcher());
-	                Iterable<Object> responses = Await.result(objects, RequestRouterPool.WAIT_TIMEOUT.duration());
-	                if (null != responses) {
-	                    List<Object> list = new ArrayList<Object>();
-	                    Response response = new Response();
-	                    for (Object obj : responses) {
-	                        if (obj instanceof Response) {
-	                            Response res = (Response) obj;
-	                            if (!checkError(res)) {
-	                                Object vo = res.get(paramName);
-	                                response = copyResponse(response, res);
-	                                if (null != vo) {
-	                                    list.add(vo);
-	                                }
-	                            } else {
-	                                return res;
-	                            }
-	                        } else {
-	                            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error",
-	                                    ResponseCode.SERVER_ERROR);
-	                        }
-	                    }
-	                    response.put(returnParam, list);
-	                    return response;
-	                } else {
-	                    return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-	                }
-	            } catch (Exception e) {
-	                logger.error(e.getMessage(), e);
-	                throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-	            }
-	        } else {
-	            return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
-	        }
-	    }
 
+	protected Response getResponse(List<Request> requests, Logger logger, String paramName,
+			String returnParam) {
+		if (null != requests && !requests.isEmpty()) {
+			ActorRef router = RequestRouterPool.getRequestRouter();
+			try {
+				List<Future<Object>> futures = new ArrayList<Future<Object>>();
+				for (Request request : requests) {
+					Future<Object> future = Patterns.ask(router, request,
+							RequestRouterPool.REQ_TIMEOUT);
+					futures.add(future);
+				}
+				Future<Iterable<Object>> objects = Futures.sequence(futures, RequestRouterPool
+						.getActorSystem().dispatcher());
+				Iterable<Object> responses = Await.result(objects,
+						RequestRouterPool.WAIT_TIMEOUT.duration());
+				if (null != responses) {
+					List<Object> list = new ArrayList<Object>();
+					Response response = new Response();
+					for (Object obj : responses) {
+						if (obj instanceof Response) {
+							Response res = (Response) obj;
+							if (!checkError(res)) {
+								Object vo = res.get(paramName);
+								response = copyResponse(response, res);
+								if (null != vo) {
+									list.add(vo);
+								}
+							} else {
+								return res;
+							}
+						} else {
+							return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error",
+									ResponseCode.SERVER_ERROR);
+						}
+					}
+					response.put(returnParam, list);
+					return response;
+				} else {
+					return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error",
+							ResponseCode.SERVER_ERROR);
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+			}
+		} else {
+			return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error",
+					ResponseCode.SERVER_ERROR);
+		}
+	}
 
 	@Override
 	public Response publish(Node node) {
 		Response response = new Response();
-		String artifactUrl = (String)node.getMetadata().get("artifactUrl");
-		String tempFolderWithTimeStamp = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
+		String artifactUrl = (String) node.getMetadata().get("artifactUrl");
+		String tempFolderWithTimeStamp = tempFileLocation + File.separator
+				+ System.currentTimeMillis() + "_temp";
 		if (StringUtils.isNotBlank(artifactUrl)) {
 			response = rePublish(node);
-		}else{
-			response = compress(node,tempFolderWithTimeStamp);
+		} else {
+			response = compress(node, tempFolderWithTimeStamp);
 		}
 		return response;
 	}
-	
+
 	private Response compress(Node node, String tempFolderWithTimeStamp) {
 		String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
 		Map<String, Object> metadata = new HashMap<String, Object>();
@@ -661,9 +672,10 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		String contentBody = (String) metadata.get("body");
 		String contentType = checkBodyContentType(contentBody);
 		if (StringUtils.isBlank(contentType))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),"Content of Body Either Invalid or Null");
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
+					"Content of Body Either Invalid or Null");
 		try {
-			
+
 			File file = null;
 			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
 				file = new File(tempFolderWithTimeStamp + File.separator + "index.ecml");
@@ -693,7 +705,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 							ex.getMessage());
 				}
 			}
-		}catch(IOException e){
+		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		String filePath = tempFolderWithTimeStamp;
@@ -726,97 +738,92 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					return getNodeRes;
 				}
 				Node nodePublish = (Node) getNodeRes.get(GraphDACParams.node.name());
-				nodePublish.getMetadata().put("downloadUrl", newName);
-				List<Node> nodes = new ArrayList<Node>();
-				nodes.add(nodePublish);
-				List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-				List<String> childrenIds = new ArrayList<String>();
-				getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-				String bundleFileName = contentId + "_" + System.currentTimeMillis() + ".ecar";
-				String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds,
-						bundleFileName, "1.1");
-				nodePublish.getMetadata().put("s3Key", urlArray[0]);
-				nodePublish.getMetadata().put("downloadUrl", urlArray[1]);
-				nodePublish.getMetadata().put("artifactUrl", urlArray[1]);
-				Number pkgVersion = (Number) nodePublish.getMetadata().get("pkgVersion");
-				if (null == pkgVersion || pkgVersion.intValue() < 1) {
-					pkgVersion = 1.0;
-				} else {
-					pkgVersion = pkgVersion.doubleValue() + 1;
-				}
-				nodePublish.getMetadata().put("pkgVersion", pkgVersion);
-				nodePublish.getMetadata().put("status", "Live");
-				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-						"updateDataNode");
-				updateReq.put(GraphDACParams.node.name(), nodePublish);
-				updateReq.put(GraphDACParams.node_id.name(), nodePublish.getIdentifier());
-				Response updateRes = getResponse(updateReq, LOGGER);
-				updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
-				response = updateRes;
+				node.getMetadata().put(ContentAPIParams.downloadUrl.name(), nodePublish);
+				response = addDataToContentNode(node);
 			}
 
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		} finally {
-			File directory = new File(sourceFolder);
-			if (!directory.exists()) {
-				System.out.println("Directory does not exist.");
-				System.exit(0);
-			} else {
-				try {
-					delete(directory);
-					if (!directory.exists()) {
-						directory.mkdirs();
-					}
-				} catch (IOException e) {
-					throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),	e.getMessage());
-				}
-			}
+			deleteTemp(sourceFolder);
 		}
 		return response;
 	}
 
+	private void deleteTemp(String sourceFolder) {
+		File directory = new File(sourceFolder);
+		if (!directory.exists()) {
+			System.out.println("Directory does not exist.");
+			System.exit(0);
+		} else {
+			try {
+				delete(directory);
+				if (!directory.exists()) {
+					directory.mkdirs();
+				}
+			} catch (IOException e) {
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+						e.getMessage());
+			}
+		}
+		
+	}
+
 	private Response rePublish(Node node) {
 		Response response = new Response();
-		String tempFolderWithTimeStamp = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-		File ecarFile = HttpDownloadUtility.downloadFile((String)node.getMetadata().get("artifactUrl"), tempFolderWithTimeStamp);
+		String tempFolder = tempFileLocation + File.separator
+				+ System.currentTimeMillis() + "_temp";
+		File ecarFile = HttpDownloadUtility.downloadFile(
+				(String) node.getMetadata().get("artifactUrl"), tempFolder);
 		try {
 			UnzipUtility unzip = new UnzipUtility();
-			String unZipLocation = ecarFile.getParent()+File.separator+ecarFile.getName().split("\\.")[0];
+			String unZipLocation = ecarFile.getParent() + File.separator
+					+ ecarFile.getName().split("\\.")[0];
 			unzip.unzip(ecarFile.getPath(), unZipLocation);
-			File olderZipFile = CustomParser.getZipFile(ecarFile,node);
-			File newName = new File(unZipLocation + File.separator + node.getIdentifier()+File.separator+ olderZipFile.getName());
-			node.getMetadata().put("downloadUrl", newName);
-			List<Node> nodes = new ArrayList<Node>();
-			nodes.add(node);
-			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-			List<String> childrenIds = new ArrayList<String>();
-			getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
-			String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
-			String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds,
-					bundleFileName, "1.1");
-			node.getMetadata().put("s3Key", urlArray[0]);
-			node.getMetadata().put("downloadUrl", urlArray[1]);
-			node.getMetadata().put("artifactUrl", urlArray[1]);
-			Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-			if (null == pkgVersion || pkgVersion.intValue() < 1) {
-				pkgVersion = 1.0;
-			} else {
-				pkgVersion = pkgVersion.doubleValue() + 1;
-			}
-			node.getMetadata().put("pkgVersion", pkgVersion);
-			node.getMetadata().put("status", "Live");
-			Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,
-					"updateDataNode");
-			updateReq.put(GraphDACParams.node.name(), node);
-			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-			Response updateRes = getResponse(updateReq, LOGGER);
-			updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
-			response = updateRes;
+			File olderZipFile = CustomParser.getZipFile(ecarFile, node);
+			File newName = new File(unZipLocation + File.separator + node.getIdentifier()
+					+ File.separator + olderZipFile.getName());
+			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), newName);
+			response = addDataToContentNode(node);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+		}finally{
+			deleteTemp(tempFolder);
 		}
 		return response;
+	}
+
+	private Response addDataToContentNode(Node node) {
+		List<Node> nodes = new ArrayList<Node>();
+		nodes.add(node);
+		List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+		List<String> childrenIds = new ArrayList<String>();
+		getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+		String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
+		String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName,
+				"1.1");
+		node.getMetadata().put("s3Key", urlArray[0]);
+		node.getMetadata().put("downloadUrl", urlArray[1]);
+		node.getMetadata().put("artifactUrl", urlArray[1]);
+		Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
+		if (null == pkgVersion || pkgVersion.intValue() < 1) {
+			pkgVersion = 1.0;
+		} else {
+			pkgVersion = pkgVersion.doubleValue() + 1;
+		}
+		node.getMetadata().put("pkgVersion", pkgVersion);
+		node.getMetadata().put("status", "Live");
+		return updateContentNode(node, urlArray[1]);
+	}
+
+	private Response updateContentNode(Node node, String url) {
+		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,
+				"updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		Response updateRes = getResponse(updateReq, LOGGER);
+		updateRes.put(ContentAPIParams.content_url.name(), url);
+		return updateRes;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -894,7 +901,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 		}
 	}
-	
+
 	private Response searchNodes(String taxonomyId, List<String> contentIds) {
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
 		List<Filter> filters = new ArrayList<Filter>();
@@ -922,8 +929,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return response;
 	}
 
-
-	
 	private String checkBodyContentType(String contentBody) {
 		if (StringUtils.isNotEmpty(contentBody)) {
 			if (isECMLValid(contentBody)) {

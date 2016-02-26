@@ -33,7 +33,7 @@ public class ContentMimeTypeFactory {
 				manager = AssetsMimeTypeMgr;
 				break;
 			default:
-				manager = ECMLMimeTypeMgr;
+				manager = AssetsMimeTypeMgr;
 				break;
 		}
        return manager;
