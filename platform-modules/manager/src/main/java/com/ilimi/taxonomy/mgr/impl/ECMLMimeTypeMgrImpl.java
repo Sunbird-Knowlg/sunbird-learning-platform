@@ -22,7 +22,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -65,7 +64,6 @@ import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
 @Component
-@Qualifier("ECMLMimeTypeMgrImpl")
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 	
 	@Autowired
