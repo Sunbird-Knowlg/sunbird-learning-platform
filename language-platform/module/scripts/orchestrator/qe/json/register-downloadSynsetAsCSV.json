@@ -1,0 +1,14 @@
+{
+    "name": "lang_qe_downloadSynsetAsCSV",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"synset_ids",
+        "index": 1,
+        "routingParam": false,
+        "datatype": "java.util.ArrayList"
+    }],
+    "body": ""
+}
