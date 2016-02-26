@@ -10,6 +10,7 @@ import java.util.Properties;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
@@ -21,6 +22,7 @@ import org.neo4j.unsafe.batchinsert.BatchInserters;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
@@ -61,6 +63,7 @@ public class Neo4jGraphFactory {
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
                 graphDbMap.put(graphId, graphDb);
+                createRootNode(graphDb, graphId);
                 createConstraints(graphDb);
             }
             if (null != graphDb && graphDb.isAvailable(0))
@@ -139,4 +142,25 @@ public class Neo4jGraphFactory {
         });
     }
 
+	private static Node createRootNode(GraphDatabaseService graphDb, String graphId) {
+		Transaction tx = null;
+		Node rootNode = null;
+		try {
+			tx = graphDb.beginTx();
+			String rootNodeUniqueId = graphId + "_" + SystemNodeTypes.ROOT_NODE.name();
+			rootNode = graphDb.createNode(NODE_LABEL);
+			rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
+			rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
+			rootNode.setProperty("nodesCount", 0);
+			rootNode.setProperty("relationsCount", 0);
+			tx.success();
+		} catch (Exception e) {
+			if (null != tx)
+				tx.failure();
+		} finally {
+			if (null != tx)
+				tx.close();
+		}
+		return rootNode;
+	}
 }

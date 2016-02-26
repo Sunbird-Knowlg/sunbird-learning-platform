@@ -14,6 +14,7 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 
@@ -56,6 +57,32 @@ public abstract class BaseLanguageController extends BaseController {
             logger.error(e.getMessage(), e);
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }   
+    }
+    
+    protected Response getNonLanguageResponse(Request request, Logger logger) {
+        ActorRef router = RequestRouterPool.getRequestRouter();
+        try {
+            Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
+            Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
+            if (obj instanceof Response) {
+                return (Response) obj;
+            } else {
+                return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }   
+    }
+    
+    public void makeAsyncRequest(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
     }
     
     protected Response getBulkOperationResponse(Request request, Logger logger) {

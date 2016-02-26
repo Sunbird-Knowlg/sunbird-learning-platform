@@ -28,6 +28,7 @@ import net.sf.json.util.JSONStringer;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
+import org.neo4j.cypher.internal.compiler.v2_0.ast.Limit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -373,11 +374,11 @@ public class ElasticSearchUtil {
 					String groupByParent = (String) groupByMap.get("groupByParent");
 					List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
 					builder.key("aggs").object().key(groupByParent).object().key("terms").object().key("field")
-							.value(groupByParent).endObject();
+							.value(groupByParent).key("size").value(resultLimit).endObject();
 					if (groupByChildList != null && !groupByChildList.isEmpty()) {
 						builder.key("aggs").object();
 						for (String childGroupBy : groupByChildList) {
-							builder.key(childGroupBy).object().key("terms").object().key("field").value(childGroupBy)
+							builder.key(childGroupBy).object().key("terms").object().key("field").value(childGroupBy).key("size").value(resultLimit)
 									.endObject().endObject();
 						}
 						builder.endObject();

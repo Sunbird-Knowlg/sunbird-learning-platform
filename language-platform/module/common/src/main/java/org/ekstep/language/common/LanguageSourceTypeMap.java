@@ -13,11 +13,11 @@ public class LanguageSourceTypeMap {
     	LanguageSourceTypeMap.put("wn", "WordNet");
     }
 
-    public static boolean containsLanguage(String sourceId) {
+    public static boolean containsSourceType(String sourceId) {
         return LanguageSourceTypeMap.containsKey(sourceId);
     }
 
-    public static String getLanguage(String sourceId) {
+    public static String getSourceType(String sourceId) {
         return LanguageSourceTypeMap.get(sourceId);
     }
 }

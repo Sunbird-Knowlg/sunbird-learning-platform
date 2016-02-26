@@ -5,7 +5,7 @@ import com.ilimi.common.dto.Response;
 
 public interface IImportManager {
 
-    Response importData(String languageId, String sourceId, InputStream file);
+    Response transformData(String languageId, String sourceId, InputStream file);
     
-    Response enrich(String languageId, String sourceId, InputStream synsetStream, InputStream wordStream);
+    Response importData(String languageId, InputStream synsetStream, InputStream wordStream);
 }

@@ -26,11 +26,11 @@ public class ImportActor extends LanguageBaseActor {
             String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
             String operation = request.getOperation();
             try {
-                if (StringUtils.equalsIgnoreCase(LanguageOperations.importWordNetData.name(), operation)) {
+                if (StringUtils.equalsIgnoreCase(LanguageOperations.transformWordNetData.name(), operation)) {
                     InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name());
                     ImportDictionary id = new ImportDictionary();
                     String sourceType = (String) request.get(LanguageParams.source_type.name());
-                    DictionaryObject dictionaryObject = id.importData(languageId, sourceType, stream);
+                    DictionaryObject dictionaryObject = id.transformData(languageId, sourceType, stream);
                     OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
                 }else {
                     LOGGER.info("Unsupported operation: " + operation);
