@@ -13,6 +13,7 @@ import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -45,7 +46,6 @@ import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
-import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
 public class BaseMimeTypeManager extends BaseManager{
@@ -276,23 +276,21 @@ public class BaseMimeTypeManager extends BaseManager{
 
 	protected Response rePublish(Node node) {
 		Response response = new Response();
-		String tempFolder = tempFileLocation + File.separator
-				+ System.currentTimeMillis() + "_temp";
+		String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis()
+				+ "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(
-				(String) node.getMetadata().get("artifactUrl"), tempFolder);
+				(String) node.getMetadata().get(ContentAPIParams.artifactUrl.name()), tempFolder);
 		try {
-			/*UnzipUtility unzip = new UnzipUtility();
-			String unZipLocation = ecarFile.getParent() + File.separator
-					+ ecarFile.getName().split("\\.")[0];
-			unzip.unzip(ecarFile.getPath(), unZipLocation);
-			File olderZipFile = CustomParser.getZipFile(ecarFile, node);*/
-			File newName = new File(ecarFile.getParent() + File.separator + System.currentTimeMillis()+"_"+node.getIdentifier());
+			File newName = new File(ecarFile.getParent() + File.separator
+					+ System.currentTimeMillis() + "_" + node.getIdentifier()
+					+ "."+FilenameUtils.getExtension(ecarFile.getPath()));
 			ecarFile.renameTo(newName);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), newName);
+			downloadAppIcon(node, tempFolder);
 			response = addDataToContentNode(node);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-		}finally{
+		} finally {
 			deleteTemp(tempFolder);
 		}
 		return response;
