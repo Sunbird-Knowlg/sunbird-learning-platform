@@ -941,9 +941,14 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	}
 
 	@Override
-	public void bundle() {
-		// TODO Auto-generated method stub
-
+	public Node tuneInputForBundling(Node node) {
+		if (StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name()).toString())) {
+			// Case when artifactUrl doesn't exist
+		} else {
+			// Case when artifactUrl do exist
+		}
+		return node;
 	}
+
 
 }

@@ -406,6 +406,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 						"One or more of the input content identifier are not found");
 			}
+			// Tune Each node for bundling as per mimetype
+			for (Node node : nodes) {
+				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+				node = contentFactory.getImplForService(mimeType).tuneInputForBundling(node); 
+			}
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
 			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
 			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"

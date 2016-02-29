@@ -7,7 +7,6 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 @Component
-//@Qualifier("HTMLMimeTypeMgrImpl")
 public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	@Override
@@ -30,9 +29,9 @@ public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	}
 
 	@Override
-	public void bundle() {
+	public Node tuneInputForBundling(Node node) {
 		// TODO Auto-generated method stub
-
+		return node;
 	}
 
 }

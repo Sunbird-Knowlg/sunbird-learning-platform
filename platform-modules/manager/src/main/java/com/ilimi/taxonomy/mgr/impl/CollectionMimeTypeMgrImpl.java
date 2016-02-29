@@ -29,9 +29,9 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 	}
 
 	@Override
-	public void bundle() {
+	public Node tuneInputForBundling(Node node) {
 		// TODO Auto-generated method stub
-
+		return node;
 	}
 
 }

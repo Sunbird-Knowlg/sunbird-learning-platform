@@ -18,6 +18,6 @@ public interface IMimeTypeManager {
 	
 	public Response publish(Node node);
 	
-	public void bundle();
+	public Node tuneInputForBundling(Node node);
 	
 }

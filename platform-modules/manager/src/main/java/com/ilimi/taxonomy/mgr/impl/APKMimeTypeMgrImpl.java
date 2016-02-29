@@ -29,9 +29,9 @@ public class APKMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeType
 	}
 
 	@Override
-	public void bundle() {
+	public Node tuneInputForBundling(Node node) {
 		// TODO Auto-generated method stub
-
+		return node;
 	}
 
 }
