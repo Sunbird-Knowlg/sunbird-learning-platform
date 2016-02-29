@@ -18,6 +18,11 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
+import org.ekstep.language.router.LanguageActorPool;
+import org.ekstep.language.router.LanguageRequestRouter;
+import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -30,6 +35,8 @@ import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.util.Neo4jGraphFactory;
+import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -43,6 +50,7 @@ import scala.concurrent.Future;
 public class ControllerUtil extends BaseLanguageManager {
 
 	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
+	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void updateWordFeatures(Map item, String languageId) {
@@ -279,12 +287,70 @@ public class ControllerUtil extends BaseLanguageManager {
 		}
 	}
 
-	public void importNodesFromStreamAsync(String wordContent, String languageId) {
+	public void importNodesFromStreamAsync(String wordContent, String languageId, String taskId) {
 		InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
 		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
 		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(in));
+		if(taskId != null){
+			request.put(GraphEngineParams.task_id.name(), taskId);
+		}
 		makeAsyncRequest(request, LOGGER);
+	}
+	
+	public void makeLanguageAsyncRequest(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
+	
+	public void importNodesFromStreamAsync(InputStream in, String languageId, String taskId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
+		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(in));
+		if(taskId != null){
+			request.put(GraphEngineParams.task_id.name(), taskId);
+		}
+		makeAsyncRequest(request, LOGGER);
+	}
+	
+	public void importNodesFromStreamAsync(InputStream in, String languageId) {
+		importNodesFromStreamAsync(in, languageId, null);
+	}
+	
+	public String importNodesFromStream(String wordContent, String languageId) {
+		InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
+		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(in));
+		Response response;
+		try{
+			response = getResponse(request, LOGGER);
+			String taskId = (String) response.get(GraphEngineParams.task_id.name());
+			return taskId;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	public String createTaskNode( String languageId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createTaskNode");
+		Response response;
+		try{
+			response = getResponse(request, LOGGER);
+			String taskId = (String) response.get(GraphEngineParams.task_id.name());
+			return taskId;
+		}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public String replaceAssociations(String wordContent, Map<String, Object> replacedWordIdMap) {
@@ -459,5 +525,50 @@ public class ControllerUtil extends BaseLanguageManager {
                     batch = words.size();
             }
         }
+	}
+
+	public void importWordsAndSynsets(String wordContent, String synsetContent, String languageId) {
+		InputStream wordsInputStream = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
+		InputStream synsetsInputStream = new ByteArrayInputStream(synsetContent.getBytes(StandardCharsets.UTF_8));
+		Request request = getRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(), LanguageOperations.importWordsAndSynsets.name());
+		request.put(LanguageParams.words_input_stream.name(), new InputStreamValue(wordsInputStream));
+		request.put(LanguageParams.synset_input_stream.name(), new InputStreamValue(synsetsInputStream));
+		makeAsyncRequest(request, LOGGER);
+	}
+
+	public boolean taskCompleted(String taskId, String graphId) {
+		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+		Transaction tx = null;
+		boolean taskStatus = false;
+		try {
+			Long startTime = System.currentTimeMillis();
+			while (true) {
+				Long timeDiff = System.currentTimeMillis() - startTime;
+				if (timeDiff >= TASK_REFRESH_TIME_IN_MILLIS) {
+					tx = graphDb.beginTx();
+					startTime = System.currentTimeMillis();
+					org.neo4j.graphdb.Node taskNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, taskId);
+					String status = (String) taskNode.getProperty(GraphEngineParams.status.name());
+					if (status.equalsIgnoreCase(GraphEngineParams.Completed.name())) {
+						taskStatus = true;
+					}
+					tx.success();
+					tx.close();
+					if(taskStatus){
+						return taskStatus;
+					}
+				}
+			}
+		} catch (Exception e) {
+			if (null != tx) {
+				tx.failure();
+				tx.close();
+			}
+		}
+		return taskStatus;
+	}
+
+	public void importNodesFromStreamAsync(String synsetContent, String languageId) {
+		importNodesFromStreamAsync(synsetContent, languageId, null);
 	}
 }

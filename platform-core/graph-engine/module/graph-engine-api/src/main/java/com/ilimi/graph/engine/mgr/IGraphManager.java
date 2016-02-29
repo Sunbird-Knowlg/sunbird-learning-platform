@@ -108,4 +108,6 @@ public interface IGraphManager {
      * @response - STATUS: API call status
      */
     void removeRelation(Request request);
+
+	void createTaskNode(Request request);
 }

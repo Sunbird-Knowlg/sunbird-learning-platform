@@ -1,17 +1,18 @@
 package org.ekstep.language.mgr.impl;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -34,6 +35,8 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.common.enums.GraphEngineParams;
+import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
 
@@ -42,6 +45,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	
 	private static final String CSV_SEPARATOR = ",";
 	private static final String NEW_LINE = "\n";
+	private ControllerUtil controllerUtil = new ControllerUtil();
 	
 	private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
 
@@ -64,6 +68,16 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         return importRes;
 	}
 	
+	public void importDataAsync(String source, String languageId, String taskId) {
+        InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8));
+		Request request = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(), LanguageOperations.importDataAsync.name());
+		request.put(LanguageParams.input_stream.name(),in);
+		if(taskId != null){
+			request.put(LanguageParams.prev_task_id.name(), taskId);
+		}
+		controllerUtil.makeLanguageAsyncRequest(request, LOGGER);
+	}
+	
 	public static byte[] toByteArrayUsingJava(InputStream is)
 		    throws IOException{
 		        ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -78,7 +92,6 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		       
 		    }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response importData(String languageId, InputStream synsetStream, InputStream wordStream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -153,7 +166,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	        while ((line = br.readLine()) != null) {
 				try {
 					SynsetModel synset = new SynsetModel();
-					objectDetails = line.split(CSV_SPLIT_BY);
+					objectDetails = line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)", -1);
 					synset.setIdentifier(objectDetails[IDX_SYNSET_IDENTIFIER]);
 					synset.setWordMember(objectDetails[IDX_SYNSET_WORD_MEMBER]);
 					synset.setAntonymSynsetId(objectDetails[IDX_SYNSET_ANTONYM_SYNSET_ID]);
@@ -162,7 +175,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 					synset.setHolonymSynsetId(objectDetails[IDX_SYNSET_HOLONYM_SYNSET_ID]);
 					synset.setHypernymSynsetId(objectDetails[IDX_SYNSET_HYPERNYM_SYNSET_ID]);
 					synset.setMeaning(objectDetails[IDX_SYNSET_MEANING]);
-					synset.setUsage(objectDetails[IDX_SYNSET_USAGE]);
+					synset.setUsage(objectDetails[IDX_SYNSET_USAGE].replace("\"", ""));
 					synset.setPartOfSpeech(objectDetails[IDX_SYNSET_POS]);
 					lstSynset.add(synset);
 					synsetContentBuffer.append(line);
@@ -191,9 +204,10 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		        }
 	        }
 	        
-	        ControllerUtil controllerUtil = new ControllerUtil();
-	        controllerUtil.importNodesFromStreamAsync(wordContent, languageId);
-	        controllerUtil.importNodesFromStreamAsync(synsetContent, languageId);
+	        String taskId = controllerUtil.createTaskNode(languageId);
+	        controllerUtil.importNodesFromStreamAsync(wordContent, languageId, taskId);
+	        importDataAsync(synsetContent, languageId, taskId);
+	        //controllerUtil.importWordsAndSynsets(wordContent, synsetContent, languageId);
 	        return OK("wordList", wordIdList);
         } catch(IOException e) {
         	e.printStackTrace();
@@ -323,65 +337,100 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	}
 	
 	@SuppressWarnings("unchecked")
-	private DictionaryObject replaceWordsIfPresentAlready(String languageId, List<WordModel> lstWord, List<SynsetModel> lstSynset) {
+    private void getIndexInfo(String languageId, Map<String, Object> indexesMap, List<WordModel> lstWord) {
+        if (null != lstWord && !lstWord.isEmpty()) {
+            int start = 0;
+            int batch = 100;
+            if (batch > lstWord.size())
+                batch = lstWord.size();
+            while (start < lstWord.size()) {
+                List<String> list = new ArrayList<String>();
+                for (int i = start; i < batch; i++) {
+                    list.add(lstWord.get(i).getWordLemma());
+                }
+                Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
+                        LanguageOperations.getIndexInfo.name());
+                langReq.put(LanguageParams.words.name(), list);
+                Response langRes = getLanguageResponse(langReq, LOGGER);
+                if (!checkError(langRes)) {
+                    Map<String, Object> map = (Map<String, Object>) langRes.get(LanguageParams.index_info.name());
+                    if (null != map && !map.isEmpty()) {
+                        indexesMap.putAll(map);
+                    }
+                }
+                start += 100;
+                batch += 100;
+                if (batch > lstWord.size())
+                    batch = lstWord.size();
+            }
+        }
+    }
+	
+	@SuppressWarnings("unchecked")
+	private DictionaryObject replaceWordsIfPresentAlready(String languageId, List<WordModel> lstWord,
+			List<SynsetModel> lstSynset) {
+		Map<String, Object> indexesMap = new HashMap<String, Object>();
+		Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 		if (lstWord.size() > 0) {
-			Response getIndexInfoResponse = callGetIndexInfo(languageId, lstWord);
-			if (checkError(getIndexInfoResponse)) {
-	            return null;
-	        } else {
-	           // Response response = copyResponse(getIndexInfoResponse);
-	            DictionaryObject dictionaryObject = new DictionaryObject();
-	            Map<String, String> replacedWordIdMap = new HashMap<String, String>();
-	            Map<String, Object> indexInfoMap = (Map<String, Object>) getIndexInfoResponse.get(LanguageParams.index_info.name());
-	            for (String key : indexInfoMap.keySet()) {
-	            	for (WordModel word : lstWord) {
-	            		try {
-		            		if (StringUtils.equalsIgnoreCase(word.getWordLemma().trim(), key.trim())) {
-		            			// Record the changed/updated word identifier which needs to be replaced in Synset List as well.
-		            			Map<String, Object> wordIndexInfo = (Map<String, Object>) indexInfoMap.get(key);
-		            			if (!StringUtils.equalsIgnoreCase(word.getIdentifier(), wordIndexInfo.get(LanguageParams.wordId.name()).toString())) {
-		            				replacedWordIdMap.put(word.getIdentifier().trim(), wordIndexInfo.get(LanguageParams.wordId.name()).toString());
-		            			}
-		            			word.setIdentifier(wordIndexInfo.get(LanguageParams.wordId.name()).toString());
-		            			break;
-		            		}
-	            		} catch(Exception e) {
-	            			e.printStackTrace();
-	            			continue; 
-	            		}
-	            	}
-	            }
-	            // Remove duplicate words from Word List
-	            	            
-	            Set<WordModel> uniqueWordList = new HashSet<WordModel>();
-	            uniqueWordList.addAll(lstWord);
-	            lstWord.clear();
-	            lstWord.addAll(uniqueWordList);
-	            
-	            // Replace new Word Ids with existing one in Synset List.
-	            if (lstSynset.size() > 0) {
-		            for (SynsetModel synset : lstSynset) {
-		            	String[] lstMemberWordId = null;
-		            	String ogMemberWordId = synset.getWordMember();
-		            	String memberWordId= ogMemberWordId.replaceAll("\"", "");
-		            	String newMemberWordId = "";
-		            	if (!StringUtils.isBlank(memberWordId)) {
-		            		lstMemberWordId = memberWordId.split(CSV_SEPARATOR);
-		            		for (String wordId : lstMemberWordId) {
-		            			if (replacedWordIdMap.containsKey(wordId.trim())) {
-		            				wordId = replacedWordIdMap.get(wordId).trim();
-		            			}
-		            			newMemberWordId = newMemberWordId + CSV_SEPARATOR + wordId;
-		            		}
-			            	synset.setWordMember(newMemberWordId.substring(1));
-		            	}
-		            }
-	            }
-	            dictionaryObject.setLstWord(lstWord);
-	            dictionaryObject.setLstSynset(lstSynset);
-	            dictionaryObject.put(LanguageParams.replacedWordIdMap.name(), replacedWordIdMap);
-	            return dictionaryObject;
-	        }
+			// Response getIndexInfoResponse = callGetIndexInfo(languageId,
+			// lstWord);
+			getIndexInfo(languageId, indexesMap, lstWord);
+			// Response response = copyResponse(getIndexInfoResponse);
+			DictionaryObject dictionaryObject = new DictionaryObject();
+			Map<String, String> replacedWordIdMap = new HashMap<String, String>();
+
+			for (String key : indexesMap.keySet()) {
+				for (WordModel word : lstWord) {
+					try {
+						if (StringUtils.equalsIgnoreCase(word.getWordLemma().trim(), key.trim())) {
+							// Record the changed/updated word identifier which
+							// needs to be replaced in Synset List as well.
+							Map<String, Object> wordIndexInfo = (Map<String, Object>) indexesMap
+									.get(word.getWordLemma());
+							if (!StringUtils.equalsIgnoreCase(word.getIdentifier(),
+									wordIndexInfo.get(LanguageParams.wordId.name()).toString())) {
+								replacedWordIdMap.put(word.getIdentifier().trim(),
+										wordIndexInfo.get(LanguageParams.wordId.name()).toString());
+							}
+							word.setIdentifier(wordIndexInfo.get(LanguageParams.wordId.name()).toString());
+							break;
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						continue;
+					}
+				}
+			}
+			// Remove duplicate words from Word List
+
+			Set<WordModel> uniqueWordList = new HashSet<WordModel>();
+			uniqueWordList.addAll(lstWord);
+			lstWord.clear();
+			lstWord.addAll(uniqueWordList);
+
+			// Replace new Word Ids with existing one in Synset List.
+			if (lstSynset.size() > 0) {
+				for (SynsetModel synset : lstSynset) {
+					String[] lstMemberWordId = null;
+					String ogMemberWordId = synset.getWordMember();
+					String memberWordId = ogMemberWordId.replaceAll("\"", "");
+					String newMemberWordId = "";
+					if (!StringUtils.isBlank(memberWordId)) {
+						lstMemberWordId = memberWordId.split(CSV_SEPARATOR);
+						for (String wordId : lstMemberWordId) {
+							if (replacedWordIdMap.containsKey(wordId.trim())) {
+								wordId = replacedWordIdMap.get(wordId).trim();
+							}
+							newMemberWordId = newMemberWordId + CSV_SEPARATOR + wordId;
+						}
+						synset.setWordMember(newMemberWordId.substring(1));
+					}
+				}
+			}
+			dictionaryObject.setLstWord(lstWord);
+			dictionaryObject.setLstSynset(lstSynset);
+			dictionaryObject.put(LanguageParams.replacedWordIdMap.name(), replacedWordIdMap);
+			return dictionaryObject;
 		}
 		return null;
 	}

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -58,14 +59,18 @@ import akka.dispatch.Mapper;
 import akka.dispatch.OnComplete;
 import akka.dispatch.OnSuccess;
 import akka.pattern.Patterns;
+import akka.util.Timeout;
 import scala.Tuple2;
+import scala.concurrent.Await;
 import scala.concurrent.ExecutionContext;
 import scala.concurrent.Future;
 import scala.concurrent.Promise;
+import scala.concurrent.duration.Duration;
 
 public class Graph extends AbstractDomainObject {
 
     public static final String ERROR_MESSAGES = "ERROR_MESSAGES";
+    public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
 
     public Graph(BaseGraphManager manager, String graphId) {
         super(manager, graphId);
@@ -322,13 +327,41 @@ public class Graph extends AbstractDomainObject {
                     e);
         }
     }
+    
+    public void createTaskNode(Request request) throws Exception {
+    	String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+    	String taskId = null;
+		Node node = new Node();
+		node.setIdentifier(graphId + "_task_" + System.currentTimeMillis());
+		node.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		node.setGraphId(graphId);
+		Map<String, Object> metadata =  new HashMap<String, Object>();
+		metadata.put(GraphEngineParams.status.name(), GraphEngineParams.Pending.name());
+		node.setMetadata(metadata);
+		
+        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        final Request req = new Request();
+        req.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+        req.setOperation("addNode");
+        req.put(GraphDACParams.node.name(), node);
+        req.getContext().put(GraphHeaderParams.graph_id.name(), graphId);
+        Future<Object> future = Patterns.ask(dacRouter, req, timeout);
+        Object obj = Await.result(future, WAIT_TIMEOUT.duration());
+        if (obj instanceof Response) {
+            Response reponse =  (Response) obj;
+            taskId =  (String) reponse.get(GraphDACParams.node_id.name());
+        }
+        manager.OK(GraphEngineParams.task_id.name(),taskId, getParent());
+	}
 
     @SuppressWarnings("unchecked")
     public void importGraph(final Request request) {
         try {
             final String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
             final String format = (String) request.get(GraphEngineParams.format.name());
+            final String taskId = request.get(GraphEngineParams.task_id.name()) == null? null : (String) request.get(GraphEngineParams.task_id.name());
             final InputStreamValue inputStream = (InputStreamValue) request.get(GraphEngineParams.input_stream.name());
+           // final String taskId = createTaskNode(graphId);
             if (StringUtils.isBlank(graphId)) {
                 throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_INVALID_GRAPH_ID.name(),
                         "GraphId is missing");
@@ -416,7 +449,7 @@ public class Graph extends AbstractDomainObject {
                                 final ImportData importData = GraphReaderFactory.getObject(getManager(), format,
                                         graphId, inputStream.getInputStream(), propertyDataMap);
                                 request.put(GraphDACParams.import_input_object.name(), importData);
-
+                                request.put(GraphDACParams.task_id.name(), taskId);
                                 // Use ImportData object and import Graph.
                                 request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
                                 request.setOperation("importGraph");
@@ -471,8 +504,11 @@ public class Graph extends AbstractDomainObject {
                                                                     byteInputStream);
                                                             OutputStream outputStream = msgHandler
                                                                     .getOutputStream(validateMsgMap);
-                                                            manager.OK(GraphEngineParams.output_stream.name(),
-                                                                    new OutputStreamValue(outputStream), getParent());
+                                                            
+                                                            Map<String, Object> outputMap = new HashMap<String, Object>();
+                                                            outputMap.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+                                                            outputMap.put(GraphEngineParams.task_id.name(), taskId);
+                                                            manager.OK(outputMap, getParent());
                                                         }
                                                     }
 
@@ -482,7 +518,7 @@ public class Graph extends AbstractDomainObject {
                                     }
                                 }, ec);
                             } catch (Exception e) {
-                                manager.ERROR(e, getParent());
+                                manager.ERROR(e, GraphEngineParams.task_id.name(), taskId, getParent());
                             }
                         }
                     }

@@ -144,9 +144,7 @@ public class ImportController extends BaseLanguageController {
 			}
 	        
 	        addWordIndex(wordInfoList, languageId);   
-	        List<Node> nodeList = getNodesList(node_ids, languageId);
-	        updateLexileMeasures(nodeList, languageId);
-	        updateFrequencyCount(nodeList, languageId);
+	        enrichWords(node_ids, languageId);
 	        
 			Response response = new Response();
 			return getResponseEntity(response, apiId, null);
@@ -154,6 +152,22 @@ public class ImportController extends BaseLanguageController {
 			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	private void enrichWords(ArrayList<String> node_ids, String languageId) {
+		int BATCH_SIZE = 100;
+		ArrayList<String> batch_node_ids = new ArrayList<String>();
+		int count = 0;
+		for (String nodeId : node_ids) {
+			count++;
+			batch_node_ids.add(nodeId);
+			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
+				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+				updateLexileMeasures(nodeList, languageId);
+				updateFrequencyCount(nodeList, languageId);
+				batch_node_ids = new ArrayList<String>();
+			}
 		}
 	}
 
