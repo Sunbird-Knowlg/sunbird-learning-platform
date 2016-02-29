@@ -216,6 +216,9 @@ public class BaseMimeTypeManager extends BaseManager{
 			if (olderName.exists() && olderName.isFile()) {
 				File newName = new File(sourceFolder + File.separator + olderName.getName());
 				olderName.renameTo(newName);
+				String[] urlArray = AWSUploader.uploadFile(bucketName, folderName, newName);
+				if (!StringUtils.isBlank(urlArray[1]))
+					node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 				Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
 						"getDataNode", GraphDACParams.node_id.name(), contentId);
 				request.put(GraphDACParams.get_tags.name(), true);
