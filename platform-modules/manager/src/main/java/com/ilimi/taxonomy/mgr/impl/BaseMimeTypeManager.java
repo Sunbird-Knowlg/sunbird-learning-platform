@@ -278,13 +278,13 @@ public class BaseMimeTypeManager extends BaseManager{
 		File ecarFile = HttpDownloadUtility.downloadFile(
 				(String) node.getMetadata().get("artifactUrl"), tempFolder);
 		try {
-			UnzipUtility unzip = new UnzipUtility();
+			/*UnzipUtility unzip = new UnzipUtility();
 			String unZipLocation = ecarFile.getParent() + File.separator
 					+ ecarFile.getName().split("\\.")[0];
 			unzip.unzip(ecarFile.getPath(), unZipLocation);
-			File olderZipFile = CustomParser.getZipFile(ecarFile, node);
-			File newName = new File(unZipLocation + File.separator + node.getIdentifier()
-					+ File.separator + olderZipFile.getName());
+			File olderZipFile = CustomParser.getZipFile(ecarFile, node);*/
+			File newName = new File(ecarFile.getParent() + File.separator + System.currentTimeMillis()+"_"+node.getIdentifier());
+			ecarFile.renameTo(newName);
 			node.getMetadata().put(ContentAPIParams.downloadUrl.name(), newName);
 			response = addDataToContentNode(node);
 		} catch (Exception e) {
@@ -306,7 +306,6 @@ public class BaseMimeTypeManager extends BaseManager{
 				"1.1");
 		node.getMetadata().put("s3Key", urlArray[0]);
 		node.getMetadata().put("downloadUrl", urlArray[1]);
-		node.getMetadata().put("artifactUrl", urlArray[1]);
 		Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
 		if (null == pkgVersion || pkgVersion.intValue() < 1) {
 			pkgVersion = 1.0;
@@ -456,7 +455,6 @@ public class BaseMimeTypeManager extends BaseManager{
 					"Error wihile uploading the File.", e);
 		}
 		node.getMetadata().put("s3Key", urlArray[0]);
-		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
 		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
 		Number pkgVersion = (Number) node.getMetadata().get(ContentAPIParams.pkgVersion.name());
 		if (null == pkgVersion || pkgVersion.intValue() < 1) {

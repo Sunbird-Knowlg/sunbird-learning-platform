@@ -39,6 +39,7 @@ import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
@@ -64,7 +65,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	private static final String bucketName = "ekstep-public";
 	private static final String folderName = "content";
 
-	private static final String tempFileLocation = "/temp/";
+	private static final String tempFileLocation = "/data/contentBundle/";
 
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -73,7 +74,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response extract(Node node) {
-		String zipFilUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
+		String zipFilUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File zipFile = null;
 		if (StringUtils.isNotBlank(zipFilUrl)) {
@@ -661,7 +662,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Override
 	public Response upload(Node node, File uploadedFile, String folder) {
-		return uploadContent(node, uploadedFile, folder);
+		Response response =  uploadContent(node, uploadedFile, folder);
+		if (checkError(response))
+			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+					"Content not found with node id: " + node.getIdentifier());
+		response = extract(node);
+		return response;
 	}
 
 }
