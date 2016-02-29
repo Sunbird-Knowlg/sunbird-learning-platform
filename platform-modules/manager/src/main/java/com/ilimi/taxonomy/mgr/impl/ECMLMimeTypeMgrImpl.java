@@ -653,7 +653,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Override
 	public Node tuneInputForBundling(Node node) {
-		if (StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name())
+		if (null == node.getMetadata().get(ContentAPIParams.artifactUrl.name()) || 
+				StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name())
 				.toString()))
 			node = (Node) compress(node).get(ContentAPIParams.updated_node.name());
 		return node;
