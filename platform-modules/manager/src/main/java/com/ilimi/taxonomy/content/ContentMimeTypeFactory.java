@@ -15,18 +15,19 @@ public class ContentMimeTypeFactory {
     @Autowired @Qualifier("CollectionMimeTypeMgrImpl") IMimeTypeManager CollectionMimeTypeMgr;
     @Autowired @Qualifier("AssetsMimeTypeMgrImpl") IMimeTypeManager AssetsMimeTypeMgr;
     public IMimeTypeManager getImplForService(String mimeType){
-    	IMimeTypeManager manager = ECMLMimeTypeMgr;
+    	IMimeTypeManager manager = AssetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
 			case "application/octet-stream":
+			case "application/vnd.ekstep.ecml-archive":
 				manager = ECMLMimeTypeMgr;
 				break;
-			case "html":
+			case "application/vnd.ekstep.html-archive":
 				manager = HTMLMimeTypeMgr;
 				break;
-			case "apk":
+			case "application/vnd.android.package-archive":
 				manager = APKMimeTypeMgr;
 				break;
-			case "collection":
+			case "application/vnd.ekstep.content-collection":
 				manager = CollectionMimeTypeMgr;
 				break;
 			case "assets":

@@ -70,12 +70,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
 
-	@Override
-	public void upload() {
-		// TODO Auto-generated method stub
-
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response extract(Node node) {
@@ -661,5 +655,29 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			node = (Node) compress(node).get(ContentAPIParams.updated_node.name());
 		return node;
 	}
+	
+	@Override
+	public Response upload(Node node,File uploadedFile, String folder) {
+		  String[] urlArray = new String[] {};
+		  try {
+		   if (StringUtils.isBlank(folder))
+		    folder = folderName;
+		   urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+		  } catch (Exception e) {
+		   throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+		     "Error wihile uploading the File.", e);
+		  }
+		  node.getMetadata().put("s3Key", urlArray[0]);
+		  node.getMetadata().put("downloadUrl", urlArray[1]);
+		  node.getMetadata().put("artifactUrl", urlArray[1]);
+		  Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
+		  if (null == pkgVersion || pkgVersion.intValue() < 1) {
+		   pkgVersion = 1;
+		  } else {
+		   pkgVersion = pkgVersion.doubleValue() + 1;
+		  }
+		  node.getMetadata().put("pkgVersion", pkgVersion);
+		  return updateContentNode(node, urlArray[1]);
+		 }
 
 }

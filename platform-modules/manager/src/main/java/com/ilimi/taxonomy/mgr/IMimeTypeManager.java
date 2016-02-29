@@ -3,6 +3,8 @@
  */
 package com.ilimi.taxonomy.mgr;
 
+import java.io.File;
+
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 
@@ -12,7 +14,7 @@ import com.ilimi.graph.dac.model.Node;
  */
 public interface IMimeTypeManager {
 
-	public void upload();
+	public Response upload(Node node, File uploadFile, String folder);
 	
 	public Response extract(Node node);
 	

@@ -280,33 +280,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			return response;
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
-		String[] urlArray = new String[] {};
-		try {
-			if (StringUtils.isBlank(folder))
-				folder = folderName;
-			urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
-		} catch (Exception e) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
-					"Error wihile uploading the File.", e);
-		}
-		node.getMetadata().put("s3Key", urlArray[0]);
-		node.getMetadata().put("downloadUrl", urlArray[1]);
-
-		Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-		if (null == pkgVersion || pkgVersion.intValue() < 1) {
-			pkgVersion = 1;
-		} else {
-			pkgVersion = pkgVersion.doubleValue() + 1;
-		}
-		node.getMetadata().put("pkgVersion", pkgVersion);
-
-		Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-				"updateDataNode");
-		updateReq.put(GraphDACParams.node.name(), node);
-		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
-		updateRes.put(ContentAPIParams.content_url.name(), urlArray[1]);
-		return updateRes;
+		String mimeType = (String) node.getMetadata().get("mimeType");
+		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
+		return mimeTypeManager.upload(node,uploadedFile,folder);
 	}
 
 	@SuppressWarnings("unchecked")

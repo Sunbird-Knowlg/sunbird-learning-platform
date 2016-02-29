@@ -63,14 +63,6 @@ public class BaseMimeTypeManager extends BaseManager{
 		return false;
 	}
 	
-	public boolean isValidZipFile(File file) {
-		return false;
-	}
-	
-	public void uploadFile(InputStream stream) {
-		
-	}
-	
 	public String uploadFile(String folder, String filename) {
 		File olderName = new File(folder + filename);
 		try {
@@ -86,16 +78,6 @@ public class BaseMimeTypeManager extends BaseManager{
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		}
 		return null;
-	}
-	
-	public Map<String, Object> setArtifactUrl(Map<String, Object> contentMap, String url) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		return map;
-	}
-	
-	public Response getContentNode(Request request) {
-		Response response = new Response();
-		return response;
 	}
 	
 	public boolean isJSONValid(String content) {
@@ -334,7 +316,7 @@ public class BaseMimeTypeManager extends BaseManager{
 		return updateContentNode(node, urlArray[1]);
 	}
 
-	private Response updateContentNode(Node node, String url) {
+	protected Response updateContentNode(Node node, String url) {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,
 				"updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
@@ -348,7 +330,7 @@ public class BaseMimeTypeManager extends BaseManager{
 
 
 	@SuppressWarnings("unchecked")
-	private void getContentBundleData(String taxonomyId, List<Node> nodes,
+	protected void getContentBundleData(String taxonomyId, List<Node> nodes,
 			List<Map<String, Object>> ctnts, List<String> childrenIds) {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		if (null != nodes && !nodes.isEmpty()) {

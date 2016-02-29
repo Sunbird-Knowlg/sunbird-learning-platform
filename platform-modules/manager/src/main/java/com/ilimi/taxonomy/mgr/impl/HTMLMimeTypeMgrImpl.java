@@ -1,5 +1,7 @@
 package com.ilimi.taxonomy.mgr.impl;
 
+import java.io.File;
+
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
@@ -10,9 +12,9 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 public class HTMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
 	@Override
-	public void upload() {
+	public Response upload(Node node, File uploadFile, String folder) {
 		// TODO Auto-generated method stub
-
+		return new Response();
 	}
 
 	@Override
