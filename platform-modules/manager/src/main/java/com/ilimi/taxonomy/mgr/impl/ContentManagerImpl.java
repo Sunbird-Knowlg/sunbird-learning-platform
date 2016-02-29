@@ -15,7 +15,6 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,7 +65,6 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
-import com.ilimi.taxonomy.util.HttpDownloadUtility;
 import com.ilimi.taxonomy.util.UnzipUtility;
 import com.ilimi.taxonomy.util.ZipUtility;
 
@@ -774,6 +772,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	@SuppressWarnings("unused")
 	private String checkBodyContentType(String contentBody) {
 		if (StringUtils.isNotEmpty(contentBody)) {
 			if (isECMLValid(contentBody)) {
