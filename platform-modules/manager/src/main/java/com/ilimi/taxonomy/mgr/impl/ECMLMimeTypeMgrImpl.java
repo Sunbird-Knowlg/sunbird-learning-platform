@@ -60,12 +60,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Autowired
 	private IAssessmentManager assessmentMgr;
-	
+
 	private static final String bucketName = "ekstep-public";
 	private static final String folderName = "content";
-	
+
 	private static final String tempFileLocation = "/temp/";
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
 
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
@@ -73,7 +73,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response extract(Node node) {
-		String zipFilUrl = (String) node.getMetadata().get("downloadUrl");
+		String zipFilUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File zipFile = null;
 		if (StringUtils.isNotBlank(zipFilUrl)) {
@@ -123,7 +123,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					for (Node nodeExt : nodeList) {
 						if (mediaIdSet.contains(nodeExt.getIdentifier())) {
 							mediaIdSet.remove(nodeExt.getIdentifier());
-							String downloadUrl = (String) nodeExt.getMetadata().get("downloadUrl");
+							String downloadUrl = (String) nodeExt.getMetadata().get(
+									ContentAPIParams.downloadUrl.name());
 							if (StringUtils.isBlank(downloadUrl)) {
 								long timeStempInMiliSec = System.currentTimeMillis();
 								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(nodeExt
@@ -208,7 +209,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			listOfCtrlType.add("data");
 			customParser.updateJsonInEcml(filePath, listOfCtrlType);
 			response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
-			response.put("outRelations", outRelations);
+			response.put(ContentAPIParams.outRelations.name(), outRelations);
 		} catch (Exception ex) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		} finally {
@@ -232,23 +233,23 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		item.setIdentifier(mediaId);
 		item.setObjectType("Content");
 		Map<String, Object> metadata = item.getMetadata();
-		metadata.put("name", mediaId);
-		metadata.put("code", mediaId);
-		metadata.put("body", "<content></content>");
-		metadata.put("status", "Live");
-		metadata.put("owner", "ekstep");
-		metadata.put("contentType", "Asset");
-		metadata.put("downloadUrl", url);
-		if (metadata.get("pkgVersion") == null) {
-			metadata.put("pkgVersion", 1);
+		metadata.put(ContentAPIParams.name.name(), mediaId);
+		metadata.put(ContentAPIParams.code.name(), mediaId);
+		metadata.put(ContentAPIParams.body.name(), "<content></content>");
+		metadata.put(ContentAPIParams.status.name(), "Live");
+		metadata.put(ContentAPIParams.owner.name(), "ekstep");
+		metadata.put(ContentAPIParams.contentType.name(), "Asset");
+		metadata.put(ContentAPIParams.downloadUrl.name(), url);
+		if (metadata.get(ContentAPIParams.pkgVersion.name()) == null) {
+			metadata.put(ContentAPIParams.pkgVersion.name(), 1);
 		} else {
-			Double version = (Double) metadata.get("pkgVersion") + 1;
-			metadata.put("pkgVersion", version);
+			Double version = (Double) metadata.get(ContentAPIParams.pkgVersion.name()) + 1;
+			metadata.put(ContentAPIParams.pkgVersion.name(), version);
 		}
 		Object mimeType = getMimeType(new File(olderName.getName()));
-		metadata.put("mimeType", mimeType);
+		metadata.put(ContentAPIParams.mimeType.name(), mimeType);
 		String mediaType = getMediaType(olderName.getName());
-		metadata.put("mediaType", mediaType);
+		metadata.put(ContentAPIParams.mimeType.name(), mediaType);
 		item.setMetadata(metadata);
 		return item;
 	}
@@ -640,7 +641,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@Override
 	public Response publish(Node node) {
 		Response response = new Response();
-		String artifactUrl = (String) node.getMetadata().get("artifactUrl");
+		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name())
+				.toString();
 		if (StringUtils.isNotBlank(artifactUrl)) {
 			response = rePublish(node);
 		} else {
@@ -651,33 +653,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Override
 	public Node tuneInputForBundling(Node node) {
-		if (StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name()).toString()))
+		if (StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name())
+				.toString()))
 			node = (Node) compress(node).get(ContentAPIParams.updated_node.name());
 		return node;
 	}
-	
+
 	@Override
-	public Response upload(Node node,File uploadedFile, String folder) {
-		  String[] urlArray = new String[] {};
-		  try {
-		   if (StringUtils.isBlank(folder))
-		    folder = folderName;
-		   urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
-		  } catch (Exception e) {
-		   throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
-		     "Error wihile uploading the File.", e);
-		  }
-		  node.getMetadata().put("s3Key", urlArray[0]);
-		  node.getMetadata().put("downloadUrl", urlArray[1]);
-		  node.getMetadata().put("artifactUrl", urlArray[1]);
-		  Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-		  if (null == pkgVersion || pkgVersion.intValue() < 1) {
-		   pkgVersion = 1;
-		  } else {
-		   pkgVersion = pkgVersion.doubleValue() + 1;
-		  }
-		  node.getMetadata().put("pkgVersion", pkgVersion);
-		  return updateContentNode(node, urlArray[1]);
-		 }
+	public Response upload(Node node, File uploadedFile, String folder) {
+		return uploadContent(node, uploadedFile, folder);
+	}
 
 }

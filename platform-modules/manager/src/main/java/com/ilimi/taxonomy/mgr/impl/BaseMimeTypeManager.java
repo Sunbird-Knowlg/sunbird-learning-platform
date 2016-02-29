@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -54,7 +53,7 @@ public class BaseMimeTypeManager extends BaseManager{
 	@Autowired
 	private ContentBundle contentBundle;
 
-	private static final String tempFileLocation = "/temp/";
+	private static final String tempFileLocation = "/data/contentBundle/";
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
 	
 	private static final String bucketName = "ekstep-public";
@@ -191,20 +190,7 @@ public class BaseMimeTypeManager extends BaseManager{
 				}
 				FileUtils.writeStringToFile(file, contentBody);
 			}
-			String appIcon = (String) metadata.get("appIcon");
-			if (StringUtils.isNotBlank(appIcon)) {
-				File logoFile = HttpDownloadUtility.downloadFile(appIcon, tempFolderWithTimeStamp);
-				try {
-					if (null != logoFile && logoFile.exists() && logoFile.isFile()) {
-						String parentFolderName = logoFile.getParent();
-						File newName = new File(parentFolderName + File.separator + "logo.png");
-						logoFile.renameTo(newName);
-					}
-				} catch (Exception ex) {
-					throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
-							ex.getMessage());
-				}
-			}
+			downloadAppIcon(node, tempFolderWithTimeStamp);
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
@@ -250,6 +236,22 @@ public class BaseMimeTypeManager extends BaseManager{
 		return response;
 	}
 	
+	private void downloadAppIcon(Node node, String tempFolder) {
+		String appIcon = (String) node.getMetadata().get("appIcon");
+		if (StringUtils.isNotBlank(appIcon)) {
+			File logoFile = HttpDownloadUtility.downloadFile(appIcon, tempFolder);
+			try {
+				if (null != logoFile && logoFile.exists() && logoFile.isFile()) {
+					String parentFolderName = logoFile.getParent();
+					File newName = new File(parentFolderName + File.separator + "logo.png");
+					logoFile.renameTo(newName);
+				}
+			} catch (Exception ex) {
+				throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(),
+						ex.getMessage());
+			}
+		}
+	}
 	private void deleteTemp(String sourceFolder) {
 		File directory = new File(sourceFolder);
 		if (!directory.exists()) {
@@ -443,4 +445,26 @@ public class BaseMimeTypeManager extends BaseManager{
 		return null;
 	}
 
+	public Response uploadContent(Node node, File uploadedFile, String folder) {
+		String[] urlArray = new String[] {};
+		try {
+			if (StringUtils.isBlank(folder))
+				folder = folderName;
+			urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+					"Error wihile uploading the File.", e);
+		}
+		node.getMetadata().put("s3Key", urlArray[0]);
+		node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
+		node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
+		Number pkgVersion = (Number) node.getMetadata().get(ContentAPIParams.pkgVersion.name());
+		if (null == pkgVersion || pkgVersion.intValue() < 1) {
+			pkgVersion = 1;
+		} else {
+			pkgVersion = pkgVersion.doubleValue() + 1;
+		}
+		node.getMetadata().put(ContentAPIParams.pkgVersion.name(), pkgVersion);
+		return updateContentNode(node, urlArray[1]);
+	}
 }

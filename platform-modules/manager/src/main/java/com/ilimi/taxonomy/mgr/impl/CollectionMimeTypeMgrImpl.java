@@ -13,21 +13,18 @@ public class CollectionMimeTypeMgrImpl extends BaseMimeTypeManager implements IM
 
 	@Override
 	public Response upload(Node node, File uploadFile, String folder) {
-		// TODO Auto-generated method stub
-		return new Response();
+		return uploadContent(node, uploadFile, folder);
 	}
 
 	@Override
 	public Response extract(Node node) {
-		// TODO Auto-generated method stub
 		return new Response();
 
 	}
 
 	@Override
 	public Response publish(Node node) {
-		// TODO Auto-generated method stub
-		return new Response();
+		return rePublish(node);
 	}
 
 	@Override
