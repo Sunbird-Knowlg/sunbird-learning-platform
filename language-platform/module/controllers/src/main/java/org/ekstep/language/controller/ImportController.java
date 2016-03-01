@@ -156,22 +156,18 @@ public class ImportController extends BaseLanguageController {
 	}
 
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
-		int BATCH_SIZE = 100;
-		ArrayList<String> batch_node_ids = new ArrayList<String>();
-		int count = 0;
-		for (String nodeId : node_ids) {
-			count++;
-			batch_node_ids.add(nodeId);
-			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
-				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-				updateLexileMeasures(nodeList, languageId);
-				updateFrequencyCount(nodeList, languageId);
-				batch_node_ids = new ArrayList<String>();
-			}
-		}
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = new HashMap<String, Object>();
+		map.put(LanguageParams.node_ids.name(), node_ids);
+		Request request = new Request();
+		request.setRequest(map);
+		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+		request.setOperation(LanguageOperations.enrichWords.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		makeAsyncRequest(request, LOGGER);
 	}
 
-	@SuppressWarnings("unchecked")
+	/*@SuppressWarnings("unchecked")
 	private List<Node> getNodesList(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map.put(LanguageParams.node_ids.name(), node_ids);
@@ -211,7 +207,7 @@ public class ImportController extends BaseLanguageController {
 		updateLexileMeasuresRequest.getContext().put(LanguageParams.language_id.name(), languageId);
 		makeAsyncRequest(updateLexileMeasuresRequest, LOGGER);
 	}
-
+*/
 	private void addWordIndex(ArrayList<Map<String, String>> wordInfoList, String languageId) {
 			Map<String, Object> map = new HashMap<String, Object>();
 	        map.put(LanguageParams.words.name(), wordInfoList);
