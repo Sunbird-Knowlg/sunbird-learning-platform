@@ -205,7 +205,8 @@ module.exports = function(app, dirname, passport, connectroles) {
     app.post('/private/v1/player/content/create', contentHelper.createContent);
     app.post('/private/v1/player/content/update', contentHelper.updateContent);
 
-    app.get('/private/v1/player/language/search', langSearchHelper.getLangSearchDefinition);
+    app.get('/private/v1/player/language/searchDef/:languageId', langSearchHelper.getLangSearchDefinition);
+    app.post('/private/v1/player/language/search', langSearchHelper.langSearch);
 
 
 };

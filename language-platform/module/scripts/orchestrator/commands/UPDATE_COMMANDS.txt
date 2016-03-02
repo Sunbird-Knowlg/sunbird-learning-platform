@@ -1,0 +1,3 @@
+node registerCommand.js commands/register-lang_getWordsInformation.json update
+
+node registerCommand.js commands/register-lang_getWordId.json update

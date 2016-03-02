@@ -8,6 +8,7 @@ import java.util.Set;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.common.dto.Response;
@@ -130,11 +131,32 @@ public class ConvertResponseToCSV extends BaseSystemCommand implements ICommand,
         return "";
     }
     
+    @SuppressWarnings("rawtypes")
     private void addToDataRow(Object val, String[] row, int i) {
         try {
             if (null != val) {
-                Object strObject = mapper.convertValue(val, Object.class);
-                row[i] = strObject.toString();
+                if (val instanceof List) {
+                    List list = (List) val;
+                    String str = "";
+                    for (int j=0; j<list.size(); j++) {
+                        str += StringEscapeUtils.escapeCsv(list.get(j).toString());
+                        if (j < list.size() - 1)
+                            str += ",";
+                    }
+                    row[i] = str;
+                } else if (val instanceof Object[]) {
+                    Object[] arr = (Object[]) val;
+                    String str = "";
+                    for (int j=0; j<arr.length; j++) {
+                        str += StringEscapeUtils.escapeCsv(arr[j].toString());
+                        if (j < arr.length - 1)
+                            str += ",";
+                    }
+                    row[i] = str;
+                } else {
+                    Object strObject = mapper.convertValue(val, Object.class);
+                    row[i] = strObject.toString();
+                }
             } else {
                 row[i] = "";
             }

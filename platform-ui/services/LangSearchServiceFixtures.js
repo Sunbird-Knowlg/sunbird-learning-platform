@@ -18,7 +18,7 @@ var async = require('async')
 	, fs = require('fs')
 	, _ = require('underscore');
 
-exports.getContentDefinition = function(cb, taxonomyId, contentType) {
+exports.getLangSearchDefinition = function(cb, languageId) {
 	fs.readFile('fixtures/lang_search_definition.json', 'utf8', function (err, data) {
   		if (err) {
   			cb(err);
@@ -27,7 +27,7 @@ exports.getContentDefinition = function(cb, taxonomyId, contentType) {
   			var defs = obj.definitionNodes;
   			var def = null;
   			for (var i=0; i<defs.length; i++) {
-  				if (defs[i].objectType.toLowerCase() == 'LangSearch') {
+  				if (defs[i].objectType.toLowerCase() == 'langsearch') {
   					def = defs[i];
   				}
   			}
