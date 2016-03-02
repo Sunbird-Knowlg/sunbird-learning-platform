@@ -1,32 +1,26 @@
-
 	
 package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.Matchers.equalTo;
-
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 
-public class MisconceptionAPITests extends BaseTest {
+public class MisconceptionAPITests extends BaseTest 
+{
 	
 	String JsonMisconceptionSearchWithTagAndCode = "{ \"request\": {\"search\": {\"tags\": [\"QA\"],\"code\": \"LD4\" }}}";
 	String JsonMisconceptionSearchWithTag = "{ \"request\": {\"search\": {\"tags\": [\"QA\"] }}}";
 	String JsonMisconceptionSearchWithObjectType = "{ \"request\": {\"search\":{\"objectType\": \"Content\"}}}";
-	
-	String JsonSaveMisconceptionValid ="{\"request\":{ \"object\":{ \"description\":\"Doesn't understand carry-over QA\",\"name\":\"Carry Over QA\",\"code\":\"Num:MC1:QA\",\"identifier\":\"Num:MC1:QA\",\"missing_concept\": \"Num:C1\"}}}";
-			
+	String JsonSaveMisconceptionValid ="{\"request\":{ \"object\":{ \"description\":\"Doesn't understand carry-over QA\",\"name\":\"Carry Over QA\",\"code\":\"MC"+generateRandomInt(0, 500)+"\",\"identifier\":\"MC"+generateRandomInt(0, 500)+"\",\"missing_concept\": \"Num:C1\"}}}";		
 	//TO-DO: once definition of misconception is confirmed, form these bodies.
 	String JsonSaveMisconceptionWithEmptyParent = ""; 
 	String JsonSaveMisconceptionWithInvalidParent = ""; 
-	String JsonSaveMisconceptionWithoutMandatoryFields = "";
-	
-	String JsonUpdateMisconceptionValid = "{\"request\":{\"object\":{ \"description\":\"Dimension_Valid_TEST Updated\",\"name\":\"LD1_TEST_U\",\"code\":\"Lit:Dim:1TestU\",\"identifier\":\"STATISTICS_TEST\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"literacy\"}]}}}";
-	
+	String JsonSaveMisconceptionWithoutMandatoryFields = "{\"request\":{ \"object\":{ \"description\":\"Doesn't understand carry-over QA\",\"name\":\"Carry Over QA\",\"identifier\":\"MC"+generateRandomInt(0, 500)+"\",\"missing_concept\": \"Num:C1\"}}}";
+	String JsonUpdateMisconceptionValid = "{\"request\":{\"object\":{ \"description\":\"Dimension_Valid_TEST Updated\",\"name\":\"LD1_TEST_U\",\"code\":\"Lit:Dim:1TestU\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"literacy\"}]}}}";
 	
 	@Test
 	public void getMisconceptionsExpectSuccess200()
@@ -48,8 +42,9 @@ public class MisconceptionAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/misconception/Num:MC1:QA").
+			get("v2/domains/literacy/misconception/MC").
 		then().
+			log().all().
 			spec(get200ResponseSpec());
 	}
 	
@@ -82,8 +77,9 @@ public class MisconceptionAPITests extends BaseTest {
 	@Test
 	public void createMisconceptionExpectSuccess()
 	{
-		//saveDimension API call 
+		//saveMisconception API call 
 		setURI();
+		Response response1 = 
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 			body(JsonSaveMisconceptionValid).
@@ -93,14 +89,19 @@ public class MisconceptionAPITests extends BaseTest {
 			post("v2/domains/literacy/misconceptions").
 		then().
 			log().all().
-			spec(get200ResponseSpec());
-			//body("id", equalTo(""))		
+			spec(get200ResponseSpec()).		
+		extract().
+	    	response(); 
 		
-		//getDimension API call to verify if the above dimension has been created. 
+		//getting the identifier of created misconception
+		JsonPath jp1 = response1.jsonPath();
+		String mcId = jp1.get("result.node_id");
+				
+		//getDimension API call to verify if the above misconception has been created. 
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/misconceptions/Num:MC1:QA").
+			get("v2/domains/literacy/misconceptions/"+mcId).
 		then().
 			spec(get200ResponseSpec());		
 	}
@@ -121,11 +122,9 @@ public class MisconceptionAPITests extends BaseTest {
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags", 
-								"CLIENT_ERROR",""));
+			spec(verify400DetailedResponseSpec("Failed to update relations and tags", "CLIENT_ERROR",""));
 		
-		
-		// verify that the dimension is not saved in DB. 
+		// verify that the misconception is not saved in DB. 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
@@ -139,7 +138,7 @@ public class MisconceptionAPITests extends BaseTest {
 	@Test
 	public void createMisconceptionWithNonExistingParentExpect4xx()
 	{
-		//saveDimension API call 
+		//saveMisconception API call 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
@@ -151,10 +150,9 @@ public class MisconceptionAPITests extends BaseTest {
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags", 
-					"CLIENT_ERROR",""));
+			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
 				
-		// verify that the dimension is not saved in DB. 
+		// verify that the misconception is not saved in DB. 
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
@@ -175,21 +173,26 @@ public class MisconceptionAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("domains/literacy/misconceptions").
+			post("v2/domains/literacy/misconceptions").
 		then().
 			log().all().
-			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags", "CLIENT_ERROR",""));
+			spec(get400ResponseSpec());
+			//spec(verify400DetailedResponseSpec("Failed to update relations and tags", "CLIENT_ERROR",""));
+		
+		//getting the identifier of misconception from Json
+		int startIndexOfIdentifier = JsonSaveMisconceptionWithoutMandatoryFields.indexOf("identifier");
+		int startIndexOfTags = JsonSaveMisconceptionWithoutMandatoryFields.indexOf("missing_concept");
+		String misconceptionId = JsonSaveMisconceptionWithoutMandatoryFields.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
 		
 		// verify that the misconception is not saved in DB. 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("domains/literacy/misconceptions/Num:MC1:QA2").
+			get("v2/domains/literacy/misconceptions/"+misconceptionId).
 		then().
 			log().all().
-			spec(get400ResponseSpec());			
+			spec(get404ResponseSpec());			
 	}
 	
 	//Search Method
@@ -232,18 +235,38 @@ public class MisconceptionAPITests extends BaseTest {
 	@Test
 	public void updateMisconceptionValidInputsExpectSuccess200()
 	{
+		//saveMisconception API call 
+		setURI();
+		Response response1 = 
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMisconceptionValid).
+		with().
+			contentType(JSON).
+		when().
+			post("v2/domains/literacy/misconceptions").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).		
+		extract().
+			response(); 
+				
+		//getting the identifier of created misconception
+		JsonPath jp1 = response1.jsonPath();
+		String mcId = jp1.get("result.node_id");
+		
+		//updating the above created misconception
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 			body(JsonUpdateMisconceptionValid).
-			with().
-				contentType("application/json").
-			when().
-				patch("v2/domains/literacy/misconception/NUM:C1:M").
-			then().
-				log().all().
-				spec(get200ResponseSpec());
-			
+		with().
+			contentType("application/json").
+		when().
+			patch("v2/domains/literacy/misconception/"+mcId).
+		then().
+			log().all().
+			spec(get200ResponseSpec());	
 	}
 	
 	@Test
@@ -266,11 +289,32 @@ public class MisconceptionAPITests extends BaseTest {
 	@Test
 	public void deleteMisconceptionValidSuccess200()
 	{
+		//saveMisconception API call 
+		setURI();
+		Response response1 = 
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMisconceptionValid).
+		with().
+			contentType(JSON).
+		when().
+			post("v2/domains/literacy/misconceptions").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).		
+		extract().
+			response(); 
+						
+		//getting the identifier of created misconception
+		JsonPath jp1 = response1.jsonPath();
+		String mcId = jp1.get("result.node_id");
+				
+		//deleting the above created misconception
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			delete("v2/domains/literacy/misconception/NUM:C1:M").
+			delete("v2/domains/literacy/misconceptions/"+mcId).
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -305,6 +349,3 @@ public class MisconceptionAPITests extends BaseTest {
 			spec(get200ResponseSpec());
 	}	
 }
-
-
-

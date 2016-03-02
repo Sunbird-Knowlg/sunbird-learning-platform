@@ -58,7 +58,7 @@ public class ToolsAPITests extends BaseTest {
 			post("v1/language/tools/lexileMeasures").
 		then().
 			log().all().
-			spec(get200ResponseSpec());
+			spec(get400ResponseSpec());
 	}
 	
 	
