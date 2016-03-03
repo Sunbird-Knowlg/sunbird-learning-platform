@@ -77,9 +77,10 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		String zipFilUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File zipFile = null;
-		if (StringUtils.isNotBlank(zipFilUrl)) {
-			zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
+		if (StringUtils.isBlank(zipFilUrl)) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), "artifactUrl is not set");
 		}
+		zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
 		String zipFilePath = zipFile.getPath();
 		String zipFileDir = zipFile.getParent();
 		String filePath = zipFileDir + File.separator + "index.ecml";
@@ -233,7 +234,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	private Node createNode(Node item, String url, String mediaId, File olderName) {
 		item.setIdentifier(mediaId);
 		item.setObjectType("Content");
-		Map<String, Object> metadata = item.getMetadata();
+		Map<String, Object> metadata;
+		if (null==item.getMetadata()) {
+			metadata = new HashMap<>();
+		}else{
+			metadata = item.getMetadata();
+		}
 		metadata.put(ContentAPIParams.name.name(), mediaId);
 		metadata.put(ContentAPIParams.code.name(), mediaId);
 		metadata.put(ContentAPIParams.body.name(), "<content></content>");
@@ -250,7 +256,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		Object mimeType = getMimeType(new File(olderName.getName()));
 		metadata.put(ContentAPIParams.mimeType.name(), mimeType);
 		String mediaType = getMediaType(olderName.getName());
-		metadata.put(ContentAPIParams.mimeType.name(), mediaType);
+		metadata.put(ContentAPIParams.mediaType.name(), mediaType);
 		item.setMetadata(metadata);
 		return item;
 	}
