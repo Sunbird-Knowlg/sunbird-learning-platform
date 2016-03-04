@@ -265,6 +265,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
 		String mimeType = (String) node.getMetadata().get("mimeType");
+		if (StringUtils.isBlank(mimeType)) {
+			mimeType = "assets";
+		}
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		return mimeTypeManager.upload(node,uploadedFile,folder);
 	}
@@ -367,6 +370,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			// Tune Each node for bundling as per mimetype
 			for (Node node : nodes) {
 				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+				if (StringUtils.isBlank(mimeType)) {
+					mimeType = "assets";
+				}
 				node = contentFactory.getImplForService(mimeType).tuneInputForBundling(node); 
 			}
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
@@ -680,7 +686,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with id: " + contentId);
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		String mimeType = (String) node.getMetadata().get("mimeType");
+		String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+		if (StringUtils.isBlank(mimeType)) {
+			mimeType = "assets";
+		}
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
@@ -706,6 +715,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		Node node = (Node) responseNode.get(GraphDACParams.node.name());
 		if (node != null) {
 			String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+			if (StringUtils.isBlank(mimeType)) {
+				mimeType = "assets";
+			}
 			IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 			Response response =  mimeTypeManager.extract(node);
 			if (checkError(response)) {
@@ -713,7 +725,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			metadata = node.getMetadata();
-			metadata.put("body", response.get("ecmlBody"));
+			metadata.put(ContentAPIParams.body.name(), response.get("ecmlBody"));
 			String appIconUrl = (String) node.getMetadata().get("appIcon");
 			if (StringUtils.isBlank(appIconUrl)) {
 				String newUrl = uploadFile(tempFileLocation, "logo.png");
