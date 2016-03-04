@@ -92,14 +92,14 @@ public class ContentManagerImplTest {
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
-		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/demo_.*"+".zip";
+		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*"+".zip";
 		System.out.println(actualArtifactUrl.matches(expectedArtifactUrl));
 		Assert.assertTrue(actualArtifactUrl.matches(expectedArtifactUrl));
 		deleteDefinition(contentId);
 	}
 	
-	public void publish(String mimeType) throws IOException {
-		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"mimeType\":\"application/vnd.ekstep.ecml-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
+	public void publish(String contentString) throws IOException {
+		//String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"mimeType\":\""+mimeType+"\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
 		String contentId = createDefinitionNode(contentString);
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
@@ -163,63 +163,58 @@ public class ContentManagerImplTest {
 		deleteDefinition(contentIdThree);
 	}
 	ClassLoader classLoader = getClass().getClassLoader();
-	@Ignore
+	
 	@Test
 	public void uploadECMLContent() throws Exception{
 		upload("application/octet-stream", new File(classLoader.getResource("ecml.zip").getFile()));
-		upload("application/vnd.ekstep.ecml-archive", new File(classLoader.getResource("ecml.zip").getFile()));
+		//upload("application/vnd.ekstep.ecml-archive", new File(classLoader.getResource("ecml.zip").getFile()));
 	}
-	@Ignore
 	@Test
 	public void uploadHTMLContent() throws Exception{
 		upload("application/vnd.ekstep.html-archive", new File(classLoader.getResource("demo.zip").getFile()));
 	}
-	@Ignore
 	@Test
 	public void uploadApkContent() throws Exception{
 		upload("application/vnd.android.package-archive", new File(classLoader.getResource("android.apk").getFile()));
 	}
-	@Ignore
 	@Test
 	public void uploadCollectionContent() throws Exception{
 		upload("application/vnd.ekstep.content-collection", new File(classLoader.getResource("collection.zip").getFile()));
 	}
-	@Ignore
 	@Test
 	public void uploadAssetsContent() throws Exception{
-		upload("", new File(classLoader.getResource("Assets.*").getFile()));
+		upload("", new File(classLoader.getResource("Assets.jpeg").getFile()));
 	}
-	@Ignore
 	@Test
 	public void publishECMLContent() throws Exception{
-		publish("application/octet-stream");
+		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452487631391_PrathamStories_Day_1_JAN_9_2016.zip\",\"mimeType\":\"application/octet-stream\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
+		publish(contentString);
 		//publish("application/vnd.ekstep.ecml-archive");
 	}
-	@Ignore
 	@Test
 	public void publishHTMLContent() throws Exception{
-		publish("application/vnd.ekstep.html-archive");
+		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/build_a_sentence_1446706423188.zip\",\"mimeType\":\"application/vnd.ekstep.html-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
+		publish(contentString);
 	}
 	@Ignore
 	@Test
 	public void publishApkContent() throws Exception{
-		publish("application/vnd.android.package-archive");
+		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/android_1457093660959.apk\",\"mimeType\":\"application/vnd.android.package-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
+		publish(contentString);
 	}
-	@Ignore
 	@Test
 	public void publishCollectionContent() throws Exception{
-		publish("application/vnd.ekstep.content-collection");
+		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://s3-ap-southeast-1.amazonaws.com/ekstep-public/content/1452487631391_PrathamStories_Day_1_JAN_9_2016.zip\",\"mimeType\":\"application/vnd.ekstep.content-collection\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
+		publish(contentString);
 	}
-	@Ignore
-	@Test
+	/*@Test
 	public void publishAssetsContent() throws Exception{
 		publish("");
-	}
-	@Ignore
+	}*/
 	@Test
 	public void extractECMLContent() throws Exception{
 		extract("application/octet-stream");
-		extract("application/vnd.ekstep.ecml-archive");
+		//extract("application/vnd.ekstep.ecml-archive");
 	}
 	@Test
 	public void bundle() throws IOException {

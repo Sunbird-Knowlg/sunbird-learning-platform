@@ -163,12 +163,12 @@ public class BaseMimeTypeManager extends BaseManager{
 	}
 	
 	protected Response compress(Node node) {
-		String tempFolderWithTimeStamp = tempFileLocation + File.separator
+		String tempFolder = tempFileLocation + File.separator
 				+ System.currentTimeMillis() + "_temp";
 		String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
 		Map<String, Object> metadata = new HashMap<String, Object>();
 		metadata = node.getMetadata();
-		String contentBody = (String) metadata.get("body");
+		String contentBody = (String) metadata.get(ContentAPIParams.body.name());
 		String contentType = checkBodyContentType(contentBody);
 		if (StringUtils.isBlank(contentType))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
@@ -177,9 +177,9 @@ public class BaseMimeTypeManager extends BaseManager{
 
 			File file = null;
 			if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
-				file = new File(tempFolderWithTimeStamp + File.separator + "index.ecml");
+				file = new File(tempFolder + File.separator + "index.ecml");
 			} else if (StringUtils.equalsIgnoreCase("json", contentType)) {
-				file = new File(tempFolderWithTimeStamp + File.separator + "index.json");
+				file = new File(tempFolder + File.separator + "index.json");
 			}
 			if (null != file) {
 				if (!file.getParentFile().exists()) {
@@ -190,11 +190,11 @@ public class BaseMimeTypeManager extends BaseManager{
 				}
 				FileUtils.writeStringToFile(file, contentBody);
 			}
-			downloadAppIcon(node, tempFolderWithTimeStamp);
+			downloadAppIcon(node, tempFolder);
 		} catch (IOException e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
-		String filePath = tempFolderWithTimeStamp;
+		String filePath = tempFolder;
 		String taxonomyId = node.getGraphId();
 		String contentId = node.getIdentifier();
 		File file = new File(filePath);
