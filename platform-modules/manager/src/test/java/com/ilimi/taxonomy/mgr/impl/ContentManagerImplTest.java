@@ -92,7 +92,7 @@ public class ContentManagerImplTest {
 		Response resp = jsonToObject(actions);
 		Assert.assertEquals("successful", resp.getParams().getStatus());
 		String actualArtifactUrl = (String)(((Map<String,Object>)((Map<String,Object>)resp.getResult().get("updated_node")).get("metadata")).get("artifactUrl"));
-		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*"+".zip";
+		String expectedArtifactUrl  = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/.*"+".*";
 		System.out.println(actualArtifactUrl.matches(expectedArtifactUrl));
 		Assert.assertTrue(actualArtifactUrl.matches(expectedArtifactUrl));
 		deleteDefinition(contentId);
@@ -196,7 +196,6 @@ public class ContentManagerImplTest {
 		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\": \"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/build_a_sentence_1446706423188.zip\",\"mimeType\":\"application/vnd.ekstep.html-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
 		publish(contentString);
 	}
-	@Ignore
 	@Test
 	public void publishApkContent() throws Exception{
 		String contentString = "{\"request\":{\"content\":{\"metadata\":{\"osId\":\"org.ekstep.demo.TestCase\",\"status\":\"Live\",\"visibility\":\"Default\",\"description\":\"Build a TestCase\",\"name\":\"Build A TestCase\",\"language\":\"English\",\"contentType\":\"Story\",\"code\":\"org.ekstep.demo.TestCase\",\"lastUpdatedOn\":\"2016-02-15T18:03:28.593+0000\",\"identifier\":\"org.ekstep.num.build.sentence\",\"artifactUrl\":\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/android_1457093660959.apk\",\"mimeType\":\"application/vnd.android.package-archive\",\"pkgVersion\":3,\"owner\":\"EkStep\",\"body\":\"{\\\"theme\\\":{\\\"manifest\\\":{\\\"media\\\":[{\\\"id\\\":\\\"barber_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/barber_1454918396799.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"tailor_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/tailor_1454918475261.png\\\",\\\"type\\\":\\\"image\\\"},{\\\"id\\\":\\\"carpenter_img\\\",\\\"src\\\":\\\"https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/carpenter_1454918523295.png\\\",\\\"type\\\":\\\"image\\\"}]}}}\"}}}}";
