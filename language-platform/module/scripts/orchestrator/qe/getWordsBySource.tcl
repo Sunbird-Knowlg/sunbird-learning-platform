@@ -99,8 +99,8 @@ proc procAddNumberCriteria {search property filter_list} {
 	}
 }
 
-proc procAddListCriteria {search property filter_list} {
-	set criteria [$search get $property]
+proc procAddListCriteriaForField {search field property filter_list} {
+	set criteria [$search get $field]
 	set criteriaNotNull [isNotNull $criteria]
 	if {$criteriaNotNull} {
 		java::try {
@@ -110,9 +110,13 @@ proc procAddListCriteria {search property filter_list} {
 				procCreateFilter $property "in" $list $filter_list
 			}
 		} catch {Exception err} {
-    		puts "Error adding criteria for $property"
+    		puts "Error adding criteria for $field"
 		}
 	}
+}
+
+proc procAddListCriteria {search property filter_list} {
+	procAddListCriteriaForField $search $property $property $filter_list
 }
 
 proc procAddCountCriteria {obj prefix filter_list} {
@@ -277,10 +281,12 @@ if {$searchNotNull} {
 	procAddNumberCriteria $filters "syllableCount" $filter_list
 	procAddNumberCriteria $filters "orthographic_complexity" $filter_list
 	procAddNumberCriteria $filters "phonologic_complexity" $filter_list
+	procAddListCriteria $filters "identifier" $filter_list
 	procAddListCriteria $filters "sources" $filter_list
 	procAddListCriteria $filters "sourceTypes" $filter_list
 	procAddListCriteria $filters "pos" $filter_list
 	procAddListCriteria $filters "grade" $filter_list
+	procAddListCriteriaForField $filters "words" "lemma" $filter_list
 	procCheckCountCriteria $filters $filter_list
 	$map put "filters" $filter_list
 }

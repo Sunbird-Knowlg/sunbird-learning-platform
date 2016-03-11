@@ -2,26 +2,21 @@ package org.ekstep.platform.domain;
 
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.Matchers.equalTo;
 import org.junit.Test;
+import com.jayway.restassured.path.json.JsonPath;
+import com.jayway.restassured.response.Response;
 
 
 public class MethodAPITests extends BaseTest {
 	
 	String JsonMethodSearchWithTagAndCode = "{ \"request\": {\"search\": {\"tags\": [\"QA\"],\"code\": \"LD4\" }}}";
 	String JsonMethodSearchWithTag = "{ \"request\": {\"search\": {\"tags\": [\"QA\"] }}}";
-	
-	
-	String JsonSaveMethodValid ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"Num:C1 QA\",\"identifier\":\"Num:C1:QA\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"\"}]}}}";
-			
-	//TO-DO: once definition of method is confirmed, form these bodies.
-	String JsonSaveMethodWithEmptyParent = ""; //"{\"request\":{\"object\":{ \"description\":\"Dimension_With_Empty Parent_TEST\",\"name\":\"LD_TEST1\",\"code\":\"Lit:Dim:1Test\",\"identifier\":\"LD_TEST_EMPTY_PARENT10\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"\"}]}}}";
-	String JsonSaveMethodWithInvalidParent = ""; //"{\"request\":{\"object\":{ \"description\":\"Dimension With No Parent TEST\",\"name\":\"LD1_TEST2\",\"code\":\"Lit:Dim:2Test\",\"identifier\":\"LD_TEST_NON_PARENT\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"num\"}]}}}";
-	
-	String JsonUpdateMethodValid = "{\"request\":{\"object\":{ \"description\":\"Dimension_Valid_TEST Updated\",\"name\":\"LD1_TEST_U\",\"code\":\"Lit:Dim:1TestU\",\"identifier\":\"STATISTICS_TEST\",\"tags\":[\"Class QA\"],\"parent\": [{\"identifier\": \"literacy\"}]}}}";
-	
+	String JsonSaveMethodValid ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA\"}]}}}";
+	String JsonSaveMethodWithEmptyParent = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"\"}]}}}";
+	String JsonSaveMethodWithInvalidParent = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"num\"}]}}}"; 
+	String JsonSaveMethodWithConcepts = "{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA_test\"}],\"concepts\": [{\"identifier\": \"concept_Live\"},{\"identifier\": \"concept_active\"}]}}}";
+	String JsonSaveMethodWithDomainAsConceptAndWithNonExistingConcept ="{\"request\":{ \"object\":{ \"description\":\"See pictures and arrange in collections QA\",\"name\":\"Sort Collections QA\",\"code\":\"M"+generateRandomInt(0, 500)+"\",\"identifier\":\"M"+generateRandomInt(0, 500)+"\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"co1\", \"co2\"],\"interactivity\": [\"i1\", \"i2\"],\"parent\": [{\"identifier\": \"Num:C1:QA_test\"}],\"concepts\": [{\"identifier\": \"literacy\"},{\"identifier\": \"concept_act\"}]}}}";
+	String JsonUpdateMethodValid = "{\"request\":{ \"object\":{ \"description\":\"Updated QA\",\"name\":\"Sort Collections QA updated\",\"skills\": [\"QA1\", \"QA2\"],\"material\": [\"m1\", \"m2\"],\"complexity\": [\"c1\", \"c2\"],\"cognitiveProcessing\": [\"cp1\", \"cp2\"],\"interactivity\": [\"in1\", \"in2\"],\"parent\": [{\"identifier\": \"Num:C1:QA\"}]}}}";
 	
 	@Test
 	public void getMethodsExpectSuccess200()
@@ -32,6 +27,7 @@ public class MethodAPITests extends BaseTest {
 		when().
 			get("v2/domains/literacy/methods").
 		then().
+			log().all().
 			spec(get200ResponseSpec());
 	        //body("result.dimensions.status", hasItems(liveStatus));
 	}
@@ -43,11 +39,10 @@ public class MethodAPITests extends BaseTest {
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/Method1").
+			get("v2/domains/literacy/methods/Num:C1:QA").
 		then().
 			spec(get200ResponseSpec());
 	}
-	
 	
 	@Test
 	public void getMethodsInvalidDomainExpect404()
@@ -73,12 +68,13 @@ public class MethodAPITests extends BaseTest {
 			spec(get404ResponseSpec());
 	}
 	
-	//Create Dimension Valid
+	//Create Method Valid
 	@Test
-	public void createMethodExpectSuccess()
+	public void createMethodExpectSuccess200()
 	{
-		//saveDimension API call 
+		//saveMethod API call 
 		setURI();
+		Response response1 = 
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 			body(JsonSaveMethodValid).
@@ -88,23 +84,98 @@ public class MethodAPITests extends BaseTest {
 			post("v2/domains/literacy/methods").
 		then().
 			log().all().
-			spec(get200ResponseSpec());
-			//body("id", equalTo(""))		
+			spec(get200ResponseSpec()).
+		extract().
+	    	response(); 
 		
-		//getDimension API call to verify if the above dimension has been created. 
+		//getting the identifier of created method
+		JsonPath jp1 = response1.jsonPath();
+		String methodId = jp1.get("result.node_id");
+				
+		
+		//getMethod API call to verify if the above method has been created. 
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/Num:C1:QA").
+			get("v2/domains/literacy/methods/"+methodId).
 		then().
+			log().all().
 			spec(get200ResponseSpec());		
 	}
 	
+	@Test
+	public void createMethodWithConceptExpectSuccess200()
+	{
+		//saveMethod API call 
+		setURI();
+		Response response1 = 
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMethodWithConcepts).
+			with().
+				contentType(JSON).
+		when().
+			post("v2/domains/literacy/methods").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+	    	response(); 
+		
+		//getting the identifier of created method
+		JsonPath jp1 = response1.jsonPath();
+		String methodId = jp1.get("result.node_id");
+				
+		
+		//getMethod API call to verify if the above method has been created. 
+		given().
+			spec(getRequestSpec(contentType,validuserId)).
+		when().
+			get("v2/domains/literacy/methods/"+methodId).
+		then().
+			log().all().
+			spec(get200ResponseSpec());		
+	}
+	
+	@Test
+	public void createMethodWithDomainAsConceptAndWithNonExistingConceptExpect4xx()
+	{
+		//saveMethod API call 
+		setURI();
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMethodWithDomainAsConceptAndWithNonExistingConcept).
+			with().
+				contentType(JSON).
+		when().
+			post("v2/domains/literacy/methods").
+		then().
+			log().all().
+			spec(get400ResponseSpec()).
+			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
+		
+		//getting the identifier of Method from Json
+		System.out.println(JsonSaveMethodWithEmptyParent);
+		int startIndexOfIdentifier = JsonSaveMethodWithEmptyParent.indexOf("identifier");
+		int startIndexOfTags = JsonSaveMethodWithEmptyParent.indexOf("skills");
+		String methodId = JsonSaveMethodWithEmptyParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
+		System.out.println(methodId);
+		
+		// verify that the method is not saved in DB. 
+		setURI();
+		given().
+			spec(getRequestSpec(contentType,validuserId)).
+		when().
+			get("v2/domains/literacy/methods/"+methodId).
+		then().
+			log().all().
+			spec(get404ResponseSpec());			
+	}
 	
 	@Test
 	public void createMethodWithEmptyParentExpect4xx()
 	{
-		//saveDimension API call 
+		//saveMethod API call 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
@@ -116,25 +187,30 @@ public class MethodAPITests extends BaseTest {
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags", 
-								"CLIENT_ERROR",""));
+			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
 		
+		//getting the identifier of Method from Json
+		System.out.println(JsonSaveMethodWithEmptyParent);
+		int startIndexOfIdentifier = JsonSaveMethodWithEmptyParent.indexOf("identifier");
+		int startIndexOfTags = JsonSaveMethodWithEmptyParent.indexOf("skills");
+		String methodId = JsonSaveMethodWithEmptyParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
+		System.out.println(methodId);
 		
-		// verify that the dimension is not saved in DB. 
+		// verify that the method is not saved in DB. 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/NUM:C1:QA2").
+			get("v2/domains/literacy/methods/"+methodId).
 		then().
 			log().all().
-			spec(get400ResponseSpec());			
+			spec(get404ResponseSpec());			
 	}
 	
 	@Test
 	public void createMethodWithNonExistingParentExpect4xx()
 	{
-		//saveDimension API call 
+		//saveMethod API call 
 		setURI();
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
@@ -146,16 +222,23 @@ public class MethodAPITests extends BaseTest {
 		then().
 			log().all().
 			spec(get400ResponseSpec()).
-			spec(verify400DetailedResponseSpec("Failed to update relations and tags", 
-					"CLIENT_ERROR",""));
+			spec(verify400DetailedResponseSpec("Failed to update relations and tags","CLIENT_ERROR",""));
 				
-		// verify that the dimension is not saved in DB. 
+		//getting the identifier of Method from Json
+		System.out.println(JsonSaveMethodWithInvalidParent);
+		int startIndexOfIdentifier = JsonSaveMethodWithInvalidParent.indexOf("identifier");
+		int startIndexOfTags = JsonSaveMethodWithInvalidParent.indexOf("skills");
+		String methodId = JsonSaveMethodWithInvalidParent.substring(startIndexOfIdentifier+13,startIndexOfTags-3);
+		System.out.println(methodId);
+		
+		// verify that the method is not saved in DB. 
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v2/domains/literacy/methods/NUM:C1:QA3").
+			get("v2/domains/literacy/methods/"+methodId).
 		then().
-			spec(get400ResponseSpec());		
+			log().all().
+			spec(get404ResponseSpec());		
 
 	}
 	
@@ -178,38 +261,77 @@ public class MethodAPITests extends BaseTest {
 			//body("id", equalTo("orchestrator.searchDomainObjects"));
 	}
 		
-		//Update Dimension
-		@Test
-		public void updateMethodValidInputsExpectSuccess200()
-		{
-			setURI();
-			given().
-				spec(getRequestSpec(contentType, validuserId)).
-				body(JsonUpdateMethodValid).
-				with().
-					contentType("application/json").
-				when().
-					patch("v2/domains/literacy/methods/LD01").
-				then().
-					log().all().
-					spec(get200ResponseSpec());
-				//body("id", equalTo("orchestrator.searchDomainObjects"));
-		}
+	//Update Method
+	@Test
+	public void updateMethodValidInputsExpectSuccess200()
+	{
+		//saveMethod API call 
+		setURI();
+		Response response1 = 
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMethodValid).
+		with().
+			contentType(JSON).
+		when().
+			post("v2/domains/literacy/methods").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response(); 
+				
+		//getting the identifier of created Method
+		JsonPath jp1 = response1.jsonPath();
+		String methodId = jp1.get("result.node_id");
 		
-		//Delete Method
-		@Test
-		public void deleteMethodValidSuccess200()
-		{
-			setURI();
-			given().
-				spec(getRequestSpec(contentType, validuserId)).
-			when().
-				delete("v2/domains/literacy/methods/NUM:C1:M").
-			then().
-				log().all().
-				spec(get200ResponseSpec());
-				//body("id", equalTo("orchestrator.searchDomainObjects"));
-		}
-	
-
+		//updating the above created method
+		setURI();
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonUpdateMethodValid).
+		with().
+			contentType("application/json").
+		when().
+			patch("v2/domains/literacy/methods/"+methodId).
+		then().
+			log().all().
+			spec(get200ResponseSpec());
+	}	
+		
+	//Delete Method
+	@Test
+	public void deleteMethodValidSuccess200()
+	{
+		//saveMethod API call 
+		setURI();
+		Response response1 = 
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(JsonSaveMethodValid).
+		with().
+			contentType(JSON).
+		when().
+			post("v2/domains/literacy/methods").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response(); 
+				
+		//getting the identifier of created Method
+		JsonPath jp1 = response1.jsonPath();
+		String methodId = jp1.get("result.node_id");
+			
+		//deleting the above created method
+		setURI();
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+		when().
+			delete("v2/domains/literacy/methods/"+methodId).
+		then().
+			log().all().
+			spec(get200ResponseSpec());
+			//body("id", equalTo("orchestrator.searchDomainObjects"));
+	}
 }

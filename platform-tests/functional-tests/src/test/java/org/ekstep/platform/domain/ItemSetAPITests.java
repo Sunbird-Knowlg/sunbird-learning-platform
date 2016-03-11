@@ -7,7 +7,10 @@ import org.junit.Test;
 
 public class ItemSetAPITests extends BaseTest 
 {
-	String JsonCreateItemSetValid = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
+	int rn = generateRandomInt(0, 500);
+	
+	String JsonCreateItemSetValid = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 1,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_"+rn+"\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
+	String JsonCreateItemSetWithtotal_itemsNotEqualToItemsSize = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
 	String JsonCreateItemSetWithConcept = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"identifier\": \"domain_905\",\"max_score\": 3,\"total_items\": 3,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\":\"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"gradeLevel\": [\"Grade 1\"],\"memberIds\": [\"ek.n.q935\"],\"concepts\": [{\"relationName\": \"associatedTo\",\"identifier\": \"LO17\"}]}}}}";
 	String JsonCreateItemSetWithInvalidMembers = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"QA_Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 4,\"total_items\": 4,\"description\": \"QA of ItemSet Using AssessmentItems\",\"code\": \"QA_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q931\"]}}}}";
 	String JsonSearchValid = "{\"request\": {\"resultSize\": 10}}";
@@ -15,6 +18,7 @@ public class ItemSetAPITests extends BaseTest
 	String JsonUpdateItemSetValid= "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing ItemSet - MCQQ_650.\",\"type\": \"materialised\",\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"ItemSet_650\",\"difficulty_level\": \"high\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"max_score\": 3,\"memberIds\": [\"MCQQ_509\",\"MCQQ_901\",\"MCQQ_622\",\"MMCQQ_577\",\"MMCQQ_44\",\"FTBQ_173\",\"FTBQ_878\"]}}}}";
 	String JsonUpdateItemSetWithoutMandatoryFields = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing ItemSet - MCQQ_650.\",\"memberIds\": [\"MCQQ_509\",\"MCQQ_901\",\"MCQQ_622\",\"MMCQQ_577\",\"MMCQQ_44\",\"FTBQ_173\",\"FTBQ_878\"]}}}}";
 	String JsonCreateItemSetWithConceptsAsMembers = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"max_score\": 3,\"total_items\": 3,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\",\"LO17\"]}}}}";
+	String JsonCreateItemSetWithGivenIdentifier = "{\"request\": {\"assessment_item_set\": {\"objectType\": \"ItemSet\",\"metadata\": {\"title\": \"Testing_ItemSet - MCQQ_{{$randomInt}}.\",\"type\": \"materialised\",\"identifier\": \"domain_1000\",\"max_score\": 3,\"total_items\": 1,\"description\": \"Testing of ItemSet Using AssessmentItems\",\"code\": \"Test_ItemSet_{{$randomInt}}\",\"difficulty_level\": \"low\",\"owner\": \"Ilimi\",\"used_for\": \"assessment\",\"memberIds\": [\"ek.n.q935\"]}}}}";
 	
 	//Create ItemSet
 	@Test
@@ -81,8 +85,48 @@ public class ItemSetAPITests extends BaseTest
 			spec(get400ResponseSpec());
 	}
 	
+	@Test
+	public void createItemSetWithtotal_itemsNotEqualToItemsSizeExpect400()
+	{
+		setURI();
+		given().
+			spec(getRequestSpec(contentType,validuserId)).
+			body(JsonCreateItemSetWithtotal_itemsNotEqualToItemsSize).
+		with().
+			contentType(JSON).
+		when().
+			post("v1/assessmentitemset").
+		then().
+			//log().all().
+			spec(get400ResponseSpec());		
+	}
+	
+	@Test
+	public void createItemSetWithGivenIdentifierExpectSuccess200()
+	{
+		setURI();
+		given().
+			spec(getRequestSpec(contentType,validuserId)).
+			body(JsonCreateItemSetWithGivenIdentifier).
+		with().
+			contentType(JSON).
+		when().
+			post("v1/assessmentitemset").
+		then().
+			//log().all().
+			spec(get200ResponseSpec());
+		
+		setURI();
+		given().
+			spec(getRequestSpec(contentType,validuserId)).
+		when().
+			get("v1/assessmentitemset/domain_1000"). 
+    	then().
+			//log().all().
+			spec(get200ResponseSpec());
+	}
+	
 	//Get ItemSet
-	//Needs change - create item, get the domain id from result and then get that. 
 	@Test
 	public void getItemSetExpectSuccess200()
 	{
@@ -90,7 +134,7 @@ public class ItemSetAPITests extends BaseTest
 		given().
 			spec(getRequestSpec(contentType,validuserId)).
 		when().
-			get("v1/assessmentitemset/domain_740").
+			get("v1/assessmentitemset/domain_960").
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -157,7 +201,6 @@ public class ItemSetAPITests extends BaseTest
 	}
 	
 	//Update ItemSet
-	//To-do: create itemset, get the domain id from the result and then send an update request for it. 
 	@Test
 	public void updateItemSetValidInputsExpectSuccess200()
 	{

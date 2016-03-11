@@ -14,13 +14,12 @@ public class DictionaryAPITests extends BaseTest
 	
 	//String langAPIVersion = "v1";
 	
-	String jsonCreateExistingEnglishWord = "{\"request\":{\"words\":[{\"lemma\":\"en:W:Test QA2\",\"code\":\"en:W:Test QA2\",\"identifier\":\"en:W:Test QA2\",\"tags\": \"[]\",\"Synonyms\":[{\"identifier\":\"TestQA1\"}]}]}}";
-	String jsonCreateNewEnglishWord = "{\"request\":{\"words\":[{\"lemma\":\"en:W:Test QA4\",\"code\":\"en:W:Test QA4\",\"identifier\":\"en:W:Test QA4\",\"tags\": \"[]\",\"Synonyms\":[{\"identifier\":\"TestQA3\"}]}]}}";
-	String jsonCreateMultipleEnglishWords = "{\"request\":{  \"words\":[  {  \"lemma\":\"TestDuplWord1\",\"code\":\"qa:W:TestDuplWord1\",\"tags\":[\"QA\"],\"Synonyms\":{\"identifier\":\"qa:W:TestDuplWord1\"}]},{  \"lemma\":\"TestDuplWord2\",\"code\":\"qa:W:TestDuplWord2\",\"tags\":[\"QA\"],\"Synonyms\":[{\"identifier\": \"qa:W:TestDuplWord2\"}]}]}}";
-	String jsonCreateMultipleDuplicateEnglishWords = "{\"request\":{  \"words\":[  {  \"lemma\":\"TestDuplFailWord\",\"code\":\"qa:W:TestDupl1Word1\",\"tags\":[\"QA\"],\"Synonyms\":{\"identifier\":\"qa:W:TestDuplWord1\"}]},{  \"lemma\":\"TestDuplFailWord\",\"code\":\"qa:W:TestDuplFailWord2\",\"tags\":[\"QA\"],\"Synonyms\":[{\"identifier\": \"qa:W:TestFailDuplWord2\"}]}]}}";
-	String jsonSearchValidWord = "{\"request\":{\"lemma\":\"new test word 3\"}}";
-	String jsonSearchInvalidWord = "{\"request\":{\"lemma\":\"new123\"}}";
-		
+	String jsonCreateExistingEnglishWord = "{\"request\":{\"words\":[{\"lemma\":\"en:W:TestQA{{$randomInt}}\",\"code\":\"en:W:Test_QA_{{$randomInt}}\",\"identifier\":\"en:W:Test_{{$randomInt}}\",\"tags\": [\"QA\"],\"Synonyms\":[{\"identifier\":\"TestQA{{$randomInt}}\"}]}]}}";
+	String jsonCreateNewEnglishWord = "{\"request\":{\"words\":[{\"lemma\":\"en:W:Test_QA_{{$randomInt}}\",\"code\":\"en:W:Test_QA_{{$randomInt}}\",\"identifier\":\"en:W:Test_QA_{{$randomInt}}\",\"tags\":[\"QA\"],\"Synonyms\":[{\"identifier\":\"TestQA_{{$randomInt}}\"}]}]}}";
+	String jsonCreateMultipleEnglishWords = "{\"request\":{  \"words\":[  {  \"lemma\":\"TestDuplWord1\",\"code\":\"qa:W:TestDuplWord{{$randomInt}}\",\"tags\":[\"QA\"],\"Synonyms\":{\"identifier\":\"qa:W:TestDuplWord{{$randomInt}}\"}]},{  \"lemma\":\"TestDuplWord{{$randomInt}}\",\"code\":\"qa:W:TestDuplWord{{$randomInt}}\",\"tags\":[\"QA\"],\"Synonyms\":[{\"identifier\": \"qa:W:TestDuplWord{{$randomInt}}\"}]}]}}";
+	String jsonCreateMultipleDuplicateEnglishWords = "{\"request\":{  \"words\":[  {  \"lemma\":\"TestDuplFailWord\",\"code\":\"qa:W:TestDupl1Word{{$randomInt}}\",\"tags\":[\"QA\"],\"Synonyms\":{\"identifier\":\"qa:W:TestDuplWord1\"}]},{  \"lemma\":\"TestDuplFailWord\",\"code\":\"qa:W:TestDuplFailWord{{$randomInt}}\",\"tags\":[\"QA\"],\"Synonyms\":[{\"identifier\": \"qa:W:TestFailDuplWord{{$randomInt}}\"}]}]}}";
+	String jsonSearchValidWord = "{\"request\":{\"lemma\":\"newTestWord{{$randomInt}}\"}}";
+	String jsonSearchInvalidWord = "{\"request\":{\"lemma\":\"new{{$randomInt}}\"}}";
 	
 	//------------ Language API start --------------//
 	//Get Languages - List of languages
@@ -50,11 +49,6 @@ public class DictionaryAPITests extends BaseTest
 			//log().all().
 			spec(get500ResponseSpec());
 	}
-	
-	
-	//------------ Language API end --------------//
-	
-	
 	
 	
 	//------------ Words API start --------------//
@@ -144,7 +138,8 @@ public class DictionaryAPITests extends BaseTest
 	public void  createNewWordExpectSuccess200() {
 		setURI();
 		given().
-		spec(getRequestSpec(contentType, validuserId)).
+			log().all().
+			spec(getRequestSpec(contentType, validuserId)).
 			body(jsonCreateNewEnglishWord).
 		with().
 			contentType(JSON).
