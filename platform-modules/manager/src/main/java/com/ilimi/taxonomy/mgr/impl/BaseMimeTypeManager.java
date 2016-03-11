@@ -437,9 +437,9 @@ public class BaseMimeTypeManager extends BaseManager{
 	private String checkBodyContentType(String contentBody) {
 		if (StringUtils.isNotEmpty(contentBody)) {
 			if (isECMLValid(contentBody)) {
-				return "ecml";
+				return ContentAPIParams.ECML.name();
 			} else if (isJSONValid(contentBody)) {
-				return "json";
+				return ContentAPIParams.JSON.name();
 			}
 		}
 		return null;
@@ -465,5 +465,87 @@ public class BaseMimeTypeManager extends BaseManager{
 		}
 		node.getMetadata().put(ContentAPIParams.pkgVersion.name(), pkgVersion);
 		return updateContentNode(node, urlArray[1]);
+	}
+	
+	/*******************************************************************************
+	 * 									REFACTORED CODE
+	 *******************************************************************************/
+	
+	protected Response Ncompress(Node node, boolean skipPublish) {
+		final String tempFolderLocation = tempFileLocation + File.separator
+				+ System.currentTimeMillis() + "_temp";
+		String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
+		String contentBody = (String) node.getMetadata().get("body");
+		String contentType = checkBodyContentType(contentBody);
+		if (StringUtils.isBlank(contentType))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
+					"Content of Body Either Invalid or Null");
+		try {
+
+			File file = null;
+			if (StringUtils.equalsIgnoreCase(ContentAPIParams.ECML.name(), contentType)) {
+				file = new File(tempFolderLocation + File.separator + "index.ecml");
+			} else if (StringUtils.equalsIgnoreCase(ContentAPIParams.JSON.name(), contentType)) {
+				file = new File(tempFolderLocation + File.separator + "index.json");
+			}
+			if (null != file) {
+				if (!file.getParentFile().exists()) {
+					file.getParentFile().mkdirs();
+					if (!file.exists()) {
+						file.createNewFile();
+					}
+				}
+				FileUtils.writeStringToFile(file, contentBody);
+			}
+			downloadAppIcon(node, tempFolderLocation);
+		} catch (IOException e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
+		}
+		File file = new File(tempFolderLocation);
+		String fileLocation = tempFolderLocation + File.separator + "index.ecml";
+		String sourceFolder = file.getParent() + File.separator;
+		Response response = new Response();
+		try {
+			if (contentType.equalsIgnoreCase("json")) {
+				CustomParser.readJsonFileDownload(tempFolderLocation);
+			} else if (contentType.equalsIgnoreCase("ecml")) {
+				new CustomParser(new File(fileLocation)).updateEcml(tempFolderLocation);
+			}
+			String zipFile = sourceFolder + fileName + ".zip";
+			List<String> fileList = new ArrayList<String>();
+			ZipUtility appZip = new ZipUtility(fileList, zipFile, tempFolderLocation);
+			appZip.generateFileList(new File(tempFolderLocation));
+			appZip.zipIt(zipFile);
+			File olderName = new File(zipFile);
+			if (olderName.exists() && olderName.isFile()) {
+				File newName = new File(sourceFolder + File.separator + olderName.getName());
+				olderName.renameTo(newName);
+				String[] urlArray = AWSUploader.uploadFile(bucketName, folderName, newName);
+				if (!StringUtils.isBlank(urlArray[1]))
+					node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
+				String taxonomyId = node.getGraphId();
+				String contentId = node.getIdentifier();
+				Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+						"getDataNode", GraphDACParams.node_id.name(), contentId);
+				request.put(GraphDACParams.get_tags.name(), true);
+				Response getNodeRes = getResponse(request, LOGGER);
+				if (checkError(getNodeRes)) {
+					return getNodeRes;
+				}
+				Node nodePublish = (Node) getNodeRes.get(GraphDACParams.node.name());
+				node.getMetadata().put(ContentAPIParams.downloadUrl.name(), nodePublish);
+				if (skipPublish == true) {
+					response.put(ContentAPIParams.updated_node.name(), node);
+				} else {
+					response = addDataToContentNode(node);
+				}
+			}
+
+		} catch (Exception e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
+		} finally {
+			deleteTemp(sourceFolder);
+		}
+		return response;
 	}
 }

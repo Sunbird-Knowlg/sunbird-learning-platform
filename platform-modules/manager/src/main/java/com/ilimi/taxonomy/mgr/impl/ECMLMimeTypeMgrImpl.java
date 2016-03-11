@@ -657,7 +657,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		if (null == node.getMetadata().get(ContentAPIParams.artifactUrl.name()) || 
 				StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name())
 				.toString()))
-			node = (Node) compress(node).get(ContentAPIParams.updated_node.name());
+			node = (Node) Ncompress(node, true).get(ContentAPIParams.updated_node.name());
 		return node;
 	}
 
