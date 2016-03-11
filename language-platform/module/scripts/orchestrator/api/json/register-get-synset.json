@@ -1,19 +1,18 @@
 {
-    "name": "searchSynset",
+    "name": "getSynset",
     "parameters": [{
     	"name":"language_id",
     	"index": 0,
     	"routingParam": true
     },{
-    	"name":"search",
+    	"name":"synset_id",
     	"index": 1,
-		"datatype": "java.util.HashMap",
     	"routingParam": false
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v2/synset/search/*",
-        "pathParams": ["language_id"]
+        "type": "GET",
+        "url": "/v1/language/dictionary/Synset/*/*",
+        "pathParams": ["language_id", "synset_id"]
     },
     "body": ""
 }
