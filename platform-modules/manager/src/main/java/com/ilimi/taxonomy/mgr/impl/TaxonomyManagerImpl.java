@@ -292,8 +292,10 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
         sc.setResultSize(2);
         
+        List<String> statusList = new ArrayList<String>();
+        statusList.add("Live");
         MetadataCriterion mc = MetadataCriterion
-                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_EQUAL, "Live")));
+                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
         sc.addMetadata(mc);
         List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
         Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
