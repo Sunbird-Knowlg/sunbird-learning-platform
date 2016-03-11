@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.mgr.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -23,8 +24,11 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.Graph;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -287,6 +291,10 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         sc.setObjectType(objectType);
         sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
         sc.setResultSize(2);
+        
+        MetadataCriterion mc = MetadataCriterion
+                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_EQUAL, "Live")));
+        sc.addMetadata(mc);
         List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
         Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
