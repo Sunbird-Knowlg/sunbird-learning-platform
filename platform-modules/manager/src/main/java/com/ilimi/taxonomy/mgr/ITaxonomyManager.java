@@ -31,5 +31,7 @@ public interface ITaxonomyManager {
     Response createIndex(String id, List<String> keys, Boolean unique);
     
     Response getSubGraph(String graphId, String id, Integer depth, List<String> relations);
+    
+    Response compositeSearch();
 
 }
