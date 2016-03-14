@@ -297,6 +297,13 @@ public class BaseMimeTypeManager extends BaseManager{
 	}
 
 	private Response addDataToContentNode(Node node) {
+	    Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
+        if (null == pkgVersion || pkgVersion.intValue() < 1) {
+            pkgVersion = 1.0;
+        } else {
+            pkgVersion = pkgVersion.doubleValue() + 1;
+        }
+        node.getMetadata().put("pkgVersion", pkgVersion);
 		List<Node> nodes = new ArrayList<Node>();
 		nodes.add(node);
 		List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
@@ -307,26 +314,23 @@ public class BaseMimeTypeManager extends BaseManager{
 				"1.1");
 		node.getMetadata().put("s3Key", urlArray[0]);
 		node.getMetadata().put("downloadUrl", urlArray[1]);
-		Number pkgVersion = (Number) node.getMetadata().get("pkgVersion");
-		if (null == pkgVersion || pkgVersion.intValue() < 1) {
-			pkgVersion = 1.0;
-		} else {
-			pkgVersion = pkgVersion.doubleValue() + 1;
-		}
-		node.getMetadata().put("pkgVersion", pkgVersion);
 		node.getMetadata().put("status", "Live");
 		return updateContentNode(node, urlArray[1]);
 	}
 
 	protected Response updateContentNode(Node node, String url) {
-		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,
-				"updateDataNode");
-		updateReq.put(GraphDACParams.node.name(), node);
-		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-		Response updateRes = getResponse(updateReq, LOGGER);
+		Response updateRes = updateNode(node);
 		updateRes.put(ContentAPIParams.content_url.name(), url);
-		updateRes.put(ContentAPIParams.updated_node.name(), node);
 		return updateRes;
+	}
+	
+	protected Response updateNode(Node node) {
+	    Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER,
+                "updateDataNode");
+        updateReq.put(GraphDACParams.node.name(), node);
+        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+        Response updateRes = getResponse(updateReq, LOGGER);
+        return updateRes;
 	}
 	
 

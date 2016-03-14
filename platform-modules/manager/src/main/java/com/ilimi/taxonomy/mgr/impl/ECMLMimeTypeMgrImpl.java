@@ -674,7 +674,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
 					"Content not found with node id: " + node.getIdentifier());
 		response = extract(node);
-		return response;
+		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
+		    node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
+	        return updateNode(node);
+		} else {
+		    return response;
+		}
 	}
 
 }

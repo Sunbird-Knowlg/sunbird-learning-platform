@@ -350,6 +350,19 @@
           "draft": false
         },
         {
+          "required": false,
+          "dataType": "URL",
+          "propertyName": "artifactUrl",
+          "title": "Artifact Url",
+          "description": "URL to download the content",
+          "category": "Technical",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 5 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
           "propertyName": "objects",
           "title": "Objects Used in the Content",
           "description": "",
@@ -1186,7 +1199,7 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 24,
-        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "downloadUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn", "status", "contentType", "filter", "visibility", "thumbnail", "language"]
+        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn", "status", "contentType", "filter", "visibility", "thumbnail", "language"]
       }
     }
   ]
