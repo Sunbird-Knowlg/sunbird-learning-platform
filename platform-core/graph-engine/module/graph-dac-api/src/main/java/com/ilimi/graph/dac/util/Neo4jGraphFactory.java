@@ -60,6 +60,7 @@ public class Neo4jGraphFactory {
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
+                Neo4JTransactionEventHandler.registerTransactionEventForGraph(graphDb);
                 graphDbMap.put(graphId, graphDb);
                 createConstraints(graphDb);
             }
