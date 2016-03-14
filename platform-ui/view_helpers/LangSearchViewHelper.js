@@ -14,7 +14,7 @@
  */
 var async = require('async')
 	, demoservice = require('../services/LangSearchServiceFixtures')
-	, service = (appConfig.APP_STATUS == 'DEMO' ? require('../services/LangSearchServiceFixtures') : require('../services/LangSearchService'))
+	, service = require('../services/LangSearchServiceFixtures')
 	, util = require('../commons/Util');
 
 exports.getLangSearchDefinition = function(req, res) {

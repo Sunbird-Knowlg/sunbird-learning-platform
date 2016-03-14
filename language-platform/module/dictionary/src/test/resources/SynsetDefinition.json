@@ -10,7 +10,7 @@
           "category": "general",
           "dataType": "Text",
           "range": [],
-          "required": false,
+          "required": true,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -196,7 +196,7 @@
       "outRelations": [
         {
           "relationName": "synonym",
-          "title": "Synonyms",
+          "title": "synonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -206,7 +206,7 @@
         },
         {
           "relationName": "hasAntonym",
-          "title": "Antonyms",
+          "title": "antonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -216,7 +216,7 @@
         },
         {
           "relationName": "hasHypernym",
-          "title": "Hypernyms",
+          "title": "hypernyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -226,7 +226,7 @@
         },
         {
           "relationName": "hasHolonym",
-          "title": "Holonyms",
+          "title": "holonyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -236,7 +236,7 @@
         },
         {
           "relationName": "hasHyponym",
-          "title": "Hyponyms",
+          "title": "hyponyms",
           "description": "",
           "required": false,
           "objectTypes": [
@@ -246,7 +246,7 @@
         },
         {
           "relationName": "hasMeronym",
-          "title": "Meronyms",
+          "title": "meronyms",
           "description": "",
           "required": false,
           "objectTypes": [

@@ -8,6 +8,7 @@ import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
 import static org.hamcrest.CoreMatchers.*;
+import java.util.Random;
 
 public class BaseTest 
 {
@@ -147,6 +148,21 @@ public class BaseTest
 		//builderres.expectBody("result.messages", equalTo("Invalid Relation")); //TO-DO: How to get the list and how deep can be the list? 
 		ResponseSpecification responseSpec = builderres.build();
 		return responseSpec;
+	}
+	
+	/**
+	 * generates random integer between min and max
+	 * 
+	 * @param min
+	 * @param max
+	 * @return random integer
+	 */
+	public int generateRandomInt(int min, int max)
+	{
+		Random random = new Random();
+		int randomInt = random.nextInt((max - min) + 1) + min;
+		return randomInt;
+		
 	}
 	
 }
