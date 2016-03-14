@@ -154,21 +154,15 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
         }
     }
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public Response export(String id, Map<String, Object> reqMap) {
 		if (StringUtils.isBlank(id))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(),
 					"Taxonomy Id is blank");
 		String format = (String) reqMap.get(GraphEngineParams.format.name());
-		Map<String, Object> sc = ((Map<String, Object>)(((Map<String, Object>) reqMap.get("request")).get("search_criteria")));
 		LOGGER.info("Export Taxonomy : " + id + " | Format: " + format);
 		Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "exportGraph");
 		request.put(GraphEngineParams.format.name(), format);
-		SearchCriteria searchCriteria = new SearchCriteria();
-		searchCriteria.setObjectType((String)sc.get(GraphEngineParams.objectType.name()));
-		searchCriteria.setOp((String)sc.get("op"));
-		request.put(GraphEngineParams.search_criteria.name(), searchCriteria);
 		Response exportRes = getResponse(request, LOGGER);
 		return exportRes;
 	}
