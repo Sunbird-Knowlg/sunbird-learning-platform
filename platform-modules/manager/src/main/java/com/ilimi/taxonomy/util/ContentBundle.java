@@ -68,7 +68,7 @@ public class ContentBundle {
             String identifier = (String) content.get("identifier");
             if (children.contains(identifier))
                 content.put("visibility", "Parent");
-            urlFields.add("downloadUrl");
+            urlFields.add("artifactUrl");
             for (Map.Entry<String, Object> entry : content.entrySet()) {
                 if (urlFields.contains(entry.getKey())) {
                     Object val = entry.getValue();
@@ -89,6 +89,10 @@ public class ContentBundle {
                         }
                     }
                 }
+            }
+            Object artifactUrl = content.get("artifactUrl");
+            if (null != artifactUrl && StringUtils.isNotBlank(artifactUrl.toString())) {
+                content.put("downloadUrl", artifactUrl);
             }
         }
         List<File> downloadedFiles = getContentBundle(downloadUrls);
