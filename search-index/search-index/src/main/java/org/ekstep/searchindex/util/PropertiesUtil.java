@@ -9,16 +9,8 @@ public class PropertiesUtil {
 	private static InputStream input = null;
 
 	static {
-		try {
-			String filename = "producer.properties";
-			input = PropertiesUtil.class.getClassLoader().getResourceAsStream(filename);
-			if (input == null) {
-				throw new Exception("Unable to find " + filename);
-			}
-			prop.load(input);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		loadProperties("elasticsearch.properties");
+		loadProperties("producer.properties");
 	}
 
 	public static String getProperty(String key) {
