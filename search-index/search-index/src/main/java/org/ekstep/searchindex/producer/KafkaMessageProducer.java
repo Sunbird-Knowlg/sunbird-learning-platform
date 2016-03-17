@@ -53,9 +53,21 @@ public class KafkaMessageProducer implements IMessageProducer{
 		KafkaMessageProducer producer = new KafkaMessageProducer();
 		producer.init();
 		JSONBuilder builder = new JSONStringer();
-		builder.object().key("operationType").value(Constants.OPERATION_CREATE).key("graphId").value("hi")
+		/*builder.object().key("operationType").value(Constants.OPERATION_CREATE).key("graphId").value("hi")
 				.key("nodeGraphId").value(1).key("nodeUniqueId").value("hi_1").key("objectType")
-				.value(Constants.OBJECT_TYPE_DOMAIN).key("nodeType").value(Constants.NODE_TYPE_DATA).endObject();
+				.value(Constants.OBJECT_TYPE_DOMAIN).key("nodeType").value(Constants.NODE_TYPE_DATA).endObject();*/
+		
+		 builder.object().key("operationType").value(Constants.
+		 OPERATION_CREATE).key("graphId").value("hi")
+		 .key("nodeGraphId").value("2").key("nodeUniqueId").value("hi_2").key(
+		 "objectType")
+		 .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		 NODE_TYPE_DATA) .key("transactionData").object()
+		 .key("addedProperties").array().object()
+		 .key("propertyName").value("lemma") .key("value").value("Hi 2")
+		 .endObject() .endArray() .endObject() .endObject();
+		 
+		
 		Map<String, Object> message = producer.mapper.readValue(builder.toString(),
 				new TypeReference<Map<String, Object>>() {
 				});

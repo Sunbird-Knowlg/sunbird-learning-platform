@@ -10,28 +10,42 @@ import org.apache.commons.lang3.text.WordUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.Constants;
+import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.ElasticSearchUtil;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
-class MessageProcessor {
+public class MessageProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
+	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
+
+	public void processMessage(String messageData) {
+		try {
+			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
+			});
+			processMessage(message);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("operationType") != null) {
+			String nodeType = (String) message.get("nodeType");
 			String objectType = (String) message.get("objectType");
 			objectType = WordUtils.capitalize(objectType.toLowerCase());
 			createCompositeSearchIndex(objectType);
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
-			Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
-
-			String operationType = (String) message.get("operationType");
-			switch (operationType) {
+			switch (nodeType) {
+			case Constants.NODE_TYPE_DATA: {
+				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+				String operationType = (String) message.get("operationType");
+				switch (operationType) {
 				case Constants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
@@ -45,9 +59,17 @@ class MessageProcessor {
 					break;
 				}
 				case Constants.OPERATION_DELETE: {
-					elasticSearchUtil.deleteDocument(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(), uniqueId);
+					elasticSearchUtil.deleteDocument(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(),
+							uniqueId);
 					break;
 				}
+				}
+				break;
+			}
+			case Constants.NODE_TYPE_DEFINITION: {
+				Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
+				consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
+			}
 			}
 		}
 	}
@@ -88,7 +110,7 @@ class MessageProcessor {
 					if (propertyMap != null && propertyMap.get("propertyName") != null) {
 						String propertyName = (String) propertyMap.get("propertyName");
 						Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
-						if(propertyDefinition != null){
+						if (propertyDefinition != null) {
 							boolean indexed = (boolean) propertyDefinition.get("indexed");
 							if (indexed) {
 								indexDocument.put(propertyName, propertyMap.get("value"));
@@ -135,46 +157,63 @@ class MessageProcessor {
 	public static void main(String arg[]) throws Exception {
 		MessageProcessor processor = new MessageProcessor();
 		JSONBuilder builder = new JSONStringer();
-		
-/*		 builder.object().key("operationType").value(Constants.
-		 OPERATION_CREATE).key("graphId").value("hi")
-		 .key("nodeGraphId").value("2").key("nodeUniqueId").value("hi_2").key(
-		 "objectType")
-		 .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
-		 NODE_TYPE_DATA) .key("transactionData").object()
-		 .key("addedProperties").array().object()
-		 .key("propertyName").value("lemma") .key("value").value("Hi 2")
-		 .endObject() .endArray() .endObject() .endObject();*/
-		 
-/*		 builder.object().key("operationType").value(Constants.
-				 OPERATION_CREATE).key("graphId").value("hi")
-				 .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_s_1").key(
-				 "objectType")
-				 .value(Constants.OBJECT_TYPE_SYNSET).key("nodeType").value(Constants.
-				 NODE_TYPE_DATA) .key("transactionData").object()
-				 .key("addedProperties").array().object()
-				 .key("propertyName").value("gloss") .key("value").value("Hi how are you")
-				 .endObject() .endArray() .endObject() .endObject();*/
-		 
-		 builder.object().key("operationType").value(Constants.
-				 OPERATION_DELETE).key("graphId").value("hi")
-				 .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key(
-				 "objectType")
-				 .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
-				 NODE_TYPE_DATA).endObject();
-		 
-		/*builder.object().key("operationType").value(Constants.OPERATION_UPDATE).key("graphId").value("hi")
-				.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key("objectType")
-				.value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.NODE_TYPE_DATA)
-				.key("transactionData").object().key("addedProperties").array().object().key("propertyName")
-				.value("notappli").key("value").array().value("class 1").value("rwo").endArray().endObject()
-				.endArray().key("removedProperties").array().value("sourceTypes").endArray().key("addedTags").array()
-				.value("grade one").endArray().key("removedTags").array().value("grade three").endArray().endObject()
-				.endObject();*/
+
+		/*
+		 * builder.object().key("operationType").value(Constants.
+		 * OPERATION_CREATE).key("graphId").value("hi")
+		 * .key("nodeGraphId").value("2").key("nodeUniqueId").value("hi_2").key(
+		 * "objectType")
+		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		 * NODE_TYPE_DATA) .key("transactionData").object()
+		 * .key("addedProperties").array().object()
+		 * .key("propertyName").value("lemma") .key("value").value("Hi 2")
+		 * .endObject() .endArray() .endObject() .endObject();
+		 */
+
+		/*
+		 * builder.object().key("operationType").value(Constants.
+		 * OPERATION_CREATE).key("graphId").value("hi")
+		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_s_1").
+		 * key( "objectType")
+		 * .value(Constants.OBJECT_TYPE_SYNSET).key("nodeType").value(Constants.
+		 * NODE_TYPE_DATA) .key("transactionData").object()
+		 * .key("addedProperties").array().object()
+		 * .key("propertyName").value("gloss") .key("value").value(
+		 * "Hi how are you") .endObject() .endArray() .endObject() .endObject();
+		 */
+
+		/*
+		 * builder.object().key("operationType").value(Constants.
+		 * OPERATION_DELETE).key("graphId").value("hi")
+		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key(
+		 * "objectType")
+		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		 * NODE_TYPE_DATA).endObject();
+		 */
+
+		builder.object().key("operationType").value(Constants.OPERATION_UPDATE).key("graphId").value("hi")
+				.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
+				.value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.NODE_TYPE_DEFINITION).endObject();
+
+		/*
+		 * builder.object().key("operationType").value(Constants.
+		 * OPERATION_UPDATE).key("graphId").value("hi")
+		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
+		 * "objectType")
+		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		 * NODE_TYPE_DATA)
+		 * .key("transactionData").object().key("addedProperties").array().
+		 * object().key("propertyName")
+		 * .value("notappli").key("value").array().value("class 1"
+		 * ).value("rwo").endArray().endObject()
+		 * .endArray().key("removedProperties").array().value("sourceTypes").
+		 * endArray().key("addedTags").array() .value("grade one"
+		 * ).endArray().key("removedTags").array().value("grade three"
+		 * ).endArray().endObject() .endObject();
+		 */
 		Map<String, Object> message = processor.mapper.readValue(builder.toString(),
 				new TypeReference<Map<String, Object>>() {
 				});
 		processor.processMessage(message);
 	}
-
 }

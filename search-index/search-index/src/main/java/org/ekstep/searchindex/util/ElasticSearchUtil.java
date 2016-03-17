@@ -41,6 +41,7 @@ public class ElasticSearchUtil {
 	private String hostName;
 	private String port;
 	private int defaultResultLimit = 10000;
+	private int BATCH_SIZE = 10000;
 	private int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -161,12 +162,17 @@ public class ElasticSearchUtil {
 			throws Exception {
 		if (isIndexExists(indexName)) {
 			if (!jsonObjects.isEmpty()) {
+				int count=0;
 				Builder bulkBuilder = new Bulk.Builder().defaultIndex(indexName).defaultType(documentType);
 				for (Map.Entry<String, String> entry : jsonObjects.entrySet()) {
+					count++;
 					bulkBuilder.addAction(new Index.Builder(entry.getValue()).id(entry.getKey()).build());
+					if(count%BATCH_SIZE ==0 || (count%BATCH_SIZE<BATCH_SIZE && count==jsonObjects.size())){
+						Bulk bulk = bulkBuilder.build();
+						client.execute(bulk);
+						bulkBuilder = new Bulk.Builder().defaultIndex(indexName).defaultType(documentType);
+					}
 				}
-				Bulk bulk = bulkBuilder.build();
-				client.execute(bulk);
 			}
 		} else {
 			throw new Exception("Index does not exist");

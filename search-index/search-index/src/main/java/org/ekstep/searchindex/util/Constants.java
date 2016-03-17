@@ -10,4 +10,5 @@ public class Constants {
 	public static final String NODE_TYPE_DATA = "DATA_NODE";
 	public static final String COMPOSITE_SEARCH_INDEX = "compositesearch";
 	public static final String INDEX_FIELD_TAGS = "tags";
+	public static final String NODE_TYPE_DEFINITION = "DEFINTION NODE";
 }

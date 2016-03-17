@@ -83,9 +83,10 @@ public class ObjectDefinitionCache {
 		return definition;
 	}
 
-	private static void resyncDefinition(String objectType, String graphId) throws Exception{
+	public static Map<String, Object> resyncDefinition(String objectType, String graphId) throws Exception{
 			Map<String, Object> definition = getDefinitionFromGraph(objectType, graphId);
 			definitionMap.put(objectType, definition);
+			return definition;
 	}
 	
 	public static void main(String[] args) throws Exception {

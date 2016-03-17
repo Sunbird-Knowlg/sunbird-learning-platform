@@ -11,6 +11,7 @@ public class PropertiesUtil {
 	static {
 		loadProperties("elasticsearch.properties");
 		loadProperties("producer.properties");
+		loadProperties("consumer.properties");
 	}
 
 	public static String getProperty(String key) {
