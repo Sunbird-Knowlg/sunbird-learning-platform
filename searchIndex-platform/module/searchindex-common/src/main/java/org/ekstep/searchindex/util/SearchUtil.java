@@ -37,7 +37,7 @@ public class SearchUtil {
 		request.addHeader("user-id", PropertiesUtil.getProperty("ekstep_platform_api_user_id"));
 		request.addHeader("Content-Type", "application/json");
 		HttpResponse response = client.execute(request);
-		if (response.getStatusLine().getStatusCode() == 200) {
+		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());
 		}
