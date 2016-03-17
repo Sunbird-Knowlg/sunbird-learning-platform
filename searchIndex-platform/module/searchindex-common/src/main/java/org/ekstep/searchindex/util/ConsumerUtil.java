@@ -32,7 +32,7 @@ public class ConsumerUtil {
 				String propertyName = entry.getKey();
 				Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
 				if (propertyDefinition != null) {
-					boolean indexed = (boolean) propertyDefinition.get("indexed");
+					boolean indexed =  (boolean) propertyDefinition.get("indexed");
 					if (indexed) {
 						indexMap.put(propertyName, entry.getValue());
 					}
