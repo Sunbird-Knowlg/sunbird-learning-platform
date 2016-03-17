@@ -9,9 +9,9 @@ import java.util.Map;
 import org.apache.commons.lang.WordUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.Constants;
 import org.ekstep.searchindex.util.ConsumerUtil;
-import org.ekstep.searchindex.util.ElasticSearchUtil;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import net.sf.json.util.JSONBuilder;

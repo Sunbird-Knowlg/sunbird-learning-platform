@@ -31,6 +31,12 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
+			<groupId>org.ekstep</groupId>
+			<artifactId>searchindex-elasticsearch</artifactId>
+			<version>1.0-SNAPSHOT</version>
+			<type>jar</type>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.kafka</groupId>
 			<artifactId>kafka-clients</artifactId>
 			<version>0.9.0.0</version>
