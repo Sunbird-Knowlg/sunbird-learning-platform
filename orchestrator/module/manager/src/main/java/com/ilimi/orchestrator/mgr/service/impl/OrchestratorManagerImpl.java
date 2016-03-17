@@ -103,6 +103,7 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
                 dbScript.setDescription(script.getDescription());
                 dbScript.setParameters(script.getParameters());
                 dbScript.setRequestPath(script.getRequestPath());
+                dbScript.setApiId(script.getApiId());
                 daoService.updateScript(dbScript);
             } else {
                 throw new OrchestratorException(OrchestratorErrorCodes.ERR_UPDATE_SCRIPT.name(),
@@ -141,6 +142,7 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
                 dbCommand.setActorPath(command.getActorPath());
                 dbCommand.setParameters(command.getParameters());
                 dbCommand.setRequestPath(command.getRequestPath());
+                dbCommand.setApiId(command.getApiId());
                 dbCommand.setCmdClass(command.getCmdClass());
                 daoService.updateScript(dbCommand);
             } else {

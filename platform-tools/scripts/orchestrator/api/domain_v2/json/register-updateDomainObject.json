@@ -33,5 +33,6 @@
           "object_id"
         ]
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.domain.object.update"
 }

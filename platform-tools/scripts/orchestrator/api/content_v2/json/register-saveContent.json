@@ -13,5 +13,6 @@
         "type": "POST",
         "url": "/v2/content"
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.content.save"
 }

@@ -92,4 +92,8 @@ public class ContentV2Controller extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    protected String getAPIVersion() {
+        return API_VERSION_2;
+    }
 }

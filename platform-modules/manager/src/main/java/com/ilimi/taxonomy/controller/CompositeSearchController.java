@@ -21,12 +21,15 @@ public class CompositeSearchController extends BaseController {
 
     @Autowired
     private ITaxonomyManager taxonomyManager;
-
+    
+    protected String getAPIVersion() {
+        return API_VERSION;
+    }
 
     @RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search() {
-        String apiId = "ekstep.composite.search";
+        String apiId = "composite.search";
         LOGGER.info("ekstep.composite.search");
         try {
             Response response = taxonomyManager.compositeSearch();

@@ -14,5 +14,6 @@
         "url": "/v1/language/dictionary/wordlist/*/*",
         "pathParams": ["language_id", "wordlist_id"]
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.wordlist.info"
 }

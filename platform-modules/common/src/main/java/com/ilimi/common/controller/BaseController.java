@@ -29,8 +29,9 @@ import com.ilimi.common.exception.ResponseCode;
 
 public abstract class BaseController {
 
-    private static final String API_ID_PREFIX = "ekstep.lp";
-    private static final String API_VERSION = "1.0";
+    private static final String API_ID_PREFIX = "ekstep";
+    protected static final String API_VERSION = "1.0";
+    protected static final String API_VERSION_2 = "2.0";
     protected ObjectMapper mapper = new ObjectMapper();
 
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId) {
@@ -161,7 +162,7 @@ public abstract class BaseController {
     private void setResponseEnvelope(Response response, String apiId, String msgId) {
         if (null != response) {
             response.setId(API_ID_PREFIX + "." + apiId);
-            response.setVer(API_VERSION);
+            response.setVer(getAPIVersion());
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();
             if (null == params)
@@ -175,6 +176,10 @@ public abstract class BaseController {
             }
             response.setParams(params);
         }
+    }
+    
+    protected String getAPIVersion() {
+        return API_VERSION;
     }
 
     private String getResponseTimestamp() {

@@ -232,6 +232,10 @@ public abstract class DictionaryController extends BaseController {
 		return request;
 	}*/
 
+	protected String getAPIVersion() {
+        return API_VERSION_2;
+    }
+	
 	protected abstract String getObjectType();
 
 }
