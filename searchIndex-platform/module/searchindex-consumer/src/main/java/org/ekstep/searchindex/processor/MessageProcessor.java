@@ -38,39 +38,40 @@ public class MessageProcessor {
 			String nodeType = (String) message.get("nodeType");
 			String objectType = (String) message.get("objectType");
 			objectType = WordUtils.capitalize(objectType.toLowerCase());
-			createCompositeSearchIndex(objectType);
+			//createCompositeSearchIndex(objectType);
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
 			switch (nodeType) {
-			case Constants.NODE_TYPE_DATA: {
-				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
-				String operationType = (String) message.get("operationType");
-				switch (operationType) {
-				case Constants.OPERATION_CREATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, false);
-					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
+				case Constants.NODE_TYPE_DATA: {
+					Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+					String operationType = (String) message.get("operationType");
+					switch (operationType) {
+					case Constants.OPERATION_CREATE: {
+						Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, false);
+						String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+						addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
+						break;
+					}
+					case Constants.OPERATION_UPDATE: {
+						Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, true);
+						String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+						addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
+						break;
+					}
+					case Constants.OPERATION_DELETE: {
+						elasticSearchUtil.deleteDocument(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(),
+								uniqueId);
+						break;
+					}
+					}
 					break;
 				}
-				case Constants.OPERATION_UPDATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, true);
-					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
-					break;
+				case Constants.NODE_TYPE_DEFINITION: {
+					Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
+					consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
 				}
-				case Constants.OPERATION_DELETE: {
-					elasticSearchUtil.deleteDocument(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(),
-							uniqueId);
-					break;
-				}
-				}
-				break;
 			}
-			case Constants.NODE_TYPE_DEFINITION: {
-				Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
-				consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
-			}
-			}
+			System.out.println("Message processed");
 		}
 	}
 
@@ -80,6 +81,20 @@ public class MessageProcessor {
 	}
 
 	private void createCompositeSearchIndex(String objectType) throws IOException {
+		JSONBuilder settingBuilder = new JSONStringer();
+		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
+				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
+				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
+				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
+				.endObject().endObject().endObject().endObject();
+
+		JSONBuilder mappingBuilder = new JSONStringer();
+		mappingBuilder.object().key(objectType.toLowerCase()).object().key("properties").object().key("lemma").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").endObject().key("gloss").object().key("type")
+				.value("string").key("analyzer").value("ind_normalizer").endObject().key("date").object().key("type")
+				.value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject().endObject()
+				.endObject();
+
 		elasticSearchUtil.addIndex(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(), null, null);
 	}
 
@@ -98,7 +113,7 @@ public class MessageProcessor {
 			}
 		}
 		indexDocument.put("graph_id", (String) message.get("graphId"));
-		indexDocument.put("node_graph_id", (String) message.get("nodeGraphId"));
+		indexDocument.put("node_graph_id", (int) message.get("nodeGraphId"));
 		indexDocument.put("node_unique_id", (String) message.get("nodeUniqueId"));
 		indexDocument.put("object_type", (String) message.get("objectType"));
 		indexDocument.put("node_type", (String) message.get("nodeType"));
@@ -145,7 +160,9 @@ public class MessageProcessor {
 				List<String> indexedTags = (List<String>) indexDocument.get(Constants.INDEX_FIELD_TAGS);
 				if (indexedTags != null && !indexedTags.isEmpty()) {
 					for (String removedTag : removedTags) {
-						indexedTags.remove(indexedTags.indexOf(removedTag));
+						if(indexedTags.contains(removedTag)){
+							indexedTags.remove(indexedTags.indexOf(removedTag));
+						}
 					}
 					indexDocument.put(Constants.INDEX_FIELD_TAGS, indexedTags);
 				}

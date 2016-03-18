@@ -57,7 +57,7 @@ public class KafkaMessageProducer implements IMessageProducer{
 				.key("nodeGraphId").value(1).key("nodeUniqueId").value("hi_1").key("objectType")
 				.value(Constants.OBJECT_TYPE_DOMAIN).key("nodeType").value(Constants.NODE_TYPE_DATA).endObject();*/
 		
-		 builder.object().key("operationType").value(Constants.
+		 /*builder.object().key("operationType").value(Constants.
 		 OPERATION_CREATE).key("graphId").value("hi")
 		 .key("nodeGraphId").value("2").key("nodeUniqueId").value("hi_2").key(
 		 "objectType")
@@ -65,12 +65,101 @@ public class KafkaMessageProducer implements IMessageProducer{
 		 NODE_TYPE_DATA) .key("transactionData").object()
 		 .key("addedProperties").array().object()
 		 .key("propertyName").value("lemma") .key("value").value("Hi 2")
-		 .endObject() .endArray() .endObject() .endObject();
+		 .endObject() .endArray() .endObject() .endObject();*/
+		
+
+		  builder.object().key("operationType").value(Constants.
+		  OPERATION_UPDATE).key("graphId").value("hi")
+		  .key("nodeGraphId").value(4).key("nodeUniqueId").value("hi_4").key(
+		//.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
+
+		  "objectType")
+		  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		  NODE_TYPE_DATA)
+		  .key("transactionData").object().key("addedProperties").array().
+		  object()
+		  .key("propertyName") .value("lemma")
+		  //.key("value").value("पाकिस्तान  वालों")
+		  .key("value").value("aHi,atest")
+		  .endObject()
+		  .object().key("propertyName")
+		  .value("sources").key("value").array().value("class 1"
+		  ).value("rwo").endArray().endObject()
+		  .endArray().key("removedProperties").array().value("sourceTypes").
+		  endArray().key("addedTags").array() .value("grade one"
+		  ).endArray().key("removedTags").array().value("grade three"
+		  ).endArray().endObject() .endObject();
+
+		
+		
+/*		builder.object().key("operationType").value(Constants.OPERATION_UPDATE).key("graphId").value("hi")
+		.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
+		.value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.NODE_TYPE_DEFINITION).endObject();*/
 		 
 		
 		Map<String, Object> message = producer.mapper.readValue(builder.toString(),
 				new TypeReference<Map<String, Object>>() {
 				});
+		
 		producer.pushMessage(message);
+		
+		builder = new JSONStringer();
+		builder.object().key("operationType").value(Constants.
+				  OPERATION_UPDATE).key("graphId").value("hi")
+				 // .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_3").key(
+				 .key("nodeGraphId").value(5).key("nodeUniqueId").value("hi_5").key(
+
+				  "objectType")
+				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+				  NODE_TYPE_DATA)
+				  .key("transactionData").object().key("addedProperties").array().
+				  object()
+				  .key("propertyName") .value("lemma")
+				  .key("value").value("पाकिस्तान ,वालों")
+				  //.key("value").value("aHi test")
+				  .endObject()
+				  .object().key("propertyName")
+				  .value("sources").key("value").array().value("class 1"
+				  ).value("rwo").endArray().endObject()
+				  .endArray().key("removedProperties").array().value("sourceTypes").
+				  endArray().key("addedTags").array() .value("grade one"
+				  ).endArray().key("removedTags").array().value("grade three"
+				  ).endArray().endObject() .endObject();
+		
+		message = producer.mapper.readValue(builder.toString(),
+				new TypeReference<Map<String, Object>>() {
+				});
+		
+		producer.pushMessage(message);
+		
+		builder = new JSONStringer();
+		builder.object().key("operationType").value(Constants.
+				  OPERATION_UPDATE).key("graphId").value("hi")
+				  .key("nodeGraphId").value(6).key("nodeUniqueId").value("hi_6").key(
+				 //.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
+
+				  "objectType")
+				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+				  NODE_TYPE_DATA)
+				  .key("transactionData").object().key("addedProperties").array().
+				  object()
+				  .key("propertyName") .value("lemma")
+				  //.key("value").value("पाकिस्तान  वालों")
+				  .key("value").value("[Hi,test]")
+				  .endObject()
+				  .object().key("propertyName")
+				  .value("sources").key("value").array().value("class 1"
+				  ).value("rwo").endArray().endObject()
+				  .endArray().key("removedProperties").array().value("sourceTypes").
+				  endArray().key("addedTags").array() .value("grade one"
+				  ).endArray().key("removedTags").array().value("grade three"
+				  ).endArray().endObject() .endObject();
+		
+		message = producer.mapper.readValue(builder.toString(),
+				new TypeReference<Map<String, Object>>() {
+				});
+		
+		producer.pushMessage(message);
+		
 	}
 }

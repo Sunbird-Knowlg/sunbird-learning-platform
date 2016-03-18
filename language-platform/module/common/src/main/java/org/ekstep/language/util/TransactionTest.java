@@ -22,38 +22,39 @@ public class TransactionTest {
 
 		hiGraphDb.registerTransactionEventHandler(transEventHandler);
 
-		kaGraphDb.registerTransactionEventHandler(transEventHandler);
+		//kaGraphDb.registerTransactionEventHandler(transEventHandler);
 
 		
 		Transaction tx = hiGraphDb.beginTx();
 		try {
 			Node neo4jNodeOther = hiGraphDb.createNode(NODE_LABEL);
-			neo4jNodeOther.setProperty(SystemProperties.IL_UNIQUE_ID.name(), "19");
+			neo4jNodeOther.setProperty(SystemProperties.IL_UNIQUE_ID.name(), "50");
 			neo4jNodeOther.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "Data");
 			neo4jNodeOther.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Word");
 			// tx = graphDb.beginTx();
-			Node neo4jNode = hiGraphDb.getNodeById(140701);
+			/*Node neo4jNode = hiGraphDb.getNodeById(140701);
 			neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "Data");
-			neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "synset");
+			neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "synset");*/
 			tx.success();
 		} finally {
 			tx.finish();
 		}
 
-		Transaction kaTx = kaGraphDb.beginTx();
+		/*Transaction kaTx = kaGraphDb.beginTx();
 		try {
 			Node neo4jNodeOther = kaGraphDb.createNode(NODE_LABEL);
-			neo4jNodeOther.setProperty(SystemProperties.IL_UNIQUE_ID.name(), "20");
+			neo4jNodeOther.setProperty(SystemProperties.IL_UNIQUE_ID.name(), "40");
 			neo4jNodeOther.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "Data");
 			neo4jNodeOther.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "Word");
+			neo4jNodeOther.setProperty("lemma", "Hi");
 			// tx = graphDb.beginTx();
-			/*Node neo4jNode = kaGraphDb.getNodeById(140701);
+			Node neo4jNode = kaGraphDb.getNodeById(140701);
 			neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "Data");
-			neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "synset");*/
-			kaTx.success();
+			neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "synset");
+			//kaTx.success();
 		} finally {
-			kaTx.finish();
-		}
+			//kaTx.finish();
+		}*/
 		
 		/**
 		 * prints: > Committing transaction > Committed transaction
