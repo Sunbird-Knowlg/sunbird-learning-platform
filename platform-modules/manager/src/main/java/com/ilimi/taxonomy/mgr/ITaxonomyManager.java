@@ -32,4 +32,6 @@ public interface ITaxonomyManager {
     
     Response getSubGraph(String graphId, String id, Integer depth, List<String> relations);
 
+	Response findAllByObjectType(String graphId, String objectType);
+
 }

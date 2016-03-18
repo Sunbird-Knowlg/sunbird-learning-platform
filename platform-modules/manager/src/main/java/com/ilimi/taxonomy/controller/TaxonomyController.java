@@ -61,6 +61,21 @@ public class TaxonomyController extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> findAllByObjectType(@PathVariable(value = "graphId") String graphId, @PathVariable(value = "objectType") String objectType, 
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "taxonomy.objecttype.list";
+        try {
+            Response response = taxonomyManager.findAllByObjectType(graphId, objectType);
+            LOGGER.info("FindAll | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("FindAll | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     @RequestMapping(value = "/{id:.+}", method = RequestMethod.GET)
     @ResponseBody
