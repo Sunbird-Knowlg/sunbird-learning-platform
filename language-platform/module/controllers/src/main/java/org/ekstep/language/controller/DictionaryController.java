@@ -4,7 +4,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -135,6 +138,30 @@ public abstract class DictionaryController extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "user-id") String userId, HttpServletResponse response) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".findWordsCSV";
+        try {
+            String csv = dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream());
+            LOGGER.info("Find CSV | Response: " + csv);
+            if (StringUtils.isNotBlank(csv)) {
+                byte[] bytes = csv.getBytes();
+                response.setContentType("text/csv");
+                response.setHeader("Content-Disposition", "attachment; filename=words.csv");
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().close();
+            }
+            Response resp = new Response();
+            return getResponseEntity(resp, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
