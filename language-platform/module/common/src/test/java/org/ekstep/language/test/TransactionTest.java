@@ -1,7 +1,8 @@
-package org.ekstep.language.util;
+package org.ekstep.language.test;
 
 import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
+import org.ekstep.language.util.CustomTransactionEventHandler;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -17,8 +18,8 @@ public class TransactionTest {
 	@SuppressWarnings("deprecation")
 	@Test
 	public void TransactionTestTest() {
-		GraphDatabaseService hiGraphDb = Neo4jGraphFactory.getGraphDb("hi");
-		GraphDatabaseService kaGraphDb = Neo4jGraphFactory.getGraphDb("ka");
+		GraphDatabaseService hiGraphDb = Neo4jGraphFactory.getGraphDb("test");
+		GraphDatabaseService kaGraphDb = Neo4jGraphFactory.getGraphDb("testOne");
 
 		hiGraphDb.registerTransactionEventHandler(transEventHandler);
 
