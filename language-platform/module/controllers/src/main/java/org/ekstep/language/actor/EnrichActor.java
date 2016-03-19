@@ -24,7 +24,9 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
@@ -170,7 +172,6 @@ public class EnrichActor extends LanguageBaseActor {
 							update = true;
 						}
 						if (update) {
-							node.getMetadata().put("status", "Live");
 							Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
 									"updateDataNode");
 							updateReq.put(GraphDACParams.node.name(), node);
@@ -219,7 +220,7 @@ public class EnrichActor extends LanguageBaseActor {
 							node.getMetadata().put("unicodeNotation", wc.getUnicode());
 							node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
 							node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-							node.getMetadata().put("status", "Live");
+							node.getMetadata().put("pos", getPOS(node));
 							Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
 									"updateDataNode");
 							updateReq.put(GraphDACParams.node.name(), node);
@@ -240,6 +241,25 @@ public class EnrichActor extends LanguageBaseActor {
 				}
 			}
 		}
+	}
+	
+	private List<String> getPOS(Node node) {
+	    List<String> posList = new ArrayList<String>();
+	    List<Relation> inRels = node.getInRelations();
+	    if (null != inRels && !inRels.isEmpty()) {
+	        for (Relation rel : inRels) {
+	            if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName()) 
+	                    && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Synset")) {
+	                Map<String, Object> metadata = rel.getStartNodeMetadata();
+	                if (null != metadata && !metadata.isEmpty()) {
+	                    String pos = (String) metadata.get("pos");
+	                    if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
+	                        posList.add(pos.toLowerCase());
+	                }
+	            }
+	        }
+	    }
+	    return posList;
 	}
 
 	@Override

@@ -18,8 +18,6 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.language.router.LanguageActorPool;
-import org.ekstep.language.router.LanguageRequestRouter;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
@@ -408,7 +406,7 @@ public class ControllerUtil extends BaseLanguageManager {
 	}
 
 	public void updatePosList(Node node, Map<String, Object> citations) {
-		updateListMetadata(node, citations, "pos", "pos");
+		updateListMetadata(node, citations, "pos", "posTags");
 	}
 
 	public void updateSourceTypesList(Node node, Map<String, Object> citations) {

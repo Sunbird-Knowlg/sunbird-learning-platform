@@ -22,8 +22,10 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
@@ -63,7 +65,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             node.getMetadata().put("unicodeNotation", wc.getUnicode());
                             node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
                             node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-                            node.getMetadata().put("status", "Live");
+                            node.getMetadata().put("pos", getPOS(node));
                             Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                     "updateDataNode");
                             updateReq.put(GraphDACParams.node.name(), node);
@@ -222,9 +224,28 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             node.setTags(tags);
         }
     }
+    
+    private List<String> getPOS(Node node) {
+        List<String> posList = new ArrayList<String>();
+        List<Relation> inRels = node.getInRelations();
+        if (null != inRels && !inRels.isEmpty()) {
+            for (Relation rel : inRels) {
+                if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName()) 
+                        && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Synset")) {
+                    Map<String, Object> metadata = rel.getStartNodeMetadata();
+                    if (null != metadata && !metadata.isEmpty()) {
+                        String pos = (String) metadata.get("pos");
+                        if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
+                            posList.add(pos.toLowerCase());
+                    }
+                }
+            }
+        }
+        return posList;
+    }
 
     private void updatePosList(Node node, Map<String, Object> citations) {
-        updateListMetadata(node, citations, "pos", "pos");
+        updateListMetadata(node, citations, "pos", "posTags");
     }
     
     private void updateSourceTypesList(Node node, Map<String, Object> citations) {

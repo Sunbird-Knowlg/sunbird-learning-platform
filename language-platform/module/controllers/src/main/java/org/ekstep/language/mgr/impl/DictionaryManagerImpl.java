@@ -148,12 +148,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				}
 			}
 			if (null == errResponse) {
-				createRes.getResult().remove("node_id");
-				createRes.put("node_id", lstNodeId);
+				createRes.getResult().remove(GraphDACParams.node_id.name());
+				createRes.put(GraphDACParams.node_id.name(), lstNodeId);
 				return createRes;
 			} else {
-				errResponse.getResult().remove("node_id");
-				errResponse.put("node_id", lstNodeId);
+				errResponse.getResult().remove(GraphDACParams.node_id.name());
+				errResponse.put(GraphDACParams.node_id.name(), lstNodeId);
 				return errResponse;
 			}
 		} catch (ClassCastException e) {
