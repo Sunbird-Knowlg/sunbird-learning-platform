@@ -10,6 +10,9 @@ public class SearchDTO {
 	private String operation;
 	private int limit;
 	
+	public SearchDTO() {
+		super();
+	}
 	@SuppressWarnings("rawtypes")
 	public SearchDTO(List<Map> properties, String operation, int limit) {
 		super();

@@ -25,6 +25,7 @@ public class Constants {
 	public static final String SEARCH_OPERATION_LESS_THAN_EQUALS = "LTE";
 	public static final String SEARCH_OPERATION_GREATER_THAN_EQUALS = "GTE";
 	public static final String SEARCH_OPERATION_LIKE = "LIKE";
+	public static final String SEARCH_OPERATION_CONTAINS = "CONTAINS";
 	public static final String SEARCH_OPERATION_NOT_LIKE = "NT_LIKE";
 	public static final String SEARCH_OPERATION_EQUAL = "EQ";
 	public static final String SEARCH_OPERATION_NOT_EQUAL = "NT_EQ";

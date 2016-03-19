@@ -290,6 +290,20 @@ public class ElasticSearchUtil {
 		return result;
 	}
 
+	@SuppressWarnings("unused")
+	public SearchResult search(String IndexName, String query) throws IOException {
+		Search search = new Search.Builder(query).addIndex(IndexName)
+				.setParameter("size", resultLimit).build();
+		long startTime = System.currentTimeMillis();
+		SearchResult result = client.execute(search);
+		if (result.getErrorMessage() != null) {
+			throw new IOException(result.getErrorMessage());
+		}
+		long endTime = System.currentTimeMillis();
+		long diff = endTime - startTime;
+		return result;
+	}
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map<String, Object> getCountFromAggregation(LinkedTreeMap<String, Object> aggregations,
 			List<Map<String, Object>> groupByList) {
