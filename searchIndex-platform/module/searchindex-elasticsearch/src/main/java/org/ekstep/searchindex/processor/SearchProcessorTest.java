@@ -20,10 +20,33 @@ public class SearchProcessorTest {
 		List<Map> properties = new ArrayList<Map>();
 		
 		Map<String, Object> property = new HashMap<String, Object>();
-		property.put("operation", Constants.SEARCH_OPERATION_STARTS_WITH);
-		property.put("propertyNames", Arrays.asList("lemma"));
-		property.put("value", "hi");
+		property.put("operation", Constants.SEARCH_OPERATION_GREATER_THAN);
+		property.put("propertyName", "node_graph_id");
+		property.put("values", Arrays.asList(4, 6));
+		//properties.add(property);
 		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_GREATER_THAN);
+		property.put("propertyName", "node_graph_id");
+		property.put("values", Arrays.asList(3.9));
+		properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "lemma");
+		property.put("values", Arrays.asList("test", "पाकि"));
+		//properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_NOT_LIKE);
+		property.put("propertyName", "lemma");
+		property.put("values", Arrays.asList("test"));
+		properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_EXISTS);
+		property.put("propertyName", "lemma");
+		property.put("values", Arrays.asList("lemma"));
 		properties.add(property);
 		
 		dto.setProperties(properties);

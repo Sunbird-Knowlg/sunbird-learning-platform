@@ -76,16 +76,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 		  "objectType")
 		  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
 		  NODE_TYPE_DATA)
-		  .key("transactionData").object().key("addedProperties").array().
+		  .key("transactionData").object().key("addedProperties").
 		  object()
-		  .key("propertyName") .value("lemma")
-		  //.key("value").value("पाकिस्तान  वालों")
-		  .key("value").value("aHi,atest")
-		  .endObject()
-		  .object().key("propertyName")
-		  .value("sources").key("value").array().value("class 1"
+		  .key("lemma").value("aHi,atest")
+		  .key("sources")
+		  .array().value("class 1"
 		  ).value("rwo").endArray().endObject()
-		  .endArray().key("removedProperties").array().value("sourceTypes").
+		  .key("removedProperties").array().value("sourceTypes").
 		  endArray().key("addedTags").array() .value("grade one"
 		  ).endArray().key("removedTags").array().value("grade three"
 		  ).endArray().endObject() .endObject();
@@ -112,16 +109,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 				  "objectType")
 				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
 				  NODE_TYPE_DATA)
-				  .key("transactionData").object().key("addedProperties").array().
+				  .key("transactionData").object().key("addedProperties").
 				  object()
-				  .key("propertyName") .value("lemma")
-				  .key("value").value("पाकिस्तान ,वालों")
-				  //.key("value").value("aHi test")
-				  .endObject()
-				  .object().key("propertyName")
-				  .value("sources").key("value").array().value("class 1"
+				  .key("lemma").value("पाकिस्तान ,वालों")
+				  .key("sources")
+				  .array().value("class 1"
 				  ).value("rwo").endArray().endObject()
-				  .endArray().key("removedProperties").array().value("sourceTypes").
+				  .key("removedProperties").array().value("sourceTypes").
 				  endArray().key("addedTags").array() .value("grade one"
 				  ).endArray().key("removedTags").array().value("grade three"
 				  ).endArray().endObject() .endObject();
@@ -141,16 +135,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 				  "objectType")
 				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
 				  NODE_TYPE_DATA)
-				  .key("transactionData").object().key("addedProperties").array().
+				  .key("transactionData").object().key("addedProperties").
 				  object()
-				  .key("propertyName") .value("lemma")
-				  //.key("value").value("पाकिस्तान  वालों")
-				  .key("value").value("[Hi,test]")
-				  .endObject()
-				  .object().key("propertyName")
-				  .value("sources").key("value").array().value("class 1"
+				  .key("lemma").value("[Hi,test]")
+				  .key("sources")
+				  .array().value("class 1"
 				  ).value("rwo").endArray().endObject()
-				  .endArray().key("removedProperties").array().value("sourceTypes").
+				  .key("removedProperties").array().value("sourceTypes").
 				  endArray().key("addedTags").array() .value("grade one"
 				  ).endArray().key("removedTags").array().value("grade three"
 				  ).endArray().endObject() .endObject();

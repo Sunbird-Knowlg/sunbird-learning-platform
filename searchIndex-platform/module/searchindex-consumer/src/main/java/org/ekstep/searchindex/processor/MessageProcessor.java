@@ -119,16 +119,16 @@ public class MessageProcessor {
 		indexDocument.put("node_type", (String) message.get("nodeType"));
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
-			List<Map> addedProperties = (List<Map>) transactionData.get("addedProperties");
+			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("addedProperties");
 			if (addedProperties != null && !addedProperties.isEmpty()) {
-				for (Map propertyMap : addedProperties) {
-					if (propertyMap != null && propertyMap.get("propertyName") != null) {
-						String propertyName = (String) propertyMap.get("propertyName");
+				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
+					if (propertyMap != null && propertyMap.getKey() != null) {
+						String propertyName = (String) propertyMap.getKey();
 						Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
 						if (propertyDefinition != null) {
 							boolean indexed = (boolean) propertyDefinition.get("indexed");
 							if (indexed) {
-								indexDocument.put(propertyName, propertyMap.get("value"));
+								indexDocument.put(propertyName, propertyMap.getValue());
 							}
 						}
 					}

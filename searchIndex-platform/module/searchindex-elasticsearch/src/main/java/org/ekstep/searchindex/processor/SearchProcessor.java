@@ -15,9 +15,9 @@ import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class SearchProcessor {
-	
+
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void processSearch(SearchDTO searchDTO) throws IOException {
 		List<Map> conditionsSetOne = new ArrayList<Map>();
@@ -32,9 +32,9 @@ public class SearchProcessor {
 
 		String totalOperation = searchDTO.getOperation();
 		for (Map<String, Object> property : properties) {
-			List<String> propertyNames = (List<String>) property.get("propertyNames");
+			String propertyName = (String) property.get("propertyName");
 			String operation = (String) property.get("operation");
-			Object value = (String) property.get("value");
+			List<Object> values = (List<Object>) property.get("values");
 			String queryOperation = null;
 			String conditionSet = null;
 			switch (operation) {
@@ -99,11 +99,11 @@ public class SearchProcessor {
 			}
 
 			Map<String, Object> condition = new HashMap<String, Object>();
-			if (propertyNames.size() > 1) {
+			if (values.size() > 1) {
 				condition.put("operation", "bool");
 				condition.put("operand", "should");
 				ArrayList<Map> subConditions = new ArrayList<Map>();
-				for (String propertyName : propertyNames) {
+				for (Object value : values) {
 					Map<String, Object> subCondition = new HashMap<String, Object>();
 					subCondition.put("operation", queryOperation);
 					subCondition.put("fieldName", propertyName);
@@ -113,8 +113,8 @@ public class SearchProcessor {
 				condition.put("subConditions", subConditions);
 			} else {
 				condition.put("operation", queryOperation);
-				condition.put("fieldName", propertyNames.get(0));
-				condition.put("value", value);
+				condition.put("fieldName", propertyName);
+				condition.put("value", values.get(0));
 			}
 			conditionsMap.get(conditionSet).add(condition);
 		}
@@ -142,232 +142,187 @@ public class SearchProcessor {
 			builder.key(allOperation).array();
 			for (Map textCondition : textConditions) {
 				String conditionOperation = (String) textCondition.get("operation");
-				if(conditionOperation.equalsIgnoreCase("bool")){
+				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = (String) textCondition.get("operand");
-					builder.key("bool").object();
+					builder.object().key("bool").object();
 					builder.key(operand).array();
 					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
-					for(Map subCondition: subConditions){
+					for (Map subCondition : subConditions) {
 						builder.object();
 						String queryOperation = (String) subCondition.get("operation");
 						String fieldName = (String) subCondition.get("fieldName");
 						String value = (String) subCondition.get("value");
-						switch(queryOperation){
-						case "equal":{
-							builder.key("match").object()
-							.key(fieldName+".raw").value(value)
-							.endObject();
+						switch (queryOperation) {
+						case "equal": {
+							builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
 							break;
 						}
-						case "like":{
-							builder.key("match").object()
-							.key(fieldName).value(value)
-							.endObject();
+						case "like": {
+							builder.key("match").object().key(fieldName).value(value).endObject();
 							break;
 						}
-						case "prefix":{
-							builder.key("query").object()
-							.key("prefix").object()
-							.key(fieldName+".raw").value(value)
-							.endObject()
-							.endObject();
+						case "prefix": {
+							builder.key("query").object().key("prefix").object().key(fieldName + ".raw").value(value)
+									.endObject().endObject();
 							break;
 						}
-						case "exists":{
-							builder
-							.key("exists").object()
-							.key("field").value(value)
-							.endObject();
+						case "exists": {
+							builder.key("exists").object().key("field").value(value).endObject();
 							break;
 						}
 						}
 						builder.endObject();
 					}
 					builder.endArray();
-					builder.endObject();
-				}
-				else{
+					builder.endObject().endObject();
+				} else {
 					builder.object();
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
-					String value = (String) textCondition.get("value");
-					switch(queryOperation){
-					case "equal":{
-						builder.key("match").object()
-						.key(fieldName+".raw").value(value)
-						.endObject();
+					Object value = (Object) textCondition.get("value");
+					switch (queryOperation) {
+					case "equal": {
+						builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
 						break;
 					}
-					case "like":{
-						builder.key("match").object()
-						.key(fieldName).value(value)
-						.endObject();
+					case "like": {
+						builder.key("match").object().key(fieldName).value(value).endObject();
 						break;
 					}
-					case "prefix":{
-						builder.key("query").object()
-						.key("prefix").object()
-						.key(fieldName+".raw").value(value)
-						.endObject()
-						.endObject();
+					case "prefix": {
+						builder.key("query").object().key("prefix").object().key(fieldName + ".raw").value(value)
+								.endObject().endObject();
 						break;
 					}
-					case "exists":{
-						builder
-						.key("exists").object()
-						.key("field").value(value)
-						.endObject();
+					case "exists": {
+						builder.key("exists").object().key("field").value(value).endObject();
 						break;
 					}
 					}
 					builder.endObject();
-				
+
 				}
 			}
 			builder.endArray();
 		}
-		
+
 		List<Map> arithmeticConditions = conditionsMap.get("Arithmetic");
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			String allOperation = "||";
+			String scriptOperation = "should";
 			if (totalOperation == "AND") {
 				allOperation = "&&";
+				scriptOperation = "must";
 			}
-			builder.key(allOperation).array();
-					
-			builder.object()
-			.key("script").object()
-			.key("script");
-			String overallScript =  "";
+			builder.key(scriptOperation).array();
+
+			builder.object().key("script").object().key("script");
+			String overallScript = "";
 			for (Map arithmeticCondition : arithmeticConditions) {
 				String conditionOperation = (String) arithmeticCondition.get("operation");
 				String conditionScript = "";
-				if(conditionOperation.equalsIgnoreCase("bool")){
+				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = "||";
 					StringBuffer finalScript = new StringBuffer();
 					finalScript.append("(");
 					List<Map> subConditions = (List<Map>) arithmeticCondition.get("subConditions");
-					List<String> scripts =  new ArrayList<String>();
-					for(Map subCondition: subConditions){
+					List<String> scripts = new ArrayList<String>();
+					for (Map subCondition : subConditions) {
 						StringBuffer script = new StringBuffer();
 						String queryOperation = (String) subCondition.get("operation");
 						String fieldName = (String) subCondition.get("fieldName");
-						String value = (String) subCondition.get("value");
-						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation).append(" ").append(value);
+						Object value = (Object) subCondition.get("value");
+						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+								.append(" ").append(value);
 						scripts.add(script.toString());
 					}
-					String tempScript="";
-					for(String script: scripts){
+					String tempScript = "";
+					for (String script : scripts) {
 						tempScript = tempScript + operand + script;
 					}
 					tempScript = tempScript.substring(2);
 					finalScript.append(tempScript).append(")");
 					conditionScript = finalScript.toString();
-				}
-				else{
-						StringBuffer script = new StringBuffer();
-						String queryOperation = (String) arithmeticCondition.get("operation");
-						String fieldName = (String) arithmeticCondition.get("fieldName");
-						String value = (String) arithmeticCondition.get("value");
-						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation).append(" ").append(value);
-						conditionScript = script.toString();
+				} else {
+					StringBuffer script = new StringBuffer();
+					String queryOperation = (String) arithmeticCondition.get("operation");
+					String fieldName = (String) arithmeticCondition.get("fieldName");
+					Object value = (Object) arithmeticCondition.get("value");
+					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+							.append(" ").append(value);
+					conditionScript = script.toString();
 				}
 				overallScript = overallScript + allOperation + conditionScript;
 			}
 			builder.value(overallScript.substring(2));
-			builder.endObject()
-			.endObject()
-			.endArray();
+			builder.endObject().endObject().endArray();
 		}
-
 
 		List<Map> notConditions = conditionsMap.get("Not");
 		if (notConditions != null && !notConditions.isEmpty()) {
 			String allOperation = "must_not";
-			
 			builder.key(allOperation).array();
 			for (Map notCondition : notConditions) {
-				builder.object();
 				String conditionOperation = (String) notCondition.get("operation");
-				if(conditionOperation.equalsIgnoreCase("bool")){
+				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = (String) notCondition.get("operand");
+					builder.object().key("bool").object();
 					builder.key(operand).array();
 					List<Map> subConditions = (List<Map>) notCondition.get("subConditions");
-					for(Map subCondition: subConditions){
+					for (Map subCondition : subConditions) {
 						builder.object();
 						String queryOperation = (String) subCondition.get("operation");
 						String fieldName = (String) subCondition.get("fieldName");
 						String value = (String) subCondition.get("value");
-						switch(queryOperation){
-						case "equal":{
-							builder.key("match").object()
-							.key(fieldName+".raw").value(value)
-							.endObject();
+						switch (queryOperation) {
+						case "equal": {
+							builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
 							break;
 						}
-						case "like":{
-							builder.key("match").object()
-							.key(fieldName).value(value)
-							.endObject();
+						case "like": {
+							builder.key("match").object().key(fieldName).value(value).endObject();
 							break;
 						}
-						case "prefix":{
-							builder.key("query").object()
-							.key("prefix").object()
-							.key(fieldName+".raw").value(value)
-							.endObject()
-							.endObject();
+						case "prefix": {
+							builder.key("query").object().key("prefix").object().key(fieldName + ".raw").value(value)
+									.endObject().endObject();
 							break;
 						}
-						case "exists":{
-							builder
-							.key("exists").object()
-							.key("field").value(value)
-							.endObject();
+						case "exists": {
+							builder.key("exists").object().key("field").value(value).endObject();
 							break;
 						}
 						}
 						builder.endObject();
 					}
 					builder.endArray();
-				}
-				else{
+					builder.endObject().endObject();
+				} else {
 					builder.object();
 					String queryOperation = (String) notCondition.get("operation");
 					String fieldName = (String) notCondition.get("fieldName");
 					String value = (String) notCondition.get("value");
-					switch(queryOperation){
-					case "equal":{
-						builder.key("match").object()
-						.key(fieldName+".raw").value(value)
-						.endObject();
+					switch (queryOperation) {
+					case "equal": {
+						builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
 						break;
 					}
-					case "like":{
-						builder.key("match").object()
-						.key(fieldName).value(value)
-						.endObject();
+					case "like": {
+						builder.key("match").object().key(fieldName).value(value).endObject();
 						break;
 					}
-					case "prefix":{
-						builder.key("query").object()
-						.key("prefix").object()
-						.key(fieldName+".raw").value(value)
-						.endObject()
-						.endObject();
+					case "prefix": {
+						builder.key("query").object().key("prefix").object().key(fieldName + ".raw").value(value)
+								.endObject().endObject();
 						break;
 					}
-					case "exists":{
-						builder
-						.key("exists").object()
-						.key("field").value(value)
-						.endObject();
+					case "exists": {
+						builder.key("exists").object().key("field").value(value).endObject();
 						break;
 					}
 					}
 					builder.endObject();
 				}
-				builder.endObject();
 			}
 			builder.endArray();
 		}
