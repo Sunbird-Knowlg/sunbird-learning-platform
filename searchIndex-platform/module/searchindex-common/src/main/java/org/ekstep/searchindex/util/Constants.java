@@ -16,8 +16,9 @@ public class Constants {
 	public static final String NODE_TYPE_DATA = "DATA_NODE";
 	public static final String NODE_TYPE_ROOT = "ROOT_NODE";
 	public static final String COMPOSITE_SEARCH_INDEX = "compositesearch";
+	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
 	public static final String INDEX_FIELD_TAGS = "tags";
-	public static final String NODE_TYPE_DEFINITION = "DEFINTION_NODE";
+	public static final String NODE_TYPE_DEFINITION = "DEFINITION_NODE";
 	public static final String SEARCH_OPERATION_LESS_THAN = "LT";
 	public static final String SEARCH_OPERATION_GREATER_THAN = "GT";
 	public static final String SEARCH_OPERATION_EXISTS = "EXISTS";

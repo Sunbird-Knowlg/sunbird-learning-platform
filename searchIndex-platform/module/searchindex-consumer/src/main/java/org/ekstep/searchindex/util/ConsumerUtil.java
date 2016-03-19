@@ -36,7 +36,7 @@ public class ConsumerUtil {
 			String indexDocument = mapper.writeValueAsString(indexMap);
 			indexesMap.put((String)indexMap.get("node_unique_id"), indexDocument);
 		}
-		elasticSearchUtil.bulkIndexWithIndexId(Constants.COMPOSITE_SEARCH_INDEX, objectType.toLowerCase(), indexesMap);
+		elasticSearchUtil.bulkIndexWithIndexId(Constants.COMPOSITE_SEARCH_INDEX, Constants.COMPOSITE_SEARCH_INDEX_TYPE, indexesMap);
 	}
 	
 	@SuppressWarnings("rawtypes")
