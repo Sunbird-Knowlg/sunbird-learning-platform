@@ -45,6 +45,12 @@ public class ElasticSearchUtil {
 	private int BATCH_SIZE = 10000;
 	private int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
+	
+	
+
+	public void setDefaultResultLimit(int defaultResultLimit) {
+		this.resultLimit = defaultResultLimit;
+	}
 
 	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
 		super();

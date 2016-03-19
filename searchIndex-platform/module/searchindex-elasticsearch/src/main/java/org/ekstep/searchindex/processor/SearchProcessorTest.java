@@ -33,15 +33,21 @@ public class SearchProcessorTest {
 		
 		property = new HashMap<String, Object>();
 		property.put("operation", Constants.SEARCH_OPERATION_LIKE);
+		property.put("propertyName", "*");
+		property.put("values", Arrays.asList("पाकि"));
+		properties.add(property);
+		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_NOT_EQUAL);
 		property.put("propertyName", "lemma");
-		property.put("values", Arrays.asList("test", "पाकि"));
+		property.put("values", Arrays.asList("hi"));
 		//properties.add(property);
 		
 		property = new HashMap<String, Object>();
 		property.put("operation", Constants.SEARCH_OPERATION_NOT_LIKE);
 		property.put("propertyName", "lemma");
-		property.put("values", Arrays.asList("test"));
-		properties.add(property);
+		property.put("values", Arrays.asList("test", "वालों"));
+		//properties.add(property);
 		
 		property = new HashMap<String, Object>();
 		property.put("operation", Constants.SEARCH_OPERATION_EXISTS);
@@ -49,9 +55,15 @@ public class SearchProcessorTest {
 		property.put("values", Arrays.asList("lemma"));
 		properties.add(property);
 		
+		property = new HashMap<String, Object>();
+		property.put("operation", Constants.SEARCH_OPERATION_NOT_EXISTS);
+		property.put("propertyName", "lemmaOne");
+		property.put("values", Arrays.asList("lemmaOne"));
+		properties.add(property);
+		
 		dto.setProperties(properties);
 		dto.setOperation("AND");
-		
+		dto.setLimit(10000);
 		processor.processSearch(dto);
 	}
 }

@@ -19,7 +19,7 @@ public class SearchProcessor {
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void processSearch(SearchDTO searchDTO) throws IOException {
+	public List<Object> processSearch(SearchDTO searchDTO) throws IOException {
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
@@ -33,6 +33,9 @@ public class SearchProcessor {
 		String totalOperation = searchDTO.getOperation();
 		for (Map<String, Object> property : properties) {
 			String propertyName = (String) property.get("propertyName");
+			if(propertyName.equals("*")){
+				propertyName = "all_fields";
+			}
 			String operation = (String) property.get("operation");
 			List<Object> values = (List<Object>) property.get("values");
 			String queryOperation = null;
@@ -119,17 +122,15 @@ public class SearchProcessor {
 			conditionsMap.get(conditionSet).add(condition);
 		}
 		String query = makeElasticSearchQuery(conditionsMap, totalOperation);
+		elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
 		SearchResult searchResult = elasticSearchUtil.search(Constants.COMPOSITE_SEARCH_INDEX, query);
 		List<Object> result = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 		System.out.println("True");
+		return result;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation) {
-		/*
-		 * { "query": { "filtered": { "query": { "bool": {
-		 */
-
 		JSONBuilder builder = new JSONStringer();
 		builder.object().key("query").object().key("filtered").object().key("query").object().key("bool").object();
 
