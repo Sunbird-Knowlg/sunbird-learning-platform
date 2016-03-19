@@ -22,6 +22,7 @@
 		<module>module/searchindex-producer</module>
 		<module>module/searchindex-elasticsearch</module>
 		<module>module/searchindex-common</module>
+		<module>module/composite-search-api</module>
 	</modules>
 
 	<dependencies>
