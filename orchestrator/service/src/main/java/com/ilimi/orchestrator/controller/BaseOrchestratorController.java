@@ -16,12 +16,13 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.interpreter.exception.ExecutionErrorCodes;
 
 public abstract class BaseOrchestratorController {
     
     private static final String API_ID_PREFIX = "orchestrator";
-    private static final String API_VERSION = "1.0";
+    private static final String API_VERSION = "2.0";
     
     protected ObjectMapper mapper = new ObjectMapper();
     
@@ -35,10 +36,18 @@ public abstract class BaseOrchestratorController {
         return response;
     }
 
+    protected ResponseEntity<Response> getResponseEntity(Response response, OrchestratorScript script) {
+        int statusCode = response.getResponseCode().code();
+        HttpStatus status = getStatus(statusCode);
+        String apiId = StringUtils.isBlank(script.getApiId()) ? script.getName() : script.getApiId();
+        setResponseEnvelope(response, null, apiId);
+        return new ResponseEntity<Response>(response, status);
+    }
+    
     protected ResponseEntity<Response> getResponseEntity(Response response, String apiId) {
         int statusCode = response.getResponseCode().code();
         HttpStatus status = getStatus(statusCode);
-        setResponseEnvelope(response, apiId);
+        setResponseEnvelope(response, API_ID_PREFIX, apiId);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -69,10 +78,18 @@ public abstract class BaseOrchestratorController {
         return status;
     }
 
+    protected ResponseEntity<Response> getExceptionResponseEntity(Exception e, OrchestratorScript script) {
+        HttpStatus status = getHttpStatus(e);
+        Response response = getErrorResponse(e);
+        String apiId = StringUtils.isBlank(script.getApiId()) ? script.getName() : script.getApiId();
+        setResponseEnvelope(response, null, apiId);
+        return new ResponseEntity<Response>(response, status);
+    }
+    
     protected ResponseEntity<Response> getExceptionResponseEntity(Exception e, String apiId) {
         HttpStatus status = getHttpStatus(e);
         Response response = getErrorResponse(e);
-        setResponseEnvelope(response, apiId);
+        setResponseEnvelope(response, API_ID_PREFIX, apiId);
         return new ResponseEntity<Response>(response, status);
     }
 
@@ -86,9 +103,12 @@ public abstract class BaseOrchestratorController {
         return status;
     }
 
-    protected void setResponseEnvelope(Response response, String apiId) {
+    protected void setResponseEnvelope(Response response, String prefix, String apiId) {
         if (null != response) {
-            response.setId(API_ID_PREFIX + "." + apiId);
+            if (StringUtils.isBlank(prefix))
+                response.setId(apiId);
+            else
+                response.setId(prefix + "." + apiId);
             response.setVer(API_VERSION);
             response.setTs(getResponseTimestamp());
             ResponseParams params = response.getParams();

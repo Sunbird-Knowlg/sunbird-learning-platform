@@ -27,5 +27,6 @@
           "type"
         ]
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.domain.object.search"
 }

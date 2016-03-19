@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
@@ -82,6 +83,7 @@ public class ContentV2Controller extends BaseController {
         LOGGER.info("Create Content Bundle | user-id: " + userId);
         try {
             Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
+            request.put(ContentAPIParams.version.name(), "v2");
             Response response = contentManager.bundle(request, graphId, "1.1");
             LOGGER.info("Archive | Response: " + response);
             return getResponseEntity(response, apiId, null);
@@ -89,5 +91,9 @@ public class ContentV2Controller extends BaseController {
             LOGGER.error("Archive | Exception: " + e.getMessage(), e);
             return getExceptionResponseEntity(e, apiId, null);
         }
+    }
+    
+    protected String getAPIVersion() {
+        return API_VERSION_2;
     }
 }

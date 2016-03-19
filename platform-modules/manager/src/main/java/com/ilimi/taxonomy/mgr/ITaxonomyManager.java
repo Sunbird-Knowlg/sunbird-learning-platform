@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.mgr;
 
 import java.io.InputStream;
 import java.util.List;
+import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -14,7 +15,7 @@ public interface ITaxonomyManager {
 
     Response create(String id, InputStream stream);
     
-    Response export(String id, String format);
+    Response export(String id, Map<String,Object> reqMap);
 
     Response delete(String id);
 
@@ -31,5 +32,7 @@ public interface ITaxonomyManager {
     Response createIndex(String id, List<String> keys, Boolean unique);
     
     Response getSubGraph(String graphId, String id, Integer depth, List<String> relations);
+    
+    Response compositeSearch();
 
 }

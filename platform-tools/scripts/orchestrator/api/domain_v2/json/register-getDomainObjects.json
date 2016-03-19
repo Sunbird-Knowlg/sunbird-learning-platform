@@ -48,5 +48,6 @@
           "fields"
         ]
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.domain.object.list"
 }
