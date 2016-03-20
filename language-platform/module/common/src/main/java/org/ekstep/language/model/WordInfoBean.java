@@ -1,5 +1,8 @@
 package org.ekstep.language.model;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class WordInfoBean {
 	
 	private String word;
@@ -30,6 +33,10 @@ public class WordInfoBean {
 		this.rts = rts;
 	}
 	
+	public WordInfoBean() {
+		super();
+	}
+
 	public String getCategory() {
 		return category;
 	}

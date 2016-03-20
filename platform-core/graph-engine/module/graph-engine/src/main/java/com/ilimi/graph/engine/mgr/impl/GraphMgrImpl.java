@@ -122,6 +122,17 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             handleException(e, getSender());
         }
     }
+    
+    @Override
+    public void createTaskNode(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        try {
+            Graph graph = new Graph(this, graphId);
+            graph.createTaskNode(request);
+        } catch (Exception e) {
+            handleException(e, getSender());
+        }
+    }
 
     @Override
     public void exportGraph(Request request) {

@@ -10,9 +10,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import net.sf.json.util.JSONBuilder;
-import net.sf.json.util.JSONStringer;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,6 +45,9 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
+
+import net.sf.json.util.JSONBuilder;
+import net.sf.json.util.JSONStringer;
 
 public class WordUtil extends BaseManager {
 
@@ -683,4 +683,5 @@ public class WordUtil extends BaseManager {
 		}
 		return errorMessageList;
 	}
+
 }

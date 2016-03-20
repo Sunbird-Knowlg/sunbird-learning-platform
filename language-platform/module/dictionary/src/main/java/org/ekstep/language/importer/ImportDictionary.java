@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -46,7 +47,7 @@ public class ImportDictionary {
 //	}
     
 	@SuppressWarnings("unchecked")
-	protected DictionaryObject importIndoWordNetData(String languageId, String sourceType, InputStream stream) {
+	protected DictionaryObject transformIndoWordNetData(String languageId, String sourceType, InputStream stream) {
 		double  startTime = System.currentTimeMillis();
 		System.out.println("Language-Platform | Importer | IWN | Start Time : " + startTime);
 		// TODO: All the Codes should come from Configuration
@@ -76,7 +77,7 @@ public class ImportDictionary {
 		List<SynsetModel> lstSynset = new ArrayList<SynsetModel>();
 		DictionaryObject dictionaryObject = new DictionaryObject();
 		try {
-			Reader reader = new InputStreamReader(stream);
+			Reader reader = new InputStreamReader(stream, "UTF8");
 			br = new BufferedReader(reader);
 			while ((line = br.readLine()) != null) {
 				try {
@@ -193,26 +194,23 @@ public class ImportDictionary {
 		return null;
 	}
 	
-	public DictionaryObject importData(String languageId, String sourceType, InputStream stream) {
+	public DictionaryObject transformData(String languageId, String sourceType, InputStream stream) {
 		if (!isValidLanguageId(languageId)) {
 			throw new IllegalArgumentException("Invalid Language Id.");
 		}else if (!isValidSourceType(sourceType)) {
 			throw new IllegalArgumentException("Invalid Data Source Type.");
 		}else{
-			try {
 				DictionaryObject dictionaryObject = new DictionaryObject();
 				switch (sourceType) {
 				case "IndoWordNet":
-					dictionaryObject = importIndoWordNetData(languageId, sourceType, stream);
+					dictionaryObject = transformIndoWordNetData(languageId, sourceType, stream);
 					break;
 
 				default:
 					break;
 				}
 				return dictionaryObject;
-			} catch(Exception e) {}
 		}
-		return null;
 	}
 
 	protected boolean isValidLanguageId(String languageId) {
@@ -233,12 +231,10 @@ public class ImportDictionary {
 		}
 	}
 
-    private static void writeWordsToCSV(List<WordModel> wordList)
+    private static void writeWordsToCSV(List<WordModel> wordList) throws IOException
     {
-        try
-        {
         	String fileName = "Language_Platform_Words.csv";
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("\\data\\" + fileName), StandardCharsets.UTF_8));
             bw.write("identifier,Lemma,objectType");
             bw.newLine();
             for (WordModel word : wordList)
@@ -254,10 +250,6 @@ public class ImportDictionary {
             }
             bw.flush();
             bw.close();
-        }
-        catch (UnsupportedEncodingException e) {}
-        catch (FileNotFoundException e){}
-        catch (IOException e){}
     }
 
     private static void writeSynsetsToCSV(List<SynsetModel> synsetList)
@@ -265,7 +257,7 @@ public class ImportDictionary {
         try
         {
         	String fileName = "Language_Platform_Synsets.csv";
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(fileName), "UTF-8"));
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("\\data\\" + fileName), StandardCharsets.UTF_8));
             bw.write("identifier,rel:synonym,rel:hasAntonym,rel:hasHyponym,rel:hasMeronym,rel:hasHolonym,rel:hasHypernym,gloss,exampleSentences,pos,objectType");
             bw.newLine();
             for (SynsetModel synset : synsetList)

@@ -82,6 +82,24 @@ public abstract class BaseGraphManager extends UntypedActor {
     public void ERROR(Throwable e, ActorRef parent) {
         handleException(e, parent);
     }
+    
+    public void ERROR(Throwable e, String responseIdentifier, Object vo, ActorRef parent) {
+    	 Response response = new Response();
+    	 response.put(responseIdentifier, vo);
+         ResponseParams params = new ResponseParams();
+         params.setStatus(StatusType.failed.name());
+         if (e instanceof MiddlewareException) {
+             MiddlewareException mwException = (MiddlewareException) e;
+             params.setErr(mwException.getErrCode());
+         } else {
+             params.setErr(GraphEngineErrorCodes.ERR_SYSTEM_EXCEPTION.name());
+         }
+         params.setErrmsg(e.getClass().getName() + ": " + e.getMessage());
+         response.setParams(params);
+         setResponseCode(response, e);
+         parent.tell(response, getSelf());
+    }
+
 
     public void ERROR(String errorCode, String errorMessage, ResponseCode code, ActorRef parent) {
         LOGGER.error(errorCode + ", " + errorMessage);

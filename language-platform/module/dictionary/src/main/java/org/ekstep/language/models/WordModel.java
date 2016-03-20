@@ -166,4 +166,20 @@ public class WordModel {
 		this.totalCitation = totalCitation;
 	}
 	
+	@Override
+	public int hashCode(){
+		return this.wordLemma.hashCode();
+	}
+	
+	@Override
+	public boolean equals(Object obj){
+		if(obj == null)
+			return false;
+		if(!(obj instanceof WordModel))
+			return false;
+		
+		WordModel other = (WordModel) obj;
+	    return this.wordLemma == other.wordLemma;
+			
+	}
 }

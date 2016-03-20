@@ -1,3 +1,37 @@
 node registerCommand.js commands/register-lang_getWordsInformation.json register
 
 node registerCommand.js commands/register-lang_getWordId.json register
+
+node registerCommand.js commands/register-lang_getWordsInformation.json register
+
+node registerCommand.js commands/register-lang_getCitationsCount.json register
+
+node registerCommand.js commands/register-lang_getRootWords.json register
+
+node registerCommand.js commands/register-lang_getRootWordInfo.json register
+
+node registerCommand.js commands/register-lang_getWordId.json register
+
+node registerCommand.js commands/register-lang_getIndexInfo.json register
+
+node registerCommand.js commands/register-lang_addWordIndex.json register
+
+node registerCommand.js commands/register-lang_getWordMetrics.json register
+
+node registerCommand.js commands/register-lang_addCitationIndex.json register
+
+node registerCommand.js commands/register-lang_wordWildCard.json register
+
+node registerCommand.js commands/register-lang_getMorphologicalVariants.json register
+
+node registerCommand.js commands/register-lang_getCitations.json register
+
+node registerCommand.js commands/register-lang_loadCitations.json register
+
+node registerCommand.js commands/register-lang_loadLanguageVectors.json register
+
+node registerCommand.js commands/register-lang_getWordFeatures.json register
+
+
+
+

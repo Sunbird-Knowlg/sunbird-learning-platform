@@ -26,6 +26,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -594,6 +595,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     @Override
     public void importGraph(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String taskId = request.get(GraphDACParams.task_id.name()) == null? null : (String) request.get(GraphDACParams.task_id.name());
         ImportData input = (ImportData) request.get(GraphDACParams.import_input_object.name());
         Transaction tx = null;
         if (StringUtils.isBlank(graphId)) {
@@ -620,6 +622,9 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
                 tx.success();
                 tx.close();
+                if(taskId != null){
+                	updateTaskStatus(graphDb, taskId, "Completed");
+                }
                 OK(GraphDACParams.messages.name(), messages, getSender());
             } catch (Exception e) {
                 e.printStackTrace();
@@ -632,7 +637,27 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         }
     }
 
-    private Map<String, Node> getExistingNodes(Iterable<Node> dbNodes) {
+	private void updateTaskStatus(GraphDatabaseService graphDb, String taskId, String string) throws Exception {
+		Node taskNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, taskId);
+		Transaction tx = null;
+		try {
+			tx = graphDb.beginTx();
+			taskNode.setProperty(GraphEngineParams.status.name(), GraphEngineParams.Completed.name());
+			tx.success();
+		} catch (Exception e) {
+			if (null != tx) {
+				tx.failure();
+				tx.close();
+			}
+			throw new Exception(e);
+		} finally {
+			if (null != tx) {
+				tx.close();
+			}
+		}
+	}
+
+	private Map<String, Node> getExistingNodes(Iterable<Node> dbNodes) {
         Map<String, Node> existingNodes = new HashMap<String, Node>();
         if (null != dbNodes && null != dbNodes.iterator()) {
             for (Node dbNode : dbNodes) {

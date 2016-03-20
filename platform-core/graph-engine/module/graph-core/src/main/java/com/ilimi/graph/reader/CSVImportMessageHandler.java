@@ -5,6 +5,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -30,7 +31,7 @@ public class CSVImportMessageHandler {
 //        IOUtils.copy(inputStream, writer, "UTF-8");
 //        System.out.println("Is:"+writer.toString());
         
-        InputStreamReader isReader = new InputStreamReader(inputStream);
+        InputStreamReader isReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         csvReader = new CSVParser(isReader, csvFileFormat);
         List<CSVRecord> recordsList = csvReader.getRecords();
         CSVRecord headerRecord = recordsList.get(0);

@@ -3,6 +3,7 @@ package com.ilimi.graph.reader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -54,7 +55,7 @@ public class CSVGraphReader implements GraphReader {
         tagMembersMap = new HashMap<String, List<String>>();
         relations = new ArrayList<Relation>();
         validations = new ArrayList<String>();
-        InputStreamReader isReader = new InputStreamReader(inputStream);
+        InputStreamReader isReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         CSVParser csvReader = new CSVParser(isReader, csvFileFormat);
         List<CSVRecord> recordsList = csvReader.getRecords();
         CSVRecord headerRecord = recordsList.get(0);
