@@ -8,7 +8,6 @@
 		<relativePath>../../pom.xml</relativePath>
 	</parent>
 	<artifactId>composite-search-api</artifactId>
-	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>composite-search-api</name>
