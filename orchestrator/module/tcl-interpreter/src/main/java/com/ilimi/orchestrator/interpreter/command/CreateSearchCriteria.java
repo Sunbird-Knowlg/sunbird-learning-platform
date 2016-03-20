@@ -11,6 +11,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;
+import com.ilimi.graph.dac.model.RelationCriterion.DIRECTION;
+import com.ilimi.graph.dac.model.RelationFilter;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -94,12 +96,31 @@ public class CreateSearchCriteria implements ICommand, Command {
                             if (null != list && !list.isEmpty()) {
                                 for (Map relationMap : list) {
                                     String relation = (String) relationMap.get("name");
+                                    List<RelationFilter> relations = (List<RelationFilter>) relationMap.get("filters");
                                     String objectType = (String) relationMap.get("objectType");
-                                    if (StringUtils.isNotBlank(relation)) {
-                                        RelationCriterion rc = new RelationCriterion(relation, objectType);
+                                    RelationCriterion rc = null;
+                                    if (null != relations && !relations.isEmpty()) {
+                                        rc = new RelationCriterion(relations, objectType);
+                                    } else if (StringUtils.isNotBlank(relation)) {
+                                        rc = new RelationCriterion(relation, objectType);
+                                    }
+                                    if (null != rc) {
                                         List<String> identifiers = (List<String>) relationMap.get("identifiers");
                                         if (null != identifiers && !identifiers.isEmpty())
                                             rc.setIdentifiers(identifiers);
+                                        Integer fromDepth = (Integer) relationMap.get("fromDepth");
+                                        if (null != fromDepth)
+                                            rc.setFromDepth(fromDepth);
+                                        Integer toDepth = (Integer) relationMap.get("toDepth");
+                                        if (null != toDepth)
+                                            rc.setToDepth(toDepth);
+                                        String direction = (String) relationMap.get("direction");
+                                        if (StringUtils.isNotBlank(direction)) {
+                                            try {
+                                                rc.setDirection(DIRECTION.valueOf(direction.toUpperCase()));
+                                            } catch(Exception e) {
+                                            }
+                                        }
                                         sc.addRelationCriterion(rc);
                                     }
                                 }

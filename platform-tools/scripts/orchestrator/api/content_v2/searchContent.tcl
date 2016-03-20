@@ -1,7 +1,38 @@
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
-java::import -package com.ilimi.graph.dac.model Node
+java::import -package com.ilimi.graph.dac.model Node RelationFilter
+
+proc proc_createRelationFilter {relationName direction} {
+	set filter [java::new RelationFilter $relationName]
+	$filter setFromDepth [java::new Integer 0]
+	$filter setToDepth [java::new Integer 0]
+	$filter setToDepth [java::new Integer 0]
+	$filter setDirection $direction
+	return $filter
+}
+
+proc proc_setRelationCriteria {concepts_list objectType filters} {
+	set relation_query [java::new HashMap]
+	set concepts_list_null [java::isnull $concepts_list]
+	if {$concepts_list_null == 0} {
+		set is_list [java::instanceof $concepts_list List]
+		if {$is_list == 1} {
+			set concepts_list_obj [java::cast List $concepts_list]
+			set concepts_list_size [$concepts_list_obj size]
+			if {$concepts_list_size > 0} {
+				$relation_query put "filters" $filters
+				$relation_query put "objectType" $objectType
+				set concept_ids [java::new ArrayList]
+				java::for {String concept_id} $concepts_list_obj {
+					$concept_ids add $concept_id
+				}
+				$relation_query put "identifiers" $concept_ids
+			}
+		}
+	}
+	return $relation_query
+}
 
 set object_null [java::isnull $search]
 if {$object_null == 1} {
@@ -38,6 +69,7 @@ if {$object_null == 1} {
 		$search put "objectType" $object_type
 		$search put "nodeType" "DATA_NODE"
 
+		set relations_list [java::new ArrayList]
 		set concepts_list [$search get "concepts"]
 		set concepts_list_null [java::isnull $concepts_list]
 		if {$concepts_list_null == 0} {
@@ -56,10 +88,34 @@ if {$object_null == 1} {
 					}
 					$relation_query put "identifiers" $concept_ids
 					$relations_list add $relation_query
-					$search put "relationCriteria" $relations_list
 					$search remove "concepts"
 				}
 			}
+		}
+
+		set relation_names [java::new ArrayList]
+		$relation_names add [proc_createRelationFilter "associatedTo" "OUT"]
+		$relation_names add [proc_createRelationFilter "isParentOf" "IN"]
+
+		set domains_list [$search get "domains"]
+		set domain_query_map [proc_setRelationCriteria $domains_list "Domain" $relation_names]
+		set domain_query_empty [$domain_query_map isEmpty]
+		if {!$domain_query_empty} {
+			$relations_list add $domain_query_map
+			$search remove "domains"
+		}
+
+		set dimensions_list [$search get "dimensions"]
+		set dimension_query_map [proc_setRelationCriteria $dimensions_list "Dimension" $relation_names]
+		set dimension_query_empty [$dimension_query_map isEmpty]
+		if {!$dimension_query_empty} {
+			$relations_list add $dimension_query_map
+			$search remove "dimensions"
+		}
+
+		set relationsListSize [$relations_list size] 
+		if {$relationsListSize > 0} {
+			$search put "relationCriteria" $relations_list
 		}
 
 		set sort [$search get "sort"]

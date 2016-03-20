@@ -5,11 +5,9 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
@@ -21,8 +19,6 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.tooling.GlobalGraphOperations;
-
-import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -47,6 +43,8 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
+
+import akka.actor.ActorRef;
 
 public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDACSearchMgr {
 
