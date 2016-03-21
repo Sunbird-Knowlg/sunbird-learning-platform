@@ -19,12 +19,12 @@ public class CompositeSearchConstants {
 	public static final String COMPOSITE_SEARCH_INDEX_TYPE = "cs";
 	public static final String INDEX_FIELD_TAGS = "tags";
 	public static final String NODE_TYPE_DEFINITION = "DEFINITION_NODE";
-	public static final String SEARCH_OPERATION_LESS_THAN = "LT";
-	public static final String SEARCH_OPERATION_GREATER_THAN = "GT";
+	public static final String SEARCH_OPERATION_LESS_THAN = "<";
+	public static final String SEARCH_OPERATION_GREATER_THAN = ">";
 	public static final String SEARCH_OPERATION_EXISTS = "EXISTS";
 	public static final String SEARCH_OPERATION_NOT_EXISTS = "NT_EXISTS";
-	public static final String SEARCH_OPERATION_LESS_THAN_EQUALS = "LTE";
-	public static final String SEARCH_OPERATION_GREATER_THAN_EQUALS = "GTE";
+	public static final String SEARCH_OPERATION_LESS_THAN_EQUALS = "<=";
+	public static final String SEARCH_OPERATION_GREATER_THAN_EQUALS = ">=";
 	public static final String SEARCH_OPERATION_LIKE = "LIKE";
 	public static final String SEARCH_OPERATION_CONTAINS = "CONTAINS";
 	public static final String SEARCH_OPERATION_NOT_LIKE = "NT_LIKE";
