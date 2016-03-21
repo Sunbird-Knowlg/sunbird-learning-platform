@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
@@ -49,7 +50,7 @@ public class SearchUtil {
 					+ response.getStatusLine().getReasonPhrase());
 		}
 		BufferedReader rd = new BufferedReader(
-			new InputStreamReader(response.getEntity().getContent()));
+			new InputStreamReader(response.getEntity().getContent(),Charsets.UTF_8));
 
 		StringBuffer result = new StringBuffer();
 		String line = "";

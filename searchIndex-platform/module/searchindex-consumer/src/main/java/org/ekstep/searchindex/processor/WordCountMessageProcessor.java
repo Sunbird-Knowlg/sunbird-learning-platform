@@ -23,6 +23,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	private Timer timer;
 	private boolean messageProcessed = false;
 	private Map<String, Map<String, Integer>> wordsCountMap = new ConcurrentHashMap<String, Map<String, Integer>>();
+	private int BATCH_TIME_IN_SECONDS = 60;
 	
 
 	public void processMessage(String messageData) {
@@ -82,7 +83,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			timer = null;
 		}
 		else{
-			timer.schedule(new PushTask(), 60 * 1000);
+			timer.schedule(new PushTask(), BATCH_TIME_IN_SECONDS * 1000);
 		}
 	}
 
@@ -166,7 +167,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 				wordsCountObj.put("wordsCount", wordsCount);
 				wordsCountObj.put("liveWordsCount", liveWordsCount);
 				wordsCountMap.put(languageId, wordsCountObj);
-				createTimer(60);
+				createTimer(BATCH_TIME_IN_SECONDS);
 				messageProcessed = false;
 				System.out.println("Message processed");
 			}

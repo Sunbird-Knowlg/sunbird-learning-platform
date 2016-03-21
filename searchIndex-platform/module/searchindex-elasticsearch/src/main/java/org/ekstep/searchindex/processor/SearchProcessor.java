@@ -52,7 +52,11 @@ public class SearchProcessor {
 				break;
 			}
 
-			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH:
+			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH:{
+				queryOperation = "endsWith";
+				conditionSet = "Text";
+				break;
+			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
 			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
 				queryOperation = "like";
@@ -159,7 +163,8 @@ public class SearchProcessor {
 							break;
 						}
 						case "like": {
-							builder.key("match").object().key(fieldName).value(value).endObject();
+							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
+							.endObject().endObject();
 							break;
 						}
 						case "prefix": {
@@ -169,6 +174,11 @@ public class SearchProcessor {
 						}
 						case "exists": {
 							builder.key("exists").object().key("field").value(value).endObject();
+							break;
+						}
+						case "endsWith": {
+							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
+							.endObject().endObject();
 							break;
 						}
 						}
@@ -187,7 +197,8 @@ public class SearchProcessor {
 						break;
 					}
 					case "like": {
-						builder.key("match").object().key(fieldName).value(value).endObject();
+						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
+						.endObject().endObject();
 						break;
 					}
 					case "prefix": {
@@ -197,6 +208,11 @@ public class SearchProcessor {
 					}
 					case "exists": {
 						builder.key("exists").object().key("field").value(value).endObject();
+						break;
+					}
+					case "endsWith": {
+						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
+						.endObject().endObject();
 						break;
 					}
 					}
@@ -281,7 +297,8 @@ public class SearchProcessor {
 							break;
 						}
 						case "like": {
-							builder.key("match").object().key(fieldName).value(value).endObject();
+							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
+							.endObject().endObject();
 							break;
 						}
 						case "prefix": {
@@ -291,6 +308,11 @@ public class SearchProcessor {
 						}
 						case "exists": {
 							builder.key("exists").object().key("field").value(value).endObject();
+							break;
+						}
+						case "endsWith": {
+							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
+							.endObject().endObject();
 							break;
 						}
 						}
@@ -309,7 +331,8 @@ public class SearchProcessor {
 						break;
 					}
 					case "like": {
-						builder.key("match").object().key(fieldName).value(value).endObject();
+						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
+						.endObject().endObject();
 						break;
 					}
 					case "prefix": {
@@ -319,6 +342,11 @@ public class SearchProcessor {
 					}
 					case "exists": {
 						builder.key("exists").object().key("field").value(value).endObject();
+						break;
+					}
+					case "endsWith": {
+						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
+						.endObject().endObject();
 						break;
 					}
 					}
