@@ -1,6 +1,8 @@
 package org.ekstep.platform.domain;
 
 
+
+/// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.basePath;
 import com.jayway.restassured.builder.RequestSpecBuilder;
