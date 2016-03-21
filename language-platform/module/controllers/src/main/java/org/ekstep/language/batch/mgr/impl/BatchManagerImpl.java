@@ -35,6 +35,28 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     private String objectType = "Word";
 
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
+    
+    @Override
+    public Response updatePosList(String languageId) {
+        List<Node> nodes = getAllWords(languageId);
+        if (null != nodes && !nodes.isEmpty()) {
+            for (Node node : nodes) {
+                node.getMetadata().put("pos", getPOS(node));
+                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                        "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                try {
+                    System.out.println("Sending update req for : " + node.getIdentifier());
+                    getResponse(updateReq, LOGGER);
+                    System.out.println("Update complete for : " + node.getIdentifier());
+                } catch (Exception e) {
+                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                }
+            }
+        }
+        return OK("status", "OK");
+    }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -227,6 +249,11 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     
     private List<String> getPOS(Node node) {
         List<String> posList = new ArrayList<String>();
+        String[] arr = (String[]) node.getMetadata().get("pos");
+        if (null != arr && arr.length > 0) {
+            for (String str : arr)
+                posList.add(str.toLowerCase());
+        }
         List<Relation> inRels = node.getInRelations();
         if (null != inRels && !inRels.isEmpty()) {
             for (Relation rel : inRels) {

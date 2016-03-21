@@ -53,7 +53,11 @@ public class EnrichActor extends LanguageBaseActor {
 				List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
 				updateFrequencyCount(languageId, nodeList);
 				OK(getSender());
-			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.updatePosList.name(), operation)) {
+                List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
+                updatePosList(languageId, nodeList);
+                OK(getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
 				List<String> nodeIds = (List<String>) request.get(LanguageParams.node_ids.name());
 				enrichWords(nodeIds, languageId);
 				OK(getSender());
@@ -75,7 +79,7 @@ public class EnrichActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+		    System.out.println("Error: " + e.getMessage());
 			handleException(e, getSender());
 		}
 	}
@@ -89,6 +93,7 @@ public class EnrichActor extends LanguageBaseActor {
 			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
 				long startTime = System.currentTimeMillis();
 				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+				updatePosList(languageId, nodeList);
 				updateLexileMeasures(languageId, nodeList);
 				updateFrequencyCount(languageId, nodeList);
 				batch_node_ids = new ArrayList<String>();
@@ -179,18 +184,46 @@ public class EnrichActor extends LanguageBaseActor {
 							try {
 								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
 								if (checkError(updateResponse)) {
+								    System.out.println(updateResponse.getParams().getErr());
+								    System.out.println(updateResponse.getResult());
 									throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
 											updateResponse.getParams().getErrmsg());
 								}
 								//System.out.println("update complete for: " + node.getIdentifier());
 							} catch (Exception e) {
-								System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+								System.out.println("Update Frequency Counts error : " + node.getIdentifier() + " : " + e.getMessage());
 							}
 						}
 					}
 				}
 			}
 		}
+	}
+	
+	private void updatePosList(String languageId, List<Node> nodes) {
+	    if (null != nodes && !nodes.isEmpty()) {
+            System.out.println("Total words: " + nodes.size());
+            for (Node node : nodes) {
+                node.getMetadata().put("pos", getPOS(node));
+                Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                        "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                try {
+                    //System.out.println("Sending update req for : " + node.getIdentifier());
+                    Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+                    if (checkError(updateResponse)) {
+                        System.out.println(updateResponse.getParams().getErr());
+                        System.out.println(updateResponse.getResult());
+                        throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+                                updateResponse.getParams().getErrmsg());
+                    }
+                    //System.out.println("Update complete for : " + node.getIdentifier());
+                } catch (Exception e) {
+                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                }
+            }
+	    }
 	}
 
 	@SuppressWarnings("unchecked")
@@ -220,7 +253,6 @@ public class EnrichActor extends LanguageBaseActor {
 							node.getMetadata().put("unicodeNotation", wc.getUnicode());
 							node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
 							node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-							node.getMetadata().put("pos", getPOS(node));
 							Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
 									"updateDataNode");
 							updateReq.put(GraphDACParams.node.name(), node);
@@ -229,6 +261,8 @@ public class EnrichActor extends LanguageBaseActor {
 								//System.out.println("Sending update req for : " + node.getIdentifier());
 								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
 								if (checkError(updateResponse)) {
+								    System.out.println(updateResponse.getParams().getErr());
+                                    System.out.println(updateResponse.getResult());
 									throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
 											updateResponse.getParams().getErrmsg());
 								}
@@ -245,6 +279,11 @@ public class EnrichActor extends LanguageBaseActor {
 	
 	private List<String> getPOS(Node node) {
 	    List<String> posList = new ArrayList<String>();
+	    String[] arr = (String[]) node.getMetadata().get("pos");
+        if (null != arr && arr.length > 0) {
+            for (String str : arr)
+                posList.add(str.toLowerCase());
+        }
 	    List<Relation> inRels = node.getInRelations();
 	    if (null != inRels && !inRels.isEmpty()) {
 	        for (Relation rel : inRels) {
@@ -259,6 +298,7 @@ public class EnrichActor extends LanguageBaseActor {
 	            }
 	        }
 	    }
+	    System.out.println("pos list: " + posList.size());
 	    return posList;
 	}
 
