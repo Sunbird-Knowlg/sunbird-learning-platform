@@ -108,7 +108,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		for (Map<String, Object> filter: filters) {
 			for (Entry<String, Object> entry: filter.entrySet()) {
 				Map<String, Object> property = new HashMap<String, Object>();
-				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
 				property.put(CompositeSearchParams.values.name(), entry.getValue());
 				properties.add(property);

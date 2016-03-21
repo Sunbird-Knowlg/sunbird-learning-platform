@@ -44,8 +44,8 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
-    public ResponseEntity<Response> search(@PathVariable(value = "id") String graphId,
-    		@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId,
+    public ResponseEntity<Response> search(@RequestBody Map<String, Object> map, 
+    		@RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
         String apiId = "composite-search.search";
         try {
