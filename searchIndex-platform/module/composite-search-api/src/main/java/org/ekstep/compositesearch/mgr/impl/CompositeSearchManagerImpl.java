@@ -1,6 +1,8 @@
 package org.ekstep.compositesearch.mgr.impl;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,7 +15,10 @@ import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.mgr.BaseCompositeSearchManager;
 import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
+import org.ekstep.searchindex.dto.SearchDTO;
+import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.neo4j.graphdb.Node;
 import org.springframework.stereotype.Component;
 
@@ -48,9 +53,82 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	
 	@Override
 	public Response search(Request request) {
-		// TODO Auto-generated method stub
-		return null;
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			List<Object> lstResult = processor.processSearch(getSearchDTO(request));
+			return getCSearchResponse(lstResult);
+		} catch (IOException e) {
+			e.printStackTrace();
+			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
+		}
 	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private SearchDTO getSearchDTO(Request request) {
+		Map<String, Object> req = request.getRequest();
+		String queryString = (String) req.get(CompositeSearchParams.query.name());
+		int limit = (int) req.get(CompositeSearchParams.limit.name());
+		if (StringUtils.isBlank(queryString))
+			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
+					"Query String is blank.");
+		SearchDTO searchObj = new SearchDTO();
+		List<Map> properties = new ArrayList<Map>();
+		List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
+		List<Map<String, Object>> filters = (List<Map<String, Object>>) req.get(CompositeSearchParams.filters.name());
+		properties.addAll(getSearchQueryProp(queryString, fields));
+		properties.addAll(getSearchFilterProp(filters));
+		searchObj.setProperties(properties);
+		searchObj.setLimit(limit);
+		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+		return searchObj;
+	}
+	
+	private List<Map<String, Object>> getSearchQueryProp(String queryString, List<String> fields) {
+		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+		if (null == fields || fields.size() <= 0) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+			property.put(CompositeSearchParams.propertyName.name(), "*");
+			property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
+			properties.add(property);
+		}
+		for (String field: fields) {
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+			property.put(CompositeSearchParams.propertyName.name(), field);
+			property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
+			properties.add(property);
+		}
+		
+		return properties;
+	}
+	
+	private List<Map<String, Object>> getSearchFilterProp(List<Map<String, Object>> filters) {
+		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+		for (Map<String, Object> filter: filters) {
+			for (Entry<String, Object> entry: filter.entrySet()) {
+				Map<String, Object> property = new HashMap<String, Object>();
+				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+				property.put(CompositeSearchParams.values.name(), entry.getValue());
+				properties.add(property);
+			}
+		}
+		
+		return properties;
+	}
+	
+	private Response getCSearchResponse(List<Object> lstResult) {
+		Response response = new Response();
+		ResponseParams params = new ResponseParams();
+		params.setStatus("Success");
+		response.setParams(params);
+		response.setResponseCode(ResponseCode.OK);
+		response.put("search_result", lstResult);
+		
+		return response;
+	}
+	
 	
 	private Response getAllDefinitions(String graphId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
