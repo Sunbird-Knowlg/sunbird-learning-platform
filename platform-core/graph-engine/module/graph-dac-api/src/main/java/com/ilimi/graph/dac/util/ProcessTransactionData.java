@@ -60,7 +60,7 @@ public class ProcessTransactionData {
 		for (Long nodeId: createdNodeIds) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, Object> transactionData = new HashMap<String, Object>();
-			transactionData.put(GraphDACParams.addedProperties.name(), getAssiNodePropEntry(nodeId, data));
+			transactionData.put(GraphDACParams.addedProperties.name(), getAssignedNodePropertyEntry(nodeId, data));
 			transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>());
 			transactionData.put(GraphDACParams.adedTags.name(), new ArrayList<String>());
 			transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
@@ -84,8 +84,8 @@ public class ProcessTransactionData {
 		for (Long nodeId: updatedNodeIds) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, Object> transactionData = new HashMap<String, Object>();
-			transactionData.put(GraphDACParams.addedProperties.name(), getAssiNodePropEntry(nodeId, data));
-			transactionData.put(GraphDACParams.removedProperties.name(), getRemoNodePropEntry(nodeId, data));
+			transactionData.put(GraphDACParams.addedProperties.name(), getAssignedNodePropertyEntry(nodeId, data));
+			transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>(getRemovedNodePropertyEntry(nodeId, data).keySet()));
 			transactionData.put(GraphDACParams.adedTags.name(), new ArrayList<String>());
 			transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
 			Node node = graphDb.getNodeById(nodeId);
@@ -108,7 +108,7 @@ public class ProcessTransactionData {
 		for (Long nodeId: deletedNodeIds) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, Object> transactionData = new HashMap<String, Object>();
-			Map<String, Object> removedNodeProp = getRemoNodePropEntry(nodeId, data);
+			Map<String, Object> removedNodeProp = getRemovedNodePropertyEntry(nodeId, data);
 			transactionData.put(GraphDACParams.addedProperties.name(), new HashMap<String, Object>());
 			transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>(removedNodeProp.keySet()));
 			transactionData.put(GraphDACParams.adedTags.name(), new ArrayList<String>());
@@ -133,7 +133,7 @@ public class ProcessTransactionData {
 		for (Long nodeId: retiredNodeIds) {
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, Object> transactionData = new HashMap<String, Object>();
-			transactionData.put(GraphDACParams.addedProperties.name(), getAssiNodePropEntry(nodeId, data));
+			transactionData.put(GraphDACParams.addedProperties.name(), getAssignedNodePropertyEntry(nodeId, data));
 			transactionData.put(GraphDACParams.removedProperties.name(), new HashMap<String, Object>());
 			transactionData.put(GraphDACParams.adedTags.name(), new ArrayList<String>());
 			transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
@@ -151,7 +151,7 @@ public class ProcessTransactionData {
 		return lstMessageMap;
 	}
 	
-	private Map<String, Object> getAssiNodePropEntry(Long nodeId, TransactionData data) {
+	private Map<String, Object> getAssignedNodePropertyEntry(Long nodeId, TransactionData data) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
@@ -165,7 +165,7 @@ public class ProcessTransactionData {
 		return map;
 	}
 	
-	private Map<String, Object> getRemoNodePropEntry(Long nodeId, TransactionData data) {
+	private Map<String, Object> getRemovedNodePropertyEntry(Long nodeId, TransactionData data) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> removedNodeProp = data.removedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: removedNodeProp) {

@@ -19,7 +19,6 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.neo4j.graphdb.Node;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -28,7 +27,6 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -44,9 +42,9 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 					"Graph Id is blank.");
 		LOGGER.info("Get All Definitions : " + graphId);
 		Map<String, Object> result = getAllDefinitions(graphId).getResult();
-		List<DefinitionDTO> lstDefDTO = getDefDTOList(result);
-		List<Map<String, Object>> messages = genCSearchMessages(graphId, lstDefDTO);
-		Response response = pushMsgToKafka(messages);
+		List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
+		List<Map<String, Object>> messages = genCompositeSearchMessages(graphId, lstDefDTO);
+		Response response = pushMessageToKafka(messages);
 		
 		return response;
 	}
@@ -56,7 +54,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		SearchProcessor processor = new SearchProcessor();
 		try {
 			List<Object> lstResult = processor.processSearch(getSearchDTO(request));
-			return getCSearchResponse(lstResult);
+			return getCompositeSearchResponse(lstResult);
 		} catch (IOException e) {
 			e.printStackTrace();
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
@@ -67,23 +65,26 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	private SearchDTO getSearchDTO(Request request) {
 		Map<String, Object> req = request.getRequest();
 		String queryString = (String) req.get(CompositeSearchParams.query.name());
-		int limit = (int) req.get(CompositeSearchParams.limit.name());
+		int limit = 100;
 		if (StringUtils.isBlank(queryString))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
 					"Query String is blank.");
+		if (null != req.get(CompositeSearchParams.limit.name())) {
+			limit = (int) req.get(CompositeSearchParams.limit.name());
+		}
 		SearchDTO searchObj = new SearchDTO();
 		List<Map> properties = new ArrayList<Map>();
 		List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 		List<Map<String, Object>> filters = (List<Map<String, Object>>) req.get(CompositeSearchParams.filters.name());
-		properties.addAll(getSearchQueryProp(queryString, fields));
-		properties.addAll(getSearchFilterProp(filters));
+		properties.addAll(getSearchQueryProperties(queryString, fields));
+		properties.addAll(getSearchFilterProperties(filters));
 		searchObj.setProperties(properties);
 		searchObj.setLimit(limit);
 		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 		return searchObj;
 	}
 	
-	private List<Map<String, Object>> getSearchQueryProp(String queryString, List<String> fields) {
+	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		if (null == fields || fields.size() <= 0) {
 			Map<String, Object> property = new HashMap<String, Object>();
@@ -91,26 +92,12 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			property.put(CompositeSearchParams.propertyName.name(), "*");
 			property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
 			properties.add(property);
-		}
-		for (String field: fields) {
-			Map<String, Object> property = new HashMap<String, Object>();
-			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-			property.put(CompositeSearchParams.propertyName.name(), field);
-			property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
-			properties.add(property);
-		}
-		
-		return properties;
-	}
-	
-	private List<Map<String, Object>> getSearchFilterProp(List<Map<String, Object>> filters) {
-		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		for (Map<String, Object> filter: filters) {
-			for (Entry<String, Object> entry: filter.entrySet()) {
+		} else {
+			for (String field: fields) {
 				Map<String, Object> property = new HashMap<String, Object>();
-				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-				property.put(CompositeSearchParams.values.name(), entry.getValue());
+				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+				property.put(CompositeSearchParams.propertyName.name(), field);
+				property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
 				properties.add(property);
 			}
 		}
@@ -118,7 +105,24 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return properties;
 	}
 	
-	private Response getCSearchResponse(List<Object> lstResult) {
+	private List<Map<String, Object>> getSearchFilterProperties(List<Map<String, Object>> filters) {
+		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+		if (null != filters) { 
+			for (Map<String, Object> filter: filters) {
+				for (Entry<String, Object> entry: filter.entrySet()) {
+					Map<String, Object> property = new HashMap<String, Object>();
+					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+					property.put(CompositeSearchParams.values.name(), entry.getValue());
+					properties.add(property);
+				}
+			}
+		}
+		
+		return properties;
+	}
+	
+	private Response getCompositeSearchResponse(List<Object> lstResult) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");
@@ -136,7 +140,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<DefinitionDTO> getDefDTOList(Map<String, Object> result) {
+	private List<DefinitionDTO> getDefinitionDTOList(Map<String, Object> result) {
 		List<DefinitionDTO> lstDefDTO = new ArrayList<DefinitionDTO>();
 		for (Entry<String, Object> def: result.entrySet()) {
 			lstDefDTO.addAll((List<DefinitionDTO>) def.getValue());
@@ -145,16 +149,16 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return lstDefDTO;
 	}
 	
-	private List<Map<String, Object>> genCSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
+	private List<Map<String, Object>> genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		for(DefinitionDTO def: lstDefDTO) {
-			lstMessages.add(getCSearchMessage(graphId, def));
+			lstMessages.add(getCompositeSearchMessage(graphId, def));
 		}
 		
 		return lstMessages;
 	}
 	
-	private Map<String, Object> getCSearchMessage(String graphId, DefinitionDTO def) {
+	private Map<String, Object> getCompositeSearchMessage(String graphId, DefinitionDTO def) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> transactionData = new HashMap<String, Object>();
 		transactionData.put(CompositeSearchParams.addedProperties.name(), new HashMap<String, Object>());
@@ -172,7 +176,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return map;
 	}
 	
-	private Response pushMsgToKafka(List<Map<String, Object>> messages) {
+	private Response pushMessageToKafka(List<Map<String, Object>> messages) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		if (messages.size() <= 0) {
