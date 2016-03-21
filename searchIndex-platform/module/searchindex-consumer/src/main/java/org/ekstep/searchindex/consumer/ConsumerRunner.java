@@ -10,12 +10,24 @@ import org.ekstep.searchindex.util.PropertiesUtil;
 
 public class ConsumerRunner {
 	public static void main(String[] args) {
+		startConsumers();
+	}
+
+	public static void startConsumers(){
+		String[] partitionsProperty = PropertiesUtil.getProperty("partitions").split(",");
+		String consumerType = PropertiesUtil.getProperty("consumer_type");
+		createConsumers(partitionsProperty, consumerType);
+	}
+	
+	public static void startConsumers(String[] partitionsProperty, String consumerType){
+		createConsumers(partitionsProperty, consumerType);
+	}
+	
+	public static void createConsumers(String[] partitionsProperty, String consumerType){
 		int numConsumers = 1;
 		String groupId = PropertiesUtil.getProperty("groupId");
 		String topic = PropertiesUtil.getProperty("topic");
 		String serverURI = PropertiesUtil.getProperty("bootstrap.servers");
-		String[] partitionsProperty = PropertiesUtil.getProperty("partitions").split(",");
-		String consumerType = PropertiesUtil.getProperty("consumer_type");
 		int[] partitions =  new int[partitionsProperty.length];
 		
 		for(int i=0; i<partitionsProperty.length; i++){
@@ -44,5 +56,4 @@ public class ConsumerRunner {
 			}
 		});
 	}
-
 }

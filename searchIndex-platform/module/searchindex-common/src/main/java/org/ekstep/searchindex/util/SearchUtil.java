@@ -2,15 +2,22 @@ package org.ekstep.searchindex.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+
+import net.sf.json.util.JSONBuilder;
 
 public class SearchUtil {
 	
@@ -50,5 +57,21 @@ public class SearchUtil {
 			result.append(line);
 		}
 		return result.toString();
+	}
+	
+	
+	public void makeHttpPostRequest(String url, String body) throws Exception{
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpPost post = new HttpPost(url);
+		post.addHeader("user-id", PropertiesUtil.getProperty("ekstep_platform_api_user_id"));
+		post.addHeader("Content-Type", "application/json");
+		post.setEntity(new StringEntity(body));
+
+		HttpResponse response = client.execute(post);
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
+					+ response.getStatusLine().getReasonPhrase());
+		}
+
 	}
 }

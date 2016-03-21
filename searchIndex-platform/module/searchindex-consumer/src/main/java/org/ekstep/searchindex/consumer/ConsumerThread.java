@@ -20,16 +20,19 @@ public class ConsumerThread implements Runnable {
 	private final String topic;
 	private final int id;
 	private int[] partitions;
-	private ConsumerUtil consumerUtil;
+	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private IMessageProcessor messagePrcessor;
 
-	public ConsumerThread(int id, String groupId, String topic, String serverURI, int[] partitions, String consumerType) {
+	public ConsumerThread(int id, String groupId, String topic, String serverURI, int[] partitions,
+			String consumerType) {
 		this.id = id;
 		this.topic = topic;
 		this.partitions = partitions;
 		Properties props = new Properties();
 		props.put("bootstrap.servers", serverURI);
 		props.put("group.id", groupId);
+		props.put("enable.auto.commit", "true");
+		props.put("auto.commit.interval.ms", "1000");
 		props.put("key.deserializer", StringDeserializer.class.getName());
 		props.put("value.deserializer", StringDeserializer.class.getName());
 		this.consumer = new KafkaConsumer<String, String>(props);
@@ -39,7 +42,7 @@ public class ConsumerThread implements Runnable {
 	public void run() {
 		try {
 			List<TopicPartition> topicPartitions = new ArrayList<TopicPartition>();
-			for(int partition: partitions){
+			for (int partition : partitions) {
 				topicPartitions.add(new TopicPartition(this.topic, partition));
 			}
 			consumer.assign(topicPartitions);
@@ -49,7 +52,7 @@ public class ConsumerThread implements Runnable {
 					Map<String, Object> data = new HashMap<String, Object>();
 					String messageData = record.value();
 					messagePrcessor.processMessage(messageData);
-					System.out.println(this.id + ": " + data);
+					System.out.println(this.id + ": " + record.partition());
 				}
 			}
 		} catch (Exception e) {

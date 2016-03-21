@@ -8,6 +8,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.processor.CompositeSearchMessageProcessor;
 import org.ekstep.searchindex.processor.IMessageProcessor;
+import org.ekstep.searchindex.processor.WordCountMessageProcessor;
 
 public class ConsumerUtil {
 
@@ -55,7 +56,7 @@ public class ConsumerUtil {
 			return new CompositeSearchMessageProcessor();
 		}
 		case CompositeSearchConstants.CONSUMER_TYPE_WORD_COUNT: {
-			return new CompositeSearchMessageProcessor();
+			return new WordCountMessageProcessor();
 		}
 		}
 		return null;

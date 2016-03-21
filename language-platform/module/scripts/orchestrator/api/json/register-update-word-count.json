@@ -1,0 +1,24 @@
+{
+    "name": "updateWordCount",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"wordCount",
+        "index": 1,
+        "routingParam": false,
+		"datatype":"java.lang.Integer"
+    },{
+        "name":"liveWordCount",
+        "index": 2,
+        "routingParam": false,
+		"datatype":"java.lang.Integer"
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/language/dictionary/updateWordCount/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

@@ -1,30 +1,32 @@
 package org.ekstep.searchindex.processor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.lang.WordUtils;
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.ConsumerUtil;
-import org.ekstep.searchindex.util.ObjectDefinitionCache;
+import org.ekstep.searchindex.util.PropertiesUtil;
+import org.ekstep.searchindex.util.SearchUtil;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
-	private ConsumerUtil consumerUtil = new ConsumerUtil();
+	SearchUtil searchUtil = new SearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
+	private Timer timer;
+	private boolean messageProcessed = false;
+	private Map<String, Map<String, Integer>> wordsCountMap = new ConcurrentHashMap<String, Map<String, Integer>>();
 	
-	private Map<String, Integer> wordsCountMap = new ConcurrentHashMap<String, Integer>();
-	private Map<String, Integer> liveWordsCountMap = new ConcurrentHashMap<String, Integer>();
 
 	public void processMessage(String messageData) {
 		try {
@@ -36,6 +38,57 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 		}
 	}
 
+	public void createTimer(int seconds) {
+		if(timer == null){
+			timer = new Timer();
+			timer.schedule(new PushTask(), seconds * 1000);
+		}
+	}
+
+	class PushTask extends TimerTask {
+		public void run() {
+			System.out.println("Time's up!");
+			try {
+				updateWordsCount();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	private void updateWordsCount() throws Exception {
+		messageProcessed = true;
+		for(Map.Entry<String, Map<String, Integer>> entry: wordsCountMap.entrySet()){
+			String languageId = entry.getKey();
+			 Map<String, Integer> wordsCountObj = entry.getValue();
+			 Integer wordsCount = wordsCountObj.get("wordsCount");
+			 Integer liveWordsCount = wordsCountObj.get("liveWordsCount");
+			 String url = PropertiesUtil.getProperty("ekstep_platform")+"/v1/language/dictionary/updateWordCount/"+languageId;
+			
+			 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
+			 Map<String, Object> requestMap = new HashMap<String, Object>();
+			 requestMap.put("wordCount", wordsCount);
+			 requestMap.put("liveWordCount", liveWordsCount);
+			 requestBodyMap.put("request", requestMap);
+			 
+			 String requestBody = mapper.writeValueAsString(requestBodyMap);
+			 
+			 searchUtil.makeHttpPostRequest(url, requestBody);
+			 
+			wordsCountObj.put("wordsCount", new Integer(0));
+			wordsCountObj.put("liveWordsCount", new Integer(0));
+			wordsCountMap.put(languageId, wordsCountObj);
+		}
+		
+		if(messageProcessed){
+			timer.cancel();
+			timer = null;
+		}
+		else{
+			timer.schedule(new PushTask(), 60 * 1000);
+		}
+	}
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (message != null && message.get("operationType") != null) {
@@ -44,14 +97,16 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
 			if (objectType.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD)) {
-				Integer wordsCount = wordsCountMap.get(languageId);
-				if(wordsCount == null){
-					wordsCount = new Integer(0);
+				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
+				if(wordsCountObj == null){
+					wordsCountObj = new HashMap<String, Integer>();
+					wordsCountObj.put("wordsCount", new Integer(0));
+					wordsCountObj.put("liveWordsCount", new Integer(0));
+					wordsCountMap.put(languageId, wordsCountObj);
 				}
-				Integer liveWordsCount = liveWordsCountMap.get(languageId);
-				if(liveWordsCount == null){
-					liveWordsCount = new Integer(0);
-				}
+				
+				Integer wordsCount = wordsCountObj.get("wordsCount");
+				Integer liveWordsCount = wordsCountObj.get("liveWordsCount");
 				
 				switch (nodeType) {
 				case CompositeSearchConstants.NODE_TYPE_DATA: {
@@ -64,17 +119,17 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					case CompositeSearchConstants.OPERATION_UPDATE: {
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
-							Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("addedProperties");
+							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
+									.get("addedProperties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
 										String propertyValue = (String) propertyMap.getValue();
-										if(propertyName.equalsIgnoreCase("status")){
-											if(propertyValue.equalsIgnoreCase("Live")){
+										if (propertyName.equalsIgnoreCase("status")) {
+											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount + 1;
-											}
-											else{
+											} else {
 												liveWordsCount = liveWordsCount - 1;
 											}
 										}
@@ -88,14 +143,15 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 						wordsCount = wordsCount - 1;
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
-							Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("addedProperties");
+							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
+									.get("addedProperties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
 										String propertyValue = (String) propertyMap.getValue();
-										if(propertyName.equalsIgnoreCase("status")){
-											if(propertyValue.equalsIgnoreCase("Live")){
+										if (propertyName.equalsIgnoreCase("status")) {
+											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount - 1;
 											}
 										}
@@ -109,13 +165,16 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					break;
 				}
 				}
-				wordsCountMap.put(languageId, wordsCount);
+				
+				wordsCountObj.put("wordsCount", wordsCount);
+				wordsCountObj.put("liveWordsCount", liveWordsCount);
+				wordsCountMap.put(languageId, wordsCountObj);
+				createTimer(60);
+				messageProcessed = false;
 				System.out.println("Message processed");
 			}
 		}
 	}
-
-	
 
 	public static void main(String arg[]) throws Exception {
 		WordCountMessageProcessor processor = new WordCountMessageProcessor();
@@ -154,10 +213,10 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 		 * NODE_TYPE_DATA).endObject();
 		 */
 
-		builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId")
+		builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_CREATE).key("graphId")
 				.value("hi").key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
 				.value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType")
-				.value(CompositeSearchConstants.NODE_TYPE_DEFINITION).endObject();
+				.value(CompositeSearchConstants.NODE_TYPE_DATA).endObject();
 
 		/*
 		 * builder.object().key("operationType").value(Constants.
