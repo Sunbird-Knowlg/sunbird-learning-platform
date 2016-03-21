@@ -276,13 +276,19 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         Node node = searchWord(languageId, objectType, word);
                         Map<String, Object> rowMap = new HashMap<String, Object>();
                         if (null == node) {
+                            String nodeId = createWord(languageId, word, objectType);
+                            rowMap.put("identifier", nodeId);
+                            rowMap.put("objectType", objectType);
                             rowMap.put("lemma", word);
                         } else {
                             if (null != node.getMetadata() && !node.getMetadata().isEmpty())
                                 rowMap.putAll(node.getMetadata());
                             rowMap.put("identifier", node.getIdentifier());
+                            rowMap.put("objectType", node.getObjectType());
                             if (null != node.getTags() && !node.getTags().isEmpty())
                                 rowMap.put("tags", node.getTags());
+                            else 
+                                rowMap.put("tags", "");
                         }
                         nodes.add(rowMap);
                     }
@@ -298,8 +304,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private String getCSV(List<Map<String, Object>> nodes) throws Exception {
         List<String[]> allRows = new ArrayList<String[]>();
         List<String> headers = new ArrayList<String>();
-        headers.add("lemma");
         headers.add("identifier");
+        headers.add("objectType");
+        headers.add("lemma");
         for (Map<String, Object> map : nodes) {
             Set<String> keys = map.keySet();
             for (String key : keys) {
@@ -1078,6 +1085,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     }
 
     private String createWord(Map<String, String> lemmaIdMap, String languageId, String word, String objectType) {
+        String nodeId = createWord(languageId, word, objectType);
+        lemmaIdMap.put(word, nodeId);
+        return nodeId;
+    }
+    
+    private String createWord(String languageId, String word, String objectType) {
         Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put(LEMMA_PROPERTY, word);
@@ -1089,7 +1102,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), getErrorMessage(res));
         }
         String nodeId = (String) res.get(GraphDACParams.node_id.name());
-        lemmaIdMap.put(word, nodeId);
         return nodeId;
     }
 
