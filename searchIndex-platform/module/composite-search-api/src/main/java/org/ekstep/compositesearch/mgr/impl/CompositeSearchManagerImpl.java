@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -94,8 +96,12 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	
 	private Response pushMsgToKafka(List<Map<String, Object>> messages) {
 		Response response = new Response();
+		ResponseParams params = new ResponseParams();
 		if (messages.size() <= 0) {
 			response.put(CompositeSearchParams.graphSyncStatus.name(), "No Graph Objects to Sync!");
+			response.setResponseCode(ResponseCode.CLIENT_ERROR);
+			params.setStatus(CompositeSearchParams.success.name());
+			response.setParams(params);
 			return response;
 		}
 		System.out.println("Sending to KAFKA.... ");
@@ -107,7 +113,10 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 		System.out.println("Sending to KAFKA : FINISHED");
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
-		
+		response.setResponseCode(ResponseCode.OK);
+		response.setParams(params);
+		params.setStatus(CompositeSearchParams.success.name());
+		response.setParams(params);
 		return response;
 	}
 
