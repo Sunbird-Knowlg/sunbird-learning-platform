@@ -1,6 +1,6 @@
 package org.ekstep.searchindex.util;
 
-public class Constants {
+public class CompositeSearchConstants {
 	public static final String OPERATION_CREATE = "CREATE";
 	public static final String OPERATION_UPDATE = "UPDATE";
 	public static final String OPERATION_DELETE = "DELETE";
@@ -32,4 +32,6 @@ public class Constants {
 	public static final String SEARCH_OPERATION_NOT_EQUAL = "NT_EQ";
 	public static final String SEARCH_OPERATION_STARTS_WITH = "SW";
 	public static final String SEARCH_OPERATION_ENDS_WITH = "EW";
+	public static final String CONSUMER_TYPE_COMPOSITE_INDEX = "composite_index";
+	public static final String CONSUMER_TYPE_WORD_COUNT = "word_count";
 }

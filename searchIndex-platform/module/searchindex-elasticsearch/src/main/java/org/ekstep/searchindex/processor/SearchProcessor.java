@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.util.Constants;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import io.searchbox.core.SearchResult;
 import net.sf.json.util.JSONBuilder;
@@ -41,60 +41,60 @@ public class SearchProcessor {
 			String queryOperation = null;
 			String conditionSet = null;
 			switch (operation) {
-			case Constants.SEARCH_OPERATION_EQUAL: {
+			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
 				queryOperation = "equal";
 				conditionSet = "Text";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_NOT_EQUAL: {
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
 				queryOperation = "equal";
 				conditionSet = "Not";
 				break;
 			}
 
-			case Constants.SEARCH_OPERATION_ENDS_WITH:
-			case Constants.SEARCH_OPERATION_LIKE:
-			case Constants.SEARCH_OPERATION_CONTAINS: {
+			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH:
+			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
+			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
 				queryOperation = "like";
 				conditionSet = "Text";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_NOT_LIKE: {
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
 				queryOperation = "like";
 				conditionSet = "Not";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_STARTS_WITH: {
+			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
 				queryOperation = "prefix";
 				conditionSet = "Text";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_EXISTS: {
+			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
 				queryOperation = "exists";
 				conditionSet = "Text";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_NOT_EXISTS: {
+			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
 				queryOperation = "exists";
 				conditionSet = "Not";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_GREATER_THAN: {
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
 				queryOperation = ">";
 				conditionSet = "Arithmetic";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
+			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
 				queryOperation = ">=";
 				conditionSet = "Arithmetic";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_LESS_THAN: {
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
 				queryOperation = "<";
 				conditionSet = "Arithmetic";
 				break;
 			}
-			case Constants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
+			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
 				queryOperation = "<=";
 				conditionSet = "Arithmetic";
 				break;
@@ -123,7 +123,7 @@ public class SearchProcessor {
 		}
 		String query = makeElasticSearchQuery(conditionsMap, totalOperation);
 		elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
-		SearchResult searchResult = elasticSearchUtil.search(Constants.COMPOSITE_SEARCH_INDEX, query);
+		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		List<Object> result = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 		System.out.println("True");
 		return result;

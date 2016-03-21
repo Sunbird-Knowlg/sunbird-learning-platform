@@ -11,16 +11,19 @@ import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.ekstep.searchindex.processor.MessageProcessor;
+import org.ekstep.searchindex.processor.IMessageProcessor;
+import org.ekstep.searchindex.util.ConsumerUtil;
+import org.ekstep.searchindex.processor.CompositeSearchMessageProcessor;
 
 public class ConsumerThread implements Runnable {
 	private final KafkaConsumer<String, String> consumer;
 	private final String topic;
 	private final int id;
 	private int[] partitions;
-	private MessageProcessor messagePrcessor = new MessageProcessor();
+	private ConsumerUtil consumerUtil;
+	private IMessageProcessor messagePrcessor;
 
-	public ConsumerThread(int id, String groupId, String topic, String serverURI, int[] partitions) {
+	public ConsumerThread(int id, String groupId, String topic, String serverURI, int[] partitions, String consumerType) {
 		this.id = id;
 		this.topic = topic;
 		this.partitions = partitions;
@@ -30,6 +33,7 @@ public class ConsumerThread implements Runnable {
 		props.put("key.deserializer", StringDeserializer.class.getName());
 		props.put("value.deserializer", StringDeserializer.class.getName());
 		this.consumer = new KafkaConsumer<String, String>(props);
+		messagePrcessor = consumerUtil.getMessageProcessorFactory(consumerType);
 	}
 
 	public void run() {

@@ -8,7 +8,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.ekstep.searchindex.util.Constants;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import kafka.javaapi.producer.Producer;
@@ -68,13 +68,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 		 .endObject() .endArray() .endObject() .endObject();*/
 		
 
-		  builder.object().key("operationType").value(Constants.
+		  builder.object().key("operationType").value(CompositeSearchConstants.
 		  OPERATION_UPDATE).key("graphId").value("hi")
 		  .key("nodeGraphId").value(4).key("nodeUniqueId").value("hi_4").key(
 		//.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
 
 		  "objectType")
-		  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+		  .value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType").value(CompositeSearchConstants.
 		  NODE_TYPE_DATA)
 		  .key("transactionData").object().key("addedProperties").
 		  object()
@@ -101,13 +101,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 		producer.pushMessage(message);
 		
 		builder = new JSONStringer();
-		builder.object().key("operationType").value(Constants.
+		builder.object().key("operationType").value(CompositeSearchConstants.
 				  OPERATION_UPDATE).key("graphId").value("hi")
 				 // .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_3").key(
 				 .key("nodeGraphId").value(5).key("nodeUniqueId").value("hi_5").key(
 
 				  "objectType")
-				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+				  .value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType").value(CompositeSearchConstants.
 				  NODE_TYPE_DATA)
 				  .key("transactionData").object().key("addedProperties").
 				  object()
@@ -127,13 +127,13 @@ public class KafkaMessageProducer implements IMessageProducer{
 		producer.pushMessage(message);
 		
 		builder = new JSONStringer();
-		builder.object().key("operationType").value(Constants.
+		builder.object().key("operationType").value(CompositeSearchConstants.
 				  OPERATION_UPDATE).key("graphId").value("hi")
 				  .key("nodeGraphId").value(6).key("nodeUniqueId").value("hi_6").key(
 				 //.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
 
 				  "objectType")
-				  .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
+				  .value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType").value(CompositeSearchConstants.
 				  NODE_TYPE_DATA)
 				  .key("transactionData").object().key("addedProperties").
 				  object()

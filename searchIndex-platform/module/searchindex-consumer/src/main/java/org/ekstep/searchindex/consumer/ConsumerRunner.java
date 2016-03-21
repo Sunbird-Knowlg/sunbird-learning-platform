@@ -15,6 +15,7 @@ public class ConsumerRunner {
 		String topic = PropertiesUtil.getProperty("topic");
 		String serverURI = PropertiesUtil.getProperty("bootstrap.servers");
 		String[] partitionsProperty = PropertiesUtil.getProperty("partitions").split(",");
+		String consumerType = PropertiesUtil.getProperty("consumer_type");
 		int[] partitions =  new int[partitionsProperty.length];
 		
 		for(int i=0; i<partitionsProperty.length; i++){
@@ -24,7 +25,7 @@ public class ConsumerRunner {
 		final ExecutorService executor = Executors.newFixedThreadPool(numConsumers);
 		final List<ConsumerThread> consumers = new ArrayList<ConsumerThread>();
 		for (int i = 0; i < numConsumers; i++) {
-			ConsumerThread consumer = new ConsumerThread(i, groupId, topic, serverURI, partitions);
+			ConsumerThread consumer = new ConsumerThread(i, groupId, topic, serverURI, partitions, consumerType);
 			consumers.add(consumer);
 			executor.submit(consumer);
 		}
