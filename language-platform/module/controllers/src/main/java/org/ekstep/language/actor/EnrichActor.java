@@ -279,10 +279,18 @@ public class EnrichActor extends LanguageBaseActor {
 	
 	private List<String> getPOS(Node node) {
 	    List<String> posList = new ArrayList<String>();
-	    String[] arr = (String[]) node.getMetadata().get("pos");
-        if (null != arr && arr.length > 0) {
-            for (String str : arr)
-                posList.add(str.toLowerCase());
+	    Object value = node.getMetadata().get("pos");
+        if (null != value) {
+            if (value instanceof String[]) {
+                String[] arr = (String[]) value;
+                if (null != arr && arr.length > 0) {
+                    for (String str : arr)
+                        posList.add(str.toLowerCase());
+                }
+            } else if (value instanceof String) {
+                if (StringUtils.isNotBlank(value.toString()))
+                    posList.add(value.toString().toLowerCase());
+            }
         }
 	    List<Relation> inRels = node.getInRelations();
 	    if (null != inRels && !inRels.isEmpty()) {
