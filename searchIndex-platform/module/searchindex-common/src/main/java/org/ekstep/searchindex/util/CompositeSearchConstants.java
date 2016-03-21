@@ -32,6 +32,9 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_NOT_EQUAL = "NT_EQ";
 	public static final String SEARCH_OPERATION_STARTS_WITH = "SW";
 	public static final String SEARCH_OPERATION_ENDS_WITH = "EW";
+	public static final String SEARCH_OPERATION_OR = "OR";
+	public static final String SEARCH_OPERATION_AND = "AND";
+	public static final String SEARCH_OPERATION_IN = "IN";
 	public static final String CONSUMER_TYPE_COMPOSITE_INDEX = "composite_index";
 	public static final String CONSUMER_TYPE_WORD_COUNT = "word_count";
 }

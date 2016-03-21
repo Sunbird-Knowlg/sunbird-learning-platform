@@ -42,15 +42,15 @@ public class CompositeSearchController extends BaseCompositeSearchController {
         }
     }
 	
-	@RequestMapping(value = "", method = RequestMethod.GET)
+	@RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(@PathVariable(value = "id") String graphId,
     		@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
-        String apiId = "composite-search.sync";
+        String apiId = "composite-search.search";
         try {
         	Request request = getRequest(map);
-            Response response = compositeSearchManager.sync(graphId, request);
+            Response response = compositeSearchManager.search(request);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             return getExceptionResponseEntity(e, apiId, null);
