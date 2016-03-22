@@ -177,6 +177,7 @@ public class ElasticSearchUtil {
 					if(count%BATCH_SIZE ==0 || (count%BATCH_SIZE<BATCH_SIZE && count==jsonObjects.size())){
 						Bulk bulk = bulkBuilder.build();
 						client.execute(bulk);
+						System.out.println("Bulk indexed "+BATCH_SIZE+" documents");
 						bulkBuilder = new Bulk.Builder().defaultIndex(indexName).defaultType(documentType);
 					}
 				}

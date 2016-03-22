@@ -46,9 +46,9 @@ public class ConsumerUtil {
 		for (Map node : nodeList) {
 			Map<String, Object> indexMap = new HashMap<String, Object>();
 			indexMap.put("graph_id", (String) node.get("graphId"));
-			indexMap.put("node_unique_id", (String) node.get("identifier"));
-			indexMap.put("object_type", (String) node.get("objectType"));
-			indexMap.put("node_type", (String) node.get("nodeType"));
+			indexMap.put("identifier", (String) node.get("identifier"));
+			indexMap.put("objectType", (String) node.get("objectType"));
+			indexMap.put("nodeType", (String) node.get("nodeType"));
 			Map<String, Object> metadataMap = (Map<String, Object>) node.get("metadata");
 			for (Map.Entry<String, Object> entry : metadataMap.entrySet()) {
 				String propertyName = entry.getKey();
@@ -61,8 +61,9 @@ public class ConsumerUtil {
 				}
 			}
 			String indexDocument = mapper.writeValueAsString(indexMap);
-			indexesMap.put((String) indexMap.get("node_unique_id"), indexDocument);
+			indexesMap.put((String) indexMap.get("identifier"), indexDocument);
 		}
+		System.out.println("Bulk uploding "+indexesMap.size()+" documents to elastic search");
 		elasticSearchUtil.bulkIndexWithIndexId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, indexesMap);
 	}
@@ -70,6 +71,7 @@ public class ConsumerUtil {
 	@SuppressWarnings("rawtypes")
 	public void reSyncNodes(String objectType, String graphId, Map<String, Object> definitionNode) throws Exception {
 		List<Map> nodeList = getAllNodes(objectType, graphId);
+		System.out.println("Received all nodes for object type: "+ objectType +" and graph Id: "+graphId);
 		reSyncNodes(nodeList, definitionNode, objectType);
 	}
 
