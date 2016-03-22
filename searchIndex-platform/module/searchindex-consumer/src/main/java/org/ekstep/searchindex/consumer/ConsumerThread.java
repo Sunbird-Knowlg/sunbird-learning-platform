@@ -24,7 +24,7 @@ public class ConsumerThread implements Runnable {
 	private IMessageProcessor messagePrcessor;
 
 	public ConsumerThread(int id, String groupId, String topic, String serverURI, int[] partitions,
-			String consumerType) {
+			String messageProcessor) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		this.id = id;
 		this.topic = topic;
 		this.partitions = partitions;
@@ -36,7 +36,7 @@ public class ConsumerThread implements Runnable {
 		props.put("key.deserializer", StringDeserializer.class.getName());
 		props.put("value.deserializer", StringDeserializer.class.getName());
 		this.consumer = new KafkaConsumer<String, String>(props);
-		messagePrcessor = consumerUtil.getMessageProcessorFactory(consumerType);
+		messagePrcessor = consumerUtil.getMessageProcessorFactory(messageProcessor);
 	}
 
 	public void run() {

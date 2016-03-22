@@ -1,8 +1,14 @@
 package org.ekstep.searchindex.util;
 
+import java.io.File;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -50,15 +56,32 @@ public class ConsumerUtil {
 		reSyncNodes(nodeList, definitionNode, objectType);
 	}
 
-	public IMessageProcessor getMessageProcessorFactory(String consumerType) {
-		switch (consumerType) {
-		case CompositeSearchConstants.CONSUMER_TYPE_COMPOSITE_INDEX: {
-			return new CompositeSearchMessageProcessor();
-		}
-		case CompositeSearchConstants.CONSUMER_TYPE_WORD_COUNT: {
-			return new WordCountMessageProcessor();
-		}
+	@SuppressWarnings("unchecked")
+	public IMessageProcessor getMessageProcessorFactory(String messageProcessorName) throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		Class<IMessageProcessor> clazz = (Class<IMessageProcessor>) Class.forName(messageProcessorName);
+		IMessageProcessor messageProcessor= clazz.newInstance();
+		return messageProcessor;
+	}
+
+	public ConsumerConfig readConsumerProperties() {
+		try {
+			String filename = "consumer-config.xml";
+			InputStream is = this.getClass().getClassLoader().getResourceAsStream(filename);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ConsumerConfig.class);
+
+			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
+			ConsumerConfig consumerConfig = (ConsumerConfig) jaxbUnmarshaller.unmarshal(is);
+			return consumerConfig;
+
+		} catch (JAXBException e) {
+			e.printStackTrace();
 		}
 		return null;
+
+	}
+
+	public static void main(String[] args) {
+		ConsumerUtil util = new ConsumerUtil();
+		util.readConsumerProperties();
 	}
 }

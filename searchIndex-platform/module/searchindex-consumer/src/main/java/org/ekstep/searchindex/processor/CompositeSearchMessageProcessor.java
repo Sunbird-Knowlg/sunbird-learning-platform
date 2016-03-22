@@ -23,6 +23,10 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 
+	public CompositeSearchMessageProcessor() {
+		super();
+	}
+
 	public void processMessage(String messageData) {
 		try {
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {

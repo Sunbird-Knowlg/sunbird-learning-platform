@@ -25,8 +25,10 @@ public class InitServlet extends HttpServlet {
         LOGGER.info("Initialising Request Router Pool");
         RequestRouterPool.getActorSystem();
         LanguageRequestRouterPool.init();
-        ConsumerRunner.startConsumers();
-        //TODO fix later
-        ConsumerRunner.startConsumers(new String[]{"8"}, "word_count");
+        try {
+			ConsumerRunner.startConsumers();
+		} catch (Exception e) {
+			throw new ServletException(e);
+		} 
     }
 }

@@ -25,6 +25,9 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	private Map<String, Map<String, Integer>> wordsCountMap = new ConcurrentHashMap<String, Map<String, Integer>>();
 	private int BATCH_TIME_IN_SECONDS = 60;
 	
+	public WordCountMessageProcessor() {
+		super();
+	}
 
 	public void processMessage(String messageData) {
 		try {

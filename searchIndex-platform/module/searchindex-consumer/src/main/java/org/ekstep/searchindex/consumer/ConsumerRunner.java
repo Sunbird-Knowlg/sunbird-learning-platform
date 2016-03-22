@@ -6,38 +6,50 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.ekstep.searchindex.util.PropertiesUtil;
+import org.ekstep.searchindex.util.Consumer;
+import org.ekstep.searchindex.util.ConsumerConfig;
+import org.ekstep.searchindex.util.ConsumerGroup;
+import org.ekstep.searchindex.util.ConsumerInit;
+import org.ekstep.searchindex.util.ConsumerUtil;
 
 public class ConsumerRunner {
-	public static void main(String[] args) {
+
+	private static ConsumerUtil consumerUtil = new ConsumerUtil();
+
+	public static void main(String[] args)
+			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		startConsumers();
 	}
 
-	public static void startConsumers(){
-		String[] partitionsProperty = PropertiesUtil.getProperty("partitions").split(",");
-		String consumerType = PropertiesUtil.getProperty("consumer_type");
-		createConsumers(partitionsProperty, consumerType);
+	public static void startConsumers() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
+		ConsumerConfig config = consumerUtil.readConsumerProperties();
+		List<ConsumerGroup> consumerGroups = config.consumerGroups;
+		for (ConsumerGroup consumerGroup : consumerGroups) {
+			String groupId = consumerGroup.id;
+			List<Consumer> consumers = consumerGroup.consumers;
+			for (Consumer consumer : consumers) {
+				String[] partitionsProperty = consumer.partitions.split(",");
+				String messageProcessor = consumer.messageProcessor;
+				createConsumer(partitionsProperty, messageProcessor, config.consumerInit, groupId);
+			}
+		}
 	}
-	
-	public static void startConsumers(String[] partitionsProperty, String consumerType){
-		createConsumers(partitionsProperty, consumerType);
-	}
-	
-	public static void createConsumers(String[] partitionsProperty, String consumerType){
+
+	private static void createConsumer(String[] partitionsProperty, String messageProcessor, ConsumerInit config, String groupId)
+			throws ClassNotFoundException, InstantiationException, IllegalAccessException {
 		int numConsumers = 1;
-		String groupId = PropertiesUtil.getProperty("groupId");
-		String topic = PropertiesUtil.getProperty("topic");
-		String serverURI = PropertiesUtil.getProperty("bootstrap.servers");
-		int[] partitions =  new int[partitionsProperty.length];
-		
-		for(int i=0; i<partitionsProperty.length; i++){
+		String topic = config.topic;
+		String serverURI = config.serverURI;
+		int[] partitions = new int[partitionsProperty.length];
+
+		for (int i = 0; i < partitionsProperty.length; i++) {
 			partitions[i] = Integer.parseInt(partitionsProperty[i]);
 		}
-		
+
 		final ExecutorService executor = Executors.newFixedThreadPool(numConsumers);
 		final List<ConsumerThread> consumers = new ArrayList<ConsumerThread>();
 		for (int i = 0; i < numConsumers; i++) {
-			ConsumerThread consumer = new ConsumerThread(i, groupId, topic, serverURI, partitions, consumerType);
+			ConsumerThread consumer = new ConsumerThread(i, groupId, topic, serverURI, partitions, messageProcessor);
 			consumers.add(consumer);
 			executor.submit(consumer);
 		}
