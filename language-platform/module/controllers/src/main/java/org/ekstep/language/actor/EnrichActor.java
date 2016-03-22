@@ -279,34 +279,38 @@ public class EnrichActor extends LanguageBaseActor {
 	
 	private List<String> getPOS(Node node) {
 	    List<String> posList = new ArrayList<String>();
-	    Object value = node.getMetadata().get("pos");
-        if (null != value) {
-            if (value instanceof String[]) {
-                String[] arr = (String[]) value;
-                if (null != arr && arr.length > 0) {
-                    for (String str : arr)
-                        posList.add(str.toLowerCase());
+	    try {
+            Object value = node.getMetadata().get("pos");
+            if (null != value) {
+                if (value instanceof String[]) {
+                    String[] arr = (String[]) value;
+                    if (null != arr && arr.length > 0) {
+                        for (String str : arr)
+                            posList.add(str.toLowerCase());
+                    }
+                } else if (value instanceof String) {
+                    if (StringUtils.isNotBlank(value.toString()))
+                        posList.add(value.toString().toLowerCase());
                 }
-            } else if (value instanceof String) {
-                if (StringUtils.isNotBlank(value.toString()))
-                    posList.add(value.toString().toLowerCase());
             }
+            List<Relation> inRels = node.getInRelations();
+            if (null != inRels && !inRels.isEmpty()) {
+                for (Relation rel : inRels) {
+                    if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName()) 
+                            && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Synset")) {
+                        Map<String, Object> metadata = rel.getStartNodeMetadata();
+                        if (null != metadata && !metadata.isEmpty()) {
+                            String pos = (String) metadata.get("pos");
+                            if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
+                                posList.add(pos.toLowerCase());
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-	    List<Relation> inRels = node.getInRelations();
-	    if (null != inRels && !inRels.isEmpty()) {
-	        for (Relation rel : inRels) {
-	            if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName()) 
-	                    && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Synset")) {
-	                Map<String, Object> metadata = rel.getStartNodeMetadata();
-	                if (null != metadata && !metadata.isEmpty()) {
-	                    String pos = (String) metadata.get("pos");
-	                    if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
-	                        posList.add(pos.toLowerCase());
-	                }
-	            }
-	        }
-	    }
-	    System.out.println("pos list: " + posList.size());
+	    System.out.println("pos list: " + posList);
 	    return posList;
 	}
 
