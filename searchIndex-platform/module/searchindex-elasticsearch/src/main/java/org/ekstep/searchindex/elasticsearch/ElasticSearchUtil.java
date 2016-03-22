@@ -42,7 +42,7 @@ public class ElasticSearchUtil {
 	private String hostName;
 	private String port;
 	private int defaultResultLimit = 10000;
-	private int BATCH_SIZE = 10000;
+	private int BATCH_SIZE = 1000;
 	private int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 	

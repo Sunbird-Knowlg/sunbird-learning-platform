@@ -11,7 +11,7 @@ public class CompositeSearchConstants {
 	public static final String OBJECT_TYPE_METHOD = "METHOD";
 	public static final String OBJECT_TYPE_MISCONCEPTION = "MISCONCEPTION";
 	public static final String OBJECT_TYPE_CONTENT = "CONTENT";
-	public static final String OBJECT_TYPE_ASSESMENT_ITEM = "ASSESMENT_ITEM";
+	public static final String OBJECT_TYPE_ASSESMENT_ITEM = "ASSESMENTITEM";
 	public static final String OBJECT_TYPE_ITEM_SET = "ITEM_SET";
 	public static final String NODE_TYPE_DATA = "DATA_NODE";
 	public static final String NODE_TYPE_ROOT = "ROOT_NODE";

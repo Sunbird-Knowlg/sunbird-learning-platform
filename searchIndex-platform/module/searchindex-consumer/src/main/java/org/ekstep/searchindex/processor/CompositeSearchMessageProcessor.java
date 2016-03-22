@@ -104,10 +104,10 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 			}
 		}
 		indexDocument.put("graph_id", (String) message.get("graphId"));
-		indexDocument.put("node_graph_id", (int) message.get("nodeGraphId"));
-		indexDocument.put("node_unique_id", (String) message.get("nodeUniqueId"));
-		indexDocument.put("object_type", (String) message.get("objectType"));
-		indexDocument.put("node_type", (String) message.get("nodeType"));
+		indexDocument.put("node_id", (int) message.get("nodeGraphId"));
+		indexDocument.put("identifier", (String) message.get("nodeUniqueId"));
+		indexDocument.put("objectType", (String) message.get("objectType"));
+		indexDocument.put("nodeType", (String) message.get("nodeType"));
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
 			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("addedProperties");
