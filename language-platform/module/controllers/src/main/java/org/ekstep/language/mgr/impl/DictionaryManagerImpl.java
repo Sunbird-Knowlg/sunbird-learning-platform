@@ -185,18 +185,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				node.setIdentifier(id);
 				node.setObjectType(objectType);
 			}
-			Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
-			if (checkError(validateRes)) {
-				return validateRes;
-			} else {
-				Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-				updateReq.put(GraphDACParams.node.name(), node);
-				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-				Response updateRes = getResponse(updateReq, LOGGER);
-				return updateRes;
-			}
+			Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), node);
+			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Response updateRes = getResponse(updateReq, LOGGER);
+			return updateRes;
 		} catch (ClassCastException e) {
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
@@ -903,8 +896,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             Map<String, String> inRelDefMap = new HashMap<String, String>();
             Map<String, String> outRelDefMap = new HashMap<String, String>();
             getRelDefMaps(definition, inRelDefMap, outRelDefMap);
-            List<Relation> inRelations = new ArrayList<Relation>();
-            List<Relation> outRelations = new ArrayList<Relation>();
+            List<Relation> inRelations = null;
+            List<Relation> outRelations = null;
             Map<String, Object> metadata = new HashMap<String, Object>();
             for (Entry<String, Object> entry : map.entrySet()) {
                 if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
@@ -987,10 +980,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                         throw new ServerException(LanguageErrorCodes.ERR_CREATE_SYNONYM.name(),
                                                 getErrorMessage(res));
                                     else {
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(
                                                 new Relation(synsetId, RelationTypes.SYNONYM.relationName(), null));
                                     }
                                 } else {
+                                    if (null == inRelations)
+                                        inRelations = new ArrayList<Relation>();
                                     inRelations.add(new Relation(synsetId, RelationTypes.SYNONYM.relationName(), null));
                                 }
                             }
@@ -1011,11 +1008,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                     String word = (String) obj.get("name");
                                     if (lemmaIdMap.containsKey(word)) {
                                         wordId = lemmaIdMap.get(word);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     } else {
                                         words.add(word);
                                     }
                                 } else {
+                                    if (null == inRelations)
+                                        inRelations = new ArrayList<Relation>();
                                     inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                 }
                             }
@@ -1024,9 +1025,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                 for (String word : words) {
                                     if (lemmaIdMap.containsKey(word)) {
                                         String wordId = lemmaIdMap.get(word);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     } else {
                                         String wordId = createWord(lemmaIdMap, languageId, word, objectType);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     }
                                 }
@@ -1048,11 +1053,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                     String word = (String) obj.get("name");
                                     if (lemmaIdMap.containsKey(word)) {
                                         wordId = lemmaIdMap.get(word);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     } else {
                                         words.add(word);
                                     }
                                 } else {
+                                    if (null == outRelations)
+                                        outRelations = new ArrayList<Relation>();
                                     outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                 }
                             }
@@ -1061,9 +1070,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                 for (String word : words) {
                                     if (lemmaIdMap.containsKey(word)) {
                                         String wordId = lemmaIdMap.get(word);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     } else {
                                         String wordId = createWord(lemmaIdMap, languageId, word, objectType);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     }
                                 }
