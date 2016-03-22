@@ -180,16 +180,15 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 						break;
 					}
 					}
+					wordsCountObj.put("wordsCount", wordsCount);
+					wordsCountObj.put("liveWordsCount", liveWordsCount);
+					wordsCountMap.put(languageId, wordsCountObj);
+					createTimer(BATCH_TIME_IN_SECONDS);
+					messageProcessed = false;
+					System.out.println("Message processed by word count processor");
 					break;
 				}
 				}
-				
-				wordsCountObj.put("wordsCount", wordsCount);
-				wordsCountObj.put("liveWordsCount", liveWordsCount);
-				wordsCountMap.put(languageId, wordsCountObj);
-				createTimer(BATCH_TIME_IN_SECONDS);
-				messageProcessed = false;
-				System.out.println("Message processed");
 			}
 		}
 	}
