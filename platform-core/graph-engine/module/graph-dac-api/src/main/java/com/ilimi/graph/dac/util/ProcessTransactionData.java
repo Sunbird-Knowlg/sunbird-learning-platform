@@ -176,9 +176,9 @@ public class ProcessTransactionData {
 		for (Relationship rel: createdRelations) {
 			if (nodeId == rel.getEndNode().getId() && 
 				StringUtils.equalsIgnoreCase(
-						rel.getStartNode().getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).toString(), 
+						rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
 						GraphDACParams.TAG.name())) {
-				tags.add(rel.getStartNode().getProperty(GraphDACParams.TAG_NAME.name()).toString());
+				tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
 			}
 		}
 		return tags;
@@ -203,7 +203,7 @@ public class ProcessTransactionData {
 		for (Relationship rel: deletedRelations) {
 			if (nodeId == rel.getEndNode().getId() && 
 				StringUtils.equalsIgnoreCase(
-						rel.getStartNode().getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()).toString(), 
+						rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
 						GraphDACParams.TAG.name())) {
 				tags.add(rel.getStartNode().getProperty(GraphDACParams.TAG_NAME.name()).toString());
 			}

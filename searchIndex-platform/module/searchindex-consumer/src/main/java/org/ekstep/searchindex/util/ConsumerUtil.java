@@ -3,6 +3,7 @@ package org.ekstep.searchindex.util;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.codec.Charsets;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
@@ -60,6 +62,23 @@ public class ConsumerUtil {
 					}
 				}
 			}
+			List<Map<String, Object>> inRelations = (List<Map<String, Object>>) node.get("inRelations");
+			if (null != inRelations && !inRelations.isEmpty()) {
+			    List<String> tags = new ArrayList<String>();
+			    for (Map<String, Object> map : inRelations) {
+			        String nodeType = (String) map.get("startNodeType");
+			        if (StringUtils.equalsIgnoreCase("TAG", nodeType)) {
+			            Map<String, Object> metadata = (Map<String, Object>) map.get("startNodeMetadata");
+			            if (null != metadata && !metadata.isEmpty()) {
+			                String tag = (String) metadata.get("IL_TAG_NAME");
+			                if (StringUtils.isNotBlank(tag))
+			                    tags.add(tag);
+			            }
+			        }
+			    }
+			    if (!tags.isEmpty())
+			        indexMap.put(CompositeSearchConstants.INDEX_FIELD_TAGS, tags);
+			}
 			String indexDocument = mapper.writeValueAsString(indexMap);
 			indexesMap.put((String) indexMap.get("identifier"), indexDocument);
 		}
@@ -105,11 +124,13 @@ public class ConsumerUtil {
 	}
 	
 	public String makeHTTPGetRequest(String url) throws Exception{
+	    System.out.println("URL is " + url);
 		HttpClient client = HttpClientBuilder.create().build();
 		HttpGet request = new HttpGet(url);
 		request.addHeader("user-id", consumerConfig.consumerInit.ekstepPlatformApiUserId);
 		request.addHeader("Content-Type", "application/json");
 		HttpResponse response = client.execute(request);
+		System.out.println("Status Code: " + response.getStatusLine().getStatusCode());
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
 					+ response.getStatusLine().getReasonPhrase());

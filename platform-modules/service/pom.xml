@@ -97,13 +97,6 @@
 						<target>${maven.compiler.source}</target>
 					</configuration>
 				</plugin>
-				<plugin>
-		            <groupId>org.apache.maven.plugins</groupId>
-		            <artifactId>maven-war-plugin</artifactId>
-		            <configuration>
-		                <outputDirectory>/Users/ilimi/TOOLS_HOME/apache-tomcat-8.0.30/webapps</outputDirectory>
-		            </configuration>
-		        </plugin>
 			</plugins>
 		</pluginManagement>
 		<finalName>taxonomy-service</finalName>

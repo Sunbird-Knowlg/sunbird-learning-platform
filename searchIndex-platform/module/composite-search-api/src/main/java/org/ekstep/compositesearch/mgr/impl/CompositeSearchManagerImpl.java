@@ -34,7 +34,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class CompositeSearchManagerImpl extends BaseCompositeSearchManager implements ICompositeSearchManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchManager.class.getName());
-
+	
 	@Override
 	public Response sync(String graphId, Request request) {
 		if (StringUtils.isBlank(graphId))
@@ -65,7 +65,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	private SearchDTO getSearchDTO(Request request) {
 		Map<String, Object> req = request.getRequest();
 		String queryString = (String) req.get(CompositeSearchParams.query.name());
-		int limit = 100;
+		int limit = 1000;
 		if (StringUtils.isBlank(queryString))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
 					"Query String is blank.");
@@ -75,7 +75,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		SearchDTO searchObj = new SearchDTO();
 		List<Map> properties = new ArrayList<Map>();
 		List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
-		List<Map<String, Object>> filters = (List<Map<String, Object>>) req.get(CompositeSearchParams.filters.name());
+		Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
 		properties.addAll(getSearchQueryProperties(queryString, fields));
 		properties.addAll(getSearchFilterProperties(filters));
 		searchObj.setProperties(properties);
@@ -105,32 +105,89 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return properties;
 	}
 	
-	private List<Map<String, Object>> getSearchFilterProperties(List<Map<String, Object>> filters) {
+	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		if (null != filters) { 
-			for (Map<String, Object> filter: filters) {
-				for (Entry<String, Object> entry: filter.entrySet()) {
-					Map<String, Object> property = new HashMap<String, Object>();
-					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-					property.put(CompositeSearchParams.values.name(), entry.getValue());
-					properties.add(property);
+		boolean objTypeFilter = false;
+		if (null != filters && !filters.isEmpty()) { 
+			for (Entry<String, Object> entry: filters.entrySet()) {
+				Map<String, Object> property = new HashMap<String, Object>();
+				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+				property.put(CompositeSearchParams.values.name(), entry.getValue());
+				properties.add(property);
+				if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey())) {
+				    objTypeFilter = true;
 				}
 			}
 		}
-		
+		if (!objTypeFilter) {
+		    Map<String, Object> property = new HashMap<String, Object>();
+		    property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+            property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.objectType.name());
+            String[] objectTypes = new String[]{"Domain", "Dimension", "Concept", "Content", "Word", "Method", "Misconception", "AssessmentItem"};
+            property.put(CompositeSearchParams.values.name(), Arrays.asList(objectTypes));
+            properties.add(property);
+		}
 		return properties;
 	}
 	
-	private Response getCompositeSearchResponse(List<Object> lstResult) {
+	@SuppressWarnings("unchecked")
+    private Response getCompositeSearchResponse(List<Object> lstResult) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");
 		response.setParams(params);
 		response.setResponseCode(ResponseCode.OK);
-		response.put("search_result", lstResult);
-		
+		if (null != lstResult && !lstResult.isEmpty()) {
+		    Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+		    for (Object obj : lstResult) {
+		        if (obj instanceof Map) {
+		            Map<String, Object> map = (Map<String, Object>) obj;
+		            String objectType = (String) map.get(GraphDACParams.objectType.name());
+		            if (StringUtils.isNotBlank(objectType)) {
+		                String key = getResultParamKey(objectType);
+		                if (StringUtils.isNotBlank(key)) {
+		                    List<Map<String, Object>> list = result.get(key);
+		                    if (null == list) {
+		                        list = new ArrayList<Map<String, Object>>();
+		                        result.put(key, list);
+		                        response.put(key, list);
+		                    }
+		                    list.add(map);
+		                }
+		            }
+		        }
+		    }
+		}
 		return response;
+	}
+	
+	private String getResultParamKey(String objectType) {
+	    if (StringUtils.isNotBlank(objectType)) {
+	        if (StringUtils.equalsIgnoreCase("Domain", objectType))
+	            return "domains";
+	        else if (StringUtils.equalsIgnoreCase("Dimension", objectType))
+                return "dimensions";
+	        else if (StringUtils.equalsIgnoreCase("Concept", objectType))
+                return "concepts";
+	        else if (StringUtils.equalsIgnoreCase("Method", objectType))
+                return "methods";
+	        else if (StringUtils.equalsIgnoreCase("Misconception", objectType))
+                return "misconceptions";
+	        else if (StringUtils.equalsIgnoreCase("Content", objectType))
+                return "content";
+	        else if (StringUtils.equalsIgnoreCase("AssessmentItem", objectType))
+                return "items";
+	        else if (StringUtils.equalsIgnoreCase("ItemSet", objectType))
+                return "itemsets";
+	        else if (StringUtils.equalsIgnoreCase("Word", objectType))
+                return "words";
+	        else if (StringUtils.equalsIgnoreCase("Synset", objectType))
+                return "synsets";
+	        else
+	            return "other";
+	    }
+	    return null;
 	}
 	
 	

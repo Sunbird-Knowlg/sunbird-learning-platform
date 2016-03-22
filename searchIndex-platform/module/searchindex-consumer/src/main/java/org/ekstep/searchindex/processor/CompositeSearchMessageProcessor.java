@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.WordUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -44,6 +43,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 			createCompositeSearchIndex();
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
+			System.out.println("message node type: " + nodeType + " object type: " + objectType);
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
@@ -71,6 +71,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
+			    System.out.println("processing definition nodes");
 				Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
 			}

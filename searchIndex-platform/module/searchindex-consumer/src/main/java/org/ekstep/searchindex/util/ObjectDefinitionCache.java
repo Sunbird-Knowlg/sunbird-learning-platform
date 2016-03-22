@@ -60,6 +60,7 @@ public class ObjectDefinitionCache {
 	}
 
 	public static Map<String, Object> resyncDefinition(String objectType, String graphId) throws Exception {
+	    System.out.println("resyncDefinition : " + objectType + " -- " + graphId);
 		Map<String, Object> definition = getDefinitionFromGraph(objectType, graphId);
 		definitionMap.put(objectType, definition);
 		return definition;
