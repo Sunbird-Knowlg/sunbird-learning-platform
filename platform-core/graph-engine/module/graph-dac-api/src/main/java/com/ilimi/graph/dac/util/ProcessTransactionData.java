@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -16,6 +18,8 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class ProcessTransactionData {
+	
+	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());
 	
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
@@ -26,7 +30,7 @@ public class ProcessTransactionData {
 	}
 	
 	public void processTxnData (TransactionData data) {
-		System.out.println("Txn Data : " + data.toString());
+		LOGGER.debug("Txn Data : " + data.toString());
 		pushMessageToKafka(getMessageObj(data));
 	}
 	
@@ -45,13 +49,13 @@ public class ProcessTransactionData {
 	
 	private void pushMessageToKafka(List<Map<String, Object>> messages) {
 		if (messages.size() <= 0) return; 
-		System.out.println("Sending to KAFKA.... ");
+		LOGGER.debug("Sending to KAFKA.... ");
 		KafkaMessageProducer producer = new KafkaMessageProducer();
 		producer.init();
 		for (Map<String, Object> message: messages) {
 			producer.pushMessage(message);
 		}
-		System.out.println("Sending to KAFKA : FINISHED");
+		LOGGER.debug("Sending to KAFKA : FINISHED");
 	}
 
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb) {
@@ -156,9 +160,9 @@ public class ProcessTransactionData {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				System.out.println("Key : " + pe.key());
-				System.out.println("New Value : " + pe.value());
-				System.out.println("Old Value : " + pe.previouslyCommitedValue());
+				LOGGER.debug("Key : " + pe.key());
+				LOGGER.debug("New Value : " + pe.value());
+				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				map.put((String) pe.key(), pe.value());
 			}
 		}
@@ -170,8 +174,8 @@ public class ProcessTransactionData {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> removedNodeProp = data.removedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: removedNodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				System.out.println("Key : " + pe.key());
-				System.out.println("Old Value : " + pe.previouslyCommitedValue());
+				LOGGER.debug("Key : " + pe.key());
+				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				map.put((String) pe.key(), pe.previouslyCommitedValue());
 			}
 		}
@@ -184,9 +188,9 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (StringUtils.equalsIgnoreCase(GraphDACParams.status.name(), (CharSequence) pe.key()) && 
 					StringUtils.equalsIgnoreCase(GraphDACParams.RETIRED.name(), (CharSequence) pe.value())) {
-				System.out.println("Key : " + pe.key());
-				System.out.println("New Value : " + pe.value());
-				System.out.println("Old Value : " + pe.previouslyCommitedValue());
+				LOGGER.debug("Key : " + pe.key());
+				LOGGER.debug("New Value : " + pe.value());
+				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}
@@ -201,9 +205,9 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (!lstCreatedNodeIds.contains(pe.entity().getId()) &&
 					!lstDeletedNodeIds.contains(pe.entity().getId())) {
-				System.out.println("Key : " + pe.key());
-				System.out.println("New Value : " + pe.value());
-				System.out.println("Old Value : " + pe.previouslyCommitedValue());
+				LOGGER.debug("Key : " + pe.key());
+				LOGGER.debug("New Value : " + pe.value());
+				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}
@@ -211,9 +215,9 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: removedNodeProp) {
 			if (!lstCreatedNodeIds.contains(pe.entity().getId()) &&
 					!lstDeletedNodeIds.contains(pe.entity().getId())) {
-				System.out.println("Key : " + pe.key());
-				System.out.println("New Value : " + pe.value());
-				System.out.println("Old Value : " + pe.previouslyCommitedValue());
+				LOGGER.debug("Key : " + pe.key());
+				LOGGER.debug("New Value : " + pe.value());
+				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}
