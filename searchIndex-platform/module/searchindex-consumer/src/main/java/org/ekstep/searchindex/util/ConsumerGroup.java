@@ -14,8 +14,15 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class ConsumerGroup {
 	@XmlAttribute
 	public String id;
+	
+	@XmlAttribute
+    public String messageProcessor;
 
 	@XmlElementWrapper(name = "Consumers")
 	@XmlElement(name = "Consumer")
 	public List<Consumer> consumers;
+	
+	public void setMessageProcessor(String messageProcessor) {
+        this.messageProcessor = messageProcessor;
+    }
 }

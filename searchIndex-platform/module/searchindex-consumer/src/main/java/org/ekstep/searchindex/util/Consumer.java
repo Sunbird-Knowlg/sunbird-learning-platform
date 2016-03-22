@@ -10,14 +10,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 public class Consumer {
 
 	@XmlAttribute
-	public String messageProcessor;
-
-	@XmlAttribute
 	public String partitions;
-
-	public void setMessageProcessor(String messageProcessor) {
-		this.messageProcessor = messageProcessor;
-	}
 
 	public void setPartitions(String partitions) {
 		this.partitions = partitions;
