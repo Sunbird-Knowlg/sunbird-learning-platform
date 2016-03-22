@@ -16,8 +16,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordInfoBean;
@@ -36,7 +34,6 @@ public class SSFParser {
 	private static String[] ignoreStartWords;
 	private static String[] tagNames;
 	private static String[] discardTokens;
-	private static Logger logger = LogManager.getLogger(SSFParser.class.getName());
 	private static String attributesTagIdentifier;
 	private static String specialCharRegEx = PropertiesUtil.getProperty("specialCharRegEx");
 	private static String numberRegEx = PropertiesUtil.getProperty("numberRegEx");
@@ -75,7 +72,7 @@ public class SSFParser {
 			br = new BufferedReader(new InputStreamReader(new FileInputStream(filePath), "UTF8"));
 			while ((sentence = br.readLine()) != null) {
 				wordUtil.addIndexesToElasticSearch(
-						processSentence(sentence, sourceType, source, grade, skipCitations, fileName), languageId);
+						processSentence(sentence, sourceType, source, grade, skipCitations, fileName, languageId), languageId);
 			}
 		} finally {
 			if (br != null) {
@@ -97,7 +94,7 @@ public class SSFParser {
 
 	@SuppressWarnings("rawtypes")
 	private static Map<String, List> processSentence(String sentence, String sourceType, String source, String grade,
-			boolean skipCitations, String fileName) throws Exception {
+			boolean skipCitations, String fileName, String languageId) throws Exception {
 		String[] sentenceTokens = sentence.split(SENTENCE_SPLITTER);
 		ArrayList<String> enhancedSentenceTokens = enhanceSentenceTokens(sentenceTokens);
 		boolean wordFound = false;
@@ -110,12 +107,12 @@ public class SSFParser {
 		for (String token : enhancedSentenceTokens) {
 			tokenCountAfterWord++;
 
-			if (isTagName(token)) {
+			/*if (isTagName(token)) {
 				if (wordFound && word != null) {
 					pos = token;
 				}
 				continue;
-			}
+			}*/
 			if (ignoreToken(token)) {
 				continue;
 			}
@@ -169,15 +166,27 @@ public class SSFParser {
 				}
 				continue;
 			}
-			wordFound = true;
-			word = token;
-			tokenCountAfterWord = 0;
+			
+			if (wordFound && word != null && tokenCountAfterWord == 1) {
+				pos = token;
+				continue;
+			}
+			if (expectedLanguage(token, languageId)) {
+				wordFound = true;
+				word = token;
+				tokenCountAfterWord = 0;
+			}
 		}
 		if (!skipCitations) {
 			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationList);
 		}
 		indexes.put(Constants.WORD_INFO_INDEX_COMMON_NAME, wordInfoList);
 		return indexes;
+	}
+	
+	private static boolean expectedLanguage(String token, String languageId) {
+		Boolean c = TokenValidation.getUnicode(token, languageId);
+		return c;
 	}
 
 	private static boolean discardWord(String token) {
@@ -210,6 +219,7 @@ public class SSFParser {
 		return false;
 	}
 
+	@SuppressWarnings("unused")
 	private static boolean isTagName(String token) {
 		if (ArrayUtils.contains(tagNames, token)) {
 			return true;

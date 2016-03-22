@@ -4,7 +4,9 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.io.File;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -27,6 +29,8 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphFactory {
+	
+	private static List<String> restrictedGraphList = new ArrayList<String>();
 
     private static Map<String, GraphDatabaseService> graphDbMap = new HashMap<String, GraphDatabaseService>();
 
@@ -34,6 +38,9 @@ public class Neo4jGraphFactory {
 
     static {
         try {
+        	restrictedGraphList.add("numeracy");
+        	restrictedGraphList.add("literacy");
+        	restrictedGraphList.add("literacy_v2");
             InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties");
             if (null != inputStream) {
                 Properties props = new Properties();
@@ -62,6 +69,8 @@ public class Neo4jGraphFactory {
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
+                if (!restrictedGraphList.contains(graphId))
+                	graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
                 graphDbMap.put(graphId, graphDb);
                 createRootNode(graphDb, graphId);
                 createConstraints(graphDb);

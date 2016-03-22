@@ -35,4 +35,6 @@ public interface ITaxonomyManager {
     
     Response compositeSearch();
 
+	Response findAllByObjectType(String graphId, String objectType);
+
 }

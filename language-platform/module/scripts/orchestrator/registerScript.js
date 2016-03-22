@@ -5,6 +5,7 @@ var client = new Client();
 //var host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
 var host = "http://localhost:9090/ekstep-service";
 //var host = "http://52.77.241.169:8080/taxonomy-service";
+//var host = "http://52.74.171.89:8080/taxonomy-service";
 
 console.log('');
 var scriptAsString = fs.readFileSync(process.argv[3]);

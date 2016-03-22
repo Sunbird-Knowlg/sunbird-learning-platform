@@ -10,6 +10,8 @@ node registerScript.js api/get-word-lists.tcl api/json/register-get-word-lists.j
 
 node registerScript.js api/update-word-list.tcl api/json/register-update-word-list.json register
 
+node registerScript.js api/update-word-count.tcl api/json/register-update-word-count.json register
+
 node registerScript.js api/create-synset.tcl api/json/register-create-synset.json register
 
 node registerScript.js api/update-synset.tcl api/json/register-update-synset.json register
