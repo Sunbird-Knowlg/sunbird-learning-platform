@@ -599,7 +599,30 @@
             "Puzzle",
             "Diagnostic",
             "Collection",
-            "Asset"
+            "Asset",
+            "Template"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "templateType",
+          "title": "Template Type",
+          "description": "",
+          "category": "General",
+          "displayProperty": "Editable",
+          "range": [
+            "story",
+            "worksheet",
+            "mcq",
+            "ftb",
+            "mtf",
+            "recognition",
+            "other"
           ],
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
