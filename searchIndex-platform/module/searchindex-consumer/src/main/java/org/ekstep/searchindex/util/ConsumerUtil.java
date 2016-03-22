@@ -1,7 +1,8 @@
 package org.ekstep.searchindex.util;
 
-import java.io.File;
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,17 +11,33 @@ import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
+import org.apache.commons.codec.Charsets;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
-import org.ekstep.searchindex.processor.CompositeSearchMessageProcessor;
 import org.ekstep.searchindex.processor.IMessageProcessor;
-import org.ekstep.searchindex.processor.WordCountMessageProcessor;
 
 public class ConsumerUtil {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
-	private SearchUtil searchUtil = new SearchUtil();
 	private ObjectMapper mapper = new ObjectMapper();
+	private ConsumerConfig consumerConfig;
+	
+	public ConsumerUtil() {
+		this.consumerConfig = readConsumerProperties();
+	}
+
+	
+	
+	public ConsumerConfig getConsumerConfig() {
+		return consumerConfig;
+	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public void reSyncNodes(List<Map> nodeList, Map<String, Object> definitionNode, String objectType)
@@ -52,7 +69,7 @@ public class ConsumerUtil {
 
 	@SuppressWarnings("rawtypes")
 	public void reSyncNodes(String objectType, String graphId, Map<String, Object> definitionNode) throws Exception {
-		List<Map> nodeList = searchUtil.getAllNodes(objectType, graphId);
+		List<Map> nodeList = getAllNodes(objectType, graphId);
 		reSyncNodes(nodeList, definitionNode, objectType);
 	}
 
@@ -83,5 +100,57 @@ public class ConsumerUtil {
 	public static void main(String[] args) {
 		ConsumerUtil util = new ConsumerUtil();
 		util.readConsumerProperties();
+	}
+	
+	public String makeHTTPGetRequest(String url) throws Exception{
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpGet request = new HttpGet(url);
+		request.addHeader("user-id", consumerConfig.consumerInit.ekstepPlatformApiUserId);
+		request.addHeader("Content-Type", "application/json");
+		HttpResponse response = client.execute(request);
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
+					+ response.getStatusLine().getReasonPhrase());
+		}
+		BufferedReader rd = new BufferedReader(
+			new InputStreamReader(response.getEntity().getContent(),Charsets.UTF_8));
+
+		StringBuffer result = new StringBuffer();
+		String line = "";
+		while ((line = rd.readLine()) != null) {
+			result.append(line);
+		}
+		return result.toString();
+	}
+	
+	
+	public void makeHttpPostRequest(String url, String body) throws Exception{
+		HttpClient client = HttpClientBuilder.create().build();
+		HttpPost post = new HttpPost(url);
+		post.addHeader("user-id", consumerConfig.consumerInit.ekstepPlatformApiUserId);
+		post.addHeader("Content-Type", "application/json");
+		post.setEntity(new StringEntity(body));
+
+		HttpResponse response = client.execute(post);
+		if (response.getStatusLine().getStatusCode() != 200) {
+			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
+					+ response.getStatusLine().getReasonPhrase());
+		}
+
+	}
+	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public List<Map> getAllNodes(String objectType, String graphId) throws Exception {
+		String url = consumerConfig.consumerInit.ekstepPlatformURI +"/taxonomy/"+graphId+"/"+objectType;
+		String result = makeHTTPGetRequest(url);
+		Map<String, Object> responseObject = mapper.readValue(result, new TypeReference<Map<String, Object>>() {});
+		if(responseObject != null){
+			Map<String, Object> resultObject = (Map<String, Object>) responseObject.get("result");
+			if(resultObject != null){
+				List<Map> nodeList = (List<Map>) resultObject.get("node_list");
+				return nodeList;
+			}
+		}
+		return null;
 	}
 }

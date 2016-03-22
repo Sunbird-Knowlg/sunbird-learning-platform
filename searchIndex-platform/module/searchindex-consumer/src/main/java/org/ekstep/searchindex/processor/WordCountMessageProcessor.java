@@ -10,15 +10,14 @@ import org.apache.commons.lang.WordUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.PropertiesUtil;
-import org.ekstep.searchindex.util.SearchUtil;
+import org.ekstep.searchindex.util.ConsumerUtil;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
-	SearchUtil searchUtil = new SearchUtil();
+	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;
 	private boolean messageProcessed = false;
@@ -64,7 +63,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 Map<String, Integer> wordsCountObj = entry.getValue();
 			 Integer wordsCount = wordsCountObj.get("wordsCount");
 			 Integer liveWordsCount = wordsCountObj.get("liveWordsCount");
-			 String url = PropertiesUtil.getProperty("ekstep_platform")+"/v1/language/dictionary/updateWordCount/"+languageId;
+			 String url = consumerUtil.getConsumerConfig().consumerInit.ekstepPlatformURI +"/v1/language/dictionary/updateWordCount/"+languageId;
 			
 			 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 			 Map<String, Object> requestMap = new HashMap<String, Object>();
@@ -74,7 +73,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 
 			 String requestBody = mapper.writeValueAsString(requestBodyMap);
 			 
-			 searchUtil.makeHttpPostRequest(url, requestBody);
+			 consumerUtil.makeHttpPostRequest(url, requestBody);
 			 
 			wordsCountObj.put("wordsCount", new Integer(0));
 			wordsCountObj.put("liveWordsCount", new Integer(0));

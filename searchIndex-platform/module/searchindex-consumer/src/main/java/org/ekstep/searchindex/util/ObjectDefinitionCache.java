@@ -12,7 +12,7 @@ public class ObjectDefinitionCache {
 	@SuppressWarnings("rawtypes")
 	private static Map<String, Map> definitionMap = new HashMap<String, Map>();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static SearchUtil searchUtil = new SearchUtil();
+	private static ConsumerUtil consumerUtil = new ConsumerUtil();
 
 	@SuppressWarnings({ "unchecked" })
 	public static Map<String, Object> getDefinitionNode(String objectType, String graphId) throws Exception {
@@ -25,9 +25,9 @@ public class ObjectDefinitionCache {
 	}
 
 	private static Map<String, Object> getDefinitionFromGraph(String objectType, String graphId) throws Exception {
-		String url = PropertiesUtil.getProperty("ekstep_platform") + "/taxonomy/" + graphId + "/definition/"
+		String url = consumerUtil.getConsumerConfig().consumerInit.ekstepPlatformURI + "/taxonomy/" + graphId + "/definition/"
 				+ objectType;
-		String result = searchUtil.makeHTTPGetRequest(url);
+		String result = consumerUtil.makeHTTPGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result,
 				new TypeReference<Map<String, Object>>() {
 				});
