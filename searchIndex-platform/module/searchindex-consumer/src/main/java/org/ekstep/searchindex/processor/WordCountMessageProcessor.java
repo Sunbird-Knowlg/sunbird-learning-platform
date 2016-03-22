@@ -114,6 +114,25 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					switch (operationType) {
 					case CompositeSearchConstants.OPERATION_CREATE: {
 						wordsCount = wordsCount + 1;
+						Map transactionData = (Map) message.get("transactionData");
+						if (transactionData != null) {
+							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
+									.get("addedProperties");
+							if (addedProperties != null && !addedProperties.isEmpty()) {
+								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
+									if (propertyMap != null && propertyMap.getKey() != null) {
+										String propertyName = (String) propertyMap.getKey();
+										String propertyValue = (String) propertyMap.getValue();
+										if (propertyName.equalsIgnoreCase("status")) {
+											if (propertyValue.equalsIgnoreCase("Live")) {
+												liveWordsCount = liveWordsCount + 1;
+											} 
+										}
+									}
+								}
+							}
+						}
+						
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_UPDATE: {
