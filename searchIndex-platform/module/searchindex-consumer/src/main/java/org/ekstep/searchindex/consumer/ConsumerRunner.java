@@ -22,7 +22,7 @@ public class ConsumerRunner {
 	}
 
 	public static void startConsumers() throws ClassNotFoundException, InstantiationException, IllegalAccessException {
-		ConsumerConfig config = consumerUtil.readConsumerProperties();
+		ConsumerConfig config = consumerUtil.getConsumerConfig();
 		List<ConsumerGroup> consumerGroups = config.consumerGroups;
 		for (ConsumerGroup consumerGroup : consumerGroups) {
 			String groupId = consumerGroup.id;
