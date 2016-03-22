@@ -1,5 +1,6 @@
 package com.ilimi.common.dto;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -9,6 +10,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.RelationCriterion;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 
 public abstract class AbstractSearchCriteria {
@@ -18,6 +20,7 @@ public abstract class AbstractSearchCriteria {
     private TagCriterion tag;
     private int resultSize = 50;
     private int startPosition = 0;
+    private List<Sort> sortOrder = new LinkedList<Sort>();
 
     public MetadataCriterion getMetadata() {
         return metadata;
@@ -74,6 +77,17 @@ public abstract class AbstractSearchCriteria {
         }
         sc.setResultSize(getResultSize());
         sc.setStartPosition(getStartPosition());
+        if (null != getSortOrder() && getSortOrder().size() > 0) {
+            sc.setSortOrder(sortOrder);
+        }
         return sc;
+    }
+
+    public List<Sort> getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(List<Sort> sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }
