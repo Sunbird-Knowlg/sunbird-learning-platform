@@ -119,13 +119,14 @@ public class TaxonomyController extends BaseController {
     
     @RequestMapping(value = "/{id:.+}/export", method = RequestMethod.POST)
     @ResponseBody
-    public void export(@PathVariable(value = "id") String id,
+    public void export(@PathVariable(value = "id") String id,@RequestBody Map<String,Object> map,
             @RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
         String format = ImportType.CSV.name();
         LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
         try {
-            Response response = taxonomyManager.export(id, format);
+        	map.put(GraphEngineParams.format.name(), format);
+            Response response = taxonomyManager.export(id, map);
             if (!checkError(response)) {
                 OutputStreamValue graphOutputStream = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
                 OutputStream os = graphOutputStream.getOutputStream();

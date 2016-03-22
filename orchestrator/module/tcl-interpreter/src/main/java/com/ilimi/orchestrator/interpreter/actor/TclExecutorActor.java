@@ -1,11 +1,13 @@
 package com.ilimi.orchestrator.interpreter.actor;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
@@ -117,6 +119,15 @@ public class TclExecutorActor extends UntypedActor {
         }
         return false;
     }
+    
+    @SuppressWarnings("rawtypes")
+    private boolean checkDataType(Class cls, String name) {
+        if (null != cls) {
+            if (StringUtils.equals(cls.getName(), name))
+                return true;
+        }
+        return false;
+    }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     private Object execute(OrchestratorScript script, Map<String, Object> params) {
@@ -140,6 +151,16 @@ public class TclExecutorActor extends UntypedActor {
                                     list.add(paramObj);
                                     TclObject obj = ReflectObject.newInstance(interpreter, list.getClass(), list);
                                     interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+                                } else if (checkDataType(cls, InputStream.class.getName())) {
+                                    if (paramObj instanceof MultipartFile) {
+                                        MultipartFile mpf = (MultipartFile) paramObj;
+                                        InputStream is = mpf.getInputStream();
+                                        TclObject obj = ReflectObject.newInstance(interpreter, is.getClass(), is);
+                                        interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+                                    } else {
+                                        TclObject obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
+                                        interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
+                                    }
                                 } else {
                                     TclObject obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
                                     interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);

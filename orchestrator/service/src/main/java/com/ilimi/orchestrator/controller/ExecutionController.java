@@ -70,28 +70,29 @@ public class ExecutionController extends BaseOrchestratorController {
             String type, Map<String, Object> map) {
         String path = (String) request.getAttribute(HandlerMapping.PATH_WITHIN_HANDLER_MAPPING_ATTRIBUTE);
         OrchestratorScript script = getScript(path, type);
-        try {
-            if (null == script) {
-                throw new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
-                        "Invalid request path: " + path);
-            }
-            Map<String, Object> params = getParams(request, script, path, map);
-            Response resp = executor.execute(script, params);
-            String format = request.getParameter("format");
-            if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
-                String csv = (String) resp.getResult().get("result");
-                if (StringUtils.isNotBlank(csv)) {
-                    byte[] bytes = csv.getBytes();
-                    response.setContentType("text/csv");
-                    response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
-                    response.getOutputStream().write(bytes);
-                    response.getOutputStream().close();
+        if (null == script) {
+            return getExceptionResponseEntity(new MiddlewareException(ExecutionErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
+                    "Invalid request path: " + path), path);
+        } else {
+            try {
+                Map<String, Object> params = getParams(request, script, path, map);
+                Response resp = executor.execute(script, params);
+                String format = request.getParameter("format");
+                if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
+                    String csv = (String) resp.getResult().get("result");
+                    if (StringUtils.isNotBlank(csv)) {
+                        byte[] bytes = csv.getBytes();
+                        response.setContentType("text/csv");
+                        response.setHeader("Content-Disposition", "attachment; filename=graph.csv");
+                        response.getOutputStream().write(bytes);
+                        response.getOutputStream().close();
+                    }
                 }
+                return getResponseEntity(resp, script);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return getExceptionResponseEntity(e, script);
             }
-            return getResponseEntity(resp, script.getName());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return getExceptionResponseEntity(e, path);
         }
     }
 

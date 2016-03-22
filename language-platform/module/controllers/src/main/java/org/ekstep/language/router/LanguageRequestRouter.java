@@ -3,6 +3,7 @@ package org.ekstep.language.router;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.actor.EnrichActor;
 import org.ekstep.language.actor.IndexesActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -74,6 +75,10 @@ public class LanguageRequestRouter extends UntypedActor {
         Props indexesProps = Props.create(IndexesActor.class);
         ActorRef indexMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(indexesProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.INDEXES_ACTOR.name(), indexMgr);
+        
+        Props enrichProps = Props.create(EnrichActor.class);
+        ActorRef enrichMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(enrichProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.ENRICH_ACTOR.name(), enrichMgr);
     }
 
     private ActorRef getActorFromPool(Request request) {

@@ -198,10 +198,15 @@ public class IndexesActor extends LanguageBaseActor {
 		ObjectMapper mapper = new ObjectMapper();
 		Map<String, List> indexes = new HashMap<String, List>();
 		ArrayList<CitationBean> citationBeanList = new ArrayList<CitationBean>();
+		//ArrayList<WordInfoBean> wordInfoBeanList = new ArrayList<WordInfoBean>();
 		for (Map<String, String> map : citations) {
 			String jsonString = mapper.writeValueAsString(map);
 			CitationBean citation = mapper.readValue(jsonString, CitationBean.class);
 			citationBeanList.add(citation);
+			//Testing
+			/*WordInfoBean wordInfo = mapper.readValue(jsonString, WordInfoBean.class);
+			wordInfo.setRootWord(wordInfo.getWord());
+			wordInfoBeanList.add(wordInfo);*/
 		}
 
 		ArrayList<String> errorList = wordUtil.validateCitationsList(citationBeanList);
@@ -210,6 +215,7 @@ public class IndexesActor extends LanguageBaseActor {
 					getSender());
 		} else {
 			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationBeanList);
+			//indexes.put(Constants.WORD_INFO_INDEX_COMMON_NAME, wordInfoBeanList);
 			wordUtil.addIndexesToElasticSearch(indexes, languageId);
 			OK(getSender());
 		}

@@ -25,6 +25,19 @@ public class BatchController extends BaseLanguageController {
 
     @Autowired
     private IWordnetCSVManager wordnetCSVManager;
+    
+    @RequestMapping(value = "/{languageId}/updatePosList", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updatePosList(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.updatePosList";
+        try {
+            Response response = batchManager.updatePosList(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     @RequestMapping(value = "/{languageId}/updateWordFeatures", method = RequestMethod.POST)
     @ResponseBody

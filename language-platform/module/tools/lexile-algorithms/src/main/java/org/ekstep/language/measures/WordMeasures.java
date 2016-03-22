@@ -24,7 +24,7 @@ public class WordMeasures {
 
     public static WordComplexity getWordComplexity(String language, String word) {
         if (!SyllableMap.isLanguageEnabled(language))
-            throw new ServerException(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Language not supported");
+            throw new ServerException(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Lexile Measures for " + language + " not supported");
         List<Syllable> syllables = getSyllables(language, word);
         WordComplexity wc = new WordComplexity();
         wc.setWord(word);

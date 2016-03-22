@@ -71,6 +71,16 @@ public abstract class BaseManager {
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
+    
+    public void makeAsyncRequest(Request request, Logger logger) {
+        ActorRef router = RequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
 
     protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
         if (null != requests && !requests.isEmpty()) {

@@ -1,0 +1,22 @@
+{
+    "actorPath": {
+      "manager": "INDEXES_ACTOR",
+      "operation": "addCitationIndex",
+      "router": "LANGUAGE_REQUEST_ROUTER"
+    },
+    "name": "lang_addCitationIndex",
+    "parameters": [
+      {
+        "index": 0,
+        "name": "language_id",
+        "routingParam": true
+      },
+      {
+        "index": 1,
+        "name": "citations",
+        "routingParam": false,
+        "datatype": "java.util.ArrayList"
+      }
+    ],
+    "type": "COMMAND"
+ }

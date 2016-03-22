@@ -1,0 +1,27 @@
+{
+    "actorPath": {
+      "manager": "LEXILE_MEASURES_ACTOR",
+      "operation": "getWordFeatures",
+      "router": "LANGUAGE_REQUEST_ROUTER"
+    },
+    "name": "lang_getWordFeatures",
+    "parameters": [
+      {
+        "index": 0,
+        "name": "language_id",
+        "routingParam": true
+      },
+      {
+        "index": 1,
+        "name": "words",
+        "routingParam": false,
+        "datatype": "java.util.ArrayList"
+      },
+      {
+        "index": 2,
+        "name": "word",
+        "routingParam": false
+      }
+    ],
+    "type": "COMMAND"
+}

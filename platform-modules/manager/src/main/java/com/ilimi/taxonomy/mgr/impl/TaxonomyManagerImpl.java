@@ -3,7 +3,9 @@ package com.ilimi.taxonomy.mgr.impl;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -15,17 +17,25 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.Graph;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
+import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.TaxonomyAPIParams;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 
@@ -145,9 +155,11 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 	}
 
 	@Override
-	public Response export(String id, String format) {
+	public Response export(String id, Map<String, Object> reqMap) {
 		if (StringUtils.isBlank(id))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(),
+					"Taxonomy Id is blank");
+		String format = (String) reqMap.get(GraphEngineParams.format.name());
 		LOGGER.info("Export Taxonomy : " + id + " | Format: " + format);
 		Request request = getRequest(id, GraphEngineManagers.GRAPH_MANAGER, "exportGraph");
 		request.put(GraphEngineParams.format.name(), format);
@@ -263,5 +275,65 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		Response response = getResponse(request, LOGGER);
 		return response;
 	}
+    
+    @Override
+    public Response compositeSearch() {
+        String graphId = "domain";
+        Response res = new Response();
+        getObjectList(graphId, res, "Domain", "domains");
+        getObjectList(graphId, res, "Dimension", "dimensions");
+        getObjectList(graphId, res, "Content", "content");
+        return res;
+    }
+    
+    private void getObjectList(String graphId, Response res, String objectType, String key) {
+        DefinitionDTO domainDef = getDefinition(graphId, objectType);
+        if (null != domainDef) {
+            List<Map<String, Object>> domains = searchObjectType(graphId, objectType, domainDef);
+            if (null != domains && !domains.isEmpty()) {
+                res.put(key, domains);
+            }
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> searchObjectType(String graphId, String objectType, DefinitionDTO definition) {
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+        sc.setResultSize(2);
+        
+        List<String> statusList = new ArrayList<String>();
+        statusList.add("Live");
+        MetadataCriterion mc = MetadataCriterion
+                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
+        sc.addMetadata(mc);
+        List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        Response res = getResponse(req, LOGGER);
+        if (!checkError(res)) {
+            List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+                    maps.add(map);
+                }
+            }
+        }
+        return maps;
+    }
+    
+    private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
+        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+                GraphDACParams.object_type.name(), objectType);
+        Response response = getResponse(request, LOGGER);
+        if (!checkError(response)) {
+            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+            return definition;
+        }
+        return null;
+    }
 
 }

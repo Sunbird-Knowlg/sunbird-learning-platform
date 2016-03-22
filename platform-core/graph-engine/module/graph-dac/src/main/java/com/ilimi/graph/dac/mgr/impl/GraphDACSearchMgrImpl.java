@@ -5,11 +5,9 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
@@ -21,8 +19,6 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.tooling.GlobalGraphOperations;
-
-import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -47,6 +43,8 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
+
+import akka.actor.ActorRef;
 
 public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDACSearchMgr {
 
@@ -139,7 +137,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         }
     }
 
-    @SuppressWarnings("unchecked")
+    /*@SuppressWarnings("unchecked")
     @Override
     public void getNodesByUniqueIds(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
@@ -188,7 +186,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
                     tx.close();
             }
         }
-    }
+    }*/
 
     @Override
     public void getNodesByProperty(Request request) {
@@ -229,6 +227,46 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             }
         }
     }
+    @SuppressWarnings("unchecked")
+	@Override
+	public void getNodesByUniqueIds(Request request) {
+		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+		List<String> nodeIds = (List<String>) request.get(GraphDACParams.node_ids.name());
+		Property property = new Property(SystemProperties.IL_UNIQUE_ID.name(), nodeIds);
+		if (!validateRequired(property)) {
+			throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_LIST_MISSING_REQ_PARAMS.name(),
+					"Required parameters are missing");
+		} else {
+			Transaction tx = null;
+			try {
+				GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+				tx = graphDb.beginTx();
+				ResourceIterator<org.neo4j.graphdb.Node> nodes = graphDb.findNodes(NODE_LABEL);
+				List<Node> nodeList = null;
+				if (null != nodes) {
+					nodeList = new ArrayList<Node>();
+					while (nodes.hasNext()) {
+						org.neo4j.graphdb.Node neo4jNode = nodes.next();
+						if (nodeIds.contains((String) neo4jNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()))) {
+							Node node = new Node(graphId, neo4jNode);
+							nodeList.add(node);
+							// nodes.close();
+						}
+					}
+					nodes.close();
+				}
+				tx.success();
+				OK(GraphDACParams.node_list.name(), nodeList, getSender());
+			} catch (Exception e) {
+				if (null != tx)
+					tx.failure();
+				ERROR(e, getSender());
+			} finally {
+				if (null != tx)
+					tx.close();
+			}
+		}
+	}
 
     @Override
     public void getNodeProperty(Request request) {

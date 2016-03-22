@@ -1,0 +1,47 @@
+{
+  "actorPath": {
+    "manager": "INDEXES_ACTOR",
+    "operation": "citations",
+    "router": "LANGUAGE_REQUEST_ROUTER"
+  },
+  "name": "lang_getCitations",
+  "parameters": [
+    {
+      "index": 0,
+      "name": "language_id",
+      "routingParam": true
+    },
+    {
+      "index": 1,
+      "name": "source_type",
+      "routingParam": false
+    },
+    {
+      "index": 2,
+      "name": "source",
+      "routingParam": false
+    },
+    {
+      "index": 3,
+      "name": "grade",
+      "routingParam": false
+    },
+    {
+      "index": 4,
+      "name": "pos",
+      "routingParam": false
+    },
+    {
+      "index": 5,
+      "name": "file_name",
+      "routingParam": false
+    },
+    {
+      "index": 6,
+      "name": "limit",
+      "routingParam": false,
+      "datatype": "java.lang.Integer"
+    }
+  ],
+  "type": "COMMAND"
+}

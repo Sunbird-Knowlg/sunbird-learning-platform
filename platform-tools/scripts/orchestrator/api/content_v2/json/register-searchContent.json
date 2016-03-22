@@ -13,5 +13,6 @@
         "type": "POST",
         "url": "/v2/content/search"
     },
-    "body": ""
+    "body": "",
+    "apiId": "ekstep.content.search"
 }

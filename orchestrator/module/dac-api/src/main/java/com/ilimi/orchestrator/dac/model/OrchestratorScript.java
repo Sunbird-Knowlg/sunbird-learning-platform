@@ -15,6 +15,8 @@ public class OrchestratorScript implements Serializable {
 	@Id
 	private String id;
 	private String name;
+	@Field("api_id")
+	private String apiId;
 	private String description;
 	private String body;
 	private String type;
@@ -97,5 +99,13 @@ public class OrchestratorScript implements Serializable {
 	public void setCmdClass(String cmdClass) {
 		this.cmdClass = cmdClass;
 	}
+
+    public String getApiId() {
+        return apiId;
+    }
+
+    public void setApiId(String apiId) {
+        this.apiId = apiId;
+    }
 
 }

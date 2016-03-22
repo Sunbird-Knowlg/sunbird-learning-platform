@@ -1,6 +1,9 @@
 package org.ekstep.language.mgr.impl;
 
 import java.io.File;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,6 +12,11 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +32,7 @@ import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -136,12 +145,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				}
 			}
 			if (null == errResponse) {
-				createRes.getResult().remove("node_id");
-				createRes.put("node_id", lstNodeId);
+				createRes.getResult().remove(GraphDACParams.node_id.name());
+				createRes.put(GraphDACParams.node_id.name(), lstNodeId);
 				return createRes;
 			} else {
-				errResponse.getResult().remove("node_id");
-				errResponse.put("node_id", lstNodeId);
+				errResponse.getResult().remove(GraphDACParams.node_id.name());
+				errResponse.put(GraphDACParams.node_id.name(), lstNodeId);
 				return errResponse;
 			}
 		} catch (ClassCastException e) {
@@ -176,18 +185,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				node.setIdentifier(id);
 				node.setObjectType(objectType);
 			}
-			Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
-			if (checkError(validateRes)) {
-				return validateRes;
-			} else {
-				Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-				updateReq.put(GraphDACParams.node.name(), node);
-				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-				Response updateRes = getResponse(updateReq, LOGGER);
-				return updateRes;
-			}
+			Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			updateReq.put(GraphDACParams.node.name(), node);
+			updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Response updateRes = getResponse(updateReq, LOGGER);
+			return updateRes;
 		} catch (ClassCastException e) {
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
@@ -251,6 +253,158 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             response.put("words", list);
             return response;
         }
+    }
+    
+    private CSVFormat csvFileFormat = CSVFormat.DEFAULT;
+    private static final String NEW_LINE_SEPARATOR = "\n";
+    
+    public String findWordsCSV(String languageId, String objectType, InputStream is) {
+        try {
+            List<String[]> rows = getCSVRecords(is);
+            List<Map<String, Object>> nodes = new ArrayList<Map<String, Object>>();
+            if (null != rows && !rows.isEmpty()) {
+                for (String[] row : rows) {
+                    if (null != row && row.length > 0) {
+                        String word = row[0];
+                        Node node = searchWord(languageId, objectType, word);
+                        Map<String, Object> rowMap = new HashMap<String, Object>();
+                        if (null == node) {
+                            String nodeId = createWord(languageId, word, objectType);
+                            rowMap.put("identifier", nodeId);
+                            rowMap.put("objectType", objectType);
+                            rowMap.put("lemma", word);
+                        } else {
+                            if (null != node.getMetadata() && !node.getMetadata().isEmpty())
+                                rowMap.putAll(node.getMetadata());
+                            rowMap.put("identifier", node.getIdentifier());
+                            rowMap.put("objectType", node.getObjectType());
+                            if (null != node.getTags() && !node.getTags().isEmpty())
+                                rowMap.put("tags", node.getTags());
+                            else 
+                                rowMap.put("tags", "");
+                        }
+                        nodes.add(rowMap);
+                    }
+                }
+            }
+            String csv = getCSV(nodes);
+            return csv;
+        } catch (Exception e) {
+            throw new MiddlewareException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), e.getMessage(), e);
+        }
+    }
+    
+    private String getCSV(List<Map<String, Object>> nodes) throws Exception {
+        List<String[]> allRows = new ArrayList<String[]>();
+        List<String> headers = new ArrayList<String>();
+        headers.add("identifier");
+        headers.add("objectType");
+        headers.add("lemma");
+        for (Map<String, Object> map : nodes) {
+            Set<String> keys = map.keySet();
+            for (String key : keys) {
+                if (!headers.contains(key)) {
+                    headers.add(key);
+                }
+            }
+        }
+        allRows.add(headers.toArray(new String[headers.size()]));
+        for (Map<String, Object> map : nodes) {
+            String[] row = new String[headers.size()];
+            for (int i=0; i<headers.size(); i++) {
+                String header = headers.get(i);
+                Object val = map.get(header);
+                addToDataRow(val, row, i);
+            }
+            allRows.add(row);
+        }
+        CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
+        StringWriter sWriter = new StringWriter();
+        CSVPrinter writer = new CSVPrinter(sWriter, csvFileFormat);
+        writer.printRecords(allRows);
+        String csv = sWriter.toString();
+        sWriter.close();
+        writer.close();
+        return csv;
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private void addToDataRow(Object val, String[] row, int i) {
+        try {
+            if (null != val) {
+                if (val instanceof List) {
+                    List list = (List) val;
+                    String str = "";
+                    for (int j=0; j<list.size(); j++) {
+                        str += StringEscapeUtils.escapeCsv(list.get(j).toString());
+                        if (j < list.size() - 1)
+                            str += "::";
+                    }
+                    row[i] = str;
+                } else if (val instanceof Object[]) {
+                    Object[] arr = (Object[]) val;
+                    String str = "";
+                    for (int j=0; j<arr.length; j++) {
+                        str += StringEscapeUtils.escapeCsv(arr[j].toString());
+                        if (j < arr.length - 1)
+                            str += "::";
+                    }
+                    row[i] = str;
+                } else {
+                    Object strObject = mapper.convertValue(val, Object.class);
+                    row[i] = strObject.toString();
+                }
+            } else {
+                row[i] = "";
+            }
+        } catch(Exception e) {
+            row[i] = "";
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+    private Node searchWord(String languageId, String objectType, String lemma) {
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, lemma));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+        sc.addMetadata(mc);
+        sc.setResultSize(1);
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0)
+                return nodes.get(0);
+        }
+        return null;
+    }
+    
+    private List<String[]> getCSVRecords(InputStream is) throws Exception {
+        InputStreamReader isReader = new InputStreamReader(is);
+        CSVParser csvReader = new CSVParser(isReader, csvFileFormat);
+        List<String[]> rows = new ArrayList<String[]>();
+        List<CSVRecord> recordsList = csvReader.getRecords();
+        if (null != recordsList && !recordsList.isEmpty()) {
+            for (int i = 0; i < recordsList.size(); i++) {
+                CSVRecord record = recordsList.get(i);
+                String[] arr = new String[record.size()];
+                for (int j = 0; j < record.size(); j++) {
+                    String val = record.get(j);
+                    arr[j] = val;
+                }
+                rows.add(arr);
+            }
+        }
+        isReader.close();
+        csvReader.close();
+        return rows;
     }
 
     @Override
@@ -742,8 +896,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             Map<String, String> inRelDefMap = new HashMap<String, String>();
             Map<String, String> outRelDefMap = new HashMap<String, String>();
             getRelDefMaps(definition, inRelDefMap, outRelDefMap);
-            List<Relation> inRelations = new ArrayList<Relation>();
-            List<Relation> outRelations = new ArrayList<Relation>();
+            List<Relation> inRelations = null;
+            List<Relation> outRelations = null;
             Map<String, Object> metadata = new HashMap<String, Object>();
             for (Entry<String, Object> entry : map.entrySet()) {
                 if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
@@ -826,10 +980,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                         throw new ServerException(LanguageErrorCodes.ERR_CREATE_SYNONYM.name(),
                                                 getErrorMessage(res));
                                     else {
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(
                                                 new Relation(synsetId, RelationTypes.SYNONYM.relationName(), null));
                                     }
                                 } else {
+                                    if (null == inRelations)
+                                        inRelations = new ArrayList<Relation>();
                                     inRelations.add(new Relation(synsetId, RelationTypes.SYNONYM.relationName(), null));
                                 }
                             }
@@ -850,11 +1008,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                     String word = (String) obj.get("name");
                                     if (lemmaIdMap.containsKey(word)) {
                                         wordId = lemmaIdMap.get(word);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     } else {
                                         words.add(word);
                                     }
                                 } else {
+                                    if (null == inRelations)
+                                        inRelations = new ArrayList<Relation>();
                                     inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                 }
                             }
@@ -863,9 +1025,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                 for (String word : words) {
                                     if (lemmaIdMap.containsKey(word)) {
                                         String wordId = lemmaIdMap.get(word);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     } else {
                                         String wordId = createWord(lemmaIdMap, languageId, word, objectType);
+                                        if (null == inRelations)
+                                            inRelations = new ArrayList<Relation>();
                                         inRelations.add(new Relation(wordId, inRelDefMap.get(entry.getKey()), null));
                                     }
                                 }
@@ -887,11 +1053,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                     String word = (String) obj.get("name");
                                     if (lemmaIdMap.containsKey(word)) {
                                         wordId = lemmaIdMap.get(word);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     } else {
                                         words.add(word);
                                     }
                                 } else {
+                                    if (null == outRelations)
+                                        outRelations = new ArrayList<Relation>();
                                     outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                 }
                             }
@@ -900,9 +1070,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                                 for (String word : words) {
                                     if (lemmaIdMap.containsKey(word)) {
                                         String wordId = lemmaIdMap.get(word);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     } else {
                                         String wordId = createWord(lemmaIdMap, languageId, word, objectType);
+                                        if (null == outRelations)
+                                            outRelations = new ArrayList<Relation>();
                                         outRelations.add(new Relation(null, outRelDefMap.get(entry.getKey()), wordId));
                                     }
                                 }
@@ -924,6 +1098,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     }
 
     private String createWord(Map<String, String> lemmaIdMap, String languageId, String word, String objectType) {
+        String nodeId = createWord(languageId, word, objectType);
+        lemmaIdMap.put(word, nodeId);
+        return nodeId;
+    }
+    
+    private String createWord(String languageId, String word, String objectType) {
         Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata.put(LEMMA_PROPERTY, word);
@@ -935,7 +1115,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), getErrorMessage(res));
         }
         String nodeId = (String) res.get(GraphDACParams.node_id.name());
-        lemmaIdMap.put(word, nodeId);
         return nodeId;
     }
 

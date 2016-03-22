@@ -23,10 +23,6 @@ public interface IContentManager {
 
     Response upload(String id, String taxonomyId, File uploadedFile, String folder);
     
-    Response  extractContent(String taxonomyId, File zipFile, String contentId);
-
-	Response  parseContent(String taxonomyId ,String contentId ,String filePath,String saveDir,String contentType);
-	
 	Response  extract(String taxonomyId ,String contentId);
 	
 	Response  publish(String taxonomyId ,String contentId);

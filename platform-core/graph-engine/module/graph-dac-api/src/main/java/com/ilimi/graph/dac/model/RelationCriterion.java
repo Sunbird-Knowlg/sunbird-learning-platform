@@ -12,21 +12,35 @@ public class RelationCriterion implements Serializable {
 
     private static final long serialVersionUID = 4077508345374294817L;
     private String name;
+    private List<RelationFilter> filters;
     // related object type
     private String objectType;
     // list of related object identifiers
     private List<String> identifiers;
-    private String op;
+    private String op = SearchConditions.LOGICAL_AND;
     private List<MetadataCriterion> metadata;
     private List<RelationCriterion> relations;
     private TagCriterion tag;
     private boolean optional;
-
+    private int fromDepth = 1;
+    private int toDepth = 1;
+    private DIRECTION direction = DIRECTION.OUT;
+    
+    public static enum DIRECTION {
+        IN, OUT, BOTH;
+    }
+    
+    @SuppressWarnings("unused")
     private RelationCriterion() {
     }
 
     public RelationCriterion(String name, String objectType) {
         this.name = name;
+        this.objectType = objectType;
+    }
+    
+    public RelationCriterion(List<RelationFilter> filters, String objectType) {
+        this.filters = filters;
         this.objectType = objectType;
     }
 
@@ -36,6 +50,38 @@ public class RelationCriterion implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+    
+    public List<RelationFilter> getFilters() {
+        return filters;
+    }
+
+    public void setFilters(List<RelationFilter> filters) {
+        this.filters = filters;
+    }
+    
+    public DIRECTION getDirection() {
+        return direction;
+    }
+
+    public void setDirection(DIRECTION direction) {
+        this.direction = direction;
+    }
+    
+    public int getFromDepth() {
+        return fromDepth;
+    }
+
+    public void setFromDepth(int fromDepth) {
+        this.fromDepth = fromDepth;
+    }
+    
+    public int getToDepth() {
+        return toDepth;
+    }
+
+    public void setToDepth(int toDepth) {
+        this.toDepth = toDepth;
     }
 
     public String getObjectType() {
@@ -133,7 +179,52 @@ public class RelationCriterion implements Serializable {
             sb.append(prevParam);
         else
             sb.append("n");
-        sb.append(")-[:").append(name).append("]->").append("(").append(param).append(") ");
+        sb.append(")");
+        if (null != filters && !filters.isEmpty()) {
+            for (int i=0; i<filters.size(); i++) {
+                RelationFilter filter = filters.get(i);
+                if (StringUtils.equalsIgnoreCase(DIRECTION.IN.name(), filter.getDirection()))
+                    sb.append("<");
+                sb.append("-[:").append(filter.getName());
+                if (filter.getFromDepth() > 0) {
+                    sb.append("*").append(filter.getFromDepth());
+                    if (filter.getToDepth() > 0)
+                        sb.append("..").append(filter.getToDepth());
+                } else if (filter.getToDepth() > 0) {
+                    sb.append("*1..").append(filter.getToDepth());
+                } else {
+                    sb.append("*");
+                }
+                sb.append("]-");
+                if (StringUtils.equalsIgnoreCase(DIRECTION.OUT.name(), filter.getDirection()))
+                    sb.append(">");
+                sb.append("(").append(param).append(")");
+                if (i<filters.size()-1) {
+                    param = "n" + sc.index;
+                    sc.index += 1;
+                } else {
+                    sb.append(" ");
+                }
+            }
+        } else {
+            if (direction.equals(DIRECTION.IN))
+                sb.append("<");
+            sb.append("-[");
+            sb.append(":").append(name);
+            if (fromDepth > 0) {
+                sb.append("*").append(fromDepth);
+                if (toDepth > 0)
+                    sb.append("..").append(toDepth);
+            } else if (toDepth > 0) {
+                sb.append("*1..").append(toDepth);
+            } else {
+                sb.append("*");
+            }
+            sb.append("]-");
+            if (direction.equals(DIRECTION.OUT))
+                sb.append(">");
+            sb.append("(").append(param).append(") ");
+        }
         if (StringUtils.isNotBlank(objectType) || (null != identifiers && identifiers.size() > 0)
                 || (null != metadata && metadata.size() > 0)) {
             sb.append("WHERE ( ");

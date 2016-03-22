@@ -22,17 +22,30 @@ if {$check_obj_type_error} {
 		set node_object_type [java::prop $graph_node "objectType"]
 		set str_object_type [$object_type toString]
 		if {$node_object_type == $str_object_type} {
-			set resp_def_node [getDefinition $graph_id $object_type]
-			set def_node [get_resp_value $resp_def_node "definition_node"]
-			if {$returnFields} {
-				set resp_object [convert_graph_node $graph_node $def_node $fields]
+			set node_metadata [java::prop $graph_node "metadata"]
+			set node_subject [$node_metadata get "subject"]	
+			set node_subject_str [$node_subject toString]	
+			puts "subject str is $node_subject_str"	
+			if {$domain_id == $node_subject_str} {
+				set resp_def_node [getDefinition $graph_id $object_type]
+				set def_node [get_resp_value $resp_def_node "definition_node"]
+				if {$returnFields} {
+					set resp_object [convert_graph_node $graph_node $def_node $fields]
+				} else {
+					set resp_object [convert_graph_node $graph_node $def_node]
+				}
+				set result_map [java::new HashMap]
+				$result_map put $object_type $resp_object
+				set response_list [create_response $result_map]
+				return $response_list	
 			} else {
-				set resp_object [convert_graph_node $graph_node $def_node]
+				set result_map [java::new HashMap]
+				$result_map put "code" "ERR_NODE_NOT_FOUND"
+				$result_map put "message" "$str_object_type $object_id not found in $domain_id"
+				$result_map put "responseCode" [java::new Integer 404]
+				set response_list [create_error_response $result_map]
+				return $response_list	
 			}
-			set result_map [java::new HashMap]
-			$result_map put $object_type $resp_object
-			set response_list [create_response $result_map]
-			return $response_list
 		} else {
 			set result_map [java::new HashMap]
 			$result_map put "code" "ERR_NODE_NOT_FOUND"

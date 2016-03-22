@@ -7,5 +7,7 @@ public enum GraphDACParams {
     non_indexable_metadata_key, in_relations_key, out_relations_key, system_tags_key, sequence_id, members, collection_id, collection_type, member_id, 
     index, cardinality, import_input_object, search_criteria, traversal_description, sub_graph, path, depth, is_member, set_id, criteria, 
     in_relations, out_relations, tags, tag_id, tag_name, attribute_name, definition_node, definition_nodes, get_tags, metadata_definitions, query, 
-    params, results, start_node_filter, related_node_filter, start_node_fields, related_node_fields, direction, operationType, CREATE, DELETE, UPDATE, nodeGraphId, nodeUniqueId, objectType, nodeType, transactionData, addedProperties, propertyName, value, removedProperties, addedTags, removedTags, graphId, identifier, key, newValue, status, adedTags, RETIRED;
+    params, results, start_node_filter, related_node_filter, start_node_fields, related_node_fields, direction, operationType, CREATE, DELETE, UPDATE, 
+    nodeGraphId, nodeUniqueId, objectType, nodeType, transactionData, addedProperties, propertyName, value, removedProperties, addedTags, removedTags, 
+    graphId, identifier, key, newValue, status, adedTags, RETIRED, task_id;
 }

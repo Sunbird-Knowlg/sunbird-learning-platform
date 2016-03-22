@@ -16,7 +16,13 @@
         "name": "words",
         "routingParam": false,
         "datatype": "java.util.ArrayList"
+      },
+      {
+        "index": 2,
+        "name": "limit",
+        "routingParam": false,
+        "datatype": "java.lang.Integer"
       }
     ],
     "type": "COMMAND"
-  }
+}

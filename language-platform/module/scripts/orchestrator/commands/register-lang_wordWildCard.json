@@ -1,0 +1,27 @@
+{
+    "actorPath": {
+      "manager": "INDEXES_ACTOR",
+      "operation": "wordWildCard",
+      "router": "LANGUAGE_REQUEST_ROUTER"
+    },
+    "name": "lang_wordWildCard",
+    "parameters": [
+      {
+        "index": 0,
+        "name": "language_id",
+        "routingParam": true
+      },
+      {
+        "index": 1,
+        "name": "word",
+        "routingParam": false
+      },
+      {
+        "index": 2,
+        "name": "limit",
+        "routingParam": false,
+        "datatype": "java.lang.Integer"
+      }
+    ],
+    "type": "COMMAND"
+ }

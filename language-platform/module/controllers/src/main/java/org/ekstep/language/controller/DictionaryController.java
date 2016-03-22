@@ -1,13 +1,21 @@
 package org.ekstep.language.controller;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
+import org.ekstep.language.common.enums.LanguageOperations;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -20,14 +28,14 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.dac.dto.AuditRecord;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
-public abstract class DictionaryController extends BaseController {
+public abstract class DictionaryController extends BaseLanguageController {
 
 	@Autowired
 	private IDictionaryManager dictionaryManager;
@@ -56,7 +64,8 @@ public abstract class DictionaryController extends BaseController {
 		}
 	}
 
-	@RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
+	@SuppressWarnings("unchecked")
+    @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
@@ -66,9 +75,13 @@ public abstract class DictionaryController extends BaseController {
 		try {
 			Response response = dictionaryManager.create(languageId, objectType, request);
 			LOGGER.info("Create | Response: " + response);
-			AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
-					map.get("request").toString(), (String) map.get("COMMENT"));
-			auditLogManager.saveAuditRecord(audit);
+			if (!checkError(response)) {
+			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_id.name());
+			    asyncUpdate(nodeIds, languageId);
+			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
+	                    map.get("request").toString(), (String) map.get("COMMENT"));
+	            auditLogManager.saveAuditRecord(audit);
+			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -89,9 +102,13 @@ public abstract class DictionaryController extends BaseController {
 		try {
 			Response response = dictionaryManager.update(languageId, objectId, objectType, request);
 			LOGGER.info("Update | Response: " + response);
-			AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
-					map.get("request").toString(), (String) map.get("COMMENT"));
-			auditLogManager.saveAuditRecord(audit);
+			if (!checkError(response)) {
+			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
+			    asyncUpdate(nodeId, languageId);
+			    AuditRecord audit = new AuditRecord(languageId, nodeId, "UPDATE", response.getParams(), userId,
+	                    map.get("request").toString(), (String) map.get("COMMENT"));
+	            auditLogManager.saveAuditRecord(audit);
+			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -99,6 +116,26 @@ public abstract class DictionaryController extends BaseController {
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
+	}
+	
+	private void asyncUpdate(String nodeId, String languageId) {
+	    if (StringUtils.isNotBlank(nodeId)) {
+	        List<String> nodeIds = new ArrayList<String>();
+	        nodeIds.add(nodeId);
+	        asyncUpdate(nodeIds, languageId);
+	    }
+	}
+	
+	private void asyncUpdate(List<String> nodeIds, String languageId) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.node_ids.name(), nodeIds);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+        request.setOperation(LanguageOperations.enrichWords.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        makeAsyncRequest(request, LOGGER);
 	}
 
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
@@ -135,6 +172,30 @@ public abstract class DictionaryController extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "user-id") String userId, HttpServletResponse response) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".findWordsCSV";
+        try {
+            String csv = dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream());
+            LOGGER.info("Find CSV | Response: " + csv);
+            if (StringUtils.isNotBlank(csv)) {
+                byte[] bytes = csv.getBytes();
+                response.setContentType("text/csv");
+                response.setHeader("Content-Disposition", "attachment; filename=words.csv");
+                response.getOutputStream().write(bytes);
+                response.getOutputStream().close();
+            }
+            Response resp = new Response();
+            return getResponseEntity(resp, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
@@ -232,6 +293,10 @@ public abstract class DictionaryController extends BaseController {
 		return request;
 	}*/
 
+	protected String getAPIVersion() {
+        return API_VERSION_2;
+    }
+	
 	protected abstract String getObjectType();
 
 }
