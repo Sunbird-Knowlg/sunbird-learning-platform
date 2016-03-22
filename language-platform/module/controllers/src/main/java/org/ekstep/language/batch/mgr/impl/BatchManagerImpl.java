@@ -47,7 +47,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                 updateReq.put(GraphDACParams.node.name(), node);
                 updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                 try {
-                    System.out.println("Sending update req for : " + node.getIdentifier());
+                    System.out.println("Sending update req for : " + node.getIdentifier() + " -- " + node.getMetadata().get("pos"));
                     getResponse(updateReq, LOGGER);
                     System.out.println("Update complete for : " + node.getIdentifier());
                 } catch (Exception e) {
@@ -280,8 +280,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("poslist size is: " + posList.size());
-        System.out.println("poslist is: " + posList);
         return posList;
     }
 
