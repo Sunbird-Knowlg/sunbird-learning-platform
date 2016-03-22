@@ -338,7 +338,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<list.size(); j++) {
                         str += StringEscapeUtils.escapeCsv(list.get(j).toString());
                         if (j < list.size() - 1)
-                            str += ",";
+                            str += "::";
                     }
                     row[i] = str;
                 } else if (val instanceof Object[]) {
@@ -347,7 +347,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<arr.length; j++) {
                         str += StringEscapeUtils.escapeCsv(arr[j].toString());
                         if (j < arr.length - 1)
-                            str += ",";
+                            str += "::";
                     }
                     row[i] = str;
                 } else {
