@@ -41,25 +41,25 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 		if (message != null && message.get("operationType") != null) {
 			String nodeType = (String) message.get("nodeType");
 			String objectType = (String) message.get("objectType");
-			objectType = WordUtils.capitalize(objectType.toLowerCase());
-			createCompositeSearchIndex(objectType);
+			createCompositeSearchIndex();
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+				//objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
+					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
-					addOrUpdateIndex(objectType, uniqueId, jsonIndexDocument);
+					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_DELETE: {
@@ -79,32 +79,14 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 		}
 	}
 
-	private void addOrUpdateIndex(String objectType, String uniqueId, String jsonIndexDocument) throws Exception {
+	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
 		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId,
 				jsonIndexDocument);
 	}
 
-	private void createCompositeSearchIndex(String objectType) throws IOException {
-/*		JSONBuilder settingBuilder = new JSONStringer();
-
-
-		settingBuilder.object().key("settings").object().key("index").object().key("index")
-				.value(Constants.COMPOSITE_SEARCH_INDEX).key("type").value(objectType).key("analysis").object()
-				.key("analyzer").object().key("cs_index_analyzer").object().key("type").value("custom").key("tokenizer")
-				.value("standard").key("filter").array().value("lowercase").value("mynGram").endArray().endObject()
-				.key("cs_search_analyzer").object().key("type").value("custom").key("tokenizer").value("standard")
-				.key("filter").array().value("lowercase").value("mynGram").endArray().endObject().endObject()
-				.key("filter").object().key("mynGram").object().key("type").value("nGram").key("min_gram").value(3)
-				.key("max_gram").value(20).endObject().endObject().endObject().endObject().endObject().endObject();
-*/
-/*		JSONBuilder mappingBuilder = new JSONStringer();
-		mappingBuilder.object().key(objectType).object().key("dynamic_templates").array().object().key("longs").object()
-				.key("match_mapping_type").value("long").key("mapping").object().key("type").value("long").key("fields")
-				.object();*/
-
+	private void createCompositeSearchIndex() throws IOException {
 		String settings = "{  \"settings\": {    \"index\": {      \"index\": \"compositesearch\",      \"type\": \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\",      \"analysis\": {        \"analyzer\": {          \"cs_index_analyzer\": {            \"type\": \"custom\",            \"tokenizer\": \"standard\",            \"filter\": [              \"lowercase\",              \"mynGram\"            ]          },          \"cs_search_analyzer\": {            \"type\": \"custom\",            \"tokenizer\": \"standard\",            \"filter\": [              \"standard\",              \"lowercase\"            ]          }        },        \"filter\": {          \"mynGram\": {            \"type\": \"nGram\",            \"min_gram\": 2,            \"max_gram\": 20          }        }      }    }  }}";
 		String mappings = "{\""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\": {  \"dynamic_templates\": [    {      \"longs\": {        \"match_mapping_type\": \"long\",        \"mapping\": {          \"type\": \"long\",          fields: {            \"raw\": {              \"type\": \"long\"            }          }        }      }    },    {      \"doubles\": {        \"match_mapping_type\": \"double\",        \"mapping\": {          \"type\": \"double\",          fields: {            \"raw\": {              \"type\": \"double\"            }          }        }      }    },    {      \"strings\": {        \"match_mapping_type\": \"string\",        \"mapping\": {          \"type\": \"string\",          \"copy_to\": \"all_fields\",          \"analyzer\": \"cs_index_analyzer\",          \"search_analyzer\": \"cs_search_analyzer\",          fields: {            \"raw\": {              \"type\": \"string\",              \"analyzer\": \"cs_search_analyzer\",              \"search_analyzer\": \"cs_search_analyzer\"            }          }        }      }    }  ],  \"properties\": {    \"all_fields\": {      \"type\": \"string\",      \"analyzer\": \"cs_index_analyzer\",      \"search_analyzer\": \"cs_index_analyzer\",      fields: {        \"raw\": {          \"type\": \"string\",          \"analyzer\": \"cs_search_analyzer\",          \"search_analyzer\": \"cs_search_analyzer\"        }      }    }  }}}";
-		
 		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 

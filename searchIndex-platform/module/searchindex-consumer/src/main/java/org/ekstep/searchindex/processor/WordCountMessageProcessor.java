@@ -94,7 +94,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 		if (message != null && message.get("operationType") != null) {
 			String nodeType = (String) message.get("nodeType");
 			String objectType = (String) message.get("objectType");
-			objectType = WordUtils.capitalize(objectType.toLowerCase());
+			//objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
 			if (objectType.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD)) {
 				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
