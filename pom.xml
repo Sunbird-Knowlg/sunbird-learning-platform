@@ -18,7 +18,7 @@
 	</properties>
 
 	<modules>
-		<module>searchindex-platform</module>
+		<module>searchIndex-platform</module>
 		<module>platform-core</module>
 		<module>platform-modules</module>
 		<module>language-platform</module>
