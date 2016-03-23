@@ -218,7 +218,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), definitionName);
 		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-		Node node = null;
 		if (checkError(responseDefiniton)) {
 			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(responseDefiniton));
 		} else {
@@ -1264,6 +1263,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) throws Exception {
 		Node node = new Node();
 		if (null != map && !map.isEmpty()) {
