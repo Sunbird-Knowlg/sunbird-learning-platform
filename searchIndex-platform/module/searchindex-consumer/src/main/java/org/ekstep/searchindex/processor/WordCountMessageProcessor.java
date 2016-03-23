@@ -121,8 +121,8 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
-										String propertyValue = (String) propertyMap.getValue();
 										if (propertyName.equalsIgnoreCase("status")) {
+											String propertyValue = (String) propertyMap.getValue();
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount + 1;
 											} 
@@ -143,8 +143,8 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
-										String propertyValue = (String) propertyMap.getValue();
 										if (propertyName.equalsIgnoreCase("status")) {
+											String propertyValue = (String) propertyMap.getValue();
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount + 1;
 											} else {
@@ -167,8 +167,8 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
-										String propertyValue = (String) propertyMap.getValue();
 										if (propertyName.equalsIgnoreCase("status")) {
+											String propertyValue = (String) propertyMap.getValue();
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount - 1;
 											}
