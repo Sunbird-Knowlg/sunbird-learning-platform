@@ -159,12 +159,12 @@ public class SearchProcessor {
 						String value = (String) subCondition.get("value");
 						switch (queryOperation) {
 						case "equal": {
-							builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
+							builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
 							break;
 						}
 						case "like": {
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
-							.endObject().endObject();
+							builder.key("match_phrase").object().key(fieldName).value(value)
+							.endObject();
 							break;
 						}
 						case "prefix": {
@@ -177,8 +177,8 @@ public class SearchProcessor {
 							break;
 						}
 						case "endsWith": {
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
-							.endObject().endObject();
+							builder.key("match_phrase").object().key(fieldName).value(value)
+							.endObject();
 							break;
 						}
 						}
@@ -193,12 +193,12 @@ public class SearchProcessor {
 					Object value = (Object) textCondition.get("value");
 					switch (queryOperation) {
 					case "equal": {
-						builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
+						builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
 						break;
 					}
 					case "like": {
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
-						.endObject().endObject();
+						builder.key("match_phrase").object().key(fieldName).value(value)
+						.endObject();
 						break;
 					}
 					case "prefix": {
@@ -211,8 +211,8 @@ public class SearchProcessor {
 						break;
 					}
 					case "endsWith": {
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
-						.endObject().endObject();
+						builder.key("match_phrase").object().key(fieldName).value(value)
+						.endObject();
 						break;
 					}
 					}
@@ -293,12 +293,12 @@ public class SearchProcessor {
 						String value = (String) subCondition.get("value");
 						switch (queryOperation) {
 						case "equal": {
-							builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
+							builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
 							break;
 						}
 						case "like": {
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
-							.endObject().endObject();
+							builder.key("match_phrase").object().key(fieldName).value(value)
+							.endObject();
 							break;
 						}
 						case "prefix": {
@@ -311,8 +311,8 @@ public class SearchProcessor {
 							break;
 						}
 						case "endsWith": {
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
-							.endObject().endObject();
+							builder.key("match_phrase").object().key(fieldName).value(value)
+							.endObject();
 							break;
 						}
 						}
@@ -327,12 +327,12 @@ public class SearchProcessor {
 					String value = (String) notCondition.get("value");
 					switch (queryOperation) {
 					case "equal": {
-						builder.key("match").object().key(fieldName + ".raw").value(value).endObject();
+						builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
 						break;
 					}
 					case "like": {
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value+"*")
-						.endObject().endObject();
+						builder.key("match_phrase").object().key(fieldName).value(value)
+						.endObject();
 						break;
 					}
 					case "prefix": {
@@ -345,8 +345,8 @@ public class SearchProcessor {
 						break;
 					}
 					case "endsWith": {
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw").value("*"+value)
-						.endObject().endObject();
+						builder.key("match_phrase").object().key(fieldName).value(value)
+						.endObject();
 						break;
 					}
 					}
