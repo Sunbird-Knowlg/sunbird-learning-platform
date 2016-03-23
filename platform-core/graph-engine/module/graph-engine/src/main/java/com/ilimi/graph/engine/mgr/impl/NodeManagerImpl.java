@@ -9,12 +9,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.dispatch.OnComplete;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
@@ -33,6 +27,13 @@ import com.ilimi.graph.model.node.DataNode;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.DefinitionNode;
 import com.ilimi.graph.model.node.MetadataDefinition;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.OnComplete;
+import akka.dispatch.OnSuccess;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
 
 public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
 
@@ -168,62 +169,72 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         }
     }
 
-    private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, Request request, ExecutionContext ec,
-            List<Relation> addRels, List<Relation> delRels, List<String> addTags, List<String> delTags) {
-        List<String> messages = new ArrayList<String>();
-        List<Future<List<String>>> validationFutures = new ArrayList<Future<List<String>>>();
+    private void updateRelationsAndTags(final ActorRef parent, Node node, final DataNode datanode, final Request request, final ExecutionContext ec,
+            final List<Relation> addRels, final List<Relation> delRels, final List<String> addTags, final List<String> delTags) {
+        Future<List<String>> deleteRelsFuture = null;
+        List<String> msgs = new ArrayList<String>();
         try {
-            Future<List<String>> relsFuture = datanode.deleteRelations(request, ec, delRels);
-            validationFutures.add(relsFuture);
+            deleteRelsFuture = datanode.deleteRelations(request, ec, delRels);
         } catch (Exception e) {
-            messages.add(e.getMessage());
-            validationFutures.add(Futures.successful(messages));
+            msgs.add(e.getMessage());
+            deleteRelsFuture = Futures.successful(msgs);
         }
-        try {
-            Future<List<String>> relsFuture = datanode.createRelations(request, ec, addRels);
-            validationFutures.add(relsFuture);
-        } catch (Exception e) {
-            messages.add(e.getMessage());
-            validationFutures.add(Futures.successful(messages));
-        }
-        if (null != addTags && !addTags.isEmpty()) {
-            List<String> tags = new ArrayList<String>();
-            for (String strTag : addTags) {
-                if (StringUtils.isNotBlank(strTag))
-                    tags.add(strTag);
-            }
-            Future<List<String>> tagsFuture = datanode.addTags(request, tags);
-            validationFutures.add(tagsFuture);
-        }
-        if (null != delTags && !delTags.isEmpty()) {
-            List<String> tags = new ArrayList<String>();
-            for (String strTag : delTags) {
-                if (StringUtils.isNotBlank(strTag))
-                    tags.add(strTag);
-            }
-            Future<List<String>> tagsFuture = datanode.removeTags(request, tags);
-            validationFutures.add(tagsFuture);
-        }
-        Futures.sequence(validationFutures, ec).onComplete(new OnComplete<Iterable<List<String>>>() {
+        deleteRelsFuture.onSuccess(new OnSuccess<List<String>>() {
             @Override
-            public void onComplete(Throwable arg0, Iterable<List<String>> arg1) throws Throwable {
-                if (null != arg0) {
-                    ERROR(arg0, parent);
+            public void onSuccess(List<String> msgs) throws Throwable {
+                List<Future<List<String>>> validationFutures = new ArrayList<Future<List<String>>>();
+                List<String> messages = new ArrayList<String>();
+                if (null == msgs || msgs.isEmpty()) {
+                    try {
+                        Future<List<String>> relsFuture = datanode.createRelations(request, ec, addRels);
+                        validationFutures.add(relsFuture);
+                    } catch (Exception e) {
+                        messages.add(e.getMessage());
+                        validationFutures.add(Futures.successful(messages));
+                    }
+                    if (null != addTags && !addTags.isEmpty()) {
+                        List<String> tags = new ArrayList<String>();
+                        for (String strTag : addTags) {
+                            if (StringUtils.isNotBlank(strTag))
+                                tags.add(strTag);
+                        }
+                        Future<List<String>> tagsFuture = datanode.addTags(request, tags);
+                        validationFutures.add(tagsFuture);
+                    }
+                    if (null != delTags && !delTags.isEmpty()) {
+                        List<String> tags = new ArrayList<String>();
+                        for (String strTag : delTags) {
+                            if (StringUtils.isNotBlank(strTag))
+                                tags.add(strTag);
+                        }
+                        Future<List<String>> tagsFuture = datanode.removeTags(request, tags);
+                        validationFutures.add(tagsFuture);
+                    }
                 } else {
-                    List<String> msgs = new ArrayList<String>();
-                    if (null != arg1) {
-                        for (List<String> list : arg1) {
-                            if (null != list && !list.isEmpty())
-                                msgs.addAll(list);
+                    validationFutures.add(Futures.successful(msgs));
+                }
+                Futures.sequence(validationFutures, ec).onComplete(new OnComplete<Iterable<List<String>>>() {
+                    @Override
+                    public void onComplete(Throwable arg0, Iterable<List<String>> arg1) throws Throwable {
+                        if (null != arg0) {
+                            ERROR(arg0, parent);
+                        } else {
+                            List<String> msgs = new ArrayList<String>();
+                            if (null != arg1) {
+                                for (List<String> list : arg1) {
+                                    if (null != list && !list.isEmpty())
+                                        msgs.addAll(list);
+                                }
+                            }
+                            if (msgs.isEmpty()) {
+                                OK(GraphDACParams.node_id.name(), datanode.getNodeId(), parent);
+                            } else {
+                                ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Failed to update relations and tags",
+                                        ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), msgs, parent);
+                            }
                         }
                     }
-                    if (msgs.isEmpty()) {
-                        OK(GraphDACParams.node_id.name(), datanode.getNodeId(), parent);
-                    } else {
-                        ERROR(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_VALIDATION_FAILED.name(), "Failed to update relations and tags",
-                                ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), msgs, parent);
-                    }
-                }
+                }, ec);
             }
         }, ec);
     }
@@ -417,6 +428,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                     delRels.add(rel);
             }
         }
+        
     }
 
     @Override

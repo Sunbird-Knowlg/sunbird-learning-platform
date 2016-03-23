@@ -32,6 +32,7 @@ import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
@@ -53,7 +54,7 @@ public class DataNode extends AbstractNode {
         super(manager, graphId, nodeId, metadata);
         this.objectType = objectType;
     }
-
+    
     public DataNode(BaseGraphManager manager, String graphId, Node node) {
         super(manager, graphId, node.getIdentifier(), node.getMetadata());
         this.objectType = node.getObjectType();
@@ -64,8 +65,31 @@ public class DataNode extends AbstractNode {
                 relation.setEndNodeId(getNodeId());
         }
         if (this.outRelations != null) {
-            for (Relation relation : this.outRelations)
+            int index = 0;
+            for (Relation relation : this.outRelations) {
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relation.getRelationType())) {
+                    Map<String, Object> metadata = relation.getMetadata();
+                    if (null != metadata && !metadata.isEmpty()) {
+                        Integer idx = (Integer) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+                        if (null != idx && index < idx.intValue())
+                            index = idx.intValue() + 1;
+                        else
+                            ++index;
+                    }
+                }
                 relation.setStartNodeId(getNodeId());
+            }
+            for (Relation relation : this.outRelations) {
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(), relation.getRelationType())) {
+                    Map<String, Object> metadata = (null == relation.getMetadata()) ? new HashMap<String, Object>() : relation.getMetadata();
+                    Integer idx = (Integer) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+                    if (null == idx) {
+                        idx = index++;
+                        metadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), idx);
+                        relation.setMetadata(metadata);
+                    }
+                }
+            }
         }
     }
 
