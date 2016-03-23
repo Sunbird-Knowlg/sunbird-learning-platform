@@ -5,7 +5,7 @@
       "properties": [
         {
           "propertyName": "lemma",
-          "title": "Lemma",
+          "title": "Word",
           "description": "",
           "category": "general",
           "dataType": "Text",
@@ -14,7 +14,85 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
+          "renderingHints": "{ 'order': 1 }"
+        },
+        {
+          "propertyName": "ekstepWordnet",
+          "title": "EkStep Wordnet",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 2 }"
+        },
+        {
+          "propertyName": "isPhrase",
+          "title": "Is Phrase",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
           "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "hasConnotative",
+          "title": "Has Connotative (non-literal) Meaning",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "isLoanWord",
+          "title": "Is Loan Word",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "orthographic_complexity",
+          "title": "Orthographic Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 6 }"
+        },
+        {
+          "propertyName": "phonologic_complexity",
+          "title": "Phonological Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 7 }"
         },
         {
           "propertyName": "sources",
@@ -27,7 +105,22 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
+          "propertyName": "grade",
+          "title": "Grade",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Multi-Select",
+          "range": [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 9 }"
         },
         {
           "propertyName": "sourceTypes",
@@ -40,33 +133,20 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 10 }"
         },
         {
-          "propertyName": "commisionedBy",
-          "title": "Commisioned By",
+          "propertyName": "primaryMeaningId",
+          "title": "Primary Meaning",
           "description": "",
           "category": "general",
           "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": true,
-          "displayProperty": "Readonly",
+          "displayProperty": "Hidden",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
-        },
-        {
-          "propertyName": "defaultSynset",
-          "title": "Default Synset",
-          "description": "",
-          "category": "general",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 11 }"
         },
         {
           "propertyName": "syllableCount",
@@ -77,9 +157,9 @@
           "range": [],
           "required": false,
           "indexed": true,
-          "displayProperty": "Editable",
+          "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 12 }"
         },
         {
           "propertyName": "syllableNotation",
@@ -89,10 +169,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }"
         },
         {
           "propertyName": "unicodeNotation",
@@ -102,75 +182,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
-        },
-        {
-          "propertyName": "rtsNotation",
-          "title": "RTS Notation",
-          "description": "",
-          "category": "lexile",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
-        },
-        {
-          "propertyName": "vectorsRepresentation",
-          "title": "Vectors representation",
-          "description": "",
-          "category": "lexile",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
           "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select',  'order': 9 }"
-        },
-        {
-          "propertyName": "orthographicFeatures",
-          "title": "Orthographic Features",
-          "description": "",
-          "category": "lexile",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": ""
-        },
-        {
-          "propertyName": "orthographic_complexity",
-          "title": "Orthographic Complexity",
-          "description": "",
-          "category": "lexile",
-          "dataType": "Number",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
-        },
-        {
-          "propertyName": "phonologic_complexity",
-          "title": "Phonological Complexity",
-          "description": "",
-          "category": "lexile",
-          "dataType": "Number",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 4 }"
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 14 }"
         },
         {
           "propertyName": "pos",
@@ -180,61 +195,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
-        },
-        {
-          "propertyName": "grade",
-          "title": "Grade",
-          "description": "",
-          "category": "grammar",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
-        },
-        {
-          "propertyName": "morphology",
-          "title": "Morphology",
-          "description": "",
-          "category": "grammar",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 4 }"
-        },
-        {
-          "propertyName": "parts",
-          "title": "Parts",
-          "description": "",
-          "category": "grammar",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 4 }"
-        },
-        {
-          "propertyName": "affixes",
-          "title": "Affixes",
-          "description": "",
-          "category": "grammar",
-          "dataType": "List",
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 14 }"
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 15 }"
         },
         {
           "propertyName": "namedEntityType",
@@ -243,28 +207,10 @@
           "category": "grammar",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
-        },
-        {
-          "propertyName": "loanWordSourceLanguage",
-          "title": "Loan Word Source Language",
-          "description": "",
-          "category": "grammar",
-          "dataType": "Select",
-          "range": [
-            "hi",
-            "en",
-            "ka",
-            "te"
-          ],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select',  'order': 14 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 16 }"
         },
         {
           "propertyName": "ageBand",
@@ -279,23 +225,10 @@
             "16-20"
           ],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 14 }"
-        },
-        {
-          "propertyName": "microConcepts",
-          "title": "Micro Concepts",
-          "description": "",
-          "category": "pedagogy",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'teaxtarea', 'order': 14 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 17 }"
         },
         {
           "propertyName": "difficultyLevel",
@@ -309,10 +242,10 @@
             "Difficult"
           ],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 4 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 18 }"
         },
         {
           "propertyName": "occurrenceCount",
@@ -321,49 +254,10 @@
           "category": "frequency",
           "dataType": "Number",
           "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
+          "indexed": true,
+          "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }"
-        },
-        {
-          "propertyName": "senseSetCount",
-          "title": "Sense Set Count",
-          "description": "",
-          "category": "frequency",
-          "dataType": "Number",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'Number', 'order': 4 }"
-        },
-        {
-          "propertyName": "posCount",
-          "title": "Parts of the Speech Count",
-          "description": "",
-          "category": "frequency",
-          "dataType": "Number",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
-        },
-        {
-          "propertyName": "userSets",
-          "title": "User Sets",
-          "description": "",
-          "category": "frequency",
-          "dataType": "Number",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'number', 'order': 4 }"
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
         },
         {
           "propertyName": "sampleUsages",
@@ -373,10 +267,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": ""
+          "renderingHints": "{ 'inputType': '', 'order': 20 }"
         },
         {
           "propertyName": "audio",
@@ -386,10 +280,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': '',  'order': 9 }"
+          "renderingHints": "{ 'inputType': '',  'order': 21 }"
         },
         {
           "propertyName": "pictures",
@@ -402,7 +296,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': '',  'order': 14 }"
+          "renderingHints": "{ 'inputType': '',  'order': 22 }"
         },
         {
           "propertyName": "pronunciations",
@@ -415,33 +309,33 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': '',  'order': 14 }"
+          "renderingHints": "{ 'inputType': '',  'order': 23 }"
         },
         {
           "propertyName": "reviewers",
           "title": "Reviewers",
           "description": "",
           "category": "audit",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 24 }"
         },
         {
           "propertyName": "lastUpdatedBy",
           "title": "Last Updated By",
           "description": "",
           "category": "audit",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 25 }"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -451,10 +345,10 @@
           "dataType": "Date",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 22 }"
+          "renderingHints": "{ 'order': 26 }"
         },
         {
             "propertyName": "status",
@@ -474,33 +368,7 @@
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
-            "renderingHints": "{'inputType': 'select', 'order': 23}"
-        },
-        {
-          "propertyName": "source",
-          "title": "Source",
-          "description": "",
-          "category": "conflicts",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
-        },
-        {
-          "propertyName": "conflictStatus",
-          "title": "Conflict Status",
-          "description": "",
-          "category": "conflicts",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+            "renderingHints": "{'inputType': 'select', 'order': 27}"
         },
         {
           "propertyName": "relevancy",
@@ -510,10 +378,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 28 }"
         },
         {
           "propertyName": "complexity",
@@ -523,23 +391,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
-        },
-        {
-          "propertyName": "possibleSpellings",
-          "title": "Possible Spellings",
-          "description": "",
-          "category": "supportability",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 29 }"
         },
         {
           "propertyName": "allowedSuffixes",
@@ -549,10 +404,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 30 }"
         },
         {
           "propertyName": "allowedPrefixes",
@@ -562,10 +417,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 31 }"
         },
         {
           "propertyName": "allowedInfixes",
@@ -575,10 +430,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 32 }"
         },
         {
           "propertyName": "tenseForms",
@@ -588,10 +443,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 33 }"
         },
         {
           "propertyName": "plurality",
@@ -601,10 +456,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 34 }"
         },
         {
           "propertyName": "singularForms",
@@ -614,10 +469,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'order': 35 }"
         },
         {
           "propertyName": "variants",
@@ -626,10 +481,10 @@
           "category": "supportability",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 36 }"
         },
         {
           "propertyName": "pos_categories",
@@ -638,10 +493,10 @@
           "category": "supportability",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 37 }"
         },
         {
           "propertyName": "genders",
@@ -650,10 +505,10 @@
           "category": "supportability",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
         },
         {
           "propertyName": "person",
@@ -662,10 +517,10 @@
           "category": "supportability",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 39 }"
         },
         {
           "propertyName": "cases",
@@ -674,35 +529,10 @@
           "category": "supportability",
           "dataType": "List",
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
-        },
-        {
-          "propertyName": "inflections",
-          "title": "Inflections",
-          "description": "",
-          "category": "supportability",
-          "dataType": "List",
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 25 }"
-        },
-        {
-          "propertyName": "pronouns",
-          "title": "Pronouns",
-          "description": "",
-          "category": "supportability",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'select', 'order': 40 }"
         }
       ],
       "inRelations": [
