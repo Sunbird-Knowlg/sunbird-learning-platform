@@ -361,6 +361,10 @@ public class AssessmentValidator extends BaseManager {
                             Integer score = (Integer) value.get("score");
                             if (score.intValue() > 0)
                                 answerCount += 1;
+                        } else if (null != value.get("answer")) {
+                            Boolean answer = (Boolean) value.get("answer");
+                            if (answer.booleanValue())
+                                answerCount += 1;
                         }
                         if (!checkOptionValue(value, errorMessages))
                             break;
@@ -369,11 +373,7 @@ public class AssessmentValidator extends BaseManager {
                 if (AssessmentItemType.mcq.name().equals(itemType)) {
                     if (answerCount < 1)
                         errorMessages.add("no option found with answer.");
-                    else if (answerCount > 1)
-                        errorMessages.add("multiple answers found in a mcq assessment item.");
                 } else if (AssessmentItemType.mmcq.name().equals(itemType)) {
-                    if (answerCount <= 1)
-                        errorMessages.add("there are no multiple answer options.");
                     if (answerCount != numAnswers)
                         errorMessages.add("num_answers is not equals to no. of correct options");
                 }
