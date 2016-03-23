@@ -13,3 +13,5 @@ node registerScript.js api/domain_v2/saveDomainObject.tcl api/domain_v2/json/reg
 node registerScript.js api/domain_v2/searchDomainObjects.tcl api/domain_v2/json/register-searchDomainObjects.json update
 
 node registerScript.js api/domain_v2/updateDomainObject.tcl api/domain_v2/json/register-updateDomainObject.json update
+
+node registerScript.js api/domain_v2/retireConcept.tcl api/domain_v2/json/register-retireConcept.json update

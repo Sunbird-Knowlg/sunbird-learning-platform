@@ -14,7 +14,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 3 }"
+          "renderingHints": "{ 'order': 1 }"
         },
         {
           "propertyName": "glossInEnglish",
@@ -27,7 +27,31 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 5 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 2 }"
+        },
+        {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "Category",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Person",
+                "Place",
+                "Thing",
+                "Quality",
+                "Numeral/Time",
+                "Concept",
+                "Action/Event",
+                "Grammatical Word"
+            ],
+
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "Live",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
           "propertyName": "exampleSentences",
@@ -40,20 +64,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
-        },
-        {
-          "propertyName": "frames",
-          "title": "Sentence Frames",
-          "description": "",
-          "category": "general",
-          "dataType": "List",
-          "range": [],
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text', 'order': 1 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
         },
         {
           "propertyName": "pos",
@@ -63,23 +74,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea', 'order': 19 }"
-        },
-        {
-          "propertyName": "namedEntityType",
-          "title": "Named Entity Type",
-          "description": "",
-          "category": "grammar",
-          "dataType": "Text",
-          "range": [],
-          "required": false,
-          "indexed": false,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 4 }"
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 5 }"
         },
         {
           "propertyName": "pictures",
@@ -89,10 +87,10 @@
           "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": ""
+          "renderingHints": "{ 'inputType': 'textarea', 'order': 6 }"
         },
         {
           "propertyName": "Audio",
@@ -105,7 +103,31 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 9 }"
+          "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 7 }"
+        },
+        {
+          "propertyName": "gender",
+          "title": "Gender",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 8 }"
+        },
+        {
+          "propertyName": "variants",
+          "title": "Morphological Variants",
+          "description": "",
+          "category": "supportability",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 9 }"
         },
         {
           "propertyName": "reviewers",
@@ -115,10 +137,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {
           "propertyName": "lastUpdatedBy",
@@ -128,10 +150,10 @@
           "dataType": "Text",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 11 }"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -141,10 +163,10 @@
           "dataType": "Date",
           "range": [],
           "required": false,
-          "indexed": false,
+          "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 22 }"
+          "renderingHints": "{ 'order': 12 }"
         },
         {
             "propertyName": "status",
@@ -156,6 +178,7 @@
             [
                 "Draft",
                 "Live",
+                "Review",
                 "Retired"
             ],
 
@@ -163,36 +186,37 @@
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
-            "renderingHints": "{'inputType': 'select', 'order': 23}"
+            "renderingHints": "{'inputType': 'select', 'order': 13}"
         },
         {
-          "propertyName": "source",
-          "title": "Source",
+          "propertyName": "frames",
+          "title": "Sentence Frames",
           "description": "",
-          "category": "conflicts",
-          "dataType": "Text",
+          "category": "general",
+          "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
+          "indexed": true,
+          "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 14 }"
         },
         {
-          "propertyName": "conflictStatus",
-          "title": "Conflict Status",
+          "propertyName": "members",
+          "title": "Member Words",
           "description": "",
-          "category": "conflicts",
-          "dataType": "Text",
+          "category": "general",
+          "dataType": "List",
           "range": [],
           "required": false,
-          "indexed": false,
-          "displayProperty": "Readonly",
+          "indexed": true,
+          "displayProperty": "Hidden",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 25 }"
+          "renderingHints": "{ 'inputType': 'text', 'order': 15 }"
         }
       ],
-      "inRelations": [],
+      "inRelations": [
+      ],
       "outRelations": [
         {
           "relationName": "synonym",
@@ -202,7 +226,7 @@
           "objectTypes": [
             "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
         },
         {
           "relationName": "hasAntonym",
@@ -210,9 +234,9 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Synset"
+            "Synset", "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
         },
         {
           "relationName": "hasHypernym",
@@ -220,9 +244,9 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Synset"
+            "Synset", "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
         },
         {
           "relationName": "hasHolonym",
@@ -230,9 +254,9 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Synset"
+            "Synset", "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
         },
         {
           "relationName": "hasHyponym",
@@ -240,9 +264,9 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Synset"
+            "Synset", "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
         },
         {
           "relationName": "hasMeronym",
@@ -250,9 +274,39 @@
           "description": "",
           "required": false,
           "objectTypes": [
-            "Synset"
+            "Synset", "Word"
           ],
-          "renderingHints": "{ 'order': 26 }"
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasAction",
+          "title": "actions",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "actionOn",
+          "title": "objects",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasConverse",
+          "title": "converse",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
         }
       ],
       "systemTags": [

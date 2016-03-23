@@ -39,14 +39,16 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     protected String endNodeId;
     protected Map<String, Object> metadata;
 
-    protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId, Map<String, Object> metadata) {
+    protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId,
+            Map<String, Object> metadata) {
         this(manager, graphId, startNodeId, endNodeId);
         this.metadata = metadata;
     }
 
     protected AbstractRelation(BaseGraphManager manager, String graphId, String startNodeId, String endNodeId) {
         super(manager, graphId);
-        if (null == manager || StringUtils.isBlank(graphId) || StringUtils.isBlank(startNodeId) || StringUtils.isBlank(endNodeId)) {
+        if (null == manager || StringUtils.isBlank(graphId) || StringUtils.isBlank(startNodeId)
+                || StringUtils.isBlank(endNodeId)) {
             throw new ClientException(GraphRelationErrorCodes.ERR_INVALID_RELATION.name(), "Invalid Relation");
         }
         this.startNodeId = startNodeId;
@@ -100,7 +102,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         return manager.getErrorMessage(res);
                     }
                 } else {
-                    return "Error creating relation: " + getStartNodeId() + " - " + getRelationType() + " - " + getEndNodeId();
+                    return "Error creating relation: " + getStartNodeId() + " - " + getRelationType() + " - "
+                            + getEndNodeId();
                 }
                 return null;
             }
@@ -142,7 +145,8 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         return manager.getErrorMessage(res);
                     }
                 } else {
-                    return "Error deleting relation: " + getStartNodeId() + " - " + getRelationType() + " - " + getEndNodeId();
+                    return "Error deleting relation: " + getStartNodeId() + " - " + getRelationType() + " - "
+                            + getEndNodeId();
                 }
                 return null;
             }
@@ -186,7 +190,7 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     public Map<String, Object> getMetadata() {
         return this.metadata;
     }
-    
+
     public boolean isType(String relationType) {
         return StringUtils.equalsIgnoreCase(getRelationType(), relationType);
     }
@@ -220,21 +224,22 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
     }
 
     protected Future<Map<String, List<String>>> getMessageMap(Future<Iterable<String>> aggregate, ExecutionContext ec) {
-        Future<Map<String, List<String>>> messageMap = aggregate.map(new Mapper<Iterable<String>, Map<String, List<String>>>() {
-            @Override
-            public Map<String, List<String>> apply(Iterable<String> parameter) {
-                Map<String, List<String>> map = new HashMap<String, List<String>>();
-                List<String> messages = new ArrayList<String>();
-                if (null != parameter) {
-                    for (String msg : parameter) {
-                        if (StringUtils.isNotBlank(msg))
-                            messages.add(msg);
+        Future<Map<String, List<String>>> messageMap = aggregate
+                .map(new Mapper<Iterable<String>, Map<String, List<String>>>() {
+                    @Override
+                    public Map<String, List<String>> apply(Iterable<String> parameter) {
+                        Map<String, List<String>> map = new HashMap<String, List<String>>();
+                        List<String> messages = new ArrayList<String>();
+                        if (null != parameter) {
+                            for (String msg : parameter) {
+                                if (StringUtils.isNotBlank(msg))
+                                    messages.add(msg);
+                            }
+                        }
+                        map.put(getStartNodeId(), messages);
+                        return map;
                     }
-                }
-                map.put(getStartNodeId(), messages);
-                return map;
-            }
-        }, ec);
+                }, ec);
         return messageMap;
     }
 
@@ -319,6 +324,19 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         return endNodeMsg;
     }
 
+    protected Future<String> getNodeTypeFuture(Future<Node> nodeFuture, final ExecutionContext ec) {
+        Future<String> nodeType = nodeFuture.map(new Mapper<Node, String>() {
+            @Override
+            public String apply(Node parameter) {
+                if (null != parameter)
+                    return parameter.getNodeType();
+                else
+                    return null;
+            }
+        }, ec);
+        return nodeType;
+    }
+
     protected Future<String> getObjectTypeFuture(Future<Node> nodeFuture, final ExecutionContext ec) {
         Future<String> objectType = nodeFuture.map(new Mapper<Node, String>() {
             @Override
@@ -332,9 +350,36 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
         return objectType;
     }
 
+    protected void compareFutures(Future<String> future1, final Future<String> future2, final Promise<String> promise, final String property, 
+            final ExecutionContext ec) {
+        future1.onSuccess(new OnSuccess<String>() {
+            @Override
+            public void onSuccess(final String val1) throws Throwable {
+                if (StringUtils.isNotBlank(val1)) {
+                    future2.onSuccess(new OnSuccess<String>() {
+                        @Override
+                        public void onSuccess(final String val2) throws Throwable {
+                            if (StringUtils.isNotBlank(val2)) {
+                                if (StringUtils.equals(val1, val2)) {
+                                    promise.success(null);
+                                } else {
+                                    promise.success(property + " values do not match");
+                                }
+                            } else {
+                                promise.success(property + " cannot be empty");
+                            }
+                        }
+                    }, ec);
+                } else {
+                    promise.success(property + " cannot be empty");
+                }
+            }
+        }, ec);
+    }
+
     @SuppressWarnings("unchecked")
-    protected void validateObjectTypes(Future<String> objectType, final Future<String> endNodeObjectType, final Request request,
-            final Promise<String> objectTypePromise, final ExecutionContext ec) {
+    protected void validateObjectTypes(Future<String> objectType, final Future<String> endNodeObjectType,
+            final Request request, final Promise<String> objectTypePromise, final ExecutionContext ec) {
         objectType.onSuccess(new OnSuccess<String>() {
             @Override
             public void onSuccess(final String type) throws Throwable {
@@ -357,19 +402,22 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                                         } else {
                                             if (arg1 instanceof Response) {
                                                 Response res = (Response) arg1;
-                                                List<String> outRelations = (List<String>) res.get(GraphDACParams.metadata.name());
+                                                List<String> outRelations = (List<String>) res
+                                                        .get(GraphDACParams.metadata.name());
                                                 boolean found = false;
                                                 if (null != outRelations && !outRelations.isEmpty()) {
                                                     for (String outRel : outRelations) {
-                                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType, outRel)) {
+                                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType,
+                                                                outRel)) {
                                                             found = true;
                                                             break;
                                                         }
                                                     }
                                                 }
                                                 if (!found) {
-                                                    objectTypePromise.success(getRelationType() + " is not allowed between " + type
-                                                            + " and " + endNodeType);
+                                                    objectTypePromise
+                                                            .success(getRelationType() + " is not allowed between "
+                                                                    + type + " and " + endNodeType);
                                                 } else {
                                                     objectTypePromise.success(null);
                                                 }
