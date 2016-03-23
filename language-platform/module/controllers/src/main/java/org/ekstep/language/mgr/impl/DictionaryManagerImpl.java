@@ -246,10 +246,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, languageId, defintion, null);
 				String primaryMeaningId = (String) map.get(LanguageParams.primaryMeaningId.name());
 				List<NodeDTO> synonyms = (List<NodeDTO>) map.get(LanguageParams.synonyms.name());
+
+				if (primaryMeaningId != null) {
+					if (!isValidSynset(synonyms, primaryMeaningId)) {
+						primaryMeaningId = null;
+						map.put(LanguageParams.primaryMeaningId.name(), null);
+					}
+				}
+
 				if (primaryMeaningId == null || primaryMeaningId.isEmpty()) {
 					if (synonyms != null && !synonyms.isEmpty()) {
 						NodeDTO primarySynonym = synonyms.get(0);
-						primaryMeaningId = (String) primarySynonym.getIdentifier();
+						primaryMeaningId = primarySynonym.getIdentifier();
 						Map<String, Object> updateWordMap = new HashMap<String, Object>();
 						updateWordMap.put("identifier", map.get(LanguageParams.identifier.name()));
 						updateWordMap.put("lemma", map.get(LanguageParams.lemma.name()));
@@ -279,7 +287,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					List<Map<String, Object>> otherMeaningsList = new ArrayList<Map<String, Object>>();
 					for (int i = 0; i < synonyms.size(); i++) {
 						NodeDTO otherSynonym = synonyms.get(i);
-						String otherMeaningId = (String) otherSynonym.getIdentifier();
+						String otherMeaningId = otherSynonym.getIdentifier();
 						if (primaryMeaningId != null && !otherMeaningId.equalsIgnoreCase(primaryMeaningId)) {
 							Node synsetNode = getDataNode(languageId, otherMeaningId, "Synset");
 							DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
@@ -288,7 +296,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 							otherMeaningsList.add(synsetMap);
 						}
 					}
-					map.put("otherMeanings", otherMeaningsList);
+					if (!otherMeaningsList.isEmpty()) {
+						map.put("otherMeanings", otherMeaningsList);
+					}
 				}
 				map.remove(LanguageParams.synonyms.name());
 				System.out.println("Test");
@@ -301,6 +311,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 
 		}
+	}
+
+	private boolean isValidSynset(List<NodeDTO> synonyms, String synsetId) {
+		if (synonyms != null) {
+			for (NodeDTO synsetDTO : synonyms) {
+				String id = synsetDTO.getIdentifier();
+				if (synsetId.equalsIgnoreCase(id)) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	@SuppressWarnings("unchecked")
