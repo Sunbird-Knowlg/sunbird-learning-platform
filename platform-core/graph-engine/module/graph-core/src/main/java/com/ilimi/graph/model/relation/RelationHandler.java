@@ -32,16 +32,11 @@ public class RelationHandler {
                 return new CoOccurrenceRelation(manager, graphId, startNodeId, endNodeId);
             } else if (StringUtils.equals(RelationTypes.PRE_REQUISITE.relationName(), relationType)) {
                 return new PreRequisiteRelation(manager, graphId, startNodeId, endNodeId);
-            } else if (StringUtils.equals(RelationTypes.SYNONYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.ANTONYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.HYPERNYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.HYPONYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.HOLONYM.relationName(), relationType)
-                    || StringUtils.equals(RelationTypes.MERONYM.relationName(), relationType)) {
+            } else if (StringUtils.equals(RelationTypes.SUPERSEDED.relationName(), relationType)) {
+                return new SupersededRelation(manager, graphId, startNodeId, endNodeId);
+            } else {
                 return new PropositionRelation(manager, graphId, startNodeId, relationType, endNodeId);
             }
-            throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(),
-                    "UnSupported Relation: " + relationType);
         }
         throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(),
                 "UnSupported Relation: " + relationType);

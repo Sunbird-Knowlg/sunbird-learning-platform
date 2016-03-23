@@ -173,14 +173,14 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         List<String> messages = new ArrayList<String>();
         List<Future<List<String>>> validationFutures = new ArrayList<Future<List<String>>>();
         try {
-            Future<List<String>> relsFuture = datanode.createRelations(request, ec, addRels);
+            Future<List<String>> relsFuture = datanode.deleteRelations(request, ec, delRels);
             validationFutures.add(relsFuture);
         } catch (Exception e) {
             messages.add(e.getMessage());
             validationFutures.add(Futures.successful(messages));
         }
         try {
-            Future<List<String>> relsFuture = datanode.deleteRelations(request, ec, delRels);
+            Future<List<String>> relsFuture = datanode.createRelations(request, ec, addRels);
             validationFutures.add(relsFuture);
         } catch (Exception e) {
             messages.add(e.getMessage());
