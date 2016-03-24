@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -36,6 +37,11 @@ public class KafkaMessageProducer implements IMessageProducer{
 		try {
 			if (message != null && message.get("objectType") != null) {
 				String objectType = (String) message.get("objectType");
+				if (StringUtils.isBlank(objectType)) {
+				    objectType = (String) message.get("nodeType");
+				    if (StringUtils.isBlank(objectType))
+				        objectType = (String) message.get("nodeUniqueId");
+				}
 				producer = new kafka.javaapi.producer.Producer<String, String>(producerConfig);
 				String jsonMessage = mapper.writeValueAsString(message);
 				KeyedMessage<String, String> keyedMessage = new KeyedMessage<String, String>(TOPIC,
@@ -45,7 +51,8 @@ public class KafkaMessageProducer implements IMessageProducer{
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			producer.close();
+		    if (null != producer)
+		        producer.close();
 		}
 	}
 
