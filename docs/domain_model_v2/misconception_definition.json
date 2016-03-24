@@ -69,6 +69,19 @@
           "indexed": false
         },
         {
+          "required": false,
+          "dataType": "URL",
+          "propertyName": "thumbnail",
+          "title": "Thumbnail",
+          "description": "Thumbnail",
+          "category": "General",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 7 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
           "propertyName": "createdBy",
           "title": "Created By",
           "description": "",

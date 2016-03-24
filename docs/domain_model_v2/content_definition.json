@@ -402,10 +402,88 @@
         },
         {
           "required": false,
+          "dataType": "Text",
+          "propertyName": "portalOwner",
+          "title": "Portal Owner",
+          "description": "Portal Owner",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "EkStep",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
           "dataType": "List",
           "propertyName": "attributions",
           "title": "Owner",
           "description": "Attributions/Credits",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "List",
+          "propertyName": "collaborators",
+          "title": "Collaborators",
+          "description": "Collaborators",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "List",
+          "propertyName": "voiceCredits",
+          "title": "Voice Credits",
+          "description": "Voice Credits",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "List",
+          "propertyName": "translators",
+          "title": "Translators",
+          "description": "Translators",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "List",
+          "propertyName": "illustrators",
+          "title": "Illustrators",
+          "description": "Illustrators",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "copyrightOwner",
+          "title": "Copyright Owner",
+          "description": "",
           "category": "Ownership",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -450,6 +528,19 @@
           "draft": false
         },
         {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "licenseTerms",
+          "title": "License Terms",
+          "description": "",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
           "propertyName": "language",
           "title": "Language",
           "description": "",
@@ -479,6 +570,18 @@
           "indexed": true
         },
         {
+          "propertyName": "author",
+          "title": "Author",
+          "description": "Author of this content",
+          "category": "Authoring",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Hidden",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
           "propertyName": "words",
           "title": "Dictionary Words",
           "description": "Dictionary words in this content",
@@ -500,6 +603,30 @@
           "displayProperty": "Hidden",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "forkable",
+          "title": "Forkable",
+          "description": "Forkable",
+          "category": "General",
+          "dataType": "Boolean",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'checkbox', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "translatable",
+          "title": "Translatable",
+          "description": "Translatable",
+          "category": "General",
+          "dataType": "Boolean",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'checkbox', 'order': 5}",
           "indexed": true
         },
         {
@@ -1222,7 +1349,11 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 24,
-        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn", "status", "contentType", "filter", "visibility", "thumbnail", "language"]
+        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", 
+        "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", 
+        "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn", 
+        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "author", "collaborators", 
+        "illustrators", "translators", "voiceCredits", "portalOwner", "forkable", "translatable"]
       }
     }
   ]
