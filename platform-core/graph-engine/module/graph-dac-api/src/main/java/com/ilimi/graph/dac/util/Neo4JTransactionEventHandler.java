@@ -16,8 +16,13 @@ public class Neo4JTransactionEventHandler implements TransactionEventHandler<Voi
 
 	@Override
 	public Void beforeCommit(TransactionData data) throws Exception {
-		ProcessTransactionData processTransactionData = new ProcessTransactionData(graphId, graphDb);
-		processTransactionData.processTxnData(data);
+	    try {
+	        ProcessTransactionData processTransactionData = new ProcessTransactionData(graphId, graphDb);
+            processTransactionData.processTxnData(data);
+	    } catch (Exception e) {
+	        e.printStackTrace();
+	        throw e;
+	    }
 		return null;
 	}
 

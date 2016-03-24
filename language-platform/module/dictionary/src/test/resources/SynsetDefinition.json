@@ -106,11 +106,11 @@
           "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 7 }"
         },
         {
-          "propertyName": "genders",
-          "title": "Genders",
+          "propertyName": "gender",
+          "title": "Gender",
           "description": "",
-          "category": "supportability",
-          "dataType": "List",
+          "category": "general",
+          "dataType": "Text",
           "required": false,
           "indexed": true,
           "displayProperty": "Editable",

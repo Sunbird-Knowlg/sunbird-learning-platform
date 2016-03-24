@@ -108,6 +108,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		boolean objTypeFilter = false;
+		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) { 
 			for (Entry<String, Object> entry: filters.entrySet()) {
 				Map<String, Object> property = new HashMap<String, Object>();
@@ -115,9 +116,10 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
 				property.put(CompositeSearchParams.values.name(), entry.getValue());
 				properties.add(property);
-				if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey())) {
+				if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey()))
 				    objTypeFilter = true;
-				}
+				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
+				    statusFilter = true;
 			}
 		}
 		if (!objTypeFilter) {
@@ -126,6 +128,13 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
             property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.objectType.name());
             String[] objectTypes = new String[]{"Domain", "Dimension", "Concept", "Content", "Word", "Method", "Misconception", "AssessmentItem"};
             property.put(CompositeSearchParams.values.name(), Arrays.asList(objectTypes));
+            properties.add(property);
+		}
+		if (!statusFilter) {
+		    Map<String, Object> property = new HashMap<String, Object>();
+            property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+            property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
+            property.put(CompositeSearchParams.values.name(), Arrays.asList(new String[]{"Live"}));
             properties.add(property);
 		}
 		return properties;

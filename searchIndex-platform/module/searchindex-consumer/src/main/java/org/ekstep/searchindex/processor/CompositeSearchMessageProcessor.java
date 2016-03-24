@@ -16,7 +16,7 @@ import org.ekstep.searchindex.util.ObjectDefinitionCache;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
-public class CompositeSearchMessageProcessor implements IMessageProcessor{
+public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ConsumerUtil consumerUtil = new ConsumerUtil();
@@ -47,7 +47,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
-				//objectType = WordUtils.capitalize(objectType.toLowerCase());
+				// objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
@@ -63,15 +63,15 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_DELETE: {
-					elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE,
-							uniqueId);
+					elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 					break;
 				}
 				}
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-			    System.out.println("processing definition nodes");
+				System.out.println("processing definition nodes");
 				Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
 			}
@@ -81,14 +81,15 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 	}
 
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
-		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId,
-				jsonIndexDocument);
+		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}
 
 	private void createCompositeSearchIndex() throws IOException {
-		String settings = "{  \"settings\": {    \"index\": {      \"index\": \"compositesearch\",      \"type\": \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\",      \"analysis\": {        \"analyzer\": {          \"cs_index_analyzer\": {            \"type\": \"custom\",            \"tokenizer\": \"standard\",            \"filter\": [              \"lowercase\",              \"mynGram\"            ]          },          \"cs_search_analyzer\": {            \"type\": \"custom\",            \"tokenizer\": \"standard\",            \"filter\": [              \"standard\",              \"lowercase\"            ]          }        },        \"filter\": {          \"mynGram\": {            \"type\": \"nGram\",            \"min_gram\": 2,            \"max_gram\": 20          }        }      }    }  }}";
-		String mappings = "{\""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\": {  \"dynamic_templates\": [    {      \"longs\": {        \"match_mapping_type\": \"long\",        \"mapping\": {          \"type\": \"long\",          fields: {            \"raw\": {              \"type\": \"long\"            }          }        }      }    },    {      \"doubles\": {        \"match_mapping_type\": \"double\",        \"mapping\": {          \"type\": \"double\",          fields: {            \"raw\": {              \"type\": \"double\"            }          }        }      }    },    {      \"strings\": {        \"match_mapping_type\": \"string\",        \"mapping\": {          \"type\": \"string\",          \"copy_to\": \"all_fields\",          \"analyzer\": \"cs_index_analyzer\",          \"search_analyzer\": \"cs_search_analyzer\",          fields: {            \"raw\": {              \"type\": \"string\",              \"analyzer\": \"cs_search_analyzer\",              \"search_analyzer\": \"cs_search_analyzer\"            }          }        }      }    }  ],  \"properties\": {    \"all_fields\": {      \"type\": \"string\",      \"analyzer\": \"cs_index_analyzer\",      \"search_analyzer\": \"cs_index_analyzer\",      fields: {        \"raw\": {          \"type\": \"string\",          \"analyzer\": \"cs_search_analyzer\",          \"search_analyzer\": \"cs_search_analyzer\"        }      }    }  }}}";
-		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
+		String settings = "{ \"settings\": {   \"index\": {     \"index\": \"compositesearch\",     \"type\": \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\",     \"analysis\": {       \"analyzer\": {         \"cs_index_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"lowercase\",             \"mynGram\"           ]         },         \"cs_search_analyzer\": {           \"type\": \"custom\",           \"tokenizer\": \"standard\",           \"filter\": [             \"standard\",             \"lowercase\"           ]         },         \"keylower\": {           \"tokenizer\": \"keyword\",           \"filter\": \"lowercase\"         }       },       \"filter\": {         \"mynGram\": {           \"type\": \"nGram\",           \"min_gram\": 1,           \"max_gram\": 20,           \"token_chars\": [             \"letter\",             \"digit\",             \"whitespace\",             \"punctuation\",             \"symbol\"           ]         }       }     }   } }}";
+		String mappings = "{ \""+CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE+"\": {   \"dynamic_templates\": [     {       \"longs\": {         \"match_mapping_type\": \"long\",         \"mapping\": {           \"type\": \"long\",           fields: {             \"raw\": {               \"type\": \"long\"             }           }         }       }     },     {       \"doubles\": {         \"match_mapping_type\": \"double\",         \"mapping\": {           \"type\": \"double\",           fields: {             \"raw\": {               \"type\": \"double\"             }           }         }       }     },     {       \"strings\": {         \"match_mapping_type\": \"string\",         \"mapping\": {           \"type\": \"string\",           \"copy_to\": \"all_fields\",           \"analyzer\": \"cs_index_analyzer\",           \"search_analyzer\": \"cs_search_analyzer\",           fields: {             \"raw\": {               \"type\": \"string\",               \"analyzer\": \"keylower\"             }           }         }       }     }   ],   \"properties\": {     \"all_fields\": {       \"type\": \"string\",       \"analyzer\": \"cs_index_analyzer\",       \"search_analyzer\": \"cs_search_analyzer\",       fields: {         \"raw\": {           \"type\": \"string\",           \"analyzer\": \"keylower\"         }       }     }   } }}";
+		elasticSearchUtil.addIndex(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, settings, mappings);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -97,7 +98,8 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
-			String documentJson = elasticSearchUtil.getDocumentAsStringById(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
+			String documentJson = elasticSearchUtil.getDocumentAsStringById(
+					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
@@ -200,26 +202,19 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor{
 		 * NODE_TYPE_DATA).endObject();
 		 */
 
-		builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId").value("hi")
-				.key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
-				.value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType").value(CompositeSearchConstants.NODE_TYPE_DEFINITION).endObject();
+		/*builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId")
+				.value("hi").key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_2").key("objectType")
+				.value(CompositeSearchConstants.OBJECT_TYPE_WORD).key("nodeType")
+				.value(CompositeSearchConstants.NODE_TYPE_DEFINITION).endObject();*/
 
-		/*
-		 * builder.object().key("operationType").value(Constants.
-		 * OPERATION_UPDATE).key("graphId").value("hi")
-		 * .key("nodeGraphId").value("1").key("nodeUniqueId").value("hi_1").key(
-		 * "objectType")
-		 * .value(Constants.OBJECT_TYPE_WORD).key("nodeType").value(Constants.
-		 * NODE_TYPE_DATA)
-		 * .key("transactionData").object().key("addedProperties").array().
-		 * object().key("propertyName")
-		 * .value("notappli").key("value").array().value("class 1"
-		 * ).value("rwo").endArray().endObject()
-		 * .endArray().key("removedProperties").array().value("sourceTypes").
-		 * endArray().key("addedTags").array() .value("grade one"
-		 * ).endArray().key("removedTags").array().value("grade three"
-		 * ).endArray().endObject() .endObject();
-		 */
+		builder.object().key("operationType").value(CompositeSearchConstants.OPERATION_UPDATE).key("graphId").value("hi")
+		.key("nodeGraphId").value(1).key("nodeUniqueId").value("hi_1").key("objectType")
+		.value("Word").key("nodeType").value(CompositeSearchConstants.NODE_TYPE_DATA)
+		.key("transactionData").object().key("addedProperties").object()
+		.key("lemma").value("இடையேயான கருத்து").endObject()
+		.key("removedProperties").array().value("sourceTypes").endArray().key("addedTags").array()
+		.value("grade one").endArray().key("removedTags").array().value("grade three").endArray().endObject()
+		.endObject();
 		Map<String, Object> message = processor.mapper.readValue(builder.toString(),
 				new TypeReference<Map<String, Object>>() {
 				});
