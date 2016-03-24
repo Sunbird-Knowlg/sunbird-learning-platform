@@ -82,6 +82,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 			}
+			
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
