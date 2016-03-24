@@ -81,9 +81,11 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), "artifactUrl is not set");
 		}
 		zipFile = HttpDownloadUtility.downloadFile(zipFilUrl, tempFileDwn);
+		boolean isJSONIndex;
 		String zipFilePath = zipFile.getPath();
 		String zipFileDir = zipFile.getParent();
 		String filePath = zipFileDir + File.separator + "index.ecml";
+		String jsonFilePath = zipFileDir + File.separator + "index.json";
 		String uploadFilePath = zipFileDir + File.separator + "assets" + File.separator;
 		Map<String, List<String>> mediaIdURL = new HashMap<String, List<String>>();
 		String taxonomyId = node.getGraphId();
@@ -91,10 +93,25 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		UnzipUtility unzipper = new UnzipUtility();
 		Response response = new Response();
 		try {
+			File jsonFile = new File(jsonFilePath);
+			File ecmlFile = new File(filePath);
+			if (jsonFile.exists()) {
+				isJSONIndex = true;
+			} else if (ecmlFile.exists()) {
+				isJSONIndex = false;
+			} else {
+				return ERROR("Failed", "'index' file does not exist.", ResponseCode.CLIENT_ERROR);
+			}
+			
 			unzipper.unzip(zipFilePath, zipFileDir);
 			List<Relation> outRelations = new ArrayList<Relation>();
 			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations);
-			Map<String, List<String>> mediaIdMap = CustomParser.readECMLFile(filePath);
+			Map<String, List<String>> mediaIdMap = new HashMap<String, List<String>>();
+			if (isJSONIndex == false) {
+				mediaIdMap = CustomParser.readECMLFile(filePath);
+			} else {
+				mediaIdMap = CustomParser.readJSONFile(filePath);
+			}
 			Map<String, String> mediaSrcMap = new HashMap<String, String>();
 			Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
 			Set<String> mediaIdSet = new HashSet<String>();
@@ -115,7 +132,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					mediaAssetIdMap.put(nodeId, id);
 				}
 			}
-			CustomParser customParser = new CustomParser(new File(filePath));
+			CustomParser customParser = new CustomParser();
+			if (isJSONIndex == false) customParser.init(new File(filePath));
 			if (null != mediaIdSet && !mediaIdSet.isEmpty()) {
 				Request mediaReq = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
 						"getDataNodes", GraphDACParams.node_ids.name(), new ArrayList<>(mediaIdSet));
@@ -204,12 +222,20 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 						}
 					}
 				}
-				customParser.updateSrcInEcml(filePath, mediaIdURL);
+				if (isJSONIndex == false) {
+					customParser.updateSrcInEcml(filePath, mediaIdURL);
+				} else {
+					customParser.updateSrcInJSON(filePath, mediaIdURL);
+				}
 			}
 			List<String> listOfCtrlType = new ArrayList<>();
 			listOfCtrlType.add("items");
 			listOfCtrlType.add("data");
-			customParser.updateJsonInEcml(filePath, listOfCtrlType);
+			if (isJSONIndex == false) {
+				customParser.updateJsonInEcml(filePath, listOfCtrlType);
+			} else {
+				customParser.updateJsonInIndexJSON(filePath, listOfCtrlType);
+			}
 			response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
 			response.put(ContentAPIParams.outRelations.name(), outRelations);
 		} catch (Exception ex) {

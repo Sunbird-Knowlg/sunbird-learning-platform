@@ -204,7 +204,9 @@ public class BaseMimeTypeManager extends BaseManager {
             if (contentType.equalsIgnoreCase("json")) {
                 CustomParser.readJsonFileDownload(filePath);
             } else if (contentType.equalsIgnoreCase("ecml")) {
-                new CustomParser(new File(fileLocation)).updateEcml(filePath);
+            	CustomParser customParser = new CustomParser();
+            	customParser.init(new File(fileLocation));
+                customParser.updateEcml(filePath);
             }
             String zipFilePathName = sourceFolder + fileName + ".zip";
             List<String> fileList = new ArrayList<String>();
@@ -502,7 +504,9 @@ public class BaseMimeTypeManager extends BaseManager {
             if (contentType.equalsIgnoreCase("json")) {
                 CustomParser.readJsonFileDownload(tempFolderLocation);
             } else if (contentType.equalsIgnoreCase("ecml")) {
-                new CustomParser(new File(fileLocation)).updateEcml(tempFolderLocation);
+            	CustomParser customParser = new CustomParser();
+            	customParser.init(new File(fileLocation));
+                customParser.updateEcml(tempFolderLocation);
             }
             String zipFile = sourceFolder + fileName + ".zip";
             List<String> fileList = new ArrayList<String>();
