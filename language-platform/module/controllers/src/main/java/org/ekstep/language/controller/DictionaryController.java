@@ -76,7 +76,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			Response response = dictionaryManager.create(languageId, objectType, request);
 			LOGGER.info("Create | Response: " + response);
 			if (!checkError(response)) {
-			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_id.name());
+			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
@@ -92,6 +92,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
@@ -104,9 +105,9 @@ public abstract class DictionaryController extends BaseLanguageController {
 			Response response = dictionaryManager.update(languageId, objectId, objectType, request);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
-			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
-			    asyncUpdate(nodeId, languageId);
-			    AuditRecord audit = new AuditRecord(languageId, nodeId, "UPDATE", response.getParams(), userId,
+				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
+			    asyncUpdate(nodeIds, languageId);
+			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 			}
