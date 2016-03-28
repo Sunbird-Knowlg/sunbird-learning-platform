@@ -45,7 +45,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.computeTextComplexity.name(), operation)) {
 				String text = (String) request.get(LanguageParams.text.name());
 				ParagraphComplexity pc = ParagraphMeasures.getTextComplexity(languageId, text);
-				OK(LanguageParams.text_complexity.name(), pc.getMeasures(), getSender());
+				OK(LanguageParams.text_complexity.name(), pc, getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.loadLanguageVectors.name(), operation)) {
 				SyllableMap.loadSyllables(languageId);
 				OrthographicVectors.load(languageId);
@@ -62,7 +62,7 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 				}
 				if (null != texts && !texts.isEmpty()) {
 					for (String text : texts) {
-						map.put(text, ParagraphMeasures.getTextComplexity(languageId, text).getMeasures());
+						map.put(text, ParagraphMeasures.getTextComplexity(languageId, text).measures());
 					}
 				}
 				OK(LanguageParams.complexity_measures.name(), map, getSender());

@@ -1,7 +1,8 @@
 package org.ekstep.language.measures.entity;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ParagraphComplexity implements Serializable {
 
@@ -11,7 +12,7 @@ public class ParagraphComplexity implements Serializable {
 	private Double totalOrthoComplexity;
 	private Double meanPhonicComplexity;
 	private Double totalPhonicComplexity;
-	private List<WordComplexity> wordMeasures;
+	private Map<String, ComplexityMeasures> wordMeasures = new HashMap<String, ComplexityMeasures>();
 
 	public String getText() {
 		return text;
@@ -53,15 +54,15 @@ public class ParagraphComplexity implements Serializable {
 		this.totalPhonicComplexity = totalPhonicComplexity;
 	}
 
-	public List<WordComplexity> getWordMeasures() {
+	public Map<String, ComplexityMeasures> getWordMeasures() {
 		return wordMeasures;
 	}
 
-	public void setWordMeasures(List<WordComplexity> wordMeasures) {
+	public void setWordMeasures(Map<String, ComplexityMeasures> wordMeasures) {
 		this.wordMeasures = wordMeasures;
 	}
 	
-	public ComplexityMeasures getMeasures() {
+	public ComplexityMeasures measures() {
 	    return new ComplexityMeasures(meanOrthoComplexity, meanPhonicComplexity);
 	}
 
