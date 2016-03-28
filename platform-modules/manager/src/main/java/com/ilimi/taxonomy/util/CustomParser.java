@@ -199,6 +199,23 @@ public class CustomParser {
 		}
 		return text;
 	}
+	
+	public static Map<String, Object> getJsonMap(String fileName) {
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			File file = new File(fileName);
+			if (file.exists()) {
+				String json = readFile(file);
+				map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {
+				});
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return map;
+	}
 
 	/**
 	 * This Method Copy Data and Item Json into ecml as CDATA
