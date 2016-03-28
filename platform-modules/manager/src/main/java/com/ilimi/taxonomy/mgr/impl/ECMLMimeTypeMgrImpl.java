@@ -93,6 +93,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		UnzipUtility unzipper = new UnzipUtility();
 		Response response = new Response();
 		try {
+			unzipper.unzip(zipFilePath, zipFileDir);
 			File jsonFile = new File(jsonFilePath);
 			File ecmlFile = new File(filePath);
 			if (jsonFile.exists()) {
@@ -102,15 +103,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			} else {
 				return ERROR("Failed", "'index' file does not exist.", ResponseCode.CLIENT_ERROR);
 			}
-			
-			unzipper.unzip(zipFilePath, zipFileDir);
 			List<Relation> outRelations = new ArrayList<Relation>();
-			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations);
+			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations, isJSONIndex);
 			Map<String, List<String>> mediaIdMap = new HashMap<String, List<String>>();
 			if (isJSONIndex == false) {
 				mediaIdMap = CustomParser.readECMLFile(filePath);
 			} else {
-				mediaIdMap = CustomParser.readJSONFile(filePath);
+				mediaIdMap = CustomParser.readJSONFile(jsonFilePath);
 			}
 			Map<String, String> mediaSrcMap = new HashMap<String, String>();
 			Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
@@ -225,7 +224,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 				if (isJSONIndex == false) {
 					customParser.updateSrcInEcml(filePath, mediaIdURL);
 				} else {
-					customParser.updateSrcInJSON(filePath, mediaIdURL);
+					customParser.updateSrcInJSON(jsonFilePath, mediaIdURL);
 				}
 			}
 			List<String> listOfCtrlType = new ArrayList<>();
@@ -233,10 +232,11 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			listOfCtrlType.add("data");
 			if (isJSONIndex == false) {
 				customParser.updateJsonInEcml(filePath, listOfCtrlType);
+				response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
 			} else {
-				customParser.updateJsonInIndexJSON(filePath, listOfCtrlType);
+				customParser.updateJsonInIndexJSON(jsonFilePath, listOfCtrlType);
+				response.put("ecmlBody", CustomParser.readFile(new File(jsonFilePath)));
 			}
-			response.put("ecmlBody", CustomParser.readFile(new File(filePath)));
 			response.put(ContentAPIParams.outRelations.name(), outRelations);
 		} catch (Exception ex) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
@@ -313,9 +313,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@SuppressWarnings({ "unchecked" })
 	private Map<String, Object> createAssessmentItemFromContent(String taxonomyId,
-			String contentExtractedPath, String contentId, List<Relation> outRelations) {
+			String contentExtractedPath, String contentId, List<Relation> outRelations, boolean isJSONIndex) {
 		if (null != contentExtractedPath) {
-			List<File> fileList = getControllerFileList(contentExtractedPath);
+			List<File> fileList = getControllerFileList(contentExtractedPath, isJSONIndex);
 			Map<String, Object> mapResDetail = new HashMap<String, Object>();
 			if (null == fileList)
 				return null;
@@ -439,14 +439,21 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return null;
 	}
 
-	private List<File> getControllerFileList(String contentExtractedPath) {
+	private List<File> getControllerFileList(String contentExtractedPath, boolean isJSONIndex) {
+		List<File> lstControllerFile = new ArrayList<File>();
 		try {
-			String indexFile = contentExtractedPath + File.separator + "index.ecml";
+			String indexFile = "";
+			if (isJSONIndex == true) {
+				indexFile = contentExtractedPath + File.separator + "index.json";
+			} else if (isJSONIndex == false) {
+				indexFile = contentExtractedPath + File.separator + "index.ecml";
+			} else {
+				return lstControllerFile;
+			}
 			DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 			DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 			Document doc = docBuilder.parse(indexFile);
 			NodeList attrList = doc.getElementsByTagName("controller");
-			List<File> lstControllerFile = new ArrayList<File>();
 			for (int i = 0; i < attrList.getLength(); i++) {
 				Element controller = (Element) attrList.item(i);
 				if (controller.getAttribute("type").equalsIgnoreCase("Items")) {
@@ -461,7 +468,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			return lstControllerFile;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return null;
+			return lstControllerFile;
 		}
 	}
 
