@@ -652,32 +652,33 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	public String findWordsCSV(String languageId, String objectType, InputStream is) {
 		try {
 			List<String[]> rows = getCSVRecords(is);
+            List<String> words = new ArrayList<String>();
 			List<Map<String, Object>> nodes = new ArrayList<Map<String, Object>>();
 			if (null != rows && !rows.isEmpty()) {
 				for (String[] row : rows) {
 					if (null != row && row.length > 0) {
 						String word = row[0];
+                        if (StringUtils.isNotBlank(word) && !words.contains(word.trim())) {
+                            word = word.trim();
+                            words.add(word);
 						Node node = searchWord(languageId, objectType, word);
 						Map<String, Object> rowMap = new HashMap<String, Object>();
 						if (null == node) {
 							String nodeId = createWord(languageId, word, objectType);
 							rowMap.put("identifier", nodeId);
-							rowMap.put("objectType", objectType);
 							rowMap.put("lemma", word);
+                                nodes.add(rowMap);
 						} else {
-							if (null != node.getMetadata() && !node.getMetadata().isEmpty())
-								rowMap.putAll(node.getMetadata());
 							rowMap.put("identifier", node.getIdentifier());
-							rowMap.put("objectType", node.getObjectType());
+                                rowMap.put("lemma", word);
 							if (null != node.getTags() && !node.getTags().isEmpty())
 								rowMap.put("tags", node.getTags());
-							else
-								rowMap.put("tags", "");
+                                getSynsets(node, rowMap, nodes);
 						}
-						nodes.add(rowMap);
 					}
 				}
 			}
+            }
 			String csv = getCSV(nodes);
 			return csv;
 		} catch (Exception e) {
@@ -685,11 +686,41 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
+    private void getSynsets(Node node, Map<String, Object> rowMap, List<Map<String, Object>> nodes) {
+        List<Relation> inRels = node.getInRelations();
+        boolean first = true;
+        if (null != inRels && !inRels.isEmpty()) {
+            for (Relation inRel : inRels) {
+                if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), inRel.getRelationType())
+                        && StringUtils.equalsIgnoreCase("Synset", inRel.getStartNodeObjectType())) {
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.putAll(rowMap);
+                    String synsetId = inRel.getStartNodeId();
+                    map.put("synsetId", synsetId);
+                    Map<String, Object> metadata = inRel.getStartNodeMetadata();
+                    if (null != metadata) {
+                        if (null != metadata.get("gloss"))
+                            map.put("gloss", metadata.get("gloss"));
+                        if (null != metadata.get("pos"))
+                            map.put("pos", metadata.get("pos"));
+                        if (first) {
+                            first = false;
+                            if (null != node.getMetadata().get("variants"))
+                                map.put("variants", node.getMetadata().get("variants"));
+                        }
+                    }
+                    nodes.add(map);
+                }
+            }
+        }
+        if (first)
+            nodes.add(rowMap);
+    }
+    
 	private String getCSV(List<Map<String, Object>> nodes) throws Exception {
 		List<String[]> allRows = new ArrayList<String[]>();
 		List<String> headers = new ArrayList<String>();
 		headers.add("identifier");
-		headers.add("objectType");
 		headers.add("lemma");
 		for (Map<String, Object> map : nodes) {
 			Set<String> keys = map.keySet();
@@ -1352,12 +1383,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 									for (String word : wordList) {
 										if (lemmaIdMap.containsKey(word)) {
 											String wordId = lemmaIdMap.get(word);
-											outRels.add(
-													new Relation(null, RelationTypes.SYNONYM.relationName(), wordId));
+                                            outRels.add(new Relation(null, RelationTypes.SYNONYM.relationName(),
+                                                    wordId));
 										} else {
 											String wordId = createWord(lemmaIdMap, languageId, word, objectType);
-											outRels.add(
-													new Relation(null, RelationTypes.SYNONYM.relationName(), wordId));
+                                            outRels.add(new Relation(null, RelationTypes.SYNONYM.relationName(),
+                                                    wordId));
 										}
 									}
 									Node synsetNode = new Node(synsetId, SystemNodeTypes.DATA_NODE.name(), "Synset");
