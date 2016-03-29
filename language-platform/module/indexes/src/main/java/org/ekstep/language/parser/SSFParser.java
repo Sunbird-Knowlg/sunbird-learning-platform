@@ -107,12 +107,12 @@ public class SSFParser {
 		for (String token : enhancedSentenceTokens) {
 			tokenCountAfterWord++;
 
-			/*if (isTagName(token)) {
+			if (isTagName(token)) {
 				if (wordFound && word != null) {
 					pos = token;
 				}
 				continue;
-			}*/
+			}
 			if (ignoreToken(token)) {
 				continue;
 			}
@@ -171,11 +171,11 @@ public class SSFParser {
 				pos = token;
 				continue;
 			}
-			if (expectedLanguage(token, languageId)) {
+			//if (expectedLanguage(token, languageId)) {
 				wordFound = true;
 				word = token;
 				tokenCountAfterWord = 0;
-			}
+			//}
 		}
 		if (!skipCitations) {
 			indexes.put(Constants.CITATION_INDEX_COMMON_NAME, citationList);
