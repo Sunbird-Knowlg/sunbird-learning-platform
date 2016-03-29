@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 
 @Component("AssetsMimeTypeMgrImpl")
@@ -13,7 +14,11 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	@Override
 	public Response upload(Node node, File uploadFile, String folder) {
-		return uploadContent(node, uploadFile, folder);
+	    String[] urlArray = uploadToAWS(uploadFile, folder);
+	    node.getMetadata().put("s3Key", urlArray[0]);
+        node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
+        node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
+        return updateContentNode(node, urlArray[1]);
 	}
 
 	@Override
@@ -24,7 +29,8 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 
 	@Override
 	public Response publish(Node node) {
-		return rePublish(node);
+	    node.getMetadata().put("status", "Live");
+	    return updateContentNode(node, null);
 	}
 
 	@Override

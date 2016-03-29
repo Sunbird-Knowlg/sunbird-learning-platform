@@ -1,10 +1,13 @@
 package org.ekstep.language.measures;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
@@ -17,11 +20,11 @@ public class ParagraphMeasures {
             return null;
         if (StringUtils.isNotBlank(text)) {
             List<String> tokens = LanguageUtil.getTokens(text);
-            List<WordComplexity> wordMeasures = new ArrayList<WordComplexity>();
+            Map<String, ComplexityMeasures> wordMeasures = new HashMap<String, ComplexityMeasures>();
             if (null != tokens && !tokens.isEmpty()) {
                 for (String word : tokens) {
                     WordComplexity wc = WordMeasures.getWordComplexity(language, word);
-                    wordMeasures.add(wc);
+                    wordMeasures.put(word, new ComplexityMeasures(wc.getOrthoComplexity(), wc.getPhonicComplexity()));
                 }
             }
             ParagraphComplexity pc = new ParagraphComplexity();
@@ -38,9 +41,10 @@ public class ParagraphMeasures {
         int count = pc.getWordMeasures().size();
         double orthoComplexity = 0;
         double phonicComplexity = 0;
-        for (WordComplexity wc : pc.getWordMeasures()) {
-            orthoComplexity += wc.getOrthoComplexity();
-            phonicComplexity += wc.getPhonicComplexity();
+        Map<String, ComplexityMeasures> wordMeasures = pc.getWordMeasures();
+        for (Entry<String, ComplexityMeasures> entry : wordMeasures.entrySet()) {
+            orthoComplexity += entry.getValue().getOrthographic_complexity();
+            phonicComplexity += entry.getValue().getPhonologic_complexity();
         }
         pc.setTotalOrthoComplexity(formatDoubleValue(orthoComplexity));
         pc.setTotalPhonicComplexity(formatDoubleValue(phonicComplexity));

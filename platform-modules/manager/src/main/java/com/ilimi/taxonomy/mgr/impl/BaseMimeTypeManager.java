@@ -191,6 +191,7 @@ public class BaseMimeTypeManager extends BaseManager {
             }
             downloadAppIcon(node, tempFolder);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         }
         String filePath = tempFolder;
@@ -204,7 +205,9 @@ public class BaseMimeTypeManager extends BaseManager {
             if (contentType.equalsIgnoreCase("json")) {
                 CustomParser.readJsonFileDownload(filePath);
             } else if (contentType.equalsIgnoreCase("ecml")) {
-                new CustomParser(new File(fileLocation)).updateEcml(filePath);
+            	CustomParser customParser = new CustomParser();
+            	customParser.init(new File(fileLocation));
+                customParser.updateEcml(filePath);
             }
             String zipFilePathName = sourceFolder + fileName + ".zip";
             List<String> fileList = new ArrayList<String>();
@@ -231,6 +234,7 @@ public class BaseMimeTypeManager extends BaseManager {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         } finally {
             deleteTemp(sourceFolder);
@@ -320,7 +324,8 @@ public class BaseMimeTypeManager extends BaseManager {
 
     protected Response updateContentNode(Node node, String url) {
         Response updateRes = updateNode(node);
-        updateRes.put(ContentAPIParams.content_url.name(), url);
+        if (StringUtils.isNotBlank(url))
+            updateRes.put(ContentAPIParams.content_url.name(), url);
         return updateRes;
     }
 
@@ -438,8 +443,8 @@ public class BaseMimeTypeManager extends BaseManager {
         }
         return null;
     }
-
-    public Response uploadContent(Node node, File uploadedFile, String folder) {
+    
+    public String[] uploadToAWS(File uploadedFile, String folder) {
         String[] urlArray = new String[] {};
         try {
             if (StringUtils.isBlank(folder))
@@ -449,15 +454,13 @@ public class BaseMimeTypeManager extends BaseManager {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);
         }
+        return urlArray;
+    }
+
+    public Response uploadContent(Node node, File uploadedFile, String folder) {
+        String[] urlArray = uploadToAWS(uploadedFile, folder);
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-        Number pkgVersion = (Number) node.getMetadata().get(ContentAPIParams.pkgVersion.name());
-        if (null == pkgVersion || pkgVersion.intValue() < 1) {
-            pkgVersion = 1;
-        } else {
-            pkgVersion = pkgVersion.doubleValue() + 1;
-        }
-        node.getMetadata().put(ContentAPIParams.pkgVersion.name(), pkgVersion);
         return updateContentNode(node, urlArray[1]);
     }
 
@@ -502,7 +505,9 @@ public class BaseMimeTypeManager extends BaseManager {
             if (contentType.equalsIgnoreCase("json")) {
                 CustomParser.readJsonFileDownload(tempFolderLocation);
             } else if (contentType.equalsIgnoreCase("ecml")) {
-                new CustomParser(new File(fileLocation)).updateEcml(tempFolderLocation);
+            	CustomParser customParser = new CustomParser();
+            	customParser.init(new File(fileLocation));
+                customParser.updateEcml(tempFolderLocation);
             }
             String zipFile = sourceFolder + fileName + ".zip";
             List<String> fileList = new ArrayList<String>();

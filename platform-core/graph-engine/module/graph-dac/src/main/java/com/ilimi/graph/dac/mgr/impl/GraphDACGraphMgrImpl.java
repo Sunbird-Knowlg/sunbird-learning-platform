@@ -13,14 +13,11 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Lock;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.tooling.GlobalGraphOperations;
-
-import akka.actor.ActorRef;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -44,6 +41,8 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.dac.util.RelationType;
 import com.ilimi.graph.importer.ImportData;
+
+import akka.actor.ActorRef;
 
 public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACGraphMgr {
 
@@ -256,11 +255,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 int index = 0;
                 RelationType relation = new RelationType(relationType);
                 Node startNode = getNodeByUniqueId(graphDb, startNodeId);
-                Lock lock = null;
-                if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),relationType)) {
-                    System.out.println("acquiring lock for " + relationType + " -- " + startNodeId + " -- " + endNodeId);
-                    lock = tx.acquireReadLock(startNode);
-                }
                 Relationship dbRel = null;
                 Iterable<Relationship> relations = startNode.getRelationships(Direction.OUTGOING, relation);
                 if (null != relations) {
@@ -293,8 +287,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                         }
                     }
                 }
-                if (null != lock)
-                    lock.release();
                 tx.success();
                 tx.close();
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());

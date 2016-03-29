@@ -74,8 +74,10 @@ public class ProcessTransactionData {
 			map.put(GraphDACParams.graphId.name(), getGraphId());
 			map.put(GraphDACParams.nodeGraphId.name(), nodeId);
 			map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
-			map.put(GraphDACParams.objectType.name(), node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
-			map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
+			if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+			    map.put(GraphDACParams.objectType.name(), node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+			if (node.hasProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))
+			    map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
 			map.put(GraphDACParams.transactionData.name(), transactionData);
 			lstMessageMap.add(map);
 		}

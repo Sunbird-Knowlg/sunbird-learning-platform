@@ -165,7 +165,18 @@ if {$object_null == 1} {
 				}
 				$obj_list add $domain_obj
 			}
+			set content_ttl [java::new Integer 0]
+			set def_metadata [java::prop $def_node "metadata"]
+			set def_metadata_null [java::isnull $def_metadata]
+			if {$def_metadata_null != 1} {
+				set ttl_val [$def_metadata get "ttl"]
+				set ttl_val_null [java::isnull $ttl_val]
+				if {$ttl_val_null != 1} {
+					set content_ttl $ttl_val
+				}
+			}
 			set result_map [java::new HashMap]
+			$result_map put "ttl" $content_ttl
 			$result_map put "content" $obj_list
 			set response_list [create_response $result_map]
 			return $response_list
