@@ -36,13 +36,14 @@ proc proc_getFirstElement {input_list} {
 	}
 }
 
-proc proc_updateLanguageCode {resp_object} {
+proc proc_updateLanguageCode {resp_object graph_node} {
 	set objectNotNull [proc_isNotNull $resp_object]
 	if {$objectNotNull} {
 		set languageCode [$resp_object get "languageCode"]
 		set languageCodeNotNull [proc_isNotNull $languageCode]
 		if {!$languageCodeNotNull} {
-			set language [$resp_object get "language"]
+			set node_metadata [java::prop $graph_node "metadata"]
+			set language [$node_metadata get "language"]
 			set languageVal [proc_getFirstElement $language]
 			set language_map [java::new HashMap]
 			$language_map put "english" "en"
@@ -83,7 +84,7 @@ if {$check_error} {
 	} else {
 		set resp_object [convert_graph_node $graph_node $def_node]
 	}
-	proc_updateLanguageCode $resp_object
+	proc_updateLanguageCode $resp_object $graph_node
 	set result_map [java::new HashMap]
 	$result_map put "content" $resp_object
 	set response_list [create_response $result_map]

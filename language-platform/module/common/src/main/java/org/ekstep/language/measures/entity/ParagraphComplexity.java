@@ -8,6 +8,8 @@ public class ParagraphComplexity implements Serializable {
 
     private static final long serialVersionUID = -2895861316069551961L;
     private String text;
+    private int wordCount;
+    private int syllableCount;
 	private Double meanOrthoComplexity;
 	private Double totalOrthoComplexity;
 	private Double meanPhonicComplexity;
@@ -65,5 +67,21 @@ public class ParagraphComplexity implements Serializable {
 	public ComplexityMeasures measures() {
 	    return new ComplexityMeasures(meanOrthoComplexity, meanPhonicComplexity);
 	}
+
+    public int getWordCount() {
+        return wordCount;
+    }
+
+    public void setWordCount(int wordCount) {
+        this.wordCount = wordCount;
+    }
+
+    public int getSyllableCount() {
+        return syllableCount;
+    }
+
+    public void setSyllableCount(int syllableCount) {
+        this.syllableCount = syllableCount;
+    }
 
 }
