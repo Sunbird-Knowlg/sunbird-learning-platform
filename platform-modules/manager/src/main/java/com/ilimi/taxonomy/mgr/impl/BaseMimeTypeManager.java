@@ -191,6 +191,7 @@ public class BaseMimeTypeManager extends BaseManager {
             }
             downloadAppIcon(node, tempFolder);
         } catch (IOException e) {
+            e.printStackTrace();
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         }
         String filePath = tempFolder;
@@ -233,6 +234,7 @@ public class BaseMimeTypeManager extends BaseManager {
             }
 
         } catch (Exception e) {
+            e.printStackTrace();
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         } finally {
             deleteTemp(sourceFolder);

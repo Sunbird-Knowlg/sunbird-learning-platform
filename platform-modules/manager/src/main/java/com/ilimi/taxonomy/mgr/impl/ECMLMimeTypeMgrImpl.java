@@ -659,7 +659,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	@Override
 	public Response publish(Node node) {
 		Response response = new Response();
-		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name()).toString();
+		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
 		if (StringUtils.isNotBlank(artifactUrl)) {
 			response = rePublish(node);
 		} else {
