@@ -1348,11 +1348,11 @@
       "metadata": {
         "limit": 50,
         "status": ["Live"],
-        "ttl": 24,
-        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", 
-        "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage", 
-        "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn", 
-        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "author", "collaborators", 
+        "ttl": 0.08,
+        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon",
+        "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
+        "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
+        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "author", "collaborators",
         "illustrators", "translators", "voiceCredits", "portalOwner", "forkable", "translatable"]
       }
     }
