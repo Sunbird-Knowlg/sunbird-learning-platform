@@ -290,6 +290,7 @@ public class BaseMimeTypeManager extends BaseManager {
 
     protected Response rePublish(Node node) {
         Response response = new Response();
+        node = setNodeStatus(node, ContentAPIParams.Live.name());
         String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
         File ecarFile = HttpDownloadUtility
                 .downloadFile((String) node.getMetadata().get(ContentAPIParams.artifactUrl.name()), tempFolder);
