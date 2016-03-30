@@ -31,9 +31,6 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.dataformat.csv.CsvMapper;
-import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -1218,6 +1215,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		Response importResponse = OK();
 		List<Map<String,String>> records = readFromCSV(inputStream);
 		Map<Integer, String> errorMessageMap = new HashMap<Integer, String>();
+		Map<Integer, String> messageMap = new HashMap<Integer, String>();
 		int rowNo =0;
 		for(Map<String,String> csvRecord: records){
 			rowNo++;
@@ -1237,11 +1235,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			String category = csvRecord.get("category");
 			
 			if(lemma == null || lemma.isEmpty()){
-				addErrorMessage(rowNo, "lemma is mandatory", errorMessageMap);
+				addMessage(rowNo, "lemma is mandatory", errorMessageMap);
 				continue;
 			}
 			if(gloss == null || gloss.isEmpty()){
-				addErrorMessage(rowNo, "Gloss is mandatory", errorMessageMap);
+				addMessage(rowNo, "Gloss is mandatory", errorMessageMap);
 				continue;
 			}
 			
@@ -1261,11 +1259,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			synsetNode.setObjectType(LanguageParams.Synset.name());
 			Response synsetResponse = createOrUpdateNode(languageId, synsetNode);
 			if(checkError(synsetResponse)){
-				addErrorMessage(rowNo, getErrorMessage(synsetResponse), errorMessageMap);
+				addMessage(rowNo, getErrorMessage(synsetResponse), errorMessageMap);
 				continue;
 			}
 			else{
 				synsetId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+				addMessage(rowNo, "Synset Id: "+synsetId, messageMap);
 			}
 			
 			//create or update Word
@@ -1291,21 +1290,26 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			wordNode.setTags(tagList);
 			Response wordResponse = createOrUpdateNode(languageId, wordNode);
 			if(checkError(wordResponse)){
-				addErrorMessage(rowNo, getErrorMessage(wordResponse), errorMessageMap);
+				addMessage(rowNo, getErrorMessage(wordResponse), errorMessageMap);
 				continue;
 			}
 			else{
-				wordId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+				wordId = (String) wordResponse.get(GraphDACParams.node_id.name());
+				addMessage(rowNo, "Word Id: "+wordId, messageMap);
 			}
 			
 			Response relationResponse = createRelation(wordId, RelationTypes.SYNONYM.relationName(),languageId, synsetId);
 			if(checkError(relationResponse)){
-				addErrorMessage(rowNo, getErrorMessage(relationResponse), errorMessageMap);
+				addMessage(rowNo, getErrorMessage(relationResponse), errorMessageMap);
 			}
 		}
 		if(!errorMessageMap.isEmpty()){
 			importResponse.put(LanguageParams.errorMessages.name(), errorMessageMap);
 		}
+		if(!messageMap.isEmpty()){
+			importResponse.put(LanguageParams.messages.name(), messageMap);
+		}
+		
 		return importResponse;
 	}
 	
@@ -1328,7 +1332,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		return updateRes;
 	}
 
-	private void addErrorMessage(int rowNo, String error, Map<Integer, String> errorMessageMap) {
+	private void addMessage(int rowNo, String error, Map<Integer, String> errorMessageMap) {
 		String errorMessage = errorMessageMap.get(rowNo);
 		if(errorMessage == null){
 			errorMessage = error;
@@ -1385,16 +1389,33 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
 		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
-		CsvMapper mapper = new CsvMapper();
-		CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
-		MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class)
-		   .with(schema)
-		   .readValues(inputStream);
-		while (it.hasNext()) {
-		  Map<String,String> rowAsMap = it.next();
-		  records.add(rowAsMap);
-		}
-		return records;
+		 InputStreamReader isReader = new InputStreamReader(inputStream);
+	        CSVParser csvReader = new CSVParser(isReader, csvFileFormat);
+	        List<String[]> rows = new ArrayList<String[]>();
+	        List<String> headers = new ArrayList<String>();
+	        List<CSVRecord> recordsList = csvReader.getRecords();
+	        if (null != recordsList && !recordsList.isEmpty()) {
+	            for (int i = 0; i < recordsList.size(); i++) {
+	            	if(i == 0){
+	            		CSVRecord headerecord = recordsList.get(i);
+	            		 for (int j = 0; j < headerecord.size(); j++) {
+	 	                    String val = headerecord.get(j);
+	 	                   headers.add(val);
+	 	                }
+	            	}
+	            	else{
+	            		Map<String,String> csvRecord = new HashMap<String,String>();
+		                CSVRecord record = recordsList.get(i);
+		                for (int j = 0; j < record.size(); j++) {
+		                    String val = record.get(j);
+		                    csvRecord.put(headers.get(j), val);
+		                }
+		                records.add(csvRecord);
+	            	}
+	            }
+	        }
+	        isReader.close();
+	        csvReader.close();
+	        return records;
 	}
-	
 }
