@@ -274,7 +274,6 @@ public class BaseMimeTypeManager extends BaseManager {
         File directory = new File(sourceFolder);
         if (!directory.exists()) {
             System.out.println("Directory does not exist.");
-            System.exit(0);
         } else {
             try {
                 delete(directory);
