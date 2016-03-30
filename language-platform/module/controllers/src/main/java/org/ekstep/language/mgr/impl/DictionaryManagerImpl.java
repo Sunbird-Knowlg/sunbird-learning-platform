@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1214,49 +1215,137 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	@Override
 	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
+		Response importResponse = OK();
 		List<Map<String,String>> records = readFromCSV(inputStream);
 		Map<Integer, String> errorMessageMap = new HashMap<Integer, String>();
 		int rowNo =0;
 		for(Map<String,String> csvRecord: records){
 			rowNo++;
 			Map<String, Object> synsetMap = new HashMap<String, Object>();
+			Map<String, Object> wordMap = new HashMap<String, Object>();
 			String wordId = csvRecord.get("identifier");
 			String lemma = csvRecord.get("lemma");
 			String tags = csvRecord.get("tags");
 			String synsetId = csvRecord.get("synsetId");
 			String gloss = csvRecord.get("gloss");
 			String pos = csvRecord.get("pos");
-			boolean primaryMeaning = Boolean.getBoolean(csvRecord.get("primaryMeaning"));
+			String primaryMeaningString = csvRecord.get("primaryMeaning");
+			boolean primaryMeaning = false;
+			if(primaryMeaningString != null && !primaryMeaningString.isEmpty()){
+				primaryMeaning = Boolean.valueOf(primaryMeaningString);
+			}
 			String category = csvRecord.get("category");
 			
-			//create synsetMap
-			synsetMap.put("identifier", synsetId);
-			synsetMap.put("gloss", gloss);
-			synsetMap.put("category", category);
+			if(lemma == null || lemma.isEmpty()){
+				addErrorMessage(rowNo, "lemma is mandatory", errorMessageMap);
+				continue;
+			}
+			if(gloss == null || gloss.isEmpty()){
+				addErrorMessage(rowNo, "Gloss is mandatory", errorMessageMap);
+				continue;
+			}
 			
+			//create or update Synset
+			if(synsetId != null && !synsetId.isEmpty()){
+				synsetMap.put(LanguageParams.identifier.name(), synsetId);
+			}
+			synsetMap.put(LanguageParams.gloss.name(), gloss);
+			if(category != null && !category.isEmpty()){
+				synsetMap.put(LanguageParams.category.name(), category);
+			}
+			if(pos != null && !pos.isEmpty()){
+				synsetMap.put(LanguageParams.pos.name(), pos);
+			}
 			DefinitionDTO defintion = getDefintiion(languageId, LanguageParams.Synset.name());
 			Node synsetNode = convertToGraphNode(languageId, LanguageParams.Synset.name(), synsetMap, defintion);
 			synsetNode.setObjectType(LanguageParams.Synset.name());
-			Response synsetUpdateResponse = updateDataNode(languageId, synsetNode);
-			if(checkError(synsetUpdateResponse)){
-				String errorMessage = errorMessageMap.get(rowNo);
-				if(errorMessage == null){
-					errorMessage = "";
-				}
-				errorMessage = errorMessage + ". " + getErrorMessage(synsetUpdateResponse);
-				errorMessageMap.put(rowNo, errorMessage);
+			Response synsetResponse = createOrUpdateNode(languageId, synsetNode);
+			if(checkError(synsetResponse)){
+				addErrorMessage(rowNo, getErrorMessage(synsetResponse), errorMessageMap);
+				continue;
+			}
+			else{
+				synsetId = (String) synsetResponse.get(GraphDACParams.node_id.name());
 			}
 			
-			Response relationResponse = createRelation();
+			//create or update Word
+			if(wordId != null && !wordId.isEmpty()){
+				wordMap.put(LanguageParams.identifier.name(), wordId);
+			}
 			
+			wordMap.put(LanguageParams.lemma.name(), lemma);
+			if(primaryMeaning){
+				wordMap.put(LanguageParams.primaryMeaningId.name(), synsetId);
+			}
+			
+			List<String> tagList = new ArrayList<>();
+			
+			if(tags != null && !tags.isEmpty()){
+				String[] tagsArray = tags.split(",");
+				tagList = Arrays.asList(tagsArray);
+			}
+			
+			DefinitionDTO wordDefintion = getDefintiion(languageId, LanguageParams.Word.name());
+			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefintion);
+			wordNode.setObjectType(LanguageParams.Word.name());
+			wordNode.setTags(tagList);
+			Response wordResponse = createOrUpdateNode(languageId, wordNode);
+			if(checkError(wordResponse)){
+				addErrorMessage(rowNo, getErrorMessage(wordResponse), errorMessageMap);
+				continue;
+			}
+			else{
+				wordId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+			}
+			
+			Response relationResponse = createRelation(wordId, RelationTypes.SYNONYM.relationName(),languageId, synsetId);
+			if(checkError(relationResponse)){
+				addErrorMessage(rowNo, getErrorMessage(relationResponse), errorMessageMap);
+			}
 		}
-		return null;
+		if(!errorMessageMap.isEmpty()){
+			importResponse.put(LanguageParams.errorMessages.name(), errorMessageMap);
+		}
+		return importResponse;
 	}
 	
 	
-	private Response createRelation() {
-		// TODO Auto-generated method stub
-		return null;
+	private Response createOrUpdateNode(String languageId, Node node) {
+		Response wordReponse;
+		if(node.getIdentifier() == null){
+			wordReponse = createDataNode(languageId, node);
+		}
+		else{
+			wordReponse = updateDataNode(languageId, node);
+		}
+		return wordReponse;
+	}
+
+	private Response createDataNode(String languageId, Node synsetNode) {
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		updateReq.put(GraphDACParams.node.name(), synsetNode);
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
+	}
+
+	private void addErrorMessage(int rowNo, String error, Map<Integer, String> errorMessageMap) {
+		String errorMessage = errorMessageMap.get(rowNo);
+		if(errorMessage == null){
+			errorMessage = error;
+		}
+		else{
+			errorMessage = errorMessage + ". " + error;
+		}
+		errorMessageMap.put(rowNo, errorMessage);
+	}
+
+	private Response createRelation(String endNodeId, String relationType, String languageId, String startNodeId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), startNodeId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), endNodeId);
+		Response response = getResponse(request, LOGGER);
+		return response;
 	}
 
 	private Response updateDataNode(String languageId, Node synsetNode) {
@@ -1275,11 +1364,24 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		if (checkError(responseDefiniton)) {
 			throw new ServerException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), getErrorMessage(responseDefiniton));
 		}
-
 		DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 		return definition;
 
 	}
+
+	/*private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
+		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
+		CsvMapper mapper = new CsvMapper();
+		CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
+		MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class)
+		   .with(schema)
+		   .readValues(inputStream);
+		while (it.hasNext()) {
+		  Map<String,String> rowAsMap = it.next();
+		  records.add(rowAsMap);
+		}
+		return records;
+	}*/
 
 	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
 		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
@@ -1294,5 +1396,5 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 		return records;
 	}
-
+	
 }
