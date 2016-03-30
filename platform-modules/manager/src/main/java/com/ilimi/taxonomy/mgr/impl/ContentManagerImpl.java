@@ -15,7 +15,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
@@ -58,9 +57,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@Autowired
 	private ContentBundle contentBundle;
 
-	@Autowired
-	private IAssessmentManager assessmentMgr;
-	
 	@Autowired
 	private ContentMimeTypeFactory contentFactory;
 
@@ -362,18 +358,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						nodes.addAll(nodelist);
 				}
 			}
-			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-			if (ctnts.size() < contentIds.size()) {
-				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-						"One or more of the input content identifier are not found");
-			}
 			// Tune Each node for bundling as per mimetype
+			int i = 0;
 			for (Node node : nodes) {
 				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
 				if (StringUtils.isBlank(mimeType)) {
 					mimeType = "assets";
 				}
-				node = contentFactory.getImplForService(mimeType).tuneInputForBundling(node); 
+				nodes.set(i, contentFactory.getImplForService(mimeType).tuneInputForBundling(node));
+				i++;
+			}
+			
+			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
+			if (ctnts.size() < contentIds.size()) {
+				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+						"One or more of the input content identifier are not found");
 			}
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
 			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);

@@ -17,7 +17,6 @@ public class ContentMimeTypeFactory {
     public IMimeTypeManager getImplForService(String mimeType){
     	IMimeTypeManager manager = AssetsMimeTypeMgr;
     	switch (StringUtils.lowerCase(mimeType)) {
-			case "application/octet-stream":
 			case "application/vnd.ekstep.ecml-archive":
 				manager = ECMLMimeTypeMgr;
 				break;

@@ -51,10 +51,7 @@ public class CustomParser {
 	 * @return
 	 * */
 
-	public CustomParser() {
-	}
-
-	public CustomParser(File xmlFile) {
+	public void init(File xmlFile) {
 		DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 		DocumentBuilder dBuilder;
 		try {
@@ -67,6 +64,9 @@ public class CustomParser {
 					ContentErrorCodes.ERR_CONTENT_EXTRACT.name(),
 					e.getMessage());
 		}
+	}
+
+	public CustomParser() {
 	}
 
 	public static Map<String, List<String>> readECMLFile(String filePath) {
@@ -199,6 +199,23 @@ public class CustomParser {
 		}
 		return text;
 	}
+	
+	public static Map<String, Object> getJsonMap(String fileName) {
+		ObjectMapper mapper = new ObjectMapper();
+		Map<String, Object> map = new HashMap<String, Object>();
+		try {
+			File file = new File(fileName);
+			if (file.exists()) {
+				String json = readFile(file);
+				map = mapper.readValue(json, new TypeReference<Map<String, Object>>() {
+				});
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+		
+		return map;
+	}
 
 	/**
 	 * This Method Copy Data and Item Json into ecml as CDATA
@@ -313,16 +330,15 @@ public class CustomParser {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private static List<Map<String, Object>> updateJsonMedia(
-			Map<String, Object> jsonMap, Map<String, String> idSrcMap) {
+		Map<String, Object> jsonMap, Map<String, String> idSrcMap) {
 		List<Map<String, Object>> listOfMedia = new ArrayList<>();
 		List<Map<String, Object>> updatedListOfMedia = new ArrayList<>();
+		Map<String, Object> jsonThemeMap = new HashMap<String, Object>();
+		Map<String, Object> jsonManifestMap = new HashMap<String, Object>();
 		try {
-			Map<String, Object> jsonThemeMap = (Map<String, Object>) jsonMap
-					.get("theme");
-			Map<String, Object> jsonManifestMap = (Map<String, Object>) jsonThemeMap
-					.get("manifest");
-			listOfMedia = (List<Map<String, Object>>) jsonManifestMap
-					.get("media");
+			jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+			jsonManifestMap = (Map<String, Object>) jsonThemeMap.get("manifest");
+			listOfMedia = (List<Map<String, Object>>) jsonManifestMap.get("media");
 			Iterator medias = listOfMedia.iterator();
 			while (medias.hasNext()) {
 				Map<String, Object> media = (Map<String, Object>) medias.next();
@@ -333,10 +349,10 @@ public class CustomParser {
 				}
 			}
 			return updatedListOfMedia;
-		} catch (Exception e) {
-			e.printStackTrace();
+		} catch (Exception ex) {
+			ex.printStackTrace();
 		}
-		return null;
+		return updatedListOfMedia;
 	}
 	
 	public static File getZipFile(File ecarFileName,Node node) {
@@ -346,16 +362,133 @@ public class CustomParser {
 		List<File> files = (List<File>) FileUtils.listFiles(new File(filePath), extensions, true);
 		return files.get(0);
 	}
-	/*public static void main(String[] args) {
-		System.out.println("in");
+
+	@SuppressWarnings("unchecked")
+	public void updateJsonInIndexJSON(String filePath, List<String> listOfCtrlType) {
+		List<String> controllers = new ArrayList<String>();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> jsonThemeMap = new HashMap<String, Object>();
+		List<Map<String, Object>> lstJSONController = new ArrayList<Map<String, Object>>();
+		File file = new File(filePath);
+		ObjectMapper mapper = new ObjectMapper();
 		try {
-			File file =new  File("C:\\temp\\contentPublish_4_1456399412338.ecar");
-			getZipFile(file);
-			System.out.println("done");
+			String jsonString = readFile(new File(filePath));
+			jsonMap = mapper.readValue(jsonString,
+					new TypeReference<Map<String, Object>>() {
+					});
+			if (null != jsonMap) {
+				jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+				if (null != jsonThemeMap) {
+					lstJSONController = (List<Map<String, Object>>) jsonThemeMap.get("controller");
+					if (null != lstJSONController) {
+						for (String type: listOfCtrlType) {
+							for (Map<String, Object> jsonController: lstJSONController) {
+								if (StringUtils.equalsIgnoreCase(type, (String)jsonController.get("type"))) {
+									File jsonFile = new File(
+											file.getParent() + 
+											File.separator + 
+											type + 
+											File.separator + 
+											(String)jsonController.get("id") + 
+											".json");
+									if (jsonFile.exists()) {
+										if (isJSONValid(jsonFile)) {
+											controllers.add(readFile(jsonFile));
+										}
+									}
+								}
+							}
+						}
+						jsonThemeMap.put("controller", controllers);
+						String updatedJsonString = mapper.writeValueAsString(jsonMap);
+						if (StringUtils.isNoneBlank(updatedJsonString)) {
+							FileUtils.writeStringToFile(file, updatedJsonString);
+						}
+					}
+				}
+			}
+		} catch(Exception ex) {
+			ex.printStackTrace();
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static Map<String, List<String>> readJSONFile(String filePath) {
+		Map<String, List<String>> map = new HashMap<String, List<String>>();
+		ObjectMapper mapper = new ObjectMapper();
+		List<Map<String, Object>> listOfMedia = new ArrayList<>();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		Map<String, Object> jsonThemeMap = new HashMap<String, Object>();
+		Map<String, Object> jsonManifestMap = new HashMap<String, Object>();
+		try {
+			String jsonString = readFile(new File(filePath));
+			jsonMap = mapper.readValue(jsonString,
+					new TypeReference<Map<String, Object>>() {
+					});
+			if (null != jsonMap) {
+				jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+				if (null != jsonThemeMap) {
+					jsonManifestMap = (Map<String, Object>) jsonThemeMap.get("manifest");
+					if (null != jsonManifestMap) {
+						listOfMedia = (List<Map<String, Object>>) jsonManifestMap.get("media");
+						Iterator<Map<String, Object>> medias = listOfMedia.iterator();
+						while (medias.hasNext()) {
+							Map<String, Object> media = (Map<String, Object>) medias.next();
+							List<String> lst = new ArrayList<String>();
+							lst.add((String) media.get("src"));
+							lst.add((String) media.get("assetId"));
+							map.put((String) media.get("id"), lst);
+						}
+					}
+				}
+			}
+			return map;
+		} catch(Exception e) {
+			e.printStackTrace();
+			return map;
+		}
+	 }
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public void updateSrcInJSON(String filePath, Map<String, List<String>> mediaIdURL) {
+		List<Map<String, Object>> listOfMedia = new ArrayList<>();
+		List<Map<String, Object>> updatedListOfMedia = new ArrayList<>();
+		Map<String, Object> jsonMap = new HashMap<String, Object>();
+		try {
+			String jsonString = readFile(new File(filePath));
+			ObjectMapper mapper = new ObjectMapper();
+			jsonMap = mapper.readValue(jsonString, new TypeReference<Map<String, Object>>() {});
+			if (null != jsonMap) {
+				Map<String, Object> jsonThemeMap = (Map<String, Object>) jsonMap.get("theme");
+				if (null != jsonThemeMap) {
+					Map<String, Object> jsonManifestMap = (Map<String, Object>) jsonThemeMap.get("manifest");
+					if (null != jsonManifestMap) {
+						listOfMedia = (List<Map<String, Object>>) jsonManifestMap.get("media");
+						if (null != listOfMedia) {
+							Iterator medias = listOfMedia.iterator();
+							while (medias.hasNext()) {
+								Map<String, Object> media = (Map<String, Object>) medias.next();
+								String id = (String) media.get("id");
+								if (StringUtils.isNoneBlank(id)) {
+									media.put("id", id);
+									media.put("src", mediaIdURL.get(id).get(0));
+									media.put("assetId", mediaIdURL.get(id).get(1));
+									updatedListOfMedia.add(media);
+								}
+							}
+							jsonManifestMap.put("media", updatedListOfMedia);
+							String updatedJsonString = mapper.writeValueAsString(jsonMap);
+							if (StringUtils.isNoneBlank(updatedJsonString)) {
+								File file = new File(filePath);
+								FileUtils.writeStringToFile(file, updatedJsonString);
+							}
+						}
+					}
+				}
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
-	}*/
+	}
 
 }
