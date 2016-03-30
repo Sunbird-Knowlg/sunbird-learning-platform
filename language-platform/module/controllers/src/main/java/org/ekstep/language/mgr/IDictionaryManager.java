@@ -1,8 +1,10 @@
 package org.ekstep.language.mgr;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
@@ -30,4 +32,6 @@ public interface IDictionaryManager {
 	Response translation(String languageId, String[] words, String[] languages);
 
 	String findWordsCSV(String languageId, String objectType, InputStream is);
+
+	Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
 }

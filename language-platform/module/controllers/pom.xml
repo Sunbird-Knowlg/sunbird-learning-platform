@@ -74,6 +74,11 @@
 			<version>${spring.version}</version>
 			<scope>test</scope>
 		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-csv</artifactId>
+			<version>2.7.0</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>

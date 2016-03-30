@@ -197,6 +197,22 @@ public abstract class DictionaryController extends BaseLanguageController {
         }
     }
 
+	@RequestMapping(value = "/importWordSynset/{languageId}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> importWordSynset(@PathVariable(value = "languageId") String languageId,
+            @RequestParam("file") MultipartFile file,
+            @RequestHeader(value = "user-id") String userId) {
+        String objectType = getObjectType();
+        String apiId = objectType.toLowerCase() + ".importWordSynset";
+        try {
+        	Response response = dictionaryManager.importWordSynset(languageId, file.getInputStream());
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+	
+	
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> deleteRelation(@PathVariable(value = "languageId") String languageId,

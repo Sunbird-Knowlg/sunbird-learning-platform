@@ -1,6 +1,7 @@
 package org.ekstep.language.mgr.impl;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
@@ -28,6 +29,10 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -1206,5 +1211,88 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             }
         }
     }
+
+	@Override
+	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
+		List<Map<String,String>> records = readFromCSV(inputStream);
+		Map<Integer, String> errorMessageMap = new HashMap<Integer, String>();
+		int rowNo =0;
+		for(Map<String,String> csvRecord: records){
+			rowNo++;
+			Map<String, Object> synsetMap = new HashMap<String, Object>();
+			String wordId = csvRecord.get("identifier");
+			String lemma = csvRecord.get("lemma");
+			String tags = csvRecord.get("tags");
+			String synsetId = csvRecord.get("synsetId");
+			String gloss = csvRecord.get("gloss");
+			String pos = csvRecord.get("pos");
+			boolean primaryMeaning = Boolean.getBoolean(csvRecord.get("primaryMeaning"));
+			String category = csvRecord.get("category");
+			
+			//create synsetMap
+			synsetMap.put("identifier", synsetId);
+			synsetMap.put("gloss", gloss);
+			synsetMap.put("category", category);
+			
+			DefinitionDTO defintion = getDefintiion(languageId, LanguageParams.Synset.name());
+			Node synsetNode = convertToGraphNode(languageId, LanguageParams.Synset.name(), synsetMap, defintion);
+			synsetNode.setObjectType(LanguageParams.Synset.name());
+			Response synsetUpdateResponse = updateDataNode(languageId, synsetNode);
+			if(checkError(synsetUpdateResponse)){
+				String errorMessage = errorMessageMap.get(rowNo);
+				if(errorMessage == null){
+					errorMessage = "";
+				}
+				errorMessage = errorMessage + ". " + getErrorMessage(synsetUpdateResponse);
+				errorMessageMap.put(rowNo, errorMessage);
+			}
+			
+			Response relationResponse = createRelation();
+			
+		}
+		return null;
+	}
+	
+	
+	private Response createRelation() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	private Response updateDataNode(String languageId, Node synsetNode) {
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), synsetNode);
+		updateReq.put(GraphDACParams.node_id.name(), synsetNode.getIdentifier());
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
+		
+	}
+
+	private DefinitionDTO getDefintiion(String languageId, String objectType) {
+		Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+		if (checkError(responseDefiniton)) {
+			throw new ServerException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), getErrorMessage(responseDefiniton));
+		}
+
+		DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+		return definition;
+
+	}
+
+	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
+		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
+		CsvMapper mapper = new CsvMapper();
+		CsvSchema schema = CsvSchema.emptySchema().withHeader(); // use first row as header; otherwise defaults are fine
+		MappingIterator<Map<String,String>> it = mapper.readerFor(Map.class)
+		   .with(schema)
+		   .readValues(inputStream);
+		while (it.hasNext()) {
+		  Map<String,String> rowAsMap = it.next();
+		  records.add(rowAsMap);
+		}
+		return records;
+	}
 
 }
