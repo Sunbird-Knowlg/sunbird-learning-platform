@@ -274,7 +274,6 @@ public class BaseMimeTypeManager extends BaseManager {
         File directory = new File(sourceFolder);
         if (!directory.exists()) {
             System.out.println("Directory does not exist.");
-            System.exit(0);
         } else {
             try {
                 delete(directory);
@@ -292,8 +291,10 @@ public class BaseMimeTypeManager extends BaseManager {
         Response response = new Response();
         node = setNodeStatus(node, ContentAPIParams.Live.name());
         String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-        File ecarFile = HttpDownloadUtility
-                .downloadFile((String) node.getMetadata().get(ContentAPIParams.artifactUrl.name()), tempFolder);
+        File ecarFile = null;
+        String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
+        if (StringUtils.isNotBlank(artifactUrl))
+            ecarFile = HttpDownloadUtility.downloadFile(artifactUrl, tempFolder);
         try {
             if (null != ecarFile && ecarFile.exists() && ecarFile.isFile()) {
                 File newName = new File(ecarFile.getParent() + File.separator + System.currentTimeMillis() + "_"
