@@ -161,8 +161,20 @@ public class BaseMimeTypeManager extends BaseManager {
             file.delete();
         }
     }
+    
+    protected Node setNodeStatus(Node node, String status) {
+    	if (null != node && !StringUtils.isBlank(status)) {
+    		Map<String, Object> metadata  = node.getMetadata();
+    		if (null != metadata) {
+    			metadata.put(ContentAPIParams.status.name(), status);
+    			node.setMetadata(metadata);
+    		}
+    	}
+    	return node;
+    }
 
     protected Response compress(Node node) {
+    	node = setNodeStatus(node, ContentAPIParams.Live.name());
         String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
         String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
         Map<String, Object> metadata = new HashMap<String, Object>();
