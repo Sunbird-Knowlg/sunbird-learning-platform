@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -112,6 +113,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
 								.get(GraphDACParams.definition_node.name());
 						for (Map item : items) {
+							String lemma = (String) item.get(LanguageParams.lemma.name());
+							String language = LanguageMap.getLanguage(languageId).toUpperCase();
+							boolean isValid = isValidWord(lemma, language);
+							if (!isValid) {
+								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Lemma cannot be in a different language than " + language,
+										ResponseCode.CLIENT_ERROR);
+							}
 							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId);
 							createRes.setParams(wordResponse.getParams());
 							String errorMessage = (String) wordResponse.get(LanguageParams.error_messages.name());
@@ -140,6 +149,29 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
+	public boolean isValidWord(String word, String language){
+        boolean result = false;
+        switch(language){
+        case "HINDI":{
+        	language = Character.UnicodeBlock.DEVANAGARI.toString();
+        	break;
+        }
+        case "ENGLISH":{
+        	language = Character.UnicodeBlock.BASIC_LATIN.toString();
+        	break;
+        }
+        }
+	    UnicodeBlock wordBlock = UnicodeBlock.forName(language);
+	    for(int i=0; i<word.length(); i++){
+	        UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
+	        if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
+	            result = true;
+	            break;
+	        }
+	    }
+	    return result;
+	}
+	
 	@SuppressWarnings("unchecked")
 	private Response createOrUpdateWord(Map<String, Object> item, DefinitionDTO definition, String languageId,
 			boolean createFlag, List<String> nodeIdList) {
@@ -433,6 +465,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
 						objectType + " Object is blank");
 			item.put(LanguageParams.identifier.name(), id);
+			String lemma = (String) item.get(LanguageParams.lemma.name());
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+						"Lemma cannot be in a different language than " + language,
+						ResponseCode.CLIENT_ERROR);
+			}
 			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 					GraphDACParams.object_type.name(), objectType);
 			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
