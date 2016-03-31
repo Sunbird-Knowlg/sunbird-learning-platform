@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.lang.Character.UnicodeBlock;
+import java.nio.charset.CharsetEncoder;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -31,11 +33,13 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.google.common.base.Charsets;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -91,11 +95,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Response create(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+	public Response create(String languageId, String objectType, Request request) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
 		try {
 			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
 			List<Node> nodeList = new ArrayList<Node>();
@@ -107,16 +111,26 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
 							"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
 					Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-					if (!checkError(responseDefiniton)) {
-						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-								.get(GraphDACParams.definition_node.name());
-						for (Map item : items) {
-							Node node = convertToGraphNode(languageId, objectType, item, definition);
-							nodeList.add(node);
+					if (checkError(responseDefiniton)) {
+						return responseDefiniton;
+					}
+					DefinitionDTO definition = (DefinitionDTO) responseDefiniton
+							.get(GraphDACParams.definition_node.name());
+					for (Map item : items) {
+						String lemma = (String) item.get(LanguageParams.lemma.name());
+						String language = LanguageMap.getLanguage(languageId).toUpperCase();
+						boolean isValid = isValidWord(lemma, language);
+						if (!isValid) {
+							return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+									"Lemma cannot be in a different language than " + language,
+									ResponseCode.CLIENT_ERROR);
 						}
+						Node node = convertToGraphNode(languageId, objectType, item, definition);
+						nodeList.add(node);
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), e.getMessage());
 			}
 			Response createRes = new Response();
@@ -159,7 +173,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		} catch (ClassCastException e) {
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
-    }
+	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
@@ -180,9 +194,16 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
 			Node node = null;
 			if (checkError(responseDefiniton)) {
-				throw new ServerException(LanguageErrorCodes.ERR_UPDATE_WORD.name(),
-						getErrorMessage(responseDefiniton));
+				return responseDefiniton;
 			} else {
+				String lemma = (String) item.get(LanguageParams.lemma.name());
+				String language = LanguageMap.getLanguage(languageId).toUpperCase();
+				boolean isValid = isValidWord(lemma, language);
+				if (!isValid) {
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Lemma cannot be in a different language than " + language,
+							ResponseCode.CLIENT_ERROR);
+				}
 				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 				node = convertToGraphNode(languageId, objectType, item, definition);
 				node.setIdentifier(id);
@@ -198,6 +219,29 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
+	public boolean isValidWord(String word, String language){
+        boolean result = false;
+        switch(language){
+        case "HINDI":{
+        	language = Character.UnicodeBlock.DEVANAGARI.toString();
+        	break;
+        }
+        case "ENGLISH":{
+        	language = Character.UnicodeBlock.BASIC_LATIN.toString();
+        	break;
+        }
+        }
+	    UnicodeBlock wordBlock = UnicodeBlock.forName(language);
+	    for(int i=0; i<word.length(); i++){
+	        UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
+	        if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
+	            result = true;
+	            break;
+	        }
+	    }
+	    return result;
+	}
+	
     @Override
     public Response find(String languageId, String id, String[] fields) {
         if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -1238,6 +1282,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				addMessage(rowNo, "lemma is mandatory", errorMessageMap);
 				continue;
 			}
+			
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				addMessage(rowNo,
+						"Lemma cannot be in a different language than " + language, errorMessageMap);
+				continue;
+			}
+			
 			if(gloss == null || gloss.isEmpty()){
 				addMessage(rowNo, "Gloss is mandatory", errorMessageMap);
 				continue;
@@ -1315,14 +1368,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
 	
 	private Response createOrUpdateNode(String languageId, Node node) {
-		Response wordReponse;
+		Response reponse;
 		if(node.getIdentifier() == null){
-			wordReponse = createDataNode(languageId, node);
+			reponse = createDataNode(languageId, node);
 		}
 		else{
-			wordReponse = updateDataNode(languageId, node);
+			reponse = updateDataNode(languageId, node);
 		}
-		return wordReponse;
+		return reponse;
 	}
 
 	private Response createDataNode(String languageId, Node synsetNode) {
@@ -1389,7 +1442,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
 		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
-		 InputStreamReader isReader = new InputStreamReader(inputStream);
+		 InputStreamReader isReader = new InputStreamReader(inputStream, "UTF8");
 	        CSVParser csvReader = new CSVParser(isReader, csvFileFormat);
 	        List<String[]> rows = new ArrayList<String[]>();
 	        List<String> headers = new ArrayList<String>();
