@@ -29,6 +29,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -53,6 +54,7 @@ public class WordUtil extends BaseManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
+    private static final String LEMMA_PROPERTY = "lemma";
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
@@ -683,5 +685,45 @@ public class WordUtil extends BaseManager {
 		}
 		return errorMessageList;
 	}
+
+    @SuppressWarnings("unchecked")
+    public Node searchWord(String languageId, String objectType, String lemma) {
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        List<Filter> filters = new ArrayList<Filter>();
+        filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, lemma));
+        MetadataCriterion mc = MetadataCriterion.create(filters);
+        sc.addMetadata(mc);
+        sc.setResultSize(1);
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0)
+                return nodes.get(0);
+        }
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public String createWord(String languageId, String word, String objectType) {
+        Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put(LEMMA_PROPERTY, word);
+        node.setMetadata(metadata);
+        Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+        req.put(GraphDACParams.node.name(), node);
+        Response res = getResponse(req, LOGGER);
+        if (checkError(res)) {
+            throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), getErrorMessage(res));
+        }
+        String nodeId = (String) res.get(GraphDACParams.node_id.name());
+        return nodeId;
+    }
 
 }

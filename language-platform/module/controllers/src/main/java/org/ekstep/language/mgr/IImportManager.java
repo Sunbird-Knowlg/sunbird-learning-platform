@@ -8,4 +8,6 @@ public interface IImportManager {
     Response transformData(String languageId, String sourceId, InputStream file);
     
     Response importData(String languageId, InputStream synsetStream, InputStream wordStream);
+    
+    Response importJSON(String languageId, InputStream synsetsStreamInZIP);
 }
