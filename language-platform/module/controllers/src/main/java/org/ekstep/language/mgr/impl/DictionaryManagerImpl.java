@@ -370,6 +370,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			errorMessages.append("Lemma is mandatory");
 			return null;
 		} else {
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				errorMessages.append("Lemma cannot be in a different language than " + language);
+				return null;
+			}
 			String identifier = (String) word.get(LanguageParams.identifier.name());
 			Response wordResponse;
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
