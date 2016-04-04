@@ -640,7 +640,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return response;
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public Response list(String languageId, String objectType, Request request) {
         if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
@@ -666,15 +666,22 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         && !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())
                         && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
                     Object val = entry.getValue();
-                    List<String> list = getList(mapper, val, false);
-                    if (null != list && !list.isEmpty())
-                        filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
-                    else if (null != val && StringUtils.isNotBlank(val.toString())) {
-                        if (val instanceof String) {
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
-                        } else {
-                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                    List list = getList(mapper, val, false);
+                    if (null != list && !list.isEmpty()) {
+                        if (list.size() > 1)
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                        else {
+                            Object value = list.get(0);
+                            if (value instanceof String)
+                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, value.toString()));
+                            else
+                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, value));
                         }
+                    } else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                        if (val instanceof String)
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                        else
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
                     }
                 } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
                     Object val = entry.getValue();

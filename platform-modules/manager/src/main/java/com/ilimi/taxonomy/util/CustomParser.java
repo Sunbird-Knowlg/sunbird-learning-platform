@@ -435,8 +435,8 @@ public class CustomParser {
 						while (medias.hasNext()) {
 							Map<String, Object> media = (Map<String, Object>) medias.next();
 							List<String> lst = new ArrayList<String>();
-							if (!StringUtils.isBlank((String) media.get("src"))) lst.add((String) media.get("src"));
-							if (!StringUtils.isBlank((String) media.get("assetId"))) lst.add((String) media.get("assetId"));
+							lst.add((String) media.get("src"));
+							lst.add((String) media.get("assetId"));
 							map.put((String) media.get("id"), lst);
 						}
 					}

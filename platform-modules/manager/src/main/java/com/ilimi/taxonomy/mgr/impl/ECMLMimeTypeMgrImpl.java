@@ -15,6 +15,7 @@ import javax.activation.MimetypesFileTypeMap;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -153,7 +154,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 									String parentFolderName = olderName.getParent();
 									File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
 											+ olderName.getName());
-									olderName.renameTo(newName);
+									FileUtils.copyFile(olderName, newName);
 									String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
 									Node newItem = createNode(nodeExt, url[1], nodeExt.getIdentifier(), olderName);
 									List<String> values = new ArrayList<String>();
@@ -191,7 +192,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 								String parentFolderName = olderName.getParent();
 								File newName = new File(
 										parentFolderName + File.separator + timeStempInMiliSec + olderName.getName());
-								olderName.renameTo(newName);
+								FileUtils.copyFile(olderName, newName);
 								String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
 								Node item = createNode(new Node(), url[1], mediaId, olderName);
 								// Creating a graph.
@@ -233,12 +234,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 			response.put(ContentAPIParams.outRelations.name(), outRelations);
 		} catch (Exception ex) {
+		    ex.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
 		} finally {
 			File directory = new File(zipFileDir);
 			if (!directory.exists()) {
 				System.out.println("Directory does not exist.");
-				System.exit(0);
 			} else {
 				try {
 					delete(directory);
