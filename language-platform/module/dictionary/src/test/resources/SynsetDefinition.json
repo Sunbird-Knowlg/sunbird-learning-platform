@@ -37,6 +37,7 @@
             "dataType": "Select",
             "range":
             [
+            	"Default",
                 "Person",
                 "Place",
                 "Thing",

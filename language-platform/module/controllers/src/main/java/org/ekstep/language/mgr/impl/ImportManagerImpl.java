@@ -136,8 +136,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				Map<String, Object> metadata =new HashMap<>();
     				metadata.put("gloss", synsetJSON.get("gloss"));
     				metadata.put("glossInEnglish", synsetJSON.get("gloss_eng"));
-    				metadata.put("exampleSentences", synsetJSON.get("example_stmt"));
+    				metadata.put("exampleSentences", Arrays.asList(synsetJSON.get("example_stmt")));
     				metadata.put("pos", synsetJSON.get("pos"));
+    				metadata.put("category", "Default");
     				synsetNode.setMetadata(metadata);
     				
     				String synsetNodeId=createNode(synsetNode,Enums.ObjectType.Synset.name(),languageId);
@@ -146,7 +147,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     					continue;
     				
     				List<String> words=getWordList(synsetJSON.get("synonyms"));
-    				words.add(word);
+    				if(!words.contains(word)){
+    					words.add(word);
+    				}
     				
     				for(String sWord:words){
     					if (StringUtils.isNotBlank(sWord)){
@@ -158,7 +161,10 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         					}else{
         						nodeId=node.getIdentifier();
         					}
-        					manager.addRelation(languageId, Enums.ObjectType.Synset.name(), synsetNodeId, RelationTypes.SYNONYM.name(), nodeId);
+        					Response relationResponse = manager.addRelation(languageId, Enums.ObjectType.Synset.name(), synsetNodeId, RelationTypes.SYNONYM.relationName(), nodeId);
+        					if(checkError(relationResponse)){
+        						return relationResponse;
+        					}
     					}
     				}
                 }
@@ -172,7 +178,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			File zipFileDirectory = new File(tempFileDwn);
 			if (!zipFileDirectory.exists()) {
 				System.out.println("Directory does not exist.");
-				System.exit(0);
+				//System.exit(0);
 			} else {
 				try {
 					delete(zipFileDirectory);
