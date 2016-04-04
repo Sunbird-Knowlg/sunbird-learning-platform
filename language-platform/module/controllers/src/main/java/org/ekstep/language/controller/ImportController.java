@@ -57,14 +57,6 @@ public class ImportController extends BaseLanguageController {
 			}
 			Response response =importManager.importJSON(languageId, synsetsStreamInZIP);
 			LOGGER.info("Import | Response: " + response);
-			String csv = (String) response.getResult().get("wordList");
-			if (StringUtils.isNotBlank(csv)) {
-				resp.setCharacterEncoding(StandardCharsets.UTF_8.name());
-				resp.setContentType("text/csv;charset=utf-8");
-				resp.setHeader("Content-Disposition", "attachment; filename=WordList.csv");
-				resp.getOutputStream().write(csv.getBytes(StandardCharsets.UTF_8));
-				resp.getOutputStream().close();
-			}
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			e.printStackTrace();

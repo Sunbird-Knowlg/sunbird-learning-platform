@@ -50,5 +50,5 @@ public enum LanguageErrorCodes {
     
     ERR_INVALID_UPLOAD_FILE, 
     
-    ERR_INVALID_OPERATION;
+    ERR_INVALID_OPERATION, ERR_CREATE_UPDATE_SYNSET;
 }

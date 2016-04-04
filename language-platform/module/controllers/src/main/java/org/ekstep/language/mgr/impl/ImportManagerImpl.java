@@ -49,6 +49,7 @@ import org.springframework.stereotype.Component;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -99,6 +100,8 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         
         String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
         UnzipUtility unzipper = new UnzipUtility();
+        StringBuffer errorMessages = new StringBuffer();
+        Response importResponse = OK();
 		try {
 			unzipper.unzip(synsetsStreamInZIPStream, tempFileDwn);
 			File zipFileDirectory = new File(tempFileDwn);
@@ -141,10 +144,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				metadata.put("category", "Default");
     				synsetNode.setMetadata(metadata);
     				
-    				String synsetNodeId=createNode(synsetNode,Enums.ObjectType.Synset.name(),languageId);
+    				String synsetNodeId=updateNode(synsetNode,Enums.ObjectType.Synset.name(),languageId);
     				
-    				if(StringUtils.isEmpty(synsetNodeId))
+    				if(StringUtils.isEmpty(synsetNodeId)){
+    					errorMessages.append(", ").append("Synset create/Update failed: "+ identifier);
     					continue;
+    				}
+    					//return ERROR(LanguageErrorCodes.ERR_CREATE_UPDATE_SYNSET.name(), "Synset create/Update failed", ResponseCode.SERVER_ERROR);
     				
     				List<String> words=getWordList(synsetJSON.get("synonyms"));
     				if(!words.contains(word)){
@@ -163,22 +169,19 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         					}
         					Response relationResponse = manager.addRelation(languageId, Enums.ObjectType.Synset.name(), synsetNodeId, RelationTypes.SYNONYM.relationName(), nodeId);
         					if(checkError(relationResponse)){
-        						return relationResponse;
+        						errorMessages.append(", ").append("Synset relation creation failed: "+ identifier + " word id: "+nodeId);
+        						continue;
         					}
     					}
     				}
                 }
             }
-            wordsCSVSep=wordList.toString();
-            return OK("wordList", wordsCSVSep);
-            
 		}catch (Exception ex) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
+			errorMessages.append(", ").append(ex.getMessage());
 		} finally {
 			File zipFileDirectory = new File(tempFileDwn);
 			if (!zipFileDirectory.exists()) {
 				System.out.println("Directory does not exist.");
-				//System.exit(0);
 			} else {
 				try {
 					delete(zipFileDirectory);
@@ -187,6 +190,13 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				}
 			}
 		}
+		String errorMessageString = errorMessages.toString();
+		if(!errorMessageString.isEmpty()){
+			errorMessageString = errorMessageString.substring(2);
+			importResponse = ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "Internal Error", ResponseCode.SERVER_ERROR);
+			importResponse.put("errorMessage", errorMessageString);
+		}
+		return importResponse;
 	}
 	
 	public void delete(File file) throws IOException {
@@ -238,6 +248,32 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 		return lstNodeId;
 	}
+	
+	public String updateNode(Node node, String objectType, String languageId){
+		node.setObjectType(objectType);
+		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		validateReq.put(GraphDACParams.node.name(), node);
+		String lstNodeId=StringUtils.EMPTY;
+		Response validateRes = getResponse(validateReq, LOGGER);
+		if (!checkError(validateRes)) {
+			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			createReq.put(GraphDACParams.node.name(), node);
+			createReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Response res = getResponse(createReq, LOGGER);
+			if (!checkError(res)) {
+				Map<String, Object> result = res.getResult();
+				if (result != null) {
+					String nodeId = (String) result.get("node_id");
+					if (nodeId != null) {
+						lstNodeId=nodeId;
+					}
+				}
+			}
+			
+		}
+		return lstNodeId;
+	}
+	
 	@Override
 	public Response transformData(String languageId, String sourceId, InputStream stream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
