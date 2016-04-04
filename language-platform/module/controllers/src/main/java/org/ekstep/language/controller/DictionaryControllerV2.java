@@ -66,7 +66,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
     @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> createWordV2(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".save";
@@ -94,7 +94,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> updateWordV2(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
@@ -140,7 +140,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".info";
 		try {
-			Response response = dictionaryManager.find(languageId, objectId, fields);
+			Response response = dictionaryManager.findV2(languageId, objectId, fields);
 			LOGGER.info("Find | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -158,7 +158,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".list";
 		try {
-			Response response = dictionaryManager.findAll(languageId, objectType, fields, limit);
+			Response response = dictionaryManager.findAllV2(languageId, objectType, fields, limit);
 			LOGGER.info("Find All | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
