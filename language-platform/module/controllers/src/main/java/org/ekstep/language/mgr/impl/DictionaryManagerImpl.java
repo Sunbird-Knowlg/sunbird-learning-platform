@@ -91,7 +91,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Response create(String languageId, String objectType, Request request) {
+	public Response createWordV2(String languageId, String objectType, Request request) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
@@ -458,7 +458,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
-	public Response update(String languageId, String id, String objectType, Request request) {
+	public Response updateWordV2(String languageId, String id, String objectType, Request request) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
@@ -1718,6 +1718,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			node.setMetadata(metadata);
 		}
 		return node;
+	}
+
+	@Override
+	public Response create(String languageId, String objectType, Request request) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Response update(String languageId, String id, String objectType, Request request) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

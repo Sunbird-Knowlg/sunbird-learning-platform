@@ -34,7 +34,7 @@ import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
-public abstract class DictionaryController extends BaseLanguageController {
+public abstract class DictionaryControllerV2 extends BaseLanguageController {
 
 	@Autowired
 	private IDictionaryManager dictionaryManager;
@@ -42,7 +42,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@Autowired
 	private IAuditLogManager auditLogManager;
 
-	private static Logger LOGGER = LogManager.getLogger(DictionaryController.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV2.class.getName());
 
 	@RequestMapping(value = "/media/upload", method = RequestMethod.POST)
 	@ResponseBody
@@ -66,13 +66,13 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
     @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
-	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> createWordV2(@PathVariable(value = "languageId") String languageId,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".save";
 		Request request = getRequest(map);
 		try {
-			Response response = dictionaryManager.create(languageId, objectType, request);
+			Response response = dictionaryManager.createWordV2(languageId, objectType, request);
 			LOGGER.info("Create | Response: " + response);
 			if (!checkError(response)) {
 			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
@@ -94,14 +94,14 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
-	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
+	public ResponseEntity<Response> updateWordV2(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".update";
 		Request request = getRequest(map);
 		try {
-			Response response = dictionaryManager.update(languageId, objectId, objectType, request);
+			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
