@@ -34,4 +34,8 @@ public interface IDictionaryManager {
 	Response createWordV2(String languageId, String objectType, Request request);
 	
 	Response updateWordV2(String languageId, String id, String objectType, Request request);
+
+	Response findV2(String languageId, String id, String[] fields);
+
+	Response findAllV2(String languageId, String objectType, String[] fields, Integer limit);
 }

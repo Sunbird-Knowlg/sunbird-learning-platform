@@ -541,7 +541,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	}
 
 	@Override
-	public Response find(String languageId, String id, String[] fields) {
+	public Response findV2(String languageId, String id, String[] fields) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
@@ -655,7 +655,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public Response findAll(String languageId, String objectType, String[] fields, Integer limit) {
+	public Response findAllV2(String languageId, String objectType, String[] fields, Integer limit) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
@@ -1720,16 +1720,173 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		return node;
 	}
 
-	@Override
-	public Response create(String languageId, String objectType, Request request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	 @SuppressWarnings({ "unchecked", "rawtypes" })
+	    @Override
+	    public Response create(String languageId, String objectType, Request request) {
+	        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+	        if (StringUtils.isBlank(objectType))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+			try {
+				List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
+				List<Node> nodeList = new ArrayList<Node>();
+				if (null == items || items.size() <= 0)
+					throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
+							objectType + " Object is blank");
+				try {
+					if (null != items && !items.isEmpty()) {
+						Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
+								"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
+						Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+						if (!checkError(responseDefiniton)) {
+							DefinitionDTO definition = (DefinitionDTO) responseDefiniton
+									.get(GraphDACParams.definition_node.name());
+							for (Map item : items) {
+								Node node = convertToGraphNode(languageId, objectType, item, definition);
+								nodeList.add(node);
+							}
+						}
+					}
+				} catch (Exception e) {
+					throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), e.getMessage());
+				}
+				Response createRes = new Response();
+				Response errResponse = null;
+				List<String> lstNodeId = new ArrayList<String>();
+				for (Node node : nodeList) {
+					node.setObjectType(objectType);
+					Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+					validateReq.put(GraphDACParams.node.name(), node);
+					Response validateRes = getResponse(validateReq, LOGGER);
+					if (checkError(validateRes)) {
+						return validateRes;
+					} else {
+						Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+						createReq.put(GraphDACParams.node.name(), node);
+						Response res = getResponse(createReq, LOGGER);
+						if (checkError(res)) {
+							errResponse = res;
+						} else {
+							Map<String, Object> result = res.getResult();
+							if (result != null) {
+								String nodeId = (String) result.get("node_id");
+								if (nodeId != null) {
+									lstNodeId.add(nodeId);
+								}
+							}
+						}
+						createRes = res;
+					}
+				}
+				if (null == errResponse) {
+					createRes.getResult().remove(GraphDACParams.node_id.name());
+					createRes.put(GraphDACParams.node_id.name(), lstNodeId);
+					return createRes;
+				} else {
+					errResponse.getResult().remove(GraphDACParams.node_id.name());
+					errResponse.put(GraphDACParams.node_id.name(), lstNodeId);
+					return errResponse;
+				}
+			} catch (ClassCastException e) {
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
+			}
+	    }
 
-	@Override
-	public Response update(String languageId, String id, String objectType, Request request) {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		@SuppressWarnings({ "unchecked" })
+		@Override
+		public Response update(String languageId, String id, String objectType, Request request) {
+			if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+			if (StringUtils.isBlank(id))
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+			if (StringUtils.isBlank(objectType))
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+			try {
+				Map<String, Object> item = (Map<String, Object>) request.get(objectType.toLowerCase().trim());
+				if (null == item)
+					throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
+							objectType + " Object is blank");
+				Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+						GraphDACParams.object_type.name(), objectType);
+				Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+				Node node = null;
+				if (checkError(responseDefiniton)) {
+					throw new ServerException(LanguageErrorCodes.ERR_UPDATE_WORD.name(),
+							getErrorMessage(responseDefiniton));
+				} else {
+					DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+					node = convertToGraphNode(languageId, objectType, item, definition);
+					node.setIdentifier(id);
+					node.setObjectType(objectType);
+				}
+				Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+				updateReq.put(GraphDACParams.node.name(), node);
+				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+				Response updateRes = getResponse(updateReq, LOGGER);
+				return updateRes;
+			} catch (ClassCastException e) {
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
+			}
+		}
+
+	    @Override
+	    public Response find(String languageId, String id, String[] fields) {
+	        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+	        if (StringUtils.isBlank(id))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+	        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+	                GraphDACParams.node_id.name(), id);
+	        request.put(GraphDACParams.get_tags.name(), true);
+	        Response getNodeRes = getResponse(request, LOGGER);
+	        if (checkError(getNodeRes)) {
+	            return getNodeRes;
+	        } else {
+	            Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+	            Map<String, Object> map = convertGraphNode(node, languageId, "Word", fields, true);
+	            Response response = copyResponse(getNodeRes);
+	            response.put(LanguageObjectTypes.Word.name(), map);
+	            return response;
+	        }
+	    }
+
+	    @SuppressWarnings("unchecked")
+	    @Override
+	    public Response findAll(String languageId, String objectType, String[] fields, Integer limit) {
+	        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+	        if (StringUtils.isBlank(objectType))
+	            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");
+	        LOGGER.info("Find All Content : " + languageId + ", ObjectType: " + objectType);
+	        SearchCriteria sc = new SearchCriteria();
+	        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+	        sc.setObjectType(objectType);
+	        sc.sort(new Sort(PARAM_STATUS, Sort.SORT_ASC));
+	        if (null != limit && limit.intValue() > 0)
+	            sc.setResultSize(limit);
+	        else
+	            sc.setResultSize(DEFAULT_LIMIT);
+	        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+	                GraphDACParams.search_criteria.name(), sc);
+	        request.put(GraphDACParams.get_tags.name(), true);
+	        Response findRes = getResponse(request, LOGGER);
+	        if (checkError(findRes))
+	            return findRes;
+	        else {
+	            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+	            List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+	            if (null != nodes && !nodes.isEmpty()) {
+	                for (Node node : nodes) {
+	                    Map<String, Object> map = convertGraphNode(node, languageId, objectType, fields, false);
+	                    if (null != map && !map.isEmpty()) {
+	                        list.add(map);
+	                    }
+	                }
+	            }
+	            Response response = copyResponse(findRes);
+	            response.put("words", list);
+	            return response;
+	        }
+	    }
 
 }
