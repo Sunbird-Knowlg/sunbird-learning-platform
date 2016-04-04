@@ -240,7 +240,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			File directory = new File(zipFileDir);
 			if (!directory.exists()) {
 				System.out.println("Directory does not exist.");
-				System.exit(0);
 			} else {
 				try {
 					delete(directory);

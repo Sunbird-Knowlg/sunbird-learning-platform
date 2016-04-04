@@ -21,6 +21,7 @@ import io.searchbox.indices.settings.GetSettings;
 import java.io.IOException;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,6 +78,16 @@ public class ElasticSearchUtil {
 		port = PropertiesUtil.getProperty("elastic-search-port");
 	}
 
+	public List<String> getQuerySearchFields(){
+		String querySearchFieldsProperty = PropertiesUtil.getProperty("query-search-fields");
+		List<String> querySearchFields = new ArrayList<String>();
+		if(querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()){
+			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
+			querySearchFields = Arrays.asList(querySearchFieldsArray);
+		}
+		return querySearchFields;
+	}
+	
 	@SuppressWarnings("unused")
 	private JestClient createClient() {
 		return client;

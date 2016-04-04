@@ -211,7 +211,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		.key("nodeGraphId").value(1).key("nodeUniqueId").value("hi_1").key("objectType")
 		.value("Word").key("nodeType").value(CompositeSearchConstants.NODE_TYPE_DATA)
 		.key("transactionData").object().key("addedProperties").object()
-		.key("lemma").value("இடையேயான கருத்து").endObject()
+		.key("lemma").value("இடையேயான கருத்து").key("status").value("Live").endObject()
 		.key("removedProperties").array().value("sourceTypes").endArray().key("addedTags").array()
 		.value("grade one").endArray().key("removedTags").array().value("grade three").endArray().endObject()
 		.endObject();

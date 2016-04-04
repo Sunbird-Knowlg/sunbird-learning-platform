@@ -1,6 +1,5 @@
 package org.ekstep.compositesearch.mgr.impl;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -55,20 +54,20 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		try {
 			List<Object> lstResult = processor.processSearch(getSearchDTO(request));
 			return getCompositeSearchResponse(lstResult);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
 		}
 	}
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private SearchDTO getSearchDTO(Request request) {
+	private SearchDTO getSearchDTO(Request request) throws Exception {
 		Map<String, Object> req = request.getRequest();
 		String queryString = (String) req.get(CompositeSearchParams.query.name());
 		int limit = 1000;
-		if (StringUtils.isBlank(queryString))
+/*		if (StringUtils.isBlank(queryString))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
-					"Query String is blank.");
+					"Query String is blank.");*/
 		if (null != req.get(CompositeSearchParams.limit.name())) {
 			limit = (int) req.get(CompositeSearchParams.limit.name());
 		}
@@ -86,36 +85,74 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		if (null == fields || fields.size() <= 0) {
-			Map<String, Object> property = new HashMap<String, Object>();
-			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-			property.put(CompositeSearchParams.propertyName.name(), "*");
-			property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
-			properties.add(property);
-		} else {
-			for (String field: fields) {
+		if(queryString != null && !queryString.isEmpty()){
+			if (null == fields || fields.size() <= 0) {
 				Map<String, Object> property = new HashMap<String, Object>();
 				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-				property.put(CompositeSearchParams.propertyName.name(), field);
+				property.put(CompositeSearchParams.propertyName.name(), "*");
 				property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
 				properties.add(property);
+			} else {
+				for (String field: fields) {
+					Map<String, Object> property = new HashMap<String, Object>();
+					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+					property.put(CompositeSearchParams.propertyName.name(), field);
+					property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
+					properties.add(property);
+				}
 			}
 		}
-		
 		return properties;
 	}
 	
-	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) {
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		boolean objTypeFilter = false;
 		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) { 
 			for (Entry<String, Object> entry: filters.entrySet()) {
-				Map<String, Object> property = new HashMap<String, Object>();
-				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-				property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-				property.put(CompositeSearchParams.values.name(), entry.getValue());
-				properties.add(property);
+				Object filterObject = entry.getValue();
+				if(filterObject instanceof Map){
+					Map<String, Object> filterMap = (Map<String, Object>) filterObject;
+					for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
+						Map<String, Object> property = new HashMap<String, Object>();
+						property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
+						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+						switch(filterEntry.getKey()){
+							case "startsWith":{
+								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+								break;
+							}
+							case "endsWith":{
+								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
+								break;
+							}
+							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
+							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
+							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
+							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
+								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
+								break;
+							}
+							case "value":{
+								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+								break;
+							}
+							default:{
+								throw new Exception("Unsupported operation");
+							}
+						}
+						properties.add(property);
+					}
+				}
+				else{
+					Map<String, Object> property = new HashMap<String, Object>();
+					property.put(CompositeSearchParams.values.name(), entry.getValue());
+					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+					properties.add(property);
+				}
 				if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey()))
 				    objTypeFilter = true;
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
