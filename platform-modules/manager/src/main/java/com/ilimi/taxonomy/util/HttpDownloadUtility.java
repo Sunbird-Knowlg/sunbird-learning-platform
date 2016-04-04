@@ -74,6 +74,7 @@ public class HttpDownloadUtility {
                 System.out.println("No file to download. Server replied HTTP code: " + responseCode);
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("HttpDownloadUtility error: " + e.getMessage());
         } finally {
             if (null != httpConn)
