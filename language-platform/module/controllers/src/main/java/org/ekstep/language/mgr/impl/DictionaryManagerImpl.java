@@ -394,7 +394,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     }
     
     @SuppressWarnings("unchecked")
-    private Node searchWord(String languageId, String objectType, String lemma) {
+    public Node searchWord(String languageId, String objectType, String lemma) {
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
         sc.setObjectType(objectType);
