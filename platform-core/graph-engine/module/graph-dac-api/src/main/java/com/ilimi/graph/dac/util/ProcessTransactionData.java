@@ -15,8 +15,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
+
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class ProcessTransactionData {
@@ -166,9 +166,6 @@ public class ProcessTransactionData {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> assignedNodeProp = data.assignedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				LOGGER.debug("Key : " + pe.key());
-				LOGGER.debug("New Value : " + pe.value());
-				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				map.put((String) pe.key(), pe.value());
 			}
 		}
@@ -194,8 +191,6 @@ public class ProcessTransactionData {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> removedNodeProp = data.removedNodeProperties();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: removedNodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				LOGGER.debug("Key : " + pe.key());
-				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				map.put((String) pe.key(), pe.previouslyCommitedValue());
 			}
 		}
@@ -222,9 +217,6 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (StringUtils.equalsIgnoreCase(GraphDACParams.status.name(), (CharSequence) pe.key()) && 
 					StringUtils.equalsIgnoreCase(GraphDACParams.RETIRED.name(), (CharSequence) pe.value())) {
-				LOGGER.debug("Key : " + pe.key());
-				LOGGER.debug("New Value : " + pe.value());
-				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}
@@ -239,9 +231,6 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: assignedNodeProp) {
 			if (!lstCreatedNodeIds.contains(pe.entity().getId()) &&
 					!lstDeletedNodeIds.contains(pe.entity().getId())) {
-				LOGGER.debug("Key : " + pe.key());
-				LOGGER.debug("New Value : " + pe.value());
-				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}
@@ -249,9 +238,6 @@ public class ProcessTransactionData {
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: removedNodeProp) {
 			if (!lstCreatedNodeIds.contains(pe.entity().getId()) &&
 					!lstDeletedNodeIds.contains(pe.entity().getId())) {
-				LOGGER.debug("Key : " + pe.key());
-				LOGGER.debug("New Value : " + pe.value());
-				LOGGER.debug("Old Value : " + pe.previouslyCommitedValue());
 				lstNodeIds.add(pe.entity().getId());
 			}
 		}

@@ -91,8 +91,12 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
         sc.setObjectType(objectType);
         List<Filter> filters = new ArrayList<Filter>();
-        filters.add(new Filter("lemma", SearchConditions.OP_IN, words));
+        if (null != words && !words.isEmpty()) {
+            for (String word : words)
+                filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, word));
+        }
         MetadataCriterion mc = MetadataCriterion.create(filters);
+        mc.setOp(SearchConditions.LOGICAL_OR);
         sc.addMetadata(mc);
         Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);

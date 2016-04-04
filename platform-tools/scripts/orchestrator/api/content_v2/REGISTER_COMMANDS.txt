@@ -8,3 +8,5 @@ node registerScript.js api/content_v2/searchContent.tcl api/content_v2/json/regi
 
 node registerScript.js api/content_v2/updateContent.tcl api/content_v2/json/register-updateContent.json register
 
+node registerScript.js api/content_v2/retireContent.tcl api/content_v2/json/register-retireContent.json register
+
