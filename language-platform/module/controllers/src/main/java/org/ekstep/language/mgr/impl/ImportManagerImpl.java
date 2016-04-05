@@ -190,6 +190,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 				}
 			}
 		}
+		
 		String errorMessageString = errorMessages.toString();
 		if(!errorMessageString.isEmpty()){
 			errorMessageString = errorMessageString.substring(2);
