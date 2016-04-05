@@ -20,11 +20,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
@@ -688,26 +690,21 @@ public class WordUtil extends BaseManager {
 
     @SuppressWarnings("unchecked")
     public Node searchWord(String languageId, String objectType, String lemma) {
-        SearchCriteria sc = new SearchCriteria();
-        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-        sc.setObjectType(objectType);
-        List<Filter> filters = new ArrayList<Filter>();
-        filters.add(new Filter("lemma", SearchConditions.OP_EQUAL, lemma));
-        MetadataCriterion mc = MetadataCriterion.create(filters);
-        sc.addMetadata(mc);
-        sc.setResultSize(1);
-        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-                GraphDACParams.search_criteria.name(), sc);
-        request.put(GraphDACParams.get_tags.name(), true);
-        Response findRes = getResponse(request, LOGGER);
-        if (checkError(findRes))
-            return null;
-        else {
-            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-            if (null != nodes && nodes.size() > 0)
-                return nodes.get(0);
-        }
-        return null;
+	    Property property = new Property(LanguageParams.lemma.name(),lemma);
+	    Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");        
+	    request.put(GraphDACParams.metadata.name(), property);
+	    request.put(GraphDACParams.get_tags.name(), true);
+    
+	    Response findRes = getResponse(request, LOGGER);
+	    if (checkError(findRes))
+	        return null;
+	    else {
+	        List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+	        if (null != nodes && nodes.size() > 0)
+	            return nodes.get(0);
+	    }
+
+	    return null;
     }
     
     @SuppressWarnings("unchecked")

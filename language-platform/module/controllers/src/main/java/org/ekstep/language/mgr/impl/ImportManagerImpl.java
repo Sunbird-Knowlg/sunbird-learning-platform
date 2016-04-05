@@ -105,8 +105,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		try {
 			unzipper.unzip(synsetsStreamInZIPStream, tempFileDwn);
 			File zipFileDirectory = new File(tempFileDwn);
-			List<String> wordList=new ArrayList<String>();
-			String wordsCSVSep="";
+			List<String> wordList=new ArrayList<String>();			
 			String files[] = zipFileDirectory.list();
             for (String temp : files) {
                 // construct the file structure
@@ -122,7 +121,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                 // Keys : Note- Change the key name if there is change in JSON File structure
                 final String KEY_NAME_IDENTIFIER = "sid";
                 final String KEY_NAME_GLOSS = "gloss";
-                final String KEY_NAME_GLOSS_ENG = "gloss_eng";                
+                final String KEY_NAME_GLOSS_ENG = "gloss_eng";
+                final String KEY_NAME_EXAM_STMT="example_stmt";
+                final String KEY_NAME_POS="pos";
                 
                 List<Map<String, Object>> jsonObj = mapper.readValue(jsonContent, new TypeReference<List<Map<String, Object>>>() {});
                 List<SynsetModel> synsetList=new ArrayList<SynsetModel>();
@@ -137,10 +138,10 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				synsetNode.setObjectType(Enums.ObjectType.Synset.name());
     				
     				Map<String, Object> metadata =new HashMap<>();
-    				metadata.put("gloss", synsetJSON.get("gloss"));
-    				metadata.put("glossInEnglish", synsetJSON.get("gloss_eng"));
-    				metadata.put("exampleSentences", Arrays.asList(synsetJSON.get("example_stmt")));
-    				metadata.put("pos", synsetJSON.get("pos"));
+    				metadata.put("gloss", synsetJSON.get(KEY_NAME_GLOSS));
+    				metadata.put("glossInEnglish", synsetJSON.get(KEY_NAME_GLOSS_ENG));
+    				metadata.put("exampleSentences", Arrays.asList(synsetJSON.get(KEY_NAME_EXAM_STMT)));
+    				metadata.put("pos", synsetJSON.get(KEY_NAME_POS));
     				metadata.put("category", "Default");
     				synsetNode.setMetadata(metadata);
     				
@@ -150,8 +151,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     					errorMessages.append(", ").append("Synset create/Update failed: "+ identifier);
     					continue;
     				}
-    					//return ERROR(LanguageErrorCodes.ERR_CREATE_UPDATE_SYNSET.name(), "Synset create/Update failed", ResponseCode.SERVER_ERROR);
-    				
+
     				List<String> words=getWordList(synsetJSON.get("synonyms"));
     				if(!words.contains(word)){
     					words.add(word);
@@ -224,30 +224,6 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
             file.delete();
         }
     }
-	
-	public String createNode(Node node, String objectType, String languageId){
-		node.setObjectType(objectType);
-		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-		validateReq.put(GraphDACParams.node.name(), node);
-		String lstNodeId=StringUtils.EMPTY;
-		Response validateRes = getResponse(validateReq, LOGGER);
-		if (!checkError(validateRes)) {
-			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-			createReq.put(GraphDACParams.node.name(), node);
-			Response res = getResponse(createReq, LOGGER);
-			if (!checkError(res)) {
-				Map<String, Object> result = res.getResult();
-				if (result != null) {
-					String nodeId = (String) result.get("node_id");
-					if (nodeId != null) {
-						lstNodeId=nodeId;
-					}
-				}
-			}
-			
-		}
-		return lstNodeId;
-	}
 	
 	public String updateNode(Node node, String objectType, String languageId){
 		node.setObjectType(objectType);
