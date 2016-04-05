@@ -689,7 +689,7 @@ public class WordUtil extends BaseManager {
 	}
 
     @SuppressWarnings("unchecked")
-    public Node searchWord(String languageId, String objectType, String lemma) {
+    public Node searchWord(String languageId, String lemma) {
 	    Property property = new Property(LanguageParams.lemma.name(),lemma);
 	    Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");        
 	    request.put(GraphDACParams.metadata.name(), property);

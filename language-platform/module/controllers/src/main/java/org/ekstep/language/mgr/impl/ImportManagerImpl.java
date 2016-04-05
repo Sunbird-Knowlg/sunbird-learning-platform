@@ -160,7 +160,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				for(String sWord:words){
     					if (StringUtils.isNotBlank(sWord)){
         					WordUtil wordUtil=new WordUtil();
-        					Node node=wordUtil.searchWord(languageId,Enums.ObjectType.Word.name(),sWord);
+        					Node node=wordUtil.searchWord(languageId,sWord);
         					String nodeId;
         					if (null == node) {
         						nodeId=wordUtil.createWord(languageId, sWord, Enums.ObjectType.Word.name());
