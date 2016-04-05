@@ -2,6 +2,7 @@ package org.ekstep.language.mgr;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -29,7 +30,7 @@ public interface IDictionaryManager {
 	
 	Response translation(String languageId, String[] words, String[] languages);
 
-	String findWordsCSV(String languageId, String objectType, InputStream is);
+	void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);
 
 	Response createWordV2(String languageId, String objectType, Request request);
 	

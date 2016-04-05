@@ -1,9 +1,11 @@
 package org.ekstep.language.mgr.impl;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.StringWriter;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -261,7 +263,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private CSVFormat csvFileFormat = CSVFormat.DEFAULT;
     private static final String NEW_LINE_SEPARATOR = "\n";
     
-    public String findWordsCSV(String languageId, String objectType, InputStream is) {
+    public void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out) {
         try {
             List<String[]> rows = getCSVRecords(is);
             List<String> words = new ArrayList<String>();
@@ -291,9 +293,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     }
                 }
             }
-            String csv = getCSV(nodes);
-            return csv;
+            getCSV(nodes, out);
         } catch (Exception e) {
+            e.printStackTrace();
             throw new MiddlewareException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), e.getMessage(), e);
         }
     }
@@ -329,7 +331,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             nodes.add(rowMap);
     }
     
-    private String getCSV(List<Map<String, Object>> nodes) throws Exception {
+    private void getCSV(List<Map<String, Object>> nodes, OutputStream out) throws Exception {
         List<String[]> allRows = new ArrayList<String[]>();
         List<String> headers = new ArrayList<String>();
         headers.add("identifier");
@@ -353,13 +355,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             allRows.add(row);
         }
         CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
-        StringWriter sWriter = new StringWriter();
-        CSVPrinter writer = new CSVPrinter(sWriter, csvFileFormat);
+        BufferedWriter bWriter = new BufferedWriter(new OutputStreamWriter(out));
+        CSVPrinter writer = new CSVPrinter(bWriter, csvFileFormat);
         writer.printRecords(allRows);
-        String csv = sWriter.toString();
-        sWriter.close();
+        bWriter.close();
         writer.close();
-        return csv;
     }
     
     @SuppressWarnings("rawtypes")
