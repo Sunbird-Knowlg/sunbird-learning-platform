@@ -29,6 +29,8 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.language.util.WordUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -65,6 +67,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
     private static final String LEMMA_PROPERTY = "lemma";
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
+    
+    @Autowired
+    private WordUtil wordUtil;
 
     static {
         DEFAULT_STATUS.add("Live");
@@ -151,11 +156,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 			if (null == errResponse) {
 				createRes.getResult().remove(GraphDACParams.node_id.name());
-				createRes.put(GraphDACParams.node_id.name(), lstNodeId);
+				createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
 				return createRes;
 			} else {
 				errResponse.getResult().remove(GraphDACParams.node_id.name());
-				errResponse.put(GraphDACParams.node_id.name(), lstNodeId);
+				errResponse.put(GraphDACParams.node_ids.name(), lstNodeId);
 				return errResponse;
 			}
 		} catch (ClassCastException e) {
@@ -1301,7 +1306,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
 		try {
-			Response createRes = new Response();
+			Response createRes = OK();
 			List<String> lstNodeId = new ArrayList<String>();
 			StringBuffer errorMessages = new StringBuffer();
 			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
@@ -1326,7 +1331,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 										ResponseCode.CLIENT_ERROR);
 							}
 							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId);
-							createRes.setParams(wordResponse.getParams());
 							String errorMessage = (String) wordResponse.get(LanguageParams.error_messages.name());
 							if (errorMessage != null && !errorMessage.isEmpty()) {
 								errorMessages.append(errorMessage);
@@ -1341,7 +1345,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			} catch (Exception e) {
 				errorMessages.append(e.getMessage());
 			}
-			createRes.getResult().remove(GraphDACParams.node_id.name());
 			createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
 			String errorMessagesString = errorMessages.toString();
 			if(!errorMessagesString.isEmpty()){
@@ -1438,6 +1441,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (checkError(synsetResponse)) {
 				return synsetResponse;
 			}
+			
 			String primaryMeaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
 			addSynsetRelation(synonymWordIds, RelationTypes.SYNONYM.relationName(), languageId, primaryMeaningId,
 					errorMessages);
@@ -1454,11 +1458,27 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 			// update wordMap with primary synset data
 			item.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
-			String category = (String) primaryMeaning.get(LanguageParams.category.name());
-			if (category != null) {
-				item.put(LanguageParams.category.name(), category);
+			
+			//get Synset data
+			Node synsetNode = wordUtil.getDataNode(languageId, primaryMeaningId);
+			if(synsetNode != null){
+				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
+				String category = (String) synsetMetadata.get(LanguageParams.category.name());
+				if (category != null) {
+					item.put(LanguageParams.category.name(), category);
+				}
+				
+				List<String> tags = synsetNode.getTags();
+				if (tags != null) {
+					List<String> wordTags = (List<String>) item.get(LanguageParams.tags.name());
+					if(wordTags == null){
+						wordTags =  new ArrayList<String>();
+					}
+					wordTags.addAll(tags);
+					item.put(LanguageParams.tags.name(), wordTags);
+				}
 			}
-
+			
 			// create or update Other meaning Synsets
 			List<String> otherMeaningIds = new ArrayList<String>();
 			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) item
@@ -1479,10 +1499,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			item.remove(LanguageParams.otherMeanings.name());
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
+			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
+			if(wordIdentifier == null && createFlag){
+				Node existingWordNode = wordUtil.searchWord(languageId, (String) item.get(LanguageParams.lemma.name()));
+				if(existingWordNode != null){
+					wordIdentifier = existingWordNode.getIdentifier();
+					item.put(LanguageParams.identifier.name(), wordIdentifier);
+					createFlag = false;
+				}
+			}
 			if (createFlag) {
 				createRes = createWord(node, languageId);
 			} else {
-				String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
 				createRes = updateWord(node, languageId, wordIdentifier);
 			}
 			if (!checkError(createRes)) {
@@ -1494,7 +1522,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					addSynonymRelation(languageId, wordId, otherMeaningId);
 				}
 			} else {
-				errorMessages.append(getErrorMessage(createRes));
+				errorMessages.append(wordUtil.getErrorMessage(createRes));
 			}
 		} catch (Exception e) {
 			errorMessages.append(e.getMessage());
@@ -1581,6 +1609,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				return null;
 			}
 			String identifier = (String) word.get(LanguageParams.identifier.name());
+			if(identifier == null){
+				Node existingWordNode = wordUtil.searchWord(languageId, lemma);
+				if(existingWordNode != null){
+					identifier = existingWordNode.getIdentifier();
+					word.put(LanguageParams.identifier.name(), identifier);
+				}
+			}
 			Response wordResponse;
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
 			wordNode.setObjectType(LanguageParams.Word.name());
@@ -1590,7 +1625,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				wordResponse = updateWord(wordNode, languageId, identifier);
 			}
 			if (checkError(wordResponse)) {
-				errorMessages.append(getErrorMessage(wordResponse));
+				errorMessages.append(wordUtil.getErrorMessage(wordResponse));
 				return null;
 			}
 			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
@@ -1801,7 +1836,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 								updateWordMap);
 						if (checkError(updateResponse)) {
 							throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-									getErrorMessage(updateResponse));
+									wordUtil.getErrorMessage(updateResponse));
 						}
 					} catch (Exception e) {
 						e.printStackTrace();

@@ -1,6 +1,7 @@
 package org.ekstep.language.controller;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -91,7 +92,6 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
@@ -104,8 +104,8 @@ public abstract class DictionaryController extends BaseLanguageController {
 			Response response = dictionaryManager.update(languageId, objectId, objectType, request);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
-				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
-			    asyncUpdate(nodeIds, languageId);
+				String nodeId = (String) response.get(GraphDACParams.node_id.name());
+			    asyncUpdate(nodeId, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
@@ -117,6 +117,10 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		}
+	}
+	
+	private void asyncUpdate(String nodeId, String languageId) {
+		asyncUpdate(Arrays.asList(nodeId), languageId);
 	}
 	
 	private void asyncUpdate(List<String> nodeIds, String languageId) {

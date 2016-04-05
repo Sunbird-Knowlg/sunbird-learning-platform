@@ -629,6 +629,45 @@ public class Graph extends AbstractDomainObject {
             }
         }
     }
+    
+    public void getNodesByProperty(Request req) {
+        try {
+            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+            Request request = new Request(req);
+            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+            request.setOperation("getNodesByProperty");
+            request.copyRequestValueObjects(req.getRequest());
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            response.onComplete(new OnComplete<Object>() {
+                @Override
+                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                    boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(), "Failed to get nodes");
+                    if (valid) {
+                        Response res = (Response) arg1;
+                        List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+                        if (null != nodes && !nodes.isEmpty()) {
+                            List<Node> nodeList = new ArrayList<Node>();
+                            for (Node node : nodes) {
+                                if (null != node && StringUtils.isNotBlank(node.getNodeType()) && StringUtils
+                                        .equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+                                    nodeList.add(node);
+                                }
+                            }
+                            manager.OK(GraphDACParams.node_list.name(), nodeList, getParent());
+                        } else {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                    "Failed to get data nodes", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                        }
+                    }
+                }
+            }, manager.getContext().dispatcher());
+        
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
+        }
+    }
 
     public void getDataNode(Request req) {
         try {
