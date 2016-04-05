@@ -108,6 +108,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			List<String> wordList=new ArrayList<String>();			
 			String files[] = zipFileDirectory.list();
             for (String temp : files) {
+				long startTimeJSON = System.currentTimeMillis();
                 // construct the file structure
                 File jsonFile = new File(zipFileDirectory, temp);
                 FileInputStream jsonFIS=new FileInputStream(jsonFile);
@@ -125,9 +126,9 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                 final String KEY_NAME_EXAM_STMT="example_stmt";
                 final String KEY_NAME_POS="pos";
                 
-                List<Map<String, Object>> jsonObj = mapper.readValue(jsonContent, new TypeReference<List<Map<String, Object>>>() {});
-                List<SynsetModel> synsetList=new ArrayList<SynsetModel>();
+                List<Map<String, Object>> jsonObj = mapper.readValue(jsonContent, new TypeReference<List<Map<String, Object>>>() {});                
 				DictionaryManagerImpl manager=new DictionaryManagerImpl();
+				Map<String, String> nodeIDcache=new HashMap<>();
                 for(Map<String, Object> synsetJSON:jsonObj){
                 	
                 	String identifier=languageId + ':' + "S:" + synsetJSON.get(KEY_NAME_IDENTIFIER);
@@ -145,8 +146,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				metadata.put("category", "Default");
     				synsetNode.setMetadata(metadata);
     				
+    				long startTimeUpdateNode = System.currentTimeMillis();
     				String synsetNodeId=updateNode(synsetNode,Enums.ObjectType.Synset.name(),languageId);
     				
+    				long stopTimeUpdateNode = System.currentTimeMillis();
+    			    long elapsedTimeUpdateNode = stopTimeUpdateNode - startTimeUpdateNode;
+    				
+    			    //System.out.println(word+" updateSynsetNode time taken"+elapsedTimeUpdateNode);
+    			    
     				if(StringUtils.isEmpty(synsetNodeId)){
     					errorMessages.append(", ").append("Synset create/Update failed: "+ identifier);
     					continue;
@@ -159,22 +166,44 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				
     				for(String sWord:words){
     					if (StringUtils.isNotBlank(sWord)){
-        					WordUtil wordUtil=new WordUtil();
-        					Node node=wordUtil.searchWord(languageId,sWord);
         					String nodeId;
-        					if (null == node) {
-        						nodeId=wordUtil.createWord(languageId, sWord, Enums.ObjectType.Word.name());
-        					}else{
-        						nodeId=node.getIdentifier();
+    						WordUtil wordUtil=new WordUtil();
+        					//check word is already present in cahce, if not do search&create step
+    						if(nodeIDcache.get(sWord)==null){
+    		    				long startTimeSearchWord = System.currentTimeMillis();
+            					Node node=wordUtil.searchWord(languageId,sWord);
+            					
+                				long startTimeCreateWord = System.currentTimeMillis();
+            					if (null == node) {
+            						nodeId=wordUtil.createWord(languageId, sWord, Enums.ObjectType.Word.name());
+                    				long stopTimeCreateWord = System.currentTimeMillis();
+                    				//System.out.println(sWord+" create- time taken"+(stopTimeCreateWord-startTimeCreateWord));
+            					}else{
+            						nodeId=node.getIdentifier();
+            					}
+            					//System.out.println(sWord+" search- time taken"+(startTimeCreateWord-startTimeSearchWord));
+            					nodeIDcache.put(sWord, nodeId);
         					}
+        					else{
+        						//System.out.println(sWord+" is already cached");
+        						nodeId=nodeIDcache.get(sWord);
+        					}
+ 
+            				long startTimeRelationAdd = System.currentTimeMillis();    	    			    
         					Response relationResponse = manager.addRelation(languageId, Enums.ObjectType.Synset.name(), synsetNodeId, RelationTypes.SYNONYM.relationName(), nodeId);
         					if(checkError(relationResponse)){
         						errorMessages.append(", ").append("Synset relation creation failed: "+ identifier + " word id: "+nodeId);
+                				long stopTimeRelationAdd = System.currentTimeMillis();
+           	    			    //System.out.println(word+" addRElation(failed) time taken"+(stopTimeRelationAdd-startTimeRelationAdd));
         						continue;
         					}
+            				long stopTimeRelationAdd = System.currentTimeMillis();
+       	    			    //System.out.println(word+" addRElation time taken"+(stopTimeRelationAdd-startTimeRelationAdd));
     					}
     				}
                 }
+				long stopTimeJSON = System.currentTimeMillis();
+				System.out.println(word+" JSON File time taken"+(stopTimeJSON-startTimeJSON));
             }
 		}catch (Exception ex) {
 			errorMessages.append(", ").append(ex.getMessage());
