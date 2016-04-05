@@ -62,24 +62,31 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SearchDTO getSearchDTO(Request request) throws Exception {
-		Map<String, Object> req = request.getRequest();
-		String queryString = (String) req.get(CompositeSearchParams.query.name());
-		int limit = 1000;
-/*		if (StringUtils.isBlank(queryString))
-			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
-					"Query String is blank.");*/
-		if (null != req.get(CompositeSearchParams.limit.name())) {
-			limit = (int) req.get(CompositeSearchParams.limit.name());
-		}
 		SearchDTO searchObj = new SearchDTO();
-		List<Map> properties = new ArrayList<Map>();
-		List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
-		Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-		properties.addAll(getSearchQueryProperties(queryString, fields));
-		properties.addAll(getSearchFilterProperties(filters));
-		searchObj.setProperties(properties);
-		searchObj.setLimit(limit);
-		searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+		try {
+			Map<String, Object> req = request.getRequest();
+			String queryString = (String) req.get(CompositeSearchParams.query.name());
+			int limit = 1000;
+			
+	/*		if (StringUtils.isBlank(queryString))
+				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
+						"Query String is blank.");
+	*/
+			if (null != req.get(CompositeSearchParams.limit.name())) {
+				limit = (int) req.get(CompositeSearchParams.limit.name());
+			}
+			List<Map> properties = new ArrayList<Map>();
+			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
+			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
+			properties.addAll(getSearchQueryProperties(queryString, fields));
+			properties.addAll(getSearchFilterProperties(filters));
+			searchObj.setProperties(properties);
+			searchObj.setLimit(limit);
+			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+		} catch(ClassCastException e) {
+			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
+					"Invalid Input.");
+		}
 		return searchObj;
 	}
 	
