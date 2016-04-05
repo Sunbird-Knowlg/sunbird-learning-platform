@@ -117,7 +117,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                 String word=fileName.substring(0, fileName.indexOf(".json"));
                 wordList.add(word);
                 String jsonContent=IOUtils.toString(isReader);
-                System.out.println("fileName="+fileName+",word="+word+",jsoncontent-->\n"+jsonContent);
+                System.out.println("fileName="+fileName+",word="+word);
                 
                 // Keys : Note- Change the key name if there is change in JSON File structure
                 final String KEY_NAME_IDENTIFIER = "sid";
@@ -125,6 +125,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                 final String KEY_NAME_GLOSS_ENG = "gloss_eng";
                 final String KEY_NAME_EXAM_STMT="example_stmt";
                 final String KEY_NAME_POS="pos";
+                final String KEY_NAME_TRANSLATIONS="translations";
                 
                 List<Map<String, Object>> jsonObj = mapper.readValue(jsonContent, new TypeReference<List<Map<String, Object>>>() {});                
 				DictionaryManagerImpl manager=new DictionaryManagerImpl();
@@ -143,7 +144,8 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     				metadata.put("glossInEnglish", synsetJSON.get(KEY_NAME_GLOSS_ENG));
     				metadata.put("exampleSentences", Arrays.asList(synsetJSON.get(KEY_NAME_EXAM_STMT)));
     				metadata.put("pos", synsetJSON.get(KEY_NAME_POS));
-    				metadata.put("category", "Default");
+    				//metadata.put("category", "Default");
+    				metadata.put("translations", synsetJSON.get(KEY_NAME_TRANSLATIONS));
     				synsetNode.setMetadata(metadata);
     				
     				long startTimeUpdateNode = System.currentTimeMillis();
