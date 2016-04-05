@@ -174,15 +174,11 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
         String objectType = getObjectType();
         String apiId = objectType.toLowerCase() + ".findWordsCSV";
         try {
-            String csv = dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream());
-            LOGGER.info("Find CSV | Response: " + csv);
-            if (StringUtils.isNotBlank(csv)) {
-                byte[] bytes = csv.getBytes();
-                response.setContentType("text/csv");
-                response.setHeader("Content-Disposition", "attachment; filename=words.csv");
-                response.getOutputStream().write(bytes);
-                response.getOutputStream().close();
-            }
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=words.csv");
+            dictionaryManager.findWordsCSV(languageId, objectType, file.getInputStream(), response.getOutputStream());
+            LOGGER.info("Find CSV | Response");
+            response.getOutputStream().close();
             Response resp = new Response();
             return getResponseEntity(resp, apiId, null);
         } catch (Exception e) {
