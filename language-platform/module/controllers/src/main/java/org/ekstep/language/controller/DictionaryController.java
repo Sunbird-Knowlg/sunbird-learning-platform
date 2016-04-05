@@ -17,6 +17,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -118,26 +119,6 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 	
-	private void asyncUpdate(String nodeId, String languageId) {
-	    if (StringUtils.isNotBlank(nodeId)) {
-	        List<String> nodeIds = new ArrayList<String>();
-	        nodeIds.add(nodeId);
-	        asyncUpdate(nodeIds, languageId);
-	    }
-	}
-	
-	private void asyncUpdate(List<String> nodeIds, String languageId) {
-	    Map<String, Object> map = new HashMap<String, Object>();
-        map = new HashMap<String, Object>();
-        map.put(LanguageParams.node_ids.name(), nodeIds);
-        Request request = new Request();
-        request.setRequest(map);
-        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
-        request.setOperation(LanguageOperations.enrichWords.name());
-        request.getContext().put(LanguageParams.language_id.name(), languageId);
-        makeAsyncRequest(request, LOGGER);
-	}
-
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "languageId") String languageId,
@@ -173,6 +154,26 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 	
+	private void asyncUpdate(List<String> nodeIds, String languageId) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.node_ids.name(), nodeIds);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+        request.setOperation(LanguageOperations.enrichWords.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        makeAsyncRequest(request, LOGGER);
+	}
+	
+	private void asyncUpdate(String nodeId, String languageId) {
+	    if (StringUtils.isNotBlank(nodeId)) {
+	        List<String> nodeIds = new ArrayList<String>();
+	        nodeIds.add(nodeId);
+	        asyncUpdate(nodeIds, languageId);
+	    }
+	}
+	
 	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
@@ -193,13 +194,13 @@ public abstract class DictionaryController extends BaseLanguageController {
         }
     }
 
-	@RequestMapping(value = "/importWordSynset/{languageId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/importWords/{languageId}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> importWordSynset(@PathVariable(value = "languageId") String languageId,
             @RequestParam("file") MultipartFile file,
             @RequestHeader(value = "user-id") String userId) {
         String objectType = getObjectType();
-        String apiId = objectType.toLowerCase() + ".importWordSynset";
+        String apiId = objectType.toLowerCase() + ".importWords";
         try {
         	Response response = dictionaryManager.importWordSynset(languageId, file.getInputStream());
             return getResponseEntity(response, apiId, null);

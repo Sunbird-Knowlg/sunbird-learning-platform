@@ -20,14 +20,18 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -49,6 +53,7 @@ import com.ilimi.graph.model.node.RelationDefinition;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
+@Component
 public class WordUtil extends BaseManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
@@ -683,5 +688,41 @@ public class WordUtil extends BaseManager {
 		}
 		return errorMessageList;
 	}
+	
+	@SuppressWarnings("unchecked")
+    public Node searchWord(String languageId, String lemma) {
+	    Property property = new Property(LanguageParams.lemma.name(),lemma);
+	    Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");        
+	    request.put(GraphDACParams.metadata.name(), property);
+	    request.put(GraphDACParams.get_tags.name(), true);
+	    Response findRes = getResponse(request, LOGGER);
+	    if (checkError(findRes))
+	        return null;
+	    else {
+	        List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+	        if (null != nodes && nodes.size() > 0)
+	            return nodes.get(0);
+	    }
+	    return null;
+    }
 
+	
+	@SuppressWarnings("unchecked")
+	public String getErrorMessage(Response response) {
+		String errorMessage = "";
+        ResponseParams params = response.getParams();
+        if (null != params) {
+        	errorMessage =  errorMessage + ": " + params.getErrmsg();
+        }
+        List<String> messages = (List<String>) response.get("messages");
+        if(messages != null){
+        	for(String message: messages){
+        		errorMessage = errorMessage + ": " + message;
+        	}
+        }
+        if(!errorMessage.isEmpty()){
+        	return errorMessage.substring(2);
+        }
+        return null;
+    }
 }
