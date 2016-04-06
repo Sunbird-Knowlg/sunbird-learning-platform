@@ -1046,7 +1046,7 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-          "indexed": false
+          "indexed": true
         },
         {
           "required": false,

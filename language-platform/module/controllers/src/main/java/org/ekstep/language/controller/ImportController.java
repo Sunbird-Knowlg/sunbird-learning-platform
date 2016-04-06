@@ -43,6 +43,28 @@ public class ImportController extends BaseLanguageController {
 	
     private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
+	@RequestMapping(value = "/{languageId:.+}/importJSON", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importJSON(@PathVariable(value = "languageId") String languageId,
+			@RequestParam("zipFile") MultipartFile zipFile, @RequestHeader(value = "user-id") String userId,
+			HttpServletResponse resp) {
+		String apiId = "language.fixAssociation";
+		LOGGER.info("Import | Language Id: " + languageId +" Synset File: " + zipFile + "| user-id: " + userId);
+		try {
+			InputStream synsetsStreamInZIP = null;
+			if (null != zipFile || null != zipFile) {
+				synsetsStreamInZIP = zipFile.getInputStream();
+			}
+			Response response =importManager.importJSON(languageId, synsetsStreamInZIP);
+			LOGGER.info("Import | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			e.printStackTrace();
+			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
     @RequestMapping(value = "/{languageId:.+}/transform/{sourceId:.+}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> transformData(@PathVariable(value = "languageId") String languageId,

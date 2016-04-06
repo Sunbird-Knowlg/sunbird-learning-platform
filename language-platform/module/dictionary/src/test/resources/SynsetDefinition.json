@@ -37,7 +37,6 @@
             "dataType": "Select",
             "range":
             [
-            	"Default",
                 "Person",
                 "Place",
                 "Thing",
@@ -50,7 +49,7 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Live",
+            "defaultValue": "",
             "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
@@ -104,6 +103,19 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'teaxtarea',  'order': 7 }"
+        },
+        {
+            "required": false,
+            "dataType": "JSON",
+            "propertyName": "translations",
+            "title": "Translations",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 8 }",
+            "indexed": true,
+            "draft": false
         },
         {
           "propertyName": "gender",
