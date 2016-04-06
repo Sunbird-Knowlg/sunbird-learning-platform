@@ -37,6 +37,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -318,6 +319,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                             first = false;
                             if (null != node.getMetadata().get("variants"))
                                 map.put("variants", node.getMetadata().get("variants"));
+                        }
+                        if (null != metadata.get("translations")) {
+                            String translations = (String) metadata.get("translations");
+                            Object obj = JSONUtils.convertJSONString(translations);
+                            if (null != obj)
+                                map.put("translations", obj);
+                            else
+                                map.put("translations", translations);
                         }
                     }
                     nodes.add(map);
