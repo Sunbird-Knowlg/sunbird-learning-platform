@@ -1,0 +1,23 @@
+{
+    "name": "updateWordsStatus_v2",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "graph_id",
+          "index": 0,
+          "routingParam": true
+        },{
+        "name":"word_status",
+        "index": 1,
+        "routingParam": false
+    }
+    ],
+    "requestPath": {
+        "type": "PATCH",
+        "url": "/v2/*/words/status/*",
+        "pathParams": [
+          "graph_id","word_status"
+        ]
+    },
+    "body": ""
+}

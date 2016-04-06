@@ -1,0 +1,19 @@
+{
+    "name": "createVarnaIPA",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name": "varnaIPA",
+        "index": 1,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/language/dictionary/VarnaIPA/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

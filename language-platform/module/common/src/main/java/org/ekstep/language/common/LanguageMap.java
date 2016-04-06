@@ -14,6 +14,7 @@ import org.ekstep.language.util.PropertiesUtil;
 public class LanguageMap {
 
 	private static Map<String, String> languageMap = new HashMap<String, String>();
+	private static Map<String, String> languageGraphMap = new HashMap<String, String>();
 	private static Properties prop = new Properties();
 	private static InputStream input = null;
 	private static Logger LOGGER = LogManager.getLogger(PropertiesUtil.class.getName());
@@ -31,6 +32,7 @@ public class LanguageMap {
 				String key = (String) k;
 				String value = (String) getProperty(key);
 				languageMap.put(key, value);
+				languageGraphMap.put(value, key);
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -47,5 +49,9 @@ public class LanguageMap {
 
 	public static String getLanguage(String languageId) {
 		return languageMap.get(languageId);
+	}
+	
+	public static String getLanguageGraph(String language) {
+		return languageGraphMap.get(language);
 	}
 }

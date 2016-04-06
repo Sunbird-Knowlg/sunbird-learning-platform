@@ -19,3 +19,15 @@ node registerScript.js api/update-synset.tcl api/json/register-update-synset.jso
 node registerScript.js api/search-synset.tcl api/json/register-search-synset.json update
 
 node registerScript.js api/get-synset.tcl api/json/register-get-synset.json update
+
+node registerScript.js api/create-varna.tcl api/json/register-create-varna.json update
+
+node registerScript.js api/update-varna.tcl api/json/register-update-varna.json update
+
+node registerScript.js api/get-varna.tcl api/json/register-get-varna.json update
+
+node registerScript.js api/create-varna-ipa.tcl api/json/register-create-varna-ipa.json update
+
+node registerScript.js api/update-varna-ipa.tcl api/json/register-update-varna-ipa.json update
+
+node registerScript.js api/get-varna-ipa.tcl api/json/register-get-varna-ipa.json update
