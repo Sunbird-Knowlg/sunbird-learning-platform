@@ -3,41 +3,66 @@ package org.ekstep.language.mgr.impl;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.LanguageSourceTypeMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.enums.Enums;
 import org.ekstep.language.enums.Enums.ObjectType;
 import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.importer.InputStreamValue;
+import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.ITaxonomyManager;
+import com.ilimi.taxonomy.util.UnzipUtility;
+import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.util.RelationType;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 
 @Component
@@ -46,9 +71,217 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	private static final String CSV_SEPARATOR = ",";
 	private static final String NEW_LINE = "\n";
 	private ControllerUtil controllerUtil = new ControllerUtil();
+	private static final String tempFileLocation = "/data/temp/";
 	
+	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
+	
+	private List<String> getWordList(Object wordJSONArrObj){
+		String JSONarrStr;
+		try {
+			JSONarrStr = mapper.writeValueAsString(wordJSONArrObj);
+			List<String> list = mapper.readValue(JSONarrStr, new TypeReference<List<String>>(){});
+			return list;
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return null;
+	}
+	
+	@Override
+	public Response importJSON(String languageId, InputStream synsetsStreamInZIPStream){
 
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        if (null == synsetsStreamInZIPStream)
+            throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(),
+            		"Input Zip object is emtpy");
+        
+        String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
+        UnzipUtility unzipper = new UnzipUtility();
+        StringBuffer errorMessages = new StringBuffer();
+        Response importResponse = OK();
+		try {
+			unzipper.unzip(synsetsStreamInZIPStream, tempFileDwn);
+			File zipFileDirectory = new File(tempFileDwn);
+			List<String> wordList=new ArrayList<String>();			
+			String files[] = zipFileDirectory.list();
+            for (String temp : files) {
+				long startTimeJSON = System.currentTimeMillis();
+                // construct the file structure
+                File jsonFile = new File(zipFileDirectory, temp);
+                FileInputStream jsonFIS=new FileInputStream(jsonFile);
+                InputStreamReader isReader=new InputStreamReader(jsonFIS, "UTF8");
+                String fileName=jsonFile.getName();
+                String word=fileName.substring(0, fileName.indexOf(".json"));
+                wordList.add(word);
+                String jsonContent=IOUtils.toString(isReader);
+                System.out.println("fileName="+fileName+",word="+word);
+                
+                // Keys : Note- Change the key name if there is change in JSON File structure
+                final String KEY_NAME_IDENTIFIER = "sid";
+                final String KEY_NAME_GLOSS = "gloss";
+                final String KEY_NAME_GLOSS_ENG = "gloss_eng";
+                final String KEY_NAME_EXAM_STMT="example_stmt";
+                final String KEY_NAME_POS="pos";
+                final String KEY_NAME_TRANSLATIONS="translations";
+                
+                List<Map<String, Object>> jsonObj = mapper.readValue(jsonContent, new TypeReference<List<Map<String, Object>>>() {});                
+				DictionaryManagerImpl manager=new DictionaryManagerImpl();
+				Map<String, String> nodeIDcache=new HashMap<>();
+                for(Map<String, Object> synsetJSON:jsonObj){
+                	
+                	String identifier=languageId + ':' + "S:" + synsetJSON.get(KEY_NAME_IDENTIFIER);
+    				Node synsetNode=new Node();
+    				synsetNode.setGraphId(languageId);
+    				synsetNode.setIdentifier(identifier);
+    				synsetNode.setNodeType(SystemNodeTypes.DATA_NODE.name());
+    				synsetNode.setObjectType(Enums.ObjectType.Synset.name());
+    				
+    				Map<String, Object> metadata =new HashMap<>();
+    				metadata.put("gloss", synsetJSON.get(KEY_NAME_GLOSS));
+    				metadata.put("glossInEnglish", synsetJSON.get(KEY_NAME_GLOSS_ENG));
+    				metadata.put("exampleSentences", Arrays.asList(synsetJSON.get(KEY_NAME_EXAM_STMT)));
+    				metadata.put("pos", synsetJSON.get(KEY_NAME_POS));
+    				//metadata.put("category", "Default");
+    				metadata.put("translations", synsetJSON.get(KEY_NAME_TRANSLATIONS));
+    				synsetNode.setMetadata(metadata);
+    				
+    				long startTimeUpdateNode = System.currentTimeMillis();
+    				String synsetNodeId=updateNode(synsetNode,Enums.ObjectType.Synset.name(),languageId);
+    				
+    				long stopTimeUpdateNode = System.currentTimeMillis();
+    			    long elapsedTimeUpdateNode = stopTimeUpdateNode - startTimeUpdateNode;
+    				
+    			    //System.out.println(word+" updateSynsetNode time taken"+elapsedTimeUpdateNode);
+    			    
+    				if(StringUtils.isEmpty(synsetNodeId)){
+    					errorMessages.append(", ").append("Synset create/Update failed: "+ identifier);
+    					continue;
+    				}
+
+    				List<String> words=getWordList(synsetJSON.get("synonyms"));
+    				if(!words.contains(word)){
+    					words.add(word);
+    				}
+    				
+    				for(String sWord:words){
+    					if (StringUtils.isNotBlank(sWord)){
+        					String nodeId;
+    						WordUtil wordUtil=new WordUtil();
+        					//check word is already present in cahce, if not do search&create step
+    						if(nodeIDcache.get(sWord)==null){
+    		    				long startTimeSearchWord = System.currentTimeMillis();
+            					Node node=wordUtil.searchWord(languageId,sWord);
+            					
+                				long startTimeCreateWord = System.currentTimeMillis();
+            					if (null == node) {
+            						nodeId=wordUtil.createWord(languageId, sWord, Enums.ObjectType.Word.name());
+                    				long stopTimeCreateWord = System.currentTimeMillis();
+                    				//System.out.println(sWord+" create- time taken"+(stopTimeCreateWord-startTimeCreateWord));
+            					}else{
+            						nodeId=node.getIdentifier();
+            					}
+            					//System.out.println(sWord+" search- time taken"+(startTimeCreateWord-startTimeSearchWord));
+            					nodeIDcache.put(sWord, nodeId);
+        					}
+        					else{
+        						//System.out.println(sWord+" is already cached");
+        						nodeId=nodeIDcache.get(sWord);
+        					}
+ 
+            				long startTimeRelationAdd = System.currentTimeMillis();    	    			    
+        					Response relationResponse = manager.addRelation(languageId, Enums.ObjectType.Synset.name(), synsetNodeId, RelationTypes.SYNONYM.relationName(), nodeId);
+        					if(checkError(relationResponse)){
+        						errorMessages.append(", ").append("Synset relation creation failed: "+ identifier + " word id: "+nodeId);
+                				long stopTimeRelationAdd = System.currentTimeMillis();
+           	    			    //System.out.println(word+" addRElation(failed) time taken"+(stopTimeRelationAdd-startTimeRelationAdd));
+        						continue;
+        					}
+            				long stopTimeRelationAdd = System.currentTimeMillis();
+       	    			    //System.out.println(word+" addRElation time taken"+(stopTimeRelationAdd-startTimeRelationAdd));
+    					}
+    				}
+                }
+				long stopTimeJSON = System.currentTimeMillis();
+				System.out.println(word+" JSON File time taken"+(stopTimeJSON-startTimeJSON));
+            }
+		}catch (Exception ex) {
+			errorMessages.append(", ").append(ex.getMessage());
+		} finally {
+			File zipFileDirectory = new File(tempFileDwn);
+			if (!zipFileDirectory.exists()) {
+				System.out.println("Directory does not exist.");
+			} else {
+				try {
+					delete(zipFileDirectory);
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+		
+		String errorMessageString = errorMessages.toString();
+		if(!errorMessageString.isEmpty()){
+			errorMessageString = errorMessageString.substring(2);
+			importResponse = ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), "Internal Error", ResponseCode.SERVER_ERROR);
+			importResponse.put("errorMessage", errorMessageString);
+		}
+		return importResponse;
+	}
+	
+	public void delete(File file) throws IOException {
+        if (file.isDirectory()) {
+            // directory is empty, then delete it
+            if (file.list().length == 0) {
+                file.delete();
+            } else {
+                // list all the directory contents
+                String files[] = file.list();
+                for (String temp : files) {
+                    // construct the file structure
+                    File fileDelete = new File(file, temp);
+                    // recursive delete
+                    delete(fileDelete);
+                }
+                // check the directory again, if empty then delete it
+                if (file.list().length == 0) {
+                    file.delete();
+                }
+            }
+
+        } else {
+            // if file, then delete it
+            file.delete();
+        }
+    }
+	
+	public String updateNode(Node node, String objectType, String languageId){
+		node.setObjectType(objectType);
+		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		validateReq.put(GraphDACParams.node.name(), node);
+		String lstNodeId=StringUtils.EMPTY;
+		Response validateRes = getResponse(validateReq, LOGGER);
+		if (!checkError(validateRes)) {
+			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			createReq.put(GraphDACParams.node.name(), node);
+			createReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+			Response res = getResponse(createReq, LOGGER);
+			if (!checkError(res)) {
+				Map<String, Object> result = res.getResult();
+				if (result != null) {
+					String nodeId = (String) result.get("node_id");
+					if (nodeId != null) {
+						lstNodeId=nodeId;
+					}
+				}
+			}
+			
+		}
+		return lstNodeId;
+	}
+	
 	@Override
 	public Response transformData(String languageId, String sourceId, InputStream stream) {
 		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -443,4 +676,5 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		}
 		return lstLemma;
 	}
+
 }
