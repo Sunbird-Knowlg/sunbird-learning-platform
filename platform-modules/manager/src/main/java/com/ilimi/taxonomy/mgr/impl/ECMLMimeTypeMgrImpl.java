@@ -114,11 +114,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 			Map<String, String> mediaSrcMap = new HashMap<String, String>();
 			Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
+			Map<String, String> mediaTypeMap = new HashMap<String, String>();
 			Set<String> mediaIdSet = new HashSet<String>();
 			for (Entry<String, List<String>> entry : mediaIdMap.entrySet()) {
 				String id = entry.getKey();
 				List<String> values = entry.getValue();
-				if (null != values && values.size() == 2) {
+				if (null != values && values.size() >= 2) {
 					String src = values.get(0);
 					String assetId = values.get(1);
 					String nodeId = null;
@@ -130,6 +131,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					mediaIdSet.add(nodeId);
 					mediaSrcMap.put(id, src);
 					mediaAssetIdMap.put(nodeId, id);
+					mediaTypeMap.put(id, values.get(2));
 				}
 			}
 			CustomParser customParser = new CustomParser();
@@ -149,7 +151,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 							if (StringUtils.isBlank(downloadUrl)) {
 								long timeStempInMiliSec = System.currentTimeMillis();
 								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
+								String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
 								File olderName = new File(uploadFilePath + mediaSrc);
+								if (StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+										StringUtils.equalsIgnoreCase(mediaType, "css") ||
+										StringUtils.equalsIgnoreCase(mediaType, "js"))
+									olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
 								if (olderName.exists() && olderName.isFile()) {
 									String parentFolderName = olderName.getParent();
 									File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
@@ -187,7 +194,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 						for (String mediaId : mediaIdSet) {
 							long timeStempInMiliSec = System.currentTimeMillis();
 							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(mediaId));
+							String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(mediaId));
 							File olderName = new File(uploadFilePath + mediaSrc);
+							if (StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+									StringUtils.equalsIgnoreCase(mediaType, "css") ||
+									StringUtils.equalsIgnoreCase(mediaType, "js"))
+								olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
 							if (olderName.exists() && olderName.isFile()) {
 								String parentFolderName = olderName.getParent();
 								File newName = new File(
