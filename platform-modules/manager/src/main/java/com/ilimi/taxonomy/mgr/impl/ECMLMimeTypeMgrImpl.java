@@ -153,9 +153,10 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
 								String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
 								File olderName = new File(uploadFilePath + mediaSrc);
-								if (StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+								if (!StringUtils.isBlank(mediaType) && 
+										(StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
 										StringUtils.equalsIgnoreCase(mediaType, "css") ||
-										StringUtils.equalsIgnoreCase(mediaType, "js"))
+										StringUtils.equalsIgnoreCase(mediaType, "js")))
 									olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
 								if (olderName.exists() && olderName.isFile()) {
 									String parentFolderName = olderName.getParent();
@@ -196,9 +197,10 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(mediaId));
 							String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(mediaId));
 							File olderName = new File(uploadFilePath + mediaSrc);
-							if (StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+							if (!StringUtils.isBlank(mediaType) && 
+									(StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
 									StringUtils.equalsIgnoreCase(mediaType, "css") ||
-									StringUtils.equalsIgnoreCase(mediaType, "js"))
+									StringUtils.equalsIgnoreCase(mediaType, "js")))
 								olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
 							if (olderName.exists() && olderName.isFile()) {
 								String parentFolderName = olderName.getParent();

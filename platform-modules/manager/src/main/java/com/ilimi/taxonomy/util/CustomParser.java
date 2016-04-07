@@ -125,7 +125,7 @@ public class CustomParser {
 				media = (Element) medias.item(i);
 				String src = media.getAttribute("src");
 				String type = media.getAttribute("type");
-				if (StringUtils.isBlank(type) && 
+				if (!StringUtils.isBlank(type) && 
 						(StringUtils.equalsIgnoreCase(type, "plugin") || 
 						StringUtils.equalsIgnoreCase(type, "css") ||
 						StringUtils.equalsIgnoreCase(type, "js"))) {
