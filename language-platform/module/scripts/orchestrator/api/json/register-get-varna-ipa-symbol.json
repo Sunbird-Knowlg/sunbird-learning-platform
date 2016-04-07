@@ -1,0 +1,20 @@
+{
+    "name": "getVarnaFromIpaSymbol",
+    "parameters": [{
+    	"name":"ipaSymbol",
+    	"index": 0,
+    	"routingParam": false,
+		"datatype": "java.lang.String"
+    },{
+    	"name":"language_id",
+    	"index": 1,
+    	"routingParam": true,
+		"datatype": "java.lang.String"
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/Varna/getVarnaFromIpaSymbol/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

@@ -1,0 +1,14 @@
+{
+    "name": "getVarnaFromUnicode",
+    "parameters": [{
+    	"name":"unicode",
+    	"index": 0,
+    	"routingParam": false,
+		"datatype": "java.lang.String"
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/Varna/getVarnaFromUnicode"
+    },
+    "body": ""
+}

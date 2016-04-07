@@ -1,0 +1,14 @@
+{
+    "name": "getAllConsonants",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/dictionary/Varna/Consonant/*",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

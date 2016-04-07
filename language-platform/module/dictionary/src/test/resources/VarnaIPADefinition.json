@@ -28,7 +28,7 @@
                 "Consonant",
                 "Other"
             ],
-            "required": false,
+            "required": true,
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Other",

@@ -17,6 +17,19 @@
           "renderingHints": "{ 'order': 1 }"
         },
         {
+          "propertyName": "lemma",
+          "title": "Lemma",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 2 }"
+        },
+        {
             "propertyName": "type",
             "title": "Type",
             "description": "Type",
@@ -29,11 +42,11 @@
                 "Consonant",
                 "Other"
             ],
-            "required": false,
+            "required": true,
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Other",
-            "renderingHints": "{'inputType': 'select', 'order': 2}"
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
           "propertyName": "ipaSymbol",
@@ -46,7 +59,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 3 }"
+          "renderingHints": "{ 'order': 4 }"
         },
         {
           "propertyName": "image",
@@ -59,7 +72,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 4 }"
+          "renderingHints": "{ 'order': 5 }"
         },
         {
           "propertyName": "rhyme",
@@ -72,7 +85,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 5 }"
+          "renderingHints": "{ 'inputType': 'textarea',  'order': 6 }"
         },  
 		{
           "propertyName": "orthoAttribVector",
@@ -85,7 +98,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 6 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 7 }"
         },  
 		{
           "propertyName": "modifierOrthoAttribVector",
@@ -98,7 +111,7 @@
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 7 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 8 }"
         },
         {
           "propertyName": "reviewers",
@@ -111,7 +124,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 8 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 9 }"
         },  
         {
           "propertyName": "lastUpdatedBy",
@@ -124,7 +137,7 @@
           "indexed": false,
           "displayProperty": "Editable",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 9 }"
+          "renderingHints": "{ 'inputType': 'text',  'order': 10 }"
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -137,7 +150,7 @@
           "indexed": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'order': 10 }"
+          "renderingHints": "{ 'order': 11 }"
         },
         {
             "propertyName": "status",
@@ -157,21 +170,21 @@
 			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Live",
-            "renderingHints": "{'inputType': 'select', 'order': 11}"
+            "renderingHints": "{'inputType': 'select', 'order': 12}"
         }
       ],
       "inRelations": [
       ],
       "outRelations": [
-        {
-          "relationName": "hasParentVowel",
-          "title": "parentVowel",
-          "description": "",
-          "required": false,
+       {
+          "relationName": "associatedTo",
           "objectTypes": [
             "Varna"
           ],
-          "renderingHints": ""
+          "title": "vowel",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 26 }"
         }
       ],
       "systemTags": [

@@ -1,0 +1,14 @@
+{
+    "name": "getSyllables",
+    "parameters": [{
+    	"name":"word",
+    	"index": 0,
+    	"routingParam": false,
+		"datatype": "java.lang.String"
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/Varna/getSyllables"
+    },
+    "body": ""
+}

@@ -1,0 +1,14 @@
+{
+    "name": "getVowelsFromSyllable",
+    "parameters": [{
+    	"name":"syllable",
+    	"index": 0,
+    	"routingParam": false,
+		"datatype": "java.lang.String"
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/Varna/getVowelsFromSyllable"
+    },
+    "body": ""
+}

@@ -1,9 +1,10 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import java.util.Map;
-import java.util.Map.Entry;
+import java.lang.Character.UnicodeBlock;
 
-import com.ilimi.common.dto.Property;
+import org.apache.commons.lang3.StringUtils;
+import org.ekstep.language.common.LanguageMap;
+
 import com.ilimi.orchestrator.interpreter.ICommand;
 
 import tcl.lang.Command;
@@ -15,23 +16,31 @@ import tcl.pkg.java.ReflectObject;
 
 public class GetLanguageGraphId implements ICommand, Command {
 
-    @SuppressWarnings({ "unchecked" })
     @Override
     public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
         if (argv.length == 2) {
             try {
                 TclObject tclObject = argv[1];
                 Object obj = ReflectObject.get(interp, tclObject);
-                String unicode = (String) obj;
-
-                Property searchProperty = new Property();
-                if (null != map && !map.isEmpty()) {
-                    for (Entry<String, Object> entry : map.entrySet()) {
-                    	searchProperty = new Property(entry.getKey(),entry.getValue());
-                    	break;
-                    }
-                }
-                TclObject tclResp = ReflectObject.newInstance(interp, searchProperty.getClass(), searchProperty);
+                String unicodeString = (String) obj;
+                char unicodeChar = unicodeString.toCharArray()[0];
+                //String.format("\\u%04x", (int) unicodeChar);
+               // unicodeString = "\\u"+unicodeString;
+               // char unicode = (char) Integer.parseInt( unicodeString.substring(2), 16 );
+                String language = null;
+        		UnicodeBlock charBlock = UnicodeBlock.of(unicodeChar);
+        		if (charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED) || charBlock.equals(Character.UnicodeBlock.DEVANAGARI)) {
+        			language = "HINDI";
+        		}
+        		else if(charBlock.equals(Character.UnicodeBlock.BASIC_LATIN)){
+        			language = "ENGLISH";
+        		}
+        		else{
+        			language = charBlock.toString();
+        		}
+        		language = StringUtils.capitalize(language.toLowerCase());
+        		String graphId = LanguageMap.getLanguageGraph(language);
+                TclObject tclResp = ReflectObject.newInstance(interp, graphId.getClass(), graphId);
                 interp.setResult(tclResp);
             } catch (Exception e) {
                 throw new TclException(interp, "Unable to read response: " + e.getMessage());
@@ -43,6 +52,6 @@ public class GetLanguageGraphId implements ICommand, Command {
 
     @Override
     public String getCommandName() {
-        return "create_search_property";
+        return "get_language_graph_id";
     }
 }
