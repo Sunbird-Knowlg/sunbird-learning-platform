@@ -324,12 +324,6 @@ public class AssessmentValidator extends BaseManager {
             }
             if (null == asset) {
                 asset = value.get("answer");
-            }
-            if (null == asset) {
-                errorMessages.add(
-                        "invalid option. Option 'value' cannot be null");
-                valid = false;
-            } else {
                 valueMap.put("asset", asset);
             }
         }
