@@ -131,43 +131,47 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                         });
                 DictionaryManagerImpl manager = new DictionaryManagerImpl();
                 for (Map<String, Object> synsetJSON : jsonObj) {
-                    String identifier = languageId + ':' + "S:" + synsetJSON.get(KEY_NAME_IDENTIFIER);
-                    if (!synsetIds.contains(identifier)) {
-                        String synsetNodeId = createSynset(languageId, identifier, synsetJSON);
-                        if (StringUtils.isEmpty(synsetNodeId)) {
-                            errorMessages.append(", ").append("Synset create/Update failed: " + identifier);
-                            continue;
-                        } else
-                            synsetIds.add(synsetNodeId);
-                    }
-                    List<String> words = getWordList(synsetJSON.get("synonyms"));
-                    if (null == words)
-                        words = new ArrayList<String>();
-                    if (!words.contains(word))
-                        words.add(word);
-                    for (String sWord : words) {
-                        if (StringUtils.isNotBlank(sWord)) {
-                            boolean synonymAdded = createWord(languageId, sWord, identifier, manager, nodeIDcache,
-                                    errorMessages);
-                            if (!synonymAdded)
+                    String wordnetId = (String) synsetJSON.get(KEY_NAME_IDENTIFIER);
+                    String gloss = (String) synsetJSON.get(KEY_NAME_GLOSS);
+                    if (StringUtils.isNotBlank(wordnetId) && StringUtils.isNotBlank(gloss)) {
+                        String identifier = languageId + ':' + "S:" + wordnetId;
+                        if (!synsetIds.contains(identifier)) {
+                            String synsetNodeId = createSynset(languageId, identifier, synsetJSON);
+                            if (StringUtils.isEmpty(synsetNodeId)) {
+                                errorMessages.append(", ").append("Synset create/Update failed: " + identifier);
                                 continue;
+                            } else
+                                synsetIds.add(synsetNodeId);
                         }
+                        List<String> words = getWordList(synsetJSON.get("synonyms"));
+                        if (null == words)
+                            words = new ArrayList<String>();
+                        if (!words.contains(word))
+                            words.add(word);
+                        for (String sWord : words) {
+                            if (StringUtils.isNotBlank(sWord)) {
+                                boolean synonymAdded = createWord(languageId, sWord, identifier, manager, nodeIDcache,
+                                        errorMessages);
+                                if (!synonymAdded)
+                                    continue;
+                            }
+                        }
+                        List<Map<String, Object>> hypernyms = getRelatedSynsets(synsetJSON.get("hypernyms"));
+                        createRelations(languageId, hypernyms, identifier, RelationTypes.HYPERNYM.relationName(), nodeIDcache,
+                                synsetIds, manager, errorMessages, true);
+                        
+                        List<Map<String, Object>> hyponyms = getRelatedSynsets(synsetJSON.get("hyponyms"));
+                        createRelations(languageId, hyponyms, identifier, RelationTypes.HYPONYM.relationName(), nodeIDcache,
+                                synsetIds, manager, errorMessages, false);
+                        
+                        List<Map<String, Object>> holonyms = getRelatedSynsets(synsetJSON.get("holonyms"));
+                        createRelations(languageId, holonyms, identifier, RelationTypes.HOLONYM.relationName(), nodeIDcache,
+                                synsetIds, manager, errorMessages, false);
+                        
+                        List<Map<String, Object>> meronyms = getRelatedSynsets(synsetJSON.get("meronyms"));
+                        createRelations(languageId, meronyms, identifier, RelationTypes.MERONYM.relationName(), nodeIDcache,
+                                synsetIds, manager, errorMessages, false);
                     }
-                    List<Map<String, Object>> hypernyms = getRelatedSynsets(synsetJSON.get("hypernyms"));
-                    createRelations(languageId, hypernyms, identifier, RelationTypes.HYPERNYM.relationName(), nodeIDcache,
-                            synsetIds, manager, errorMessages, true);
-                    
-                    List<Map<String, Object>> hyponyms = getRelatedSynsets(synsetJSON.get("hyponyms"));
-                    createRelations(languageId, hyponyms, identifier, RelationTypes.HYPONYM.relationName(), nodeIDcache,
-                            synsetIds, manager, errorMessages, false);
-                    
-                    List<Map<String, Object>> holonyms = getRelatedSynsets(synsetJSON.get("holonyms"));
-                    createRelations(languageId, holonyms, identifier, RelationTypes.HOLONYM.relationName(), nodeIDcache,
-                            synsetIds, manager, errorMessages, false);
-                    
-                    List<Map<String, Object>> meronyms = getRelatedSynsets(synsetJSON.get("meronyms"));
-                    createRelations(languageId, meronyms, identifier, RelationTypes.MERONYM.relationName(), nodeIDcache,
-                            synsetIds, manager, errorMessages, false);
                 }
                 long stopTimeJSON = System.currentTimeMillis();
                 System.out.println(word + " JSON File time taken" + (stopTimeJSON - startTimeJSON));
@@ -202,7 +206,8 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         if (null != synsets && !synsets.isEmpty()) {
             for (Map<String, Object> synset : synsets) {
                 String wordnetId = (String) synset.get(KEY_NAME_IDENTIFIER);
-                if (StringUtils.isNotBlank(wordnetId)) {
+                String gloss = (String) synset.get(KEY_NAME_GLOSS);
+                if (StringUtils.isNotBlank(wordnetId) && StringUtils.isNotBlank(gloss)) {
                     String identifier = languageId + ':' + "S:" + wordnetId.trim();
                     if (!synsetIds.contains(identifier)) {
                         String synsetNodeId = createSynset(languageId, identifier, synset);
