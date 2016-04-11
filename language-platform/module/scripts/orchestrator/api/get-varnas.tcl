@@ -6,7 +6,6 @@ java::import -package com.ilimi.graph.dac.model Node
 set varna_object_type "Varna"
 set varna_ipa_object_type "Varna_IPA"
 set varna_ipa_graph_id "language"
-set varna_type "Consonant"
 
 set searchProperty [java::new HashMap]
 $searchProperty put "type" $varna_type
@@ -24,7 +23,7 @@ set def_node [get_resp_value $resp_def_node "definition_node"]
 set varna_ipa_resp_def_node [getDefinition $varna_ipa_graph_id $varna_ipa_object_type]
 set varna_ipa_def_node [get_resp_value $varna_ipa_resp_def_node "definition_node"]
 set graph_nodes [get_resp_value $search_response "node_list"]
-set consonant_list [java::new ArrayList]
+set varnas_list [java::new ArrayList]
 
 java::for {Node varna_node} $graph_nodes {
 	set varna_obj [convert_graph_node $varna_node $def_node]
@@ -51,8 +50,8 @@ java::for {Node varna_node} $graph_nodes {
 
 	$varna_obj put "phonoAttribVector" $phonoAttribVector
 	$varna_obj put "audio" $audio
-	$consonant_list add $varna_obj
+	$varnas_list add $varna_obj
 }
-return $consonant_list
+return $varnas_list
 
 

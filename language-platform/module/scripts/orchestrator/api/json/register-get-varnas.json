@@ -1,0 +1,19 @@
+{
+    "name": "getAllVarnas",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },
+	{
+    	"name":"varna_type",
+    	"index": 1,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/dictionary/getVarnas/*/*",
+        "pathParams": ["varna_type","language_id"]
+    },
+    "body": ""
+}

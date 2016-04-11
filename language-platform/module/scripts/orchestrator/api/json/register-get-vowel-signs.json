@@ -1,5 +1,5 @@
 {
-    "name": "getAllVowels",
+    "name": "getAllVowelSigns",
     "parameters": [{
     	"name":"language_id",
     	"index": 0,
@@ -7,7 +7,7 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/language/dictionary/Varna/Vowel/*",
+        "url": "/v1/language/dictionary/Varna/VowelSign/*",
         "pathParams": ["language_id"]
     },
     "body": ""

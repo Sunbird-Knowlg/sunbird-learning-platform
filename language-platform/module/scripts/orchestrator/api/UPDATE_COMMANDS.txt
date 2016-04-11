@@ -42,8 +42,10 @@ node registerScript.js api/get-vowels-syllable.tcl api/json/register-get-vowels-
 
 node registerScript.js api/get-consonants-syllable.tcl api/json/register-get-consonants-syllable.json update
 
-node registerScript.js api/get-consonants.tcl api/json/register-get-consonants.json update
-
-node registerScript.js api/get-vowels.tcl api/json/register-get-vowels.json update
-
 node registerScript.js api/get-syllables.tcl api/json/register-get-syllables.json update
+
+node registerScript.js api/get-gunimta.tcl api/json/register-get-gunimta.json update
+
+node registerScript.js api/get-varnas.tcl api/json/register-get-varnas.json update
+
+node registerScript.js api/get-vowel-signs.tcl api/json/register-get-vowel-signs.json update
