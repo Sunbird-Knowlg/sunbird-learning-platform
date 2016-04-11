@@ -18,15 +18,14 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.mgr.impl.ControllerUtil;
+import org.ekstep.language.util.WordnetUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
@@ -93,9 +92,9 @@ public class EnrichActor extends LanguageBaseActor {
 			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
 				long startTime = System.currentTimeMillis();
 				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-				updatePosList(languageId, nodeList);
 				updateLexileMeasures(languageId, nodeList);
 				updateFrequencyCount(languageId, nodeList);
+				updatePosList(languageId, nodeList);
 				batch_node_ids = new ArrayList<String>();
 				long diff = System.currentTimeMillis() - startTime;
 				System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
@@ -131,7 +130,7 @@ public class EnrichActor extends LanguageBaseActor {
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			controllerUtil.getNodeMap(nodes, nodeMap, words);
 			if (null != words && !words.isEmpty()) {
-				System.out.println("Total words: " + nodes.size());
+				System.out.println("updateFrequencyCount | Total words: " + nodes.size());
 				Map<String, Object> indexesMap = new HashMap<String, Object>();
 				Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 				List<String> groupList = Arrays.asList(groupBy);
@@ -202,15 +201,14 @@ public class EnrichActor extends LanguageBaseActor {
 	
 	private void updatePosList(String languageId, List<Node> nodes) {
 	    if (null != nodes && !nodes.isEmpty()) {
-            System.out.println("Total words: " + nodes.size());
+            System.out.println("updatePosList | Total words: " + nodes.size());
             for (Node node : nodes) {
-                node.getMetadata().put("pos", getPOS(node));
+                WordnetUtil.updatePOS(node);
                 Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                         "updateDataNode");
                 updateReq.put(GraphDACParams.node.name(), node);
                 updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                 try {
-                    //System.out.println("Sending update req for : " + node.getIdentifier());
                     Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
                     if (checkError(updateResponse)) {
                         System.out.println(updateResponse.getParams().getErr());
@@ -218,7 +216,6 @@ public class EnrichActor extends LanguageBaseActor {
                         throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
                                 updateResponse.getParams().getErrmsg());
                     }
-                    //System.out.println("Update complete for : " + node.getIdentifier());
                 } catch (Exception e) {
                     System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
                 }
@@ -229,7 +226,7 @@ public class EnrichActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	private void updateLexileMeasures(String languageId, List<Node> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
-			System.out.println("Total words: " + nodes.size());
+			System.out.println("updateLexileMeasures | Total words: " + nodes.size());
 			List<String> words = new ArrayList<String>();
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			controllerUtil.getNodeMap(nodes, nodeMap, words);
@@ -275,43 +272,6 @@ public class EnrichActor extends LanguageBaseActor {
 				}
 			}
 		}
-	}
-	
-	private List<String> getPOS(Node node) {
-	    List<String> posList = new ArrayList<String>();
-	    try {
-            Object value = node.getMetadata().get("pos");
-            if (null != value) {
-                if (value instanceof String[]) {
-                    String[] arr = (String[]) value;
-                    if (null != arr && arr.length > 0) {
-                        for (String str : arr)
-                            posList.add(str.toLowerCase());
-                    }
-                } else if (value instanceof String) {
-                    if (StringUtils.isNotBlank(value.toString()))
-                        posList.add(value.toString().toLowerCase());
-                }
-            }
-            List<Relation> inRels = node.getInRelations();
-            if (null != inRels && !inRels.isEmpty()) {
-                for (Relation rel : inRels) {
-                    if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName()) 
-                            && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), "Synset")) {
-                        Map<String, Object> metadata = rel.getStartNodeMetadata();
-                        if (null != metadata && !metadata.isEmpty()) {
-                            String pos = (String) metadata.get("pos");
-                            if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
-                                posList.add(pos.toLowerCase());
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-	    System.out.println("pos list: " + posList);
-	    return posList;
 	}
 
 	@Override
