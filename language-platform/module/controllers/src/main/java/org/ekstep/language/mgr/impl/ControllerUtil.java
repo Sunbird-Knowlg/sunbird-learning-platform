@@ -16,6 +16,7 @@ import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.language.util.IWordnetConstants;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.stereotype.Component;
@@ -41,7 +42,7 @@ import scala.concurrent.Await;
 import scala.concurrent.Future;
 
 @Component
-public class ControllerUtil extends BaseLanguageManager {
+public class ControllerUtil extends BaseLanguageManager implements IWordnetConstants {
 
 	private static Logger LOGGER = LogManager.getLogger(ControllerUtil.class.getName());
 	private Long TASK_REFRESH_TIME_IN_MILLIS = 10000L;
@@ -162,7 +163,7 @@ public class ControllerUtil extends BaseLanguageManager {
 				metadata = new HashMap<String, Object>();
 				node.setMetadata(metadata);
 			}
-			String lemma = (String) metadata.get("lemma");
+			String lemma = (String) metadata.get(ATTRIB_LEMMA);
 			if (StringUtils.isNotBlank(lemma)) {
 				words.add(lemma);
 				nodeMap.put(lemma, node);

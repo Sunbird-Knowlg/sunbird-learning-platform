@@ -9,6 +9,7 @@ import org.ekstep.language.router.LanguageRequestRouterPool;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
@@ -32,6 +33,16 @@ public abstract class BaseLanguageManager extends BaseManager {
     protected Request getLanguageRequest(String graphId, String manager, String operation) {
         Request request = new Request();
         return setLanguageContext(request, graphId, manager, operation);
+    }
+    
+    public void makeAsyncLanguageRequest(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
     }
 	
 	protected Response getLanguageResponse(Request request, Logger logger) {

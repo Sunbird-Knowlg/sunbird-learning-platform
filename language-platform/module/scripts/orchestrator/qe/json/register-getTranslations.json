@@ -1,0 +1,13 @@
+{
+    "name": "lang_qe_getTranslations_for_lang",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name":"languageCode",
+        "index": 1,
+        "routingParam": false
+    }],
+    "body": ""
+}
