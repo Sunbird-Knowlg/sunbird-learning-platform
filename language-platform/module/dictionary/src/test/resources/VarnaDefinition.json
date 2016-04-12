@@ -38,7 +38,7 @@
             "range":
             [
                 "Vowel",
-				"Vowel Sign",
+				"VowelSign",
                 "Consonant",
                 "Other"
             ],
@@ -75,11 +75,11 @@
           "renderingHints": "{ 'order': 5 }"
         },
         {
-          "propertyName": "rhyme",
-          "title": "Rhyme",
+          "propertyName": "rhymes",
+          "title": "Rhymes",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
@@ -92,7 +92,7 @@
           "title": "Ortho Attrib Vector",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
@@ -105,7 +105,7 @@
           "title": "Modifier Ortho Attrib Vector",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
@@ -118,7 +118,7 @@
           "title": "Reviewers",
           "description": "",
           "category": "audit",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": false,
@@ -169,7 +169,7 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Live",
+            "defaultValue": "Draft",
             "renderingHints": "{'inputType': 'select', 'order': 12}"
         }
       ],
@@ -187,20 +187,7 @@
           "renderingHints": "{ 'order': 26 }"
         }
       ],
-      "systemTags": [
-        {
-          "name": "Review Tags",
-          "description": "Need to Review this Language Varna."
-        },
-        {
-          "name": "Missing Information",
-          "description": "Some of the information is missing."
-        },
-        {
-          "name": "Incorrect Data",
-          "description": "Wrong information about this Language Varna."
-        }
-      ],
+      "systemTags": [],
       "metadata": {
         "ttl": 24,
         "limit": 50

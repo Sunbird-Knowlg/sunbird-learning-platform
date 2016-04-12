@@ -39,7 +39,7 @@
           "title": "Phono Attrib Vector",
           "description": "",
           "category": "general",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": true,
@@ -52,7 +52,7 @@
           "title": "audio",
           "description": "URL",
           "category": "sampleData",
-          "dataType": "List",
+          "dataType": "URL",
           "range": [],
           "required": false,
           "indexed": false,
@@ -65,7 +65,7 @@
           "title": "Reviewers",
           "description": "",
           "category": "audit",
-          "dataType": "Text",
+          "dataType": "List",
           "range": [],
           "required": false,
           "indexed": false,
@@ -116,7 +116,7 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Live",
+            "defaultValue": "Draft",
             "renderingHints": "{'inputType': 'select', 'order': 8}"
         }
       ],
@@ -124,20 +124,7 @@
       ],
       "outRelations": [
       ],
-      "systemTags": [
-        {
-          "name": "Review Tags",
-          "description": "Need to Review this Varna."
-        },
-        {
-          "name": "Missing Information",
-          "description": "Some of the information is missing."
-        },
-        {
-          "name": "Incorrect Data",
-          "description": "Wrong information about this Varna."
-        }
-      ],
+      "systemTags": [],
       "metadata": {
         "ttl": 24,
         "limit": 50
