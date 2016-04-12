@@ -6,8 +6,9 @@ java::import -package com.ilimi.graph.dac.model Node
 set lemma_list [java::new ArrayList]
 set object_type "Varna_IPA"
 set error_status "Failed"
+set language_id "language"
 
-set get_node_response [getDataNode $language_id $varnaIPA_id]
+set get_node_response [getDataNode $language_id $ipa_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
 	puts "Error response from getDataNode"

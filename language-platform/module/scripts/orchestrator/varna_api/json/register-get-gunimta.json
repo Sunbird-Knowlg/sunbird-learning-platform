@@ -1,14 +1,15 @@
 {
-    "name": "getSyllables",
+    "name": "getGunimta",
     "parameters": [{
-    	"name":"word",
+    	"name":"unicode",
     	"index": 0,
     	"routingParam": false,
 		"datatype": "java.lang.String"
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v1/Varna/getSyllables"
+        "type": "GET",
+        "url": "/v1/varna/gunimta/*",
+		"pathParams": ["unicode"]
     },
     "body": ""
 }

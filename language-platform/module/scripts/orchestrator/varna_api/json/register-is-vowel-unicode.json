@@ -7,8 +7,9 @@
 		"datatype": "java.lang.String"
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v1/Varna/isVowelFromUnicode"
+        "type": "GET",
+        "url": "/v1/varna/isvowel/*",
+        "pathParams": ["unicode"]
     },
     "body": ""
 }

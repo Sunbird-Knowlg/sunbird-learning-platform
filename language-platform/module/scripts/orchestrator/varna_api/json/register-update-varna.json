@@ -1,23 +1,23 @@
 {
-    "name": "updateVarnaIPA",
+    "name": "updateVarna",
     "parameters": [{
     	"name":"language_id",
     	"index": 0,
     	"routingParam": true
     },{
-    	"name":"varnaIPA_id",
+    	"name":"varna_id",
     	"index": 1,
     	"routingParam": false
     },{
-        "name": "varnaIPA",
+        "name": "varna",
         "index": 2,
         "datatype": "java.util.HashMap",
         "routingParam": false
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v1/language/dictionary/VarnaIPA/*/*",
-        "pathParams": ["language_id", "varnaIPA_id"]
+        "url": "/v1/language/dictionary/varna/*/*",
+        "pathParams": ["language_id", "varna_id"]
     },
     "body": ""
 }

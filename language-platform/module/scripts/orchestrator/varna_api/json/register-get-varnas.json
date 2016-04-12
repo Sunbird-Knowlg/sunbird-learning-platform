@@ -12,7 +12,7 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/language/dictionary/getVarnas/*/*",
+        "url": "/v1/language/dictionary/varna/*/list/*",
         "pathParams": ["varna_type","language_id"]
     },
     "body": ""

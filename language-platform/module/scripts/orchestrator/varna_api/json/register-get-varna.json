@@ -7,11 +7,12 @@
     },{
     	"name":"varna_id",
     	"index": 1,
-    	"routingParam": false
+    	"routingParam": false,
+		"datatype":"java.lang.String"
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/language/dictionary/Varna/*/*",
+        "url": "/v1/language/dictionary/varna/*/*",
         "pathParams": ["language_id", "varna_id"]
     },
     "body": ""

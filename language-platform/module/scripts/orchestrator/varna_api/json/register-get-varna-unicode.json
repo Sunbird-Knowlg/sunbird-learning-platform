@@ -1,14 +1,15 @@
 {
-    "name": "getVowelsFromSyllable",
+    "name": "getVarnaFromUnicode",
     "parameters": [{
-    	"name":"syllable",
+    	"name":"unicode",
     	"index": 0,
     	"routingParam": false,
 		"datatype": "java.lang.String"
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v1/Varna/getVowelsFromSyllable"
+        "type": "GET",
+        "url": "/v1/varna/unicode/*",
+        "pathParams": ["unicode"]
     },
     "body": ""
 }

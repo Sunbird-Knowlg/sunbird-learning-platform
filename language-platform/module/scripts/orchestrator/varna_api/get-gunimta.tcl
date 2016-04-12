@@ -36,7 +36,7 @@ set resp_def_node [getDefinition $language_id $varna_object_type]
 set def_node [get_resp_value $resp_def_node "definition_node"]
 set varna_obj [convert_graph_node $varna_node $def_node]
 
-set vowel_response [getAllVowelSigns $language_id]
+set vowel_response [getAllVarnas $language_id "VowelSign"]
 set vowel_list [get_resp_value $vowel_response "result"]
 
 set gunimta_list [java::new ArrayList]

@@ -23,7 +23,7 @@ if {!$lang_eqs} {
 	set err_response [create_error_response $result_map]
 	return $err_response
 }
-
+puts [$varna_id toString]
 set get_node_response [getDataNode $language_id $varna_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
