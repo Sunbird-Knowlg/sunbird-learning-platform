@@ -7,8 +7,9 @@
 		"datatype": "java.lang.String"
     }],
     "requestPath": {
-        "type": "POST",
-        "url": "/v1/varna/syllable/vowel"
+        "type": "GET",
+        "url": "/v1/varna/syllable/vowel/*",
+        "pathParams": ["syllable"]
     },
     "body": ""
 }
