@@ -477,6 +477,10 @@ public class BaseMimeTypeManager extends BaseManager {
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
         return updateContentNode(node, urlArray[1]);
     }
+    
+    public String getKeyName(String url) {
+    	return url.substring(url.lastIndexOf('/') + 1);
+    }
 
     /*******************************************************************************
      * REFACTORED CODE
