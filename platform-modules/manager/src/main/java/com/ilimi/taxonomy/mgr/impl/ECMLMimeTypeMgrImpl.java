@@ -280,7 +280,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		if (metadata.get(ContentAPIParams.pkgVersion.name()) == null) {
 			metadata.put(ContentAPIParams.pkgVersion.name(), 1);
 		} else {
-			int version = (int) metadata.get(ContentAPIParams.pkgVersion.name()) + 1;
+			double version = getDoubleValue(metadata.get(ContentAPIParams.pkgVersion.name())) + 1;
 			metadata.put(ContentAPIParams.pkgVersion.name(), version);
 		}
 		Object mimeType = getMimeType(new File(olderName.getName()));
