@@ -79,6 +79,12 @@ if {$object_null == 1} {
 		$filter put "operator" "!="
 		$filter put "value" "Asset"
 		$filter_list add $filter
+
+		set filter2 [java::new HashMap]
+		$filter2 put "property" "contentType"
+		$filter2 put "operator" "!="
+		$filter2 put "value" "Template"
+		$filter_list add $filter2
 		$search put "filters" $filter_list
 
 		set relations_list [java::new ArrayList]
@@ -131,6 +137,10 @@ if {$object_null == 1} {
 
 		set sort [$search get "sort"]
 		set limit [$search get "limit"]
+		set limit_null [java::isnull $limit]
+		if {$limit_null == 1} {
+			set limit [java::new Integer 50]
+		}
 		$search put "sortBy" $sort
 		$search put "resultSize" $limit
 
