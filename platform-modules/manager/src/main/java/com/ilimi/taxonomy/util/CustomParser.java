@@ -317,7 +317,7 @@ public class CustomParser {
 				Map<String, Object> media = (Map<String, Object>) medias.next();
 				idSrcMap.put((String) media.get("id"),
 						(String) media.get("src"));
-				mediaTypeMap.put((String) media.get("id"), (String) media.get("src"));
+				mediaTypeMap.put((String) media.get("id"), (String) media.get("type"));
 			}
 			Iterator mediaEntries = idSrcMap.entrySet().iterator();
 			while (mediaEntries.hasNext()) {
