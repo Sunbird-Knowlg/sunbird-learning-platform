@@ -37,6 +37,16 @@ set def_node [get_resp_value $resp_def_node "definition_node"]
 set varna_obj [convert_graph_node $varna_node $def_node]
 
 set vowel_response [getAllVarnas $language_id "VowelSign"]
+set check_error_vowel [check_response_error $vowel_response]
+if {$check_error_vowel} {
+	set result_map [java::new HashMap]
+	$result_map put "code" "ERR_INVALID_REQUEST"
+	$result_map put "message" "VOWEL DATA NOT FOUND"
+	$result_map put "responseCode" [java::new Integer 500]
+	set response_list [create_error_response $result_map]
+	return $response_list
+} 
+puts "Crossed"
 set vowel_list [get_resp_value $vowel_response "result"]
 
 set gunimta_list [java::new ArrayList]
