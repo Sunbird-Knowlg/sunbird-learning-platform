@@ -28,28 +28,29 @@ set varnas_list [java::new ArrayList]
 java::for {Node varna_node} $graph_nodes {
 	set varna_obj [convert_graph_node $varna_node $def_node]
 	set varnaIpaSymbol [$varna_obj get "ipaSymbol"]
-	puts [$varnaIpaSymbol toString]
+	set ipaIsNull [java::isnull $varnaIpaSymbol]
+	if {$ipaIsNull == 0} {
+		set searchProperty [java::new HashMap]
+		$searchProperty put "ipaSymbol" $varnaIpaSymbol
 
-	set searchProperty [java::new HashMap]
-	$searchProperty put "ipaSymbol" $varnaIpaSymbol
+		set property [create_search_property $searchProperty]
+		set search_response [getNodesByProperty $varna_ipa_graph_id $property]
+		set check_error [check_response_error $search_response]
+		if {$check_error} {
+			puts "Error response from searchNodes"
+			return $varnaIpaSymbol;
+		} 
+		set graph_nodes [get_resp_value $search_response "node_list"]
+		set varna_ipa_node [$graph_nodes get 0]
 
-	set property [create_search_property $searchProperty]
-	set search_response [getNodesByProperty $varna_ipa_graph_id $property]
-	set check_error [check_response_error $search_response]
-	if {$check_error} {
-		puts "Error response from searchNodes"
-		return $varnaIpaSymbol;
-	} 
-	set graph_nodes [get_resp_value $search_response "node_list"]
-	set varna_ipa_node [$graph_nodes get 0]
+		set varna_ipa_obj [convert_graph_node $varna_ipa_node $varna_ipa_def_node]
 
-	set varna_ipa_obj [convert_graph_node $varna_ipa_node $varna_ipa_def_node]
+		set phonoAttribVector [$varna_ipa_obj get "phonoAttribVector"]
+		set audio [$varna_ipa_obj get "audio"]
 
-	set phonoAttribVector [$varna_ipa_obj get "phonoAttribVector"]
-	set audio [$varna_ipa_obj get "audio"]
-
-	$varna_obj put "phonoAttribVector" $phonoAttribVector
-	$varna_obj put "audio" $audio
+		$varna_obj put "phonoAttribVector" $phonoAttribVector
+		$varna_obj put "audio" $audio
+	}
 	$varnas_list add $varna_obj
 }
 return $varnas_list
