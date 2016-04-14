@@ -17,8 +17,8 @@
           "renderingHints": "{ 'order': 1 }"
         },
         {
-          "propertyName": "lemma",
-          "title": "Lemma",
+          "propertyName": "varna",
+          "title": "Varna",
           "description": "",
           "category": "general",
           "dataType": "Text",
@@ -66,7 +66,7 @@
           "title": "Image",
           "description": "URL",
           "category": "sampleData",
-          "dataType": "List",
+          "dataType": "URL",
           "range": [],
           "required": false,
           "indexed": true,

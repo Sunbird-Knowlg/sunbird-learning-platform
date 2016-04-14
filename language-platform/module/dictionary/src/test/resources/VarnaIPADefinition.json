@@ -112,7 +112,6 @@
                 "Review",
                 "Retired"
             ],
-
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
