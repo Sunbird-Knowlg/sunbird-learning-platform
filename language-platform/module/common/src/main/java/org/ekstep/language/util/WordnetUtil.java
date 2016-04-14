@@ -123,7 +123,7 @@ public class WordnetUtil implements IWordnetConstants {
                     String[] arr = (String[]) posCategories;
                     if (null != arr && arr.length > 0) {
                         for (String str : arr) {
-                            String pos = WordnetUtil.getPosValue(str);
+                            String pos = WordnetUtil.getPosValue(str, false);
                             if (StringUtils.isNotBlank(pos))
                                 posList.add(pos.toLowerCase());
                         }
