@@ -32,6 +32,8 @@ node registerCommand.js commands/register-lang_loadLanguageVectors.json register
 
 node registerCommand.js commands/register-lang_getWordFeatures.json register
 
+node registerCommand.js commands/register-getNodesByProperty.json register
+
 
 
 
