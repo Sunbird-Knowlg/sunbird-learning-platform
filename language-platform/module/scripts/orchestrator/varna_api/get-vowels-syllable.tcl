@@ -31,7 +31,9 @@ java::for {char ch} $charArray {
 	set object_list [java::new {Object[]} {1}]
 	$object_list set 0 $object
 	set charUnicode [java::call String format "%04x" $object_list]
-	$unicode_list add $charUnicode
+	set charUnicodeString [java::new String $charUnicode]
+	set charUnicodeUpper [$charUnicodeString toUpperCase]
+	$unicode_list add $charUnicodeUpper
 }
 set vowel_list [java::new ArrayList]
 java::for {String unicode} $unicode_list {
