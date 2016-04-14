@@ -18,6 +18,7 @@ import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
+import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -37,14 +38,6 @@ public class ParagraphMeasures {
         SyllableMap.loadSyllables("te");
         SyllableMap.loadSyllables("hi");
         SyllableMap.loadSyllables("ka");
-    }
-    
-    public static void main(String[] args) {
-        Map<String, String> texts = new HashMap<String, String>();
-        texts.put("text1", "सृन्गेरी श्रीनिवास के लिए वह बहुत खास दिन था - उसका सालाना बाल - कटाई दिवस |");
-        texts.put("text2", "बेचारा सृंगेरी श्रीनिवास। लगता है इस सालाना बाल-कटाई दिवस पर कोई उसके बाल नहीं काटेगा।");
-        Map<String, Object> response = analyseTexts("hi", texts);
-        System.out.println(response);
     }
     
     @SuppressWarnings("unchecked")
@@ -232,16 +225,19 @@ public class ParagraphMeasures {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
             tx = graphDb.beginTx();
             if (null != neo4jNode) {                
-                if (neo4jNode.hasProperty("pos")) {
-                    String[] pos = (String[]) neo4jNode.getProperty("pos");
-                    if (null != pos && pos.length > 0)
-                        posValue = WordnetUtil.getPosValue(pos[0]);
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_POS)) {
+                    String[] pos = (String[]) neo4jNode.getProperty(IWordnetConstants.ATTRIB_POS);
+                    if (null != pos && pos.length > 0) {
+                        for (String str : pos) {
+                            if (WordnetUtil.isStandardPOS(str)) {
+                                posValue = str.trim().toLowerCase();
+                                break;
+                            }
+                        }
+                        if (StringUtils.isBlank(posValue))
+                            posValue = WordnetUtil.getPosValue(pos[0]);
+                    }
                 }
-                if (StringUtils.isBlank(posValue) && neo4jNode.hasProperty("pos_categories")) {
-                    String[] pos = (String[]) neo4jNode.getProperty("pos_categories");
-                    if (null != pos && pos.length > 0)
-                        posValue = WordnetUtil.getPosValue(pos[0]);
-                } 
             }
             tx.success();
         } catch (Exception e) {

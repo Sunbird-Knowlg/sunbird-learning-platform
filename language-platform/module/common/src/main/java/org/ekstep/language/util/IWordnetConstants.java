@@ -8,6 +8,7 @@ public interface IWordnetConstants {
     String ATTRIB_LEMMA = "lemma";
     String ATTRIB_POS = "pos";
     String ATTRIB_POS_TAGS = "posTags";
+    String ATTRIB_POS_CATEGORIES = "pos_categories";
     
     String POS_NOUN = "noun";
     String POS_PRONOUN = "pronoun";
@@ -18,6 +19,11 @@ public interface IWordnetConstants {
     String POS_PREPOSITION = "preposition";
     String POS_INTERJECTION = "interjection";
     String POS_ARTICLE = "article";
+    
+    String POS_CATEGORY_N = "n";
+    String POS_CATEGORY_V = "v";
+    String POS_CATEGORY_ADJ = "adj";
+    String POS_CATEGORY_PN = "pn";
     
     String POS_TAG_NN = "nn";
     String POS_TAG_NST = "nst";
