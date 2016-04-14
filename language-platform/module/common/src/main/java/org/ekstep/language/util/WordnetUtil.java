@@ -20,7 +20,7 @@ public class WordnetUtil implements IWordnetConstants {
 
     public static String getPosValue(String posTag, boolean returnDefault) {
         if (StringUtils.isNotBlank(posTag)) {
-            switch (posTag.toLowerCase()) {
+            switch (posTag.trim().toLowerCase()) {
             case POS_TAG_NN:
             case POS_TAG_NST:
             case POS_TAG_NNP:
