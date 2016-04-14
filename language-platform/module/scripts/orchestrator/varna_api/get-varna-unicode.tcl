@@ -18,7 +18,7 @@ if {$object_null == 1} {
 
 
 set searchProperty [java::new HashMap]
-$searchProperty put "lemma" $unicode
+$searchProperty put "varna" $unicode
 
 set language_id [get_language_graph_id $unicode]
 set property [create_search_property $searchProperty]
