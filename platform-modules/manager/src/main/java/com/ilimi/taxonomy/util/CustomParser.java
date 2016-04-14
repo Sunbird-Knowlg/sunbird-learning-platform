@@ -329,15 +329,12 @@ public class CustomParser {
 						StringUtils.equalsIgnoreCase(type, "css") ||
 						StringUtils.equalsIgnoreCase(type, "js"))) {
 					HttpDownloadUtility.downloadFile(src, widgetDir);
-					fileNameInURL = src.split("/");
-					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-					idSrcMap.put((String) entry.getKey(), "widgets" + File.separator + fileNameWithExtn);
 				} else {
 					HttpDownloadUtility.downloadFile(src, assetDir);
-					fileNameInURL = src.split("/");
-					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-					idSrcMap.put((String) entry.getKey(), fileNameWithExtn);
 				}
+				fileNameInURL = src.split("/");
+				fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
+				idSrcMap.put((String) entry.getKey(), fileNameWithExtn);
 			}
 			List<Map<String, Object>> updatedListOfMedia = updateJsonMedia(
 					jsonMap, idSrcMap);
