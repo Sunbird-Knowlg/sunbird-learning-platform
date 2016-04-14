@@ -1,9 +1,6 @@
 package org.ekstep.language.measures;
 
-import java.io.DataInputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
+import java.io.StringWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +19,7 @@ import org.ekstep.language.measures.entity.ParagraphComplexity;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.LanguageUtil;
+import org.ekstep.language.util.WordnetUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Result;
@@ -41,15 +39,23 @@ public class ParagraphMeasures {
         SyllableMap.loadSyllables("ka");
     }
     
-    @SuppressWarnings("unchecked")
     public static void main(String[] args) {
+        Map<String, String> texts = new HashMap<String, String>();
+        texts.put("text1", "सृन्गेरी श्रीनिवास के लिए वह बहुत खास दिन था - उसका सालाना बाल - कटाई दिवस |");
+        texts.put("text2", "बेचारा सृंगेरी श्रीनिवास। लगता है इस सालाना बाल-कटाई दिवस पर कोई उसके बाल नहीं काटेगा।");
+        Map<String, Object> response = analyseTexts("hi", texts);
+        System.out.println(response);
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> analyseTexts(String languageId, Map<String, String> texts) {
         try {
-            String languageId = "hi";
+            if (!SyllableMap.isLanguageEnabled(languageId) || null == texts || texts.isEmpty())
+                return null;
             String[] headerRows = new String[] { "File Name", "Total Orthographic Complexity", "Avg. Syllable Orthographic Complexity",
                     "Total Phonological Complexity", "Avg. Syllable Phonological Complexity", "Word Count", "Syllable Count"};
             String[] wordRowsHeader = new String[]{"Word", "PoS", "Orthographic Complexity", "Phonological Complexity"};
             String[] totalWordsHeader = new String[]{"Word", "Root Word", "Frequency", "Number of stories", "PoS", "Orthographic Complexity", "Phonological Complexity"};
-            List<String> skipFiles = Arrays.asList(new String[]{"complex_text.txt", "hindi_poem.txt", "standard_text.txt"});
 
             Map<String, String> posMap = new HashMap<String, String>();
             Map<String, String> rootWordMap = new HashMap<String, String>();
@@ -59,18 +65,14 @@ public class ParagraphMeasures {
             Map<String, List<String[]>> wordRowMap = new HashMap<String, List<String[]>>();
             List<String[]> rows = new ArrayList<String[]>();
             rows.add(headerRows);
-            File dir = new File("/Users/rayulu/work/EkStep/language_model/texts/pratham_stories");
-            File[] files = dir.listFiles();
-            for (File f : files) {
-                DataInputStream dis = new DataInputStream(new FileInputStream(f));
-                byte[] b = new byte[dis.available()];
-                dis.readFully(b);
-                String s = new String(b);
-                ParagraphComplexity pc = getTextComplexity("hi", s);
+            for (Entry<String, String> textEntry : texts.entrySet()) {
+                String filename = textEntry.getKey();
+                String s = textEntry.getValue();
+                ParagraphComplexity pc = getTextComplexity(languageId, s);
                 System.out.println(
-                        f.getName() + ": " + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity());
+                        filename + ": " + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity());
                 String[] row = new String[headerRows.length];
-                row[0] = f.getName();
+                row[0] = filename;
                 row[1] = pc.getTotalOrthoComplexity().toString();
                 row[2] = pc.getMeanOrthoComplexity().toString();
                 row[3] = pc.getTotalPhonicComplexity().toString();
@@ -83,8 +85,7 @@ public class ParagraphMeasures {
                 ComplexityMeasuresComparator comparator = new ComplexityMeasuresComparator(wordMeasures);
                 Map<String, ComplexityMeasures> sortedMap = new TreeMap<String,ComplexityMeasures>(comparator);
                 sortedMap.putAll(wordMeasures);
-                if (!skipFiles.contains(f.getName()))
-                    complexityMap.putAll(wordMeasures);
+                complexityMap.putAll(wordMeasures);
                 
                 List<String[]> wordRows = new ArrayList<String[]>();
                 wordRows.add(wordRowsHeader);
@@ -106,33 +107,36 @@ public class ParagraphMeasures {
                     wordRow[2] = entry.getValue().getOrthographic_complexity() + "";
                     wordRow[3] = entry.getValue().getPhonologic_complexity() + "";
                     wordRows.add(wordRow);
-                    if (!skipFiles.contains(f.getName())) {
-                        Integer count = (null == frequencyMap.get(entry.getKey()) ? 0 : frequencyMap.get(entry.getKey()));
-                        count += (null == wordFrequency.get(entry.getKey()) ? 1 : wordFrequency.get(entry.getKey()));
-                        frequencyMap.put(entry.getKey(), count);
+                    Integer count = (null == frequencyMap.get(entry.getKey()) ? 0 : frequencyMap.get(entry.getKey()));
+                    count += (null == wordFrequency.get(entry.getKey()) ? 1 : wordFrequency.get(entry.getKey()));
+                    frequencyMap.put(entry.getKey(), count);
                         
-                        Integer storyCount = (null == storyCountMap.get(entry.getKey()) ? 0 : storyCountMap.get(entry.getKey()));
-                        storyCount += 1;
-                        storyCountMap.put(entry.getKey(), storyCount);
-                    }
+                    Integer storyCount = (null == storyCountMap.get(entry.getKey()) ? 0 : storyCountMap.get(entry.getKey()));
+                    storyCount += 1;
+                    storyCountMap.put(entry.getKey(), storyCount);
                 }
-                wordRowMap.put(f.getName(), wordRows);
+                wordRowMap.put(filename, wordRows);
                 rows.add(row);
-                dis.close();
             }
-            
+            Map<String, Object> response = new HashMap<String, Object>();
             CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator("\n");
-            FileWriter fw = new FileWriter(new File("/Users/rayulu/work/EkStep/language_model/texts/pratham_output/pratham_stories.csv"));
-            CSVPrinter writer = new CSVPrinter(fw, csvFileFormat);
+            StringWriter sWriter = new StringWriter();
+            CSVPrinter writer = new CSVPrinter(sWriter, csvFileFormat);
             writer.printRecords(rows);
+            response.put("summary", sWriter.toString());
             writer.close();
-            
+            sWriter.close();
+
+            Map<String, Object> wordResponse = new HashMap<String, Object>();
             for (Entry<String, List<String[]>> entry : wordRowMap.entrySet()) {
-                FileWriter fw1 = new FileWriter(new File("/Users/rayulu/work/EkStep/language_model/texts/pratham_output/" + entry.getKey() + ".csv"));
-                CSVPrinter writer1 = new CSVPrinter(fw1, csvFileFormat);
+                sWriter = new StringWriter();
+                CSVPrinter writer1 = new CSVPrinter(sWriter, csvFileFormat);
                 writer1.printRecords(entry.getValue());
+                wordResponse.put(entry.getKey(), sWriter.toString());
                 writer1.close();
+                sWriter.close();
             }
+            response.put("groups", wordResponse);
             
             List<String[]> summaryRows = new ArrayList<String[]>();
             summaryRows.add(totalWordsHeader);
@@ -150,13 +154,18 @@ public class ParagraphMeasures {
                 row[6] = entry.getValue().getPhonologic_complexity() + "";
                 summaryRows.add(row);
             }
-            FileWriter fw2 = new FileWriter(new File("/Users/rayulu/work/EkStep/language_model/texts/pratham_output/summary.csv"));
-            CSVPrinter writer2 = new CSVPrinter(fw2, csvFileFormat);
+            sWriter = new StringWriter();
+            CSVPrinter writer2 = new CSVPrinter(sWriter, csvFileFormat);
             writer2.printRecords(summaryRows);
+            response.put("words", sWriter.toString());
             writer2.close();
+            sWriter.close();
+            
+            return response;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return null;
     }
     
     private static Node getNode(String prop, String value, String languageId) {
@@ -201,9 +210,8 @@ public class ParagraphMeasures {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
             tx = graphDb.beginTx();
             if (null != neo4jNode) {
-                if (neo4jNode.hasProperty("lemma")) {
+                if (neo4jNode.hasProperty("lemma"))
                     lemma = (String) neo4jNode.getProperty("lemma");
-                }
             }
             tx.success();
         } catch (Exception e) {
@@ -223,37 +231,17 @@ public class ParagraphMeasures {
         try {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
             tx = graphDb.beginTx();
-            if (null != neo4jNode) {
-                if (neo4jNode.hasProperty("pos_categories")) {
-                    String[] pos = (String[]) neo4jNode.getProperty("pos_categories");
-                    if (null != pos && pos.length > 0) {
-                        String cat = pos[0];
-                        if (StringUtils.equalsIgnoreCase("n", cat) || StringUtils.equalsIgnoreCase("nn", cat))
-                            posValue = "noun";
-                        else if (StringUtils.equalsIgnoreCase("v", cat) || StringUtils.equalsIgnoreCase("vm", cat))
-                            posValue = "verb";
-                        else if (StringUtils.equalsIgnoreCase("adj", cat) || StringUtils.equalsIgnoreCase("jj", cat))
-                            posValue = "adjective";
-                        else if (StringUtils.equalsIgnoreCase("pn", cat))
-                            posValue = "pronoun";
-                    }
-                } 
-                if (StringUtils.isBlank(posValue) && neo4jNode.hasProperty("pos")) {
+            if (null != neo4jNode) {                
+                if (neo4jNode.hasProperty("pos")) {
                     String[] pos = (String[]) neo4jNode.getProperty("pos");
-                    if (null != pos && pos.length > 0) {
-                        String cat = pos[0].toLowerCase();
-                        if (StringUtils.equalsIgnoreCase("n", cat) || StringUtils.equalsIgnoreCase("nn", cat))
-                            posValue = "noun";
-                        else if (StringUtils.equalsIgnoreCase("v", cat) || StringUtils.equalsIgnoreCase("vm", cat))
-                            posValue = "verb";
-                        else if (StringUtils.equalsIgnoreCase("adj", cat) || StringUtils.equalsIgnoreCase("jj", cat))
-                            posValue = "adjective";
-                        else if (StringUtils.equalsIgnoreCase("pn", cat))
-                            posValue = "pronoun";
-                        else
-                            posValue = pos[0].toLowerCase();
-                    }
+                    if (null != pos && pos.length > 0)
+                        posValue = WordnetUtil.getPosValue(pos[0]);
                 }
+                if (StringUtils.isBlank(posValue) && neo4jNode.hasProperty("pos_categories")) {
+                    String[] pos = (String[]) neo4jNode.getProperty("pos_categories");
+                    if (null != pos && pos.length > 0)
+                        posValue = WordnetUtil.getPosValue(pos[0]);
+                } 
             }
             tx.success();
         } catch (Exception e) {
