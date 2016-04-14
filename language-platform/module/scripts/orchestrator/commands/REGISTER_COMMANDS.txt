@@ -34,6 +34,12 @@ node registerCommand.js commands/register-lang_getWordFeatures.json register
 
 node registerCommand.js commands/register-getNodesByProperty.json register
 
+node registerCommand.js commands/register-createSearchProperty.json register
 
+node registerCommand.js commands/register-getNodesByProperty.json register
 
+node registerCommand.js commands/register-getSyllables.json register
 
+node registerCommand.js commands/register-getTextFromUnicode.json register
+
+node registerCommand.js commands/register-getLanguageGraphId.json register

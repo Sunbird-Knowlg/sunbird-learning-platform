@@ -1,0 +1,5 @@
+{
+    "name": "get_syllables_word",
+    "type": "COMMAND",
+    "cmdClass": "com.ilimi.orchestrator.interpreter.command.GetSyllables"
+}

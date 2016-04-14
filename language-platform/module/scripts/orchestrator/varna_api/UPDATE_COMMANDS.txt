@@ -25,5 +25,3 @@ node registerScript.js varna_api/get-syllables.tcl varna_api/json/register-get-s
 node registerScript.js varna_api/get-gunimta.tcl varna_api/json/register-get-gunimta.json update
 
 node registerScript.js varna_api/get-varnas.tcl varna_api/json/register-get-varnas.json update
-
-node registerScript.js varna_api/get-vowel-signs.tcl varna_api/json/register-get-vowel-signs.json update
