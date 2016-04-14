@@ -42,6 +42,8 @@ public class WordnetUtil implements IWordnetConstants {
                 return POS_CONJUNCTION;
             case POS_TAG_INJ:
                 return POS_INTERJECTION;
+            case POS_TAG_UNK:
+                return null;
             }
         }
         if (returnDefault)
@@ -130,7 +132,7 @@ public class WordnetUtil implements IWordnetConstants {
                     }
                 } else if (posCategories instanceof String) {
                     if (StringUtils.isNotBlank(posCategories.toString())) {
-                        String pos = WordnetUtil.getPosValue(posCategories.toString());
+                        String pos = WordnetUtil.getPosValue(posCategories.toString(), false);
                         if (StringUtils.isNotBlank(pos))
                             posList.add(pos.toLowerCase());
                     }

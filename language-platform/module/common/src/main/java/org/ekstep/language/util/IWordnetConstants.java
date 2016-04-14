@@ -24,6 +24,7 @@ public interface IWordnetConstants {
     String POS_CATEGORY_V = "v";
     String POS_CATEGORY_ADJ = "adj";
     String POS_CATEGORY_PN = "pn";
+    String POS_CATEGORY_UNK = "unk";
     
     String POS_TAG_NN = "nn";
     String POS_TAG_NST = "nst";
