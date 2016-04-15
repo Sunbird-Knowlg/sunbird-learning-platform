@@ -8,7 +8,7 @@ set varna_object_type "Varna"
 set varna_ipa_object_type "Varna_IPA"
 set varna_ipa_graph_id "language"
 set vowelString [java::new String "Vowel"]
-set vowelSignString [java::new String "Vowel Sign"]
+set vowelSignString [java::new String "VowelSign"]
 set object_null [java::isnull $syllable]
 if {$object_null == 1} {
 	set result_map [java::new HashMap]
