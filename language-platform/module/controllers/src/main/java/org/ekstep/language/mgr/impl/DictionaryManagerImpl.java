@@ -48,7 +48,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.common.router.RequestRouterPool;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -376,6 +376,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                             if (null != node.getMetadata().get("variants"))
                                 map.put("variants", node.getMetadata().get("variants"));
                         }
+                        if (null != metadata.get("translations")) {
+                            String translations = (String) metadata.get("translations");
+                            Object obj = JSONUtils.convertJSONString(translations);
+                            if (null != obj)
+                                map.put("translations", obj);
+                            else
+                                map.put("translations", translations);
+                        }
                     }
                     nodes.add(map);
                 }
@@ -426,7 +434,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<list.size(); j++) {
                         str += StringEscapeUtils.escapeCsv(list.get(j).toString());
                         if (j < list.size() - 1)
-                            str += "::";
+                            str += ",";
                     }
                     row[i] = str;
                 } else if (val instanceof Object[]) {
@@ -435,7 +443,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<arr.length; j++) {
                         str += StringEscapeUtils.escapeCsv(arr[j].toString());
                         if (j < arr.length - 1)
-                            str += "::";
+                            str += ",";
                     }
                     row[i] = str;
                 } else {

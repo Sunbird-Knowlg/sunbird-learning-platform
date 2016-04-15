@@ -17,7 +17,6 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -154,6 +153,14 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 	
+	private void asyncUpdate(String nodeId, String languageId) {
+        if (StringUtils.isNotBlank(nodeId)) {
+            List<String> nodeIds = new ArrayList<String>();
+            nodeIds.add(nodeId);
+            asyncUpdate(nodeIds, languageId);
+        }
+    }
+	
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
 	    Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
@@ -164,14 +171,6 @@ public abstract class DictionaryController extends BaseLanguageController {
         request.setOperation(LanguageOperations.enrichWords.name());
         request.getContext().put(LanguageParams.language_id.name(), languageId);
         makeAsyncRequest(request, LOGGER);
-	}
-	
-	private void asyncUpdate(String nodeId, String languageId) {
-	    if (StringUtils.isNotBlank(nodeId)) {
-	        List<String> nodeIds = new ArrayList<String>();
-	        nodeIds.add(nodeId);
-	        asyncUpdate(nodeIds, languageId);
-	    }
 	}
 	
 	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
@@ -313,3 +312,5 @@ public abstract class DictionaryController extends BaseLanguageController {
 	protected abstract String getObjectType();
 
 }
+
+

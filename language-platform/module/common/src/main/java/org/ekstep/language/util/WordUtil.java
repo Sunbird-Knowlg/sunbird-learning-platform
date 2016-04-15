@@ -3,6 +3,7 @@ package org.ekstep.language.util;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -33,6 +34,7 @@ import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -58,6 +60,7 @@ public class WordUtil extends BaseManager {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
+    private static final String LEMMA_PROPERTY = "lemma";
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
@@ -691,19 +694,48 @@ public class WordUtil extends BaseManager {
 	
 	@SuppressWarnings("unchecked")
     public Node searchWord(String languageId, String lemma) {
-	    Property property = new Property(LanguageParams.lemma.name(),lemma);
-	    Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");        
-	    request.put(GraphDACParams.metadata.name(), property);
-	    request.put(GraphDACParams.get_tags.name(), true);
-	    Response findRes = getResponse(request, LOGGER);
-	    if (checkError(findRes))
-	        return null;
-	    else {
-	        List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-	        if (null != nodes && nodes.size() > 0)
-	            return nodes.get(0);
-	    }
-	    return null;
+        Node node = null;
+        Property property = new Property(LanguageParams.lemma.name(), lemma);
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+        request.put(GraphDACParams.metadata.name(), property);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0)
+                node = nodes.get(0);
+        }
+        if (null == node) {
+            SearchCriteria sc = new SearchCriteria();
+            sc.setObjectType("Word");
+            sc.addMetadata(MetadataCriterion
+                    .create(Arrays.asList(new Filter("variants", SearchConditions.OP_IN, Arrays.asList(lemma)))));
+            sc.setResultSize(1);
+            Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+            req.put(GraphDACParams.search_criteria.name(), sc);
+            Response searchRes = getResponse(request, LOGGER);
+            if (!checkError(searchRes)) {
+                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+                if (null != nodes && nodes.size() > 0)
+                    node = nodes.get(0);
+            }
+        }
+        return node;
+    }
+	
+	public String createWord(String languageId, String word, String objectType) {
+        Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
+        Map<String, Object> metadata = new HashMap<String, Object>();
+        metadata.put(LEMMA_PROPERTY, word);
+        node.setMetadata(metadata);
+        Request req = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+        req.put(GraphDACParams.node.name(), node);
+        Response res = getResponse(req, LOGGER);
+        if (checkError(res)) {
+            throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), getErrorMessage(res));
+        }
+        String nodeId = (String) res.get(GraphDACParams.node_id.name());
+        return nodeId;
     }
 
 	
@@ -725,4 +757,5 @@ public class WordUtil extends BaseManager {
         }
         return null;
     }
+
 }

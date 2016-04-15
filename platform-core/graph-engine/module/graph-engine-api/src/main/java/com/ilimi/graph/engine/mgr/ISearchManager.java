@@ -8,6 +8,16 @@ public interface ISearchManager {
      * Get all nodes of a given object type
      * 
      * @request - GRAPH_ID as request context variable
+     * @request - Property Object
+     * @response - NODE_LIST: List of nodes of the given object type
+     * @response - STATUS: API call status
+     */
+    void getNodesByProperty(Request request);
+
+    /**
+     * Get all nodes of a given object type
+     * 
+     * @request - GRAPH_ID as request context variable
      * @request - OBJECT_TYPE object type
      * @response - NODE_LIST: List of nodes of the given object type
      * @response - STATUS: API call status

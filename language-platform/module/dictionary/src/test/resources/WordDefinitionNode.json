@@ -367,7 +367,7 @@
             "required": false,
 			"indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Live",
+            "defaultValue": "Draft",
             "renderingHints": "{'inputType': 'select', 'order': 27}"
         },
         {

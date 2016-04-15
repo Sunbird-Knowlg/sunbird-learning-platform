@@ -1,0 +1,27 @@
+node registerScript.js varna_api/create-varna.tcl varna_api/json/register-create-varna.json update
+
+node registerScript.js varna_api/update-varna.tcl varna_api/json/register-update-varna.json update
+
+node registerScript.js varna_api/get-varna.tcl varna_api/json/register-get-varna.json update
+
+node registerScript.js varna_api/create-varna-ipa.tcl varna_api/json/register-create-varna-ipa.json update
+
+node registerScript.js varna_api/update-varna-ipa.tcl varna_api/json/register-update-varna-ipa.json update
+
+node registerScript.js varna_api/get-varna-ipa.tcl varna_api/json/register-get-varna-ipa.json update
+
+node registerScript.js varna_api/get-varna-unicode.tcl varna_api/json/register-get-varna-unicode.json update
+
+node registerScript.js varna_api/get-varna-ipa-symbol.tcl varna_api/json/register-get-varna-ipa-symbol.json update
+
+node registerScript.js varna_api/is-vowel-unicode.tcl varna_api/json/register-is-vowel-unicode.json update
+
+node registerScript.js varna_api/get-vowels-syllable.tcl varna_api/json/register-get-vowels-syllable.json update
+
+node registerScript.js varna_api/get-consonants-syllable.tcl varna_api/json/register-get-consonants-syllable.json update
+
+node registerScript.js varna_api/get-syllables.tcl varna_api/json/register-get-syllables.json update
+
+node registerScript.js varna_api/get-gunimta.tcl varna_api/json/register-get-gunimta.json update
+
+node registerScript.js varna_api/get-varnas.tcl varna_api/json/register-get-varnas.json update
