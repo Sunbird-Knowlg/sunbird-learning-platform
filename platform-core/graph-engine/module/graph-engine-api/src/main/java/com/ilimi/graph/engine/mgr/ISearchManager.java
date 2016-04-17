@@ -143,6 +143,4 @@ public interface ISearchManager {
     
     void searchRelations(Request request);
 
-	void getNodesByProperty(Request request);
-
 }
