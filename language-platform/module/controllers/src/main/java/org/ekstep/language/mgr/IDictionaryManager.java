@@ -30,5 +30,7 @@ public interface IDictionaryManager {
 	
 	Response translation(String languageId, String[] words, String[] languages);
 
-	void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);
+	Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
+	
+	void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);	
 }

@@ -9,6 +9,10 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 
+import scala.concurrent.Future;
+import akka.actor.ActorRef;
+import akka.dispatch.OnComplete;
+
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -27,10 +31,6 @@ import com.ilimi.graph.engine.router.GraphEngineActorPoolMgr;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.Graph;
-
-import akka.actor.ActorRef;
-import akka.dispatch.OnComplete;
-import scala.concurrent.Future;
 
 public class SearchManagerImpl extends BaseGraphManager implements ISearchManager {
 
@@ -413,22 +413,20 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
         }
     }
 
-	@Override
+    @Override
 	public void getNodesByProperty(Request request) {
-        Property prop = (Property) request.get(GraphDACParams.metadata.name());
-
-	        if (!validateRequired(prop)) {
-	            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
-	                    "GetDataNode: Required parameters are missing...");
-	        } else {
-	            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-	            try {
-	                Graph graph = new Graph(this, graphId);
-	                graph.getNodesByProperty(request);
-	            } catch (Exception e) {
-	                handleException(e, getSender());
-	            }
-	        }
+		Property prop = (Property) request.get(GraphDACParams.metadata.name());
+		if (!validateRequired(prop)) {
+			throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
+					"GetDataNode: Required parameters are missing...");
+		} else {
+			String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+			try {
+				Graph graph = new Graph(this, graphId);
+				graph.getNodesByProperty(request);
+			} catch (Exception e) {
+				handleException(e, getSender());
+			}
+		}
 	}
-
 }

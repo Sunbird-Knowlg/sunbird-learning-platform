@@ -7,6 +7,13 @@ public interface IWordnetConstants {
 
     String ATTRIB_LEMMA = "lemma";
     String ATTRIB_POS = "pos";
+    String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";
+    String ATTRIB_PRONUNCIATIONS = "pronunciations";
+    String ATTRIB_PICTURES = "pictures";
+    String ATTRIB_IS_PHRASE = "isPhrase";
+    String ATTRIB_HAS_CONNOTATIVE_MEANING = "hasConnotativeMeaning";
+    String ATTRIB_HAS_CONNOTATIVE = "hasConnotative";
+    String ATTRIB_IS_LOAN_WORD = "isLoanWord";
     String ATTRIB_POS_TAGS = "posTags";
     String ATTRIB_POS_CATEGORIES = "pos_categories";
     
