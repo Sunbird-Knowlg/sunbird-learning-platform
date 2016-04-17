@@ -1046,7 +1046,7 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-          "indexed": false
+          "indexed": true
         },
         {
           "required": false,
@@ -1210,7 +1210,17 @@
           "indexed": false
         }
       ],
-      "inRelations": [],
+      "inRelations": [
+        {
+         "relationName": "hasSequenceMember",
+         "objectTypes": [
+           "Content"
+         ],
+         "title": "collections",
+         "description": "Which all collections is this content part of",
+         "required": false
+       }
+      ],
       "outRelations": [
         {
           "relationName": "associatedTo",

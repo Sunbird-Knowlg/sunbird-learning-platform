@@ -630,6 +630,7 @@ public class Graph extends AbstractDomainObject {
         }
     }
     
+    @SuppressWarnings("unchecked")
     public void getNodesByProperty(Request req) {
         try {
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();

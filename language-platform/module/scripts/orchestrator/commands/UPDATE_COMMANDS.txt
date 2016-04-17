@@ -27,3 +27,13 @@ node registerCommand.js commands/register-lang_loadCitations.json update
 node registerCommand.js commands/register-lang_loadLanguageVectors.json update
 
 node registerCommand.js commands/register-lang_getWordFeatures.json update
+
+node registerCommand.js commands/register-createSearchProperty.json update
+
+node registerCommand.js commands/register-getNodesByProperty.json update
+
+node registerCommand.js commands/register-getSyllables.json update
+
+node registerCommand.js commands/register-getTextFromUnicode.json update
+
+node registerCommand.js commands/register-getLanguageGraphId.json update

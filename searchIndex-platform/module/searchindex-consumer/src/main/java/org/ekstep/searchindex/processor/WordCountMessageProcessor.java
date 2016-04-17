@@ -5,7 +5,9 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
@@ -19,6 +21,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;
+	private AtomicBoolean timerTaskDone = new AtomicBoolean(true);
 	private boolean messageProcessed = false;
 	private Map<String, Map<String, Integer>> wordsCountMap = new ConcurrentHashMap<String, Map<String, Integer>>();
 	private int BATCH_TIME_IN_SECONDS = 60;
@@ -41,6 +44,9 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 		if(timer == null){
 			timer = new Timer();
 			timer.schedule(new PushTask(), seconds * 1000);
+			timerTaskDone.set(false);
+		} else if (!timerTaskDone.get()) {
+		    timer.schedule(new PushTask(), seconds * 1000);
 		}
 	}
 
@@ -78,13 +84,14 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			wordsCountObj.put("liveWordsCount", new Integer(0));
 			wordsCountMap.put(languageId, wordsCountObj);
 		}
-		
 		if(messageProcessed){
 			timer.cancel();
 			timer = null;
+			timerTaskDone.set(true);
 		}
 		else{
 			timer.schedule(new PushTask(), BATCH_TIME_IN_SECONDS * 1000);
+			timerTaskDone.set(false);
 		}
 	}
 
@@ -95,7 +102,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			String objectType = (String) message.get("objectType");
 			//objectType = WordUtils.capitalize(objectType.toLowerCase());
 			String languageId = (String) message.get("graphId");
-			if (objectType.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD)) {
+			if (StringUtils.equalsIgnoreCase(CompositeSearchConstants.OBJECT_TYPE_WORD, objectType)) {
 				Map<String, Integer> wordsCountObj = wordsCountMap.get(languageId);
 				if(wordsCountObj == null){
 					wordsCountObj = new HashMap<String, Integer>();
@@ -131,7 +138,6 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 								}
 							}
 						}
-						
 						break;
 					}
 					case CompositeSearchConstants.OPERATION_UPDATE: {
@@ -185,7 +191,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					wordsCountMap.put(languageId, wordsCountObj);
 					createTimer(BATCH_TIME_IN_SECONDS);
 					messageProcessed = false;
-					System.out.println("Message processed by word count processor");
+					System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					break;
 				}
 				}

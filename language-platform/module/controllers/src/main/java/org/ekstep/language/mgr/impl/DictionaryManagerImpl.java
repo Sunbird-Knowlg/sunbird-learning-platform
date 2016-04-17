@@ -2,12 +2,14 @@ package org.ekstep.language.mgr.impl;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.Character.UnicodeBlock;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,23 +27,30 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
+import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
+import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -61,8 +70,10 @@ import com.ilimi.graph.model.node.RelationDefinition;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.util.AWSUploader;
 
+import akka.actor.ActorRef;
+
 @Component
-public class DictionaryManagerImpl extends BaseManager implements IDictionaryManager {
+public class DictionaryManagerImpl extends BaseManager implements IDictionaryManager, IWordnetConstants {
 
     private static Logger LOGGER = LogManager.getLogger(IDictionaryManager.class.getName());
     private static final String LEMMA_PROPERTY = "lemma";
@@ -98,11 +109,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
-    public Response create(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
-        if (StringUtils.isBlank(objectType))
-            throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+	public Response create(String languageId, String objectType, Request request) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
 		try {
 			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
 			List<Node> nodeList = new ArrayList<Node>();
@@ -114,16 +125,26 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
 							"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
 					Response responseDefiniton = getResponse(requestDefinition, LOGGER);
-					if (!checkError(responseDefiniton)) {
-						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
-								.get(GraphDACParams.definition_node.name());
-						for (Map item : items) {
-							Node node = convertToGraphNode(languageId, objectType, item, definition);
-							nodeList.add(node);
+					if (checkError(responseDefiniton)) {
+						return responseDefiniton;
+					}
+					DefinitionDTO definition = (DefinitionDTO) responseDefiniton
+							.get(GraphDACParams.definition_node.name());
+					for (Map item : items) {
+						String lemma = (String) item.get(LanguageParams.lemma.name());
+						String language = LanguageMap.getLanguage(languageId).toUpperCase();
+						boolean isValid = isValidWord(lemma, language);
+						if (!isValid) {
+							return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+									"Lemma cannot be in a different language than " + language,
+									ResponseCode.CLIENT_ERROR);
 						}
+						Node node = convertToGraphNode(languageId, objectType, item, definition);
+						nodeList.add(node);
 					}
 				}
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException(LanguageErrorCodes.ERR_CREATE_WORD.name(), e.getMessage());
 			}
 			Response createRes = new Response();
@@ -166,7 +187,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		} catch (ClassCastException e) {
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
-    }
+	}
 
 	@SuppressWarnings({ "unchecked" })
 	@Override
@@ -187,9 +208,16 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
 			Node node = null;
 			if (checkError(responseDefiniton)) {
-				throw new ServerException(LanguageErrorCodes.ERR_UPDATE_WORD.name(),
-						getErrorMessage(responseDefiniton));
+				return responseDefiniton;
 			} else {
+				String lemma = (String) item.get(LanguageParams.lemma.name());
+				String language = LanguageMap.getLanguage(languageId).toUpperCase();
+				boolean isValid = isValidWord(lemma, language);
+				if (!isValid) {
+					return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+							"Lemma cannot be in a different language than " + language,
+							ResponseCode.CLIENT_ERROR);
+				}
 				DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
 				node = convertToGraphNode(languageId, objectType, item, definition);
 				node.setIdentifier(id);
@@ -204,7 +232,30 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
 	}
-
+	
+	public boolean isValidWord(String word, String language){
+        boolean result = false;
+        switch(language){
+        case "HINDI":{
+            language = Character.UnicodeBlock.DEVANAGARI.toString();
+            break;
+        }
+        case "ENGLISH":{
+            language = Character.UnicodeBlock.BASIC_LATIN.toString();
+            break;
+        }
+        }
+        UnicodeBlock wordBlock = UnicodeBlock.forName(language);
+        for(int i=0; i<word.length(); i++){
+            UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
+            if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+	
     @Override
     public Response find(String languageId, String id, String[] fields) {
         if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
@@ -327,6 +378,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                             if (null != node.getMetadata().get("variants"))
                                 map.put("variants", node.getMetadata().get("variants"));
                         }
+                        if (null != metadata.get("translations")) {
+                            String translations = (String) metadata.get("translations");
+                            Object obj = JSONUtils.convertJSONString(translations);
+                            if (null != obj)
+                                map.put("translations", obj);
+                            else
+                                map.put("translations", translations);
+                        }
                     }
                     nodes.add(map);
                 }
@@ -377,7 +436,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<list.size(); j++) {
                         str += StringEscapeUtils.escapeCsv(list.get(j).toString());
                         if (j < list.size() - 1)
-                            str += "::";
+                            str += ",";
                     }
                     row[i] = str;
                 } else if (val instanceof Object[]) {
@@ -386,7 +445,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                     for (int j=0; j<arr.length; j++) {
                         str += StringEscapeUtils.escapeCsv(arr[j].toString());
                         if (j < arr.length - 1)
-                            str += "::";
+                            str += ",";
                     }
                     row[i] = str;
                 } else {
@@ -1221,6 +1280,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             }
         }
     }
+    
+    private boolean getBooleanValue(String value) {
+        if (StringUtils.isNotBlank(value)) {
+            if (StringUtils.equalsIgnoreCase("yes", value.trim().toLowerCase())
+                    || StringUtils.equalsIgnoreCase("true", value.trim().toLowerCase()))
+                return true;
+        }
+        return false;
+    }
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) throws Exception {
@@ -1356,29 +1424,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
-	public boolean isValidWord(String word, String language){
-        boolean result = false;
-        switch(language){
-        case "HINDI":{
-        	language = Character.UnicodeBlock.DEVANAGARI.toString();
-        	break;
-        }
-        case "ENGLISH":{
-        	language = Character.UnicodeBlock.BASIC_LATIN.toString();
-        	break;
-        }
-        }
-	    UnicodeBlock wordBlock = UnicodeBlock.forName(language);
-	    for(int i=0; i<word.length(); i++){
-	        UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
-	        if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
-	            result = true;
-	            break;
-	        }
-	    }
-	    return result;
-	}
-	
 	@SuppressWarnings("unchecked")
 	private Response createOrUpdateWord(Map<String, Object> item, DefinitionDTO definition, String languageId,
 			boolean createFlag, List<String> nodeIdList) {
@@ -1931,4 +1976,323 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
+	@Override
+	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
+		Response importResponse = OK();
+		String delimiter = "::";
+		List<Map<String, String>> records = readFromCSV(inputStream);
+		Map<Integer, String> errorMessageMap = new HashMap<Integer, String>();
+		Map<Integer, String> messageMap = new HashMap<Integer, String>();
+		int rowNo = 0;
+		Map<String, String> wordIdMap = new HashMap<String, String>();
+		Map<String, String> synsetIdMap = new HashMap<String, String>();
+		List<String> wordNodeIds = new ArrayList<String>();
+		DefinitionDTO wordDefintion = getDefintiion(languageId, LanguageParams.Word.name());
+		DefinitionDTO defintion = getDefintiion(languageId, LanguageParams.Synset.name());
+		for (Map<String, String> csvRecord : records) {
+			rowNo++;
+			Map<String, Object> synsetMap = new HashMap<String, Object>();
+			Map<String, Object> wordMap = new HashMap<String, Object>();
+			Map<String, Boolean> booleanProps = new HashMap<String, Boolean>();
+			String wordId = null;
+			String lemma = null;
+			List<String> exampleSentences = null;
+			String synsetId = null;
+			List<String> pronunciations = null;
+			List<String> tagList = null;
+			boolean primaryMeaning = false;
+			for (Map.Entry<String, String> entry : csvRecord.entrySet()) {
+				switch (entry.getKey()) {
+				case "identifier": {
+					wordId = entry.getValue();
+					break;
+				}
+				case ATTRIB_LEMMA: {
+					lemma = entry.getValue();
+					break;
+				}
+				case "tags": {
+				    tagList = new ArrayList<String>();
+                    if (StringUtils.isNotBlank(entry.getValue())) {
+                        String[] arr = entry.getValue().split(",");
+                        tagList = Arrays.asList(arr);
+                    }
+					break;
+				}
+				case ATTRIB_PICTURES: {
+		            if (StringUtils.isNotBlank(entry.getValue())) {
+		                String[] arr = entry.getValue().split(",");
+		                synsetMap.put(ATTRIB_PICTURES, Arrays.asList(arr));
+		            }
+				}
+				case ATTRIB_PRONUNCIATIONS: {
+				    pronunciations = new ArrayList<String>();
+				    if (StringUtils.isNotBlank(entry.getValue())) {
+                        String[] arr = entry.getValue().split(",");
+                        pronunciations = Arrays.asList(arr);
+                    }
+				}
+				case ATTRIB_EXAMPLE_SENTENCES: {
+				    exampleSentences = new ArrayList<String>();
+                    if (StringUtils.isNotBlank(entry.getValue())) {
+                        String[] arr = entry.getValue().split(delimiter);
+                        exampleSentences = Arrays.asList(arr);
+                    }
+                    break;
+                }
+				case ATTRIB_HAS_CONNOTATIVE: 
+                case ATTRIB_HAS_CONNOTATIVE_MEANING:{
+                    booleanProps.put(ATTRIB_HAS_CONNOTATIVE, getBooleanValue(entry.getValue()));
+                    break;
+                }
+				case ATTRIB_IS_PHRASE: 
+				case ATTRIB_IS_LOAN_WORD: {
+				    booleanProps.put(entry.getKey(), getBooleanValue(entry.getValue()));
+                    break;
+                }
+				case "synsetId": {
+					synsetId = entry.getValue();
+					break;
+				}
+				case "primaryMeaning": {
+					primaryMeaning = getBooleanValue(entry.getValue());
+					break;
+				}
+				case ATTRIB_POS: {
+				    if (StringUtils.isNotBlank(entry.getValue()))
+                        synsetMap.put(entry.getKey(), entry.getValue().trim().toLowerCase());
+                    break;
+                }
+				default: {
+					if (StringUtils.isNotBlank(entry.getValue()))
+						synsetMap.put(entry.getKey(), entry.getValue());
+					break;
+				}
+				}
+			}
+			if (lemma == null || lemma.isEmpty()) {
+				addMessage(rowNo, "lemma is mandatory", errorMessageMap);
+				continue;
+			}
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				addMessage(rowNo, "Lemma cannot be in a different language than " + language, errorMessageMap);
+				continue;
+			}
+			String gloss = (String) synsetMap.get(LanguageParams.gloss.name());
+			if (gloss == null || gloss.isEmpty()) {
+				addMessage(rowNo, "Gloss is mandatory", errorMessageMap);
+				continue;
+			}
+			// create or update Synset
+			if (synsetId == null || synsetId.isEmpty())
+				synsetId = synsetIdMap.get(gloss);
+			if (synsetId != null && !synsetId.isEmpty())
+				synsetMap.put(LanguageParams.identifier.name(), synsetId);
+			Node synsetNode = convertToGraphNode(languageId, LanguageParams.Synset.name(), synsetMap, defintion);
+			synsetNode.setObjectType(LanguageParams.Synset.name());
+			if (null != tagList && !tagList.isEmpty())
+			    synsetNode.setTags(tagList);
+			Response synsetResponse = createOrUpdateNode(languageId, synsetNode);
+			if (checkError(synsetResponse)) {
+				addMessage(rowNo, wordUtil.getErrorMessage(synsetResponse), errorMessageMap);
+				continue;
+			} else {
+				synsetId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+				addMessage(rowNo, "Synset Id: " + synsetId, messageMap);
+			}
+			synsetIdMap.put(gloss, synsetId);
+			// create or update Word
+			if (wordId != null && !wordId.isEmpty()) {
+				wordMap.put(LanguageParams.identifier.name(), wordId);
+			}
+			wordMap.put(LanguageParams.lemma.name(), lemma);
+			String existingWordId = wordIdMap.get(lemma);
+			if (existingWordId == null) {
+				Node tempWordNode = wordUtil.searchWord(languageId, lemma);
+				if (tempWordNode != null) {
+					existingWordId = tempWordNode.getIdentifier();
+					wordIdMap.put(lemma, existingWordId);
+				}
+			}
+			if (wordId != null && !wordId.isEmpty()) {
+				if (existingWordId != null && !existingWordId.equalsIgnoreCase(wordId)) {
+					addMessage(rowNo, "Lemma already exists with node Id: " + existingWordId, errorMessageMap);
+					continue;
+				}
+			} else {
+				// wordId not present in csv
+				wordId = existingWordId;
+			}
+			//wordId not present in map and DB
+			if (wordId == null || wordId.isEmpty()) {
+				// create Word
+				Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefintion);
+				wordNode.setObjectType(LanguageParams.Word.name());
+				Response wordResponse = createOrUpdateNode(languageId, wordNode);
+				if (checkError(wordResponse)) {
+					addMessage(rowNo, wordUtil.getErrorMessage(wordResponse), errorMessageMap);
+					continue;
+				}
+				wordId = (String) wordResponse.get(GraphDACParams.node_id.name());
+				addMessage(rowNo, "Word Id: " + wordId, messageMap);
+				if (!wordNodeIds.contains(wordId))
+					wordNodeIds.add(wordId);
+				wordIdMap.put(lemma, wordId);
+			}
+			if (primaryMeaning) {
+				wordMap.put(LanguageParams.primaryMeaningId.name(), synsetId);
+				wordMap.putAll(booleanProps);
+				if (null != pronunciations && !pronunciations.isEmpty())
+				    wordMap.put(ATTRIB_PRONUNCIATIONS, pronunciations);
+				if (null != exampleSentences && !exampleSentences.isEmpty())
+				    wordMap.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
+				Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefintion);
+				wordNode.setObjectType(LanguageParams.Word.name());
+				wordNode.setTags(tagList);
+				if (wordId != null && !wordId.isEmpty())
+					wordNode.setIdentifier(wordId);
+				Response wordResponse = createOrUpdateNode(languageId, wordNode);
+				if (checkError(wordResponse)) {
+					addMessage(rowNo, wordUtil.getErrorMessage(wordResponse), errorMessageMap);
+					continue;
+				}
+				wordId = (String) wordResponse.get(GraphDACParams.node_id.name());
+				addMessage(rowNo, "Word Id: " + wordId, messageMap);
+				wordIdMap.put(lemma, wordId);
+				if (!wordNodeIds.contains(wordId))
+					wordNodeIds.add(wordId);
+			}
+			if (wordId != null && synsetId != null) {
+				Response relationResponse = createRelation(wordId, RelationTypes.SYNONYM.relationName(), languageId,
+						synsetId);
+				if (checkError(relationResponse)) {
+					addMessage(rowNo, wordUtil.getErrorMessage(relationResponse), errorMessageMap);
+				} else {
+					if (relationResponse.get("messages") != null)
+						addMessage(rowNo, wordUtil.getErrorMessage(relationResponse), errorMessageMap);
+				}
+			}
+		}
+		if (!wordNodeIds.isEmpty())
+			asyncUpdate(wordNodeIds, languageId);
+		if (!errorMessageMap.isEmpty())
+			importResponse.put(LanguageParams.errorMessages.name(), errorMessageMap);
+		if (!messageMap.isEmpty()) 
+			importResponse.put(LanguageParams.messages.name(), messageMap);
+		return importResponse;
+	}
+	
+	private Response createOrUpdateNode(String languageId, Node node) {
+		Response reponse;
+		if(node.getIdentifier() == null){
+			reponse = createDataNode(languageId, node);
+		}
+		else{
+			reponse = updateDataNode(languageId, node);
+		}
+		return reponse;
+	}
+
+	private Response createDataNode(String languageId, Node synsetNode) {
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		updateReq.put(GraphDACParams.node.name(), synsetNode);
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
+	}
+
+	private void addMessage(int rowNo, String error, Map<Integer, String> errorMessageMap) {
+		String errorMessage = errorMessageMap.get(rowNo);
+		if(errorMessage == null){
+			errorMessage = error;
+		}
+		else{
+			errorMessage = errorMessage + ". " + error;
+		}
+		errorMessageMap.put(rowNo, errorMessage);
+	}
+
+	private Response createRelation(String endNodeId, String relationType, String languageId, String startNodeId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), startNodeId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), endNodeId);
+		Response response = getResponse(request, LOGGER);
+		return response;
+	}
+
+	private Response updateDataNode(String languageId, Node synsetNode) {
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), synsetNode);
+		updateReq.put(GraphDACParams.node_id.name(), synsetNode.getIdentifier());
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
+		
+	}
+
+	private DefinitionDTO getDefintiion(String languageId, String objectType) {
+		Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+		if (checkError(responseDefiniton)) {
+			throw new ServerException(LanguageErrorCodes.ERR_SEARCH_ERROR.name(), getErrorMessage(responseDefiniton));
+		}
+		DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+		return definition;
+
+	}
+
+	private List<Map<String,String>> readFromCSV(InputStream inputStream) throws JsonProcessingException, IOException {
+		List<Map<String,String>> records =  new ArrayList<Map<String,String>>();
+		 InputStreamReader isReader = new InputStreamReader(inputStream, "UTF8");
+	        CSVParser csvReader = new CSVParser(isReader, csvFileFormat);
+	        List<String> headers = new ArrayList<String>();
+	        List<CSVRecord> recordsList = csvReader.getRecords();
+	        if (null != recordsList && !recordsList.isEmpty()) {
+	            for (int i = 0; i < recordsList.size(); i++) {
+	            	if(i == 0){
+	            		CSVRecord headerecord = recordsList.get(i);
+	            		 for (int j = 0; j < headerecord.size(); j++) {
+	 	                    String val = headerecord.get(j);
+	 	                   headers.add(val);
+	 	                }
+	            	}
+	            	else{
+	            		Map<String,String> csvRecord = new HashMap<String,String>();
+		                CSVRecord record = recordsList.get(i);
+		                for (int j = 0; j < record.size(); j++) {
+		                    String val = record.get(j);
+		                    csvRecord.put(headers.get(j), val);
+		                }
+		                records.add(csvRecord);
+	            	}
+	            }
+	        }
+	        isReader.close();
+	        csvReader.close();
+	        return records;
+	}
+	
+	private void asyncUpdate(List<String> nodeIds, String languageId) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.node_ids.name(), nodeIds);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+        request.setOperation(LanguageOperations.enrichWords.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        makeLanguageAsyncRequest(request, LOGGER);
+	}
+	
+	public void makeLanguageAsyncRequest(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
 }

@@ -114,11 +114,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 			Map<String, String> mediaSrcMap = new HashMap<String, String>();
 			Map<String, String> mediaAssetIdMap = new HashMap<String, String>();
+			Map<String, String> mediaTypeMap = new HashMap<String, String>();
 			Set<String> mediaIdSet = new HashSet<String>();
 			for (Entry<String, List<String>> entry : mediaIdMap.entrySet()) {
 				String id = entry.getKey();
 				List<String> values = entry.getValue();
-				if (null != values && values.size() == 2) {
+				if (null != values && values.size() >= 2) {
 					String src = values.get(0);
 					String assetId = values.get(1);
 					String nodeId = null;
@@ -130,6 +131,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 					mediaIdSet.add(nodeId);
 					mediaSrcMap.put(id, src);
 					mediaAssetIdMap.put(nodeId, id);
+					mediaTypeMap.put(id, values.get(2));
 				}
 			}
 			CustomParser customParser = new CustomParser();
@@ -146,40 +148,41 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 							mediaIdSet.remove(nodeExt.getIdentifier());
 							String downloadUrl = (String) nodeExt.getMetadata()
 									.get(ContentAPIParams.downloadUrl.name());
-							if (StringUtils.isBlank(downloadUrl)) {
-								long timeStempInMiliSec = System.currentTimeMillis();
-								String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
-								File olderName = new File(uploadFilePath + mediaSrc);
-								if (olderName.exists() && olderName.isFile()) {
-									String parentFolderName = olderName.getParent();
-									File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
-											+ olderName.getName());
-									FileUtils.copyFile(olderName, newName);
-									String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
-									Node newItem = createNode(nodeExt, url[1], nodeExt.getIdentifier(), olderName);
-									List<String> values = new ArrayList<String>();
-									values.add(url[1]);
-									values.add(nodeExt.getIdentifier());
-									mediaIdURL.put(mediaAssetIdMap.get(nodeExt.getIdentifier()), values);
-									Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-											"validateNode");
-									validateReq.put(GraphDACParams.node.name(), newItem);
-									Response validateRes = getResponse(validateReq, LOGGER);
-									if (checkError(validateRes)) {
-										return validateRes;
-									} else {
-										Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-												"updateDataNode");
-										updateReq.put(GraphDACParams.node.name(), newItem);
-										updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
-										getResponse(updateReq, LOGGER);
-									}
-								}
-							} else {
+							if (!StringUtils.isBlank(downloadUrl))
+								AWSUploader.deleteFile(bucketName, getKeyName(downloadUrl));
+							long timeStempInMiliSec = System.currentTimeMillis();
+							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
+							String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(nodeExt.getIdentifier()));
+							File olderName = new File(uploadFilePath + mediaSrc);
+							if (!StringUtils.isBlank(mediaType) && 
+									(StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+									StringUtils.equalsIgnoreCase(mediaType, "css") ||
+									StringUtils.equalsIgnoreCase(mediaType, "js")))
+								olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
+							if (olderName.exists() && olderName.isFile()) {
+								String parentFolderName = olderName.getParent();
+								File newName = new File(parentFolderName + File.separator + timeStempInMiliSec
+										+ olderName.getName());
+								FileUtils.copyFile(olderName, newName);
+								String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
+								Node newItem = createNode(nodeExt, url[1], nodeExt.getIdentifier(), olderName);
 								List<String> values = new ArrayList<String>();
-								values.add(downloadUrl);
+								values.add(url[1]);
 								values.add(nodeExt.getIdentifier());
 								mediaIdURL.put(mediaAssetIdMap.get(nodeExt.getIdentifier()), values);
+								Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+										"validateNode");
+								validateReq.put(GraphDACParams.node.name(), newItem);
+								Response validateRes = getResponse(validateReq, LOGGER);
+								if (checkError(validateRes)) {
+									return validateRes;
+								} else {
+									Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+											"updateDataNode");
+									updateReq.put(GraphDACParams.node.name(), newItem);
+									updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
+									getResponse(updateReq, LOGGER);
+								}
 							}
 						}
 					}
@@ -187,7 +190,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 						for (String mediaId : mediaIdSet) {
 							long timeStempInMiliSec = System.currentTimeMillis();
 							String mediaSrc = mediaSrcMap.get(mediaAssetIdMap.get(mediaId));
+							String mediaType = mediaTypeMap.get(mediaAssetIdMap.get(mediaId));
 							File olderName = new File(uploadFilePath + mediaSrc);
+							if (!StringUtils.isBlank(mediaType) && 
+									(StringUtils.equalsIgnoreCase(mediaType, "plugin") ||
+									StringUtils.equalsIgnoreCase(mediaType, "css") ||
+									StringUtils.equalsIgnoreCase(mediaType, "js")))
+								olderName = new File(zipFileDir + File.separator + "widgets" + File.separator + mediaSrc);
 							if (olderName.exists() && olderName.isFile()) {
 								String parentFolderName = olderName.getParent();
 								File newName = new File(
@@ -271,7 +280,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		if (metadata.get(ContentAPIParams.pkgVersion.name()) == null) {
 			metadata.put(ContentAPIParams.pkgVersion.name(), 1);
 		} else {
-			Double version = (Double) metadata.get(ContentAPIParams.pkgVersion.name()) + 1;
+			double version = getDoubleValue(metadata.get(ContentAPIParams.pkgVersion.name())) + 1;
 			metadata.put(ContentAPIParams.pkgVersion.name(), version);
 		}
 		Object mimeType = getMimeType(new File(olderName.getName()));
@@ -661,7 +670,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	public Response publish(Node node) {
 		Response response = new Response();
 		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-		if (StringUtils.isNotBlank(artifactUrl)) {
+		String body = (String) node.getMetadata().get(ContentAPIParams.body.name());
+		if (StringUtils.isNotBlank(artifactUrl) && StringUtils.isBlank(body)) {
 			response = rePublish(node);
 		} else {
 			response = compress(node);

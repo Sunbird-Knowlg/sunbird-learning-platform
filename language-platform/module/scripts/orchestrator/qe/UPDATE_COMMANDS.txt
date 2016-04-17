@@ -9,3 +9,5 @@ node registerScript.js qe/getWordMetadata.tcl qe/json/register-get-word-metadata
 node registerScript.js qe/getWordsBySource.tcl qe/json/register-get-words-by-source.json update
 
 node registerScript.js qe/orthographic-search.tcl qe/json/register-orthographic-search.json update
+
+node registerScript.js qe/getTranslations.tcl qe/json/register-getTranslations.json update

@@ -25,7 +25,6 @@ if {!$lang_eqs} {
 }
 set prefix "lang_"
 set lang_node_id [concat $prefix$language_id]
-puts $lang_node_id
 set get_node_response [getDataNode "domain" $lang_node_id]
 set graph_node [get_resp_value $get_node_response "node"]
 
@@ -43,7 +42,6 @@ set wordCount [$wordCount intValue]
 
 set ogWords [java::new Integer [$resp_object get "words"]]
 set words [$ogWords intValue]
-puts $words
 set updatedWordsCount [expr $words + $wordCount]
 
 if {[java::isnull $liveWordCount] == 1} {
@@ -55,15 +53,14 @@ if {[java::isnull $liveWordCount] == 1} {
 set liveWordCount [$liveWordCount intValue]
 
 set ogLiveWordsObj [$resp_object get "liveWords"]
-puts $ogLiveWordsObj
 if {[java::isnull $ogLiveWordsObj] == 1} {
 	puts "is null"
 	set ogLiveWords [java::new Integer 0]
 } else {
 	set ogLiveWords [java::new Integer [$resp_object get "liveWords"]]
 }
+
 set liveWords [$ogLiveWords intValue]
-puts $liveWords
 set updatedLiveWordsCount [expr $liveWords + $liveWordCount]
 $resp_object put "words" [java::new Integer $updatedWordsCount]
 $resp_object put "liveWords" [java::new Integer $updatedLiveWordsCount]

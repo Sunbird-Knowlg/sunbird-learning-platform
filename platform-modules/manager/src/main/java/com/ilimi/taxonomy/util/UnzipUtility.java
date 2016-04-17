@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -23,12 +24,26 @@ public class UnzipUtility {
      * @param destDirectory
      * @throws IOException
      */
+    
+    public void unzip(InputStream in, String destDirectory)throws IOException {
+        File destDir = new File(destDirectory);
+        if (!destDir.exists()) {
+            destDir.mkdir();
+        }
+        ZipInputStream zipIn = new ZipInputStream(in);
+        unzip(zipIn, destDirectory);
+    }
+    
     public void unzip(String zipFilePath, String destDirectory) throws IOException {
         File destDir = new File(destDirectory);
         if (!destDir.exists()) {
             destDir.mkdir();
         }
         ZipInputStream zipIn = new ZipInputStream(new FileInputStream(zipFilePath));
+        unzip(zipIn, destDirectory);
+    }
+    
+    public void unzip(ZipInputStream zipIn, String destDirectory) throws IOException {
         ZipEntry entry = zipIn.getNextEntry();
         // iterates over entries in the zip file
         while (entry != null) {

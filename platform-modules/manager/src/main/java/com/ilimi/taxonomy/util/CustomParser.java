@@ -85,9 +85,11 @@ public class CustomParser {
 							String src = attributes.getValue("src");
 							if (StringUtils.isNotBlank(src)) {
 								String assetId = attributes.getValue("assetId");
+								String type = attributes.getValue("type");
 								List<String> mediaValues = new ArrayList<String>();
 								mediaValues.add(src);
 								mediaValues.add(assetId);
+								mediaValues.add(type);	
 								mediaIdMap.put(id, mediaValues);
 							}
 						}
@@ -111,6 +113,7 @@ public class CustomParser {
 	public void updateEcml(String filePath) {
 		String filePath1 = filePath + File.separator + "index.ecml";
 		String assetDir = filePath + File.separator + "assets";
+		String widgetDir = filePath + File.separator + "widgets";
 		File file1 = new File(assetDir);
 		if (!file1.exists()) {
 			file1.mkdir();
@@ -121,11 +124,23 @@ public class CustomParser {
 			for (int i = 0; i < medias.getLength(); i++) {
 				media = (Element) medias.item(i);
 				String src = media.getAttribute("src");
-				HttpDownloadUtility.downloadFile(src, assetDir);
-				fileNameInURL = src.split("/");
-				fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-				System.out.println(src);
-				media.setAttribute("src", fileNameWithExtn);
+				String type = media.getAttribute("type");
+				if (!StringUtils.isBlank(type) && 
+						(StringUtils.equalsIgnoreCase(type, "plugin") || 
+						StringUtils.equalsIgnoreCase(type, "css") ||
+						StringUtils.equalsIgnoreCase(type, "js"))) {
+					HttpDownloadUtility.downloadFile(src, widgetDir);
+					fileNameInURL = src.split("/");
+					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
+					System.out.println(src);
+					media.setAttribute("src", "widgets" + File.separator + fileNameWithExtn);
+				} else {
+					HttpDownloadUtility.downloadFile(src, assetDir);
+					fileNameInURL = src.split("/");
+					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
+					System.out.println(src);
+					media.setAttribute("src", fileNameWithExtn);
+				}
 			}
 			doc.getDocumentElement().normalize();
 			TransformerFactory transformerFactory = TransformerFactory
@@ -280,11 +295,13 @@ public class CustomParser {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void readJsonFileDownload(String filePath) {
 		String assetDir = filePath + File.separator + "assets";
+		String widgetDir = filePath + File.separator + "widgets";
 		String jsonFilePath = filePath + File.separator + "index.json";
 		String jsonString = readFile(new File(jsonFilePath));
 		ObjectMapper mapper = new ObjectMapper();
 		List<Map<String, Object>> listOfMedia = new ArrayList<>();
 		Map<String, String> idSrcMap = new HashMap<>();
+		Map<String, String> mediaTypeMap = new HashMap<String, String>();
 		try {
 			Map<String, Object> jsonMap = mapper.readValue(jsonString,
 					new TypeReference<Map<String, Object>>() {
@@ -300,12 +317,21 @@ public class CustomParser {
 				Map<String, Object> media = (Map<String, Object>) medias.next();
 				idSrcMap.put((String) media.get("id"),
 						(String) media.get("src"));
+				mediaTypeMap.put((String) media.get("id"), (String) media.get("type"));
 			}
 			Iterator mediaEntries = idSrcMap.entrySet().iterator();
 			while (mediaEntries.hasNext()) {
 				Map.Entry entry = (Map.Entry) mediaEntries.next();
 				String src = (String) entry.getValue();
-				HttpDownloadUtility.downloadFile(src, assetDir);
+				String type = mediaTypeMap.get(entry.getKey());
+				if (!StringUtils.isBlank(type) && 
+						(StringUtils.equalsIgnoreCase(type, "plugin") || 
+						StringUtils.equalsIgnoreCase(type, "css") ||
+						StringUtils.equalsIgnoreCase(type, "js"))) {
+					HttpDownloadUtility.downloadFile(src, widgetDir);
+				} else {
+					HttpDownloadUtility.downloadFile(src, assetDir);
+				}
 				fileNameInURL = src.split("/");
 				fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
 				idSrcMap.put((String) entry.getKey(), fileNameWithExtn);
@@ -437,6 +463,7 @@ public class CustomParser {
 							List<String> lst = new ArrayList<String>();
 							lst.add((String) media.get("src"));
 							lst.add((String) media.get("assetId"));
+							lst.add((String) media.get("type"));
 							map.put((String) media.get("id"), lst);
 						}
 					}

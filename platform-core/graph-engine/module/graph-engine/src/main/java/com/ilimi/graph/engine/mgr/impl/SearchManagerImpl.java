@@ -415,19 +415,18 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
     
     @Override
 	public void getNodesByProperty(Request request) {
-        Property prop = (Property) request.get(GraphDACParams.metadata.name());
-
-	        if (!validateRequired(prop)) {
-	            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
-	                    "GetDataNode: Required parameters are missing...");
-	        } else {
-	            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-	            try {
-	                Graph graph = new Graph(this, graphId);
-	                graph.getNodesByProperty(request);
-	            } catch (Exception e) {
-	                handleException(e, getSender());
-	            }
-	        }
+		Property prop = (Property) request.get(GraphDACParams.metadata.name());
+		if (!validateRequired(prop)) {
+			throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
+					"GetDataNode: Required parameters are missing...");
+		} else {
+			String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+			try {
+				Graph graph = new Graph(this, graphId);
+				graph.getNodesByProperty(request);
+			} catch (Exception e) {
+				handleException(e, getSender());
+			}
+		}
 	}
 }

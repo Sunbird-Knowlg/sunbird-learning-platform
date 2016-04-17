@@ -43,7 +43,8 @@ public class ElasticSearchUtil {
 	private String hostName;
 	private String port;
 	private int defaultResultLimit = 10000;
-	private int BATCH_SIZE = 1000;
+	private int BATCH_SIZE=1000;
+	private int CONNECTION_TIMEOUT=30;
 	private int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 	
@@ -60,7 +61,7 @@ public class ElasticSearchUtil {
 			this.resultLimit = resultSize;
 		}
 		JestClientFactory factory = new JestClientFactory();
-		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true).build());
+		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true).connTimeout(CONNECTION_TIMEOUT).build());
 		client = factory.getObject();
 
 	}
@@ -69,13 +70,19 @@ public class ElasticSearchUtil {
 		super();
 		initialize();
 		JestClientFactory factory = new JestClientFactory();
-		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true).build());
+		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true).connTimeout(CONNECTION_TIMEOUT).build());
 		client = factory.getObject();
 	}
 
 	public void initialize() {
 		hostName = PropertiesUtil.getProperty("elastic-search-host");
 		port = PropertiesUtil.getProperty("elastic-search-port");
+		if(PropertiesUtil.getProperty("bulk-load-batch-size") != null){
+			BATCH_SIZE = Integer.parseInt(PropertiesUtil.getProperty("bulk-load-batch-size"));
+		}
+		if(PropertiesUtil.getProperty("connection-timeout") != null){
+			CONNECTION_TIMEOUT = Integer.parseInt(PropertiesUtil.getProperty("connection-timeout"));
+		}
 	}
 
 	public List<String> getQuerySearchFields(){

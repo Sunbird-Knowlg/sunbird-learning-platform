@@ -477,6 +477,25 @@ public class BaseMimeTypeManager extends BaseManager {
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
         return updateContentNode(node, urlArray[1]);
     }
+    
+    public String getKeyName(String url) {
+    	return url.substring(url.lastIndexOf('/') + 1);
+    }
+    
+    public Number getNumericValue(Object obj) {
+    	try {
+    		return (Number) obj;
+    	} catch(Exception e) {
+    		return 0;
+    	}
+    }
+    
+    public Double getDoubleValue(Object obj) {
+    	Number n = getNumericValue(obj);
+    	if (null == n)
+    		return 0.0;
+    	return n.doubleValue();
+    }
 
     /*******************************************************************************
      * REFACTORED CODE

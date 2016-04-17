@@ -86,7 +86,8 @@
 					<artifactId>tomcat7-maven-plugin</artifactId>
 					<version>2.2</version>
 					<configuration>
-          				<port>9090</port>
+						<port>9090</port>
+          				<uriEncoding>utf-8</uriEncoding>
         			</configuration>
 				</plugin>
 				<plugin>

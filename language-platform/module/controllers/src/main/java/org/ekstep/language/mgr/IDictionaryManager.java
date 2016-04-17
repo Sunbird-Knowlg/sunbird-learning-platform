@@ -30,8 +30,10 @@ public interface IDictionaryManager {
 	
 	Response translation(String languageId, String[] words, String[] languages);
 
-	void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);
-
+	Response importWordSynset(String languageId, InputStream inputStream) throws Exception;
+    
+    void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);
+	
 	Response createWordV2(String languageId, String objectType, Request request);
 	
 	Response updateWordV2(String languageId, String id, String objectType, Request request);
