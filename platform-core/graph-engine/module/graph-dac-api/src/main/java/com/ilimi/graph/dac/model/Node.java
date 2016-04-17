@@ -20,6 +20,7 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 public class Node implements Serializable {
 
     private static final long serialVersionUID = 252337826576516976L;
+    private long id;
     private String graphId;
     private String identifier;
     private String nodeType;
@@ -57,6 +58,7 @@ public class Node implements Serializable {
             throw new ServerException(GraphDACErrorCodes.ERR_GRAPH_NULL_DB_NODE.name(),
                     "Failed to create node object. Node from database is null.");
         this.graphId = graphId;
+        this.id = neo4jNode.getId();
         Iterable<String> keys = neo4jNode.getPropertyKeys();
         if (null != keys && null != keys.iterator()) {
             this.metadata = new HashMap<String, Object>();
@@ -169,6 +171,14 @@ public class Node implements Serializable {
 
     public void setTags(List<String> tags) {
         this.tags = tags;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public void setId(long id) {
+        this.id = id;
     }
 
 }

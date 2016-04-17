@@ -12,7 +12,5 @@ public class WordController extends DictionaryController {
     protected String getObjectType() {
         return LanguageObjectTypes.Word.name();
     }
-
-    
     
 }

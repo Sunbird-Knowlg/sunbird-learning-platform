@@ -79,6 +79,34 @@ public class ConvertGraphNode {
         return map;
     }
     
+    public static Map<String, Object> convertGraphNodeWithoutRelations(Node node, String domainId, DefinitionDTO definition,
+            List<String> fieldList) {
+        Map<String, Object> map = new HashMap<String, Object>();
+        if (null != node) {
+            Map<String, Object> metadata = node.getMetadata();
+            if (null != metadata && !metadata.isEmpty()) {
+                for (Entry<String, Object> entry : metadata.entrySet()) {
+                    if (null != fieldList && !fieldList.isEmpty()) {
+                        if (fieldList.contains(entry.getKey()))
+                            map.put(entry.getKey(), entry.getValue());
+                    } else {
+                        String key = entry.getKey();
+                        if (StringUtils.isNotBlank(key)) {
+                            char c[] = key.toCharArray();
+                            c[0] = Character.toLowerCase(c[0]);
+                            key = new String(c);
+                            map.put(key, entry.getValue());
+                        }
+                    }
+                }
+            }
+            if (null != node.getTags() && !node.getTags().isEmpty())
+                map.put("tags", node.getTags());
+            map.put("identifier", node.getIdentifier());
+        }
+        return map;
+    }
+    
     private static String getDescription(Map<String, Object> metadata) {
         if (null != metadata && !metadata.isEmpty()) {
             return (String) metadata.get("description");

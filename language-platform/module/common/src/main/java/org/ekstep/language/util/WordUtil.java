@@ -723,6 +723,21 @@ public class WordUtil extends BaseManager {
         return node;
     }
 	
+	public Node getDataNode(String languageId, String nodeId) {
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");        
+        request.put(GraphDACParams.node_id.name(), nodeId);
+    
+        Response findRes = getResponse(request, LOGGER);
+        if (checkError(findRes))
+            return null;
+        else {
+            Node node = (Node) findRes.get(GraphDACParams.node.name());
+            if (null != node)
+                return node;
+        }
+        return null;
+    }
+	
 	public String createWord(String languageId, String word, String objectType) {
         Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
         Map<String, Object> metadata = new HashMap<String, Object>();

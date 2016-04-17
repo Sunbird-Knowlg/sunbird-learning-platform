@@ -412,7 +412,7 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             }
         }
     }
-
+    
     @Override
 	public void getNodesByProperty(Request request) {
 		Property prop = (Property) request.get(GraphDACParams.metadata.name());

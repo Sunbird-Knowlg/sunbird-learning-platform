@@ -49,6 +49,7 @@ import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.mgr.ConvertGraphNode;
 import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -176,11 +177,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 			if (null == errResponse) {
 				createRes.getResult().remove(GraphDACParams.node_id.name());
-				createRes.put(GraphDACParams.node_id.name(), lstNodeId);
+				createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
 				return createRes;
 			} else {
 				errResponse.getResult().remove(GraphDACParams.node_id.name());
-				errResponse.put(GraphDACParams.node_id.name(), lstNodeId);
+				errResponse.put(GraphDACParams.node_ids.name(), lstNodeId);
 				return errResponse;
 			}
 		} catch (ClassCastException e) {
@@ -231,29 +232,29 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
 		}
 	}
-
+	
 	public boolean isValidWord(String word, String language){
         boolean result = false;
         switch(language){
         case "HINDI":{
-        	language = Character.UnicodeBlock.DEVANAGARI.toString();
-        	break;
+            language = Character.UnicodeBlock.DEVANAGARI.toString();
+            break;
         }
         case "ENGLISH":{
-        	language = Character.UnicodeBlock.BASIC_LATIN.toString();
-        	break;
+            language = Character.UnicodeBlock.BASIC_LATIN.toString();
+            break;
         }
         }
-	    UnicodeBlock wordBlock = UnicodeBlock.forName(language);
-	    for(int i=0; i<word.length(); i++){
-	        UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
-	        if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
-	            result = true;
-	            break;
-	        }
-	    }
-	    return result;
-	}
+        UnicodeBlock wordBlock = UnicodeBlock.forName(language);
+        for(int i=0; i<word.length(); i++){
+            UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
+            if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
 	
     @Override
     public Response find(String languageId, String id, String[] fields) {
@@ -1289,6 +1290,746 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return false;
     }
 
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	private Node convertToGraphNode(Map<String, Object> map, DefinitionDTO definition) throws Exception {
+		Node node = new Node();
+		if (null != map && !map.isEmpty()) {
+			Map<String, String> inRelDefMap = new HashMap<String, String>();
+			Map<String, String> outRelDefMap = new HashMap<String, String>();
+			getRelDefMaps(definition, inRelDefMap, outRelDefMap);
+			List<Relation> inRelations = null;
+			List<Relation> outRelations = null;
+			Map<String, Object> metadata = new HashMap<String, Object>();
+			for (Entry<String, Object> entry : map.entrySet()) {
+				if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
+					node.setIdentifier((String) entry.getValue());
+				} else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
+					node.setObjectType((String) entry.getValue());
+				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry.getValue());
+						List<String> tags = mapper.readValue(objectStr, List.class);
+						if (null != tags && !tags.isEmpty())
+							node.setTags(tags);
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw e;
+}
+				} else if (inRelDefMap.containsKey(entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry.getValue());
+						List<Map> list = mapper.readValue(objectStr, List.class);
+						if (null != list && !list.isEmpty()) {
+							for (Map obj : list) {
+								NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
+								if (null == inRelations)
+									inRelations = new ArrayList<Relation>();
+								inRelations
+										.add(new Relation(dto.getIdentifier(), inRelDefMap.get(entry.getKey()), null));
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw e;
+					}
+				} else if (outRelDefMap.containsKey(entry.getKey())) {
+					try {
+						String objectStr = mapper.writeValueAsString(entry.getValue());
+						List<Map> list = mapper.readValue(objectStr, List.class);
+						if (null != list && !list.isEmpty()) {
+							for (Map obj : list) {
+								NodeDTO dto = (NodeDTO) mapper.convertValue(obj, NodeDTO.class);
+								Relation relation = new Relation(null, outRelDefMap.get(entry.getKey()),
+										dto.getIdentifier());
+								if (null != dto.getIndex() && dto.getIndex().intValue() >= 0) {
+									Map<String, Object> relMetadata = new HashMap<String, Object>();
+									relMetadata.put(SystemProperties.IL_SEQUENCE_INDEX.name(), dto.getIndex());
+									relation.setMetadata(relMetadata);
+								}
+								if (null == outRelations)
+									outRelations = new ArrayList<Relation>();
+								outRelations.add(relation);
+							}
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+						throw e;
+					}
+				} else {
+					metadata.put(entry.getKey(), entry.getValue());
+				}
+			}
+			node.setInRelations(inRelations);
+			node.setOutRelations(outRelations);
+			node.setMetadata(metadata);
+		}
+		return node;
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@Override
+	public Response createWordV2(String languageId, String objectType, Request request) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+		try {
+			Response createRes = OK();
+			List<String> lstNodeId = new ArrayList<String>();
+			StringBuffer errorMessages = new StringBuffer();
+			List<Map> items = (List<Map>) request.get(LanguageParams.words.name());
+			if (null == items || items.size() <= 0)
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
+						objectType + " Object is blank");
+			try {
+				if (null != items && !items.isEmpty()) {
+					Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER,
+							"getNodeDefinition", GraphDACParams.object_type.name(), objectType);
+					Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+					if (!checkError(responseDefiniton)) {
+						DefinitionDTO definition = (DefinitionDTO) responseDefiniton
+								.get(GraphDACParams.definition_node.name());
+						for (Map item : items) {
+							String lemma = (String) item.get(LanguageParams.lemma.name());
+							String language = LanguageMap.getLanguage(languageId).toUpperCase();
+							boolean isValid = isValidWord(lemma, language);
+							if (!isValid) {
+								return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+										"Lemma cannot be in a different language than " + language,
+										ResponseCode.CLIENT_ERROR);
+							}
+							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId);
+							String errorMessage = (String) wordResponse.get(LanguageParams.error_messages.name());
+							if (errorMessage != null && !errorMessage.isEmpty()) {
+								errorMessages.append(errorMessage);
+							}
+							String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+							if (nodeId != null) {
+								lstNodeId.add(nodeId);
+							}
+						}
+					}
+				}
+			} catch (Exception e) {
+				errorMessages.append(e.getMessage());
+			}
+			createRes.put(GraphDACParams.node_ids.name(), lstNodeId);
+			String errorMessagesString = errorMessages.toString();
+			if(!errorMessagesString.isEmpty()){
+				createRes.put(LanguageParams.error_messages.name(), errorMessages.toString());
+			}
+			return createRes;
+		} catch (ClassCastException e) {
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private Response createOrUpdateWord(Map<String, Object> item, DefinitionDTO definition, String languageId,
+			boolean createFlag, List<String> nodeIdList) {
+		Response createRes = new Response();
+		StringBuffer errorMessages = new StringBuffer();
+		try {
+			Map<String, Object> primaryMeaning = (Map<String, Object>) item.get(LanguageParams.primaryMeaning.name());
+			if (primaryMeaning == null) {
+				return ERROR(LanguageErrorCodes.ERROR_PRIMARY_MEANING_EMPTY.name(),
+						"Primary meaning field is mandatory", ResponseCode.SERVER_ERROR);
+			}
+			String wordPrimaryMeaningId = (String) item.get(LanguageParams.primaryMeaningId.name());
+			String primarySynsetId = (String) primaryMeaning.get(LanguageParams.identifier.name());
+
+			if (wordPrimaryMeaningId != null && primarySynsetId != null
+					&& !wordPrimaryMeaningId.equalsIgnoreCase(primarySynsetId)) {
+				return ERROR(LanguageErrorCodes.ERROR_PRIMARY_MEANING_MISMATCH.name(),
+						"primaryMeaningId cannot be different from primary meaning synset Id",
+						ResponseCode.SERVER_ERROR);
+			}
+
+			// create or update Primary meaning Synset
+			List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.synonyms.name());
+			List<String> synonymWordIds = processRelationWords(synonyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(synonymWordIds);
+
+			List<Map<String, Object>> hypernyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.hypernyms.name());
+			List<String> hypernymWordIds = processRelationWords(hypernyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(hypernymWordIds);
+
+			List<Map<String, Object>> holonyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.holonyms.name());
+			List<String> holonymWordIds = processRelationWords(holonyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(holonymWordIds);
+
+			List<Map<String, Object>> antonyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.antonyms.name());
+			List<String> antonymWordIds = processRelationWords(antonyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(antonymWordIds);
+
+			List<Map<String, Object>> hyponyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.hyponyms.name());
+			List<String> hyponymWordIds = processRelationWords(hyponyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(hyponymWordIds);
+
+			List<Map<String, Object>> meronyms = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.meronyms.name());
+			List<String> meronymWordIds = processRelationWords(meronyms, languageId, errorMessages, definition);
+			nodeIdList.addAll(meronymWordIds);
+
+			primaryMeaning.remove(LanguageParams.synonyms.name());
+			primaryMeaning.remove(LanguageParams.hypernyms.name());
+			primaryMeaning.remove(LanguageParams.holonyms.name());
+			primaryMeaning.remove(LanguageParams.antonyms.name());
+			primaryMeaning.remove(LanguageParams.meronyms.name());
+
+			Response synsetResponse = createSynset(languageId, primaryMeaning);
+			if (checkError(synsetResponse)) {
+				return synsetResponse;
+			}
+			
+			String primaryMeaningId = (String) synsetResponse.get(GraphDACParams.node_id.name());
+			addSynsetRelation(synonymWordIds, RelationTypes.SYNONYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(hypernymWordIds, RelationTypes.HYPERNYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(holonymWordIds, RelationTypes.HOLONYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(antonymWordIds, RelationTypes.ANTONYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(hyponymWordIds, RelationTypes.HYPONYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(meronymWordIds, RelationTypes.MERONYM.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+
+			// update wordMap with primary synset data
+			item.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+			
+			//get Synset data
+			Node synsetNode = wordUtil.getDataNode(languageId, primaryMeaningId);
+			if(synsetNode != null){
+				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
+				String category = (String) synsetMetadata.get(LanguageParams.category.name());
+				if (category != null) {
+					item.put(LanguageParams.category.name(), category);
+				}
+				
+				List<String> tags = synsetNode.getTags();
+				if (tags != null) {
+					List<String> wordTags = (List<String>) item.get(LanguageParams.tags.name());
+					if(wordTags == null){
+						wordTags =  new ArrayList<String>();
+					}
+					wordTags.addAll(tags);
+					item.put(LanguageParams.tags.name(), wordTags);
+				}
+			}
+			
+			// create or update Other meaning Synsets
+			List<String> otherMeaningIds = new ArrayList<String>();
+			List<Map<String, Object>> otherMeanings = (List<Map<String, Object>>) item
+					.get(LanguageParams.otherMeanings.name());
+			if (otherMeanings != null && !otherMeanings.isEmpty()) {
+				for (Map<String, Object> otherMeaning : otherMeanings) {
+					Response otherSynsetResponse = createSynset(languageId, otherMeaning);
+					if (checkError(otherSynsetResponse)) {
+						return otherSynsetResponse;
+					}
+					String otherMeaningId = (String) otherSynsetResponse.get(GraphDACParams.node_id.name());
+					otherMeaningIds.add(otherMeaningId);
+				}
+			}
+
+			// create Word
+			item.remove(LanguageParams.primaryMeaning.name());
+			item.remove(LanguageParams.otherMeanings.name());
+			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
+			node.setObjectType(LanguageParams.Word.name());
+			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
+			if(wordIdentifier == null && createFlag){
+				Node existingWordNode = wordUtil.searchWord(languageId, (String) item.get(LanguageParams.lemma.name()));
+				if(existingWordNode != null){
+					wordIdentifier = existingWordNode.getIdentifier();
+					item.put(LanguageParams.identifier.name(), wordIdentifier);
+					createFlag = false;
+				}
+			}
+			if (createFlag) {
+				createRes = createWord(node, languageId);
+			} else {
+				createRes = updateWord(node, languageId, wordIdentifier);
+			}
+			if (!checkError(createRes)) {
+				String wordId = (String) createRes.get("node_id");
+				// add Primary Synonym Relation
+				addSynonymRelation(languageId, wordId, primaryMeaningId);
+				// add other meaning Synonym Relation
+				for (String otherMeaningId : otherMeaningIds) {
+					addSynonymRelation(languageId, wordId, otherMeaningId);
+				}
+			} else {
+				errorMessages.append(wordUtil.getErrorMessage(createRes));
+			}
+		} catch (Exception e) {
+			errorMessages.append(e.getMessage());
+		}
+		if(!errorMessages.toString().isEmpty()){
+			createRes.put(LanguageParams.error_messages.name(), errorMessages.toString());
+		}
+		return createRes;
+	}
+
+	private void addSynsetRelation(List<String> wordIds, String relationType, String languageId, String synsetId,
+			StringBuffer errorMessages) {
+		for (String wordId : wordIds) {
+			if (relationType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())) {
+				Node wordNode = getWord(wordId, languageId, errorMessages);
+				Map<String, Object> metadata = wordNode.getMetadata();
+				if (metadata != null) {
+					String primaryMeaningId = (String) metadata.get("primaryMeaningId");
+					if (primaryMeaningId != null && !primaryMeaningId.equalsIgnoreCase(synsetId)) {
+						errorMessages.append("Word :" + wordId + " has an existing different primary meaning");
+						continue;
+					} else if (primaryMeaningId == null) {
+						metadata.put(LanguageParams.primaryMeaning.name(), synsetId);
+						wordNode.setMetadata(metadata);
+						wordNode.setObjectType(LanguageParams.Word.name());
+						updateWord(wordNode, languageId, wordId);
+					}
+				}
+			}
+			addSynsetRelation(wordId, relationType, languageId, synsetId, errorMessages);
+		}
+	}
+
+	private void addSynsetRelation(String wordId, String relationType, String languageId, String synsetId,
+			StringBuffer errorMessages) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), synsetId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), wordId);
+		Response response = getResponse(request, LOGGER);
+		if (checkError(response)) {
+			errorMessages.append(response.getParams().getErrmsg());
+		}
+	}
+
+	private Node getWord(String wordId, String languageId, StringBuffer errorMessages) {
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+				GraphDACParams.node_id.name(), wordId);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response getNodeRes = getResponse(request, LOGGER);
+		if (checkError(getNodeRes)) {
+			errorMessages.append(getNodeRes.getParams().getErrmsg());
+		}
+		Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+		return node;
+	}
+
+	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
+			StringBuffer errorMessages, DefinitionDTO wordDefintion) {
+		List<String> wordIds = new ArrayList<String>();
+		if (synsetRelations != null) {
+			for (Map<String, Object> word : synsetRelations) {
+				String wordId = createOrUpdateWordsWithoutPrimaryMeaning(word, languageId, errorMessages,
+						wordDefintion);
+				if (wordId != null) {
+					wordIds.add(wordId);
+				}
+			}
+		}
+		return wordIds;
+	}
+
+	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
+			StringBuffer errorMessages, DefinitionDTO definition) {
+		String lemma = (String) word.get(LanguageParams.lemma.name());
+		if (lemma == null) {
+			errorMessages.append("Lemma is mandatory");
+			return null;
+		} else {
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				errorMessages.append("Lemma cannot be in a different language than " + language);
+				return null;
+			}
+			String identifier = (String) word.get(LanguageParams.identifier.name());
+			if(identifier == null){
+				Node existingWordNode = wordUtil.searchWord(languageId, lemma);
+				if(existingWordNode != null){
+					identifier = existingWordNode.getIdentifier();
+					word.put(LanguageParams.identifier.name(), identifier);
+				}
+			}
+			Response wordResponse;
+			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
+			wordNode.setObjectType(LanguageParams.Word.name());
+			if (identifier == null) {
+				wordResponse = createWord(wordNode, languageId);
+			} else {
+				wordResponse = updateWord(wordNode, languageId, identifier);
+			}
+			if (checkError(wordResponse)) {
+				errorMessages.append(wordUtil.getErrorMessage(wordResponse));
+				return null;
+			}
+			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+			return nodeId;
+		}
+	}
+
+	private Response createSynset(String languageId, Map<String, Object> synsetObj) throws Exception {
+		String operation = "updateDataNode";
+		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
+		if (identifier == null || identifier.isEmpty()) {
+			operation = "createDataNode";
+		}
+
+		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
+		// synsetObj.put(GraphDACParams.object_type.name(),
+		// LanguageParams.Synset.name());
+		Node synsetNode = convertToGraphNode(synsetObj, synsetDefinition);
+		synsetNode.setObjectType(LanguageParams.Synset.name());
+		Request synsetReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, operation);
+		synsetReq.put(GraphDACParams.node.name(), synsetNode);
+		if (operation.equalsIgnoreCase("updateDataNode")) {
+			synsetReq.put(GraphDACParams.node_id.name(), synsetNode.getIdentifier());
+		}
+		Response res = getResponse(synsetReq, LOGGER);
+		return res;
+	}
+
+	private void addSynonymRelation(String languageId, String wordId, String synsetId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), synsetId);
+		request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
+		request.put(GraphDACParams.end_node_id.name(), wordId);
+		Response response = getResponse(request, LOGGER);
+		if (checkError(response)) {
+			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+		}
+	}
+
+	private Response createWord(Node node, String languageId) {
+		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		validateReq.put(GraphDACParams.node.name(), node);
+		Response validateRes = getResponse(validateReq, LOGGER);
+		if (checkError(validateRes)) {
+			return validateRes;
+		} else {
+			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+			createReq.put(GraphDACParams.node.name(), node);
+			Response res = getResponse(createReq, LOGGER);
+			return res;
+		}
+	}
+
+	private Response updateWord(Node node, String languageId, String wordId) {
+		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+		validateReq.put(GraphDACParams.node.name(), node);
+		validateReq.put(GraphDACParams.node_id.name(), wordId);
+		Response validateRes = getResponse(validateReq, LOGGER);
+		if (checkError(validateRes)) {
+			return validateRes;
+		} else {
+			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+			createReq.put(GraphDACParams.node.name(), node);
+			createReq.put(GraphDACParams.node_id.name(), wordId);
+			Response res = getResponse(createReq, LOGGER);
+			return res;
+		}
+	}
+
+	@SuppressWarnings({ "unchecked" })
+	@Override
+	public Response updateWordV2(String languageId, String id, String objectType, Request request) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(id))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
+		try {
+			Map<String, Object> item = (Map<String, Object>) request.get(objectType.toLowerCase().trim());
+			if (null == item)
+				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT.name(),
+						objectType + " Object is blank");
+			item.put(LanguageParams.identifier.name(), id);
+			String lemma = (String) item.get(LanguageParams.lemma.name());
+			String language = LanguageMap.getLanguage(languageId).toUpperCase();
+			boolean isValid = isValidWord(lemma, language);
+			if (!isValid) {
+				return ERROR(LanguageErrorCodes.ERR_CREATE_WORD.name(),
+						"Lemma cannot be in a different language than " + language,
+						ResponseCode.CLIENT_ERROR);
+			}
+			Request requestDefinition = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+					GraphDACParams.object_type.name(), objectType);
+			Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+			if (checkError(responseDefiniton)) {
+				return responseDefiniton;
+			}
+			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+			List<String> lstNodeId = new ArrayList<String>();
+			Response updateResponse = createOrUpdateWord(item, definition, languageId, false, lstNodeId);
+			if (!lstNodeId.isEmpty()) {
+				String wordId = (String) updateResponse.get(GraphDACParams.node_id.name());
+				if (wordId != null) {
+					updateResponse.getResult().remove(GraphDACParams.node_id.name());
+					lstNodeId.add(wordId);
+					updateResponse.put(GraphDACParams.node_ids.name(), lstNodeId);
+				}
+			}
+			return updateResponse;
+
+		} catch (ClassCastException e) {
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Request format incorrect");
+		}
+	}
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Response updateWord(String languageId, String id, Map wordMap) throws Exception {
+		Node node = null;
+		DefinitionDTO definition = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+		node = convertToGraphNode(wordMap, definition);
+		node.setIdentifier(id);
+		node.setObjectType(LanguageParams.Word.name());
+		Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		updateReq.put(GraphDACParams.node.name(), node);
+		updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+		Response updateRes = getResponse(updateReq, LOGGER);
+		return updateRes;
+	}
+
+	public Node getDataNode(String languageId, String nodeId, String objectType) throws Exception {
+		Request getNodeReq = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
+		getNodeReq.put(GraphDACParams.node_id.name(), nodeId);
+		getNodeReq.put(GraphDACParams.graph_id.name(), languageId);
+		Response getNodeRes = getResponse(getNodeReq, LOGGER);
+		if (checkError(getNodeRes)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getNodeRes));
+		}
+		return (Node) getNodeRes.get(GraphDACParams.node.name());
+	}
+
+	public DefinitionDTO getDefinitionDTO(String definitionName, String graphId) {
+		Request requestDefinition = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), definitionName);
+		Response responseDefiniton = getResponse(requestDefinition, LOGGER);
+		if (checkError(responseDefiniton)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(responseDefiniton));
+		} else {
+			DefinitionDTO definition = (DefinitionDTO) responseDefiniton.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+	}
+
+	@Override
+	public Response findV2(String languageId, String id, String[] fields) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(id))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+				GraphDACParams.node_id.name(), id);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response getNodeRes = getResponse(request, LOGGER);
+		if (checkError(getNodeRes)) {
+			return getNodeRes;
+		} else {
+			try {
+				Node node = (Node) getNodeRes.get(GraphDACParams.node.name());
+				Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
+				Response response = copyResponse(getNodeRes);
+				response.put(LanguageObjectTypes.Word.name(), map);
+				return response;
+			} catch (Exception e) {
+				e.printStackTrace();
+				return ERROR(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), ResponseCode.CLIENT_ERROR);
+			}
+
+		}
+	}
+	
+	private List<Node> getSynsets(Node word) {
+	    List<Node> synsets = new ArrayList<Node>();
+	    if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
+	        List<Relation> relations = word.getInRelations();
+	        for (Relation rel : relations) {
+	            if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), rel.getRelationType()) 
+	                    && StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(), rel.getStartNodeObjectType())) {
+	                String synsetId = rel.getStartNodeId();
+	                Map<String, Object> metadata = rel.getStartNodeMetadata();
+	                Node synset = new Node(synsetId, rel.getStartNodeType(), rel.getStartNodeObjectType());
+	                synset.setMetadata(metadata);
+	                synsets.add(synset);
+	            }
+	        }
+	    }
+	    return synsets;
+	}
+	
+	private Map<String, Object> getSynsetMap(Node synset, DefinitionDTO def) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    if (null != synset) {
+	        if (null != synset.getMetadata() && !synset.getMetadata().isEmpty())
+	            map.putAll(synset.getMetadata());
+	        if (null != def.getOutRelations() && !def.getOutRelations().isEmpty()) {
+	            Map<String, List<NodeDTO>> relMap = new HashMap<String, List<NodeDTO>>();
+	            Map<String, String> relTitleMap = new HashMap<String, String>();
+	            for (RelationDefinition rDef : def.getOutRelations()) {
+	                relTitleMap.put(rDef.getRelationName(), rDef.getTitle());
+	                relMap.put(rDef.getTitle(), new ArrayList<NodeDTO>());
+	            }
+	            if (null != synset.getOutRelations() && !synset.getOutRelations().isEmpty()) {
+	                List<Relation> relations = synset.getOutRelations();
+	                for (Relation rel : relations) {
+	                    if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())) {
+	                        String title = relTitleMap.get(rel.getRelationType());
+	                        if (StringUtils.isNotBlank(title)) {
+	                            List<NodeDTO> list = relMap.get(title);
+	                            String lemma = (String) rel.getEndNodeMetadata().get(LanguageParams.lemma.name());
+	                            list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
+	                        }
+	                    }
+	                }
+	            }
+	            map.putAll(relMap);
+	        }
+	        if (null != synset.getTags() && !synset.getTags().isEmpty())
+	            map.put("tags", synset.getTags());
+	        map.put("identifier", synset.getIdentifier());
+	    }
+	    return map;
+	}
+	
+	private Map<String, Object> getOtherMeaningMap(Node synset) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    if (null != synset) {
+	        if (null != synset.getMetadata() && !synset.getMetadata().isEmpty())
+	            map.putAll(synset.getMetadata());
+	        map.put("identifier", synset.getIdentifier());
+	    }
+	    return map;
+	}
+
+	private Map<String, Object> addPrimaryAndOtherMeaningsToWord(Node node, String languageId) {
+		try {
+			DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
+			Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, languageId, defintion, null);
+			String primaryMeaningId = (String) map.get(LanguageParams.primaryMeaningId.name());
+			List<Node> synsets = getSynsets(node);
+			if (primaryMeaningId != null) {
+				if (!isValidSynset(synsets, primaryMeaningId)) {
+					primaryMeaningId = null;
+					map.put(LanguageParams.primaryMeaningId.name(), null);
+				}
+			}
+			if (primaryMeaningId == null || primaryMeaningId.isEmpty()) {
+				if (synsets != null && !synsets.isEmpty()) {
+					Node primarySynonym = synsets.get(0);
+					primaryMeaningId = primarySynonym.getIdentifier();
+					Map<String, Object> updateWordMap = new HashMap<String, Object>();
+					updateWordMap.put("identifier", map.get(LanguageParams.identifier.name()));
+					updateWordMap.put("lemma", map.get(LanguageParams.lemma.name()));
+					updateWordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+					map.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+					Response updateResponse;
+					try {
+						updateResponse = updateWord(languageId, (String) map.get(LanguageParams.identifier.name()),
+								updateWordMap);
+						if (checkError(updateResponse)) {
+							throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+									wordUtil.getErrorMessage(updateResponse));
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+
+				}
+			}
+			if (primaryMeaningId != null) {
+				Node synsetNode = getDataNode(languageId, primaryMeaningId, "Synset");
+				DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
+				Map<String, Object> synsetMap = getSynsetMap(synsetNode, synsetDefintion);
+				String category = (String) synsetMap.get(LanguageParams.category.name());
+				if (StringUtils.isNotBlank(category))
+					map.put(LanguageParams.category.name(), category);
+				map.put(LanguageParams.primaryMeaning.name(), synsetMap);
+			}
+			if (synsets != null && !synsets.isEmpty()) {
+				List<Map<String, Object>> otherMeaningsList = new ArrayList<Map<String, Object>>();
+				for (int i = 0; i < synsets.size(); i++) {
+					Node otherSynonym = synsets.get(i);
+					String otherMeaningId = otherSynonym.getIdentifier();
+					if (primaryMeaningId != null && !otherMeaningId.equalsIgnoreCase(primaryMeaningId)) {
+						Map<String, Object> synsetMap = getOtherMeaningMap(otherSynonym);
+						otherMeaningsList.add(synsetMap);
+					}
+				}
+				if (!otherMeaningsList.isEmpty()) {
+					map.put(LanguageParams.otherMeanings.name(), otherMeaningsList);
+				}
+			}
+			map.remove(LanguageParams.synonyms.name());
+			return map;
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), e.getMessage());
+		}
+	}
+
+	private boolean isValidSynset(List<Node> synsets, String synsetId) {
+		if (synsets != null) {
+			for (Node synsetDTO : synsets) {
+				String id = synsetDTO.getIdentifier();
+				if (synsetId.equalsIgnoreCase(id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response findAllV2(String languageId, String objectType, String[] fields, Integer limit) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");
+		LOGGER.info("Find All Content : " + languageId + ", ObjectType: " + objectType);
+		SearchCriteria sc = new SearchCriteria();
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(objectType);
+		sc.sort(new Sort(PARAM_STATUS, Sort.SORT_ASC));
+		if (null != limit && limit.intValue() > 0)
+			sc.setResultSize(limit);
+		else
+			sc.setResultSize(DEFAULT_LIMIT);
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (checkError(findRes))
+			return findRes;
+		else {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+			if (null != nodes && !nodes.isEmpty()) {
+				for (Node node : nodes) {
+					Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
+					if (null != map && !map.isEmpty()) {
+						list.add(map);
+					}
+				}
+			}
+			Response response = copyResponse(findRes);
+			response.put("words", list);
+			return response;
+		}
+	}
+
 	@Override
 	public Response importWordSynset(String languageId, InputStream inputStream) throws Exception {
 		Response importResponse = OK();
@@ -1608,5 +2349,4 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
-	
 }
