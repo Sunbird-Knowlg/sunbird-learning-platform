@@ -72,8 +72,8 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			}
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
 				System.out.println("processing definition nodes");
-				Map<String, Object> definitionNode = ObjectDefinitionCache.resyncDefinition(objectType, graphId);
-				consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
+				ObjectDefinitionCache.resyncDefinition(objectType, graphId);
+				//consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
 			}
 			}
 			System.out.println("Message processed by Composite search index porocessor");

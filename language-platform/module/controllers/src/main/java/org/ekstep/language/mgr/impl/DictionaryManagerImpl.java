@@ -1850,25 +1850,84 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 		}
 	}
+	
+	private List<Node> getSynsets(Node word) {
+	    List<Node> synsets = new ArrayList<Node>();
+	    if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
+	        List<Relation> relations = word.getInRelations();
+	        for (Relation rel : relations) {
+	            if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), rel.getRelationType()) 
+	                    && StringUtils.equalsIgnoreCase(LanguageParams.Synset.name(), rel.getStartNodeObjectType())) {
+	                String synsetId = rel.getStartNodeId();
+	                Map<String, Object> metadata = rel.getStartNodeMetadata();
+	                Node synset = new Node(synsetId, rel.getStartNodeType(), rel.getStartNodeObjectType());
+	                synset.setMetadata(metadata);
+	                synsets.add(synset);
+	            }
+	        }
+	    }
+	    return synsets;
+	}
+	
+	private Map<String, Object> getSynsetMap(Node synset, DefinitionDTO def) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    if (null != synset) {
+	        if (null != synset.getMetadata() && !synset.getMetadata().isEmpty())
+	            map.putAll(synset.getMetadata());
+	        if (null != def.getOutRelations() && !def.getOutRelations().isEmpty()) {
+	            Map<String, List<NodeDTO>> relMap = new HashMap<String, List<NodeDTO>>();
+	            Map<String, String> relTitleMap = new HashMap<String, String>();
+	            for (RelationDefinition rDef : def.getOutRelations()) {
+	                relTitleMap.put(rDef.getRelationName(), rDef.getTitle());
+	                relMap.put(rDef.getTitle(), new ArrayList<NodeDTO>());
+	            }
+	            if (null != synset.getOutRelations() && !synset.getOutRelations().isEmpty()) {
+	                List<Relation> relations = synset.getOutRelations();
+	                for (Relation rel : relations) {
+	                    if (StringUtils.equalsIgnoreCase(LanguageParams.Word.name(), rel.getEndNodeObjectType())) {
+	                        String title = relTitleMap.get(rel.getRelationType());
+	                        if (StringUtils.isNotBlank(title)) {
+	                            List<NodeDTO> list = relMap.get(title);
+	                            String lemma = (String) rel.getEndNodeMetadata().get(LanguageParams.lemma.name());
+	                            list.add(new NodeDTO(rel.getEndNodeId(), lemma, rel.getEndNodeObjectType()));
+	                        }
+	                    }
+	                }
+	            }
+	            map.putAll(relMap);
+	        }
+	        if (null != synset.getTags() && !synset.getTags().isEmpty())
+	            map.put("tags", synset.getTags());
+	        map.put("identifier", synset.getIdentifier());
+	    }
+	    return map;
+	}
+	
+	private Map<String, Object> getOtherMeaningMap(Node synset) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+	    if (null != synset) {
+	        if (null != synset.getMetadata() && !synset.getMetadata().isEmpty())
+	            map.putAll(synset.getMetadata());
+	        map.put("identifier", synset.getIdentifier());
+	    }
+	    return map;
+	}
 
-	@SuppressWarnings("unchecked")
 	private Map<String, Object> addPrimaryAndOtherMeaningsToWord(Node node, String languageId) {
 		try {
 			DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
 			Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, languageId, defintion, null);
 			String primaryMeaningId = (String) map.get(LanguageParams.primaryMeaningId.name());
-			List<NodeDTO> synonyms = (List<NodeDTO>) map.get(LanguageParams.synonyms.name());
-
+			List<Node> synsets = getSynsets(node);
 			if (primaryMeaningId != null) {
-				if (!isValidSynset(synonyms, primaryMeaningId)) {
+				if (!isValidSynset(synsets, primaryMeaningId)) {
 					primaryMeaningId = null;
 					map.put(LanguageParams.primaryMeaningId.name(), null);
 				}
 			}
-
 			if (primaryMeaningId == null || primaryMeaningId.isEmpty()) {
-				if (synonyms != null && !synonyms.isEmpty()) {
-					NodeDTO primarySynonym = synonyms.get(0);
+				if (synsets != null && !synsets.isEmpty()) {
+					Node primarySynonym = synsets.get(0);
 					primaryMeaningId = primarySynonym.getIdentifier();
 					Map<String, Object> updateWordMap = new HashMap<String, Object>();
 					updateWordMap.put("identifier", map.get(LanguageParams.identifier.name()));
@@ -1892,24 +1951,19 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (primaryMeaningId != null) {
 				Node synsetNode = getDataNode(languageId, primaryMeaningId, "Synset");
 				DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
-				Map<String, Object> synsetMap = ConvertGraphNode.convertGraphNode(synsetNode, languageId,
-						synsetDefintion, null);
+				Map<String, Object> synsetMap = getSynsetMap(synsetNode, synsetDefintion);
 				String category = (String) synsetMap.get(LanguageParams.category.name());
-				if (category != null) {
+				if (StringUtils.isNotBlank(category))
 					map.put(LanguageParams.category.name(), category);
-				}
 				map.put(LanguageParams.primaryMeaning.name(), synsetMap);
 			}
-			if (synonyms != null && !synonyms.isEmpty()) {
+			if (synsets != null && !synsets.isEmpty()) {
 				List<Map<String, Object>> otherMeaningsList = new ArrayList<Map<String, Object>>();
-				for (int i = 0; i < synonyms.size(); i++) {
-					NodeDTO otherSynonym = synonyms.get(i);
+				for (int i = 0; i < synsets.size(); i++) {
+					Node otherSynonym = synsets.get(i);
 					String otherMeaningId = otherSynonym.getIdentifier();
 					if (primaryMeaningId != null && !otherMeaningId.equalsIgnoreCase(primaryMeaningId)) {
-						Node synsetNode = getDataNode(languageId, otherMeaningId, "Synset");
-						DefinitionDTO synsetDefintion = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
-						Map<String, Object> synsetMap = ConvertGraphNode.convertGraphNodeWithoutRelations(synsetNode,
-								languageId, synsetDefintion, null);
+						Map<String, Object> synsetMap = getOtherMeaningMap(otherSynonym);
 						otherMeaningsList.add(synsetMap);
 					}
 				}
@@ -1925,9 +1979,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 	}
 
-	private boolean isValidSynset(List<NodeDTO> synonyms, String synsetId) {
-		if (synonyms != null) {
-			for (NodeDTO synsetDTO : synonyms) {
+	private boolean isValidSynset(List<Node> synsets, String synsetId) {
+		if (synsets != null) {
+			for (Node synsetDTO : synsets) {
 				String id = synsetDTO.getIdentifier();
 				if (synsetId.equalsIgnoreCase(id)) {
 					return true;

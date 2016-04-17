@@ -20,12 +20,16 @@ import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -35,16 +39,24 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchManager.class.getName());
 	
 	@Override
-	public Response sync(String graphId, Request request) {
+	public Response sync(String graphId, String objectType, Request request) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
 		LOGGER.info("Get All Definitions : " + graphId);
-		Map<String, Object> result = getAllDefinitions(graphId).getResult();
-		List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
-		List<Map<String, Object>> messages = genCompositeSearchMessages(graphId, lstDefDTO);
-		Response response = pushMessageToKafka(messages);
-		
+		List<Map<String, Object>> messages = null;
+		if (StringUtils.isNotBlank(objectType)) {
+		    Map<String, Object> result = getDefinition(graphId, objectType).getResult();
+		    DefinitionDTO dto = (DefinitionDTO) result.get(GraphDACParams.definition_node.name());
+		    messages = genCompositeSearchMessage(graphId, dto);
+		} else {
+		    Map<String, Object> result = getAllDefinitions(graphId).getResult();
+	        List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
+	        messages = genCompositeSearchMessages(graphId, lstDefDTO);
+		}
+		Response response = OK();
+		if (null != messages && !messages.isEmpty())
+		    response = pushMessageToKafka(messages);
 		return response;
 	}
 	
@@ -243,6 +255,11 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	    return null;
 	}
 	
+	private Response getDefinition(String graphId, String objectType) {
+        Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition");
+        request.put(GraphDACParams.object_type.name(), objectType);
+        return getResponse(request, LOGGER);
+    }
 	
 	private Response getAllDefinitions(String graphId) {
 		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
@@ -255,35 +272,52 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		for (Entry<String, Object> def: result.entrySet()) {
 			lstDefDTO.addAll((List<DefinitionDTO>) def.getValue());
 		}
-		
 		return lstDefDTO;
 	}
 	
 	private List<Map<String, Object>> genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
 		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 		for(DefinitionDTO def: lstDefDTO) {
-			lstMessages.add(getCompositeSearchMessage(graphId, def));
+			lstMessages.addAll(genCompositeSearchMessage(graphId, def));
 		}
-		
 		return lstMessages;
 	}
 	
-	private Map<String, Object> getCompositeSearchMessage(String graphId, DefinitionDTO def) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> transactionData = new HashMap<String, Object>();
-		transactionData.put(CompositeSearchParams.addedProperties.name(), new HashMap<String, Object>());
-		transactionData.put(CompositeSearchParams.removedProperties.name(), new ArrayList<String>());
-		transactionData.put(CompositeSearchParams.addedTags.name(), new ArrayList<String>());
-		transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
-		map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
-		map.put(CompositeSearchParams.graphId.name(), graphId);
-		map.put(CompositeSearchParams.nodeGraphId.name(), def.getIdentifier());
-		map.put(CompositeSearchParams.nodeUniqueId.name(), def.getIdentifier());
-		map.put(CompositeSearchParams.objectType.name(), def.getObjectType());
-		map.put(CompositeSearchParams.nodeType.name(), CompositeSearchParams.DEFINITION_NODE.name());
-		map.put(CompositeSearchParams.transactionData.name(), transactionData);
-		
-		return map;
+	@SuppressWarnings("unchecked")
+    private List<Map<String, Object>> genCompositeSearchMessage(String graphId, DefinitionDTO def) {
+	    List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+	    Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+	    Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), def.getObjectType());
+	    request.put(GraphDACParams.metadata.name(), property);
+	    request.put(GraphDACParams.get_tags.name(), true);
+	    Response response = getResponse(request, LOGGER);
+	    List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
+	    if (null != nodes && !nodes.isEmpty()) {
+	        for (Node node : nodes) {
+	            lstMessages.add(getKafkaMessage(node));
+	        }
+	    }
+	    return lstMessages;
+    }
+	
+	private Map<String, Object> getKafkaMessage(Node node) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> transactionData = new HashMap<String, Object>();
+        if (null != node.getMetadata() && !node.getMetadata().isEmpty())
+            transactionData.put(CompositeSearchParams.addedProperties.name(), node.getMetadata());
+        else
+            transactionData.put(CompositeSearchParams.addedProperties.name(), new HashMap<String, Object>());
+        transactionData.put(CompositeSearchParams.removedProperties.name(), new ArrayList<String>());
+        transactionData.put(CompositeSearchParams.addedTags.name(), new ArrayList<String>());
+        transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
+        map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
+        map.put(CompositeSearchParams.graphId.name(), node.getGraphId());
+        map.put(CompositeSearchParams.nodeGraphId.name(), node.getId());
+        map.put(CompositeSearchParams.nodeUniqueId.name(), node.getIdentifier());
+        map.put(CompositeSearchParams.objectType.name(), node.getObjectType());
+        map.put(CompositeSearchParams.nodeType.name(), SystemNodeTypes.DATA_NODE.name());
+        map.put(CompositeSearchParams.transactionData.name(), transactionData);
+        return map;
 	}
 	
 	private Response pushMessageToKafka(List<Map<String, Object>> messages) {

@@ -102,7 +102,19 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-          "indexed": false
+          "indexed": true
+        },
+        {
+          "propertyName": "subject",
+          "title": "Subject",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'textarea', 'order': 4}",
+          "indexed": true
         },
         {
           "required": false,
