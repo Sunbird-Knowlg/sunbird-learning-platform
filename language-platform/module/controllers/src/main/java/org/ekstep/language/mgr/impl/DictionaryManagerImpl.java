@@ -2078,6 +2078,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		                String[] arr = entry.getValue().split(",");
 		                synsetMap.put(ATTRIB_PICTURES, Arrays.asList(arr));
 		            }
+		            break;
 				}
 				case ATTRIB_PRONUNCIATIONS: {
 				    pronunciations = new ArrayList<String>();
@@ -2085,6 +2086,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         String[] arr = entry.getValue().split(",");
                         pronunciations = Arrays.asList(arr);
                     }
+				    break;
 				}
 				case ATTRIB_EXAMPLE_SENTENCES: {
 				    exampleSentences = new ArrayList<String>();
