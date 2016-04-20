@@ -305,4 +305,10 @@ public class Sequence extends AbstractCollection {
         }, ec);
     }
 
+	@Override
+	public void removeMembers(Request request) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
