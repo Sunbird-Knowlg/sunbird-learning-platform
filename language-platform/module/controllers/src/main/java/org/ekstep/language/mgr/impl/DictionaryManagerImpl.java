@@ -1478,6 +1478,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 			primaryMeaning.remove(LanguageParams.synonyms.name());
 			primaryMeaning.remove(LanguageParams.hypernyms.name());
+			primaryMeaning.remove(LanguageParams.hyponyms.name());
 			primaryMeaning.remove(LanguageParams.holonyms.name());
 			primaryMeaning.remove(LanguageParams.antonyms.name());
 			primaryMeaning.remove(LanguageParams.meronyms.name());
