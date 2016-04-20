@@ -410,6 +410,52 @@ public class Set extends AbstractCollection {
             manager.handleException(e, getParent());
         }
     }
+    
+    @SuppressWarnings("unchecked")
+    @Override
+	public void removeMembers(final Request req) {
+        try {
+            final String setId = (String) req.get(GraphDACParams.collection_id.name());
+            final List<String> members = (List<String>) req.get(GraphDACParams.members.name());
+            if (!manager.validateRequired(setId, members)) {
+                throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_REMOVE_SET_MEMBER_MISSING_REQ_PARAMS.name(),
+                        "Required parameters are missing...");
+            } else {
+                final ExecutionContext ec = manager.getContext().dispatcher();
+                Future<Node> setFuture = getNodeObject(req, ec, setId);
+                OnComplete<Node> getSetObject = new OnComplete<Node>() {
+                    @Override
+                    public void onComplete(Throwable arg0, Node set) throws Throwable {
+                        if (null != arg0 || null == set) {
+                            manager.ERROR(arg0, getParent());
+                        } else {
+                            Map<String, Object> metadata = set.getMetadata();
+                            if (null == metadata) {
+                                manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(), "Invalid Set",
+                                        ResponseCode.CLIENT_ERROR, getParent());
+                            } else {
+                                String type = (String) metadata.get(SET_TYPE_KEY);
+                                if (StringUtils.equalsIgnoreCase(SET_TYPES.CRITERIA_SET.name(), type)) {
+                                    manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_SET_MEMBER_INVALID_REQ_PARAMS.name(),
+                                            "Member cannot be removed from criteria sets", ResponseCode.CLIENT_ERROR, getParent());
+                                } else {
+                                	Future<Object> responseFinal = null;
+                                	for(String memberId: members){
+	                                    Future<Object> response = removeMemberFromSet(req, setId, memberId);
+	                                    responseFinal = response;
+                                	}
+                                	manager.returnResponse(responseFinal, getParent());
+                                }
+                            }
+                        }
+                    }
+                };
+                setFuture.onComplete(getSetObject, manager.getContext().dispatcher());
+            }
+        } catch (Exception e) {
+            manager.handleException(e, getParent());
+        }
+    }
 
     @Override
     public void getMembers(Request req) {

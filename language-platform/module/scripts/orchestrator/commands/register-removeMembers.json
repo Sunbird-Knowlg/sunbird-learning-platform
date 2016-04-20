@@ -1,0 +1,32 @@
+{
+  "name": "removeMembers",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "graph_id",
+      "index": 0,
+      "routingParam": true
+    },
+    {
+      "name": "collection_id",
+      "index": 1,
+      "routingParam": false
+    },
+    {
+      "name": "collection_type",
+      "index": 2,
+      "routingParam": false
+    },
+    {
+      "name": "members",
+      "datatype": "java.util.ArrayList",
+      "index": 3,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "com.ilimi.graph.engine.mgr.impl.CollectionManagerImpl",
+    "operation": "removeMembers",
+    "router": "GRAPH_REQUEST_ROUTER"
+  }
+}

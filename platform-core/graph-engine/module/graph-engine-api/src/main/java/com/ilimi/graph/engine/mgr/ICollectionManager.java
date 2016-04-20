@@ -124,4 +124,6 @@ public interface ICollectionManager {
      */
     void addTags(Request request);
 
+	void addMembers(Request request);
+
 }

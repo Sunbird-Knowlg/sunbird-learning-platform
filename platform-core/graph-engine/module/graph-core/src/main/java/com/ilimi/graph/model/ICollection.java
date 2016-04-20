@@ -10,6 +10,8 @@ public interface ICollection extends INode {
     
     void removeMember(Request request);
     
+    void removeMembers(Request request);
+    
     void getMembers(Request request);
     
     void isMember(Request request);

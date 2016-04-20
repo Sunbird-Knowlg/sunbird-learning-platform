@@ -18,6 +18,11 @@
         "index": 3,
         "datatype": "java.util.HashMap",
         "routingParam": false
+    },{
+        "name": "removeWords",
+        "index": 4,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
     }],
     "requestPath": {
         "type": "PATCH",
