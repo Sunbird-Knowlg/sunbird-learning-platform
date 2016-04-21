@@ -72,29 +72,35 @@ if {$get_resp_check_error} {
 	return $get_resp;
 }
 set word_list_node [get_resp_value $get_resp "wordlist"]
-set words_list [$word_list_node get "words"]
+set words_list_obj [$word_list_node get "words"]
+set words_list [java::cast ArrayList $words_list_obj]
+set words_list_size [$words_list size]
 
-set up_map [java::new HashMap]
-$up_map put "nodeType" "DATA_NODE"
-$up_map put "objectType" $object_type
-$up_map put "lemma" $words_list
-set up_search_criteria [create_search_criteria $up_map]
-set up_search_response [searchNodes $language_id $up_search_criteria]
-set up_check_error [check_response_error $up_search_response]
-if {$up_check_error} {
-	puts "Error response from searchNodes"
-	return $up_search_response;
-} else {
-	set up_graph_nodes [get_resp_value $up_search_response "node_list"]
-	set up_word_id_list [java::new ArrayList]
-	java::for {Node up_graph_node} $up_graph_nodes {
-		set up_word_id [java::prop $up_graph_node "identifier"]
-		$up_word_id_list add $up_word_id
+if { $words_list_size > 0 } {
+	set up_map [java::new HashMap]
+	$up_map put "nodeType" "DATA_NODE"
+	$up_map put "objectType" $object_type
+	$up_map put "lemma" $words_list
+	set up_search_criteria [create_search_criteria $up_map]
+	set up_search_response [searchNodes $language_id $up_search_criteria]
+	set up_check_error [check_response_error $up_search_response]
+	if {$up_check_error} {
+		puts "Error response from searchNodes"
+		return $up_search_response;
+	} else {
+		set up_graph_nodes [get_resp_value $up_search_response "node_list"]
+		set up_word_id_list [java::new ArrayList]
+		java::for {Node up_graph_node} $up_graph_nodes {
+			set up_word_id [java::prop $up_graph_node "identifier"]
+			$up_word_id_list add $up_word_id
+		}
+		set set_node [java::new Node]
+		java::prop $set_node "identifier" $wordlist_id
+		java::prop $set_node "metadata" $metadata
+		set up_resp [updateSet $language_id $up_word_id_list $set_type $object_type $set_node]
+		set check_error_up_resp [check_response_error $up_resp]
+		return $up_resp
 	}
-	set set_node [java::new Node]
-	java::prop $set_node "identifier" $wordlist_id
-	java::prop $set_node "metadata" $metadata
-	set up_resp [updateSet $language_id $up_word_id_list $set_type $object_type $set_node]
-	set check_error_up_resp [check_response_error $up_resp]
-	return $up_resp
+} else {
+	return "Ok"
 }
