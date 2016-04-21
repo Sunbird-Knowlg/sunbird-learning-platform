@@ -177,7 +177,7 @@
           "description": "",
           "category": "General",
           "displayProperty": "Editable",
-          "range": ["content", "collection", "image", "video", "audio", "ecml", "document", "pdf", "text", "other"],
+          "range": ["content", "collection", "image", "video", "audio", "voice", "ecml", "document", "pdf", "text", "other"],
           "defaultValue": "content",
           "renderingHints": "{ 'inputType': 'text',  'order': 5 }",
           "indexed": true,
@@ -240,6 +240,19 @@
           "dataType": "Text",
           "propertyName": "duration",
           "title": "Duration",
+          "description": "",
+          "category": "Technical",
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "size",
+          "title": "Download File Size (in bytes)",
           "description": "",
           "category": "Technical",
           "displayProperty": "Editable",
@@ -390,6 +403,32 @@
         {
           "required": false,
           "dataType": "Text",
+          "propertyName": "source",
+          "title": "Source",
+          "description": "Source of the content (e.g. MangoSense)",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "EkStep",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "publisher",
+          "title": "Publisher",
+          "description": "Publisher of the content (e.g. Pratham Books)",
+          "category": "Ownership",
+          "displayProperty": "Editable",
+          "defaultValue": "EkStep",
+          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Text",
           "propertyName": "owner",
           "title": "Owner",
           "description": "Content Owner",
@@ -455,9 +494,9 @@
         {
           "required": false,
           "dataType": "List",
-          "propertyName": "translators",
-          "title": "Translators",
-          "description": "Translators",
+          "propertyName": "soundCredits",
+          "title": "Audio/Sound Credits",
+          "description": "Audio and background scores by",
           "category": "Ownership",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -468,22 +507,9 @@
         {
           "required": false,
           "dataType": "List",
-          "propertyName": "illustrators",
-          "title": "Illustrators",
-          "description": "Illustrators",
-          "category": "Ownership",
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Text",
-          "propertyName": "copyrightOwner",
-          "title": "Copyright Owner",
-          "description": "",
+          "propertyName": "imageCredits",
+          "title": "Image Credits",
+          "description": "Images created by",
           "category": "Ownership",
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -522,20 +548,7 @@
           ],
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
-          "indexed": true,
-          "draft": false
-        },
-        {
-          "required": false,
-          "dataType": "Text",
-          "propertyName": "licenseTerms",
-          "title": "License Terms",
-          "description": "",
-          "category": "Ownership",
-          "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": "Creative Commons Attribution (CC BY)",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -566,18 +579,6 @@
           ],
           "displayProperty": "Editable",
           "defaultValue": "English",
-          "renderingHints": "{'inputType': 'text', 'order': 5}",
-          "indexed": true
-        },
-        {
-          "propertyName": "author",
-          "title": "Author",
-          "description": "Author of this content",
-          "category": "Authoring",
-          "dataType": "Text",
-          "required": false,
-          "displayProperty": "Hidden",
-          "defaultValue": "",
           "renderingHints": "{'inputType': 'text', 'order': 5}",
           "indexed": true
         },
@@ -749,6 +750,8 @@
             "ftb",
             "mtf",
             "recognition",
+            "activity",
+            "widget",
             "other"
           ],
           "defaultValue": "",
@@ -859,6 +862,19 @@
           "dataType": "Number",
           "propertyName": "popularity",
           "title": "Popularity",
+          "description": "",
+          "category": "Analytics",
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 19 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Number",
+          "propertyName": "downloads",
+          "title": "No of downloads",
           "description": "",
           "category": "Analytics",
           "displayProperty": "Readonly",
@@ -1026,6 +1042,7 @@
           "range": [
             "Draft",
             "Review",
+            "Redraft"
             "Live",
             "Retired",
             "Mock"
@@ -1164,6 +1181,54 @@
         {
           "propertyName": "lastUpdatedOn",
           "title": "Last Updated On",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 22}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastSubmittedBy",
+          "title": "Submitted for Review By",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastSubmittedOn",
+          "title": "Submitted for Review On",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Date",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 22}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastPublishedBy",
+          "title": "Published By",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 21}",
+          "indexed": false
+        },
+        {
+          "propertyName": "lastPublishedOn",
+          "title": "Published On",
           "description": "",
           "category": "Lifecycle",
           "dataType": "Date",
@@ -1362,8 +1427,8 @@
         "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
-        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "author", "collaborators",
-        "illustrators", "translators", "voiceCredits", "portalOwner", "forkable", "translatable"]
+        "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
+        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", "translatable"]
       }
     }
   ]
