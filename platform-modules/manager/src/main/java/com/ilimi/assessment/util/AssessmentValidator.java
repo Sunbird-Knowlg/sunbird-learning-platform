@@ -295,10 +295,11 @@ public class AssessmentValidator extends BaseManager {
                     if (!checkOptionValue(value, errorMessages))
                         break;
                     if (value.containsKey("answer")) {
-                        if (option2.contains(value.get("answer"))) {
-                            errorMessages.add("answer should be unique.");
-                            return 0;
-                        }
+//                    	Code Commented to allow multiple answer on RHS i.e. MMTF
+//                        if (option2.contains(value.get("answer"))) {
+//                            errorMessages.add("answer should be unique.");
+//                            return 0;
+//                        }
                         option2.add(value.get("answer"));
                     }
                 }
