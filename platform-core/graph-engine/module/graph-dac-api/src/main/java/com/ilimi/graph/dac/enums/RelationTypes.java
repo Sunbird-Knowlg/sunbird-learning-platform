@@ -19,6 +19,11 @@ public enum RelationTypes {
     HOLONYM("hasHolonym"),
     HYPONYM("hasHyponym"),
     MERONYM("hasMeronym"),
+    TOOL("usesTool"),
+    WORKER("hasWorker"),
+    ACTION("hasAction"),
+    OBJECT("actionOn"),
+    CONVERSE("hasConverse"),
     PROPOSITION("proposition");
 
     private String relationName;

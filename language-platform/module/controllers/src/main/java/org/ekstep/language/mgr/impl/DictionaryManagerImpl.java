@@ -820,8 +820,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         List<NodeDTO> hyponyms = new ArrayList<NodeDTO>();
         List<NodeDTO> homonyms = new ArrayList<NodeDTO>();
         List<NodeDTO> meronyms = new ArrayList<NodeDTO>();
-        getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, synsetIds);
-        getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, synsetIds);
+        List<NodeDTO> tools = new ArrayList<NodeDTO>();
+        List<NodeDTO> workers = new ArrayList<NodeDTO>();
+        List<NodeDTO> actions = new ArrayList<NodeDTO>();
+        List<NodeDTO> objects = new ArrayList<NodeDTO>();
+        List<NodeDTO> converse = new ArrayList<NodeDTO>();
+        getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, tools, workers, actions, objects, converse, synsetIds);
+        getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, tools, workers, actions, objects, converse, synsetIds);
         if (!synonyms.isEmpty()) {
             if (synsetMembers) {
                 Map<String, List<String>> synMap = getSynonymMap(languageId, objectType, synsetIds);
@@ -846,6 +851,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             map.put("homonyms", homonyms);
         if (!meronyms.isEmpty())
             map.put("meronyms", meronyms);
+        if (!tools.isEmpty())
+            map.put("tools", tools);
+        if (!workers.isEmpty())
+            map.put("workers", workers);
+        if (!actions.isEmpty())
+            map.put("actions", actions);
+        if (!objects.isEmpty())
+            map.put("objects", objects);
+        if (!converse.isEmpty())
+            map.put("converse", converse);
+        
     }
 
     @SuppressWarnings("unchecked")
@@ -882,7 +898,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     private void getInRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
             List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms,
-            List<String> synsetIds) {
+            List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects, List<NodeDTO> converse, List<String> synsetIds) {
         if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
             for (Relation inRel : node.getInRelations()) {
                 if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), inRel.getRelationType())) {
@@ -919,6 +935,26 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         inRel.getRelationType())) {
                     meronyms.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
                             inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.TOOL.relationName(),
+                        inRel.getRelationType())) {
+                    tools.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.WORKER.relationName(),
+                        inRel.getRelationType())) {
+                    workers.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.ACTION.relationName(),
+                        inRel.getRelationType())) {
+                    actions.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.OBJECT.relationName(),
+                        inRel.getRelationType())) {
+                    objects.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.CONVERSE.relationName(),
+                        inRel.getRelationType())) {
+                    converse.add(new NodeDTO(inRel.getStartNodeId(), getInRelationWord(inRel),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
                 }
             }
         }
@@ -938,7 +974,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
             List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms,
-            List<String> synsetIds) {
+            List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects, List<NodeDTO> converse, List<String> synsetIds) {
         if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
             for (Relation outRel : node.getOutRelations()) {
                 if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), outRel.getRelationType())) {
@@ -974,6 +1010,26 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                 } else if (StringUtils.equalsIgnoreCase(RelationTypes.MERONYM.relationName(),
                         outRel.getRelationType())) {
                     meronyms.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.TOOL.relationName(),
+                        outRel.getRelationType())) {
+                    tools.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.WORKER.relationName(),
+                        outRel.getRelationType())) {
+                    workers.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.ACTION.relationName(),
+                        outRel.getRelationType())) {
+                    actions.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.OBJECT.relationName(),
+                        outRel.getRelationType())) {
+                    objects.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.CONVERSE.relationName(),
+                        outRel.getRelationType())) {
+                    converse.add(new NodeDTO(outRel.getEndNodeId(), getOutRelationWord(outRel),
                             outRel.getEndNodeObjectType(), outRel.getRelationType()));
                 }
             }
@@ -1476,12 +1532,43 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			List<String> meronymWordIds = processRelationWords(meronyms, languageId, errorMessages, definition);
 			nodeIdList.addAll(meronymWordIds);
 
+			List<Map<String, Object>> tools = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.tools.name());
+			List<String> toolWordIds = processRelationWords(tools, languageId, errorMessages, definition);
+			nodeIdList.addAll(toolWordIds);
+			
+			List<Map<String, Object>> workers = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.workers.name());
+			List<String> workerWordIds = processRelationWords(workers, languageId, errorMessages, definition);
+			nodeIdList.addAll(workerWordIds);
+			
+			List<Map<String, Object>> actions = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.actions.name());
+			List<String> actionWordIds = processRelationWords(actions, languageId, errorMessages, definition);
+			nodeIdList.addAll(actionWordIds);
+			
+			List<Map<String, Object>> objects = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.objects.name());
+			List<String> objectWordIds = processRelationWords(objects, languageId, errorMessages, definition);
+			nodeIdList.addAll(objectWordIds);
+			
+			List<Map<String, Object>> converse = (List<Map<String, Object>>) primaryMeaning
+					.get(LanguageParams.converse.name());
+			List<String> converseWordIds = processRelationWords(converse, languageId, errorMessages, definition);
+			nodeIdList.addAll(converseWordIds);
+			
 			primaryMeaning.remove(LanguageParams.synonyms.name());
 			primaryMeaning.remove(LanguageParams.hypernyms.name());
 			primaryMeaning.remove(LanguageParams.hyponyms.name());
 			primaryMeaning.remove(LanguageParams.holonyms.name());
 			primaryMeaning.remove(LanguageParams.antonyms.name());
 			primaryMeaning.remove(LanguageParams.meronyms.name());
+			primaryMeaning.remove(LanguageParams.tools.name());
+			primaryMeaning.remove(LanguageParams.objects.name());
+			primaryMeaning.remove(LanguageParams.actions.name());
+			primaryMeaning.remove(LanguageParams.workers.name());
+			primaryMeaning.remove(LanguageParams.converse.name());
+			
 
 			Response synsetResponse = createSynset(languageId, primaryMeaning);
 			if (checkError(synsetResponse)) {
@@ -1501,7 +1588,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					errorMessages);
 			addSynsetRelation(meronymWordIds, RelationTypes.MERONYM.relationName(), languageId, primaryMeaningId,
 					errorMessages);
-
+			addSynsetRelation(toolWordIds, RelationTypes.TOOL.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(workerWordIds, RelationTypes.WORKER.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(actionWordIds, RelationTypes.ACTION.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(objectWordIds, RelationTypes.OBJECT.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			addSynsetRelation(converseWordIds, RelationTypes.CONVERSE.relationName(), languageId, primaryMeaningId,
+					errorMessages);
+			
 			// update wordMap with primary synset data
 			item.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 			
