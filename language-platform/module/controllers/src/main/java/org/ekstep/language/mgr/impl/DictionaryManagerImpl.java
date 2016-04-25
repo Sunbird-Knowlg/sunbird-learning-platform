@@ -740,6 +740,87 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             return response;
         }
     }
+    
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    public Response listV2(String languageId, String objectType, Request request) {
+        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+        setLimit(request, sc);
+
+        List<Filter> filters = new ArrayList<Filter>();
+        List<String> statusList = new ArrayList<String>();
+        Object statusParam = request.get(PARAM_STATUS);
+        if (null != statusParam) {
+            statusList = getList(mapper, statusParam, true);
+            if (null != statusList && !statusList.isEmpty())
+                filters.add(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList));
+        }
+        if (null != request.getRequest() && !request.getRequest().isEmpty()) {
+            for (Entry<String, Object> entry : request.getRequest().entrySet()) {
+                if (!StringUtils.equalsIgnoreCase(PARAM_FIELDS, entry.getKey())
+                        && !StringUtils.equalsIgnoreCase(PARAM_LIMIT, entry.getKey())
+                        && !StringUtils.equalsIgnoreCase(PARAM_STATUS, entry.getKey())
+                        && !StringUtils.equalsIgnoreCase("word-lists", entry.getKey())
+                        && !StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+                    Object val = entry.getValue();
+                    List list = getList(mapper, val, false);
+                    if (null != list && !list.isEmpty()) {
+                        if (list.size() > 1)
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
+                        else {
+                            Object value = list.get(0);
+                            if (value instanceof String)
+                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, value.toString()));
+                            else
+                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, value));
+                        }
+                    } else if (null != val && StringUtils.isNotBlank(val.toString())) {
+                        if (val instanceof String)
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, val.toString()));
+                        else
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, val));
+                    }
+                } else if (StringUtils.equalsIgnoreCase(PARAM_TAGS, entry.getKey())) {
+                    Object val = entry.getValue();
+                    List<String> tags = getList(mapper, val, true);
+                    if (null != tags && !tags.isEmpty()) {
+                        TagCriterion tc = new TagCriterion(tags);
+                        sc.setTag(tc);
+                    }
+                }
+            }
+        }
+        if (null != filters && !filters.isEmpty()) {
+            MetadataCriterion mc = MetadataCriterion.create(filters);
+            sc.addMetadata(mc);
+        }
+        Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req, LOGGER);
+        if (checkError(listRes))
+            return listRes;
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+            if (null != nodes && !nodes.isEmpty()) {
+                String[] fields = getFields(request);
+                for (Node node : nodes) {
+                	Map<String, Object> map = addPrimaryAndOtherMeaningsToWord(node, languageId);
+                    if (null != map && !map.isEmpty()) {
+                        list.add(map);
+                    }
+                }
+            }
+            Response response = copyResponse(listRes);
+            response.put("words", list);
+            return response;
+        }
+    }
 
     @SuppressWarnings("unchecked")
     private String[] getFields(Request request) {
