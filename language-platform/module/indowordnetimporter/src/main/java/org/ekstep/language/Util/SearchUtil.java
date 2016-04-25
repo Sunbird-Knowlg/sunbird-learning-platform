@@ -24,23 +24,38 @@ public class SearchUtil {
 	         tx = session.beginTransaction();
 	         Query query = session.createQuery("FROM TamilSynsetData");
 	         //query.setFirstResult(10);
-	         query.setMaxResults(10);
+	         query.setMaxResults(100);
 	         List employees = query.list(); 
 	         for (Iterator iterator = 
 	                           employees.iterator(); iterator.hasNext();){
 	        	TamilSynsetData employee = (TamilSynsetData) iterator.next(); 
 	        	byte[] bSynset = employee.getSynset();
 	        	String synsetString = new String(bSynset);
-	            System.out.println("First Name: " + synsetString);
+	            System.out.println("Word: " + synsetString);
 	            for(TamilSynsetDataLite hypernym: employee.getHypernyms()){
-	            	byte[] bHSynset = hypernym.getSynset();
-		        	String hsynsetString = new String(bHSynset);
-		            System.out.println("Hypernym First Name: " + hsynsetString);
+	            	bSynset = hypernym.getSynset();
+		        	String hsynsetString = new String(bSynset);
+		            System.out.println("Hypernym: " + hsynsetString);
 	            }
 	            for(TamilSynsetDataLite hyponym: employee.getHyponyms()){
-	            	byte[] bHySynset = hyponym.getSynset();
-		        	String hysynsetString = new String(bHySynset);
-		            System.out.println("Hyponym First Name: " + hysynsetString);
+	            	bSynset = hyponym.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Hyponym: " + hysynsetString);
+	            }
+	            for(TamilSynsetDataLite holonym: employee.getHolonyms()){
+	            	bSynset = holonym.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Holonym: " + hysynsetString);
+	            }
+	            for(TamilSynsetDataLite meronym: employee.getMeronyms()){
+	            	bSynset = meronym.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Meronym: " + hysynsetString);
+	            }
+	            for(TamilSynsetDataLite antonym: employee.getAntonyms()){
+	            	bSynset = antonym.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Antonym: " + hysynsetString);
 	            }
 	         }
 	         tx.commit();

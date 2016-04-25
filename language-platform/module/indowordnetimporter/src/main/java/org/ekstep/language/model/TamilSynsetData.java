@@ -47,113 +47,20 @@ public class TamilSynsetData {
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_component_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_component_object_id") })
-	protected List<TamilSynsetDataLite> meroComponents = new ArrayList<>();
+	@JoinTable(name = "tbl_meronymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "meronym_id") })
+	protected List<TamilSynsetDataLite> meronyms = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_feature_activity", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_feature_activity_id") })
-	protected List<TamilSynsetDataLite> meroFeatures = new ArrayList<>();
+	@JoinTable(name = "tbl_holonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holonym_id") })
+	protected List<TamilSynsetDataLite> holonyms = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_member_collection", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_member_collection_id") })
-	protected List<TamilSynsetDataLite> meroCollections = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_phase_state", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_phase_state_id") })
-	protected List<TamilSynsetDataLite> meroPhaseStates = new ArrayList<>();
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_place_area", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_place_area_id") })
-	protected List<TamilSynsetDataLite> meroPlaceAreas = new ArrayList<>();
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_portion_mass", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_portion_mass_id") })
-	protected List<TamilSynsetDataLite> meroPortionMasses = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_position_area", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_position_area_id") })
-	protected List<TamilSynsetDataLite> meroPositionAreas = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_resource_process", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_resource_process_id") })
-	protected List<TamilSynsetDataLite> meroResourceProcesses = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_mero_stuff_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "mero_stuff_object_id") })
-	protected List<TamilSynsetDataLite> meroStuffObjects = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_component_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_component_object_id") })
-	protected List<TamilSynsetDataLite> holoComponents = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_feature_activity", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_feature_activity_id") })
-	protected List<TamilSynsetDataLite> holoFeatures = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_member_collection", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_member_collection_id") })
-	protected List<TamilSynsetDataLite> holoCollections = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_phase_state", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_phase_state_id") })
-	protected List<TamilSynsetDataLite> holoPhaseStates = new ArrayList<>();
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_place_area", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_place_area_id") })
-	protected List<TamilSynsetDataLite> holoPlaceAreas = new ArrayList<>();
-
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_portion_mass", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_portion_mass_id") })
-	protected List<TamilSynsetDataLite> holoPortionMasses = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_position_area", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_position_area_id") })
-	protected List<TamilSynsetDataLite> holoPositionAreas = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_resource_process", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_resource_process_id") })
-	protected List<TamilSynsetDataLite> holoResourceProcesses = new ArrayList<>();
-	
-	@ManyToMany(fetch = FetchType.EAGER)
-	@Cascade(CascadeType.MERGE)
-	@Fetch(FetchMode.SUBSELECT)
-	@JoinTable(name = "tbl_noun_holo_stuff_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "holo_stuff_object_id") })
-	protected List<TamilSynsetDataLite> holoStuffObjects = new ArrayList<>();
-	
-	
-
+	@JoinTable(name = "tbl_antonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "antonym_id") })
+	protected List<TamilSynsetDataLite> antonyms = new ArrayList<>();
 	
 	public TamilSynsetData() {
 		super();
@@ -167,6 +74,30 @@ public class TamilSynsetData {
 		this.gloss = gloss;
 		this.category = category;
 		this.hypernyms = hypernyms;
+	}
+
+	public List<TamilSynsetDataLite> getMeronyms() {
+		return meronyms;
+	}
+
+	public void setMeronyms(List<TamilSynsetDataLite> meronyms) {
+		this.meronyms = meronyms;
+	}
+
+	public List<TamilSynsetDataLite> getHolonyms() {
+		return holonyms;
+	}
+
+	public void setHolonyms(List<TamilSynsetDataLite> holonyms) {
+		this.holonyms = holonyms;
+	}
+
+	public List<TamilSynsetDataLite> getAntonyms() {
+		return antonyms;
+	}
+
+	public void setAntonyms(List<TamilSynsetDataLite> antonyms) {
+		this.antonyms = antonyms;
 	}
 
 	public List<TamilSynsetDataLite> getHyponyms() {
