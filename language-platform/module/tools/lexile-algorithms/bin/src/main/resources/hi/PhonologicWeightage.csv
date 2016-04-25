@@ -1,0 +1,15 @@
+Vector,Compexity
+vivRuta_open,0.3
+ardhaSamvruta_halfclose,1
+samVruta_close,0.6
+swasa_unvoiced,0.5
+mahaPrana_aspirated,1
+anunasika_nasal,0.5
+sparsa_stops,0.5
+kanthya_velars,0.4
+talavya_palatals,0.6
+murthya_retroflex,0.8
+dantya_dentals,0.7
+oshthya_labials,0.3
+kanthamula_glottals,0.2
+guruvu_long,0.1
