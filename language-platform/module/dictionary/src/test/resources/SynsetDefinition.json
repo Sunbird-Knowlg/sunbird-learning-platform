@@ -291,6 +291,26 @@
           "renderingHints": ""
         },
         {
+          "relationName": "hasWorker",
+          "title": "workers",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "usesTool",
+          "title": "tools",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Synset", "Word"
+          ],
+          "renderingHints": ""
+        },
+        {
           "relationName": "hasAction",
           "title": "actions",
           "description": "",

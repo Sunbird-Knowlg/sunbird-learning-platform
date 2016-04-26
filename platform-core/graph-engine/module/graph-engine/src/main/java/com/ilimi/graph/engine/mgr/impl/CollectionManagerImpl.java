@@ -160,6 +160,26 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             }
         }
     }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public void addMembers(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
+        List<String> members= (List<String>) request.get(GraphDACParams.members.name());
+        if (!validateRequired(collectionId, collectionType, members)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_ADD_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            try {
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
+                coll.addMembers(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
 
     @Override
     public void removeMember(Request request) {
@@ -174,6 +194,25 @@ public class CollectionManagerImpl extends BaseGraphManager implements ICollecti
             try {
                 ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
                 coll.removeMember(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+	public void removeMembers(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String collectionId = (String) request.get(GraphDACParams.collection_id.name());
+        String collectionType = (String) request.get(GraphDACParams.collection_type.name());
+        List<String> members = (List<String>) request.get(GraphDACParams.members.name());
+        if (!validateRequired(collectionId, collectionType, members)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_COLLECTION_REMOVE_MEMBER_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            try {
+                ICollection coll = CollectionHandler.getCollection(this, graphId, collectionId, collectionType);
+                coll.removeMembers(request);
             } catch (Exception e) {
                 handleException(e, getSender());
             }

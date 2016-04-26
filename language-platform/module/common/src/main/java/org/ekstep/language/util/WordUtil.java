@@ -472,8 +472,13 @@ public class WordUtil extends BaseManager {
 		List<NodeDTO> hyponyms = new ArrayList<NodeDTO>();
 		List<NodeDTO> homonyms = new ArrayList<NodeDTO>();
 		List<NodeDTO> meronyms = new ArrayList<NodeDTO>();
-		getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms);
-		getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms);
+		List<NodeDTO> tools = new ArrayList<NodeDTO>();
+        List<NodeDTO> workers = new ArrayList<NodeDTO>();
+        List<NodeDTO> actions = new ArrayList<NodeDTO>();
+        List<NodeDTO> objects = new ArrayList<NodeDTO>();
+        List<NodeDTO> converse = new ArrayList<NodeDTO>();
+		getInRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, tools, workers, actions, objects, converse);
+		getOutRelationsData(node, synonyms, antonyms, hypernyms, hyponyms, homonyms, meronyms, tools, workers, actions, objects, converse);
 		if (!synonyms.isEmpty())
 			map.put("synonyms", synonyms);
 		if (!antonyms.isEmpty())
@@ -489,7 +494,7 @@ public class WordUtil extends BaseManager {
 	}
 
 	private void getInRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
-			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
+			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms, List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects, List<NodeDTO> converse) {
 		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
 			for (Relation inRel : node.getInRelations()) {
 				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), inRel.getRelationType())) {
@@ -515,13 +520,33 @@ public class WordUtil extends BaseManager {
 						inRel.getRelationType())) {
 					meronyms.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
 							inRel.getStartNodeObjectType(), inRel.getRelationType()));
-				}
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.TOOL.relationName(),
+                        inRel.getRelationType())) {
+                    tools.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.WORKER.relationName(),
+                        inRel.getRelationType())) {
+                    workers.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.ACTION.relationName(),
+                        inRel.getRelationType())) {
+                    actions.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.OBJECT.relationName(),
+                        inRel.getRelationType())) {
+                    objects.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.CONVERSE.relationName(),
+                        inRel.getRelationType())) {
+                    converse.add(new NodeDTO(inRel.getStartNodeId(), inRel.getStartNodeName(),
+                            inRel.getStartNodeObjectType(), inRel.getRelationType()));
+                }
 			}
 		}
 	}
 
 	private void getOutRelationsData(Node node, List<Map<String, Object>> synonyms, List<NodeDTO> antonyms,
-			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms) {
+			List<NodeDTO> hypernyms, List<NodeDTO> hyponyms, List<NodeDTO> homonyms, List<NodeDTO> meronyms, List<NodeDTO> tools, List<NodeDTO> workers, List<NodeDTO> actions, List<NodeDTO> objects, List<NodeDTO> converse) {
 		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 			for (Relation outRel : node.getOutRelations()) {
 				if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), outRel.getRelationType())) {
@@ -547,7 +572,27 @@ public class WordUtil extends BaseManager {
 						outRel.getRelationType())) {
 					meronyms.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
 							outRel.getEndNodeObjectType(), outRel.getRelationType()));
-				}
+				} else if (StringUtils.equalsIgnoreCase(RelationTypes.TOOL.relationName(),
+                        outRel.getRelationType())) {
+                    tools.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.WORKER.relationName(),
+                        outRel.getRelationType())) {
+                    workers.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.ACTION.relationName(),
+                        outRel.getRelationType())) {
+                    actions.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.OBJECT.relationName(),
+                        outRel.getRelationType())) {
+                    objects.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                } else if (StringUtils.equalsIgnoreCase(RelationTypes.CONVERSE.relationName(),
+                        outRel.getRelationType())) {
+                    converse.add(new NodeDTO(outRel.getEndNodeId(), outRel.getEndNodeName(),
+                            outRel.getEndNodeObjectType(), outRel.getRelationType()));
+                }
 			}
 		}
 	}

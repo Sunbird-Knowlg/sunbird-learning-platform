@@ -43,3 +43,7 @@ node registerCommand.js commands/register-getSyllables.json register
 node registerCommand.js commands/register-getTextFromUnicode.json register
 
 node registerCommand.js commands/register-getLanguageGraphId.json register
+
+node registerCommand.js commands/register-addMembers.json register
+
+node registerCommand.js commands/register-removeMembers.json register

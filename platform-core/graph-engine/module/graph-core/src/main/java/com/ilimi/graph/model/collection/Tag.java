@@ -408,4 +408,10 @@ public class Tag extends AbstractCollection {
         manager.returnResponse(response, getParent());
     }
 
+	@Override
+	public void removeMembers(Request request) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

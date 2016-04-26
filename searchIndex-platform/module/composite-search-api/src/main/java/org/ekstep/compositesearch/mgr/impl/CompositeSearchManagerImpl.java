@@ -2,6 +2,7 @@ package org.ekstep.compositesearch.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +91,10 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
+			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
+			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
+			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
+			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
 			properties.addAll(getSearchFilterProperties(filters));
 			searchObj.setProperties(properties);
@@ -102,6 +107,31 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return searchObj;
 	}
 	
+	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {
+		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
+		if(fieldList != null){
+			for (String field : fieldList) {
+				String searchOperation = "";
+				switch (operation) {
+				case "exists": {
+					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_EXISTS;
+					break;
+				}
+				case "not_exists": {
+					searchOperation = CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS;
+					break;
+				}
+				}
+				Map<String, Object> property = new HashMap<String, Object>();
+				property.put(CompositeSearchParams.operation.name(), searchOperation);
+				property.put(CompositeSearchParams.propertyName.name(), field);
+				property.put(CompositeSearchParams.values.name(), Arrays.asList(field));
+				properties.add(property);
+			}
+		}
+		return properties;
+	}
+
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		if(queryString != null && !queryString.isEmpty()){
@@ -334,10 +364,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		KafkaMessageProducer producer = new KafkaMessageProducer();
 		producer.init();
 		for (Map<String, Object> message: messages) {
-			System.out.println("Message : " + message);
 			producer.pushMessage(message);
 		}
-		System.out.println("Sending to KAFKA : FINISHED");
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
 		response.setParams(params);
