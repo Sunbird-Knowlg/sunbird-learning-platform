@@ -9,3 +9,5 @@ language-platform/module/indowordnetimporter/.gitignore
 *target*
 *taget_junit*
 platform-tools/scripts/orchestrator/node_modules/
+platform-modules/service/src/main/webapp/WEB-INF/lib/httpclient-4.5.1.jar
+platform-modules/service/src/main/webapp/WEB-INF/lib/httpcore-4.4.4.jar
