@@ -2542,10 +2542,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	public Response getSyllables(String languageId, String word){
 		Node wordNode=wordUtil.searchWord(languageId, word);
-		String syllables="";
-		
+		//String syllables="";
+		List<String> syllables;
 		if(wordNode!=null&&wordNode.getMetadata().get("syllables")!=null){
-			syllables=(String)wordNode.getMetadata().get("syllables");
+			syllables=(List<String>)wordNode.getMetadata().get("syllables");
 		}
 		else{		
 			syllables=wordUtil.buildSyllables(languageId, word);

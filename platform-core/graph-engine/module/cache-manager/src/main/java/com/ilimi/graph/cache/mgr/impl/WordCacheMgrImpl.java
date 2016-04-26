@@ -84,17 +84,7 @@ public class WordCacheMgrImpl {
 	
 	private void loadRedisCache(Map<String, String> cacheMap){
         Jedis jedis = getRedisConncetion();
-         // String key="word-Arpabets";
         try {
-        	/*
-        	Map<String, String> existingMap = jedis.hgetAll(key);
-        	if(MapUtils.isEmpty(existingMap)){
-        		jedis.hmset(key, cacheMap);
-        	}else{
-        		existingMap.putAll(cacheMap);
-        		jedis.hmset(key, existingMap);
-        	}
-        	*/
 	        for(Entry<String,String> wordEntry:cacheMap.entrySet()){
 	        	String word=wordEntry.getKey();
 	        	String arphabetsOfWord=wordEntry.getValue();
@@ -114,7 +104,7 @@ public class WordCacheMgrImpl {
 	
 	
 	private boolean hasSplitChar(String str){		
-		if(str.matches("[\\s-_&]"))
+		if(str.matches("([a-zA-Z]?[\\s-_&]?[a-zA-Z]?)+"))
 			return true;
 		return false;
 	}
@@ -211,6 +201,13 @@ public class WordCacheMgrImpl {
 			if(CollectionUtils.isNotEmpty(newVarnas)){
 				wordManager.writeToFile(newVarnas);
 			}
+//			WordCacheMgrImpl impl=new WordCacheMgrImpl();
+//			String str="sub_way&hellow";
+//			System.out.println(str);
+//			if(impl.hasSplitChar(str))
+//				str=impl.buildCompoundWord(str);
+//			System.out.println(str);
+
 		} catch(Exception ex){
 			
 		}

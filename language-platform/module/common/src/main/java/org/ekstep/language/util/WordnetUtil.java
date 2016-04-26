@@ -7,13 +7,16 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.zookeeper.server.quorum.LeaderElectionMXBean;
 
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
 public class WordnetUtil implements IWordnetConstants {
-
+	
+	private static WordUtil wordUtil=new WordUtil();
+	
     public static String getPosValue(String posTag) {
         return getPosValue(posTag, true);
     }
@@ -159,5 +162,11 @@ public class WordnetUtil implements IWordnetConstants {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public static void updateSyllables(Node node) {
+    	String word=(String) node.getMetadata().get(ATTRIB_LEMMA);
+    	List<String> syllables=wordUtil.buildSyllables("en", word);
+    	node.getMetadata().put(ATTRIB_SYLLABLES,syllables);
     }
 }

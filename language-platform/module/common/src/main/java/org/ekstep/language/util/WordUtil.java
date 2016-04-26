@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -843,7 +844,7 @@ public class WordUtil extends BaseManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public String buildSyllables(String languageId, String word){
+	public List<String> buildSyllables(String languageId, String word){
 		String syllables="";
 		
 		Response arpabetResponse =getEnglishWordArpabets(word);
@@ -867,7 +868,7 @@ public class WordUtil extends BaseManager {
 		else
 			syllables=syllables.substring(0, syllables.length()-1);
 
-		return syllables;
+		return syllables.length()>0?Arrays.asList(syllables.split(", ")):ListUtils.EMPTY_LIST;
 	}
 	
 	@SuppressWarnings("unchecked")
