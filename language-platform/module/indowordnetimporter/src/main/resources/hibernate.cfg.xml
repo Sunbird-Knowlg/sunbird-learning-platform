@@ -39,6 +39,18 @@
 		<!-- Mapping with model class containing annotations -->
 		<mapping class="org.ekstep.language.model.TamilSynsetData"></mapping>
 		<mapping class="org.ekstep.language.model.TamilSynsetDataLite"></mapping>
-        
+		<mapping class="org.ekstep.language.model.AssameseSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.AssameseSynsetDataLite"></mapping>
+		<mapping class="org.ekstep.language.model.BengaliSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.BengaliSynsetDataLite"></mapping>
+        <mapping class="org.ekstep.language.model.BodoSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.BodoSynsetDataLite"></mapping>
+		<mapping class="org.ekstep.language.model.GujaratiSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.GujaratiSynsetDataLite"></mapping>
+		<mapping class="org.ekstep.language.model.KannadaSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.KannadaSynsetDataLite"></mapping>
+		<mapping class="org.ekstep.language.model.EnglishSynsetData"></mapping>
+		<mapping class="org.ekstep.language.model.EnglishSynsetDataLite"></mapping>
+		
 	</session-factory>
 </hibernate-configuration>
