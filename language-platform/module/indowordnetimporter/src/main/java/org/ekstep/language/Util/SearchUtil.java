@@ -3,6 +3,8 @@ package org.ekstep.language.Util;
 import java.util.Iterator;
 import java.util.List;
 
+import org.ekstep.language.model.EnglishSynsetDataLite;
+import org.ekstep.language.model.KannadaSynsetDataLite;
 import org.ekstep.language.model.TamilSynsetData;
 import org.ekstep.language.model.TamilSynsetDataLite;
 import org.hibernate.HibernateException;
@@ -56,6 +58,23 @@ public class SearchUtil {
 	            	bSynset = antonym.getSynset();
 		        	String hysynsetString = new String(bSynset);
 		            System.out.println("Antonym: " + hysynsetString);
+	            }
+	            for(TamilSynsetDataLite actionObject: employee.getActionObjects()){
+	            	bSynset = actionObject.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Action Object: " + hysynsetString);
+	            }
+	            
+	            KannadaSynsetDataLite kannadaTranslation = employee.getKannadaTranslation();
+	            bSynset = kannadaTranslation.getSynset();
+	        	String hysynsetString = new String(bSynset);
+	            System.out.println("Kannada Translation: " + hysynsetString);
+	            
+	            EnglishSynsetDataLite englishranslation = employee.getEnglishTranslation();
+	            if(englishranslation != null){
+		            bSynset = englishranslation.getSynset();
+		        	hysynsetString = new String(bSynset);
+		            System.out.println("English Translation: " + hysynsetString);
 	            }
 	         }
 	         tx.commit();
