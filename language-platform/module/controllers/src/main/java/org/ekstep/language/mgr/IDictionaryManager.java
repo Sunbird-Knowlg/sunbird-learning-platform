@@ -41,4 +41,8 @@ public interface IDictionaryManager {
 	Response findV2(String languageId, String id, String[] fields);
 
 	Response findAllV2(String languageId, String objectType, String[] fields, Integer limit);
+	
+	Response loadEnglishWordsArpabetsMap(InputStream in);
+	
+	Response getSyllables(String languageID, String word);
 }

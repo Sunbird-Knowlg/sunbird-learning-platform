@@ -188,4 +188,26 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
         }
     }
 
+    @Override
+    public void loadEnglishWordsToRedis(Request request){
+        String graphId = "en";
+        try {
+            Graph graph = new Graph(this, graphId);
+            graph.loadEnglishWordsToRedis(request);
+        } catch (Exception e) {
+            handleException(e, getSender());
+        }    	
+    }
+    
+    @Override
+    public void getArpabetsOfWord(Request request){
+    	 String graphId = "en";
+         try {
+             Graph graph = new Graph(this, graphId);
+             graph.getArpabetsOfWord(request);
+         } catch (Exception e) {
+             handleException(e, getSender());
+         }
+    }
+
 }

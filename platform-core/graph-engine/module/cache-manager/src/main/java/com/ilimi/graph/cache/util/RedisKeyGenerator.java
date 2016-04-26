@@ -4,6 +4,10 @@ public class RedisKeyGenerator {
 
     private static final String KEY_SEPARATOR = ":";
 
+    public static String getWordKey(String word){
+    	return RedisKeysEnum.WORD.name() + KEY_SEPARATOR+ word;
+    }
+    
     public static String getUniqueIdKey() {
         return RedisKeysEnum.UNIQUE_ID.name();
     }

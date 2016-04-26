@@ -1173,4 +1173,44 @@ public class Graph extends AbstractDomainObject {
             }
         }, manager.getContext().dispatcher());
     }
+    
+    public void loadEnglishWordsToRedis(Request req) {
+    	 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+    	 Request request = new Request(req);
+    	 request.put("wordsArpabetsStream", req.get("wordsArpabetsStream"));
+    	 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+    	 request.setOperation("loadWordArpabetMap");
+    	 cacheRouter.tell(request, manager.getSelf());
+    }
+
+    public void getArpabetsOfWord(Request req){
+	   	 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+	   	 Request request = new Request(req);
+	   	 request.put(GraphDACParams.WORD.name(), req.get(GraphDACParams.WORD.name()));
+	   	 request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+	   	 request.setOperation("getArpabetsOfWord");
+//	   	 cacheRouter.tell(request, manager.getSelf());
+    	
+    	Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
+    	manager.returnResponse(response, getParent());
+    	
+//        response.onComplete(new OnComplete<Object>() {
+//            @Override
+//            public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+//                boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+//                        GraphEngineErrorCodes.ERR_GRAPH_GET_WORD_ARPABETS_NOT_FOUND.name(), "Failed to get the Arpabets for word ");
+//                if (valid) {
+//                    Response res = (Response) arg1;
+//                    String arpabets = (String) res.get(GraphDACParams.ARPABETS.name());
+//                    if (null == arpabets || StringUtils.isBlank(arpabets) ) {
+//                        manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_GET_WORD_ARPABETS_NOT_FOUND.name(),
+//                                "Failed to get the Arpabets for words", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+//                    } else {
+//                        manager.OK(GraphDACParams.ARPABETS.name(), arpabets, getParent());
+//                    }
+//                }
+//            }
+//        }, manager.getContext().dispatcher());
+    }
+
 }

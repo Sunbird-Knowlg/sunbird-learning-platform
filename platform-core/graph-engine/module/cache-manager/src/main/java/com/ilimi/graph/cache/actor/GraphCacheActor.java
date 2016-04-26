@@ -3,8 +3,6 @@ package com.ilimi.graph.cache.actor;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import akka.actor.ActorRef;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.graph.cache.mgr.IDefinitionNodeCacheMgr;
@@ -15,8 +13,11 @@ import com.ilimi.graph.cache.mgr.impl.DefinitionNodeCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
+import com.ilimi.graph.cache.mgr.impl.WordCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+
+import akka.actor.ActorRef;
 
 public class GraphCacheActor extends BaseGraphManager {
 
@@ -320,6 +321,26 @@ public class GraphCacheActor extends BaseGraphManager {
         try {
             Boolean isMember = cacheMgr.isTagMember(request);
             OK(GraphDACParams.is_member.name(), isMember, getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
+        }
+    }
+
+    public void loadWordArpabetMap(Request request){
+    	WordCacheMgrImpl cacheMgr = new WordCacheMgrImpl();
+        try {
+            cacheMgr.loadWordArpabetCollection(request);
+            OK(getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
+        }
+    }
+    
+    public void getArpabetsOfWord(Request request){
+    	WordCacheMgrImpl cacheMgr = new WordCacheMgrImpl();
+        try {
+            String arpabetsOfWord=cacheMgr.getArpabetsOfWord(request);
+            OK(GraphDACParams.ARPABETS.name(),arpabetsOfWord, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
         }

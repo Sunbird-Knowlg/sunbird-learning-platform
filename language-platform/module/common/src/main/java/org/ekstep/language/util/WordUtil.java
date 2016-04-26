@@ -1,6 +1,7 @@
 package org.ekstep.language.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,6 +37,7 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -773,4 +775,84 @@ public class WordUtil extends BaseManager {
         return null;
     }
 
+	public Response loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
+		Request request = new Request();
+        request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+        request.setOperation("loadEnglishWordsToRedis");
+        request.getContext().put(GraphHeaderParams.graph_id.name(), "en");
+        request.put("wordsArpabetsStream",wordsArpabetsStream);
+        Response response = getResponse(request, LOGGER);
+        return response;
+	}
+	
+	private Response getEnglishWordArpabets(String word){
+		Request request = new Request();
+        request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
+        request.setOperation("getArpabetsOfWord");
+        request.getContext().put(GraphHeaderParams.graph_id.name(), "en");
+        word=word.toUpperCase();
+        request.put(GraphDACParams.WORD.name(),word);
+        Response response = getResponse(request, LOGGER);
+
+        return response;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public String buildSyllables(String languageId, String word){
+		String syllables="";
+		
+		Response arpabetResponse =getEnglishWordArpabets(word);
+		String arpabets = (String) arpabetResponse.get(GraphDACParams.ARPABETS.name());
+		String arpabetArr[]=arpabets.split("\\s");
+
+		for(String arpabet:arpabetArr){
+			Node varnaNode=searchVarna(languageId, arpabet);
+			Map<String,Object> metaData=varnaNode.getMetadata();
+			String iso=(String)metaData.get("ipaSymbol");
+			String type=(String)metaData.get("type");
+			syllables+=iso;
+			if(type.equalsIgnoreCase("Vowel")){
+				syllables+=",";
+			}
+			syllables+=" ";
+		}
+		
+		if(syllables.endsWith(", "))
+			syllables=syllables.substring(0, syllables.length()-2);
+		else
+			syllables=syllables.substring(0, syllables.length()-1);
+
+		return syllables;
+	}
+	
+	@SuppressWarnings("unchecked")
+    private Node searchVarna(String languageId, String arpabet) {
+        Node node = null;
+        Property property = new Property(GraphDACParams.identifier.name(), arpabet);
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+        request.put(GraphDACParams.metadata.name(), property);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0)
+                node = nodes.get(0);
+        }
+        if (null == node) {
+            SearchCriteria sc = new SearchCriteria();
+            sc.setObjectType("Varna");
+            sc.addMetadata(MetadataCriterion
+                    .create(Arrays.asList(new Filter("variants", SearchConditions.OP_IN, Arrays.asList(arpabet)))));
+            sc.setResultSize(1);
+            Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+            req.put(GraphDACParams.search_criteria.name(), sc);
+            Response searchRes = getResponse(request, LOGGER);
+            if (!checkError(searchRes)) {
+                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+                if (null != nodes && nodes.size() > 0)
+                    node = nodes.get(0);
+            }
+        }
+        return node;
+    }
 }

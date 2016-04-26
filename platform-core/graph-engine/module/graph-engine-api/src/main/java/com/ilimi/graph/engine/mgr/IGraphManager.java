@@ -110,4 +110,8 @@ public interface IGraphManager {
     void removeRelation(Request request);
 
 	void createTaskNode(Request request);
+	
+	void loadEnglishWordsToRedis(Request request);
+	
+	void getArpabetsOfWord(Request request);
 }

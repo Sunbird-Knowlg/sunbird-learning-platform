@@ -43,6 +43,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
@@ -2349,4 +2351,34 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
+	
+	@Override
+	public Response loadEnglishWordsArpabetsMap(InputStream in){
+		Response response=wordUtil.loadEnglishWordsArpabetsMap(in);
+		return response;
+	}
+	
+	@Override
+	public Response getSyllables(String languageId, String word){
+		Node wordNode=wordUtil.searchWord(languageId, word);
+		String syllables="";
+		
+		if(wordNode!=null&&wordNode.getMetadata().get("syllables")!=null){
+			syllables=(String)wordNode.getMetadata().get("syllables");
+		}
+		else{		
+			syllables=wordUtil.buildSyllables(languageId, word);
+		}
+		
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("Syllables",syllables);
+	
+        return response;
+	}
+	
+	
 }
