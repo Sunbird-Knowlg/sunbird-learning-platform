@@ -21,7 +21,7 @@ public class IndowordnetUtil {
 		Transaction tx = null;
 		try {
 			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM "+ languageTableName);
+			Query query = session.createQuery("FROM "+ languageTableName+" ORDER BY synset_id");
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			
@@ -61,6 +61,11 @@ public class IndowordnetUtil {
 		        	String hysynsetString = new String(bSynset);
 		            System.out.println("Action Object: " + hysynsetString);
 	            }
+	            for(SynsetDataLite action: synsetData.getActions()){
+	            	bSynset = action.getSynset();
+		        	String hysynsetString = new String(bSynset);
+		            System.out.println("Action : " + hysynsetString);
+	            }
 	            
 	            for(Map.Entry<String, SynsetDataLite> entry: synsetData.getTranslations().entrySet()){
 	            	String translatedLanguage = entry.getKey();
@@ -82,7 +87,7 @@ public class IndowordnetUtil {
 
 	public static void main(String[] args) {
 		IndowordnetUtil util = new IndowordnetUtil();
-		util.loadWords("kannada", 10, 100);
+		util.loadWords("tamil", 0, 300);
 	}
 	
 	private String getLanguageTableName(String language) {

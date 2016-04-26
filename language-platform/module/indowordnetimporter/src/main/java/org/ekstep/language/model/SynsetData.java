@@ -26,11 +26,21 @@ public class SynsetData {
 	protected List<SynsetDataLite> antonyms = new ArrayList<>();
 
 	protected List<SynsetDataLite> actionObjects = new ArrayList<>();
+	
+	protected List<SynsetDataLite> actions = new ArrayList<>();
 
 	protected Map<String, SynsetDataLite> translations = new HashMap<String, SynsetDataLite>();
 
 	public SynsetData() {
 		super();
+	}
+
+	public List<SynsetDataLite> getActions() {
+		return actions;
+	}
+
+	public void setActions(List<SynsetDataLite> actions) {
+		this.actions = actions;
 	}
 
 	public int getSynset_id() {

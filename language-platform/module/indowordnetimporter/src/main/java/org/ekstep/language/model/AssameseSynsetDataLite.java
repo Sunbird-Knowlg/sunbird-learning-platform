@@ -12,7 +12,7 @@ public class AssameseSynsetDataLite implements LanguageSynsetDataLite{
 	@Id
 	private int synset_id;
 	
-	@Column(name = "synset", unique = false, nullable = false, length = 100000)
+	@Column(name = "synset", unique = false, nullable = false, length = 900000)
 	private byte[] synset;
 	
 	public AssameseSynsetDataLite() {
