@@ -1,12 +1,12 @@
 package org.ekstep.language.Util;
 
-import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
-import org.ekstep.language.model.TamilSynsetData;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -14,6 +14,7 @@ import org.hibernate.Transaction;
 
 public class IndowordnetUtil {
 
+	@SuppressWarnings({ "unchecked" })
 	public void loadWords(String language, int offset, int limit) {
 		Session session = HibernateSessionFactory.getSession();
 		String languageTableName = getLanguageTableName(language);
@@ -24,10 +25,9 @@ public class IndowordnetUtil {
 			query.setFirstResult(offset);
 			query.setMaxResults(limit);
 			
-			List synsetDataList = query.list();
-			 for (Iterator iterator = 
-					 synsetDataList.iterator(); iterator.hasNext();){
-				TamilSynsetData synsetData = (TamilSynsetData) iterator.next(); 
+			List<LanguageSynsetData> languageSynsetDataList = query.list();
+			 for (LanguageSynsetData lSynsetData : languageSynsetDataList){
+				SynsetData synsetData = lSynsetData.getSynsetData();
 	        	byte[] bSynset = synsetData.getSynset();
 	        	String synsetString = new String(bSynset);
 	            System.out.println("Word: " + synsetString);
@@ -62,17 +62,13 @@ public class IndowordnetUtil {
 		            System.out.println("Action Object: " + hysynsetString);
 	            }
 	            
-	            /*SynsetDataLite kannadaTranslation = employee.getKannadaTranslation();
-	            bSynset = kannadaTranslation.getSynset();
-	        	String hysynsetString = new String(bSynset);
-	            System.out.println("Kannada Translation: " + hysynsetString);
-	            
-	            SynsetDataLite englishranslation = employee.getEnglishTranslation();
-	            if(englishranslation != null){
-		            bSynset = englishranslation.getSynset();
-		        	hysynsetString = new String(bSynset);
-		            System.out.println("English Translation: " + hysynsetString);
-	            }*/
+	            for(Map.Entry<String, SynsetDataLite> entry: synsetData.getTranslations().entrySet()){
+	            	String translatedLanguage = entry.getKey();
+	            	SynsetDataLite translatedSynsetDataLite = entry.getValue();
+	            	bSynset = translatedSynsetDataLite.getSynset();
+		        	String hysynsetString = new String(bSynset);
+	            	System.out.println(translatedLanguage + " Translation: " + hysynsetString);
+	            }
 			}
 			
 		} catch (HibernateException e) {
@@ -86,7 +82,7 @@ public class IndowordnetUtil {
 
 	public static void main(String[] args) {
 		IndowordnetUtil util = new IndowordnetUtil();
-		util.loadWords("tamil", 10, 100);
+		util.loadWords("kannada", 10, 100);
 	}
 	
 	private String getLanguageTableName(String language) {

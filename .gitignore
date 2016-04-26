@@ -1,0 +1,11 @@
+*.classpath
+coverageReport/
+*.prefs
+*.settings*
+*.project
+language-platform/module/common/.gitignore
+language-platform/module/dictionary/.gitignore
+language-platform/module/indowordnetimporter/.gitignore
+*target*
+*taget_junit*
+platform-tools/scripts/orchestrator/node_modules/

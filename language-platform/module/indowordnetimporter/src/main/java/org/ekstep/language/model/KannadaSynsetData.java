@@ -1,7 +1,9 @@
 package org.ekstep.language.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -16,11 +18,13 @@ import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
+import org.hibernate.annotations.WhereJoinTable;
+
 import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name="tbl_all_kannada_synset_data")
-public class KannadaSynsetData {
+public class KannadaSynsetData implements LanguageSynsetData{
 	
 	@Id
 	private int synset_id;
@@ -75,6 +79,32 @@ public class KannadaSynsetData {
 	@Cascade(CascadeType.MERGE)
 	protected TamilSynsetDataLite tamilTranslation;
 	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected AssameseSynsetDataLite assameseTranslation;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected BengaliSynsetDataLite bengaliTranslation;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected BodoSynsetDataLite bodoTranslation;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected GujaratiSynsetDataLite gujaratiTranslation;
+	
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinTable(name="english_hindi_id_mapping", joinColumns = @JoinColumn(name="hindi_id"),	inverseJoinColumns = @JoinColumn(name="english_id"))
+	@WhereJoinTable(clause = "type_link='Direct'")
+	@Cascade(CascadeType.MERGE)
+	private EnglishSynsetDataLite englishTranslation;
+	
 	public KannadaSynsetData() {
 		super();
 	}
@@ -96,6 +126,55 @@ public class KannadaSynsetData {
 		this.actionObjects = actionObjects;
 	}
 	
+	
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
+	}
+
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
+	}
+
+	public AssameseSynsetDataLite getAssameseTranslation() {
+		return assameseTranslation;
+	}
+
+	public void setAssameseTranslation(AssameseSynsetDataLite assameseTranslation) {
+		this.assameseTranslation = assameseTranslation;
+	}
+
+	public BengaliSynsetDataLite getBengaliTranslation() {
+		return bengaliTranslation;
+	}
+
+	public void setBengaliTranslation(BengaliSynsetDataLite bengaliTranslation) {
+		this.bengaliTranslation = bengaliTranslation;
+	}
+
+	public BodoSynsetDataLite getBodoTranslation() {
+		return bodoTranslation;
+	}
+
+	public void setBodoTranslation(BodoSynsetDataLite bodoTranslation) {
+		this.bodoTranslation = bodoTranslation;
+	}
+
+	public GujaratiSynsetDataLite getGujaratiTranslation() {
+		return gujaratiTranslation;
+	}
+
+	public void setGujaratiTranslation(GujaratiSynsetDataLite gujaratiTranslation) {
+		this.gujaratiTranslation = gujaratiTranslation;
+	}
+
+	public EnglishSynsetDataLite getEnglishTranslation() {
+		return englishTranslation;
+	}
+
+	public void setEnglishTranslation(EnglishSynsetDataLite englishTranslation) {
+		this.englishTranslation = englishTranslation;
+	}
+
 	public List<KannadaSynsetDataLite> getActionObjects() {
 		return actionObjects;
 	}
@@ -167,5 +246,47 @@ public class KannadaSynsetData {
 	}
 	public void setCategory(String category) {
 		this.category = category;
+	}
+	
+	public SynsetData getSynsetData(){
+		SynsetData synsetData = new SynsetData();
+		synsetData.setSynset_id(this.synset_id);
+		synsetData.setSynset(this.synset);
+		synsetData.setGloss(this.gloss);
+		synsetData.setCategory(this.category);
+		
+		//relations
+		synsetData.setAntonyms(getSynsetDataLiteList(getAntonyms()));
+		synsetData.setHolonyms(getSynsetDataLiteList(getHolonyms()));
+		synsetData.setHypernyms(getSynsetDataLiteList(getHypernyms()));
+		synsetData.setHyponyms(getSynsetDataLiteList(getHyponyms()));
+		synsetData.setMeronyms(getSynsetDataLiteList(getMeronyms()));
+		synsetData.setActionObjects(getSynsetDataLiteList(getActionObjects()));
+		
+		//translations
+		Map<String, SynsetDataLite> translationsMap = new HashMap<String, SynsetDataLite>();
+		if(getAssameseTranslation() != null)
+		translationsMap.put("Assamese",getAssameseTranslation().getSynsetDataLite());
+		if(getBengaliTranslation() != null)
+		translationsMap.put("Bengali",getBengaliTranslation().getSynsetDataLite());
+		if(getBodoTranslation() != null)
+		translationsMap.put("Bodo",getBodoTranslation().getSynsetDataLite());
+		if(getGujaratiTranslation() != null)
+		translationsMap.put("Gujarati",getGujaratiTranslation().getSynsetDataLite());
+		if(getTamilTranslation() != null)
+		translationsMap.put("Tamil",getTamilTranslation().getSynsetDataLite());
+		if(getEnglishTranslation() != null)
+		translationsMap.put("English",getEnglishTranslation().getSynsetDataLite());
+		synsetData.setTranslations(translationsMap);
+		
+		return synsetData;
+	}
+	
+	private List<SynsetDataLite> getSynsetDataLiteList(List<KannadaSynsetDataLite> languageSynsetLiteList){
+		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
+		for(KannadaSynsetDataLite langSynsetDataLite: languageSynsetLiteList){
+			synsetDataLiteList.add(langSynsetDataLite.getSynsetDataLite());
+		}
+		return synsetDataLiteList;
 	}
 }

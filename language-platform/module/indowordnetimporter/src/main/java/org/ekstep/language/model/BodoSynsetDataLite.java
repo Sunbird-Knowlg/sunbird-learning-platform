@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="tbl_all_bodo_synset_data")
-public class BodoSynsetDataLite {
+public class BodoSynsetDataLite implements LanguageSynsetDataLite{
 	
 	@Id
 	private int synset_id;
@@ -36,5 +36,12 @@ public class BodoSynsetDataLite {
 	}
 	public void setSynset(byte[] synset) {
 		this.synset = synset;
+	}
+	
+	public SynsetDataLite getSynsetDataLite(){
+		SynsetDataLite synsetDataLite = new SynsetDataLite();
+		synsetDataLite.setSynset_id(this.synset_id);
+		synsetDataLite.setSynset(this.synset);
+		return synsetDataLite;
 	}
 }

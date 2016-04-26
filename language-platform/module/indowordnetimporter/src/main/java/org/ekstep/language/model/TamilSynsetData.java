@@ -1,7 +1,9 @@
 package org.ekstep.language.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -18,11 +20,12 @@ import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.WhereJoinTable;
 
+
 import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name="tbl_all_tamil_synset_data")
-public class TamilSynsetData{
+public class TamilSynsetData implements LanguageSynsetData{
 	
 	@Id
 	private int synset_id;
@@ -247,5 +250,47 @@ public class TamilSynsetData{
 	}
 	public void setCategory(String category) {
 		this.category = category;
+	}
+	
+	public SynsetData getSynsetData(){
+		SynsetData synsetData = new SynsetData();
+		synsetData.setSynset_id(this.synset_id);
+		synsetData.setSynset(this.synset);
+		synsetData.setGloss(this.gloss);
+		synsetData.setCategory(this.category);
+		
+		//relations
+		synsetData.setAntonyms(getSynsetDataLiteList(getAntonyms()));
+		synsetData.setHolonyms(getSynsetDataLiteList(getHolonyms()));
+		synsetData.setHypernyms(getSynsetDataLiteList(getHypernyms()));
+		synsetData.setHyponyms(getSynsetDataLiteList(getHyponyms()));
+		synsetData.setMeronyms(getSynsetDataLiteList(getMeronyms()));
+		synsetData.setActionObjects(getSynsetDataLiteList(getActionObjects()));
+		
+		//translations
+		Map<String, SynsetDataLite> translationsMap = new HashMap<String, SynsetDataLite>();
+		if(getAssameseTranslation() != null)
+		translationsMap.put("Assamese",getAssameseTranslation().getSynsetDataLite());
+		if(getBengaliTranslation() != null)
+		translationsMap.put("Bengali",getBengaliTranslation().getSynsetDataLite());
+		if(getBodoTranslation() != null)
+		translationsMap.put("Bodo",getBodoTranslation().getSynsetDataLite());
+		if(getGujaratiTranslation() != null)
+		translationsMap.put("Gujarati",getGujaratiTranslation().getSynsetDataLite());
+		if(getKannadaTranslation() != null)
+		translationsMap.put("Kannada",getKannadaTranslation().getSynsetDataLite());
+		if(getEnglishTranslation() != null)
+		translationsMap.put("English",getEnglishTranslation().getSynsetDataLite());
+		synsetData.setTranslations(translationsMap);
+		
+		return synsetData;
+	}
+	
+	private List<SynsetDataLite> getSynsetDataLiteList(List<TamilSynsetDataLite> tamilSynsetLiteList){
+		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
+		for(TamilSynsetDataLite tamilSynsetDataLite: tamilSynsetLiteList){
+			synsetDataLiteList.add(tamilSynsetDataLite.getSynsetDataLite());
+		}
+		return synsetDataLiteList;
 	}
 }

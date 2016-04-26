@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="tbl_all_tamil_synset_data")
-public class TamilSynsetDataLite implements SynsetDataLite{
+public class TamilSynsetDataLite implements LanguageSynsetDataLite{
 	
 	@Id
 	private int synset_id;
@@ -37,4 +37,12 @@ public class TamilSynsetDataLite implements SynsetDataLite{
 	public void setSynset(byte[] synset) {
 		this.synset = synset;
 	}
+	
+	public SynsetDataLite getSynsetDataLite(){
+		SynsetDataLite synsetDataLite = new SynsetDataLite();
+		synsetDataLite.setSynset_id(this.synset_id);
+		synsetDataLite.setSynset(this.synset);
+		return synsetDataLite;
+	}
+	
 }
