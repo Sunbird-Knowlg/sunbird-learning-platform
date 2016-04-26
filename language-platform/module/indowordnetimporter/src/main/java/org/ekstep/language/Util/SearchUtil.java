@@ -29,7 +29,7 @@ public class SearchUtil {
 	         query.setMaxResults(100);
 	         List employees = query.list(); 
 	         for (Iterator iterator = 
-	                           employees.iterator(); iterator.hasNext();){
+	                           employees.iterator(); iterator.hasNext();){/*
 	        	TamilSynsetData employee = (TamilSynsetData) iterator.next(); 
 	        	byte[] bSynset = employee.getSynset();
 	        	String synsetString = new String(bSynset);
@@ -76,7 +76,7 @@ public class SearchUtil {
 		        	hysynsetString = new String(bSynset);
 		            System.out.println("English Translation: " + hysynsetString);
 	            }
-	         }
+	         */}
 	         tx.commit();
 	      }catch (HibernateException e) {
 	         if (tx!=null) tx.rollback();

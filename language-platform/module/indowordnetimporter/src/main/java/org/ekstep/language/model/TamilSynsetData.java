@@ -22,7 +22,7 @@ import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name="tbl_all_tamil_synset_data")
-public class TamilSynsetData {
+public class TamilSynsetData{
 	
 	@Id
 	private int synset_id;
@@ -172,12 +172,20 @@ public class TamilSynsetData {
 		this.kannadaTranslation = kannadaTranslation;
 	}
 
-	public List<TamilSynsetDataLite> getActionObjects() {
-		return actionObjects;
+	public List<TamilSynsetDataLite> getHypernyms() {
+		return hypernyms;
 	}
 
-	public void setActionObjects(List<TamilSynsetDataLite> actionObjects) {
-		this.actionObjects = actionObjects;
+	public void setHypernyms(List<TamilSynsetDataLite> hypernyms) {
+		this.hypernyms = hypernyms;
+	}
+
+	public List<TamilSynsetDataLite> getHyponyms() {
+		return hyponyms;
+	}
+
+	public void setHyponyms(List<TamilSynsetDataLite> hyponyms) {
+		this.hyponyms = hyponyms;
 	}
 
 	public List<TamilSynsetDataLite> getMeronyms() {
@@ -204,23 +212,19 @@ public class TamilSynsetData {
 		this.antonyms = antonyms;
 	}
 
-	public List<TamilSynsetDataLite> getHyponyms() {
-		return hyponyms;
+	public List<TamilSynsetDataLite> getActionObjects() {
+		return actionObjects;
 	}
 
-	public void setHyponyms(List<TamilSynsetDataLite> hyponyms) {
-		this.hyponyms = hyponyms;
-	}
-
-	public List<TamilSynsetDataLite> getHypernyms() {
-		return hypernyms;
-	}
-
-	public void setHypernyms(List<TamilSynsetDataLite> hypernyms) {
-		this.hypernyms = hypernyms;
+	public void setActionObjects(List<TamilSynsetDataLite> actionObjects) {
+		this.actionObjects = actionObjects;
 	}
 
 	public int getSynset_id() {
+		return synset_id;
+	}
+
+	public int getSynsetId() {
 		return synset_id;
 	}
 	public void setSynset_id(int synset_id) {

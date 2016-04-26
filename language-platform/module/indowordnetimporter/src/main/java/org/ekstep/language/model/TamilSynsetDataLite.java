@@ -7,7 +7,7 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name="tbl_all_tamil_synset_data")
-public class TamilSynsetDataLite {
+public class TamilSynsetDataLite implements SynsetDataLite{
 	
 	@Id
 	private int synset_id;
