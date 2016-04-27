@@ -9,9 +9,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
@@ -20,9 +20,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.WhereJoinTable;
-
-
-import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name="tbl_all_tamil_synset_data")
@@ -74,13 +71,13 @@ public class TamilSynsetData implements LanguageSynsetData{
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = { @JoinColumn(name = "object_id") })
-	protected List<TamilSynsetDataLite> actionObjects = new ArrayList<>();
+	protected List<TamilSynsetDataLite> actions = new ArrayList<>();
 	
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "object_id") }, inverseJoinColumns = { @JoinColumn(name = "synset_id") })
-	protected List<TamilSynsetDataLite> actions = new ArrayList<>();
+	protected List<TamilSynsetDataLite> objects = new ArrayList<>();
 	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -131,15 +128,7 @@ public class TamilSynsetData implements LanguageSynsetData{
 		this.meronyms = meronyms;
 		this.holonyms = holonyms;
 		this.antonyms = antonyms;
-		this.actionObjects = actionObjects;
-	}
-	
-	public List<TamilSynsetDataLite> getActions() {
-		return actions;
-	}
-
-	public void setActions(List<TamilSynsetDataLite> actions) {
-		this.actions = actions;
+		this.actions = actionObjects;
 	}
 
 	public AssameseSynsetDataLite getAssameseTranslation() {
@@ -222,13 +211,6 @@ public class TamilSynsetData implements LanguageSynsetData{
 		this.antonyms = antonyms;
 	}
 
-	public List<TamilSynsetDataLite> getActionObjects() {
-		return actionObjects;
-	}
-
-	public void setActionObjects(List<TamilSynsetDataLite> actionObjects) {
-		this.actionObjects = actionObjects;
-	}
 
 	public int getSynset_id() {
 		return synset_id;
@@ -266,6 +248,22 @@ public class TamilSynsetData implements LanguageSynsetData{
 	public void setEnglishTranslations(List<EnglishSynsetDataLite> englishTranslations) {
 		this.englishTranslations = englishTranslations;
 	}
+	
+	public List<TamilSynsetDataLite> getActions() {
+		return actions;
+	}
+
+	public void setActions(List<TamilSynsetDataLite> actions) {
+		this.actions = actions;
+	}
+
+	public List<TamilSynsetDataLite> getObjects() {
+		return objects;
+	}
+
+	public void setObjects(List<TamilSynsetDataLite> objects) {
+		this.objects = objects;
+	}
 
 	public SynsetData getSynsetData(){
 		SynsetData synsetData = new SynsetData();
@@ -280,7 +278,7 @@ public class TamilSynsetData implements LanguageSynsetData{
 		synsetData.setHypernyms(getSynsetDataLiteList(getHypernyms()));
 		synsetData.setHyponyms(getSynsetDataLiteList(getHyponyms()));
 		synsetData.setMeronyms(getSynsetDataLiteList(getMeronyms()));
-		synsetData.setActionObjects(getSynsetDataLiteList(getActionObjects()));
+		synsetData.setActionObjects(getSynsetDataLiteList(getObjects()));
 		synsetData.setActions(getSynsetDataLiteList(getActions()));
 		
 		//translations
