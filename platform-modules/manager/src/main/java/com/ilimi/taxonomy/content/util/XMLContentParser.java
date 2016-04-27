@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.content.util;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.nio.file.NotDirectoryException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,15 +22,17 @@ import org.xml.sax.SAXException;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
+import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
-public class ContentParser {
+public class XMLContentParser {
 
 	private static final Map<String, String> nonPluginTags = new HashMap<String, String>();
 
@@ -48,46 +49,49 @@ public class ContentParser {
 		nonPluginTags.put(ContentWorkflowPipelineParams.manifest.name(), ContentWorkflowPipelineParams.manifest.name());
 		nonPluginTags.put(ContentWorkflowPipelineParams.media.name(), ContentWorkflowPipelineParams.media.name());
 		nonPluginTags.put(ContentWorkflowPipelineParams.theme.name(), ContentWorkflowPipelineParams.theme.name());
+		nonPluginTags.put(ContentWorkflowPipelineParams.events.name(), ContentWorkflowPipelineParams.events.name());
 
 		eventTags.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
 		actionTags.put(ContentWorkflowPipelineParams.action.name(), ContentWorkflowPipelineParams.action.name());
-
 	}
 
-	public void parseContent(String xml) {
+	public Content parseContent(String xml) {
 		DocumentBuilderFactory factory = null;
 		DocumentBuilder builder = null;
 		Document document = null;
+		Content content = new Content();
 		try {
 			factory = DocumentBuilderFactory.newInstance();
 			builder = factory.newDocumentBuilder();
 			document = builder.parse(new InputSource(new StringReader(xml)));
 			document.getDocumentElement().normalize();
 			Element root = document.getDocumentElement();
-			processContentDocument(root);
+			content = processContentDocument(root);
 		} catch (ParserConfigurationException e) {
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_XML_PARSE_CONFIG_ERROR.name(),
 					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
 		} catch (SAXException e) {
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_NOT_WELL_FORMED_XML.name(),
 					ContentErrorMessageConstants.XML_NOT_WELL_FORMED_ERROR);
 		} catch (IOException e) {
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_XML_IO_ERROR.name(),
 					ContentErrorMessageConstants.XML_IO_ERROR);
 		} finally {
 			if(document != null){
 				document = null;
 	        }
 		}
+		return content;
 	}
 	
-	private void processContentDocument(Element root) {
+	private Content processContentDocument(Element root) {
 		Content content = new Content();
 		if (null != root && root.hasChildNodes()) {
 			content.setManifest(getContentManifest(root.getElementsByTagName(ContentWorkflowPipelineParams.manifest.name())));
 			content.setControllers(getControllers(root.getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			content.setPlugins(getPlugins(root));
 		}
+		return content;
 	}
 	
 	private Manifest getContentManifest(NodeList manifestNodes) {
@@ -175,11 +179,98 @@ public class ContentParser {
 	
 	private List<Plugin> getPlugins(Node node) {
 		List<Plugin> plugins = new ArrayList<Plugin>();
-		
+		node = getPluginViewOfDocument(node);
+		if (null != node && node.hasChildNodes()) {
+			NodeList pluginNodes = node.getChildNodes();
+			for (int i = 0; i < pluginNodes.getLength(); i++) {
+				if (isPlugin(pluginNodes.item(i).getNodeName()) && pluginNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+					plugins.add(getPlugin(pluginNodes.item(i)));
+				}
+			}
+		}
 		return plugins;
 	}
 	
-	private Node getPluginViewofDocument(Node node) {
+	private Plugin getPlugin(Node node) {
+		Plugin plugin = new Plugin();
+		if (null != node) {
+			plugin.setData(getAttributeMap(node));
+			plugin.setChildrenData(getNonPluginChildren(node));
+			plugin.setEvents(getEvents(node));
+			plugin.setChildrenPlugin(getChildrenPlugins(node));
+		}
+		return plugin;
+	}
+	
+	private List<Plugin> getChildrenPlugins(Node node) {
+		List<Plugin> childrenPlugins = new ArrayList<Plugin>();
+			if (null != node && node.hasChildNodes()) {
+				NodeList childrenItems = node.getChildNodes();
+				for (int i = 0; i < childrenItems.getLength(); i++) {
+					if (childrenItems.item(i).getNodeType() == Node.ELEMENT_NODE && 
+							isPlugin(childrenItems.item(i).getNodeName())) {
+						Plugin plugin = new Plugin();
+						plugin.setData(getAttributeMap(childrenItems.item(i)));
+						plugin.setEvents(getEvents(childrenItems.item(i)));
+						plugin.setChildrenData(getNonPluginChildren(childrenItems.item(i)));
+						plugin.setChildrenPlugin(getChildrenPlugins(childrenItems.item(i)));
+						childrenPlugins.add(plugin);
+					}
+				}
+					
+			}
+		return childrenPlugins;
+	}
+	
+	private List<Map<String, String>> getNonPluginChildren(Node node) {
+		List<Map<String, String>> nonPluginChildren = new ArrayList<Map<String, String>>();
+		if (null != node && node.hasChildNodes()) {
+			NodeList nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !isPlugin(nodes.item(i).getNodeName())) {
+					Map<String, String> map = getAttributeMap(nodes.item(i));
+					map.put(ContentWorkflowPipelineParams.tag_name.name(), nodes.item(i).getNodeName());
+					nonPluginChildren.add(map);
+				}
+			}
+		}
+		return nonPluginChildren;
+	}
+	
+	private List<Event> getEvents(Node node) {				//'<events>' tag is not handled
+		List<Event> events = new ArrayList<Event>();
+		if (null != node && node.hasChildNodes()) {
+			NodeList nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
+						isEvent(nodes.item(i).getNodeName())) {
+					Event event = new Event();
+					event.setData(getAttributeMap(nodes.item(i)));
+					event.setActions(getActions(nodes.item(i)));
+					events.add(event);
+				}
+			}
+		}
+		return events;
+	}
+	
+	private List<Action> getActions(Node node) {
+		List<Action> actions = new ArrayList<Action>();
+		if (null != node && node.hasChildNodes()) {
+			NodeList nodes = node.getChildNodes();
+			for (int i = 0; i < nodes.getLength(); i++) {
+				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
+						isAction(nodes.item(i).getNodeName())) {
+					Action action = new Action();
+					action.setData(getAttributeMap(nodes.item(i)));
+					actions.add(action);
+				}
+			}
+		}
+		return actions;
+	}
+	
+	private Node getPluginViewOfDocument(Node node) {
 		if (null != node) {
 			//Remove Manifest From Document
 			NodeList manifestNodeList = ((Document) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name());
