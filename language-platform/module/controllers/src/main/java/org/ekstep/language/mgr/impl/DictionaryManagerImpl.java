@@ -1399,6 +1399,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 										ResponseCode.CLIENT_ERROR);
 							}
 							Response wordResponse = createOrUpdateWord(item, definition, languageId, true, lstNodeId);
+							if(checkError(wordResponse)){
+								errorMessages.append(wordUtil.getErrorMessage(wordResponse));
+							}
 							String errorMessage = (String) wordResponse.get(LanguageParams.error_messages.name());
 							if (errorMessage != null && !errorMessage.isEmpty()) {
 								errorMessages.append(errorMessage);
