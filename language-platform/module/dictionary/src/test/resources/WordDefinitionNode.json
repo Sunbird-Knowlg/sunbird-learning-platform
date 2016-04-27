@@ -499,6 +499,30 @@
           "renderingHints": "{ 'inputType': 'select', 'order': 37 }"
         },
         {
+          "propertyName": "wordLists",
+          "title": "WordLists",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+          "propertyName": "wordListIds",
+          "title": "WordList Ids",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
           "propertyName": "genders",
           "title": "Genders",
           "description": "",
@@ -509,6 +533,29 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "Category",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Person",
+                "Place",
+                "Thing",
+                "Quality",
+                "Numeral/Time",
+                "Concept",
+                "Action/Event",
+                "Grammatical Word"
+            ],
+            "required": false,
+			      "indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
           "propertyName": "person",
