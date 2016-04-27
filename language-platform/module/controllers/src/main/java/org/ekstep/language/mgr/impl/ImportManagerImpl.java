@@ -221,6 +221,26 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
                 List<Map<String, Object>> meronyms = getRelatedSynsets(synsetJSON.get("meronyms"));
                 createRelations(languageId, meronyms, identifier, RelationTypes.MERONYM.relationName(), nodeIDcache,
                         synsetIds, manager, errorMessages, false);
+                
+                List<Map<String, Object>> actions = getRelatedSynsets(synsetJSON.get("actions"));
+                createRelations(languageId, actions, identifier, RelationTypes.ACTION.relationName(), nodeIDcache,
+                        synsetIds, manager, errorMessages, false);
+                
+                List<Map<String, Object>> tools = getRelatedSynsets(synsetJSON.get("tools"));
+                createRelations(languageId, tools, identifier, RelationTypes.TOOL.relationName(), nodeIDcache,
+                        synsetIds, manager, errorMessages, false);
+                
+                List<Map<String, Object>> workers = getRelatedSynsets(synsetJSON.get("workers"));
+                createRelations(languageId, workers, identifier, RelationTypes.WORKER.relationName(), nodeIDcache,
+                        synsetIds, manager, errorMessages, false);
+                
+                List<Map<String, Object>> objects = getRelatedSynsets(synsetJSON.get("objects"));
+                createRelations(languageId, objects, identifier, RelationTypes.OBJECT.relationName(), nodeIDcache,
+                        synsetIds, manager, errorMessages, false);
+                
+                List<Map<String, Object>> converse = getRelatedSynsets(synsetJSON.get("converse"));
+                createRelations(languageId, converse, identifier, RelationTypes.CONVERSE.relationName(), nodeIDcache,
+                        synsetIds, manager, errorMessages, false);
             }
         }
     }
