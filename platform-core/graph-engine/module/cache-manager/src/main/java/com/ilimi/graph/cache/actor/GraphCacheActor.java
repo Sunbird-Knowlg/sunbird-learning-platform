@@ -13,7 +13,6 @@ import com.ilimi.graph.cache.mgr.impl.DefinitionNodeCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SequenceCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.SetCacheMgrImpl;
 import com.ilimi.graph.cache.mgr.impl.TagCacheMgrImpl;
-import com.ilimi.graph.cache.mgr.impl.WordCacheMgrImpl;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
