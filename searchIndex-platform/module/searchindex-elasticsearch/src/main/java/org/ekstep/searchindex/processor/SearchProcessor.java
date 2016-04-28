@@ -176,32 +176,7 @@ public class SearchProcessor {
 						String queryOperation = (String) subCondition.get("operation");
 						String fieldName = (String) subCondition.get("fieldName");
 						Object value = subCondition.get("value");
-						switch (queryOperation) {
-						case "equal": {
-							builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
-							break;
-						}
-						case "like": {
-							builder.key("match_phrase").object().key(fieldName).value(value).endObject();
-							break;
-						}
-						case "prefix": {
-							String stringValue = (String) value;
-							builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
-									.value(stringValue.toLowerCase()).endObject().endObject();
-							break;
-						}
-						case "exists": {
-							builder.key("exists").object().key("field").value(value).endObject();
-							break;
-						}
-						case "endsWith": {
-							String stringValue = (String) value;
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
-									.value("*" + stringValue.toLowerCase()).endObject().endObject();
-							break;
-						}
-						}
+						getConditionsQuery(queryOperation, fieldName, value, builder);
 						builder.endObject();
 					}
 					builder.endArray();
@@ -211,32 +186,7 @@ public class SearchProcessor {
 					String queryOperation = (String) textCondition.get("operation");
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
-					switch (queryOperation) {
-					case "equal": {
-						builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
-						break;
-					}
-					case "like": {
-						builder.key("match_phrase").object().key(fieldName).value(value).endObject();
-						break;
-					}
-					case "prefix": {
-						String stringValue = (String) value;
-						builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
-								.value(stringValue.toLowerCase()).endObject().endObject();
-						break;
-					}
-					case "exists": {
-						builder.key("exists").object().key("field").value(value).endObject();
-						break;
-					}
-					case "endsWith": {
-						String stringValue = (String) value;
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
-								.value("*" + stringValue.toLowerCase()).endObject().endObject();
-						break;
-					}
-					}
+					getConditionsQuery(queryOperation, fieldName, value, builder);
 					builder.endObject();
 
 				}
@@ -312,32 +262,7 @@ public class SearchProcessor {
 						String queryOperation = (String) subCondition.get("operation");
 						String fieldName = (String) subCondition.get("fieldName");
 						Object value = subCondition.get("value");
-						switch (queryOperation) {
-						case "equal": {
-							builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
-							break;
-						}
-						case "like": {
-							builder.key("match_phrase").object().key(fieldName).value(value).endObject();
-							break;
-						}
-						case "prefix": {
-							String stringValue = (String) value;
-							builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
-									.value(stringValue.toLowerCase()).endObject().endObject();
-							break;
-						}
-						case "exists": {
-							builder.key("exists").object().key("field").value(value).endObject();
-							break;
-						}
-						case "endsWith": {
-							String stringValue = (String) value;
-							builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
-									.value("*" + stringValue.toLowerCase()).endObject().endObject();
-							break;
-						}
-						}
+						getConditionsQuery(queryOperation, fieldName, value, builder);
 						builder.endObject();
 					}
 					builder.endArray();
@@ -347,32 +272,7 @@ public class SearchProcessor {
 					String queryOperation = (String) notCondition.get("operation");
 					String fieldName = (String) notCondition.get("fieldName");
 					Object value = notCondition.get("value");
-					switch (queryOperation) {
-					case "equal": {
-						builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
-						break;
-					}
-					case "like": {
-						builder.key("match_phrase").object().key(fieldName).value(value).endObject();
-						break;
-					}
-					case "prefix": {
-						String stringValue = (String) value;
-						builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
-								.value(stringValue.toLowerCase()).endObject().endObject();
-						break;
-					}
-					case "exists": {
-						builder.key("exists").object().key("field").value(value).endObject();
-						break;
-					}
-					case "endsWith": {
-						String stringValue = (String) value;
-						builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
-								.value("*" + stringValue.toLowerCase()).endObject().endObject();
-						break;
-					}
-					}
+					getConditionsQuery(queryOperation, fieldName, value, builder);
 					builder.endObject();
 				}
 			}
@@ -380,5 +280,34 @@ public class SearchProcessor {
 		}
 		builder.endObject().endObject().endObject().endObject().endObject();
 		return builder.toString();
+	}
+	
+	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder){
+		switch (queryOperation) {
+		case "equal": {
+			builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
+			break;
+		}
+		case "like": {
+			builder.key("match_phrase").object().key(fieldName).value(value).endObject();
+			break;
+		}
+		case "prefix": {
+			String stringValue = (String) value;
+			builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
+					.value(stringValue.toLowerCase()).endObject().endObject();
+			break;
+		}
+		case "exists": {
+			builder.key("exists").object().key("field").value(value).endObject();
+			break;
+		}
+		case "endsWith": {
+			String stringValue = (String) value;
+			builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
+					.value("*" + stringValue.toLowerCase()).endObject().endObject();
+			break;
+		}
+		}
 	}
 }
