@@ -326,24 +326,4 @@ public class GraphCacheActor extends BaseGraphManager {
         }
     }
 
-    public void loadWordArpabetMap(Request request){
-    	WordCacheMgrImpl cacheMgr = new WordCacheMgrImpl();
-        try {
-            cacheMgr.loadWordArpabetCollection(request);
-            OK(getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-    
-    public void getArpabetsOfWord(Request request){
-    	WordCacheMgrImpl cacheMgr = new WordCacheMgrImpl();
-        try {
-            String arpabetsOfWord=cacheMgr.getArpabetsOfWord(request);
-            OK(GraphDACParams.ARPABETS.name(),arpabetsOfWord, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
 }

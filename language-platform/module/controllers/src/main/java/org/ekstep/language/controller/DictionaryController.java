@@ -350,6 +350,21 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 	}
 
+	@RequestMapping(value = "/{languageId}/arpabets/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getArpabets(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".word.Syllable";
+		try {
+			Response response = dictionaryManager.getArpabets(languageId, word);
+			LOGGER.info("Get Translations | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 	protected String getAPIVersion() {
         return API_VERSION_2;
     }

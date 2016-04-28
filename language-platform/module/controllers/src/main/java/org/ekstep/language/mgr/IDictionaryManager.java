@@ -47,5 +47,7 @@ public interface IDictionaryManager {
     Response loadEnglishWordsArpabetsMap(InputStream in);
     
     Response getSyllables(String languageID, String word);
+    
+    Response getArpabets(String languageID, String word);
 
 }

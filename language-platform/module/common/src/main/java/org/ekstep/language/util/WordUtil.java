@@ -27,6 +27,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -65,6 +66,9 @@ public class WordUtil extends BaseManager {
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
     private static final String LEMMA_PROPERTY = "lemma";
 
+    @Autowired
+    private WordCacheUtil wordCacheUtil;
+    
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -821,34 +825,31 @@ public class WordUtil extends BaseManager {
         return null;
     }
 
-	public Response loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
-		Request request = new Request();
+	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
+		
+		/* Request request = new Request();
         request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
         request.setOperation("loadEnglishWordsToRedis");
         request.getContext().put(GraphHeaderParams.graph_id.name(), "en");
         request.put("wordsArpabetsStream",wordsArpabetsStream);
-        Response response = getResponse(request, LOGGER);
-        return response;
+        Response response = getResponse(request, LOGGER);*/
+		
+		wordCacheUtil.loadWordArpabetCollection(wordsArpabetsStream);
 	}
 	
-	private Response getEnglishWordArpabets(String word){
-		Request request = new Request();
-        request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
-        request.setOperation("getArpabetsOfWord");
-        request.getContext().put(GraphHeaderParams.graph_id.name(), "en");
-        word=word.toUpperCase();
-        request.put(GraphDACParams.WORD.name(),word);
-        Response response = getResponse(request, LOGGER);
-
-        return response;
+	public String getArpabets(String word){
+		
+		return wordCacheUtil.getArpabets(word);   
 	}
 	
 	@SuppressWarnings("unchecked")
 	public List<String> buildSyllables(String languageId, String word){
 		String syllables="";
 		
-		Response arpabetResponse =getEnglishWordArpabets(word);
-		String arpabets = (String) arpabetResponse.get(GraphDACParams.ARPABETS.name());
+		String arpabets = getArpabets(word);
+		if(StringUtils.isEmpty(arpabets))
+			return ListUtils.EMPTY_LIST;
+		
 		String arpabetArr[]=arpabets.split("\\s");
 
 		for(String arpabet:arpabetArr){

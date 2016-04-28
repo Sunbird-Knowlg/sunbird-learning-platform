@@ -1,7 +1,4 @@
-package com.ilimi.graph.cache.mgr.impl;
-
-import static com.ilimi.graph.cache.factory.JedisFactory.getRedisConncetion;
-import static com.ilimi.graph.cache.factory.JedisFactory.returnConnection;
+package org.ekstep.language.util;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -21,20 +18,76 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
-import com.ilimi.graph.cache.util.RedisKeyGenerator;
-import com.ilimi.graph.dac.enums.GraphDACParams;
 
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
-public class WordCacheMgrImpl {
+@Component
+public class WordCacheUtil {
 
-	public void loadWordArpabetCollection(Request request){
-		InputStream wordsArpabetsStream = (InputStream) request.get("wordsArpabetsStream");
+    private static JedisPool jedisPool;
+
+    private static int maxConnections = 128;
+    private static String host = "localhost";
+    private static int port = 6379;
+    private static int index = 0;
+    
+    private final static String WORD="WORD";
+    private static final String KEY_SEPARATOR = ":";
+    
+    private static String getWordKey(String word){
+    	return WORD + KEY_SEPARATOR+ word;
+    }
+
+    static {
+            String redisHost = PropertiesUtil.getProperty("redis.host");
+            if (StringUtils.isNotBlank(redisHost))
+                host = redisHost;
+            String redisPort = PropertiesUtil.getProperty("redis.port");
+            if (StringUtils.isNotBlank(redisPort)) {
+                port = Integer.parseInt(redisPort);
+            }
+            String redisMaxConn = PropertiesUtil.getProperty("redis.maxConnections");
+            if (StringUtils.isNotBlank(redisMaxConn)) {
+                maxConnections = Integer.parseInt(redisMaxConn);
+            }
+            String dbIndex = PropertiesUtil.getProperty("redis.dbIndex");
+            if (StringUtils.isNotBlank(dbIndex)) {
+                    index = Integer.parseInt(dbIndex);
+            }
+        JedisPoolConfig config = new JedisPoolConfig();
+        config.setMaxTotal(maxConnections);
+        config.setBlockWhenExhausted(true);
+        jedisPool = new JedisPool(config, host, port);
+    }
+
+    private Jedis getRedisConncetion() {
+        try {
+            Jedis jedis = jedisPool.getResource();
+            if(index > 0) jedis.select(index);
+            return jedis;
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_CONNECTION_ERROR.name(), e.getMessage());
+        }
+
+    }
+
+    private void returnConnection(Jedis jedis) {
+        try {
+            if (null != jedis)
+                jedisPool.returnResource(jedis);
+        } catch (Exception e) {
+            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_CONNECTION_ERROR.name(), e.getMessage());
+        }
+    }
+
+	public void loadWordArpabetCollection(InputStream wordsArpabetsStream){
 		Map<String, String> wordArpabetCacheMap=parseInputStream(wordsArpabetsStream);
 		if(wordArpabetCacheMap.size()>0)
 			loadRedisCache(wordArpabetCacheMap);
@@ -88,11 +141,11 @@ public class WordCacheMgrImpl {
 	        for(Entry<String,String> wordEntry:cacheMap.entrySet()){
 	        	String word=wordEntry.getKey();
 	        	String arphabetsOfWord=wordEntry.getValue();
-	            String wordKey=RedisKeyGenerator.getWordKey(word);
+	            String wordKey=getWordKey(word);
 	            jedis.set(wordKey, arphabetsOfWord);
 	        }
         } catch (Exception e) {
-            throw new ServerException(GraphCacheErrorCodes.ERR_CACHE_LOAD_WORDARPABETS_MAP.name(), e.getMessage());
+            throw new ServerException("ERR_CACHE_LOAD_WORDARPABETS_MAP", e.getMessage());
         } finally {
             returnConnection(jedis);
         }
@@ -103,7 +156,7 @@ public class WordCacheMgrImpl {
 	}
 	
 	
-	private boolean hasSplitChar(String str){		
+	private boolean hasSplitChar(String str){
 		if(str.matches("([a-zA-Z]?[\\s-_&]?[a-zA-Z]?)+"))
 			return true;
 		return false;
@@ -116,16 +169,15 @@ public class WordCacheMgrImpl {
 		return str;
 	}
 	
-	public String getArpabetsOfWord(Request request){
-		String word=(String) request.get(GraphDACParams.WORD.name());
+	public String getArpabets(String word){
 		Jedis jedis = getRedisConncetion();
 		word=word.toUpperCase();
-		String wordKey=RedisKeyGenerator.getWordKey(word);
+		String wordKey=getWordKey(word);
 		String arpabetsOfWord=jedis.get(wordKey);
 		if(StringUtils.isEmpty(arpabetsOfWord)){
 			if(hasSplitChar(word)){
 				word=buildCompoundWord(word);
-				wordKey=RedisKeyGenerator.getWordKey(word);
+				wordKey=getWordKey(word);
 				arpabetsOfWord=jedis.get(wordKey);
 			}
 		}
@@ -133,6 +185,45 @@ public class WordCacheMgrImpl {
 		return arpabetsOfWord;
 	}
 	
+
+
+	
+	public static void main(String[] arg){
+		System.out.println("test");
+		try{
+			InputStream is = new FileInputStream("/Users/karthik/Desktop/Word_PhoneticSpeling.txt");
+			WordCacheUtil wordCahceManager=new WordCacheUtil();
+			Map<String, String> wordArpabetCacheMap=wordCahceManager.parseInputStream(is);
+			Set<String> arpabetsWordSet=new HashSet<String>(wordArpabetCacheMap.values());
+			Set<String> arpabetSetFromWords=wordCahceManager.findArpabets(arpabetsWordSet);
+			
+			InputStream fis = new FileInputStream("/Users/karthik/Documents/workspace/ekstep/language-platform/module/dictionary/src/test/resources/English_Varna.csv");
+			Set<String> EnglishVarnaSet=wordCahceManager.returnAllEnglishVarna(fis);
+			Set<String> newVarnas=null;
+			if(arpabetSetFromWords.size()>EnglishVarnaSet.size()){
+				arpabetSetFromWords.removeAll(EnglishVarnaSet);
+				newVarnas=arpabetSetFromWords;
+			}else{
+				if(!EnglishVarnaSet.containsAll(arpabetSetFromWords)){
+					EnglishVarnaSet.removeAll(arpabetSetFromWords);
+					newVarnas=EnglishVarnaSet;
+				}
+			}
+			
+			if(CollectionUtils.isNotEmpty(newVarnas)){
+				wordCahceManager.writeToFile(newVarnas);
+			}
+//			WordCacheUtil impl=new WordCacheUtil();
+//			String str="sub_way&hellow";
+//			System.out.println(str);
+//			if(impl.hasSplitChar(str))
+//				str=impl.buildCompoundWord(str);
+//			System.out.println(str);
+
+		} catch(Exception ex){
+			
+		}
+	}
 
 	private Set<String> returnAllEnglishVarna(InputStream is){
 		Set<String> varnaSet=new HashSet<String>();
@@ -175,44 +266,6 @@ public class WordCacheMgrImpl {
 		}
 		return Arpabets;
 	}
-	
-	public static void main(String[] arg){
-		System.out.println("test");
-		try{
-			InputStream is = new FileInputStream("/Users/karthik/Desktop/Word_PhoneticSpeling.txt");
-			WordCacheMgrImpl wordManager=new WordCacheMgrImpl();
-			Map<String, String> wordArpabetCacheMap=wordManager.parseInputStream(is);
-			Set<String> arpabetsWordSet=new HashSet<String>(wordArpabetCacheMap.values());
-			Set<String> arpabetSetFromWords=wordManager.findArpabets(arpabetsWordSet);
-			
-			InputStream fis = new FileInputStream("/Users/karthik/Documents/workspace/ekstep/language-platform/module/dictionary/src/test/resources/English_Varna.csv");
-			Set<String> EnglishVarnaSet=wordManager.returnAllEnglishVarna(fis);
-			Set<String> newVarnas=null;
-			if(arpabetSetFromWords.size()>EnglishVarnaSet.size()){
-				arpabetSetFromWords.removeAll(EnglishVarnaSet);
-				newVarnas=arpabetSetFromWords;
-			}else{
-				if(!EnglishVarnaSet.containsAll(arpabetSetFromWords)){
-					EnglishVarnaSet.removeAll(arpabetSetFromWords);
-					newVarnas=EnglishVarnaSet;
-				}
-			}
-			
-			if(CollectionUtils.isNotEmpty(newVarnas)){
-				wordManager.writeToFile(newVarnas);
-			}
-//			WordCacheMgrImpl impl=new WordCacheMgrImpl();
-//			String str="sub_way&hellow";
-//			System.out.println(str);
-//			if(impl.hasSplitChar(str))
-//				str=impl.buildCompoundWord(str);
-//			System.out.println(str);
-
-		} catch(Exception ex){
-			
-		}
-	}
-
 	private void writeToFile(Set<String> newVarna){
 		Writer writer = null;
 		try {

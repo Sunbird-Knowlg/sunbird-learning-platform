@@ -36,6 +36,7 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.language.util.WordnetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -83,7 +84,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     
     @Autowired
     private WordUtil wordUtil;
-
+    
     static {
         DEFAULT_STATUS.add("Live");
     }
@@ -2535,19 +2536,38 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
 	@Override
 	public Response loadEnglishWordsArpabetsMap(InputStream in){
-		Response response=wordUtil.loadEnglishWordsArpabetsMap(in);
+		wordUtil.loadEnglishWordsArpabetsMap(in);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
 		return response;
 	}
 	
 	@Override
 	public Response getSyllables(String languageId, String word){
 		Node wordNode=wordUtil.searchWord(languageId, word);
-		//String syllables="";
-		List<String> syllables;
+
+		List<String> syllables=new ArrayList<>();
 		if(wordNode!=null&&wordNode.getMetadata().get("syllables")!=null){
-			syllables=(List<String>)wordNode.getMetadata().get("syllables");
+			Object syllablesObj = (Object)wordNode.getMetadata().get("syllables");
+            if (syllablesObj instanceof String[]) {
+                String[] arr = (String[]) syllablesObj;
+                if (null != arr && arr.length > 0) {
+                    for (String str : arr) {
+                    	syllables.add(str);
+                    }
+                }
+            } else if (syllablesObj instanceof String) {
+                if (StringUtils.isNotBlank(syllablesObj.toString())) {
+                    String str = syllablesObj.toString();
+                    if (StringUtils.isNotBlank(str))
+                    	syllables.add(str.toLowerCase());
+                }
+            }	
 		}
-		else{		
+		else{
 			syllables=wordUtil.buildSyllables(languageId, word);
 		}
 		
@@ -2561,5 +2581,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         return response;
 	}
 	
+	@Override
+	public Response getArpabets(String languageID, String word){
+
+		String arpabets=wordUtil.getArpabets(word);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("Arpabets",arpabets);
+	
+        return response;
+	}
 	
 }
