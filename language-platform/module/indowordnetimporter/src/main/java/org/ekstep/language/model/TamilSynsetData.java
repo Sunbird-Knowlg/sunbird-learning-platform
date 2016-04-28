@@ -307,7 +307,10 @@ public class TamilSynsetData implements LanguageSynsetData{
 	private List<SynsetDataLite> getSynsetDataLiteList(List<TamilSynsetDataLite> tamilSynsetLiteList){
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
 		for(TamilSynsetDataLite tamilSynsetDataLite: tamilSynsetLiteList){
-			synsetDataLiteList.add(tamilSynsetDataLite.getSynsetDataLite());
+			SynsetDataLite liteSynsetData = tamilSynsetDataLite.getSynsetDataLite();
+			if(!synsetDataLiteList.contains(liteSynsetData)){
+				synsetDataLiteList.add(liteSynsetData);
+			}
 		}
 		return synsetDataLiteList;
 	}
@@ -315,7 +318,10 @@ public class TamilSynsetData implements LanguageSynsetData{
 	private List<SynsetDataLite> getEnglishSynsetDataLiteList(List<EnglishSynsetDataLite> englishSynsetDataLiteList){
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
 		for(EnglishSynsetDataLite englishSynsetDataLite: englishSynsetDataLiteList){
-			synsetDataLiteList.add(englishSynsetDataLite.getSynsetDataLite());
+			SynsetDataLite liteSynsetData = englishSynsetDataLite.getSynsetDataLite();
+			if(!synsetDataLiteList.contains(liteSynsetData)){
+				synsetDataLiteList.add(liteSynsetData);
+			}
 		}
 		return synsetDataLiteList;
 	}

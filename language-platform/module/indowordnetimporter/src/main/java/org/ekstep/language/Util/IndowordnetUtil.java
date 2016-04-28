@@ -21,6 +21,7 @@ import org.hibernate.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 public class IndowordnetUtil {
 
@@ -29,76 +30,67 @@ public class IndowordnetUtil {
 	private final String SEMI_COLON_SEPARATOR = ";";
 	private final String COLON_SEPARATOR = ":";
 	private WordUtil wordUtil = new WordUtil();
+	private EmailService emailService = new EmailService();
 
 	@SuppressWarnings({ "unchecked" })
-	public void loadWords(String language, int offset, int limit) throws JsonProcessingException {
-		Session session = HibernateSessionFactory.getSession();
-		String languageTableName = getLanguageTableName(language);
-		Transaction tx = null;
-		try {
-			tx = session.beginTransaction();
-			Query query = session.createQuery("FROM " + languageTableName + " ORDER BY synset_id");
-			query.setFirstResult(offset);
-			query.setMaxResults(limit);
+	public void loadWords(String languageGraphId, int batchSize, int maxRecords) throws JsonProcessingException {
+		int offset = 0;
+		int loop = 0;
+		int totalCount = 0;
+		String language = LanguageMap.getLanguage(languageGraphId);
+		if (languageGraphId != null) {
+			Map<String, String> wordLemmaMap = new HashMap<String, String>();
+			List<String> errorMessages = new ArrayList<String>();
+			DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageParams.Word.name(), languageGraphId);
+			do {
+				Session session = HibernateSessionFactory.getSession();
+				String languageTableName = getLanguageTableName(language);
+				Transaction tx = null;
+				try {
+					tx = session.beginTransaction();
+					Query query = session.createQuery("FROM " + languageTableName + " ORDER BY synset_id");
+					query.setFirstResult(offset);
+					query.setMaxResults(batchSize);
 
-			List<LanguageSynsetData> languageSynsetDataList = query.list();
-			for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
-				SynsetData synsetData = lSynsetData.getSynsetData();
-				Map<String, Object> wordRequestMap = getWordMap(synsetData);
-			}
+					List<LanguageSynsetData> languageSynsetDataList = query.list();
+					if (languageSynsetDataList.isEmpty()) {
+						break;
+					}
+					int count = 0;
+					for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
+						if (totalCount == maxRecords) {
+							break;
+						}
+						count++;
+						totalCount++;
+						SynsetData synsetData = lSynsetData.getSynsetData();
+						Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
+						errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap,
+								wordDefinition));
+					}
+					if (totalCount == maxRecords) {
+						break;
+					}
+					loop++;
+					offset = batchSize * loop;
+					System.out.println("Loaded " + count + " synsets for language: " + language);
+					
+				} catch (HibernateException e) {
+					if (tx != null)
+						tx.rollback();
+					e.printStackTrace();
+				} finally {
+					HibernateSessionFactory.closeSession();
+				}
 
-		} catch (HibernateException e) {
-			if (tx != null)
-				tx.rollback();
-			e.printStackTrace();
-		} finally {
-			HibernateSessionFactory.closeSession();
+			} while (true);
+			emailService.sendMail("amarnath.gandhi@tarento.com",
+					"Loaded " + totalCount + " synsets for language: " + language, "Status Update");
 		}
 	}
 
-	@SuppressWarnings({ "unchecked" })
-	public void loadWords(String language, int batchSize) throws JsonProcessingException {
-		int offset = 0;
-		int loop = 0;
-		String languageGraphId = LanguageMap.getLanguageGraph(language);
-		Map<String, String> wordLemmaMap = new HashMap<String, String>();
-		
-		do {
-			Session session = HibernateSessionFactory.getSession();
-			String languageTableName = getLanguageTableName(language);
-			Transaction tx = null;
-			try {
-				tx = session.beginTransaction();
-				Query query = session.createQuery("FROM " + languageTableName + " ORDER BY synset_id");
-				query.setFirstResult(offset);
-				query.setMaxResults(batchSize);
-
-				List<LanguageSynsetData> languageSynsetDataList = query.list();
-				if (languageSynsetDataList.isEmpty()) {
-					break;
-				}
-				int count = 0;
-				for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
-					count++;
-					SynsetData synsetData = lSynsetData.getSynsetData();
-					Map<String, Object> wordRequestMap = getWordMap(synsetData);
-					wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap);
-				}
-				loop++;
-				offset = batchSize * loop + 1;
-				System.out.println("Loaded " + count + " synsets for language: " + language);
-			} catch (HibernateException e) {
-				if (tx != null)
-					tx.rollback();
-				e.printStackTrace();
-			} finally {
-				HibernateSessionFactory.closeSession();
-			}
-
-		} while (true);
-	}
-
-	private Map<String, Object> getWordMap(SynsetData synsetData) throws JsonProcessingException {
+	private Map<String, Object> getWordMap(SynsetData synsetData, List<String> errorMessages)
+			throws JsonProcessingException {
 		byte[] bytesSynset = null;
 		byte[] bytesGloss = null;
 		String synsetString = null;
@@ -114,10 +106,10 @@ public class IndowordnetUtil {
 		bytesSynset = synsetData.getSynset();
 		synsetString = new String(bytesSynset, Charsets.UTF_8);
 		String[] words = synsetString.split(COMMA_SEPARATOR);
-		
+
 		wordMap.put(LanguageParams.words.name(), Arrays.asList(words));
 		wordMap.put(LanguageParams.indowordnetId.name(), synsetData.getSynset_id());
-		
+
 		bytesGloss = synsetData.getGloss();
 		glossString = new String(bytesGloss, Charsets.UTF_8);
 		String[] glossArray = glossString.split(SEMI_COLON_SEPARATOR);
@@ -173,6 +165,9 @@ public class IndowordnetUtil {
 			}
 
 			String translatedLanguageGraphId = LanguageMap.getLanguageGraph(translatedLanguage);
+			if (translatedLanguageGraphId == null) {
+				errorMessages.add("Graph not found for Language: " + translatedLanguage);
+			}
 			translationsMap.put(translatedLanguageGraphId, finalTranslationWords);
 		}
 

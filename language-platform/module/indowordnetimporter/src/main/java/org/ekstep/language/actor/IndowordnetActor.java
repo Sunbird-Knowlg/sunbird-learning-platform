@@ -1,7 +1,5 @@
 package org.ekstep.language.actor;
 
-import java.io.InputStream;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,9 +26,16 @@ public class IndowordnetActor extends LanguageBaseActor {
             String operation = request.getOperation();
             try {
                 if (StringUtils.equalsIgnoreCase(LanguageOperations.importIndowordnet.name(), operation)) {
-                	util.loadWords("tamil", 10, 100);
+                	int batchSize = 1000;
+                	int maxRecords = 1000;
+                	if(request.get(LanguageParams.batch_size.name()) != null){
+                		batchSize = (int) request.get(LanguageParams.batch_size.name());
+                	}
+                	if(request.get(LanguageParams.max_records.name()) != null){
+                		maxRecords = (int) request.get(LanguageParams.max_records.name());
+                	}
+                	util.loadWords(languageId, batchSize, maxRecords);
                 	OK(getSender());
-                    //OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
                 }else {
                     LOGGER.info("Unsupported operation: " + operation);
                     unhandled(msg);

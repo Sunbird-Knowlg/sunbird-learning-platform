@@ -18,6 +18,7 @@ import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
+import org.ekstep.language.mgr.impl.ControllerUtil;
 import org.ekstep.language.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -41,6 +42,7 @@ public class ImportController extends BaseLanguageController {
 	
 	@Autowired
     private IImportManager importManager;
+	private ControllerUtil controllerUtil = new ControllerUtil();
 	
     private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
@@ -133,7 +135,8 @@ public class ImportController extends BaseLanguageController {
         request.getContext().put(LanguageParams.language_id.name(), languageId);
         LOGGER.info("List | Request: " + request);
         try {
-            Response response = getResponse(request, LOGGER);
+        	controllerUtil.makeAsyncLanguageRequest(request, LOGGER);
+            Response response = new Response();
             LOGGER.info("List | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);

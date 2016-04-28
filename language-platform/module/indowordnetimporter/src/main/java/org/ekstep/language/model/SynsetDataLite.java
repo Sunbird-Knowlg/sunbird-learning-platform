@@ -33,4 +33,24 @@ public class SynsetDataLite{
 	public void setSynset(byte[] synset) {
 		this.synset = synset;
 	}
+	
+	@Override
+	public boolean equals(Object o) {
+		if (o == null)
+			return false;
+		if (!(o instanceof SynsetDataLite))
+			return false;
+
+		SynsetDataLite other = (SynsetDataLite) o;
+		if (this.synset_id != other.synset_id)
+			return false;
+
+		return true;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.synset_id * 37;
+	}
+	
 }
