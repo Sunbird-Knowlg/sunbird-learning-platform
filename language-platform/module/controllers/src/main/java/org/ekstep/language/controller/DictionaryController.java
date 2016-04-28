@@ -343,7 +343,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 		try {
 			//String arpabets=getArpabets(word);
 			Response response = dictionaryManager.getSyllables(languageId, word);
-			LOGGER.info("Get Translations | Response: " + response);
+			LOGGER.info("Get Syllables | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
@@ -356,15 +356,32 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@PathVariable(value = "word") String word,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".word.Syllable";
+		String apiId = objectType.toLowerCase() + ".word.Arpabets";
 		try {
 			Response response = dictionaryManager.getArpabets(languageId, word);
-			LOGGER.info("Get Translations | Response: " + response);
+			LOGGER.info("Get Arpabets | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/{languageId}/phoneticSpelling/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getPhoneticSpelling(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".word.PhoneticSpelling";
+		try {
+			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word);
+			LOGGER.info("Get PhoneticSpelling | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
 	protected String getAPIVersion() {
         return API_VERSION_2;
     }

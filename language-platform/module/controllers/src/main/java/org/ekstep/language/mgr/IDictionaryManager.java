@@ -49,5 +49,7 @@ public interface IDictionaryManager {
     Response getSyllables(String languageID, String word);
     
     Response getArpabets(String languageID, String word);
+    
+    Response getPhoneticSpellingByLanguage(String languageID, String word);
 
 }

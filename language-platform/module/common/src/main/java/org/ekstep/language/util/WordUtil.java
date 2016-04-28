@@ -826,20 +826,36 @@ public class WordUtil extends BaseManager {
     }
 
 	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
-		
-		/* Request request = new Request();
-        request.setManagerName(GraphEngineManagers.GRAPH_MANAGER);
-        request.setOperation("loadEnglishWordsToRedis");
-        request.getContext().put(GraphHeaderParams.graph_id.name(), "en");
-        request.put("wordsArpabetsStream",wordsArpabetsStream);
-        Response response = getResponse(request, LOGGER);*/
-		
+
 		wordCacheUtil.loadWordArpabetCollection(wordsArpabetsStream);
 	}
 	
 	public String getArpabets(String word){
 		
 		return wordCacheUtil.getArpabets(word);   
+	}
+
+	public String getPhoneticSpellingByLanguage(String languageId, String word){
+		
+		String arpabets = getArpabets(word);
+		if(StringUtils.isEmpty(arpabets))
+			return "";
+		
+		String arpabetArr[]=arpabets.split("\\s");
+		String phoneticSpellingOfWord="";
+		for(String arpabet:arpabetArr){
+			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
+			Node EnglishvarnaNode=getVarnaNodeByProperty("en", arpabetProp);
+			Map<String,Object> metaData=EnglishvarnaNode.getMetadata();
+			String ipaSymbol=(String)metaData.get(GraphDACParams.ipaSymbol.name());
+			Property ipaSymbolProp = new Property(GraphDACParams.ipaSymbol.name(), ipaSymbol);
+			String identifier=" ";
+			Node LanguageVarnaNode=getVarnaNodeByProperty(languageId, ipaSymbolProp);
+			if(LanguageVarnaNode!=null)
+				identifier=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.identifier.name())+" ";
+			phoneticSpellingOfWord+=identifier;			
+		}
+		return phoneticSpellingOfWord.substring(0, phoneticSpellingOfWord.length()-1);
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -853,10 +869,11 @@ public class WordUtil extends BaseManager {
 		String arpabetArr[]=arpabets.split("\\s");
 
 		for(String arpabet:arpabetArr){
-			Node varnaNode=searchVarna(languageId, arpabet);
+			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
+			Node varnaNode=getVarnaNodeByProperty(languageId, arpabetProp);
 			Map<String,Object> metaData=varnaNode.getMetadata();
-			String iso=(String)metaData.get("ipaSymbol");
-			String type=(String)metaData.get("type");
+			String iso=(String)metaData.get(GraphDACParams.ipaSymbol.name());
+			String type=(String)metaData.get(GraphDACParams.type.name());
 			syllables+=iso;
 			if(type.equalsIgnoreCase("Vowel")){
 				syllables+=",";
@@ -873,9 +890,8 @@ public class WordUtil extends BaseManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-    private Node searchVarna(String languageId, String arpabet) {
+    private Node getVarnaNodeByProperty(String languageId, Property property) {
         Node node = null;
-        Property property = new Property(GraphDACParams.identifier.name(), arpabet);
         Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
         request.put(GraphDACParams.metadata.name(), property);
         request.put(GraphDACParams.get_tags.name(), true);
@@ -885,21 +901,7 @@ public class WordUtil extends BaseManager {
             if (null != nodes && nodes.size() > 0)
                 node = nodes.get(0);
         }
-        if (null == node) {
-            SearchCriteria sc = new SearchCriteria();
-            sc.setObjectType("Varna");
-            sc.addMetadata(MetadataCriterion
-                    .create(Arrays.asList(new Filter("variants", SearchConditions.OP_IN, Arrays.asList(arpabet)))));
-            sc.setResultSize(1);
-            Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
-            req.put(GraphDACParams.search_criteria.name(), sc);
-            Response searchRes = getResponse(request, LOGGER);
-            if (!checkError(searchRes)) {
-                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-                if (null != nodes && nodes.size() > 0)
-                    node = nodes.get(0);
-            }
-        }
         return node;
     }
+	
 }
