@@ -1,6 +1,7 @@
 package org.ekstep.language.model;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.ekstep.language.common.enums.LanguageParams;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
@@ -273,28 +275,30 @@ public class TamilSynsetData implements LanguageSynsetData{
 		synsetData.setCategory(this.category);
 		
 		//relations
-		synsetData.setAntonyms(getSynsetDataLiteList(getAntonyms()));
-		synsetData.setHolonyms(getSynsetDataLiteList(getHolonyms()));
-		synsetData.setHypernyms(getSynsetDataLiteList(getHypernyms()));
-		synsetData.setHyponyms(getSynsetDataLiteList(getHyponyms()));
-		synsetData.setMeronyms(getSynsetDataLiteList(getMeronyms()));
-		synsetData.setActionObjects(getSynsetDataLiteList(getObjects()));
-		synsetData.setActions(getSynsetDataLiteList(getActions()));
+		Map<String, List<SynsetDataLite>> relationsMap = new HashMap<String, List<SynsetDataLite>>();
+		relationsMap.put(LanguageParams.antonyms.name(), getSynsetDataLiteList(getAntonyms()));
+		relationsMap.put(LanguageParams.holonyms.name(), getSynsetDataLiteList(getHolonyms()));
+		relationsMap.put(LanguageParams.hypernyms.name(), getSynsetDataLiteList(getHypernyms()));
+		relationsMap.put(LanguageParams.hyponyms.name(), getSynsetDataLiteList(getHyponyms()));
+		relationsMap.put(LanguageParams.meronyms.name(), getSynsetDataLiteList(getMeronyms()));
+		relationsMap.put(LanguageParams.objects.name(), getSynsetDataLiteList(getObjects()));
+		relationsMap.put(LanguageParams.actions.name(), getSynsetDataLiteList(getActions()));
+		synsetData.setRelations(relationsMap);
 		
 		//translations
-		Map<String, SynsetDataLite> translationsMap = new HashMap<String, SynsetDataLite>();
+		Map<String, List<SynsetDataLite>> translationsMap = new HashMap<String, List<SynsetDataLite>>();
 		if(getAssameseTranslation() != null)
-		translationsMap.put("Assamese",getAssameseTranslation().getSynsetDataLite());
+		translationsMap.put("Assamese",Arrays.asList(getAssameseTranslation().getSynsetDataLite()));
 		if(getBengaliTranslation() != null)
-		translationsMap.put("Bengali",getBengaliTranslation().getSynsetDataLite());
+		translationsMap.put("Bengali",Arrays.asList(getBengaliTranslation().getSynsetDataLite()));
 		if(getBodoTranslation() != null)
-		translationsMap.put("Bodo",getBodoTranslation().getSynsetDataLite());
+		translationsMap.put("Bodo",Arrays.asList(getBodoTranslation().getSynsetDataLite()));
 		if(getGujaratiTranslation() != null)
-		translationsMap.put("Gujarati",getGujaratiTranslation().getSynsetDataLite());
+		translationsMap.put("Gujarati",Arrays.asList(getGujaratiTranslation().getSynsetDataLite()));
 		if(getKannadaTranslation() != null)
-		translationsMap.put("Kannada",getKannadaTranslation().getSynsetDataLite());
-		if(getEnglishTranslations() != null && !getEnglishTranslations().isEmpty())
-		translationsMap.put("English",getEnglishSynsetDataLiteList(getEnglishTranslations()).get(0));
+		translationsMap.put("Kannada",Arrays.asList(getKannadaTranslation().getSynsetDataLite()));
+		if(getEnglishTranslations() != null)
+		translationsMap.put("English",getEnglishSynsetDataLiteList(getEnglishTranslations()));
 		synsetData.setTranslations(translationsMap);
 		
 		return synsetData;
