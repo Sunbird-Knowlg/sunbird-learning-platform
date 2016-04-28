@@ -1042,7 +1042,8 @@
           "range": [
             "Draft",
             "Review",
-            "Redraft"
+            "Redraft",
+            "Flagged",
             "Live",
             "Retired",
             "Mock"
