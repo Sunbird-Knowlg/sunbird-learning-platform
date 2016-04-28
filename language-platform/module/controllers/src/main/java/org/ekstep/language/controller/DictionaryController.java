@@ -381,7 +381,23 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
+
+	@RequestMapping(value = "/{languageId}/similarSound/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getSimilarSoundWords(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".word.SimilarSound";
+		try {
+			Response response = dictionaryManager.getSimilarSoundWords(languageId, word);
+			LOGGER.info("Get SimilarSound | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
 	protected String getAPIVersion() {
         return API_VERSION_2;
     }

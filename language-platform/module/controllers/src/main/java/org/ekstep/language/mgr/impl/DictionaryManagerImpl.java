@@ -2607,4 +2607,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 		return response;
 	}
+	
+	@Override
+	public Response getSimilarSoundWords(String languageId, String word){
+		Set<String> similarSoundWords=wordUtil.getSimilarSoundWords(word);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("SimilarSoundWords",similarSoundWords);
+
+		return response;
+	}
+	
 }

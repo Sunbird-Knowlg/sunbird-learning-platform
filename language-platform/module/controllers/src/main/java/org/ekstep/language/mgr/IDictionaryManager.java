@@ -51,5 +51,7 @@ public interface IDictionaryManager {
     Response getArpabets(String languageID, String word);
     
     Response getPhoneticSpellingByLanguage(String languageID, String word);
+    
+    Response getSimilarSoundWords(String languageId, String word);
 
 }

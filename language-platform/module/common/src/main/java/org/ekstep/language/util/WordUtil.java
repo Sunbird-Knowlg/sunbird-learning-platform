@@ -11,6 +11,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -39,7 +40,6 @@ import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -833,6 +833,11 @@ public class WordUtil extends BaseManager {
 	public String getArpabets(String word){
 		
 		return wordCacheUtil.getArpabets(word);   
+	}
+	
+	public Set<String> getSimilarSoundWords(String word){
+		
+		return wordCacheUtil.getSimilarSoundWords(word);
 	}
 
 	public String getPhoneticSpellingByLanguage(String languageId, String word){

@@ -38,13 +38,18 @@ public class WordCacheUtil {
     private static int port = 6379;
     private static int index = 0;
     
-    private final static String WORD="WORD";
+    private static final String WORD="WORD";
+    private static final String ARPABET="ARPABET";
     private static final String KEY_SEPARATOR = ":";
     
-    private static String getWordKey(String word){
-    	return WORD + KEY_SEPARATOR+ word;
+    private String getWordKey(String word){
+    	return WORD + KEY_SEPARATOR + word;
     }
 
+    private String getArpabetKey(String arpabet){
+    	return ARPABET + KEY_SEPARATOR + arpabet;
+    }
+    
     static {
             String redisHost = PropertiesUtil.getProperty("redis.host");
             if (StringUtils.isNotBlank(redisHost))
@@ -89,8 +94,12 @@ public class WordCacheUtil {
 
 	public void loadWordArpabetCollection(InputStream wordsArpabetsStream){
 		Map<String, String> wordArpabetCacheMap=parseInputStream(wordsArpabetsStream);
-		if(wordArpabetCacheMap.size()>0)
+		//Map<String, Set<String>> arpabetToWordSetMap=loadArpabetToWordSetMapping(wordArpabetCacheMap);
+		if(wordArpabetCacheMap.size()>0){
 			loadRedisCache(wordArpabetCacheMap);
+			
+		}
+
 	}
 	
 	private Map<String, String> parseInputStream(InputStream stream){
@@ -141,8 +150,16 @@ public class WordCacheUtil {
 	        for(Entry<String,String> wordEntry:cacheMap.entrySet()){
 	        	String word=wordEntry.getKey();
 	        	String arphabetsOfWord=wordEntry.getValue();
-	            String wordKey=getWordKey(word);
+	            
+	        	//cache word to arpabets mapping  
+	        	String wordKey=getWordKey(word);
 	            jedis.set(wordKey, arphabetsOfWord);
+	            
+	            //cache words into starting of arpabets set
+	            String arpabets[]=arphabetsOfWord.split("\\s");
+	            String arpabetKey=getArpabetKey(arpabets[0]);
+	            jedis.sadd(arpabetKey, word);
+
 	        }
         } catch (Exception e) {
             throw new ServerException("ERR_CACHE_LOAD_WORDARPABETS_MAP", e.getMessage());
@@ -173,19 +190,43 @@ public class WordCacheUtil {
 		Jedis jedis = getRedisConncetion();
 		word=word.toUpperCase();
 		String wordKey=getWordKey(word);
-		String arpabetsOfWord=jedis.get(wordKey);
-		if(StringUtils.isEmpty(arpabetsOfWord)){
-			if(hasSplitChar(word)){
-				word=buildCompoundWord(word);
-				wordKey=getWordKey(word);
-				arpabetsOfWord=jedis.get(wordKey);
-			}
-		}
+		String arpabetsOfWord=null;
+		try{
+			arpabetsOfWord=jedis.get(wordKey);
+			if(StringUtils.isEmpty(arpabetsOfWord)){
+				if(hasSplitChar(word)){
+					word=buildCompoundWord(word);
+					wordKey=getWordKey(word);
+					arpabetsOfWord=jedis.get(wordKey);
+				}
+			}			
+		} catch (Exception e) {
+	        throw new ServerException("ERR_CACHE_GET_WORDARPABETS_MAP", e.getMessage());
+	    } finally {
+	        returnConnection(jedis);
+	    }
 		
 		return arpabetsOfWord;
 	}
 	
-
+	public Set<String> getSimilarSoundWords(String word){
+		Jedis jedis = getRedisConncetion();
+		String Arpabets=getArpabets(word);
+		Set<String> similarSoundWords=null;
+		if(Arpabets==null)
+			return similarSoundWords;
+		try{
+			String[] arpabetArr=Arpabets.split("\\s");
+			String arpabetsKey=getArpabetKey(arpabetArr[0]);
+			similarSoundWords=jedis.smembers(arpabetsKey);
+		} catch (Exception e) {
+	        throw new ServerException("ERR_CACHE_GET_SIMILARSOUNDWORDSET_MAP", e.getMessage());
+	    } finally {
+	        returnConnection(jedis);
+	    }
+		
+		return similarSoundWords;
+	}
 
 	
 	public static void main(String[] arg){
