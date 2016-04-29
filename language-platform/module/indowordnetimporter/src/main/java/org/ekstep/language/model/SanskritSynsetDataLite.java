@@ -6,8 +6,8 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tbl_all_gujarati_synset_data")
-public class GujaratiSynsetDataLite implements LanguageSynsetDataLite {
+@Table(name = "tbl_all_sanskrit_synset_data")
+public class SanskritSynsetDataLite implements LanguageSynsetDataLite {
 
 	@Id
 	private int synset_id;
@@ -15,11 +15,11 @@ public class GujaratiSynsetDataLite implements LanguageSynsetDataLite {
 	@Column(name = "synset", unique = false, nullable = false, length = 100000)
 	private byte[] synset;
 
-	public GujaratiSynsetDataLite() {
+	public SanskritSynsetDataLite() {
 		super();
 	}
 
-	public GujaratiSynsetDataLite(int synset_id, byte[] synset) {
+	public SanskritSynsetDataLite(int synset_id, byte[] synset) {
 		super();
 		this.synset_id = synset_id;
 		this.synset = synset;
@@ -52,10 +52,10 @@ public class GujaratiSynsetDataLite implements LanguageSynsetDataLite {
 	public boolean equals(Object o) {
 		if (o == null)
 			return false;
-		if (!(o instanceof GujaratiSynsetDataLite))
+		if (!(o instanceof SanskritSynsetDataLite))
 			return false;
 
-		GujaratiSynsetDataLite other = (GujaratiSynsetDataLite) o;
+		SanskritSynsetDataLite other = (SanskritSynsetDataLite) o;
 		if (this.synset_id != other.synset_id)
 			return false;
 

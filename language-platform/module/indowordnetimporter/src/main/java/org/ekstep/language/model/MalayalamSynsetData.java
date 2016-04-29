@@ -24,8 +24,8 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.WhereJoinTable;
 
 @Entity
-@Table(name = "tbl_all_bodo_synset_data")
-public class BodoSynsetData implements LanguageSynsetData {
+@Table(name = "tbl_all_malayalam_synset_data")
+public class MalayalamSynsetData implements LanguageSynsetData {
 
 	@Id
 	private int synset_id;
@@ -43,49 +43,49 @@ public class BodoSynsetData implements LanguageSynsetData {
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hypernymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hypernymy_id") })
-	protected List<BodoSynsetDataLite> hypernyms = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> hypernyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hyponymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hyponymy_id") })
-	protected List<BodoSynsetDataLite> hyponyms = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> hyponyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_meronymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "meronym_id") })
-	protected List<BodoSynsetDataLite> meronyms = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> meronyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_holonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "holonym_id") })
-	protected List<BodoSynsetDataLite> holonyms = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> holonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_antonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "antonym_id") })
-	protected List<BodoSynsetDataLite> antonyms = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> antonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "object_id") })
-	protected List<BodoSynsetDataLite> actions = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> actions = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "object_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "synset_id") })
-	protected List<BodoSynsetDataLite> objects = new ArrayList<>();
+	protected List<MalayalamSynsetDataLite> objects = new ArrayList<>();
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -163,7 +163,7 @@ public class BodoSynsetData implements LanguageSynsetData {
 	@Cascade(CascadeType.MERGE)
 	private List<EnglishSynsetDataLite> englishTranslations;
 
-	public BodoSynsetData() {
+	public MalayalamSynsetData() {
 		super();
 	}
 
@@ -279,43 +279,43 @@ public class BodoSynsetData implements LanguageSynsetData {
 		this.kannadaTranslation = kannadaTranslation;
 	}
 
-	public List<BodoSynsetDataLite> getHypernyms() {
+	public List<MalayalamSynsetDataLite> getHypernyms() {
 		return hypernyms;
 	}
 
-	public void setHypernyms(List<BodoSynsetDataLite> hypernyms) {
+	public void setHypernyms(List<MalayalamSynsetDataLite> hypernyms) {
 		this.hypernyms = hypernyms;
 	}
 
-	public List<BodoSynsetDataLite> getHyponyms() {
+	public List<MalayalamSynsetDataLite> getHyponyms() {
 		return hyponyms;
 	}
 
-	public void setHyponyms(List<BodoSynsetDataLite> hyponyms) {
+	public void setHyponyms(List<MalayalamSynsetDataLite> hyponyms) {
 		this.hyponyms = hyponyms;
 	}
 
-	public List<BodoSynsetDataLite> getMeronyms() {
+	public List<MalayalamSynsetDataLite> getMeronyms() {
 		return meronyms;
 	}
 
-	public void setMeronyms(List<BodoSynsetDataLite> meronyms) {
+	public void setMeronyms(List<MalayalamSynsetDataLite> meronyms) {
 		this.meronyms = meronyms;
 	}
 
-	public List<BodoSynsetDataLite> getHolonyms() {
+	public List<MalayalamSynsetDataLite> getHolonyms() {
 		return holonyms;
 	}
 
-	public void setHolonyms(List<BodoSynsetDataLite> holonyms) {
+	public void setHolonyms(List<MalayalamSynsetDataLite> holonyms) {
 		this.holonyms = holonyms;
 	}
 
-	public List<BodoSynsetDataLite> getAntonyms() {
+	public List<MalayalamSynsetDataLite> getAntonyms() {
 		return antonyms;
 	}
 
-	public void setAntonyms(List<BodoSynsetDataLite> antonyms) {
+	public void setAntonyms(List<MalayalamSynsetDataLite> antonyms) {
 		this.antonyms = antonyms;
 	}
 
@@ -363,19 +363,19 @@ public class BodoSynsetData implements LanguageSynsetData {
 		this.englishTranslations = englishTranslations;
 	}
 
-	public List<BodoSynsetDataLite> getActions() {
+	public List<MalayalamSynsetDataLite> getActions() {
 		return actions;
 	}
 
-	public void setActions(List<BodoSynsetDataLite> actions) {
+	public void setActions(List<MalayalamSynsetDataLite> actions) {
 		this.actions = actions;
 	}
 
-	public List<BodoSynsetDataLite> getObjects() {
+	public List<MalayalamSynsetDataLite> getObjects() {
 		return objects;
 	}
 
-	public void setObjects(List<BodoSynsetDataLite> objects) {
+	public void setObjects(List<MalayalamSynsetDataLite> objects) {
 		this.objects = objects;
 	}
 
@@ -434,10 +434,10 @@ public class BodoSynsetData implements LanguageSynsetData {
 		return synsetData;
 	}
 
-	private List<SynsetDataLite> getSynsetDataLiteList(List<BodoSynsetDataLite> bodoSynsetLiteList) {
+	private List<SynsetDataLite> getSynsetDataLiteList(List<MalayalamSynsetDataLite> malayalamSynsetLiteList) {
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for (BodoSynsetDataLite bodoSynsetDataLite : bodoSynsetLiteList) {
-			SynsetDataLite liteSynsetData = bodoSynsetDataLite.getSynsetDataLite();
+		for (MalayalamSynsetDataLite malayalamSynsetDataLite : malayalamSynsetLiteList) {
+			SynsetDataLite liteSynsetData = malayalamSynsetDataLite.getSynsetDataLite();
 			if (!synsetDataLiteList.contains(liteSynsetData)) {
 				synsetDataLiteList.add(liteSynsetData);
 			}

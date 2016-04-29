@@ -10,6 +10,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.OneToOne;
@@ -21,8 +22,6 @@ import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.Fetch;
 import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.WhereJoinTable;
-
-import javax.persistence.JoinColumn;
 
 @Entity
 @Table(name = "tbl_all_kannada_synset_data")
@@ -91,11 +90,6 @@ public class KannadaSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected TamilSynsetDataLite tamilTranslation;
-
-	@OneToOne(fetch = FetchType.EAGER)
-	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
-	@Cascade(CascadeType.MERGE)
 	protected AssameseSynsetDataLite assameseTranslation;
 
 	@OneToOne(fetch = FetchType.EAGER)
@@ -113,8 +107,58 @@ public class KannadaSynsetData implements LanguageSynsetData {
 	@Cascade(CascadeType.MERGE)
 	protected GujaratiSynsetDataLite gujaratiTranslation;
 
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected HindiSynsetDataLite hindiTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected KannadaSynsetDataLite kannadaTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected KonkaniSynsetDataLite konkaniTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected MalayalamSynsetDataLite malayalamTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected MarathiSynsetDataLite marathiTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected NepaliSynsetDataLite nepaliTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected OriyaSynsetDataLite oriyaTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected PunjabiSynsetDataLite punjabiTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected SanskritSynsetDataLite sanskritTranslation;
+
+	@OneToOne(fetch = FetchType.EAGER)
+	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
+	@Cascade(CascadeType.MERGE)
+	protected TeluguSynsetDataLite teluguTranslation;
+
 	@ManyToMany(fetch = FetchType.EAGER)
-	@JoinTable(name="english_hindi_id_mapping", joinColumns = @JoinColumn(name="hindi_id"),	inverseJoinColumns = @JoinColumn(name="english_id"))
+	@JoinTable(name = "english_hindi_id_mapping", joinColumns = @JoinColumn(name = "hindi_id") , inverseJoinColumns = @JoinColumn(name = "english_id") )
 	@WhereJoinTable(clause = "type_link='Direct'")
 	@Cascade(CascadeType.MERGE)
 	private List<EnglishSynsetDataLite> englishTranslations;
@@ -123,12 +167,76 @@ public class KannadaSynsetData implements LanguageSynsetData {
 		super();
 	}
 
-	public TamilSynsetDataLite getTamilTranslation() {
-		return tamilTranslation;
+	public MalayalamSynsetDataLite getMalayalamTranslation() {
+		return malayalamTranslation;
 	}
 
-	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
-		this.tamilTranslation = tamilTranslation;
+	public void setMalayalamTranslation(MalayalamSynsetDataLite malayalamTranslation) {
+		this.malayalamTranslation = malayalamTranslation;
+	}
+
+	public MarathiSynsetDataLite getMarathiTranslation() {
+		return marathiTranslation;
+	}
+
+	public void setMarathiTranslation(MarathiSynsetDataLite marathiTranslation) {
+		this.marathiTranslation = marathiTranslation;
+	}
+
+	public NepaliSynsetDataLite getNepaliTranslation() {
+		return nepaliTranslation;
+	}
+
+	public void setNepaliTranslation(NepaliSynsetDataLite nepaliTranslation) {
+		this.nepaliTranslation = nepaliTranslation;
+	}
+
+	public OriyaSynsetDataLite getOriyaTranslation() {
+		return oriyaTranslation;
+	}
+
+	public void setOriyaTranslation(OriyaSynsetDataLite oriyaTranslation) {
+		this.oriyaTranslation = oriyaTranslation;
+	}
+
+	public PunjabiSynsetDataLite getPunjabiTranslation() {
+		return punjabiTranslation;
+	}
+
+	public void setPunjabiTranslation(PunjabiSynsetDataLite punjabiTranslation) {
+		this.punjabiTranslation = punjabiTranslation;
+	}
+
+	public SanskritSynsetDataLite getSanskritTranslation() {
+		return sanskritTranslation;
+	}
+
+	public void setSanskritTranslation(SanskritSynsetDataLite sanskritTranslation) {
+		this.sanskritTranslation = sanskritTranslation;
+	}
+
+	public TeluguSynsetDataLite getTeluguTranslation() {
+		return teluguTranslation;
+	}
+
+	public void setTeluguTranslation(TeluguSynsetDataLite teluguTranslation) {
+		this.teluguTranslation = teluguTranslation;
+	}
+
+	public KonkaniSynsetDataLite getKonkaniTranslation() {
+		return konkaniTranslation;
+	}
+
+	public void setKonkaniTranslation(KonkaniSynsetDataLite konkaniTranslation) {
+		this.konkaniTranslation = konkaniTranslation;
+	}
+
+	public HindiSynsetDataLite getHindiTranslation() {
+		return hindiTranslation;
+	}
+
+	public void setHindiTranslation(HindiSynsetDataLite hindiTranslation) {
+		this.hindiTranslation = hindiTranslation;
 	}
 
 	public AssameseSynsetDataLite getAssameseTranslation() {
@@ -163,12 +271,28 @@ public class KannadaSynsetData implements LanguageSynsetData {
 		this.gujaratiTranslation = gujaratiTranslation;
 	}
 
-	public List<EnglishSynsetDataLite> getEnglishTranslations() {
-		return englishTranslations;
+	public KannadaSynsetDataLite getKannadaTranslation() {
+		return kannadaTranslation;
 	}
 
-	public void setEnglishTranslations(List<EnglishSynsetDataLite> englishTranslations) {
-		this.englishTranslations = englishTranslations;
+	public void setKannadaTranslation(KannadaSynsetDataLite kannadaTranslation) {
+		this.kannadaTranslation = kannadaTranslation;
+	}
+
+	public List<KannadaSynsetDataLite> getHypernyms() {
+		return hypernyms;
+	}
+
+	public void setHypernyms(List<KannadaSynsetDataLite> hypernyms) {
+		this.hypernyms = hypernyms;
+	}
+
+	public List<KannadaSynsetDataLite> getHyponyms() {
+		return hyponyms;
+	}
+
+	public void setHyponyms(List<KannadaSynsetDataLite> hyponyms) {
+		this.hyponyms = hyponyms;
 	}
 
 	public List<KannadaSynsetDataLite> getMeronyms() {
@@ -195,23 +319,11 @@ public class KannadaSynsetData implements LanguageSynsetData {
 		this.antonyms = antonyms;
 	}
 
-	public List<KannadaSynsetDataLite> getHyponyms() {
-		return hyponyms;
-	}
-
-	public void setHyponyms(List<KannadaSynsetDataLite> hyponyms) {
-		this.hyponyms = hyponyms;
-	}
-
-	public List<KannadaSynsetDataLite> getHypernyms() {
-		return hypernyms;
-	}
-
-	public void setHypernyms(List<KannadaSynsetDataLite> hypernyms) {
-		this.hypernyms = hypernyms;
-	}
-
 	public int getSynset_id() {
+		return synset_id;
+	}
+
+	public int getSynsetId() {
 		return synset_id;
 	}
 
@@ -241,6 +353,14 @@ public class KannadaSynsetData implements LanguageSynsetData {
 
 	public void setCategory(String category) {
 		this.category = category;
+	}
+
+	public List<EnglishSynsetDataLite> getEnglishTranslations() {
+		return englishTranslations;
+	}
+
+	public void setEnglishTranslations(List<EnglishSynsetDataLite> englishTranslations) {
+		this.englishTranslations = englishTranslations;
 	}
 
 	public List<KannadaSynsetDataLite> getActions() {
@@ -287,8 +407,26 @@ public class KannadaSynsetData implements LanguageSynsetData {
 			translationsMap.put("Bodo", Arrays.asList(getBodoTranslation().getSynsetDataLite()));
 		if (getGujaratiTranslation() != null)
 			translationsMap.put("Gujarati", Arrays.asList(getGujaratiTranslation().getSynsetDataLite()));
-		if (getTamilTranslation() != null)
-			translationsMap.put("Kannada", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
+		if (getHindiTranslation() != null)
+			translationsMap.put("Hindi", Arrays.asList(getHindiTranslation().getSynsetDataLite()));
+		if (getKannadaTranslation() != null)
+			translationsMap.put("Konkani", Arrays.asList(getKannadaTranslation().getSynsetDataLite()));
+		if (getKonkaniTranslation() != null)
+			translationsMap.put("Konkani", Arrays.asList(getKonkaniTranslation().getSynsetDataLite()));
+		if (getMalayalamTranslation() != null)
+			translationsMap.put("Malayalam", Arrays.asList(getMalayalamTranslation().getSynsetDataLite()));
+		if (getMarathiTranslation() != null)
+			translationsMap.put("Konkani", Arrays.asList(getMarathiTranslation().getSynsetDataLite()));
+		if (getNepaliTranslation() != null)
+			translationsMap.put("Nepali", Arrays.asList(getNepaliTranslation().getSynsetDataLite()));
+		if (getOriyaTranslation() != null)
+			translationsMap.put("Oriya", Arrays.asList(getOriyaTranslation().getSynsetDataLite()));
+		if (getPunjabiTranslation() != null)
+			translationsMap.put("Punjabi", Arrays.asList(getPunjabiTranslation().getSynsetDataLite()));
+		if (getSanskritTranslation() != null)
+			translationsMap.put("Sanskrit", Arrays.asList(getSanskritTranslation().getSynsetDataLite()));
+		if (getTeluguTranslation() != null)
+			translationsMap.put("Telugu", Arrays.asList(getTeluguTranslation().getSynsetDataLite()));
 		if (getEnglishTranslations() != null)
 			translationsMap.put("English", getEnglishSynsetDataLiteList(getEnglishTranslations()));
 		synsetData.setTranslations(translationsMap);
@@ -296,18 +434,24 @@ public class KannadaSynsetData implements LanguageSynsetData {
 		return synsetData;
 	}
 
-	private List<SynsetDataLite> getSynsetDataLiteList(List<KannadaSynsetDataLite> languageSynsetLiteList) {
+	private List<SynsetDataLite> getSynsetDataLiteList(List<KannadaSynsetDataLite> kannadaSynsetLiteList) {
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for (KannadaSynsetDataLite langSynsetDataLite : languageSynsetLiteList) {
-			synsetDataLiteList.add(langSynsetDataLite.getSynsetDataLite());
+		for (KannadaSynsetDataLite kannadaSynsetDataLite : kannadaSynsetLiteList) {
+			SynsetDataLite liteSynsetData = kannadaSynsetDataLite.getSynsetDataLite();
+			if (!synsetDataLiteList.contains(liteSynsetData)) {
+				synsetDataLiteList.add(liteSynsetData);
+			}
 		}
 		return synsetDataLiteList;
 	}
-	
-	private List<SynsetDataLite> getEnglishSynsetDataLiteList(List<EnglishSynsetDataLite> englishSynsetDataLiteList){
+
+	private List<SynsetDataLite> getEnglishSynsetDataLiteList(List<EnglishSynsetDataLite> englishSynsetDataLiteList) {
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for(EnglishSynsetDataLite englishSynsetDataLite: englishSynsetDataLiteList){
-			synsetDataLiteList.add(englishSynsetDataLite.getSynsetDataLite());
+		for (EnglishSynsetDataLite englishSynsetDataLite : englishSynsetDataLiteList) {
+			SynsetDataLite liteSynsetData = englishSynsetDataLite.getSynsetDataLite();
+			if (!synsetDataLiteList.contains(liteSynsetData)) {
+				synsetDataLiteList.add(liteSynsetData);
+			}
 		}
 		return synsetDataLiteList;
 	}
