@@ -36,6 +36,7 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.language.util.WordnetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -43,6 +44,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
@@ -81,7 +84,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     
     @Autowired
     private WordUtil wordUtil;
-
+    
     static {
         DEFAULT_STATUS.add("Live");
     }
@@ -2533,4 +2536,92 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
             throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
         }
     }
+	
+	@Override
+	public Response loadEnglishWordsArpabetsMap(InputStream in){
+		wordUtil.loadEnglishWordsArpabetsMap(in);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+		return response;
+	}
+	
+	@Override
+	public Response getSyllables(String languageId, String word){
+		Node wordNode=wordUtil.searchWord(languageId, word);
+
+		List<String> syllables=new ArrayList<>();
+		if(wordNode!=null&&wordNode.getMetadata().get("syllables")!=null){
+			Object syllablesObj = (Object)wordNode.getMetadata().get("syllables");
+            if (syllablesObj instanceof String[]) {
+                String[] arr = (String[]) syllablesObj;
+                if (null != arr && arr.length > 0) {
+                    for (String str : arr) {
+                    	syllables.add(str);
+                    }
+                }
+            } else if (syllablesObj instanceof String) {
+                if (StringUtils.isNotBlank(syllablesObj.toString())) {
+                    String str = syllablesObj.toString();
+                    if (StringUtils.isNotBlank(str))
+                    	syllables.add(str.toLowerCase());
+                }
+            }	
+		}
+		else{
+			syllables=wordUtil.buildSyllables(languageId, word);
+		}
+		
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("Syllables",syllables);
+	
+        return response;
+	}
+	
+	@Override
+	public Response getArpabets(String languageID, String word){
+
+		String arpabets=wordUtil.getArpabets(word);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("Arpabets",arpabets);
+	
+        return response;
+	}
+
+	@Override
+	public Response getPhoneticSpellingByLanguage(String languageId, String word){
+		String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("PhoneticSpelling",phoneticSpellingOfWord);
+
+		return response;
+	}
+	
+	@Override
+	public Response getSimilarSoundWords(String languageId, String word){
+		Set<String> similarSoundWords=wordUtil.getSimilarSoundWords(word);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("SimilarSoundWords",similarSoundWords);
+
+		return response;
+	}
+	
 }

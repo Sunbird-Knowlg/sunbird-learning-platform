@@ -62,6 +62,6 @@ public enum GraphCacheErrorCodes {
 
     ERR_CACHE_DROP_TAG,
 
-    ERR_CACHE_TAG_GET_MEMBERS;
+    ERR_CACHE_TAG_GET_MEMBERS,
 
 }

@@ -16,6 +16,7 @@ public interface IWordnetConstants {
     String ATTRIB_IS_LOAN_WORD = "isLoanWord";
     String ATTRIB_POS_TAGS = "posTags";
     String ATTRIB_POS_CATEGORIES = "pos_categories";
+    String ATTRIB_SYLLABLES="syllables";
     
     String POS_NOUN = "noun";
     String POS_PRONOUN = "pronoun";

@@ -92,6 +92,9 @@ public class EnrichActor extends LanguageBaseActor {
 			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
 				long startTime = System.currentTimeMillis();
 				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+				if(languageId.equalsIgnoreCase("en")){
+					updateSyllablesList(nodeList);
+				}
 				updateLexileMeasures(languageId, nodeList);
 				updateFrequencyCount(languageId, nodeList);
 				updatePosList(languageId, nodeList);
@@ -197,6 +200,30 @@ public class EnrichActor extends LanguageBaseActor {
 				}
 			}
 		}
+	}
+	
+	private void updateSyllablesList(List<Node> nodes){
+		 if (null != nodes && !nodes.isEmpty()) {
+            System.out.println("updateSyllablesList | Total words: " + nodes.size());
+            for (Node node : nodes) {
+            	WordnetUtil.updateSyllables(node);
+            	Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
+                        "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                try {
+                    Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+                    if (checkError(updateResponse)) {
+                        System.out.println(updateResponse.getParams().getErr());
+                        System.out.println(updateResponse.getResult());
+                        throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+                                updateResponse.getParams().getErrmsg());
+                    }
+                } catch (Exception e) {
+                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                }
+            }
+		 }
 	}
 	
 	private void updatePosList(String languageId, List<Node> nodes) {

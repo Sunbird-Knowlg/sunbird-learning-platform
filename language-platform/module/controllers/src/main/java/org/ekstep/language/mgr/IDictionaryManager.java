@@ -43,4 +43,15 @@ public interface IDictionaryManager {
 	Response findAllV2(String languageId, String objectType, String[] fields, Integer limit);
 
 	Response listV2(String languageId, String name, Request request);
+    
+    Response loadEnglishWordsArpabetsMap(InputStream in);
+    
+    Response getSyllables(String languageID, String word);
+    
+    Response getArpabets(String languageID, String word);
+    
+    Response getPhoneticSpellingByLanguage(String languageID, String word);
+    
+    Response getSimilarSoundWords(String languageId, String word);
+
 }

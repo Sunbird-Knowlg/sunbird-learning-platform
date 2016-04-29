@@ -95,6 +95,19 @@
           "renderingHints": "{ 'inputType': 'textarea',  'order': 7 }"
         },
         {
+          "propertyName": "syllables",
+          "title": "Syllables",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
           "propertyName": "sources",
           "title": "Sources",
           "description": "",

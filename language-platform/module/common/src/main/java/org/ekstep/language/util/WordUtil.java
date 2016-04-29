@@ -1,6 +1,7 @@
 package org.ekstep.language.util;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -13,6 +14,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.collections.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +29,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -64,6 +67,9 @@ public class WordUtil extends BaseManager {
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 
+    @Autowired
+    private WordCacheUtil wordCacheUtil;
+    
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -1381,4 +1387,88 @@ public class WordUtil extends BaseManager {
 		}
 	}
 
+	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
+
+		wordCacheUtil.loadWordArpabetCollection(wordsArpabetsStream);
+	}
+	
+	public String getArpabets(String word){
+		
+		return wordCacheUtil.getArpabets(word);   
+	}
+	
+	public Set<String> getSimilarSoundWords(String word){
+		
+		return wordCacheUtil.getSimilarSoundWords(word);
+	}
+
+	public String getPhoneticSpellingByLanguage(String languageId, String word){
+		
+		String arpabets = getArpabets(word);
+		if(StringUtils.isEmpty(arpabets))
+			return "";
+		
+		String arpabetArr[]=arpabets.split("\\s");
+		String phoneticSpellingOfWord="";
+		for(String arpabet:arpabetArr){
+			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
+			Node EnglishvarnaNode=getVarnaNodeByProperty("en", arpabetProp);
+			Map<String,Object> metaData=EnglishvarnaNode.getMetadata();
+			String ipaSymbol=(String)metaData.get(GraphDACParams.ipaSymbol.name());
+			Property ipaSymbolProp = new Property(GraphDACParams.ipaSymbol.name(), ipaSymbol);
+			String identifier=" ";
+			Node LanguageVarnaNode=getVarnaNodeByProperty(languageId, ipaSymbolProp);
+			if(LanguageVarnaNode!=null)
+				identifier=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.identifier.name())+" ";
+			phoneticSpellingOfWord+=identifier;			
+		}
+		return phoneticSpellingOfWord.substring(0, phoneticSpellingOfWord.length()-1);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> buildSyllables(String languageId, String word){
+		String syllables="";
+		
+		String arpabets = getArpabets(word);
+		if(StringUtils.isEmpty(arpabets))
+			return ListUtils.EMPTY_LIST;
+		
+		String arpabetArr[]=arpabets.split("\\s");
+
+		for(String arpabet:arpabetArr){
+			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
+			Node varnaNode=getVarnaNodeByProperty(languageId, arpabetProp);
+			Map<String,Object> metaData=varnaNode.getMetadata();
+			String iso=(String)metaData.get(GraphDACParams.ipaSymbol.name());
+			String type=(String)metaData.get(GraphDACParams.type.name());
+			syllables+=iso;
+			if(type.equalsIgnoreCase("Vowel")){
+				syllables+=",";
+			}
+			syllables+=" ";
+		}
+		
+		if(syllables.endsWith(", "))
+			syllables=syllables.substring(0, syllables.length()-2);
+		else
+			syllables=syllables.substring(0, syllables.length()-1);
+
+		return syllables.length()>0?Arrays.asList(syllables.split(", ")):ListUtils.EMPTY_LIST;
+	}
+	
+	@SuppressWarnings("unchecked")
+    private Node getVarnaNodeByProperty(String languageId, Property property) {
+        Node node = null;
+        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+        request.put(GraphDACParams.metadata.name(), property);
+        request.put(GraphDACParams.get_tags.name(), true);
+        Response findRes = getResponse(request, LOGGER);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0)
+                node = nodes.get(0);
+        }
+        return node;
+    }
+	
 }
