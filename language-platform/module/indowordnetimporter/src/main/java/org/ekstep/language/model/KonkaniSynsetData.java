@@ -120,8 +120,8 @@ public class KonkaniSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected KonkaniSynsetDataLite konkaniTranslation;
-
+	protected TamilSynsetDataLite tamilTranslation;
+	
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
@@ -223,14 +223,14 @@ public class KonkaniSynsetData implements LanguageSynsetData {
 		this.teluguTranslation = teluguTranslation;
 	}
 
-	public KonkaniSynsetDataLite getKonkaniTranslation() {
-		return konkaniTranslation;
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
 	}
 
-	public void setKonkaniTranslation(KonkaniSynsetDataLite konkaniTranslation) {
-		this.konkaniTranslation = konkaniTranslation;
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
 	}
-
+	
 	public HindiSynsetDataLite getHindiTranslation() {
 		return hindiTranslation;
 	}
@@ -411,8 +411,8 @@ public class KonkaniSynsetData implements LanguageSynsetData {
 			translationsMap.put("Hindi", Arrays.asList(getHindiTranslation().getSynsetDataLite()));
 		if (getKannadaTranslation() != null)
 			translationsMap.put("Konkani", Arrays.asList(getKannadaTranslation().getSynsetDataLite()));
-		if (getKonkaniTranslation() != null)
-			translationsMap.put("Konkani", Arrays.asList(getKonkaniTranslation().getSynsetDataLite()));
+		if (getTamilTranslation() != null)
+			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
 		if (getMalayalamTranslation() != null)
 			translationsMap.put("Malayalam", Arrays.asList(getMalayalamTranslation().getSynsetDataLite()));
 		if (getMarathiTranslation() != null)

@@ -167,6 +167,14 @@ public class AssameseSynsetData implements LanguageSynsetData {
 		super();
 	}
 
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
+	}
+
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
+	}
+
 	public MalayalamSynsetDataLite getMalayalamTranslation() {
 		return malayalamTranslation;
 	}
@@ -237,14 +245,6 @@ public class AssameseSynsetData implements LanguageSynsetData {
 
 	public void setHindiTranslation(HindiSynsetDataLite hindiTranslation) {
 		this.hindiTranslation = hindiTranslation;
-	}
-
-	public AssameseSynsetDataLite getAssameseTranslation() {
-		return assameseTranslation;
-	}
-
-	public void setAssameseTranslation(AssameseSynsetDataLite assameseTranslation) {
-		this.assameseTranslation = assameseTranslation;
 	}
 
 	public BengaliSynsetDataLite getBengaliTranslation() {

@@ -24,7 +24,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.WhereJoinTable;
 
 @Entity
-@Table(name = "tbl_all_tamil_synset_data")
+@Table(name = "tbl_all_telugu_synset_data")
 public class TeluguSynsetData implements LanguageSynsetData {
 
 	@Id
@@ -43,49 +43,49 @@ public class TeluguSynsetData implements LanguageSynsetData {
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hypernymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hypernymy_id") })
-	protected List<TamilSynsetDataLite> hypernyms = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> hypernyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_noun_hyponymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "hyponymy_id") })
-	protected List<TamilSynsetDataLite> hyponyms = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> hyponyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_meronymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "meronym_id") })
-	protected List<TamilSynsetDataLite> meronyms = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> meronyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_holonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "holonym_id") })
-	protected List<TamilSynsetDataLite> holonyms = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> holonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_antonymy", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "antonym_id") })
-	protected List<TamilSynsetDataLite> antonyms = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> antonyms = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "synset_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "object_id") })
-	protected List<TamilSynsetDataLite> actions = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> actions = new ArrayList<>();
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@Cascade(CascadeType.MERGE)
 	@Fetch(FetchMode.SUBSELECT)
 	@JoinTable(name = "tbl_action_object", joinColumns = { @JoinColumn(name = "object_id") }, inverseJoinColumns = {
 			@JoinColumn(name = "synset_id") })
-	protected List<TamilSynsetDataLite> objects = new ArrayList<>();
+	protected List<TeluguSynsetDataLite> objects = new ArrayList<>();
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -155,7 +155,7 @@ public class TeluguSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected TeluguSynsetDataLite teluguTranslation;
+	protected TamilSynsetDataLite tamilTranslation;
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "english_hindi_id_mapping", joinColumns = @JoinColumn(name = "hindi_id") , inverseJoinColumns = @JoinColumn(name = "english_id") )
@@ -215,12 +215,12 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		this.sanskritTranslation = sanskritTranslation;
 	}
 
-	public TeluguSynsetDataLite getTeluguTranslation() {
-		return teluguTranslation;
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
 	}
 
-	public void setTeluguTranslation(TeluguSynsetDataLite teluguTranslation) {
-		this.teluguTranslation = teluguTranslation;
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
 	}
 
 	public KonkaniSynsetDataLite getKonkaniTranslation() {
@@ -279,43 +279,43 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		this.kannadaTranslation = kannadaTranslation;
 	}
 
-	public List<TamilSynsetDataLite> getHypernyms() {
+	public List<TeluguSynsetDataLite> getHypernyms() {
 		return hypernyms;
 	}
 
-	public void setHypernyms(List<TamilSynsetDataLite> hypernyms) {
+	public void setHypernyms(List<TeluguSynsetDataLite> hypernyms) {
 		this.hypernyms = hypernyms;
 	}
 
-	public List<TamilSynsetDataLite> getHyponyms() {
+	public List<TeluguSynsetDataLite> getHyponyms() {
 		return hyponyms;
 	}
 
-	public void setHyponyms(List<TamilSynsetDataLite> hyponyms) {
+	public void setHyponyms(List<TeluguSynsetDataLite> hyponyms) {
 		this.hyponyms = hyponyms;
 	}
 
-	public List<TamilSynsetDataLite> getMeronyms() {
+	public List<TeluguSynsetDataLite> getMeronyms() {
 		return meronyms;
 	}
 
-	public void setMeronyms(List<TamilSynsetDataLite> meronyms) {
+	public void setMeronyms(List<TeluguSynsetDataLite> meronyms) {
 		this.meronyms = meronyms;
 	}
 
-	public List<TamilSynsetDataLite> getHolonyms() {
+	public List<TeluguSynsetDataLite> getHolonyms() {
 		return holonyms;
 	}
 
-	public void setHolonyms(List<TamilSynsetDataLite> holonyms) {
+	public void setHolonyms(List<TeluguSynsetDataLite> holonyms) {
 		this.holonyms = holonyms;
 	}
 
-	public List<TamilSynsetDataLite> getAntonyms() {
+	public List<TeluguSynsetDataLite> getAntonyms() {
 		return antonyms;
 	}
 
-	public void setAntonyms(List<TamilSynsetDataLite> antonyms) {
+	public void setAntonyms(List<TeluguSynsetDataLite> antonyms) {
 		this.antonyms = antonyms;
 	}
 
@@ -363,19 +363,19 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		this.englishTranslations = englishTranslations;
 	}
 
-	public List<TamilSynsetDataLite> getActions() {
+	public List<TeluguSynsetDataLite> getActions() {
 		return actions;
 	}
 
-	public void setActions(List<TamilSynsetDataLite> actions) {
+	public void setActions(List<TeluguSynsetDataLite> actions) {
 		this.actions = actions;
 	}
 
-	public List<TamilSynsetDataLite> getObjects() {
+	public List<TeluguSynsetDataLite> getObjects() {
 		return objects;
 	}
 
-	public void setObjects(List<TamilSynsetDataLite> objects) {
+	public void setObjects(List<TeluguSynsetDataLite> objects) {
 		this.objects = objects;
 	}
 
@@ -425,8 +425,8 @@ public class TeluguSynsetData implements LanguageSynsetData {
 			translationsMap.put("Punjabi", Arrays.asList(getPunjabiTranslation().getSynsetDataLite()));
 		if (getSanskritTranslation() != null)
 			translationsMap.put("Sanskrit", Arrays.asList(getSanskritTranslation().getSynsetDataLite()));
-		if (getTeluguTranslation() != null)
-			translationsMap.put("Telugu", Arrays.asList(getTeluguTranslation().getSynsetDataLite()));
+		if (getTamilTranslation() != null)
+			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
 		if (getEnglishTranslations() != null)
 			translationsMap.put("English", getEnglishSynsetDataLiteList(getEnglishTranslations()));
 		synsetData.setTranslations(translationsMap);
@@ -434,10 +434,10 @@ public class TeluguSynsetData implements LanguageSynsetData {
 		return synsetData;
 	}
 
-	private List<SynsetDataLite> getSynsetDataLiteList(List<TamilSynsetDataLite> tamilSynsetLiteList) {
+	private List<SynsetDataLite> getSynsetDataLiteList(List<TeluguSynsetDataLite> teluguSynsetLiteList) {
 		List<SynsetDataLite> synsetDataLiteList = new ArrayList<SynsetDataLite>();
-		for (TamilSynsetDataLite tamilSynsetDataLite : tamilSynsetLiteList) {
-			SynsetDataLite liteSynsetData = tamilSynsetDataLite.getSynsetDataLite();
+		for (TeluguSynsetDataLite teluguSynsetDataLite : teluguSynsetLiteList) {
+			SynsetDataLite liteSynsetData = teluguSynsetDataLite.getSynsetDataLite();
 			if (!synsetDataLiteList.contains(liteSynsetData)) {
 				synsetDataLiteList.add(liteSynsetData);
 			}

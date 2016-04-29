@@ -100,7 +100,7 @@ public class BodoSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected BodoSynsetDataLite bodoTranslation;
+	protected TamilSynsetDataLite tamilTranslation;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -255,12 +255,13 @@ public class BodoSynsetData implements LanguageSynsetData {
 		this.bengaliTranslation = bengaliTranslation;
 	}
 
-	public BodoSynsetDataLite getBodoTranslation() {
-		return bodoTranslation;
+
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
 	}
 
-	public void setBodoTranslation(BodoSynsetDataLite bodoTranslation) {
-		this.bodoTranslation = bodoTranslation;
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
 	}
 
 	public GujaratiSynsetDataLite getGujaratiTranslation() {
@@ -403,8 +404,8 @@ public class BodoSynsetData implements LanguageSynsetData {
 			translationsMap.put("Assamese", Arrays.asList(getAssameseTranslation().getSynsetDataLite()));
 		if (getBengaliTranslation() != null)
 			translationsMap.put("Bengali", Arrays.asList(getBengaliTranslation().getSynsetDataLite()));
-		if (getBodoTranslation() != null)
-			translationsMap.put("Bodo", Arrays.asList(getBodoTranslation().getSynsetDataLite()));
+		if (getTamilTranslation() != null)
+			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
 		if (getGujaratiTranslation() != null)
 			translationsMap.put("Gujarati", Arrays.asList(getGujaratiTranslation().getSynsetDataLite()));
 		if (getHindiTranslation() != null)

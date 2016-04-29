@@ -140,7 +140,7 @@ public class OriyaSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected OriyaSynsetDataLite oriyaTranslation;
+	protected TamilSynsetDataLite tamilTranslation;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -191,14 +191,14 @@ public class OriyaSynsetData implements LanguageSynsetData {
 		this.nepaliTranslation = nepaliTranslation;
 	}
 
-	public OriyaSynsetDataLite getOriyaTranslation() {
-		return oriyaTranslation;
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
 	}
 
-	public void setOriyaTranslation(OriyaSynsetDataLite oriyaTranslation) {
-		this.oriyaTranslation = oriyaTranslation;
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
 	}
-
+	
 	public PunjabiSynsetDataLite getPunjabiTranslation() {
 		return punjabiTranslation;
 	}
@@ -409,8 +409,6 @@ public class OriyaSynsetData implements LanguageSynsetData {
 			translationsMap.put("Gujarati", Arrays.asList(getGujaratiTranslation().getSynsetDataLite()));
 		if (getHindiTranslation() != null)
 			translationsMap.put("Hindi", Arrays.asList(getHindiTranslation().getSynsetDataLite()));
-		if (getKannadaTranslation() != null)
-			translationsMap.put("Konkani", Arrays.asList(getKannadaTranslation().getSynsetDataLite()));
 		if (getKonkaniTranslation() != null)
 			translationsMap.put("Konkani", Arrays.asList(getKonkaniTranslation().getSynsetDataLite()));
 		if (getMalayalamTranslation() != null)
@@ -419,8 +417,8 @@ public class OriyaSynsetData implements LanguageSynsetData {
 			translationsMap.put("Konkani", Arrays.asList(getMarathiTranslation().getSynsetDataLite()));
 		if (getNepaliTranslation() != null)
 			translationsMap.put("Nepali", Arrays.asList(getNepaliTranslation().getSynsetDataLite()));
-		if (getOriyaTranslation() != null)
-			translationsMap.put("Oriya", Arrays.asList(getOriyaTranslation().getSynsetDataLite()));
+		if (getTamilTranslation() != null)
+			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
 		if (getPunjabiTranslation() != null)
 			translationsMap.put("Punjabi", Arrays.asList(getPunjabiTranslation().getSynsetDataLite()));
 		if (getSanskritTranslation() != null)

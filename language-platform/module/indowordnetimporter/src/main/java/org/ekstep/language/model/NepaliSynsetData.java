@@ -135,7 +135,7 @@ public class NepaliSynsetData implements LanguageSynsetData {
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
 	@Cascade(CascadeType.MERGE)
-	protected NepaliSynsetDataLite nepaliTranslation;
+	protected TamilSynsetDataLite tamilTranslation;
 
 	@OneToOne(fetch = FetchType.EAGER)
 	@JoinColumn(name = "synset_id", referencedColumnName = "synset_id", nullable = true)
@@ -183,14 +183,14 @@ public class NepaliSynsetData implements LanguageSynsetData {
 		this.marathiTranslation = marathiTranslation;
 	}
 
-	public NepaliSynsetDataLite getNepaliTranslation() {
-		return nepaliTranslation;
+	public TamilSynsetDataLite getTamilTranslation() {
+		return tamilTranslation;
 	}
 
-	public void setNepaliTranslation(NepaliSynsetDataLite nepaliTranslation) {
-		this.nepaliTranslation = nepaliTranslation;
+	public void setTamilTranslation(TamilSynsetDataLite tamilTranslation) {
+		this.tamilTranslation = tamilTranslation;
 	}
-
+	
 	public OriyaSynsetDataLite getOriyaTranslation() {
 		return oriyaTranslation;
 	}
@@ -417,8 +417,8 @@ public class NepaliSynsetData implements LanguageSynsetData {
 			translationsMap.put("Malayalam", Arrays.asList(getMalayalamTranslation().getSynsetDataLite()));
 		if (getMarathiTranslation() != null)
 			translationsMap.put("Konkani", Arrays.asList(getMarathiTranslation().getSynsetDataLite()));
-		if (getNepaliTranslation() != null)
-			translationsMap.put("Nepali", Arrays.asList(getNepaliTranslation().getSynsetDataLite()));
+		if (getTamilTranslation() != null)
+			translationsMap.put("Tamil", Arrays.asList(getTamilTranslation().getSynsetDataLite()));
 		if (getOriyaTranslation() != null)
 			translationsMap.put("Oriya", Arrays.asList(getOriyaTranslation().getSynsetDataLite()));
 		if (getPunjabiTranslation() != null)
