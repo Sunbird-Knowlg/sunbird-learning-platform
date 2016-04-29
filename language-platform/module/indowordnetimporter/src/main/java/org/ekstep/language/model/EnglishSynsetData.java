@@ -7,10 +7,18 @@ import java.util.Map;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.ekstep.language.common.enums.LanguageParams;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+import org.hibernate.annotations.WhereJoinTable;
 
 @Entity
 @Table(name = "tbl_all_english_synset_data")
@@ -27,51 +35,77 @@ public class EnglishSynsetData implements LanguageSynsetData{
 
 	private String category;
 	
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "english_hindi_id_mapping", joinColumns = @JoinColumn(name = "english_id") , inverseJoinColumns = @JoinColumn(name = "hindi_id") )
+	@WhereJoinTable(clause = "type_link='Direct'")
+	@Cascade(CascadeType.MERGE)
 	private List<EnglishHindiSynsetData> englishHindiMappings;
 	
-	protected List<EnglishSynsetDataLite> hypernyms = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> hypernyms = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> hyponyms = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> hyponyms = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> meronyms = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> meronyms = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> holonyms = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> holonyms = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> antonyms = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> antonyms = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> actions = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> actions = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<EnglishSynsetDataLite> objects = new ArrayList<>();
+	@Transient
+	protected List<EnglishSynsetDataLite> objects = new ArrayList<EnglishSynsetDataLite>();
 
-	protected List<SynsetDataLite> assameseTranslation;
+	@Transient
+	protected List<SynsetDataLite> assameseTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> bengaliTranslation;
+	@Transient
+	protected List<SynsetDataLite> bengaliTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> bodoTranslation;
+	@Transient
+	protected List<SynsetDataLite> bodoTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> gujaratiTranslation;
+	@Transient
+	protected List<SynsetDataLite> gujaratiTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> hindiTranslation;
+	@Transient
+	protected List<SynsetDataLite> hindiTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> kannadaTranslation;
+	@Transient
+	protected List<SynsetDataLite> kannadaTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> konkaniTranslation;
+	@Transient
+	protected List<SynsetDataLite> konkaniTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> malayalamTranslation;
+	@Transient
+	protected List<SynsetDataLite> malayalamTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> marathiTranslation;
+	@Transient
+	protected List<SynsetDataLite> marathiTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> nepaliTranslation;
+	@Transient
+	protected List<SynsetDataLite> nepaliTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> oriyaTranslation;
+	@Transient
+	protected List<SynsetDataLite> oriyaTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> punjabiTranslation;
+	@Transient
+	protected List<SynsetDataLite> punjabiTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> sanskritTranslation;
+	@Transient
+	protected List<SynsetDataLite> sanskritTranslation = new ArrayList<SynsetDataLite>();
 
-	protected List<SynsetDataLite> teluguTranslation;
+	@Transient
+	protected List<SynsetDataLite> teluguTranslation = new ArrayList<SynsetDataLite>();
 	
-	protected List<SynsetDataLite> tamilTranslation;
+	@Transient
+	protected List<SynsetDataLite> tamilTranslation = new ArrayList<SynsetDataLite>();
 
 	public EnglishSynsetData() {
 		super();
@@ -217,27 +251,55 @@ public class EnglishSynsetData implements LanguageSynsetData{
 		Map<String, List<SynsetDataLite>> relationsMap = new HashMap<String, List<SynsetDataLite>>();
 		
 		for(EnglishHindiSynsetData englishHindiSynsetData: getEnglishHindiMappings()){
-			antonyms.addAll(englishHindiSynsetData.getAntonyms());
-			holonyms.addAll(englishHindiSynsetData.getHolonyms());
-			hypernyms.addAll(englishHindiSynsetData.getHypernyms());
-			hyponyms.addAll(englishHindiSynsetData.getHyponyms());
-			meronyms.addAll(englishHindiSynsetData.getMeronyms());
-			objects.addAll(englishHindiSynsetData.getObjects());
-			actions.addAll(englishHindiSynsetData.getActions());
 			
+			antonyms.addAll(englishHindiSynsetData.getFinalAntonyms());
+			holonyms.addAll(englishHindiSynsetData.getFinalHolonyms());
+			hypernyms.addAll(englishHindiSynsetData.getFinalHypernyms());
+			hyponyms.addAll(englishHindiSynsetData.getFinalHyponyms());
+			meronyms.addAll(englishHindiSynsetData.getFinalMeronyms());
+			objects.addAll(englishHindiSynsetData.getFinalObjects());
+			actions.addAll(englishHindiSynsetData.getFinalActions());
+			
+			if(englishHindiSynsetData.getAssameseTranslation() != null)
 			assameseTranslation.add(englishHindiSynsetData.getAssameseTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getBengaliTranslation() != null)
 			bengaliTranslation.add(englishHindiSynsetData.getBengaliTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getBodoTranslation() != null)
 			bodoTranslation.add(englishHindiSynsetData.getBodoTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getGujaratiTranslation() != null)
 			gujaratiTranslation.add(englishHindiSynsetData.getGujaratiTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getHindiTranslation() != null)
 			hindiTranslation.add(englishHindiSynsetData.getHindiTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getKannadaTranslation() != null)
 			kannadaTranslation.add(englishHindiSynsetData.getKannadaTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getKonkaniTranslation() != null)
 			konkaniTranslation.add(englishHindiSynsetData.getKonkaniTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getMalayalamTranslation() != null)
 			malayalamTranslation.add(englishHindiSynsetData.getMalayalamTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getMarathiTranslation() != null)
 			marathiTranslation.add(englishHindiSynsetData.getMarathiTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getNepaliTranslation() != null)
 			nepaliTranslation.add(englishHindiSynsetData.getNepaliTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getOriyaTranslation() != null)
 			oriyaTranslation.add(englishHindiSynsetData.getOriyaTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getPunjabiTranslation() != null)
 			punjabiTranslation.add(englishHindiSynsetData.getPunjabiTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getSanskritTranslation() != null)
 			sanskritTranslation.add(englishHindiSynsetData.getSanskritTranslation().getSynsetDataLite());
+			
+			if(englishHindiSynsetData.getTeluguTranslation() != null)
 			teluguTranslation.add(englishHindiSynsetData.getTeluguTranslation().getSynsetDataLite());
 		}
 		

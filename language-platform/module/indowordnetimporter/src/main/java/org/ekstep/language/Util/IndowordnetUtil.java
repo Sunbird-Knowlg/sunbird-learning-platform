@@ -75,7 +75,7 @@ public class IndowordnetUtil {
 					offset = batchSize * loop;
 					System.out.println("Loaded " + count + " synsets for language: " + language);
 					
-				} catch (HibernateException e) {
+				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
 					e.printStackTrace();
@@ -84,8 +84,8 @@ public class IndowordnetUtil {
 				}
 
 			} while (true);
-			emailService.sendMail("amarnath.gandhi@tarento.com",
-					"Loaded " + totalCount + " synsets for language: " + language, "Status Update");
+			/*emailService.sendMail("amarnath.gandhi@tarento.com",
+					"Loaded " + totalCount + " synsets for language: " + language, "Status Update");*/
 		}
 	}
 
