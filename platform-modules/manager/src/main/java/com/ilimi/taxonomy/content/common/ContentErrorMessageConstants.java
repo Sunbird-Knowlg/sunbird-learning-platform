@@ -7,6 +7,8 @@ public class ContentErrorMessageConstants {
 	public static final String XML_NOT_WELL_FORMED_ERROR = "Content XML is not well formed.";
 	
 	public static final String XML_IO_ERROR = "Input/Output Error while reading XML file.";
+
+	public static final String XML_OBJECT_CONVERSION_CASTING_ERROR = "Something went wrong while converting Content XML Objects.";;
 	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();

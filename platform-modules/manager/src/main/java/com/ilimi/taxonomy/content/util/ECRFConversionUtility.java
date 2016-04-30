@@ -6,6 +6,8 @@ public class ECRFConversionUtility {
 	
 	public Content getECRF(String strContent) {
 		Content content = new Content();
+		XMLContentParser parser = new XMLContentParser();
+		content = parser.parseContent(strContent);
 		return content;
 	}
 

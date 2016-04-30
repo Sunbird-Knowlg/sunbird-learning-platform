@@ -1,5 +1,32 @@
 package com.ilimi.taxonomy.content.util;
 
+import java.io.File;
+import java.io.IOException;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+
+import com.ilimi.taxonomy.content.entity.Content;
+
 public class ECRFConversionUtilityTest {
+	
+	@SuppressWarnings("unused")
+	@Test
+	public void getECRF_Test01() {
+		ECRFConversionUtility fixture = new ECRFConversionUtility();
+		String strContent = getFileString("Sample_XML_1.ecml");
+		Content content = fixture.getECRF(strContent);
+	}
+	
+	private String getFileString(String fileName) {
+		String fileString = "";
+		File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
+		try {
+			fileString = FileUtils.readFileToString(file);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fileString;
+	}
 	
 }

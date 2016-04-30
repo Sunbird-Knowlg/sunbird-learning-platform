@@ -21,6 +21,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
@@ -69,13 +70,13 @@ public class XMLContentParser {
 			content = processContentDocument(root);
 		} catch (ParserConfigurationException e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_XML_PARSE_CONFIG_ERROR.name(),
-					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
+					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR, e);
 		} catch (SAXException e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_NOT_WELL_FORMED_XML.name(),
-					ContentErrorMessageConstants.XML_NOT_WELL_FORMED_ERROR);
+					ContentErrorMessageConstants.XML_NOT_WELL_FORMED_ERROR, e);
 		} catch (IOException e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_XML_IO_ERROR.name(),
-					ContentErrorMessageConstants.XML_IO_ERROR);
+					ContentErrorMessageConstants.XML_IO_ERROR, e);
 		} finally {
 			if(document != null){
 				document = null;
@@ -99,9 +100,14 @@ public class XMLContentParser {
 		if (null != manifestNodes && manifestNodes.getLength() > 0) {
 			List<Media> medias = new ArrayList<Media>();
 			for (int i = 0; i < manifestNodes.getLength(); i++) {
-				if (manifestNodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
-						StringUtils.equalsIgnoreCase(manifestNodes.item(i).getNodeName(), ContentWorkflowPipelineParams.media.name()))
-					medias.add(getContentMedia(manifestNodes.item(i)));
+				if (manifestNodes.item(i).hasChildNodes()) {
+					NodeList mediaNodes = manifestNodes.item(i).getChildNodes();
+					for (int j = 0; j < mediaNodes.getLength(); j++) {
+						if (mediaNodes.item(j).getNodeType() == Node.ELEMENT_NODE && 
+								StringUtils.equalsIgnoreCase(mediaNodes.item(j).getNodeName(), ContentWorkflowPipelineParams.media.name()))
+							medias.add(getContentMedia(mediaNodes.item(j)));
+					}
+				}
 			}
 			manifest.setMedias(medias);
 		}
@@ -111,9 +117,7 @@ public class XMLContentParser {
 	private Media getContentMedia(Node mediaNode) {
 		Media media = new Media();
 		if (null != mediaNode) {
-			Map<String, String> data = getAttributeMap(mediaNode);
-			data.put(ContentWorkflowPipelineParams.tag_name.name(), ContentWorkflowPipelineParams.media.name());
-			media.setData(data);
+			media.setData(getDataMap(mediaNode));
 			media.setChildrenData(getChildrenData(mediaNode));
 		}
 		return media;
@@ -121,7 +125,7 @@ public class XMLContentParser {
 	
 	private Map<String, String> getAttributeMap(Node node) {
 		Map<String, String> attributes = new HashMap<String, String>();
-		if (node.hasAttributes()) {
+		if (null != node && node.hasAttributes()) {
 			NamedNodeMap attribute = node.getAttributes();
 			for (int i = 0; i < attribute.getLength(); i++) {
 				if (!StringUtils.isBlank(attribute.item(i).getNodeName()) && 
@@ -134,12 +138,11 @@ public class XMLContentParser {
 	
 	public List<Map<String, String>> getChildrenData(Node node) {
 		List<Map<String, String>> childrenTags = new ArrayList<Map<String, String>>();
-		NodeList nodeList = ((Document) node).getElementsByTagName("*");
+		NodeList nodeList = ((Element) node).getElementsByTagName("*");
 	    for (int i = 0; i < nodeList.getLength(); i++) {
 	        Node childNode = nodeList.item(i);
 	        if (childNode.getNodeType() == Node.ELEMENT_NODE) {
-	            Map<String, String> map = getAttributeMap(childNode);
-	            map.put(ContentWorkflowPipelineParams.tag_name.name(), childNode.getNodeName());
+	            Map<String, String> map = getDataMap(childNode);
 	            map.put(ContentWorkflowPipelineParams.group_tag_name.name(), childNode.getParentNode().getNodeName());
 	            childrenTags.add(map);
 	        }
@@ -153,9 +156,7 @@ public class XMLContentParser {
 			for (int i = 0; i < controllerNodes.getLength(); i++) {
 				Controller controller = new Controller();
 				if (controllerNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-					Map<String, String> map = getAttributeMap(controllerNodes.item(i));
-					map.put(ContentWorkflowPipelineParams.tag_name.name(), ContentWorkflowPipelineParams.controller.name());
-					controller.setData(map);
+					controller.setData(getDataMap(controllerNodes.item(i)));
 					controller.setcData(getCData(controllerNodes.item(i)));
 				}
 				controllers.add(controller);
@@ -194,12 +195,20 @@ public class XMLContentParser {
 	private Plugin getPlugin(Node node) {
 		Plugin plugin = new Plugin();
 		if (null != node) {
-			plugin.setData(getAttributeMap(node));
+			plugin.setData(getDataMap(node));
 			plugin.setChildrenData(getNonPluginChildren(node));
 			plugin.setEvents(getEvents(node));
 			plugin.setChildrenPlugin(getChildrenPlugins(node));
+			plugin.setInnerText(getInnerText(node));
 		}
 		return plugin;
+	}
+	
+	private String getInnerText(Node node) {
+		String innerText = "";
+		if (null != node)
+			innerText = node.getNodeValue();
+		return innerText;
 	}
 	
 	private List<Plugin> getChildrenPlugins(Node node) {
@@ -210,10 +219,11 @@ public class XMLContentParser {
 					if (childrenItems.item(i).getNodeType() == Node.ELEMENT_NODE && 
 							isPlugin(childrenItems.item(i).getNodeName())) {
 						Plugin plugin = new Plugin();
-						plugin.setData(getAttributeMap(childrenItems.item(i)));
+						plugin.setData(getDataMap(childrenItems.item(i)));
 						plugin.setEvents(getEvents(childrenItems.item(i)));
 						plugin.setChildrenData(getNonPluginChildren(childrenItems.item(i)));
 						plugin.setChildrenPlugin(getChildrenPlugins(childrenItems.item(i)));
+						plugin.setInnerText(getInnerText(node));
 						childrenPlugins.add(plugin);
 					}
 				}
@@ -228,9 +238,7 @@ public class XMLContentParser {
 			NodeList nodes = node.getChildNodes();
 			for (int i = 0; i < nodes.getLength(); i++) {
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !isPlugin(nodes.item(i).getNodeName())) {
-					Map<String, String> map = getAttributeMap(nodes.item(i));
-					map.put(ContentWorkflowPipelineParams.tag_name.name(), nodes.item(i).getNodeName());
-					nonPluginChildren.add(map);
+					nonPluginChildren.add(getDataMap(nodes.item(i)));
 				}
 			}
 		}
@@ -245,7 +253,7 @@ public class XMLContentParser {
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
 						isEvent(nodes.item(i).getNodeName())) {
 					Event event = new Event();
-					event.setData(getAttributeMap(nodes.item(i)));
+					event.setData(getDataMap(nodes.item(i)));
 					event.setActions(getActions(nodes.item(i)));
 					events.add(event);
 				}
@@ -262,7 +270,7 @@ public class XMLContentParser {
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
 						isAction(nodes.item(i).getNodeName())) {
 					Action action = new Action();
-					action.setData(getAttributeMap(nodes.item(i)));
+					action.setData(getDataMap(nodes.item(i)));
 					actions.add(action);
 				}
 			}
@@ -271,21 +279,39 @@ public class XMLContentParser {
 	}
 	
 	private Node getPluginViewOfDocument(Node node) {
+		try {
 		if (null != node) {
 			//Remove Manifest From Document
-			NodeList manifestNodeList = ((Document) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name());
-			for (int i = 0; i < manifestNodeList.getLength(); i++)
-				manifestNodeList.item(i).getParentNode().removeChild(manifestNodeList.item(i));
+			NodeList manifestNodeList = ((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name());
+			while (manifestNodeList.getLength() > 0) {
+				Node manifestNode = manifestNodeList.item(0);
+				manifestNode.getParentNode().removeChild(manifestNode);
+			}
 			// Remove Controllers From Document
-			NodeList controllerNodeList = ((Document) node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name());
-			for (int i = 0; i < controllerNodeList.getLength(); i++)
-				controllerNodeList.item(i).getParentNode().removeChild(controllerNodeList.item(i));
+			NodeList controllerNodeList = ((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name());
+			while (controllerNodeList.getLength() > 0) {
+				Node controllerNode = controllerNodeList.item(0);
+				controllerNode.getParentNode().removeChild(controllerNode);
+			}
 			// Normalize the DOM tree, puts all text nodes in the
 			// full depth of the sub-tree underneath this node
 			node.normalize();
 		}
+		} catch (ClassCastException e) {
+			throw new ServerException(ContentErrorCodes.ERR_CONTENT_WP_OBJECT_CONVERSION.name(), 
+					ContentErrorMessageConstants.XML_OBJECT_CONVERSION_CASTING_ERROR, e);
+		}
 		return node;
 	} 
+	
+	private Map<String, String> getDataMap(Node node) {
+		Map<String, String> map = new HashMap<String, String>();
+		if (null != node) {
+			map = getAttributeMap(node);
+			map.put(ContentWorkflowPipelineParams.tag_name.name(), node.getNodeName());
+		}
+		return map;
+	}
 
 	private boolean isPlugin(String elementName) {
 		if (null == nonPluginTags.get(elementName))
@@ -295,14 +321,14 @@ public class XMLContentParser {
 
 	private boolean isEvent(String elementName) {
 		if (null == eventTags.get(elementName))
-			return true;
-		return false;
+			return false;
+		return true;
 	}
 
 	private boolean isAction(String elementName) {
 		if (null == actionTags.get(elementName))
-			return true;
-		return false;
+			return false;
+		return true;
 	}
 
 }
