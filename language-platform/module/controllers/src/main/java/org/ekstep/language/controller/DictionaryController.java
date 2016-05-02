@@ -339,7 +339,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@PathVariable(value = "word") String word,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".word.Syllable";
+		String apiId = objectType.toLowerCase() + ".Syllable";
 		try {
 			//String arpabets=getArpabets(word);
 			Response response = dictionaryManager.getSyllables(languageId, word);
@@ -356,7 +356,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@PathVariable(value = "word") String word,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".word.Arpabets";
+		String apiId = objectType.toLowerCase() + ".Arpabets";
 		try {
 			Response response = dictionaryManager.getArpabets(languageId, word);
 			LOGGER.info("Get Arpabets | Response: " + response);
@@ -372,7 +372,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@PathVariable(value = "word") String word,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".word.PhoneticSpelling";
+		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
 		try {
 			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word);
 			LOGGER.info("Get PhoneticSpelling | Response: " + response);
@@ -388,7 +388,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@PathVariable(value = "word") String word,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
-		String apiId = objectType.toLowerCase() + ".word.SimilarSound";
+		String apiId = objectType.toLowerCase() + ".SimilarSound";
 		try {
 			Response response = dictionaryManager.getSimilarSoundWords(languageId, word);
 			LOGGER.info("Get SimilarSound | Response: " + response);

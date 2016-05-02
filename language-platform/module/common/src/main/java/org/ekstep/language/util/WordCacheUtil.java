@@ -198,8 +198,13 @@ public class WordCacheUtil {
 					word=buildCompoundWord(word);
 					wordKey=getWordKey(word);
 					arpabetsOfWord=jedis.get(wordKey);
+					if(StringUtils.isEmpty(arpabetsOfWord)){
+						word=word.replaceAll("-", "");
+						wordKey=getWordKey(word);
+						arpabetsOfWord=jedis.get(wordKey);
+					}
 				}
-			}			
+			}
 		} catch (Exception e) {
 	        throw new ServerException("ERR_CACHE_GET_WORDARPABETS_MAP", e.getMessage());
 	    } finally {
