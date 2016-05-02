@@ -30,7 +30,7 @@ public class IndowordnetUtil {
 	private final String SEMI_COLON_SEPARATOR = ";";
 	private final String COLON_SEPARATOR = ":";
 	private WordUtil wordUtil = new WordUtil();
-	private EmailService emailService = new EmailService();
+	//private EmailService emailService = new EmailService();
 
 	@SuppressWarnings({ "unchecked" })
 	public void loadWords(String languageGraphId, int batchSize, int maxRecords) throws JsonProcessingException {
