@@ -6,6 +6,7 @@ java::import -package com.ilimi.graph.dac.model Node
 set lemma_list [java::new ArrayList]
 set object_type "Word"
 set set_type "SET"
+set wordIds [java::new ArrayList]
 
 set isWordNull [java::isnull $words]
 if {$isWordNull == 0} {
@@ -27,7 +28,7 @@ if {$isWordNull == 0} {
 			set word_id [java::prop $graph_node "identifier"]
 			$word_id_list add $word_id
 		}
-
+		$wordIds addAll $word_id_list
 		set resp [addMembers $language_id $wordlist_id $set_type $word_id_list]
 		set check_error_add_member [check_response_error $resp]
 		if {$check_error_add_member} {
@@ -56,6 +57,7 @@ if {$isRemoveWordsNull == 0} {
 			set rm_word_id [java::prop $rm_graph_node "identifier"]
 			$rm_word_id_list add $rm_word_id
 		}
+		$wordIds addAll $rm_word_id_list
 		set rm_resp [removeMembers $language_id $wordlist_id $set_type $rm_word_id_list]
 		set check_error_rm_member [check_response_error $rm_resp]
 		if {$check_error_rm_member} {
@@ -63,6 +65,8 @@ if {$isRemoveWordsNull == 0} {
 		}
 	}
 }
+puts "updateWordListMembership"
+updateWordListMembership $language_id $wordIds
 
 puts "updateMetatdata"
 set get_resp [getWordList $language_id $wordlist_id]

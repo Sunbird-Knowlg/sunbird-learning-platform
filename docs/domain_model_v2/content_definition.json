@@ -1225,7 +1225,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastPublishedOn",
@@ -1237,7 +1237,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 22}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "version",
