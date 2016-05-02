@@ -33,6 +33,8 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
+import org.ekstep.searchindex.transformer.IESResultTransformer;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.google.gson.internal.LinkedTreeMap;
@@ -42,10 +44,10 @@ public class ElasticSearchUtil {
 	private JestClient client;
 	private String hostName;
 	private String port;
-	private int defaultResultLimit = 10000;
+	public int defaultResultLimit = 10000;
 	private int BATCH_SIZE=1000;
 	private int CONNECTION_TIMEOUT=30;
-	private int resultLimit = defaultResultLimit;
+	public int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 	
 	
@@ -329,6 +331,7 @@ public class ElasticSearchUtil {
 		return result;
 	}
 	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public Map<String, Object> getCountFromAggregation(LinkedTreeMap<String, Object> aggregations,
 			List<Map<String, Object>> groupByList) {
@@ -481,14 +484,52 @@ public class ElasticSearchUtil {
 
 	private String buildJsonForWildCardQuery(String textKeyWord, String wordWildCard) {
 
-		/*
-		 * { "query": { "wildcard": { "word": "ಏ*" } } }
-		 */
-
 		JSONBuilder builder = new JSONStringer();
 		builder.object().key("query").object().key("wildcard").object().key(textKeyWord).value(wordWildCard).endObject()
 				.endObject().endObject();
 
 		return builder.toString();
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public Object getCountFromAggregation(LinkedTreeMap<String, Object> aggregations,
+			List<Map<String, Object>> groupByList, IESResultTransformer transformer) {
+
+		Map<String, Object> countMap = new HashMap<String, Object>();
+		if (aggregations != null) {
+			for (Map<String, Object> aggregationsMap : groupByList) {
+				Map<String, Object> parentCountMap = new HashMap<String, Object>();
+				String groupByParent = (String) aggregationsMap.get("groupByParent");
+				Map aggKeyMap = (Map) aggregations.get(groupByParent);
+				List<Map<String, Double>> aggKeyList = (List<Map<String, Double>>) aggKeyMap.get("buckets");
+				List<Map<String, Object>> parentGroupList = new ArrayList<Map<String, Object>>();
+				for (Map aggKeyListMap : aggKeyList) {
+					Map<String, Object> parentCountObject = new HashMap<String, Object>();
+					parentCountObject.put("count", ((Double) aggKeyListMap.get("doc_count")).longValue());
+					List<String> groupByChildList = (List<String>) aggregationsMap.get("groupByChildList");
+					if (groupByChildList != null && !groupByChildList.isEmpty()) {
+						Map<String, Object> groupByChildMap = new HashMap<String, Object>();
+						for (String groupByChild : groupByChildList) {
+							List<Map<String, Long>> childGroupsList = new ArrayList<Map<String, Long>>();
+							Map aggChildKeyMap = (Map) aggKeyListMap.get(groupByChild);
+							List<Map<String, Double>> aggChildKeyList = (List<Map<String, Double>>) aggChildKeyMap
+									.get("buckets");
+							Map<String, Long> childCountMap = new HashMap<String, Long>();
+							for (Map aggChildKeyListMap : aggChildKeyList) {
+								childCountMap.put((String) aggChildKeyListMap.get("key"),
+										((Double) aggChildKeyListMap.get("doc_count")).longValue());
+								childGroupsList.add(childCountMap);
+								groupByChildMap.put(groupByChild, childCountMap);
+							}
+						}
+						parentCountObject.putAll(groupByChildMap);
+					}
+					parentCountMap.put((String) aggKeyListMap.get("key"), parentCountObject);
+					parentGroupList.add(parentCountMap);
+				}
+				countMap.put(groupByParent, parentCountMap);
+			}
+		}
+		return transformer.getTransformedObject(countMap);
 	}
 }

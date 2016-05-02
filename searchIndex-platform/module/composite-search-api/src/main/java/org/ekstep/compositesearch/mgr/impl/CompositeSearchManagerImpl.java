@@ -65,7 +65,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	public Response search(Request request) {
 		SearchProcessor processor = new SearchProcessor();
 		try {
-			List<Object> lstResult = processor.processSearch(getSearchDTO(request));
+			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request));
 			return getCompositeSearchResponse(lstResult);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -93,10 +93,12 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
 			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
 			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
+			List<String> facets = (List<String>) req.get(CompositeSearchParams.facets.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
 			properties.addAll(getSearchFilterProperties(filters));
+			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -227,12 +229,14 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-    private Response getCompositeSearchResponse(List<Object> lstResult) {
+    private Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");
 		response.setParams(params);
 		response.setResponseCode(ResponseCode.OK);
+		
+		List<Object> lstResult = (List<Object>) searchResponse.get("results");
 		if (null != lstResult && !lstResult.isEmpty()) {
 		    Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
 		    for (Object obj : lstResult) {
@@ -253,6 +257,11 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		            }
 		        }
 		    }
+		}
+		
+		List<Map<String, Object>> facets = (List<Map<String, Object>>) searchResponse.get("facets");
+		if (null != facets && !facets.isEmpty()){
+			response.put("facets", facets);
 		}
 		return response;
 	}
