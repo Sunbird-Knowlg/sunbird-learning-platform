@@ -83,8 +83,7 @@ public class IndowordnetUtil {
 				}
 
 			} while (true);
-			/*emailService.sendMail("amarnath.gandhi@tarento.com",
-					"Loaded " + totalCount + " synsets for language: " + language, "Status Update");*/
+			System.out.println("Status Update: Loaded " + totalCount + " synsets for language: " + language);
 		}
 	}
 
