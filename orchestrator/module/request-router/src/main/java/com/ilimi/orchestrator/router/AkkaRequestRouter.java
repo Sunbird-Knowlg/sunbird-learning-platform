@@ -6,6 +6,8 @@ import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.MiddlewareException;
 import com.ilimi.orchestrator.dac.model.ActorPath;
 
@@ -40,6 +42,25 @@ public class AkkaRequestRouter {
 		} catch (Exception e) {
 			throw new MiddlewareException(RouterErrorCodes.ERR_EXEC_SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
-
 	}
+	
+	public static Response sendRequestAsync(Request request, ActorPath actorPath) {
+        if (StringUtils.isBlank(request.getManagerName()) || StringUtils.isBlank(request.getOperation()))
+            throw new MiddlewareException(RouterErrorCodes.ERR_EXEC_INVALID_REQUEST.name(),
+                    "Manager and operation cannot be blank in the request");
+        try {
+            ActorRef actor = ServiceLocator.getActorRef(actorPath);
+            actor.tell(request, actor);
+            Response response = new Response();
+            ResponseParams params = new ResponseParams();
+            params.setErr("0");
+            params.setStatus(StatusType.successful.name());
+            response.setParams(params);
+            return response;
+        } catch (MiddlewareException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new MiddlewareException(RouterErrorCodes.ERR_EXEC_SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
 }

@@ -20,41 +20,22 @@ proc isNotEmpty {relations} {
 	return $exist
 }
 
-proc getNodeRelationIds {graph_node relationType property} {
-
+proc getMemberLemmas {graph_node} {
 	set relationIds [java::new ArrayList]
 	set outRelations [getOutRelations $graph_node]
 	set hasRelations [isNotEmpty $outRelations]
 	if {$hasRelations} {
 		java::for {Relation relation} $outRelations {
-			if {[java::prop $relation "endNodeObjectType"] == $relationType} {
-				set prop_value [java::prop $relation $property]
-				$relationIds add [java::prop $relation $property]
+			if {[java::prop $relation "endNodeObjectType"] == "Word"} {
+				set end_node_metadata [java::prop $relation "endNodeMetadata"]
+				set hasMetadata [isNotEmpty $end_node_metadata]
+				if {$hasMetadata} {
+					$relationIds add [$end_node_metadata get "lemma"]
+				}
 			}
 		}
 	}
 	return $relationIds
-}
-
-proc getWordLemmas {language_id word_id_list} {
-	set map [java::new HashMap]
-	$map put "nodeType" "DATA_NODE"
-	$map put "objectType" "Word"
-	$map put "identifier" $word_id_list
-	set search_criteria [create_search_criteria $map]
-	set search_response [searchNodes $language_id $search_criteria]
-	set check_error [check_response_error $search_response]
-	if {$check_error} {
-		java::throw [java::new Exception "Error response from searchDataNodes"]
-	} else {
-		set graph_nodes [get_resp_value $search_response "node_list"]	
-		set lemma_list [java::new ArrayList]
-		java::for {Node graph_node} $graph_nodes {
-			set word_metadata [java::prop $graph_node "metadata"]
-			$lemma_list add [$word_metadata get "lemma"]
-		}
-		return $lemma_list
-	}
 }
 
 set contains_response [containsLanguage $language_id]
@@ -96,10 +77,9 @@ if {$check_error} {
 			set set_map [java::new HashMap]
 			$set_map put "identifier" $set_id
 			$set_map put "metadata" [java::prop $graph_node "metadata"]
-			set word_ids [getNodeRelationIds $graph_node "Word" "endNodeId"]
-			set not_empty_list [isNotEmpty $word_ids]
+			set lemma_list [getMemberLemmas $graph_node]
+			set not_empty_list [isNotEmpty $lemma_list]
 			if {$not_empty_list} {
-				set lemma_list [getWordLemmas $language_id $word_ids]
 				$set_map put "words" $lemma_list
 			}
 			$word_list_map put $set_id $set_map
