@@ -1429,7 +1429,7 @@
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
-        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", "translatable"]
+        "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", "translatable", "mediaType"]
       }
     }
   ]
