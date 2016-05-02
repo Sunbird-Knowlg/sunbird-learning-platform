@@ -7,6 +7,7 @@ public class SearchDTO {
 
 	@SuppressWarnings("rawtypes")
 	private List<Map> properties;
+	private List<String> facets;
 	private String operation;
 	private int limit;
 	
@@ -40,7 +41,10 @@ public class SearchDTO {
 	public void setLimit(int limit) {
 		this.limit = limit;
 	}
-	
-	
-	
+	public List<String> getFacets() {
+		return facets;
+	}
+	public void setFacets(List<String> facets) {
+		this.facets = facets;
+	}
 }

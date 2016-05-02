@@ -9,7 +9,10 @@ import java.util.Map;
 
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+
+import com.google.gson.internal.LinkedTreeMap;
 
 import io.searchbox.core.SearchResult;
 import net.sf.json.util.JSONBuilder;
@@ -20,7 +23,7 @@ public class SearchProcessor {
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public List<Object> processSearch(SearchDTO searchDTO) throws IOException {
+	public Map<String, Object> processSearch(SearchDTO searchDTO) throws IOException {
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
@@ -144,20 +147,47 @@ public class SearchProcessor {
 			}
 			conditionsMap.get(conditionSet).add(condition);
 		}
-		String query = makeElasticSearchQuery(conditionsMap, totalOperation);
+
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+
+		if (searchDTO.getFacets() != null) {
+			for (String facet : searchDTO.getFacets()) {
+				Map<String, Object> groupByMap = new HashMap<String, Object>();
+				groupByMap.put("groupByParent", facet);
+				groupByFinalList.add(groupByMap);
+			}
+		}
+		Map<String, Object> response = new HashMap<String, Object>();
 		elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
+		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList);
+		//elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		List<Object> result = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
-		System.out.println("True");
-		return result;
+		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+		response.put("results", results);
+		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
+				.getValue("aggregations");
+		if (aggregations != null && !aggregations.isEmpty()) {
+			AggregationsResultTransformer transformer =  new AggregationsResultTransformer();
+			response.put("facets", (List<Map<String, Object>>)elasticSearchUtil.getCountFromAggregation(aggregations, groupByFinalList, transformer));
+		}
+		return response;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation) {
+	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
+			List<Map<String, Object>> groupByList) {
 		JSONBuilder builder = new JSONStringer();
-		builder.object().key("query").object().key("filtered").object().key("query").object().key("bool").object();
-
+		builder.object();
 		List<Map> textConditions = conditionsMap.get("Text");
+		List<Map> arithmeticConditions = conditionsMap.get("Arithmetic");
+		List<Map> notConditions = conditionsMap.get("Not");
+
+		if ((textConditions != null && !textConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {
+			builder.key("query").object().key("filtered").object().key("query").object().key("bool").object();
+		}
+
 		if (textConditions != null && !textConditions.isEmpty()) {
 			String allOperation = "should";
 			if (totalOperation == "AND") {
@@ -194,7 +224,6 @@ public class SearchProcessor {
 			builder.endArray();
 		}
 
-		List<Map> arithmeticConditions = conditionsMap.get("Arithmetic");
 		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
 			String allOperation = "||";
 			String scriptOperation = "should";
@@ -246,7 +275,6 @@ public class SearchProcessor {
 			builder.endObject().endObject().endArray();
 		}
 
-		List<Map> notConditions = conditionsMap.get("Not");
 		if (notConditions != null && !notConditions.isEmpty()) {
 			String allOperation = "must_not";
 			builder.key(allOperation).array();
@@ -278,11 +306,38 @@ public class SearchProcessor {
 			}
 			builder.endArray();
 		}
-		builder.endObject().endObject().endObject().endObject().endObject();
+
+		if ((textConditions != null && !textConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {
+			builder.endObject().endObject().endObject().endObject();
+		}
+
+		if (groupByList != null && !groupByList.isEmpty()) {
+			builder.key("aggs").object();
+			for (Map<String, Object> groupByMap : groupByList) {
+				String groupByParent = (String) groupByMap.get("groupByParent");
+				builder.key(groupByParent).object().key("terms").object().key("field").value(groupByParent + ".raw").key("size")
+						.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
+
+				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
+				if (groupByChildList != null && !groupByChildList.isEmpty()) {
+					builder.key("aggs").object();
+					for (String childGroupBy : groupByChildList) {
+						builder.key(childGroupBy).object().key("terms").object().key("field").value(childGroupBy + ".raw")
+								.key("size").value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
+					}
+					builder.endObject();
+				}
+			}
+			builder.endObject();
+		}
+
+		builder.endObject();
 		return builder.toString();
 	}
-	
-	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder){
+
+	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) {
 		switch (queryOperation) {
 		case "equal": {
 			builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
