@@ -206,9 +206,13 @@ public class XMLContentParser {
 	
 	private String getInnerText(Node node) {
 		String innerText = "";
-		if (null != node)
-			innerText = node.getNodeValue();
+		if (null != node && node.getNodeType() == Node.ELEMENT_NODE)
+			innerText = cleanupString(node.getTextContent());
 		return innerText;
+	}
+	
+	private String cleanupString(String str) {
+		return str.replace("/n", "").replace("  ", "").replace("/t", ""); 
 	}
 	
 	private List<Plugin> getChildrenPlugins(Node node) {
@@ -217,13 +221,15 @@ public class XMLContentParser {
 				NodeList childrenItems = node.getChildNodes();
 				for (int i = 0; i < childrenItems.getLength(); i++) {
 					if (childrenItems.item(i).getNodeType() == Node.ELEMENT_NODE && 
-							isPlugin(childrenItems.item(i).getNodeName())) {
+							isPlugin(childrenItems.item(i).getNodeName()) && 
+							!isEvent(childrenItems.item(i).getNodeName()) &&
+							!isAction(childrenItems.item(i).getNodeName())) {
 						Plugin plugin = new Plugin();
 						plugin.setData(getDataMap(childrenItems.item(i)));
 						plugin.setEvents(getEvents(childrenItems.item(i)));
 						plugin.setChildrenData(getNonPluginChildren(childrenItems.item(i)));
 						plugin.setChildrenPlugin(getChildrenPlugins(childrenItems.item(i)));
-						plugin.setInnerText(getInnerText(node));
+						plugin.setInnerText(getInnerText(childrenItems.item(i)));
 						childrenPlugins.add(plugin);
 					}
 				}
