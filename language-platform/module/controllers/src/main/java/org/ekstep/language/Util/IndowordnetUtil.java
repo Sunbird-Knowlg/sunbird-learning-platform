@@ -7,11 +7,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.LanguageMap;
+import org.ekstep.language.common.enums.LanguageActorNames;
+import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.LanguageSynsetData;
 import org.ekstep.language.model.SynsetData;
 import org.ekstep.language.model.SynsetDataLite;
+import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.WordUtil;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -20,7 +25,12 @@ import org.hibernate.Transaction;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Charsets;
+import com.ilimi.common.dto.Request;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.model.node.DefinitionDTO;
+
+import akka.actor.ActorRef;
 
 public class IndowordnetUtil {
 
@@ -30,6 +40,7 @@ public class IndowordnetUtil {
 	private final String COLON_SEPARATOR = ":";
 	private WordUtil wordUtil = new WordUtil();
 	//private EmailService emailService = new EmailService();
+	private static Logger LOGGER = LogManager.getLogger(IndowordnetUtil.class.getName());
 
 	@SuppressWarnings({ "unchecked" })
 	public void loadWords(String languageGraphId, int batchSize, int maxRecords) throws JsonProcessingException {
@@ -56,6 +67,7 @@ public class IndowordnetUtil {
 						break;
 					}
 					int count = 0;
+					ArrayList<String> nodeIds = new ArrayList<String>();
 					for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
 						if (totalCount == maxRecords) {
 							break;
@@ -65,8 +77,9 @@ public class IndowordnetUtil {
 						SynsetData synsetData = lSynsetData.getSynsetData();
 						Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
 						errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap,
-								wordDefinition));
+								wordDefinition, nodeIds));
 					}
+					asyncUpdate(nodeIds, languageGraphId);
 					if (totalCount == maxRecords) {
 						break;
 					}
@@ -185,4 +198,27 @@ public class IndowordnetUtil {
 		String tableName = language + IndowordnetConstants.SynsetData.name();
 		return tableName;
 	}
+	
+	private void asyncUpdate(List<String> nodeIds, String languageId) {
+	    Map<String, Object> map = new HashMap<String, Object>();
+        map = new HashMap<String, Object>();
+        map.put(LanguageParams.node_ids.name(), nodeIds);
+        Request request = new Request();
+        request.setRequest(map);
+        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+        request.setOperation(LanguageOperations.enrichWords.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        makeAsyncRequest(request, LOGGER);
+	}
+	
+	
+	public void makeAsyncRequest(Request request, Logger logger) {
+        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+        try {
+            router.tell(request, router);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+        }
+    }
 }

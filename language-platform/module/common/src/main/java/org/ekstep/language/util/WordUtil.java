@@ -23,8 +23,10 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
+import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
@@ -38,6 +40,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
@@ -57,6 +60,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
+import akka.actor.ActorRef;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
@@ -827,12 +831,12 @@ public class WordUtil extends BaseManager {
 	}
 
 	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
-			List<String> errorMessages, DefinitionDTO wordDefintion, Map<String, String> wordLemmaMap) {
+			List<String> errorMessages, DefinitionDTO wordDefintion, Map<String, String> wordLemmaMap, ArrayList<String> nodeIds) {
 		List<String> wordIds = new ArrayList<String>();
 		if (synsetRelations != null) {
 			for (Map<String, Object> word : synsetRelations) {
 				String wordId = createOrUpdateWordsWithoutPrimaryMeaning(word, languageId, errorMessages, wordDefintion,
-						wordLemmaMap);
+						wordLemmaMap, nodeIds);
 				if (wordId != null) {
 					wordIds.add(wordId);
 				}
@@ -842,7 +846,7 @@ public class WordUtil extends BaseManager {
 	}
 
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
-			List<String> errorMessages, DefinitionDTO definition, Map<String, String> wordLemmaMap) {
+			List<String> errorMessages, DefinitionDTO definition, Map<String, String> wordLemmaMap, ArrayList<String> nodeIds) {
 		String lemma = (String) word.get(LanguageParams.lemma.name());
 		if (lemma == null || lemma.trim().isEmpty()) {
 			return null;
@@ -874,6 +878,7 @@ public class WordUtil extends BaseManager {
 				return null;
 			}
 			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+			nodeIds.add(nodeId);
 			return nodeId;
 		}
 	}
@@ -1197,7 +1202,7 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings("unchecked")
 	public List<String> createOrUpdateWord(Map<String, Object> item, String languageId,
-			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition) {
+			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds) {
 		Response createRes = new Response();
 		List<String> errorMessages = new ArrayList<String>();
 		try {
@@ -1222,7 +1227,7 @@ public class WordUtil extends BaseManager {
 				List<Map<String, Object>> relations = (List<Map<String, Object>>) primaryMeaning
 						.get(synsetRelationName);
 				List<String> relationWordIds = processRelationWords(relations, languageId, errorMessages,
-						wordDefinition, wordLemmaMap);
+						wordDefinition, wordLemmaMap, nodeIds);
 				if (relationWordIds != null && !relationWordIds.isEmpty()) {
 					relationWordIdMap.put(synsetRelationName, relationWordIds);
 				}
@@ -1256,7 +1261,7 @@ public class WordUtil extends BaseManager {
 			}
 
 			// get Synset data
-			Node synsetNode = getDataNode(languageId, primaryMeaningId);
+			/*Node synsetNode = getDataNode(languageId, primaryMeaningId);
 			if (synsetNode != null) {
 				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
 				String category = (String) synsetMetadata.get(LanguageParams.category.name());
@@ -1273,7 +1278,7 @@ public class WordUtil extends BaseManager {
 					wordTags.addAll(tags);
 					item.put(LanguageParams.tags.name(), wordTags);
 				}
-			}
+			}*/
 
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
@@ -1313,6 +1318,7 @@ public class WordUtil extends BaseManager {
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
 					wordLemmaMap.put(lemma, wordId);
+					nodeIds.add(wordId);
 
 					// add Synonym Relation
 					addSynonymRelation(languageId, wordId, primaryMeaningId);
@@ -1470,5 +1476,4 @@ public class WordUtil extends BaseManager {
         }
         return node;
     }
-	
 }
