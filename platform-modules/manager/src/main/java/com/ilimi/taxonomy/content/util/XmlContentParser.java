@@ -23,6 +23,7 @@ import org.xml.sax.SAXException;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.TagMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
@@ -33,28 +34,7 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
-public class XMLContentParser {
-
-	private static final Map<String, String> nonPluginTags = new HashMap<String, String>();
-
-	private static final Map<String, String> eventTags = new HashMap<String, String>();
-
-	private static final Map<String, String> actionTags = new HashMap<String, String>();
-
-	{
-		nonPluginTags.put(ContentWorkflowPipelineParams.param.name(), ContentWorkflowPipelineParams.param.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.data.name(), ContentWorkflowPipelineParams.data.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.audioSprite.name(),ContentWorkflowPipelineParams.audioSprite.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.action.name(), ContentWorkflowPipelineParams.action.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.manifest.name(), ContentWorkflowPipelineParams.manifest.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.media.name(), ContentWorkflowPipelineParams.media.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.theme.name(), ContentWorkflowPipelineParams.theme.name());
-		nonPluginTags.put(ContentWorkflowPipelineParams.events.name(), ContentWorkflowPipelineParams.events.name());
-
-		eventTags.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
-		actionTags.put(ContentWorkflowPipelineParams.action.name(), ContentWorkflowPipelineParams.action.name());
-	}
+public class XmlContentParser {
 
 	public Content parseContent(String xml) {
 		DocumentBuilderFactory factory = null;
@@ -320,21 +300,15 @@ public class XMLContentParser {
 	}
 
 	private boolean isPlugin(String elementName) {
-		if (null == nonPluginTags.get(elementName))
-			return true;
-		return false;
+		return TagMap.isPlugin(elementName);
 	}
 
 	private boolean isEvent(String elementName) {
-		if (null == eventTags.get(elementName))
-			return false;
-		return true;
+		return TagMap.isEvent(elementName);
 	}
 
 	private boolean isAction(String elementName) {
-		if (null == actionTags.get(elementName))
-			return false;
-		return true;
+		return TagMap.isAction(elementName);
 	}
 
 }

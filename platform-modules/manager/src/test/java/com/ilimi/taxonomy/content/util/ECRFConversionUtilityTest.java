@@ -13,7 +13,7 @@ public class ECRFConversionUtilityTest {
 	@SuppressWarnings("unused")
 	@Test
 	public void getECRF_Test01() {
-		ECRFConversionUtility fixture = new ECRFConversionUtility();
+		EcrfConversionUtility fixture = new EcrfConversionUtility();
 		String strContent = getFileString("Sample_XML_1.ecml");
 		Content content = fixture.getECRF(strContent);
 	}

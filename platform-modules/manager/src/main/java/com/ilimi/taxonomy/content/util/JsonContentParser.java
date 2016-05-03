@@ -16,7 +16,7 @@ import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
-public class JSONContentParser {
+public class JsonContentParser {
 	
 	private static final Map<String, String> nonPluginTags = new HashMap<String, String>();
 
