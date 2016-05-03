@@ -38,4 +38,5 @@ public class CompositeSearchConstants {
 	public static final String CONSUMER_TYPE_COMPOSITE_INDEX = "composite_index";
 	public static final String CONSUMER_TYPE_WORD_COUNT = "word_count";
 	public static final String FACET_COUNT_KEY = "_count";
+	public static final String RAW_FIELD_EXTENSION = ".raw";
 }

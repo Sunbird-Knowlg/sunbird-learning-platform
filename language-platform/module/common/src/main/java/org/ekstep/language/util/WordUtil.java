@@ -879,6 +879,7 @@ public class WordUtil extends BaseManager {
 				return null;
 			}
 			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
+			wordLemmaMap.put(lemma, nodeId);
 			nodeIds.add(nodeId);
 			return nodeId;
 		}
@@ -1180,14 +1181,13 @@ public class WordUtil extends BaseManager {
 		}
 	}
 
-	private Response createSynset(String languageId, Map<String, Object> synsetObj) throws Exception {
+	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition) throws Exception {
 		String operation = "updateDataNode";
 		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
 		if (identifier == null || identifier.isEmpty()) {
 			operation = "createDataNode";
 		}
 
-		DefinitionDTO synsetDefinition = getDefinitionDTO(LanguageParams.Synset.name(), languageId);
 		// synsetObj.put(GraphDACParams.object_type.name(),
 		// LanguageParams.Synset.name());
 		Node synsetNode = convertToGraphNode(synsetObj, synsetDefinition);
@@ -1203,7 +1203,7 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings("unchecked")
 	public List<String> createOrUpdateWord(Map<String, Object> item, String languageId,
-			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds) {
+			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds, DefinitionDTO synsetDefinition) {
 		Response createRes = new Response();
 		List<String> errorMessages = new ArrayList<String>();
 		try {
@@ -1235,7 +1235,7 @@ public class WordUtil extends BaseManager {
 				primaryMeaning.remove(synsetRelationName);
 			}
 
-			Response synsetResponse = createSynset(languageId, primaryMeaning);
+			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition);
 			if (checkError(synsetResponse)) {
 				errorMessages
 						.add(getErrorMessage(synsetResponse) + ": Id: " + indowordnetId + " Language: " + languageId);

@@ -52,8 +52,8 @@ public class ElasticSearchUtil {
 	
 	
 
-	public void setDefaultResultLimit(int defaultResultLimit) {
-		this.resultLimit = defaultResultLimit;
+	public void setResultLimit(int resultLimit) {
+		this.resultLimit = resultLimit;
 	}
 
 	public ElasticSearchUtil(int resultSize) throws UnknownHostException {
@@ -89,6 +89,16 @@ public class ElasticSearchUtil {
 
 	public List<String> getQuerySearchFields(){
 		String querySearchFieldsProperty = PropertiesUtil.getProperty("query-search-fields");
+		List<String> querySearchFields = new ArrayList<String>();
+		if(querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()){
+			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
+			querySearchFields = Arrays.asList(querySearchFieldsArray);
+		}
+		return querySearchFields;
+	}
+	
+	public List<String> getDateFields(){
+		String querySearchFieldsProperty = PropertiesUtil.getProperty("date-fields");
 		List<String> querySearchFields = new ArrayList<String>();
 		if(querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()){
 			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
