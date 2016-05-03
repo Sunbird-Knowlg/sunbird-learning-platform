@@ -1681,15 +1681,13 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			// update wordMap with primary synset data
 			item.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 			
-			//get Synset data
+			//get Synset data and set to word
 			Node synsetNode = wordUtil.getDataNode(languageId, primaryMeaningId);
 			if(synsetNode != null){
 				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
 				String category = (String) synsetMetadata.get(LanguageParams.category.name());
-				if (category != null) {
+				if (StringUtils.isNotBlank(category))
 					item.put(LanguageParams.category.name(), category);
-				}
-				
 				List<String> tags = synsetNode.getTags();
 				if (tags != null) {
 					List<String> wordTags = (List<String>) item.get(LanguageParams.tags.name());
@@ -1699,6 +1697,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					wordTags.addAll(tags);
 					item.put(LanguageParams.tags.name(), wordTags);
 				}
+				Object pictures = synsetMetadata.get(ATTRIB_PICTURES);
+				if (null != pictures)
+				    item.put(ATTRIB_PICTURES, pictures);
+				Object exampleSentences = synsetMetadata.get(ATTRIB_EXAMPLE_SENTENCES);
+				if (null != exampleSentences)
+                    item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
 			}
 			
 			// create or update Other meaning Synsets
