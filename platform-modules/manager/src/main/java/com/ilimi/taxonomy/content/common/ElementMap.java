@@ -5,7 +5,7 @@ import java.util.Map;
 
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
-public class TagMap {
+public class ElementMap {
 	
 	private static final Map<String, String> nonPluginElements = new HashMap<String, String>();
 

@@ -23,7 +23,7 @@ import org.xml.sax.SAXException;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
-import com.ilimi.taxonomy.content.common.TagMap;
+import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
@@ -300,15 +300,15 @@ public class XmlContentParser {
 	}
 
 	private boolean isPlugin(String elementName) {
-		return TagMap.isPlugin(elementName);
+		return ElementMap.isPlugin(elementName);
 	}
 
 	private boolean isEvent(String elementName) {
-		return TagMap.isEvent(elementName);
+		return ElementMap.isEvent(elementName);
 	}
 
 	private boolean isAction(String elementName) {
-		return TagMap.isAction(elementName);
+		return ElementMap.isAction(elementName);
 	}
 
 }
