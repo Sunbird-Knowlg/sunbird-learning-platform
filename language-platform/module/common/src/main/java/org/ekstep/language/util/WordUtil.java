@@ -890,13 +890,13 @@ public class WordUtil extends BaseManager {
 				if (identifier != null) {
 					return identifier;
 				}
-				Node existingWordNode = searchWord(languageId, lemma);
+				/*Node existingWordNode = searchWord(languageId, lemma);
 				if (existingWordNode != null) {
 					identifier = existingWordNode.getIdentifier();
 					wordLemmaMap.put(lemma, identifier);
 					word.put(LanguageParams.identifier.name(), identifier);
 					return identifier;
-				}
+				}*/
 			}
 			Response wordResponse;
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
@@ -1331,14 +1331,14 @@ public class WordUtil extends BaseManager {
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
 
 				boolean createFlag = true;
-				if (wordIdentifier == null) {
+				/*if (wordIdentifier == null) {
 					Node existingWordNode = searchWord(languageId, lemma);
 					if (existingWordNode != null) {
 						wordIdentifier = existingWordNode.getIdentifier();
 						wordMap.put(LanguageParams.identifier.name(), wordIdentifier);
 						createFlag = false;
 					}
-				}
+				}*/
 
 				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
 				node.setObjectType(LanguageParams.Word.name());
