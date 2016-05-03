@@ -16,6 +16,8 @@ public enum LanguageErrorCodes {
     
     ERR_UNSUPPORTED_LANGUAGE,
     
+    ERR_INVALID_WORD,
+    
     ERR_INVALID_OBJECTTYPE,
     
     ERR_INVALID_OBJECT,
