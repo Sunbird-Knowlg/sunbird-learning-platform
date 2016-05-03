@@ -28,6 +28,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
@@ -1415,20 +1416,45 @@ public class WordUtil extends BaseManager {
 			return "";
 		
 		String arpabetArr[]=arpabets.split("\\s");
-		String phoneticSpellingOfWord="";
+		int itr=0;
+		List<String> unicodes=new ArrayList<String>();
+		
 		for(String arpabet:arpabetArr){
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
 			Node EnglishvarnaNode=getVarnaNodeByProperty("en", arpabetProp);
 			Map<String,Object> metaData=EnglishvarnaNode.getMetadata();
 			String ipaSymbol=(String)metaData.get(GraphDACParams.ipaSymbol.name());
 			Property ipaSymbolProp = new Property(GraphDACParams.ipaSymbol.name(), ipaSymbol);
-			String identifier=" ";
+			String type=(String)metaData.get(GraphDACParams.type.name());
+			
 			Node LanguageVarnaNode=getVarnaNodeByProperty(languageId, ipaSymbolProp);
-			if(LanguageVarnaNode!=null)
-				identifier=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.identifier.name())+" ";
-			phoneticSpellingOfWord+=identifier;			
+			if(LanguageVarnaNode!=null){
+				String unicode=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+				String langageVarnaType=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
+				if(type.equalsIgnoreCase("Vowel")&&itr!=0&&langageVarnaType.equalsIgnoreCase("Vowel")){
+					//get vowelSign unicode
+					Relation associatedTo=(Relation)LanguageVarnaNode.getInRelations().get(0);
+					if(associatedTo!=null){
+						Map<String, Object> vowelSignMetaData=associatedTo.getStartNodeMetadata();
+						unicode=(String)vowelSignMetaData.get(GraphDACParams.unicode.name());
+					}
+				}
+				unicodes.add(unicode);
+			}
+			itr++;
 		}
-		return phoneticSpellingOfWord.substring(0, phoneticSpellingOfWord.length()-1);
+		
+		return getTextFromUnicode(unicodes);
+	}
+	
+	private String getTextFromUnicode(List<String> unicodes){
+		
+		String text = "";
+		for(String unicode: unicodes){
+			    int hexVal = Integer.parseInt(unicode, 16);
+			    text += (char)hexVal;
+		}
+		return text;
 	}
 	
 	@SuppressWarnings("unchecked")
