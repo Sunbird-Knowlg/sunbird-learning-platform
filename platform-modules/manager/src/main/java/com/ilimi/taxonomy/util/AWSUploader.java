@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.util;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 
 import com.amazonaws.regions.Region;
@@ -37,5 +38,11 @@ public class AWSUploader {
     public static void deleteFile(String bucketName, String key) throws Exception {
         AmazonS3 s3 = new AmazonS3Client();
         s3.deleteObject(new DeleteObjectRequest(bucketName, key));
+    }
+    
+    public static double getObjectSize(String bucket, String key)
+            throws IOException {
+    	AmazonS3 s3 = new AmazonS3Client();
+        return s3.getObjectMetadata(bucket, key).getContentLength();
     }
 }
