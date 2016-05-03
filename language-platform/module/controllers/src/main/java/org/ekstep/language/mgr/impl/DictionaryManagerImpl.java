@@ -694,11 +694,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         if (list.size() > 1)
                             filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
                         else {
-                            Object value = list.get(0);
-                            if (value instanceof String)
-                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, value.toString()));
-                            else
-                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, value));
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, list.get(0)));
                         }
                     } else if (null != val && StringUtils.isNotBlank(val.toString())) {
                         if (val instanceof String)
@@ -775,11 +771,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                         if (list.size() > 1)
                             filters.add(new Filter(entry.getKey(), SearchConditions.OP_IN, list));
                         else {
-                            Object value = list.get(0);
-                            if (value instanceof String)
-                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_LIKE, value.toString()));
-                            else
-                                filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, value));
+                            filters.add(new Filter(entry.getKey(), SearchConditions.OP_EQUAL, list.get(0)));
                         }
                     } else if (null != val && StringUtils.isNotBlank(val.toString())) {
                         if (val instanceof String)
