@@ -158,12 +158,16 @@ public class SearchProcessor {
 			}
 		}
 		Map<String, Object> response = new HashMap<String, Object>();
-		elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
+		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
 		
-		
+		Map<String, String> sortBy = searchDTO.getSortBy();
+		if(sortBy == null || sortBy.isEmpty()){
+			sortBy = new HashMap<String, String>();
+			sortBy.put("name", "asc");
+			searchDTO.setSortBy(sortBy);
+		}
 		
 		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
-		//elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 		response.put("results", results);
