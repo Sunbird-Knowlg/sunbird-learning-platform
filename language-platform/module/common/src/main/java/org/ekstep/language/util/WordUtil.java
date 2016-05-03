@@ -780,7 +780,39 @@ public class WordUtil extends BaseManager {
 		}
 		return node;
 	}
+	
+	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap) {
+		List<Node> nodes = getAllObjects(languageId, LanguageParams.Word.name());
+		if (nodes != null) {
+			for (Node node : nodes) {
+				Map<String, Object> metadata = node.getMetadata();
+				String lemma = (String) metadata.get("lemma");
+				wordLemmaMap.put(lemma, node.getIdentifier());
 
+				String[] variants = (String[]) metadata.get("variants");
+				if (variants != null) {
+					for (String variant : variants) {
+						wordLemmaMap.put(variant, node.getIdentifier());
+					}
+				}
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<Node> getAllObjects(String languageId, String objectType) {
+		Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), objectType);
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+		request.put(GraphDACParams.metadata.name(), property);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			return nodes;
+		}
+		return null;
+	}
+	
 	public Node getDataNode(String languageId, String nodeId) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		request.put(GraphDACParams.node_id.name(), nodeId);

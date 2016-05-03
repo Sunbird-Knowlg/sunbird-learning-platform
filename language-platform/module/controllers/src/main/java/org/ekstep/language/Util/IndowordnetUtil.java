@@ -50,6 +50,7 @@ public class IndowordnetUtil {
 		String language = LanguageMap.getLanguage(languageGraphId);
 		if (languageGraphId != null) {
 			Map<String, String> wordLemmaMap = new HashMap<String, String>();
+			wordUtil.cacheAllWords(languageGraphId, wordLemmaMap);
 			List<String> errorMessages = new ArrayList<String>();
 			DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageParams.Word.name(), languageGraphId);
 			DefinitionDTO synsetDefinition = wordUtil.getDefinitionDTO(LanguageParams.Synset.name(), languageGraphId);
