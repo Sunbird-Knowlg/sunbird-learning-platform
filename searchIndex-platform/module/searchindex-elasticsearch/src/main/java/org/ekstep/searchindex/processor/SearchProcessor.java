@@ -159,7 +159,10 @@ public class SearchProcessor {
 		}
 		Map<String, Object> response = new HashMap<String, Object>();
 		elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
-		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList);
+		
+		
+		
+		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
 		//elasticSearchUtil.setDefaultResultLimit(searchDTO.getLimit());
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
@@ -175,7 +178,7 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList) {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy) {
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> textConditions = conditionsMap.get("Text");
@@ -317,20 +320,35 @@ public class SearchProcessor {
 			builder.key("aggs").object();
 			for (Map<String, Object> groupByMap : groupByList) {
 				String groupByParent = (String) groupByMap.get("groupByParent");
-				builder.key(groupByParent).object().key("terms").object().key("field").value(groupByParent + ".raw").key("size")
+				builder.key(groupByParent).object().key("terms").object().key("field").value(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
 						.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
 
 				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
 				if (groupByChildList != null && !groupByChildList.isEmpty()) {
 					builder.key("aggs").object();
 					for (String childGroupBy : groupByChildList) {
-						builder.key(childGroupBy).object().key("terms").object().key("field").value(childGroupBy + ".raw")
+						builder.key(childGroupBy).object().key("terms").object().key("field").value(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION)
 								.key("size").value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
 					}
 					builder.endObject();
 				}
 			}
 			builder.endObject();
+		}
+		
+		if(sortBy != null && !sortBy.isEmpty()){
+			builder.key("sort").array();
+			List<String> dateFields = elasticSearchUtil.getDateFields();
+			for(Map.Entry<String, String> entry: sortBy.entrySet()){
+				String fieldName;
+				if(dateFields.contains(entry.getKey())){
+					fieldName = entry.getKey();
+				}else{
+					fieldName = entry.getKey() + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+				}
+				builder.object().key(fieldName).value(entry.getValue()).endObject();
+			}
+			builder.endArray();
 		}
 
 		builder.endObject();
@@ -340,7 +358,7 @@ public class SearchProcessor {
 	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) {
 		switch (queryOperation) {
 		case "equal": {
-			builder.key("match_phrase").object().key(fieldName + ".raw").value(value).endObject();
+			builder.key("match_phrase").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value).endObject();
 			break;
 		}
 		case "like": {
@@ -349,7 +367,7 @@ public class SearchProcessor {
 		}
 		case "prefix": {
 			String stringValue = (String) value;
-			builder.key("query").object().key("prefix").object().key(fieldName + ".raw")
+			builder.key("query").object().key("prefix").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION)
 					.value(stringValue.toLowerCase()).endObject().endObject();
 			break;
 		}
@@ -359,7 +377,7 @@ public class SearchProcessor {
 		}
 		case "endsWith": {
 			String stringValue = (String) value;
-			builder.key("query").object().key("wildcard").object().key(fieldName + ".raw")
+			builder.key("query").object().key("wildcard").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION)
 					.value("*" + stringValue.toLowerCase()).endObject().endObject();
 			break;
 		}

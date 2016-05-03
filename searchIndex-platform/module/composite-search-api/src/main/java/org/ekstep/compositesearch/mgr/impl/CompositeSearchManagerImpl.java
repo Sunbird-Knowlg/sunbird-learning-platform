@@ -69,7 +69,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			return getCompositeSearchResponse(lstResult);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
+			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
 		}
 	}
 	
@@ -93,11 +93,13 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
 			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
 			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
-			List<String> facets = (List<String>) req.get(CompositeSearchParams.facets.name());
+			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
+			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
 			properties.addAll(getSearchFilterProperties(filters));
+			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
@@ -107,6 +109,19 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 					"Invalid Input.");
 		}
 		return searchObj;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<String> getList(Object param){
+		List<String> paramList;
+		try{
+			paramList = (List<String>) param;
+		}
+		catch(Exception e){
+			String str = (String) param;
+			paramList = Arrays.asList(str);
+		}
+		return paramList;
 	}
 	
 	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {

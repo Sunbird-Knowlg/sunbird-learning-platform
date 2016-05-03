@@ -97,6 +97,16 @@ public class ElasticSearchUtil {
 		return querySearchFields;
 	}
 	
+	public List<String> getDateFields(){
+		String querySearchFieldsProperty = PropertiesUtil.getProperty("date-fields");
+		List<String> querySearchFields = new ArrayList<String>();
+		if(querySearchFieldsProperty != null && !querySearchFieldsProperty.isEmpty()){
+			String[] querySearchFieldsArray = querySearchFieldsProperty.split(",");
+			querySearchFields = Arrays.asList(querySearchFieldsArray);
+		}
+		return querySearchFields;
+	}
+	
 	@SuppressWarnings("unused")
 	private JestClient createClient() {
 		return client;

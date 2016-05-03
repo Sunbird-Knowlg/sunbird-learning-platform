@@ -52,6 +52,7 @@ public class IndowordnetUtil {
 			Map<String, String> wordLemmaMap = new HashMap<String, String>();
 			List<String> errorMessages = new ArrayList<String>();
 			DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageParams.Word.name(), languageGraphId);
+			DefinitionDTO synsetDefinition = wordUtil.getDefinitionDTO(LanguageParams.Synset.name(), languageGraphId);
 			do {
 				Session session = HibernateSessionFactory.getSession();
 				String languageTableName = getLanguageTableName(language);
@@ -77,7 +78,7 @@ public class IndowordnetUtil {
 						SynsetData synsetData = lSynsetData.getSynsetData();
 						Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
 						errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap,
-								wordDefinition, nodeIds));
+								wordDefinition, nodeIds, synsetDefinition));
 					}
 					asyncUpdate(nodeIds, languageGraphId);
 					if (totalCount == maxRecords) {
