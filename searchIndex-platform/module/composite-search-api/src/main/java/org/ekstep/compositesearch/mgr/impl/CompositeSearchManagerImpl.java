@@ -2,7 +2,6 @@ package org.ekstep.compositesearch.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,7 +78,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		try {
 			Map<String, Object> req = request.getRequest();
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
-			int limit = 1000;
+			int limit = 100;
 			
 	/*		if (StringUtils.isBlank(queryString))
 				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),

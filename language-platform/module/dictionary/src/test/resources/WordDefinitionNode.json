@@ -43,6 +43,19 @@
           "renderingHints": "{ 'order': 3 }"
         },
         {
+          "propertyName": "exampleSentences",
+          "title": "Example Sentences",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+        },
+        {
           "propertyName": "hasConnotative",
           "title": "Has Connotative (non-literal) Meaning",
           "description": "",
