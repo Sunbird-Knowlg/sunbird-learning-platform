@@ -12,3 +12,4 @@ identifier,objectType,rel:associatedTo,varna,unicode,type,status
 ೊ,Varna,ಒ,ೊ,0CCA,VowelSign,Live
 ೋ,Varna,ಓ,ೋ,0CCB,VowelSign,Live
 ೌ,Varna,ಔ,ೌ,0CCC,VowelSign,Live
+್,Varna,,್,0CCD,Virama,Live
