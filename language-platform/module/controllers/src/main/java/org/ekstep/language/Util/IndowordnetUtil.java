@@ -47,6 +47,8 @@ public class IndowordnetUtil {
 		int offset = 0;
 		int loop = 0;
 		int totalCount = 0;
+		long startTime=0l;
+		long endTime=0l;
 		String language = LanguageMap.getLanguage(languageGraphId);
 		if (languageGraphId != null) {
 			Map<String, String> wordLemmaMap = new HashMap<String, String>();
@@ -64,7 +66,10 @@ public class IndowordnetUtil {
 					query.setFirstResult(offset);
 					query.setMaxResults(batchSize);
 
+					startTime=System.currentTimeMillis();
 					List<LanguageSynsetData> languageSynsetDataList = query.list();
+					endTime=System.currentTimeMillis();
+					System.out.println("Getting "+ batchSize+ " records: " + (endTime-startTime));
 					if (languageSynsetDataList.isEmpty()) {
 						break;
 					}
@@ -76,8 +81,15 @@ public class IndowordnetUtil {
 						}
 						count++;
 						totalCount++;
+						startTime=System.currentTimeMillis();
 						SynsetData synsetData = lSynsetData.getSynsetData();
+						endTime=System.currentTimeMillis();
+						System.out.println("Converting to SynsetData : " + (endTime-startTime));
+						
+						startTime=System.currentTimeMillis();
 						Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
+						endTime=System.currentTimeMillis();
+						System.out.println("Getting word map : " + (endTime-startTime));
 						errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap,
 								wordDefinition, nodeIds, synsetDefinition));
 					}
