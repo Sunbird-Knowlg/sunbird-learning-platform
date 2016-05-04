@@ -1476,7 +1476,7 @@ public class WordUtil extends BaseManager {
 		String arpabetArr[]=arpabets.split("\\s");
 		int itr=0;
 		List<String> unicodes=new ArrayList<String>();
-		
+		int arpabetsCount=arpabetArr.length;
 		for(String arpabet:arpabetArr){
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
 			Node EnglishvarnaNode=getVarnaNodeByProperty("en", arpabetProp);
@@ -1498,6 +1498,19 @@ public class WordUtil extends BaseManager {
 					}
 				}
 				unicodes.add(unicode);
+
+				if(arpabetsCount==itr+1){
+					//check last character is consonant
+					if(!langageVarnaType.equalsIgnoreCase("Vowel")){
+						//Get virama and append to the unicode list
+						Property viramaProperty = new Property(GraphDACParams.type.name(), "Virama");
+						Node viramaVarnaNode=getVarnaNodeByProperty(languageId, viramaProperty);
+						if(viramaVarnaNode!=null){
+							unicode=(String)viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+							unicodes.add(unicode);
+						}
+					}
+				}
 			}
 			itr++;
 		}
