@@ -38,17 +38,19 @@ public class IndowordnetUtil {
 	private final String COMMA_SEPARATOR = ",";
 	private final String SEMI_COLON_SEPARATOR = ";";
 	private final String COLON_SEPARATOR = ":";
+	private final String DOUBLE_QUOTES = "\"";
 	private WordUtil wordUtil = new WordUtil();
-	//private EmailService emailService = new EmailService();
+	// private EmailService emailService = new EmailService();
 	private static Logger LOGGER = LogManager.getLogger(IndowordnetUtil.class.getName());
 
 	@SuppressWarnings({ "unchecked" })
-	public void loadWords(String languageGraphId, int batchSize, int maxRecords) throws JsonProcessingException {
-		int offset = 0;
+	public void loadWords(String languageGraphId, int batchSize, int maxRecords, int initialOffset)
+			throws JsonProcessingException {
+		int offset = initialOffset;
 		int loop = 0;
 		int totalCount = 0;
-		long startTime=0l;
-		long endTime=0l;
+		long startTime = 0l;
+		long endTime = 0l;
 		String language = LanguageMap.getLanguage(languageGraphId);
 		if (languageGraphId != null) {
 			List<String> errorMessages = new ArrayList<String>();
@@ -56,7 +58,9 @@ public class IndowordnetUtil {
 			wordUtil.cacheAllWords(languageGraphId, wordLemmaMap, errorMessages);
 			DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageParams.Word.name(), languageGraphId);
 			DefinitionDTO synsetDefinition = wordUtil.getDefinitionDTO(LanguageParams.Synset.name(), languageGraphId);
+			long totalStartTime = System.currentTimeMillis();
 			do {
+				long batchStartTime = System.currentTimeMillis();
 				Session session = HibernateSessionFactory.getSession();
 				String languageTableName = getLanguageTableName(language);
 				Transaction tx = null;
@@ -66,51 +70,62 @@ public class IndowordnetUtil {
 					query.setFirstResult(offset);
 					query.setMaxResults(batchSize);
 
-					startTime=System.currentTimeMillis();
+					startTime = System.currentTimeMillis();
 					List<LanguageSynsetData> languageSynsetDataList = query.list();
-					endTime=System.currentTimeMillis();
-					System.out.println("Getting "+ batchSize+ " records: " + (endTime-startTime));
+					endTime = System.currentTimeMillis();
+					System.out.println("Getting " + batchSize + " records: " + (endTime - startTime));
 					if (languageSynsetDataList.isEmpty()) {
 						break;
 					}
 					int count = 0;
 					ArrayList<String> nodeIds = new ArrayList<String>();
 					for (LanguageSynsetData lSynsetData : languageSynsetDataList) {
-						if (totalCount == maxRecords) {
-							break;
+						try {
+							if (totalCount == maxRecords) {
+								break;
+							}
+							count++;
+							totalCount++;
+							SynsetData synsetData = lSynsetData.getSynsetData();
+							Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
+							long synsetStartTime = System.currentTimeMillis();
+							errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId,
+									wordLemmaMap, wordDefinition, nodeIds, synsetDefinition));
+							long synsetEndTime = System.currentTimeMillis();
+							System.out.println(
+									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
+						} catch (Exception e) {
+							errorMessages.add(e.getMessage());
 						}
-						count++;
-						totalCount++;
-						startTime=System.currentTimeMillis();
-						SynsetData synsetData = lSynsetData.getSynsetData();
-						endTime=System.currentTimeMillis();
-						System.out.println("Converting to SynsetData : " + (endTime-startTime));
-						
-						startTime=System.currentTimeMillis();
-						Map<String, Object> wordRequestMap = getWordMap(synsetData, errorMessages);
-						endTime=System.currentTimeMillis();
-						System.out.println("Getting word map : " + (endTime-startTime));
-						errorMessages.addAll(wordUtil.createOrUpdateWord(wordRequestMap, languageGraphId, wordLemmaMap,
-								wordDefinition, nodeIds, synsetDefinition));
 					}
 					asyncUpdate(nodeIds, languageGraphId);
+					System.out.println("Loaded " + count + " synsets for language: " + language);
+					long batchEndTime = System.currentTimeMillis();
+					System.out.println("Time taken for one batch: " + (batchEndTime - batchStartTime));
 					if (totalCount == maxRecords) {
 						break;
 					}
 					loop++;
-					offset = batchSize * loop;
-					System.out.println("Loaded " + count + " synsets for language: " + language);
-					
+					offset = batchSize * loop + initialOffset;
 				} catch (Exception e) {
 					if (tx != null)
 						tx.rollback();
 					e.printStackTrace();
+					errorMessages.add(e.getMessage());
 				} finally {
 					HibernateSessionFactory.closeSession();
 				}
 
 			} while (true);
+			long totalEndTime = System.currentTimeMillis();
 			System.out.println("Status Update: Loaded " + totalCount + " synsets for language: " + language);
+			System.out.println("Total time taken for import: " + (totalEndTime - totalStartTime));
+			if (!errorMessages.isEmpty()) {
+				System.out.println("Error Messages for Indowordnet import ********************************* ");
+				for (String errorMessage : errorMessages) {
+					System.out.println(errorMessage);
+				}
+			}
 		}
 	}
 
@@ -137,16 +152,16 @@ public class IndowordnetUtil {
 
 		bytesGloss = synsetData.getGloss();
 		glossString = new String(bytesGloss, Charsets.UTF_8);
-		String[] glossArray = glossString.split(SEMI_COLON_SEPARATOR);
-		if (glossArray.length == 1) {
-			glossArray = glossString.split(COLON_SEPARATOR);
-		}
-		if (glossArray.length > 0) {
-			gloss = glossArray[0];
-		}
-		if (glossArray.length > 1) {
-			exampleSentencesString = glossArray[1];
+		int indexOfQuote = glossString.indexOf(DOUBLE_QUOTES);
+		if (indexOfQuote > 0) {
+			gloss = glossString.substring(0, indexOfQuote - 1);
+			gloss = gloss.replaceAll(SEMI_COLON_SEPARATOR, "");
+			gloss = gloss.replaceAll(COLON_SEPARATOR, "");
+			exampleSentencesString = glossString.substring(indexOfQuote + 1, glossString.length() - 1);
+			exampleSentencesString = exampleSentencesString.replaceAll("\"", "");
 			exampleSentences = Arrays.asList(exampleSentencesString.split(COMMA_SEPARATOR));
+		} else {
+			gloss = glossString;
 		}
 
 		primaryMeaningMap.put(LanguageParams.gloss.name(), gloss);
@@ -204,7 +219,7 @@ public class IndowordnetUtil {
 
 	public static void main(String[] args) throws JsonProcessingException {
 		IndowordnetUtil util = new IndowordnetUtil();
-		util.loadWords("tamil", 0, 300);
+		util.loadWords("tamil", 0, 300, 0);
 	}
 
 	private String getLanguageTableName(String language) {
@@ -212,27 +227,26 @@ public class IndowordnetUtil {
 		String tableName = language + IndowordnetConstants.SynsetData.name();
 		return tableName;
 	}
-	
+
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
-	    Map<String, Object> map = new HashMap<String, Object>();
-        map = new HashMap<String, Object>();
-        map.put(LanguageParams.node_ids.name(), nodeIds);
-        Request request = new Request();
-        request.setRequest(map);
-        request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
-        request.setOperation(LanguageOperations.enrichWords.name());
-        request.getContext().put(LanguageParams.language_id.name(), languageId);
-        makeAsyncRequest(request, LOGGER);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map = new HashMap<String, Object>();
+		map.put(LanguageParams.node_ids.name(), nodeIds);
+		Request request = new Request();
+		request.setRequest(map);
+		request.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
+		request.setOperation(LanguageOperations.enrichWords.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		makeAsyncRequest(request, LOGGER);
 	}
-	
-	
+
 	public void makeAsyncRequest(Request request, Logger logger) {
-        ActorRef router = LanguageRequestRouterPool.getRequestRouter();
-        try {
-            router.tell(request, router);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
-        }
-    }
+		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
+		try {
+			router.tell(request, router);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			throw new ServerException(TaxonomyErrorCodes.SYSTEM_ERROR.name(), e.getMessage(), e);
+		}
+	}
 }

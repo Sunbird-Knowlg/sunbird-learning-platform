@@ -23,12 +23,9 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.language.common.LanguageMap;
-import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
-import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
@@ -41,7 +38,6 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
@@ -61,7 +57,6 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
 
-import akka.actor.ActorRef;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
@@ -922,7 +917,7 @@ public class WordUtil extends BaseManager {
 			wordLemmaMap.put(lemma, nodeId);
 			nodeIds.add(nodeId);
 			long endTime=System.currentTimeMillis();
-			System.out.println("Process relation word: create : " + lemma + " : " + (endTime-startTime));
+			//System.out.println("Process relation word: create : " + lemma + " : " + (endTime-startTime));
 			return nodeId;
 		}
 	}
@@ -1286,7 +1281,7 @@ public class WordUtil extends BaseManager {
 						.add(getErrorMessage(synsetResponse) + ": Id: " + indowordnetId + " Language: " + languageId);
 			}
 			long endTime = System.currentTimeMillis();
-			System.out.println("Creating synset: " + (endTime-startTime));
+			//System.out.println("Creating synset: " + (endTime-startTime));
 			Map<String, String> relationNameMap = new HashMap<String, String>();
 			relationNameMap.put(LanguageParams.synonyms.name(), RelationTypes.SYNONYM.relationName());
 			relationNameMap.put(LanguageParams.hypernyms.name(), RelationTypes.HYPERNYM.relationName());
@@ -1357,7 +1352,7 @@ public class WordUtil extends BaseManager {
 				startTime=System.currentTimeMillis();
 				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
 				endTime=System.currentTimeMillis();
-				System.out.println("Time to convert word to node: " + (endTime-startTime));
+				//System.out.println("Time to convert word to node: " + (endTime-startTime));
 				node.setObjectType(LanguageParams.Word.name());
 
 				startTime=System.currentTimeMillis();
@@ -1367,7 +1362,7 @@ public class WordUtil extends BaseManager {
 					createRes = updateWord(node, languageId, wordIdentifier);
 				}
 				endTime=System.currentTimeMillis();
-				System.out.println("Time to create word: " + (endTime-startTime));
+				//System.out.println("Time to create word: " + (endTime-startTime));
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
 					wordLemmaMap.put(lemma, wordId);
@@ -1397,7 +1392,7 @@ public class WordUtil extends BaseManager {
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
 		long endTime=System.currentTimeMillis();
-		System.out.println("Adding synonym relation : "+ (endTime-startTime));
+		//System.out.println("Adding synonym relation : "+ (endTime-startTime));
 	}
 
 	private Node getWord(String wordId, String languageId, List<String> errorMessages) {
@@ -1437,7 +1432,7 @@ public class WordUtil extends BaseManager {
 			}
 		}
 		long endTime = System.currentTimeMillis();
-		System.out.println("Adding synset relation: " + (endTime-startTime));
+		//System.out.println("Adding synset relation: " + (endTime-startTime));
 	}
 
 	private void addSynsetRelation(String wordId, String relationType, String languageId, String synsetId,
