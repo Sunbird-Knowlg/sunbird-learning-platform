@@ -782,24 +782,28 @@ public class WordUtil extends BaseManager {
 		return node;
 	}
 	
-	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap) {
-		long startTime=System.currentTimeMillis();
-		List<Node> nodes = getAllObjects(languageId, LanguageParams.Word.name());
-		long endTime = System.currentTimeMillis();
-		System.out.println("Time taken to load all words: " + (endTime-startTime));
-		if (nodes != null) {
-			for (Node node : nodes) {
-				Map<String, Object> metadata = node.getMetadata();
-				String lemma = (String) metadata.get("lemma");
-				wordLemmaMap.put(lemma, node.getIdentifier());
-
-				String[] variants = (String[]) metadata.get("variants");
-				if (variants != null) {
-					for (String variant : variants) {
-						wordLemmaMap.put(variant, node.getIdentifier());
+	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap, List<String> errorMessages) {
+		try{
+			long startTime=System.currentTimeMillis();
+			List<Node> nodes = getAllObjects(languageId, LanguageParams.Word.name());
+			long endTime = System.currentTimeMillis();
+			System.out.println("Time taken to load all words: " + (endTime-startTime));
+			if (nodes != null) {
+				for (Node node : nodes) {
+					Map<String, Object> metadata = node.getMetadata();
+					String lemma = (String) metadata.get("lemma");
+					wordLemmaMap.put(lemma, node.getIdentifier());
+	
+					String[] variants = (String[]) metadata.get("variants");
+					if (variants != null) {
+						for (String variant : variants) {
+							wordLemmaMap.put(variant, node.getIdentifier());
+						}
 					}
 				}
 			}
+		} catch(Exception e){
+			errorMessages.add(e.getMessage());
 		}
 	}
 
@@ -918,7 +922,7 @@ public class WordUtil extends BaseManager {
 			wordLemmaMap.put(lemma, nodeId);
 			nodeIds.add(nodeId);
 			long endTime=System.currentTimeMillis();
-			System.out.println("Process relation word: create : " + (endTime-startTime));
+			System.out.println("Process relation word: create : " + lemma + " : " + (endTime-startTime));
 			return nodeId;
 		}
 	}
@@ -1274,6 +1278,8 @@ public class WordUtil extends BaseManager {
 			}
 
 			long startTime = System.currentTimeMillis();
+			String synsetIdentifer = languageId + ":S:" + String.format("%08d", indowordnetId);
+			primaryMeaning.put(LanguageParams.identifier.name(), synsetIdentifer);
 			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition);
 			if (checkError(synsetResponse)) {
 				errorMessages
