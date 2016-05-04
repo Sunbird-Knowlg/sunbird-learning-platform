@@ -52,7 +52,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 
 	class PushTask extends TimerTask {
 		public void run() {
-			System.out.println("Time's up!");
+			//System.out.println("Time's up!");
 			try {
 				updateWordsCount();
 			} catch (Exception e) {
@@ -191,7 +191,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 					wordsCountMap.put(languageId, wordsCountObj);
 					createTimer(BATCH_TIME_IN_SECONDS);
 					messageProcessed = false;
-					System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
+					//System.out.println("Word count message processor: " + wordsCount + " | " + liveWordsCount);
 					break;
 				}
 				}

@@ -31,7 +31,7 @@ public class ConsumerThread implements Runnable {
             while (it.hasNext()) {
                 String message = new String(it.next().message());
                 messagePrcessor.processMessage(message);
-                System.out.println("message processed by: " + this.m_threadNumber + " | processor : " + this.processor);
+                //System.out.println("message processed by: " + this.m_threadNumber + " | processor : " + this.processor);
             }
             System.out.println("Shutting down Thread: " + m_threadNumber);
         } catch (Exception e) {

@@ -783,7 +783,10 @@ public class WordUtil extends BaseManager {
 	}
 	
 	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap) {
+		long startTime=System.currentTimeMillis();
 		List<Node> nodes = getAllObjects(languageId, LanguageParams.Word.name());
+		long endTime = System.currentTimeMillis();
+		System.out.println("Time taken to load all words: " + (endTime-startTime));
 		if (nodes != null) {
 			for (Node node : nodes) {
 				Map<String, Object> metadata = node.getMetadata();
@@ -898,6 +901,7 @@ public class WordUtil extends BaseManager {
 					return identifier;
 				}*/
 			}
+			long startTime=System.currentTimeMillis();
 			Response wordResponse;
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
 			wordNode.setObjectType(LanguageParams.Word.name());
@@ -913,6 +917,8 @@ public class WordUtil extends BaseManager {
 			String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 			wordLemmaMap.put(lemma, nodeId);
 			nodeIds.add(nodeId);
+			long endTime=System.currentTimeMillis();
+			System.out.println("Process relation word: create : " + (endTime-startTime));
 			return nodeId;
 		}
 	}
@@ -1267,12 +1273,14 @@ public class WordUtil extends BaseManager {
 				primaryMeaning.remove(synsetRelationName);
 			}
 
+			long startTime = System.currentTimeMillis();
 			Response synsetResponse = createSynset(languageId, primaryMeaning, synsetDefinition);
 			if (checkError(synsetResponse)) {
 				errorMessages
 						.add(getErrorMessage(synsetResponse) + ": Id: " + indowordnetId + " Language: " + languageId);
 			}
-
+			long endTime = System.currentTimeMillis();
+			System.out.println("Creating synset: " + (endTime-startTime));
 			Map<String, String> relationNameMap = new HashMap<String, String>();
 			relationNameMap.put(LanguageParams.synonyms.name(), RelationTypes.SYNONYM.relationName());
 			relationNameMap.put(LanguageParams.hypernyms.name(), RelationTypes.HYPERNYM.relationName());
@@ -1340,14 +1348,20 @@ public class WordUtil extends BaseManager {
 					}
 				}*/
 
+				startTime=System.currentTimeMillis();
 				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
+				endTime=System.currentTimeMillis();
+				System.out.println("Time to convert word to node: " + (endTime-startTime));
 				node.setObjectType(LanguageParams.Word.name());
 
+				startTime=System.currentTimeMillis();
 				if (createFlag) {
 					createRes = createWord(node, languageId);
 				} else {
 					createRes = updateWord(node, languageId, wordIdentifier);
 				}
+				endTime=System.currentTimeMillis();
+				System.out.println("Time to create word: " + (endTime-startTime));
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
 					wordLemmaMap.put(lemma, wordId);
@@ -1367,6 +1381,7 @@ public class WordUtil extends BaseManager {
 	}
 
 	private void addSynonymRelation(String languageId, String wordId, String synsetId) {
+		long startTime=System.currentTimeMillis();
 		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
 		request.put(GraphDACParams.start_node_id.name(), synsetId);
 		request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
@@ -1375,6 +1390,8 @@ public class WordUtil extends BaseManager {
 		if (checkError(response)) {
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
+		long endTime=System.currentTimeMillis();
+		System.out.println("Adding synonym relation : "+ (endTime-startTime));
 	}
 
 	private Node getWord(String wordId, String languageId, List<String> errorMessages) {
@@ -1391,6 +1408,7 @@ public class WordUtil extends BaseManager {
 
 	private void addSynsetRelation(List<String> wordIds, String relationType, String languageId, String synsetId,
 			List<String> errorMessages) {
+		long startTime = System.currentTimeMillis();
 		if (wordIds != null) {
 			for (String wordId : wordIds) {
 				if (relationType.equalsIgnoreCase(RelationTypes.SYNONYM.relationName())) {
@@ -1412,6 +1430,8 @@ public class WordUtil extends BaseManager {
 				addSynsetRelation(wordId, relationType, languageId, synsetId, errorMessages);
 			}
 		}
+		long endTime = System.currentTimeMillis();
+		System.out.println("Adding synset relation: " + (endTime-startTime));
 	}
 
 	private void addSynsetRelation(String wordId, String relationType, String languageId, String synsetId,

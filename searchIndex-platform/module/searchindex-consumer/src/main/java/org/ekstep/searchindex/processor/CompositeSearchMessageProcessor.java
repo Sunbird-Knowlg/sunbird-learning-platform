@@ -43,7 +43,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			createCompositeSearchIndex();
 			String graphId = (String) message.get("graphId");
 			String uniqueId = (String) message.get("nodeUniqueId");
-			System.out.println("message node type: " + nodeType + " object type: " + objectType);
+			//System.out.println("message node type: " + nodeType + " object type: " + objectType);
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
@@ -71,12 +71,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				break;
 			}
 			case CompositeSearchConstants.NODE_TYPE_DEFINITION: {
-				System.out.println("processing definition nodes");
+				//System.out.println("processing definition nodes");
 				ObjectDefinitionCache.resyncDefinition(objectType, graphId);
 				//consumerUtil.reSyncNodes(objectType, graphId, definitionNode);
 			}
 			}
-			System.out.println("Message processed by Composite search index porocessor");
+			//System.out.println("Message processed by Composite search index porocessor");
 		}
 	}
 
