@@ -3,7 +3,6 @@ package org.ekstep.language.util;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -71,92 +70,103 @@ public class WordnetUtil implements IWordnetConstants {
         }
         return false;
     }
-
+    
     public static void updatePOS(Node node) {
-        Set<String> posList = new HashSet<String>();
         try {
-            Object posTags = (Object) node.getMetadata().get(ATTRIB_POS_TAGS);
-            boolean updatePosTags = false;
-            if (null == posTags || StringUtils.isBlank(posTags.toString()))
-                updatePosTags = true;
-            else {
-                if (posTags instanceof String[]) {
-                    String[] arr = (String[]) posTags;
-                    if (null != arr && arr.length > 0) {
-                        for (String str : arr) {
-                            String pos = WordnetUtil.getPosValue(str);
+            String posValue = null;
+            String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
+            List<Relation> inRels = node.getInRelations();
+            if (null != inRels && !inRels.isEmpty()) {
+                String synsetPos = null;
+                for (Relation rel : inRels) {
+                    if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
+                            && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                        String synsetId = rel.getStartNodeId();
+                        if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
+                            String pos = (String) rel.getStartNodeMetadata().get(ATTRIB_POS);
+                            if (StringUtils.isNotBlank(pos)) {
+                                synsetPos = pos;
+                                break;
+                            }
+                        } else if (StringUtils.isBlank(synsetPos)) {
+                            String pos = (String) rel.getStartNodeMetadata().get(ATTRIB_POS);
                             if (StringUtils.isNotBlank(pos))
-                                posList.add(pos.toLowerCase());
+                                synsetPos = pos;
                         }
-                    }
-                } else if (posTags instanceof String) {
-                    if (StringUtils.isNotBlank(posTags.toString())) {
-                        String pos = WordnetUtil.getPosValue(posTags.toString());
-                        if (StringUtils.isNotBlank(pos))
-                            posList.add(pos.toLowerCase());
                     }
                 }
+                if (StringUtils.isNotBlank(synsetPos))
+                    synsetPos = posValue;
             }
             Set<String> posTagList = new HashSet<String>();
-            Object value = node.getMetadata().get(ATTRIB_POS);
-            if (null != value) {
-                if (value instanceof String[]) {
-                    String[] arr = (String[]) value;
-                    if (null != arr && arr.length > 0) {
-                        for (String str : arr) {
-                            String pos = WordnetUtil.getPosValue(str);
+            Object posTags = (Object) node.getMetadata().get(ATTRIB_POS_TAGS);
+            if (null != posTags && !StringUtils.isBlank(posTags.toString())) {
+                if (StringUtils.isBlank(posValue)) {
+                    if (posTags instanceof String[]) {
+                        String[] arr = (String[]) posTags;
+                        if (null != arr && arr.length > 0) {
+                            for (String str : arr) {
+                                String pos = WordnetUtil.getPosValue(str, false);
+                                if (StringUtils.isNotBlank(pos)) {
+                                    posValue = pos;
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (posTags instanceof String) {
+                        if (StringUtils.isNotBlank(posTags.toString())) {
+                            String pos = WordnetUtil.getPosValue(posTags.toString(), false);
                             if (StringUtils.isNotBlank(pos))
-                                posList.add(pos.toLowerCase());
-                            if (updatePosTags)
-                                posTagList.add(str.toLowerCase());
+                                posValue = pos;
                         }
                     }
-                } else if (value instanceof String) {
-                    if (StringUtils.isNotBlank(value.toString())) {
-                        String pos = WordnetUtil.getPosValue(value.toString());
-                        if (StringUtils.isNotBlank(pos))
-                            posList.add(pos.toLowerCase());
-                        if (updatePosTags)
+                }
+            } else {
+                Object value = node.getMetadata().get(ATTRIB_POS);
+                if (null != value) {
+                    if (value instanceof String[]) {
+                        String[] arr = (String[]) value;
+                        if (null != arr && arr.length > 0) {
+                            for (String str : arr)
+                                posTagList.add(str.toLowerCase());
+                        }
+                    } else if (value instanceof String) {
+                        if (StringUtils.isNotBlank(value.toString()))
                             posTagList.add(value.toString().toLowerCase());
                     }
                 }
             }
-            Object posCategories = node.getMetadata().get(ATTRIB_POS_CATEGORIES);
-            if (null != posCategories) {
-                if (posCategories instanceof String[]) {
-                    String[] arr = (String[]) posCategories;
-                    if (null != arr && arr.length > 0) {
-                        for (String str : arr) {
-                            String pos = WordnetUtil.getPosValue(str, false);
+            if (StringUtils.isBlank(posValue)) {
+                Object posCategories = node.getMetadata().get(ATTRIB_POS_CATEGORIES);
+                if (null != posCategories) {
+                    if (posCategories instanceof String[]) {
+                        String[] arr = (String[]) posCategories;
+                        if (null != arr && arr.length > 0) {
+                            for (String str : arr) {
+                                String pos = WordnetUtil.getPosValue(str, false);
+                                if (StringUtils.isNotBlank(pos)) {
+                                    posValue = pos;
+                                    break;
+                                }
+                            }
+                        }
+                    } else if (posCategories instanceof String) {
+                        if (StringUtils.isNotBlank(posCategories.toString())) {
+                            String pos = WordnetUtil.getPosValue(posCategories.toString(), false);
                             if (StringUtils.isNotBlank(pos))
-                                posList.add(pos.toLowerCase());
-                        }
-                    }
-                } else if (posCategories instanceof String) {
-                    if (StringUtils.isNotBlank(posCategories.toString())) {
-                        String pos = WordnetUtil.getPosValue(posCategories.toString(), false);
-                        if (StringUtils.isNotBlank(pos))
-                            posList.add(pos.toLowerCase());
-                    }
-                }
-            }
-            List<Relation> inRels = node.getInRelations();
-            if (null != inRels && !inRels.isEmpty()) {
-                for (Relation rel : inRels) {
-                    if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
-                            && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
-                        Map<String, Object> metadata = rel.getStartNodeMetadata();
-                        if (null != metadata && !metadata.isEmpty()) {
-                            String pos = (String) metadata.get(ATTRIB_POS);
-                            if (StringUtils.isNotBlank(pos) && !posList.contains(pos.toLowerCase()))
-                                posList.add(pos.toLowerCase());
+                                posValue = pos;
                         }
                     }
                 }
             }
-            if (!posList.isEmpty())
-                node.getMetadata().put(ATTRIB_POS, new ArrayList<String>(posList));
-            if (updatePosTags && !posTagList.isEmpty())
+            if (StringUtils.isNotBlank(posValue)) {
+                List<String> list = new ArrayList<String>();
+                list.add(posValue);
+                node.getMetadata().put(ATTRIB_POS, list);
+            } else {
+                node.getMetadata().put(ATTRIB_POS, null);
+            }
+            if (!posTagList.isEmpty())
                 node.getMetadata().put(ATTRIB_POS_TAGS, new ArrayList<String>(posTagList));
         } catch (Exception e) {
             e.printStackTrace();

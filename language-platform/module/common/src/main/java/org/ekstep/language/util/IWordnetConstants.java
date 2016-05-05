@@ -4,7 +4,10 @@ public interface IWordnetConstants {
     
     String OBJECTTYPE_WORD = "Word";
     String OBJECTTYPE_SYNSET = "Synset";
-
+    
+    String ATTRIB_PRIMARY_MEANING_ID = "primaryMeaningId";
+    String ATTRIB_HAS_SYNONYMS = "hasSynonyms";
+    String ATTRIB_HAS_ANTONYMS = "hasAntonyms";
     String ATTRIB_LEMMA = "lemma";
     String ATTRIB_POS = "pos";
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";

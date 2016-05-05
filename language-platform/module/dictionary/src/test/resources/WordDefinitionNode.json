@@ -69,6 +69,32 @@
           "renderingHints": "{ 'order': 4 }"
         },
         {
+          "propertyName": "hasSynonyms",
+          "title": "Has Synonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "hasAntonyms",
+          "title": "Has Antonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
           "propertyName": "isLoanWord",
           "title": "Is Loan Word",
           "description": "",

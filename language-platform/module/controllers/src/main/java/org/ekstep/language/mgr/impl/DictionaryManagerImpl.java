@@ -36,7 +36,6 @@ import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
-import org.ekstep.language.util.WordnetUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -1583,6 +1582,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			// create or update Primary meaning Synset
 			List<Map<String, Object>> synonyms = (List<Map<String, Object>>) primaryMeaning
 					.get(LanguageParams.synonyms.name());
+			if (null != synonyms && !synonyms.isEmpty())
+			    item.put(ATTRIB_HAS_SYNONYMS, true);
+			else
+			    item.put(ATTRIB_HAS_SYNONYMS, null);
 			List<String> synonymWordIds = processRelationWords(synonyms, languageId, errorMessages, definition);
 			nodeIdList.addAll(synonymWordIds);
 
@@ -1598,6 +1601,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 			List<Map<String, Object>> antonyms = (List<Map<String, Object>>) primaryMeaning
 					.get(LanguageParams.antonyms.name());
+			if (null != antonyms && !antonyms.isEmpty())
+                item.put(ATTRIB_HAS_ANTONYMS, true);
+            else
+                item.put(ATTRIB_HAS_ANTONYMS, null);
 			List<String> antonymWordIds = processRelationWords(antonyms, languageId, errorMessages, definition);
 			nodeIdList.addAll(antonymWordIds);
 
