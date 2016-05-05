@@ -96,7 +96,7 @@ public class WordnetUtil implements IWordnetConstants {
                     }
                 }
                 if (StringUtils.isNotBlank(synsetPos))
-                    synsetPos = posValue;
+                    posValue = synsetPos;
             }
             Set<String> posTagList = new HashSet<String>();
             Object posTags = (Object) node.getMetadata().get(ATTRIB_POS_TAGS);
@@ -127,12 +127,24 @@ public class WordnetUtil implements IWordnetConstants {
                     if (value instanceof String[]) {
                         String[] arr = (String[]) value;
                         if (null != arr && arr.length > 0) {
-                            for (String str : arr)
+                            for (String str : arr) {
                                 posTagList.add(str.toLowerCase());
+                                if (StringUtils.isBlank(posValue)) {
+                                    String pos = WordnetUtil.getPosValue(str, false);
+                                    if (StringUtils.isNotBlank(pos))
+                                        posValue = pos;
+                                }
+                            }
                         }
                     } else if (value instanceof String) {
-                        if (StringUtils.isNotBlank(value.toString()))
+                        if (StringUtils.isNotBlank(value.toString())) {
                             posTagList.add(value.toString().toLowerCase());
+                            if (StringUtils.isBlank(posValue)) {
+                                String pos = WordnetUtil.getPosValue(value.toString(), false);
+                                if (StringUtils.isNotBlank(pos))
+                                    posValue = pos;
+                            }
+                        }
                     }
                 }
             }
@@ -159,6 +171,7 @@ public class WordnetUtil implements IWordnetConstants {
                     }
                 }
             }
+            System.out.println("Pos Value: " + posValue);
             if (StringUtils.isNotBlank(posValue)) {
                 List<String> list = new ArrayList<String>();
                 list.add(posValue);
