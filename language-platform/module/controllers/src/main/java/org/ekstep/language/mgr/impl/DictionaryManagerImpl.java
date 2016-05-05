@@ -2159,14 +2159,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				String wordIdentifier = (String) map.get(LanguageParams.identifier.name());
 				List<NodeDTO> synonymsNewList = new ArrayList<NodeDTO>();
 				List<NodeDTO> synonymsList = (List<NodeDTO>) synsetMap.get(LanguageParams.synonyms.name());
-				for(NodeDTO synonym: synonymsList){
-					String synsetIdentifier = synonym.getIdentifier();
-					if(synsetIdentifier != null && wordIdentifier != null && !synsetIdentifier.equalsIgnoreCase(wordIdentifier)){
-						synonymsNewList.add(synonym);
+				if(synonymsList != null){
+					for(NodeDTO synonym: synonymsList){
+						String synsetIdentifier = synonym.getIdentifier();
+						if(synsetIdentifier != null && wordIdentifier != null && !synsetIdentifier.equalsIgnoreCase(wordIdentifier)){
+							synonymsNewList.add(synonym);
+						}
 					}
+					synsetMap.put(LanguageParams.synonyms.name(), synonymsNewList);
 				}
-				synsetMap.put(LanguageParams.synonyms.name(), synonymsNewList);
-				
 				
 				map.put(LanguageParams.primaryMeaning.name(), synsetMap);
 			}
