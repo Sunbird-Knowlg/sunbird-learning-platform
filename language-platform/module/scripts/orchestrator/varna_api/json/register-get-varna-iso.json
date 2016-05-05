@@ -1,14 +1,14 @@
 {
-    "name": "getVarnaIPA",
+    "name": "getVarnaISO",
     "parameters": [{
-    	"name":"ipa_id",
+    	"name":"iso_id",
     	"index": 0,
     	"routingParam": false
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/language/dictionary/ipa/*",
-        "pathParams": ["ipa_id"]
+        "url": "/v1/language/dictionary/iso/*",
+        "pathParams": ["iso_id"]
     },
     "body": ""
 }

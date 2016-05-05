@@ -1375,6 +1375,7 @@ public class WordUtil extends BaseManager {
 				}
 			}
 		} catch (Exception e) {
+			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
 

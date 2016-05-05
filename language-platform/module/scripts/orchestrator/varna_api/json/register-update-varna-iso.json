@@ -1,19 +1,19 @@
 {
-    "name": "updateVarnaIPA",
+    "name": "updateVarnaISO",
     "parameters": [{
-    	"name":"varnaIPA_id",
+    	"name":"varnaISO_id",
     	"index": 1,
     	"routingParam": false
     },{
-        "name": "ipa",
+        "name": "iso",
         "index": 2,
         "datatype": "java.util.HashMap",
         "routingParam": false
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v1/language/dictionary/ipa/*",
-        "pathParams": ["varnaIPA_id"]
+        "url": "/v1/language/dictionary/iso/*",
+        "pathParams": ["varnaISO_id"]
     },
     "body": ""
 }

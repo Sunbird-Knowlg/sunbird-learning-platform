@@ -95,6 +95,7 @@ public class IndowordnetUtil {
 							System.out.println(
 									"Time taken for importing one synset record: " + (synsetEndTime - synsetStartTime));
 						} catch (Exception e) {
+							e.printStackTrace();
 							errorMessages.add(e.getMessage());
 						}
 					}

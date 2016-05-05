@@ -1,14 +1,14 @@
 {
-    "name": "createVarnaIPA",
+    "name": "createVarnaISO",
     "parameters": [{
-        "name": "ipa",
+        "name": "iso",
         "index": 0,
         "datatype": "java.util.HashMap",
         "routingParam": false
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v1/language/dictionary/ipa"
+        "url": "/v1/language/dictionary/iso"
     },
     "body": ""
 }

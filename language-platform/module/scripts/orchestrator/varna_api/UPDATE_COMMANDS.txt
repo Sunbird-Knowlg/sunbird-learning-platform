@@ -4,15 +4,15 @@ node registerScript.js varna_api/update-varna.tcl varna_api/json/register-update
 
 node registerScript.js varna_api/get-varna.tcl varna_api/json/register-get-varna.json update
 
-node registerScript.js varna_api/create-varna-ipa.tcl varna_api/json/register-create-varna-ipa.json update
+node registerScript.js varna_api/create-varna-iso.tcl varna_api/json/register-create-varna-iso.json update
 
-node registerScript.js varna_api/update-varna-ipa.tcl varna_api/json/register-update-varna-ipa.json update
+node registerScript.js varna_api/update-varna-iso.tcl varna_api/json/register-update-varna-iso.json update
 
-node registerScript.js varna_api/get-varna-ipa.tcl varna_api/json/register-get-varna-ipa.json update
+node registerScript.js varna_api/get-varna-iso.tcl varna_api/json/register-get-varna-iso.json update
 
 node registerScript.js varna_api/get-varna-unicode.tcl varna_api/json/register-get-varna-unicode.json update
 
-node registerScript.js varna_api/get-varna-ipa-symbol.tcl varna_api/json/register-get-varna-ipa-symbol.json update
+node registerScript.js varna_api/get-varna-iso-symbol.tcl varna_api/json/register-get-varna-iso-symbol.json update
 
 node registerScript.js varna_api/is-vowel-unicode.tcl varna_api/json/register-is-vowel-unicode.json update
 

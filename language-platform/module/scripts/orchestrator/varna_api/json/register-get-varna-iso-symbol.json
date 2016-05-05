@@ -1,7 +1,7 @@
 {
     "name": "getVarnaFromIpa",
     "parameters": [{
-    	"name":"ipa",
+    	"name":"iso",
     	"index": 0,
     	"routingParam": false,
 		"datatype": "java.lang.String"
@@ -13,8 +13,8 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/varna/ipa/*/*",
-        "pathParams": ["language_id", "ipa"]
+        "url": "/v1/varna/iso/*/*",
+        "pathParams": ["language_id", "iso"]
     },
     "body": ""
 }

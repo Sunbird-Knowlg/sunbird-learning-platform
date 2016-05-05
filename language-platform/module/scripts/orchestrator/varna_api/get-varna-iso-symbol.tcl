@@ -6,11 +6,11 @@ java::import -package com.ilimi.graph.dac.model Node
 set varna_object_type "Varna"
 set varna_ipa_object_type "Varna_IPA"
 set varna_ipa_graph_id "language"
-set object_null [java::isnull $ipa]
+set object_null [java::isnull $iso]
 if {$object_null == 1} {
 	set result_map [java::new HashMap]
 	$result_map put "code" "ERR_INVALID_REQUEST"
-	$result_map put "message" "IPA Symbol IS MANDATORY"
+	$result_map put "message" "ISO Symbol IS MANDATORY"
 	$result_map put "responseCode" [java::new Integer 400]
 	set response_list [create_error_response $result_map]
 	return $response_list
@@ -26,7 +26,7 @@ if {$object_null == 1} {
 } 
 
 set searchProperty [java::new HashMap]
-$searchProperty put "ipaSymbol" $ipa
+$searchProperty put "ipaSymbol" $iso
 
 set property [create_search_property $searchProperty]
 
@@ -44,7 +44,7 @@ set def_node [get_resp_value $resp_def_node "definition_node"]
 set varna_obj [convert_graph_node $varna_node $def_node]
 
 set searchProperty [java::new HashMap]
-$searchProperty put "ipaSymbol" $ipa
+$searchProperty put "ipaSymbol" $iso
 
 set property [create_search_property $searchProperty]
 
