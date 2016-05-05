@@ -85,13 +85,13 @@ public class WordnetUtil implements IWordnetConstants {
                         if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
                             String pos = (String) rel.getStartNodeMetadata().get(ATTRIB_POS);
                             if (StringUtils.isNotBlank(pos)) {
-                                synsetPos = pos;
+                                synsetPos = pos.trim().toLowerCase();
                                 break;
                             }
                         } else if (StringUtils.isBlank(synsetPos)) {
                             String pos = (String) rel.getStartNodeMetadata().get(ATTRIB_POS);
                             if (StringUtils.isNotBlank(pos))
-                                synsetPos = pos;
+                                synsetPos = pos.trim().toLowerCase();
                         }
                     }
                 }

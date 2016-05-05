@@ -13,6 +13,7 @@ public interface IWordnetConstants {
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";
     String ATTRIB_PRONUNCIATIONS = "pronunciations";
     String ATTRIB_PICTURES = "pictures";
+    String ATTRIB_WORD_IMAGES = "wordImages";
     String ATTRIB_IS_PHRASE = "isPhrase";
     String ATTRIB_HAS_CONNOTATIVE_MEANING = "hasConnotativeMeaning";
     String ATTRIB_HAS_CONNOTATIVE = "hasConnotative";

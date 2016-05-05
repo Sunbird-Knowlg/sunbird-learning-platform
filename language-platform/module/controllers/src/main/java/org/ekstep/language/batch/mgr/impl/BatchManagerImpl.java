@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.batch.mgr.IBatchManager;
@@ -24,8 +25,10 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
@@ -35,6 +38,45 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     private ControllerUtil controllerUtil = new ControllerUtil();
 
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
+    
+    @Override
+    public Response updatePictures(String languageId) {
+        List<Node> nodes = getAllWords(languageId);
+        if (null != nodes && !nodes.isEmpty()) {
+            for (Node node : nodes) {
+                Object pictures = null;
+                Object wordImages = (Object) node.getMetadata().get(ATTRIB_PICTURES);
+                String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
+                List<Relation> inRels = node.getInRelations();
+                if (null != inRels && !inRels.isEmpty()) {
+                    for (Relation rel : inRels) {
+                        if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
+                                && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                            String synsetId = rel.getStartNodeId();
+                            if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
+                                pictures = (Object) rel.getStartNodeMetadata().get(ATTRIB_PICTURES);
+                                break;
+                            }
+                        }
+                    }
+                }
+                node.getMetadata().put(ATTRIB_PICTURES, pictures);
+                node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
+                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                        "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                try {
+                    System.out.println("Sending update req for : " + node.getIdentifier());
+                    getResponse(updateReq, LOGGER);
+                    System.out.println("Update complete for : " + node.getIdentifier());
+                } catch (Exception e) {
+                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                }
+            }
+        }
+        return OK("status", "OK");
+    }
     
     @Override
     public Response updatePosList(String languageId) {
