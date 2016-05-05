@@ -68,6 +68,7 @@ public class XmlContentParser {
 	private Content processContentDocument(Element root) {
 		Content content = new Content();
 		if (null != root && root.hasChildNodes()) {
+			content.setData(getDataMap(root));
 			content.setManifest(getContentManifest(root.getElementsByTagName(ContentWorkflowPipelineParams.manifest.name())));
 			content.setControllers(getControllers(root.getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			content.setPlugins(getPlugins(root));
@@ -116,14 +117,15 @@ public class XmlContentParser {
 		return attributes;
 	}
 	
-	public List<Map<String, String>> getChildrenData(Node node) {
+	private List<Map<String, String>> getChildrenData(Node node) {
 		List<Map<String, String>> childrenTags = new ArrayList<Map<String, String>>();
 		NodeList nodeList = ((Element) node).getElementsByTagName("*");
 	    for (int i = 0; i < nodeList.getLength(); i++) {
 	        Node childNode = nodeList.item(i);
 	        if (childNode.getNodeType() == Node.ELEMENT_NODE) {
 	            Map<String, String> map = getDataMap(childNode);
-	            map.put(ContentWorkflowPipelineParams.group_tag_name.name(), childNode.getParentNode().getNodeName());
+	            if (!StringUtils.equalsIgnoreCase(node.getNodeName(), childNode.getParentNode().getNodeName()))
+	            	map.put(ContentWorkflowPipelineParams.group_element_name.name(), childNode.getParentNode().getNodeName());
 	            childrenTags.add(map);
 	        }
 	    }
@@ -294,7 +296,7 @@ public class XmlContentParser {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != node) {
 			map = getAttributeMap(node);
-			map.put(ContentWorkflowPipelineParams.tag_name.name(), node.getNodeName());
+			map.put(ContentWorkflowPipelineParams.element_name.name(), node.getNodeName());
 		}
 		return map;
 	}

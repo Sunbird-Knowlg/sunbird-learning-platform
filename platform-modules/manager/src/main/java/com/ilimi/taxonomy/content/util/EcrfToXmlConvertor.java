@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
@@ -25,20 +26,14 @@ public class EcrfToXmlConvertor {
 	private static final String ATTRIBUTE_KEY_VALUE_SAPERATOR = "=";
 	private static final String BLANK_SPACE = " ";
 	
-	private static final List<String> systemGeneratedAttribute = new ArrayList<String>() {
-		private static final long serialVersionUID = 7315113992066657012L;
-		{
-			add(ContentWorkflowPipelineParams.tag_name.name());
-			add(ContentWorkflowPipelineParams.group_tag_name.name());
-		}
-	};
-	
 	public String getContentXmlString(Content ecrf) {
 		StringBuilder xml = new StringBuilder();
 		if (null != ecrf) {
+			xml.append(getElementXml(ecrf.getData()));
 			xml.append(getContentManifestXml(ecrf.getManifest()));
 			xml.append(getContentControllersXml(ecrf.getControllers()));
 			xml.append(getPluginsXml(ecrf.getPlugins()));
+			xml.append(getEndTag(ecrf.getData().get(ContentWorkflowPipelineParams.element_name.name())));
 		}
 		return xml.toString();
 	}
@@ -76,7 +71,7 @@ public class EcrfToXmlConvertor {
 		if (null != elements && elements.size() > 0) {
 			Map<String, List<Map<String, String>>> groupingTags = new HashMap<String, List<Map<String, String>>>();
 			for (Map<String, String> element: elements) {
-				String groupTag = element.get(ContentWorkflowPipelineParams.group_tag_name.name());
+				String groupTag = element.get(ContentWorkflowPipelineParams.group_element_name.name());
 				if (null == groupingTags.get(groupTag))
 					groupingTags.put(groupTag, new ArrayList<Map<String, String>>());
 				groupingTags.get(groupTag).add(element);
@@ -207,9 +202,9 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getElementXml(Map<String, String> data) {
 		StringBuilder xml = new StringBuilder();
 		if (null != data) {
-			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.tag_name.name()));
+			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.element_name.name()));
 			for (Entry<String, String> entry: data.entrySet()) {
-				if (!systemGeneratedAttribute.contains(entry.getKey())) {
+				if (!ElementMap.isSystemGenerateAttribute(entry.getKey())) {
 					xml.append(entry.getKey() + ATTRIBUTE_KEY_VALUE_SAPERATOR + entry.getValue() + BLANK_SPACE);
 				}
 			}
@@ -220,8 +215,8 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getPluginEndTag(Plugin plugin) {
 		StringBuilder xml = new StringBuilder();
-		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.tag_name.name())) {
-			xml.append(plugin.getData().get(ContentWorkflowPipelineParams.tag_name.name()));
+		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
+			xml.append(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name()));
 		}
 		return xml;
 	}

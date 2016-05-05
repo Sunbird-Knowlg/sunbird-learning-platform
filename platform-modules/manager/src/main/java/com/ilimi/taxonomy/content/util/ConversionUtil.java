@@ -12,7 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class ConversionUtil {
 	
-	public String convertMapToJSON(Map<String, String> map) {
+	public static String convertMapToJSON(Map<String, String> map) {
 		String jsonResp = "";
 		ObjectMapper mapperObj = new ObjectMapper();
         try {
@@ -24,17 +24,17 @@ public class ConversionUtil {
         return jsonResp;
 	}
 	
-	public static Map<String, Object> jsonString2Map(String jsonString) throws JSONException{
-		JSONObject jsonObject = new JSONObject( jsonString );
+	public static Map<String, Object> convertJsonStringToMap(String jsonString) throws JSONException{
+		JSONObject jsonObject = new JSONObject(jsonString);
 		return jsonToMap(jsonObject);
 	}
 	
 	public static Map<String, Object> jsonToMap(JSONObject json) throws JSONException {
-	    Map<String, Object> retMap = new HashMap<String, Object>();
+	    Map<String, Object> map = new HashMap<String, Object>();
 	    if(json != JSONObject.NULL) {
-	        retMap = toMap(json);
+	        map = toMap(json);
 	    }
-	    return retMap;
+	    return map;
 	}
 
 	public static Map<String, Object> toMap(JSONObject object) throws JSONException {
@@ -43,12 +43,9 @@ public class ConversionUtil {
 	    while(keysItr.hasNext()) {
 	        String key = keysItr.next();
 	        Object value = object.get(key);
-
 	        if(value instanceof JSONArray) {
 	            value = toList((JSONArray) value);
-	        }
-
-	        else if(value instanceof JSONObject) {
+	        } else if(value instanceof JSONObject) {
 	            value = toMap((JSONObject) value);
 	        }
 	        map.put(key, value);
@@ -62,9 +59,7 @@ public class ConversionUtil {
 	        Object value = array.get(i);
 	        if(value instanceof JSONArray) {
 	            value = toList((JSONArray) value);
-	        }
-
-	        else if(value instanceof JSONObject) {
+	        } else if(value instanceof JSONObject) {
 	            value = toMap((JSONObject) value);
 	        }
 	        list.add(value);

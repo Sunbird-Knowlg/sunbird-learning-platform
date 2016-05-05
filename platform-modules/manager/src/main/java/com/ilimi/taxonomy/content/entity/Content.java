@@ -1,13 +1,21 @@
 package com.ilimi.taxonomy.content.entity;
 
 import java.util.List;
+import java.util.Map;
 
 public class Content {
 	
+	private Map<String, String> data = null; 
 	private Manifest manifest = null;
 	private List<Controller> controllers = null;
 	private List<Plugin> plugins = null;
 	
+	public Map<String, String> getData() {
+		return data;
+	}
+	public void setData(Map<String, String> data) {
+		this.data = data;
+	}
 	public Manifest getManifest() {
 		return manifest;
 	}

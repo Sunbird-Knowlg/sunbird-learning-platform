@@ -10,5 +10,12 @@ public class EcrfConversionUtility {
 		content = parser.parseContent(strContent);
 		return content;
 	}
+	
+	public Content getEcrfFromJson(String strContent) {
+		Content content = new Content();
+		JsonContentParser parser = new JsonContentParser();
+		content = parser.parseContent(strContent);
+		return content;
+	}
 
 }

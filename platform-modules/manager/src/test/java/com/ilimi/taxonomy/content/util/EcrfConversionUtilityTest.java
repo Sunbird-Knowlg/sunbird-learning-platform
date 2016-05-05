@@ -8,7 +8,7 @@ import org.junit.Test;
 
 import com.ilimi.taxonomy.content.entity.Content;
 
-public class ECRFConversionUtilityTest {
+public class EcrfConversionUtilityTest {
 	
 	@SuppressWarnings("unused")
 	@Test
@@ -16,6 +16,7 @@ public class ECRFConversionUtilityTest {
 		EcrfConversionUtility fixture = new EcrfConversionUtility();
 		String strContent = getFileString("Sample_XML_1.ecml");
 		Content content = fixture.getECRF(strContent);
+//		Content content = fixture.getEcrfFromJson(strContent);
 	}
 	
 	private String getFileString(String fileName) {
