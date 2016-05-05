@@ -1655,6 +1655,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			primaryMeaning.remove(LanguageParams.workers.name());
 			primaryMeaning.remove(LanguageParams.converse.name());
 			
+			Object exampleSentences = primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES);
+			if(exampleSentences != null){
+				item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
+			}
+			primaryMeaning.remove(ATTRIB_EXAMPLE_SENTENCES);
 
 			Response synsetResponse = createSynset(languageId, primaryMeaning);
 			if (checkError(synsetResponse)) {
@@ -1707,9 +1712,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				Object pictures = synsetMetadata.get(ATTRIB_PICTURES);
 				if (null != pictures)
 				    item.put(ATTRIB_PICTURES, pictures);
-				Object exampleSentences = synsetMetadata.get(ATTRIB_EXAMPLE_SENTENCES);
-				if (null != exampleSentences)
-                    item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
 			}
 			
 			// create or update Other meaning Synsets
@@ -2101,6 +2103,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	    return map;
 	}
 
+	@SuppressWarnings("unchecked")
 	private Map<String, Object> addPrimaryAndOtherMeaningsToWord(Node node, String languageId) {
 		try {
 			DefinitionDTO defintion = getDefinitionDTO(LanguageParams.Word.name(), languageId);
@@ -2143,6 +2146,28 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				String category = (String) synsetMap.get(LanguageParams.category.name());
 				if (StringUtils.isNotBlank(category))
 					map.put(LanguageParams.category.name(), category);
+				
+				synsetMap.remove(ATTRIB_EXAMPLE_SENTENCES);
+				Object exampleSentences = map.get(ATTRIB_EXAMPLE_SENTENCES);
+				if(exampleSentences != null){
+					synsetMap.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
+				}
+				map.remove(ATTRIB_EXAMPLE_SENTENCES);
+				
+				//remove same word from synset
+				
+				String wordIdentifier = (String) map.get(LanguageParams.identifier.name());
+				List<NodeDTO> synonymsNewList = new ArrayList<NodeDTO>();
+				List<NodeDTO> synonymsList = (List<NodeDTO>) synsetMap.get(LanguageParams.synonyms.name());
+				for(NodeDTO synonym: synonymsList){
+					String synsetIdentifier = synonym.getIdentifier();
+					if(synsetIdentifier != null && wordIdentifier != null && !synsetIdentifier.equalsIgnoreCase(wordIdentifier)){
+						synonymsNewList.add(synonym);
+					}
+				}
+				synsetMap.put(LanguageParams.synonyms.name(), synonymsNewList);
+				
+				
 				map.put(LanguageParams.primaryMeaning.name(), synsetMap);
 			}
 			if (synsets != null && !synsets.isEmpty()) {
