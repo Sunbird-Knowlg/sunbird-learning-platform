@@ -419,7 +419,6 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 tx = graphDb.beginTx();
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel) {
-                    //tx.acquireWriteLock(rel);
                     for (Entry<String, Object> entry : metadata.entrySet()) {
                         rel.setProperty(entry.getKey(), entry.getValue());
                     }

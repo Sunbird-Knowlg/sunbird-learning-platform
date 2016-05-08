@@ -222,7 +222,6 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
-                //tx.acquireWriteLock(node);
                 if (null == property.getPropertyValue())
                     node.removeProperty(property.getPropertyName());
                 else
@@ -256,7 +255,6 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 tx = graphDb.beginTx();
                 if (null != metadata && metadata.size() > 0) {
                     Node node = getNodeByUniqueId(graphDb, nodeId);
-                    //tx.acquireWriteLock(node);
                     for (Entry<String, Object> entry : metadata.entrySet()) {
                         if (null == entry.getValue())
                             node.removeProperty(entry.getKey());
@@ -291,7 +289,6 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
-                //tx.acquireWriteLock(node);
                 node.removeProperty(key);
                 node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();

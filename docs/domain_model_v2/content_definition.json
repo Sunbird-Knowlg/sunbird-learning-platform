@@ -1153,7 +1153,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "createdOn",
@@ -1165,7 +1165,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 22}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastUpdatedBy",
@@ -1177,7 +1177,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastUpdatedOn",
@@ -1189,7 +1189,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 22}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastSubmittedBy",
@@ -1201,7 +1201,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 21}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastSubmittedOn",
@@ -1213,7 +1213,7 @@
           "displayProperty": "Readonly",
           "defaultValue": "",
           "renderingHints": "{'order': 22}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "lastPublishedBy",
