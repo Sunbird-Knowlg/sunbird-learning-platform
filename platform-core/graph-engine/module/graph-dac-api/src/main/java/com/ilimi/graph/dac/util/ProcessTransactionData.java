@@ -180,7 +180,8 @@ public class ProcessTransactionData {
 				StringUtils.equalsIgnoreCase(
 						rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
 						GraphDACParams.TAG.name())) {
-				tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
+			    if (rel.getStartNode().hasProperty(SystemProperties.IL_TAG_NAME.name()))
+			        tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
 			}
 		}
 		return tags;
@@ -205,7 +206,8 @@ public class ProcessTransactionData {
 				StringUtils.equalsIgnoreCase(
 						rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
 						GraphDACParams.TAG.name())) {
-				tags.add(rel.getStartNode().getProperty(GraphDACParams.TAG_NAME.name()).toString());
+			    if (rel.getStartNode().hasProperty(SystemProperties.IL_TAG_NAME.name()))
+			        tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
 			}
 		}
 		return tags;
