@@ -14,6 +14,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.google.gson.internal.LinkedTreeMap;
 
+import io.searchbox.core.CountResult;
 import io.searchbox.core.SearchResult;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
@@ -22,8 +23,37 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO) throws IOException {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+		response.put("results", results);
+		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
+				.getValue("aggregations");
+		if (aggregations != null && !aggregations.isEmpty()) {
+			AggregationsResultTransformer transformer =  new AggregationsResultTransformer();
+			response.put("facets", (List<Map<String, Object>>)elasticSearchUtil.getCountFromAggregation(aggregations, groupByFinalList, transformer));
+		}
+		return response;
+	}
+	
+	public Map<String, Object> processCount(SearchDTO searchDTO) throws IOException {
+		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
+		Map<String, Object> response = new HashMap<String, Object>();
+		String query = processSearchQuery(searchDTO, null, false);
+		
+		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		response.put("count", countResult.getCount());
+		
+		return response;
+	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort){
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
@@ -148,36 +178,25 @@ public class SearchProcessor {
 			conditionsMap.get(conditionSet).add(condition);
 		}
 
-		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
-
-		if (searchDTO.getFacets() != null) {
+		if (searchDTO.getFacets() != null && groupByFinalList != null) {
 			for (String facet : searchDTO.getFacets()) {
 				Map<String, Object> groupByMap = new HashMap<String, Object>();
 				groupByMap.put("groupByParent", facet);
 				groupByFinalList.add(groupByMap);
 			}
 		}
-		Map<String, Object> response = new HashMap<String, Object>();
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
 		
-		Map<String, String> sortBy = searchDTO.getSortBy();
-		if(sortBy == null || sortBy.isEmpty()){
-			sortBy = new HashMap<String, String>();
-			sortBy.put("name", "asc");
-			searchDTO.setSortBy(sortBy);
+		if(sort){
+			Map<String, String> sortBy = searchDTO.getSortBy();
+			if(sortBy == null || sortBy.isEmpty()){
+				sortBy = new HashMap<String, String>();
+				sortBy.put("name", "asc");
+				searchDTO.setSortBy(sortBy);
+			}
 		}
-		
 		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
-		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
-		response.put("results", results);
-		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
-				.getValue("aggregations");
-		if (aggregations != null && !aggregations.isEmpty()) {
-			AggregationsResultTransformer transformer =  new AggregationsResultTransformer();
-			response.put("facets", (List<Map<String, Object>>)elasticSearchUtil.getCountFromAggregation(aggregations, groupByFinalList, transformer));
-		}
-		return response;
+		return query;
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

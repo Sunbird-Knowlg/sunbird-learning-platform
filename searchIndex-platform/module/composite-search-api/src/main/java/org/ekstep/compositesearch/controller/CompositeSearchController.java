@@ -58,5 +58,20 @@ public class CompositeSearchController extends BaseCompositeSearchController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+	
+	@RequestMapping(value = "/count", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> count(@RequestBody Map<String, Object> map, 
+    		@RequestHeader(value = "user-id") String userId,
+            HttpServletResponse resp) {
+        String apiId = "composite-search.count";
+        try {
+        	Request request = getRequest(map);
+            Response response = compositeSearchManager.count(request);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
 }

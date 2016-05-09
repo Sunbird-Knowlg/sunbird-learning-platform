@@ -280,6 +280,19 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return response;
 	}
 	
+    private Response getCompositeSearchCountResponse(Map<String, Object> countResponse) {
+		Response response = new Response();
+		ResponseParams params = new ResponseParams();
+		params.setStatus("Success");
+		response.setParams(params);
+		response.setResponseCode(ResponseCode.OK);
+		
+		if (null != countResponse.get("count")){
+			response.put("totalCount", (Double) countResponse.get("count"));
+		}
+		return response;
+	}
+	
 	private String getResultParamKey(String objectType) {
 	    if (StringUtils.isNotBlank(objectType)) {
 	        if (StringUtils.equalsIgnoreCase("Domain", objectType))
@@ -395,6 +408,18 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		params.setStatus(CompositeSearchParams.success.name());
 		response.setParams(params);
 		return response;
+	}
+
+	@Override
+	public Response count(Request request) {
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
+			return getCompositeSearchCountResponse(countResult);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+		}
 	}
 
 }
