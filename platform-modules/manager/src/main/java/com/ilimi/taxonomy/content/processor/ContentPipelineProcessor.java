@@ -10,9 +10,10 @@ public class ContentPipelineProcessor extends AbstractProcessor{
 	protected List<AbstractProcessor> lstProcessor = new ArrayList<AbstractProcessor>();
 
 	@Override
-	protected void process(Content content) {
+	protected Content process(Content content) {
 		for(AbstractProcessor processor: lstProcessor)
-			processor.execute(content); 
+			content = processor.execute(content); 
+		return content;
 	}
 	
 	protected void registerProcessor(AbstractProcessor processor) {

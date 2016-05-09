@@ -1,8 +1,12 @@
 package com.ilimi.taxonomy.content.processor;
 
+import com.ilimi.taxonomy.content.concrete.processor.BaseConcreteProcessor;
 import com.ilimi.taxonomy.content.entity.Content;
 
-public abstract class AbstractProcessor {
+public abstract class AbstractProcessor extends BaseConcreteProcessor {
+	
+	protected String basePath;
+	protected String contentId;
 	
 	protected AbstractProcessor nextProcessor;
 	public void setNextProcessor(AbstractProcessor nextProcessor){
@@ -15,12 +19,13 @@ public abstract class AbstractProcessor {
 		this.isAutomaticChainExecutionEnabled = isAutomaticChainExecutionEnabled;
 	}
 	
-	public void execute(Content content){
-        process(content);
+	public Content execute(Content content){
+        content = process(content);
         if(null != nextProcessor && isAutomaticChainExecutionEnabled == true){
-        	nextProcessor.execute(content);
+        	content = nextProcessor.execute(content);
         }
+        return content;
     }
 	
-	abstract protected void process(Content content);
+	abstract protected Content process(Content content);
 }
