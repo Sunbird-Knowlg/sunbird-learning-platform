@@ -20,6 +20,7 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
+import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -29,6 +30,7 @@ import akka.actor.ActorRef;
 public class LexileMeasuresActor extends LanguageBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
+	private WordUtil wordUtil = new WordUtil(); 
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -86,6 +88,10 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 					}
 				}
 				OK(LanguageParams.word_features.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.wordComplexityV2.name(), operation)) {
+				String lemma = (String) request.get(LanguageParams.lemma.name());
+				Double wordComplexity = wordUtil.getWordComplexity(lemma, languageId);
+				OK(LanguageParams.word_complexity.name(), wordComplexity, getSender());
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),
