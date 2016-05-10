@@ -243,39 +243,40 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-    private Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
+	private Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");
 		response.setParams(params);
 		response.setResponseCode(ResponseCode.OK);
-		
-		List<Object> lstResult = (List<Object>) searchResponse.get("results");
-		if (null != lstResult && !lstResult.isEmpty()) {
-		    Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
-		    for (Object obj : lstResult) {
-		        if (obj instanceof Map) {
-		            Map<String, Object> map = (Map<String, Object>) obj;
-		            String objectType = (String) map.get(GraphDACParams.objectType.name());
-		            if (StringUtils.isNotBlank(objectType)) {
-		                String key = getResultParamKey(objectType);
-		                if (StringUtils.isNotBlank(key)) {
-		                    List<Map<String, Object>> list = result.get(key);
-		                    if (null == list) {
-		                        list = new ArrayList<Map<String, Object>>();
-		                        result.put(key, list);
-		                        response.put(key, list);
-		                    }
-		                    list.add(map);
-		                }
-		            }
-		        }
-		    }
-		}
-		
-		List<Map<String, Object>> facets = (List<Map<String, Object>>) searchResponse.get("facets");
-		if (null != facets && !facets.isEmpty()){
-			response.put("facets", facets);
+
+		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase("results")) {
+				List<Object> lstResult = (List<Object>) entry.getValue();
+				if (null != lstResult && !lstResult.isEmpty()) {
+					Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+					for (Object obj : lstResult) {
+						if (obj instanceof Map) {
+							Map<String, Object> map = (Map<String, Object>) obj;
+							String objectType = (String) map.get(GraphDACParams.objectType.name());
+							if (StringUtils.isNotBlank(objectType)) {
+								String key = getResultParamKey(objectType);
+								if (StringUtils.isNotBlank(key)) {
+									List<Map<String, Object>> list = result.get(key);
+									if (null == list) {
+										list = new ArrayList<Map<String, Object>>();
+										result.put(key, list);
+										response.put(key, list);
+									}
+									list.add(map);
+								}
+							}
+						}
+					}
+				}
+			} else {
+				response.put(entry.getKey(), entry.getValue());
+			}
 		}
 		return response;
 	}
@@ -288,7 +289,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		response.setResponseCode(ResponseCode.OK);
 		
 		if (null != countResponse.get("count")){
-			response.put("totalCount", (Double) countResponse.get("count"));
+			response.put("count", (Double) countResponse.get("count"));
 		}
 		return response;
 	}

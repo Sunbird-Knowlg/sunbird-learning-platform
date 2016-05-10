@@ -37,11 +37,11 @@ public class SearchProcessor {
 			AggregationsResultTransformer transformer =  new AggregationsResultTransformer();
 			response.put("facets", (List<Map<String, Object>>)elasticSearchUtil.getCountFromAggregation(aggregations, groupByFinalList, transformer));
 		}
+		response.put("count", searchResult.getTotal());
 		return response;
 	}
 	
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws IOException {
-		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		String query = processSearchQuery(searchDTO, null, false);
 		
