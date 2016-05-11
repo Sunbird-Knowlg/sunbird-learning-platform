@@ -94,6 +94,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                         Map<String, Object> metadata = new HashMap<String, Object>();
                         metadata.put(ATTRIB_SOURCES, list);
                         metadata.put(ATTRIB_POS, pos);
+                        metadata.put(ATTRIB_STATUS, "Draft");
                         wordNode.setMetadata(metadata);
                         Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                 "updateDataNode");

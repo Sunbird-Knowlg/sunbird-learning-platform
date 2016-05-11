@@ -10,6 +10,7 @@ public interface IWordnetConstants {
     String ATTRIB_HAS_ANTONYMS = "hasAntonyms";
     String ATTRIB_LEMMA = "lemma";
     String ATTRIB_POS = "pos";
+    String ATTRIB_STATUS = "status";
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";
     String ATTRIB_PRONUNCIATIONS = "pronunciations";
     String ATTRIB_PICTURES = "pictures";
