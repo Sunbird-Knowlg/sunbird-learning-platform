@@ -16,7 +16,7 @@ if {$isRespContentNodesNull == 0} {
 		set metadata [java::prop $content_node "metadata"]
 		set status [[$metadata get "status"] toString]
 		set contentType [[$metadata get "contentType"] toString]
-		if {$status == "Live" && $contentType != "Asset"} {
+		if {$status == "Live"} {
 			$metadata put "lastPublishedOn" [$metadata get "lastUpdatedOn"]
 			set update 1
 		}

@@ -8,6 +8,7 @@ proc getCount {graph_id object_type domain_id} {
 	$map put "nodeType" "DATA_NODE"
 	$map put "objectType" $object_type
 	$map put "subject" $domain_id
+	$map put "status" "Live"
 	set search_criteria [create_search_criteria $map]
 	set search_response [getNodesCount $graph_id $search_criteria]
 	set check_error [check_response_error $search_response]
