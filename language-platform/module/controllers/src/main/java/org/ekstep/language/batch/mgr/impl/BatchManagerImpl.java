@@ -87,10 +87,13 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             for (Node node : nodes) {
                 if (isIWNWord(node.getInRelations())) {
                     if (!checkSourceMetadata(node)) {
+                        WordnetUtil.updatePOS(node);
+                        Object pos = node.getMetadata().get(ATTRIB_POS);
                         Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
                         wordNode.setGraphId(node.getGraphId());
                         Map<String, Object> metadata = new HashMap<String, Object>();
                         metadata.put(ATTRIB_SOURCES, list);
+                        metadata.put(ATTRIB_POS, pos);
                         wordNode.setMetadata(metadata);
                         Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                 "updateDataNode");
