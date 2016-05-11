@@ -1,25 +1,14 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.tika.Tika;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.BaseManager;
@@ -31,14 +20,10 @@ import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.util.AWSUploader;
-import com.ilimi.taxonomy.util.HttpDownloadUtility;
 
 public class BaseConcreteProcessor extends BaseManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(BaseConcreteProcessor.class.getName());
-	
-	private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
 	
 	public Response updateNode(String contentId, Map<String, Object> fields) {
 		Response response = new Response();
@@ -101,95 +86,31 @@ public class BaseConcreteProcessor extends BaseManager {
 		return srcMap;
 	}
 	
-	public Map<String, String> uploadAssets(Map<String, String> files, final String basePath) throws InterruptedException, ExecutionException {
-		Map<String, String> map = new HashMap<String, String>();
-		if (null != files && !StringUtils.isBlank(basePath)){
-	            ExecutorService pool = Executors.newFixedThreadPool(10);
-	            List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
-	            for (final Entry<String, String> file : files.entrySet()) {
-	                tasks.add(new Callable<Map<String, String>>() {
-	                    public Map<String, String> call() throws Exception {
-	                    	Map<String, String> uploadMap = new HashMap<String, String>();
-	                    	if (!StringUtils.isBlank(file.getKey()) && !StringUtils.isBlank(file.getValue())) {
-		                    	File uploadFile;
-		                    	if (isWidgetTypeAsset(file.getValue())) 
-		                    		uploadFile = new File(basePath + File.separator + 
-		                    				ContentWorkflowPipelineParams.widgets.name() + file.getKey());
-		                    	else
-		                    		uploadFile = new File(basePath + File.separator + 
-		                    				ContentWorkflowPipelineParams.assets.name() + file.getKey());
-		                    	String[] uploadedFileUrl;
-		                    	if (uploadFile.exists()) {
-			                        uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME, 
-			                        		ContentConfigurationConstants.FOLDER_NAME, 
-			                        		uploadFile);
-			                        if (null != uploadedFileUrl && uploadedFileUrl.length > 0)
-			                        	uploadMap.put(file.getKey(), uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
-		                    	}
-	                    	}
-	                        return uploadMap;
-	                    }
-	                });
-	            }
-	            List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-	            for (Future<Map<String, String>> uMap : results) {
-	                Map<String, String> m = uMap.get();
-	                if (null != m)
-	                    map.putAll(m);
-	            }
-	            pool.shutdown();
-	       
-		}
-		return map;
-	}
-	
-	public Map<String, String> downloadAssets(Map<String, String> files, final String basePath) throws InterruptedException, ExecutionException {
-		Map<String, String> map = new HashMap<String, String>();
-		if (null != files && !StringUtils.isBlank(basePath)){
-	            ExecutorService pool = Executors.newFixedThreadPool(10);
-	            List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(files.size());
-	            for (final Entry<String, String> file : files.entrySet()) {
-	                tasks.add(new Callable<Map<String, String>>() {
-	                    public Map<String, String> call() throws Exception {
-	                    	Map<String, String> downloadMap = new HashMap<String, String>();
-	                    	if (!StringUtils.isBlank(file.getKey()) && !StringUtils.isBlank(file.getValue())) {
-		                    	String downloadPath = basePath;
-		                    	if (isWidgetTypeAsset(file.getValue())) 
-		                    		downloadPath += File.separator + ContentWorkflowPipelineParams.widgets.name();
-		                    	else
-		                    		downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
-		                    	createDirectoryIfNeeded(downloadPath);
-		                    	File downloadedFile = HttpDownloadUtility.downloadFile(file.getKey(), downloadPath);
-		                    	downloadMap.put(file.getKey(), downloadedFile.getName());
-		                    }
-	                        return downloadMap;
-	                    }
-	                });
-	            }
-	            List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-	            for (Future<Map<String, String>> uMap : results) {
-	                Map<String, String> m = uMap.get();
-	                if (null != m)
-	                    map.putAll(m);
-	            }
-	            pool.shutdown();
-	       
-		}
-		return map;
-	}
-	
 	public List<Media> getUpdatedMediaWithUrl(Map<String, String> urlMap, List<Media> mediaList) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != urlMap && null != mediaList) {
 			for (Media media: mediaList) {
 				if (null != media.getData()) {
 					String uUrl = urlMap.get(media.getData().get(ContentWorkflowPipelineParams.src.name()));
-					if (!StringUtils.isBlank(uUrl)) {
-						Map<String, String> map = media.getData();
-						map.put(ContentWorkflowPipelineParams.src.name(), uUrl);
-						media.setData(map);
-					}
+					if (!StringUtils.isBlank(uUrl))
+						media.getData().put(ContentWorkflowPipelineParams.src.name(), uUrl);
 				}
+				medias.add(media);
+			}
+		}
+		return medias;
+	}
+	
+	public List<Media> getUpdatedMediaWithAssetId(Map<String, String> assetIdMap, List<Media> mediaList) {
+		List<Media> medias = new ArrayList<Media>();
+		if (null != assetIdMap && null != mediaList) {
+			for (Media media: mediaList) {
+				if (null != media.getData()) {
+					String assetId = assetIdMap.get(media.getData().get(ContentWorkflowPipelineParams.src.name()));
+					if (!StringUtils.isBlank(assetId))
+						media.getData().put(ContentWorkflowPipelineParams.assetId.name(), assetId);
+				}
+				medias.add(media);
 			}
 		}
 		return medias;
@@ -214,10 +135,10 @@ public class BaseConcreteProcessor extends BaseManager {
 		return controllerFileList;
 	}
 	
-	public Response createContentNode(Map<String, Object> map, String contentType) {
+	public Response createContentNode(Map<String, Object> map) {
 		Response response = new Response();
-		if (null != map && StringUtils.isBlank(contentType)) {
-			Node node = getDataNode(map, contentType);
+		if (null != map) {
+			Node node = getDataNode(map);
 			Request validateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
 					ContentWorkflowPipelineParams.validateNode.name());
 			validateReq.put(GraphDACParams.node.name(), node);
@@ -255,88 +176,6 @@ public class BaseConcreteProcessor extends BaseManager {
 		return response;
 	}
 	
-	public Map<String, String> createAssetFromSrcMap(Map<String, String> srcMap, String basePath) {
-		Map<String, String> assetIdMap = new HashMap<String, String>();
-		if (null != srcMap) {
-			for (Entry<String, String> entry: srcMap.entrySet()) {
-				String assetName = getFileNameWithoutExtensionFromPathString(entry.getValue());
-				if (!StringUtils.isBlank(assetName)) {
-					String url = "";
-					if (isWebAddress(entry.getKey()))
-						url = entry.getKey();
-					else
-						if (isWidgetTypeAsset(entry.getValue()))
-							url = basePath + File.separator + ContentWorkflowPipelineParams.widgets.name() + 
-							File.separator + entry.getKey();
-						url = basePath + File.separator + ContentWorkflowPipelineParams.assets.name() + 
-								File.separator + entry.getKey();
-					Map<String, Object> assetMap = getMinimalAssetNodeMap(assetName, url); 
-				}
-			}
-		}
-		return assetIdMap;
-	}
-	
-	private boolean isWebAddress(String url) {
-		boolean isWebAdd = false;
-		Pattern p = Pattern.compile(URL_REGEX);
-		Matcher m = p.matcher(url);
-		if(m.find())
-			isWebAdd = true;
-		return isWebAdd;
-	}
-	
-	private Map<String, Object> getMinimalAssetNodeMap(String assetName, String url) {
-		Map<String, Object> minimalAssetNodeMap = new HashMap<String, Object>();
-		if (!StringUtils.isBlank(assetName)) {
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.name.name(), assetName);
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.code.name(), getContentCode(assetName, ContentWorkflowPipelineParams.Asset.name()));
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.owner.name(), ContentConfigurationConstants.DEFAULT_CONTENT_OWNER);
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.body.name(), ContentConfigurationConstants.DEFAULT_CONTENT_BODY);
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.contentType.name(), ContentWorkflowPipelineParams.Asset.name());
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.downloadUrl.name(), isWebAddress(url) ? url : "");
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.pkgVersion.name(), ContentConfigurationConstants.DEFAULT_CONTENT_PACKAGE_VERSION);
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.mediaType.name(), getMediaType(new File(url)));
-			minimalAssetNodeMap.put(ContentWorkflowPipelineParams.mimeType.name(), getMimeType(new File(url)));
-		}
-		return minimalAssetNodeMap;
-	}
-	
-	private String getContentCode(String contentName, String contentType) {
-		String contentCode = "";
-		if (!StringUtils.isBlank(contentName) && !StringUtils.isBlank(contentType))
-			contentCode = ContentConfigurationConstants.DEFAULT_CONTENT_CODE_PREFIX + contentType + contentName;
-		return contentCode;
-	}
-	
-	private String getMimeType(File file) {
-		String mimeType = "";
-		try {
-			if (file.exists()) {
-				Tika tika = new Tika();
-				mimeType = tika.detect(file);
-			}
-		} catch (IOException e) {
-			LOGGER.error("Error: ", e);
-		}
-		return mimeType;
-	}
-	
-	private String getMediaType(File file) {
-		String mediaType = "";
-		if (file.exists()) {
-			String mimeType = getMimeType(file);
-			if (StringUtils.contains(mimeType, ContentConfigurationConstants.URL_PATH_SEPERATOR)) {
-				String type = StringUtils.substringBefore(mimeType, ContentConfigurationConstants.URL_PATH_SEPERATOR);
-				if (!StringUtils.equalsIgnoreCase(type, ContentWorkflowPipelineParams.application.name()))
-					mediaType = type;
-				mediaType = StringUtils.substringAfter(mimeType, ContentConfigurationConstants.URL_PATH_SEPERATOR);
-			}
-		}
-		return mediaType;
-	}
-	
 	private Node updateDataNode(Node node, Map<String, Object> map) {
 		if (null != map && null != node) {
 			for (Entry<String, Object> entry: map.entrySet())
@@ -345,9 +184,9 @@ public class BaseConcreteProcessor extends BaseManager {
 		return node;
 	}
 	
-	private Node getDataNode(Map<String, Object> map, String contentType) {
+	private Node getDataNode(Map<String, Object> map) {
 		Node node = new Node();
-		if (null != map && !StringUtils.isBlank(contentType)) {
+		if (null != map) {
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			node.setIdentifier((String) map.get(ContentWorkflowPipelineParams.identifier.name()));
 			node.setObjectType(ContentWorkflowPipelineParams.Content.name());
@@ -358,28 +197,14 @@ public class BaseConcreteProcessor extends BaseManager {
 		return node;
 	}
 	
-	private String getFileNameWithoutExtensionFromPathString(String path) {
-		String fileName = "";
-		if (!StringUtils.isBlank(path)) {
-		    if (!StringUtils.contains(path, ContentConfigurationConstants.URL_PATH_SEPERATOR))
-		        fileName = path;
-		    else
-		    	fileName = StringUtils.substringAfterLast(path, ContentConfigurationConstants.URL_PATH_SEPERATOR);
-		    if (StringUtils.contains(fileName, ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR))
-		    	fileName = StringUtils.substringBeforeLast(fileName, ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR);
-		}
-		return fileName;
-	}
-	
-	private boolean isWidgetTypeAsset(String assetType) {
+	public boolean isWidgetTypeAsset(String assetType) {
 		return StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.js.name()) ||
 				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.css.name()) ||
 				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.plugin.name());
 	}
 	
-	private void createDirectoryIfNeeded(String directoryName) {
+	public void createDirectoryIfNeeded(String directoryName) {
         File theDir = new File(directoryName);
-        // if the directory does not exist, create it
         if (!theDir.exists()) {
             theDir.mkdir();
         }
