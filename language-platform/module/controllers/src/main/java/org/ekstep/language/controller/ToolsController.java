@@ -112,4 +112,26 @@ public class ToolsController extends BaseLanguageController {
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);
         }
     }
+    
+    @RequestMapping(value = "/syncDefinition/{definitionName}/{languageId}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> syncDefinition(@PathVariable(value = "languageId") String languageId, @PathVariable(value = "definitionName") String definitionName) {
+        String apiId = "word.complexity";
+        Request request = new Request();
+        request.put(LanguageParams.definitionName.name(), definitionName);
+        request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
+        request.setOperation(LanguageOperations.syncDefinition.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        LOGGER.info("List | Request: " + request);
+        try {
+            Response response = getResponse(request, LOGGER);
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
 }

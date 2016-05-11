@@ -2,6 +2,8 @@ package org.ekstep.language.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1547,29 +1549,40 @@ public class WordUtil extends BaseManager {
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Double getWordComplexity(String lemma, String languageId)
-			throws Exception {
+	public Double getWordComplexity(String lemma, String languageId) throws Exception {
 		Node word = searchWord(languageId, lemma);
 		if (word == null) {
 			throw new Exception("Word not found");
 		}
 		Map<String, Object> wordMap = convertGraphNode(word, languageId, null);
-		DefinitionDTO wordComplexityDefinition = getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(),
-				languageId);
+		String languageGraphName = "language";
+		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(), languageGraphName);
+		if(wordComplexityDefinition == null){
+			throw new Exception("Unable to find definition: " + LanguageObjectTypes.WordComplexity.name() + "in the graph: " + languageId);
+		}
 		List<MetadataDefinition> properties = wordComplexityDefinition.getProperties();
 		Double complexity = 0.0;
 		for (MetadataDefinition property : properties) {
-			String renderingHintsString = property.getRenderingHints();
-			Double defaultValue = (Double) property.getDefaultValue();
-			Map<String, Object> renderingHintsMap = mapper.readValue(renderingHintsString,
-					new TypeReference<Map<String, Object>>() {
-					});
-			String field = (String) renderingHintsMap.get("metadata");
-			String dataType = (String) renderingHintsMap.get("datatype");
-			Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
-			Object wordField = wordMap.get(field);
-			if (wordField != null) {
-				List fieldValues = getList(mapper, wordField, null);
+			nextProperty: {
+				String renderingHintsString = property.getRenderingHints();
+				renderingHintsString = renderingHintsString.replaceAll("'", "\"");
+				Double defaultValue = Double.valueOf((String) property.getDefaultValue());
+				Map<String, Object> renderingHintsMap = mapper.readValue(renderingHintsString,
+						new TypeReference<Map<String, Object>>() {
+						});
+				String field = (String) renderingHintsMap.get("metadata");
+				String dataType = (String) renderingHintsMap.get("datatype");
+				if (dataType == null) {
+					dataType = "String";
+				}
+				Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
+				Object wordField = wordMap.get(field);
+				List fieldValues = new ArrayList<>();
+				if (wordField == null) {
+					fieldValues.add(null);
+				} else {
+					fieldValues = getList(mapper, wordField, null);
+				}
 				for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
 					String operation = entry.getKey();
 					List compareValues = getList(mapper, entry.getValue(), null);
@@ -1577,133 +1590,166 @@ public class WordUtil extends BaseManager {
 						for (Object compareValue : compareValues) {
 							switch (dataType) {
 							case "String": {
-								switch (operation) {
-								case "in":
-								case "eq": {
-									String compareString = (String) compareValue;
-									String fieldString = (String) fieldValue;
-									if (compareString.equalsIgnoreCase(fieldString)) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										String compareString = (String) compareValue;
+										String fieldString = (String) fieldValue;
+										switch (operation) {
+										case "in":
+										case "eq": {
+											if (compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "not in":
+											if (!compareValues.containsAll(fieldValues)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										case "ne": {
+											if (!compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
 								}
-								case "not in":
-								case "ne": {
-									String compareString = (String) compareValue;
-									String fieldString = (String) fieldValue;
-									if (!compareString.equalsIgnoreCase(fieldString)) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
-								}
-								case "null": {
-									boolean nullBool = (boolean) compareValue;
-									if (fieldValue == null && nullBool) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
 								}
 								break;
 							}
 							case "Number": {
-								switch (operation) {
-								case "eq": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber == fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										Double compareNumber = Double.valueOf((String) compareValue);
+										Double fieldNumber = Double.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareNumber == fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ne": {
+											if (compareNumber != fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ge": {
+											if (fieldNumber >= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "gt": {
+											if (fieldNumber > compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "le": {
+											if (fieldNumber <= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "lt": {
+											if (fieldNumber < compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
 								}
-								case "ne": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber != fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
-								}
-								case "ge": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber >= fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
-								case "gt": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber > fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
-								case "le": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber <= fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
-								case "lt": {
-									Double compareNumber = (Double) compareValue;
-									Double fieldNumber = (Double) fieldValue;
-									if (compareNumber < fieldNumber) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
-								case "null": {
-									boolean nullBool = (boolean) compareValue;
-									if (fieldValue == null && nullBool) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
 								}
 								break;
 							}
 							case "Boolean": {
-								switch (operation) {
-								case "eq": {
-									boolean compareBoolean = (boolean) compareValue;
-									boolean fieldBoolean = (boolean) fieldValue;
-									if (compareBoolean == fieldBoolean) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null && fieldValue != null) {
+									try {
+										boolean compareBoolean = Boolean.valueOf((String) compareValue);
+										boolean fieldBoolean = Boolean.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareBoolean == fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ne": {
+											if (compareBoolean != fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
 								}
-								case "ne": {
-									boolean compareBoolean = (boolean) compareValue;
-									boolean fieldBoolean = (boolean) fieldValue;
-									if (compareBoolean != fieldBoolean) {
-										complexity = complexity + defaultValue;
-										break;
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
 									}
-									break;
-								}
-								case "null": {
-									boolean nullBool = (boolean) compareValue;
-									if (fieldValue == null && nullBool) {
-										complexity = complexity + defaultValue;
-										break;
-									}
-									break;
-								}
 								}
 								break;
 							}
@@ -1712,8 +1758,13 @@ public class WordUtil extends BaseManager {
 					}
 				}
 			}
-			//nextProperty:{}
 		}
-		return complexity;
+		
+		BigDecimal bd = new BigDecimal(complexity);
+		bd = bd.setScale(2, RoundingMode.HALF_UP);
+		
+		word.getMetadata().put(LanguageParams.word_complexity.name(), bd.doubleValue());
+		updateWord(word, languageId, word.getIdentifier());
+		return bd.doubleValue();
 	}
 }
