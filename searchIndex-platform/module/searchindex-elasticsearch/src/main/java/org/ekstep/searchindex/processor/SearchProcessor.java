@@ -192,6 +192,7 @@ public class SearchProcessor {
 			if(sortBy == null || sortBy.isEmpty()){
 				sortBy = new HashMap<String, String>();
 				sortBy.put("name", "asc");
+				sortBy.put("lastUpdatedOn", "desc");
 				searchDTO.setSortBy(sortBy);
 			}
 		}

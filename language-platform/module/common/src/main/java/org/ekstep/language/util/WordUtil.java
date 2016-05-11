@@ -61,7 +61,7 @@ import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 @Component
-public class WordUtil extends BaseManager {
+public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
@@ -1328,6 +1328,7 @@ public class WordUtil extends BaseManager {
 				Map<String, Object> wordMap = new HashMap<String, Object>();
 				wordMap.put(LanguageParams.lemma.name(), lemma);
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				wordMap.put(ATTRIB_SOURCES, ATTRIB_SOURCE_IWN);
 
 				boolean createFlag = true;
 				/*if (wordIdentifier == null) {

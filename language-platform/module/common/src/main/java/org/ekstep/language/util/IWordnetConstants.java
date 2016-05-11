@@ -21,6 +21,9 @@ public interface IWordnetConstants {
     String ATTRIB_POS_TAGS = "posTags";
     String ATTRIB_POS_CATEGORIES = "pos_categories";
     String ATTRIB_SYLLABLES="syllables";
+    String ATTRIB_IWN_ID = "indowordnetId";
+    String ATTRIB_SOURCES = "sources";
+    String ATTRIB_SOURCE_IWN = "IndoWordnet";
     
     String POS_NOUN = "noun";
     String POS_PRONOUN = "pronoun";

@@ -79,6 +79,83 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     }
     
     @Override
+    public Response cleanupWordNetData(String languageId) {
+        List<Node> nodes = getAllWords(languageId);
+        if (null != nodes && !nodes.isEmpty()) {
+            List<String> list = new ArrayList<String>();
+            list.add(ATTRIB_SOURCE_IWN);
+            for (Node node : nodes) {
+                if (isIWNWord(node.getInRelations())) {
+                    if (!checkSourceMetadata(node)) {
+                        Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+                        wordNode.setGraphId(node.getGraphId());
+                        Map<String, Object> metadata = new HashMap<String, Object>();
+                        metadata.put(ATTRIB_SOURCES, list);
+                        wordNode.setMetadata(metadata);
+                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                "updateDataNode");
+                        updateReq.put(GraphDACParams.node.name(), wordNode);
+                        updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+                        try {
+                            System.out.println("Sending update req for : " + wordNode.getIdentifier());
+                            getResponse(updateReq, LOGGER);
+                            System.out.println("Update complete for : " + wordNode.getIdentifier());
+                        } catch (Exception e) {
+                            System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                        }
+                    }
+                } else {
+                    Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                            "deleteDataNode");
+                    deleteReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                    try {
+                        System.out.println("Sending delete req for : " + node.getIdentifier());
+                        getResponse(deleteReq, LOGGER);
+                        System.out.println("Delete complete for : " + node.getIdentifier());
+                    } catch (Exception e) {
+                        System.out.println("Delete error : " + node.getIdentifier() + " : " + e.getMessage());
+                    }
+                }
+            }
+        }
+        return OK("status", "OK");
+    }
+    
+    @SuppressWarnings("rawtypes")
+    private boolean checkSourceMetadata(Node node) {
+        Map<String, Object> metadata = node.getMetadata();
+        Object val = metadata.get(ATTRIB_SOURCES);
+        if (null != val) {
+            if (val instanceof Object[]) {
+                for (Object obj : (Object[]) val) {
+                    if (null != obj && StringUtils.equals(ATTRIB_SOURCE_IWN, obj.toString()))
+                        return true;
+                }
+            } else if (val instanceof List) {
+                for (Object obj : (List) val) {
+                    if (null != obj && StringUtils.equals(ATTRIB_SOURCE_IWN, obj.toString()))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    private boolean isIWNWord(List<Relation> inRels) {
+        if (null != inRels && inRels.size() > 0) {
+            for (Relation inRel : inRels) {
+                if (StringUtils.equalsIgnoreCase(inRel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                    Map<String, Object> metadata = inRel.getStartNodeMetadata();
+                    Object iwnId = metadata.get(ATTRIB_IWN_ID);
+                    if (null != iwnId && StringUtils.isNotBlank(iwnId.toString()))
+                        return true;
+                }
+            }
+        }
+        return false;
+    }
+    
+    @Override
     public Response updatePosList(String languageId) {
         List<Node> nodes = getAllWords(languageId);
         if (null != nodes && !nodes.isEmpty()) {
