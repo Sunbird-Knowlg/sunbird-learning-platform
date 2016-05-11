@@ -381,11 +381,11 @@ public class SearchProcessor {
 	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) {
 		switch (queryOperation) {
 		case "equal": {
-			builder.key("match_phrase").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value).endObject();
+			builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value).endObject();
 			break;
 		}
 		case "like": {
-			builder.key("match_phrase").object().key(fieldName).value(value).endObject();
+			builder.key("match").object().key(fieldName).value(value).endObject();
 			break;
 		}
 		case "prefix": {

@@ -66,7 +66,31 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'textarea', 'order': 4}",
-          "indexed": false
+          "indexed": true
+        },
+        {
+          "propertyName": "category",
+          "title": "Category",
+          "description": "Class category of the misconception",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 5}",
+          "indexed": true
+        },
+        {
+          "propertyName": "example",
+          "title": "Example",
+          "description": "Example of the misconception",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'text', 'order': 6}",
+          "indexed": true
         },
         {
           "required": false,
