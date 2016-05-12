@@ -123,6 +123,18 @@
         }, {
             "required": false,
             "dataType": "JSON",
+            "propertyName": "media",
+            "title": "Media",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
+            "dataType": "JSON",
             "propertyName": "model",
             "title": "Model",
             "description": "",
