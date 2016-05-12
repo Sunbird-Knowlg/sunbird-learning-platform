@@ -11,15 +11,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.enums.ContentAPIParams;
+import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 public class BaseConcreteProcessor extends BaseManager {
 	
@@ -195,6 +200,44 @@ public class BaseConcreteProcessor extends BaseManager {
 			node.setMetadata(metadata);
 		}
 		return node;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public List<String> createRelation(String graphId, Map<String, Object> mapRelation,
+			List<Relation> outRelations) {
+		if (null != mapRelation && !mapRelation.isEmpty()) {
+			List<String> lstResponse = new ArrayList<String>();
+			for (Entry<String, Object> entry : mapRelation.entrySet()) {
+				List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
+				if (null != lstConceptMap && !lstConceptMap.isEmpty()) {
+					for (Map<String, Object> conceptMap : lstConceptMap) {
+						String conceptId = (String) conceptMap.get(ContentAPIParams.identifier.name());
+						Response response = addRelation(graphId, entry.getKey(),
+								RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+						lstResponse.add(response.getResult().toString());
+						Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
+						outRelations.add(outRel);
+					}
+				}
+			}
+			return lstResponse;
+		}
+		return null;
+	}
+	
+	public Response addRelation(String graphId, String objectId1, String relation, String objectId2) {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid graph Id");
+		if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
+			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_OBJECT_ID.name(), "Object Id is blank");
+		if (StringUtils.isBlank(relation))
+			throw new ClientException(ContentErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
+		Request request = getRequest(graphId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), objectId1);
+		request.put(GraphDACParams.relation_type.name(), relation);
+		request.put(GraphDACParams.end_node_id.name(), objectId2);
+		Response response = getResponse(request, LOGGER);
+		return response;
 	}
 	
 	public boolean isWidgetTypeAsset(String assetType) {
