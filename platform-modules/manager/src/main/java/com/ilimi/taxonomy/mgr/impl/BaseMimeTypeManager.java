@@ -181,7 +181,7 @@ public class BaseMimeTypeManager extends BaseManager {
     	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
     	String cleanedJson = "";
     	if (!StringUtils.isBlank(jsonString)) {
-    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]");
+    		cleanedJson = jsonString.replaceAll("\"[{", "[{").replaceAll("}]\"", "}]");
     	}
     	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
     	return cleanedJson;
