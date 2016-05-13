@@ -176,6 +176,16 @@ public class BaseMimeTypeManager extends BaseManager {
     	}
     	return node;
     }
+    
+    private String cleanJsonString(String jsonString) {
+    	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
+    	String cleanedJson = "";
+    	if (!StringUtils.isBlank(jsonString)) {
+    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]");
+    	}
+    	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
+    	return cleanedJson;
+    }
 
     protected Response compress(Node node) {
     	node = setNodeStatus(node, ContentAPIParams.Live.name());
@@ -183,7 +193,7 @@ public class BaseMimeTypeManager extends BaseManager {
         String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata = node.getMetadata();
-        String contentBody = (String) metadata.get(ContentAPIParams.body.name());
+        String contentBody = cleanJsonString((String) metadata.get(ContentAPIParams.body.name()));
         String contentType = checkBodyContentType(contentBody);
         if (StringUtils.isBlank(contentType))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
