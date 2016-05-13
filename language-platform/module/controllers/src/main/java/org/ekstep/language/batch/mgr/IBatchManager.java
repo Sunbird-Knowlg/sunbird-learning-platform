@@ -13,4 +13,6 @@ public interface IBatchManager {
     Response updateFrequencyCounts(String languageId);
     
     Response cleanupWordNetData(String languageId);
+    
+    Response setPrimaryMeaning(String languageId);
 }

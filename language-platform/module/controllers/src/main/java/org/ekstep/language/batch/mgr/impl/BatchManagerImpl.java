@@ -159,6 +159,63 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         return false;
     }
     
+    private String getPrimaryMeaningId(List<Relation> inRels) {
+        if (null != inRels && inRels.size() > 0) {
+            for (Relation inRel : inRels) {
+                if (StringUtils.equalsIgnoreCase(inRel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                    return inRel.getStartNodeId();
+                }
+            }
+        }
+        return null;
+    }
+    
+    @Override
+    public Response setPrimaryMeaning(String languageId) {
+        List<Node> nodes = getAllWords(languageId);
+        if (null != nodes && !nodes.isEmpty()) {
+            for (Node node : nodes) {
+                Map<String, Object> metadata = node.getMetadata();
+                Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
+                if (null == value || StringUtils.isBlank(value.toString())) {
+                    String id = getPrimaryMeaningId(node.getInRelations());
+                    if (StringUtils.isNotBlank(id)) {
+                        Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+                        wordNode.setGraphId(node.getGraphId());
+                        Map<String, Object> wordMetadata = new HashMap<String, Object>();
+                        wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
+                        wordMetadata.put(ATTRIB_STATUS, "Draft");
+                        wordNode.setMetadata(wordMetadata);
+                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                "updateDataNode");
+                        updateReq.put(GraphDACParams.node.name(), wordNode);
+                        updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+                        try {
+                            System.out.println("Sending update req for : " + wordNode.getIdentifier());
+                            getResponse(updateReq, LOGGER);
+                            System.out.println("Update complete for : " + wordNode.getIdentifier());
+                        } catch (Exception e) {
+                            System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                        }
+                    }
+                }
+                
+                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                        "updateDataNode");
+                updateReq.put(GraphDACParams.node.name(), node);
+                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                try {
+                    System.out.println("Sending update req for : " + node.getIdentifier() + " -- " + node.getMetadata().get("pos"));
+                    getResponse(updateReq, LOGGER);
+                    System.out.println("Update complete for : " + node.getIdentifier());
+                } catch (Exception e) {
+                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                }
+            }
+        }
+        return OK("status", "OK");
+    }
+    
     @Override
     public Response updatePosList(String languageId) {
         List<Node> nodes = getAllWords(languageId);
