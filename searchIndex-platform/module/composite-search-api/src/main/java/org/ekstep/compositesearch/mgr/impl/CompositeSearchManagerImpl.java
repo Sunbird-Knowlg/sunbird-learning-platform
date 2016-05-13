@@ -375,7 +375,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
         else
             transactionData.put(CompositeSearchParams.addedProperties.name(), new HashMap<String, Object>());
         transactionData.put(CompositeSearchParams.removedProperties.name(), new ArrayList<String>());
-        transactionData.put(CompositeSearchParams.addedTags.name(), new ArrayList<String>());
+        transactionData.put(CompositeSearchParams.addedTags.name(), null == node.getTags() ? new ArrayList<String>() : node.getTags());
         transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
         map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
         map.put(CompositeSearchParams.graphId.name(), node.getGraphId());
