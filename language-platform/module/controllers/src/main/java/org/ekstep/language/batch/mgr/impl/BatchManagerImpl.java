@@ -199,18 +199,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                         }
                     }
                 }
-                
-                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                        "updateDataNode");
-                updateReq.put(GraphDACParams.node.name(), node);
-                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                try {
-                    System.out.println("Sending update req for : " + node.getIdentifier() + " -- " + node.getMetadata().get("pos"));
-                    getResponse(updateReq, LOGGER);
-                    System.out.println("Update complete for : " + node.getIdentifier());
-                } catch (Exception e) {
-                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
-                }
             }
         }
         return OK("status", "OK");
