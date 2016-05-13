@@ -344,7 +344,7 @@ public class BaseMimeTypeManager extends BaseManager {
         node.getMetadata().put("s3Key", urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
         node.getMetadata().put("status", "Live");
-        node.getMetadata().put(ContentAPIParams.lastPublishOn.name(), formatCurrentDate());
+        node.getMetadata().put(ContentAPIParams.lastPublishedOn.name(), formatCurrentDate());
         node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSizeInKB((String) node.getMetadata().get(ContentAPIParams.s3Key.name())));
         Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
         newNode.setGraphId(node.getGraphId());
