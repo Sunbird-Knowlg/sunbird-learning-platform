@@ -161,15 +161,11 @@ public class SearchProcessor {
 				List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
 				condition.put("operation", "bool");
 				condition.put("operand", "should");
-				ArrayList<Map> subConditions = new ArrayList<Map>();
-				for (String field : queryFields) {
-					Map<String, Object> subCondition = new HashMap<String, Object>();
-					subCondition.put("operation", queryOperation);
-					subCondition.put("fieldName", field);
-					subCondition.put("value", values.get(0));
-					subConditions.add(subCondition);
-				}
-				condition.put("subConditions", subConditions);
+				Map<String, Object> queryCondition = new HashMap<String, Object>();
+				queryCondition.put("operation", queryOperation);
+                queryCondition.put("fields", queryFields);
+                queryCondition.put("value", values.get(0));
+				condition.put("queryCondition", queryCondition);
 			} else {
 				condition.put("operation", queryOperation);
 				condition.put("fieldName", propertyName);
@@ -228,13 +224,23 @@ public class SearchProcessor {
 					builder.object().key("bool").object();
 					builder.key(operand).array();
 					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
-					for (Map subCondition : subConditions) {
-						builder.object();
-						String queryOperation = (String) subCondition.get("operation");
-						String fieldName = (String) subCondition.get("fieldName");
-						Object value = subCondition.get("value");
-						getConditionsQuery(queryOperation, fieldName, value, builder);
-						builder.endObject();
+					Map<String, Object> queryCondition = (Map<String, Object>) textCondition.get("queryCondition");
+					if (null != subConditions && !subConditions.isEmpty()) {
+					    for (Map subCondition : subConditions) {
+	                        builder.object();
+	                        String queryOperation = (String) subCondition.get("operation");
+	                        String fieldName = (String) subCondition.get("fieldName");
+	                        Object value = subCondition.get("value");
+	                        getConditionsQuery(queryOperation, fieldName, value, builder);
+	                        builder.endObject();
+	                    }
+					} else if (null != queryCondition && !queryCondition.isEmpty()) {
+					    builder.object();
+					    String queryOperation = (String) queryCondition.get("operation");
+					    List<String> queryFields = (List<String>) queryCondition.get("fields");
+					    Object value = queryCondition.get("value");
+					    getConditionsQuery(queryOperation, queryFields, value, builder);
+					    builder.endObject();
 					}
 					builder.endArray();
 					builder.endObject().endObject();
@@ -378,7 +384,7 @@ public class SearchProcessor {
 		builder.endObject();
 		return builder.toString();
 	}
-
+	
 	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) {
 		switch (queryOperation) {
 		case "equal": {
@@ -386,7 +392,7 @@ public class SearchProcessor {
 			break;
 		}
 		case "like": {
-			builder.key("match").object().key(fieldName).value(value).endObject();
+			builder.key("match").object().key(fieldName).object().key("query").value(value).key("operator").value("and").endObject().endObject();
 			break;
 		}
 		case "prefix": {
@@ -407,4 +413,16 @@ public class SearchProcessor {
 		}
 		}
 	}
+	
+	private void getConditionsQuery(String queryOperation, List<String> fields, Object value, JSONBuilder builder) {
+	    builder.key("multi_match").object();
+	    builder.key("query").value(value).key("operator").value("and").key("type").value("cross_fields");
+	    if (null != fields && !fields.isEmpty()) {
+	        builder.key("fields").array();
+	        for (String str : fields)
+	            builder.value(str);
+	        builder.endArray();
+	    }
+	    builder.key("lenient").value(true).endObject();
+    }
 }
