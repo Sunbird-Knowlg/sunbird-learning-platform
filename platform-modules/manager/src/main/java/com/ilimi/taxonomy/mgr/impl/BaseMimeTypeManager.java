@@ -341,27 +341,27 @@ public class BaseMimeTypeManager extends BaseManager {
         getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
         String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
         String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
-        node.getMetadata().put("s3Key", urlArray[0]);
+        node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
         node.getMetadata().put("status", "Live");
         node.getMetadata().put(ContentAPIParams.lastPublishedOn.name(), formatCurrentDate());
-        node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSizeInKB((String) node.getMetadata().get(ContentAPIParams.s3Key.name())));
+        node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
         Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
         newNode.setGraphId(node.getGraphId());
         newNode.setMetadata(node.getMetadata());
         return updateContentNode(newNode, urlArray[1]);
     }
     
-    private double getS3FileSizeInKB(String key) {
-    	double bytes = 0;
-    	if (!StringUtils.isBlank(key)) {
-    		try {
-				return AWSUploader.getObjectSize(bucketName, key) / 1024;
-			} catch (IOException e) {
-				LOGGER.error("Error: While Calculating the file size.", e);
-			}
-    	}
-    	return bytes;
+    protected Double getS3FileSize(String key) {
+        Double bytes = null;
+        if (StringUtils.isNotBlank(key)) {
+            try {
+                return AWSUploader.getObjectSize(bucketName, key);
+            } catch (IOException e) {
+                LOGGER.error("Error: While getting the file size from AWS", e);
+            }
+        }
+        return bytes;
     }
     
     private static String formatCurrentDate() {
