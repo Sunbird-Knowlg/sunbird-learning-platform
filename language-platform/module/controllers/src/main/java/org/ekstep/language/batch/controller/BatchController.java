@@ -77,6 +77,19 @@ public class BatchController extends BaseLanguageController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/{languageId}/updateWordComplexity", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updateWordComplexity(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.updateWordComplexity";
+        try {
+            Response response = batchManager.updateWordComplexity(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     @RequestMapping(value = "/{languageId}/updateWordFeatures", method = RequestMethod.POST)
     @ResponseBody
