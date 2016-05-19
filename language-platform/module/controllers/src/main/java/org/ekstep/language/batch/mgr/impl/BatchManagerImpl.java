@@ -39,40 +39,49 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
     
+    private static final int BATCH = 1000;
+    
     @Override
     public Response updatePictures(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            for (Node node : nodes) {
-                Object pictures = null;
-                Object wordImages = (Object) node.getMetadata().get(ATTRIB_PICTURES);
-                String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
-                List<Relation> inRels = node.getInRelations();
-                if (null != inRels && !inRels.isEmpty()) {
-                    for (Relation rel : inRels) {
-                        if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
-                                && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
-                            String synsetId = rel.getStartNodeId();
-                            if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
-                                pictures = (Object) rel.getStartNodeMetadata().get(ATTRIB_PICTURES);
-                                break;
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    Object pictures = null;
+                    Object wordImages = (Object) node.getMetadata().get(ATTRIB_PICTURES);
+                    String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
+                    List<Relation> inRels = node.getInRelations();
+                    if (null != inRels && !inRels.isEmpty()) {
+                        for (Relation rel : inRels) {
+                            if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
+                                    && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                                String synsetId = rel.getStartNodeId();
+                                if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
+                                    pictures = (Object) rel.getStartNodeMetadata().get(ATTRIB_PICTURES);
+                                    break;
+                                }
                             }
                         }
                     }
+                    node.getMetadata().put(ATTRIB_PICTURES, pictures);
+                    node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
+                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                            "updateDataNode");
+                    updateReq.put(GraphDACParams.node.name(), node);
+                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                    try {
+                        getResponse(updateReq, LOGGER);
+                    } catch (Exception e) {
+                        System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                    }
                 }
-                node.getMetadata().put(ATTRIB_PICTURES, pictures);
-                node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
-                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                        "updateDataNode");
-                updateReq.put(GraphDACParams.node.name(), node);
-                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                try {
-                    System.out.println("Sending update req for : " + node.getIdentifier());
-                    getResponse(updateReq, LOGGER);
-                    System.out.println("Update complete for : " + node.getIdentifier());
-                } catch (Exception e) {
-                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
-                }
+                System.out.println("UpdatePictures complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
@@ -80,46 +89,51 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     
     @Override
     public Response cleanupWordNetData(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            List<String> list = new ArrayList<String>();
-            list.add(ATTRIB_SOURCE_IWN);
-            for (Node node : nodes) {
-                if (isIWNWord(node.getInRelations())) {
-                    if (!checkSourceMetadata(node)) {
-                        WordnetUtil.updatePOS(node);
-                        Object pos = node.getMetadata().get(ATTRIB_POS);
-                        Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
-                        wordNode.setGraphId(node.getGraphId());
-                        Map<String, Object> metadata = new HashMap<String, Object>();
-                        metadata.put(ATTRIB_SOURCES, list);
-                        metadata.put(ATTRIB_POS, pos);
-                        metadata.put(ATTRIB_STATUS, "Draft");
-                        wordNode.setMetadata(metadata);
-                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                "updateDataNode");
-                        updateReq.put(GraphDACParams.node.name(), wordNode);
-                        updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                List<String> list = new ArrayList<String>();
+                list.add(ATTRIB_SOURCE_IWN);
+                for (Node node : nodes) {
+                    if (isIWNWord(node.getInRelations())) {
+                        if (!checkSourceMetadata(node)) {
+                            WordnetUtil.updatePOS(node);
+                            Object pos = node.getMetadata().get(ATTRIB_POS);
+                            Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+                            wordNode.setGraphId(node.getGraphId());
+                            Map<String, Object> metadata = new HashMap<String, Object>();
+                            metadata.put(ATTRIB_SOURCES, list);
+                            metadata.put(ATTRIB_POS, pos);
+                            metadata.put(ATTRIB_STATUS, "Draft");
+                            wordNode.setMetadata(metadata);
+                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                    "updateDataNode");
+                            updateReq.put(GraphDACParams.node.name(), wordNode);
+                            updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+                            try {
+                                getResponse(updateReq, LOGGER);
+                            } catch (Exception e) {
+                                System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                            }
+                        }
+                    } else {
+                        Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                "deleteDataNode");
+                        deleteReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                         try {
-                            System.out.println("Sending update req for : " + wordNode.getIdentifier());
-                            getResponse(updateReq, LOGGER);
-                            System.out.println("Update complete for : " + wordNode.getIdentifier());
+                            getResponse(deleteReq, LOGGER);
                         } catch (Exception e) {
-                            System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                            System.out.println("Delete error : " + node.getIdentifier() + " : " + e.getMessage());
                         }
                     }
-                } else {
-                    Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                            "deleteDataNode");
-                    deleteReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                    try {
-                        System.out.println("Sending delete req for : " + node.getIdentifier());
-                        getResponse(deleteReq, LOGGER);
-                        System.out.println("Delete complete for : " + node.getIdentifier());
-                    } catch (Exception e) {
-                        System.out.println("Delete error : " + node.getIdentifier() + " : " + e.getMessage());
-                    }
                 }
+                System.out.println("cleanupWordNetData complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
@@ -172,33 +186,40 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     
     @Override
     public Response setPrimaryMeaning(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            for (Node node : nodes) {
-                Map<String, Object> metadata = node.getMetadata();
-                Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
-                if (null == value || StringUtils.isBlank(value.toString())) {
-                    String id = getPrimaryMeaningId(node.getInRelations());
-                    if (StringUtils.isNotBlank(id)) {
-                        Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
-                        wordNode.setGraphId(node.getGraphId());
-                        Map<String, Object> wordMetadata = new HashMap<String, Object>();
-                        wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
-                        wordMetadata.put(ATTRIB_STATUS, "Draft");
-                        wordNode.setMetadata(wordMetadata);
-                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                "updateDataNode");
-                        updateReq.put(GraphDACParams.node.name(), wordNode);
-                        updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
-                        try {
-                            System.out.println("Sending update req for : " + wordNode.getIdentifier());
-                            getResponse(updateReq, LOGGER);
-                            System.out.println("Update complete for : " + wordNode.getIdentifier());
-                        } catch (Exception e) {
-                            System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    Map<String, Object> metadata = node.getMetadata();
+                    Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
+                    if (null == value || StringUtils.isBlank(value.toString())) {
+                        String id = getPrimaryMeaningId(node.getInRelations());
+                        if (StringUtils.isNotBlank(id)) {
+                            Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+                            wordNode.setGraphId(node.getGraphId());
+                            Map<String, Object> wordMetadata = new HashMap<String, Object>();
+                            wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
+                            wordMetadata.put(ATTRIB_STATUS, "Draft");
+                            wordNode.setMetadata(wordMetadata);
+                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                    "updateDataNode");
+                            updateReq.put(GraphDACParams.node.name(), wordNode);
+                            updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+                            try {
+                                getResponse(updateReq, LOGGER);
+                            } catch (Exception e) {
+                                System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                            }
                         }
                     }
                 }
+                System.out.println("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
@@ -206,21 +227,28 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     
     @Override
     public Response updatePosList(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            for (Node node : nodes) {
-                WordnetUtil.updatePOS(node);
-                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                        "updateDataNode");
-                updateReq.put(GraphDACParams.node.name(), node);
-                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                try {
-                    System.out.println("Sending update req for : " + node.getIdentifier() + " -- " + node.getMetadata().get("pos"));
-                    getResponse(updateReq, LOGGER);
-                    System.out.println("Update complete for : " + node.getIdentifier());
-                } catch (Exception e) {
-                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    WordnetUtil.updatePOS(node);
+                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                            "updateDataNode");
+                    updateReq.put(GraphDACParams.node.name(), node);
+                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                    try {
+                        getResponse(updateReq, LOGGER);
+                    } catch (Exception e) {
+                        System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                    }
                 }
+                System.out.println("updatePosList complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
@@ -229,46 +257,53 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     @SuppressWarnings("unchecked")
     @Override
     public Response updateWordFeatures(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            System.out.println("Total words: " + nodes.size());
-            List<String> words = new ArrayList<String>();
-            Map<String, Node> nodeMap = new HashMap<String, Node>();
-            controllerUtil.getNodeMap(nodes, nodeMap, words);
-            Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
-                    LanguageOperations.getWordFeatures.name());
-            langReq.put(LanguageParams.words.name(), words);
-            Response langRes = getLanguageResponse(langReq, LOGGER);
-            if (checkError(langRes))
-                return langRes;
-            else {
-                Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
-                        .get(LanguageParams.word_features.name());
-                if (null != featureMap && !featureMap.isEmpty()) {
-                    System.out.println("Word features returned for " + featureMap.size() + " words");
-                    for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
-                        Node node = nodeMap.get(entry.getKey());
-                        WordComplexity wc = entry.getValue();
-                        if (null != node && null != wc) {
-                            node.getMetadata().put("syllableCount", wc.getCount());
-                            node.getMetadata().put("syllableNotation", wc.getNotation());
-                            node.getMetadata().put("unicodeNotation", wc.getUnicode());
-                            node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
-                            node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                    "updateDataNode");
-                            updateReq.put(GraphDACParams.node.name(), node);
-                            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                            try {
-                                System.out.println("Sending update req for : " + node.getIdentifier());
-                                getResponse(updateReq, LOGGER);
-                                System.out.println("Update complete for : " + node.getIdentifier());
-                            } catch (Exception e) {
-                                System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                System.out.println("Total words: " + nodes.size());
+                List<String> words = new ArrayList<String>();
+                Map<String, Node> nodeMap = new HashMap<String, Node>();
+                controllerUtil.getNodeMap(nodes, nodeMap, words);
+                Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
+                        LanguageOperations.getWordFeatures.name());
+                langReq.put(LanguageParams.words.name(), words);
+                Response langRes = getLanguageResponse(langReq, LOGGER);
+                if (checkError(langRes))
+                    return langRes;
+                else {
+                    Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
+                            .get(LanguageParams.word_features.name());
+                    if (null != featureMap && !featureMap.isEmpty()) {
+                        System.out.println("Word features returned for " + featureMap.size() + " words");
+                        for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
+                            Node node = nodeMap.get(entry.getKey());
+                            WordComplexity wc = entry.getValue();
+                            if (null != node && null != wc) {
+                                node.getMetadata().put("syllableCount", wc.getCount());
+                                node.getMetadata().put("syllableNotation", wc.getNotation());
+                                node.getMetadata().put("unicodeNotation", wc.getUnicode());
+                                node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
+                                node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
+                                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                        "updateDataNode");
+                                updateReq.put(GraphDACParams.node.name(), node);
+                                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                                try {
+                                    getResponse(updateReq, LOGGER);
+                                } catch (Exception e) {
+                                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                                }
                             }
                         }
                     }
                 }
+                System.out.println("updateWordFeatures complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
@@ -277,84 +312,94 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     @SuppressWarnings("unchecked")
     @Override
     public Response updateFrequencyCounts(String languageId) {
-        List<Node> nodes = getAllWords(languageId);
-        if (null != nodes && !nodes.isEmpty()) {
-            String[] groupBy = new String[] { "pos", "sourceType", "source", "grade" };
-            List<String> words = new ArrayList<String>();
-            Map<String, Node> nodeMap = new HashMap<String, Node>();
-            controllerUtil.getNodeMap(nodes, nodeMap, words);
-            if (null != words && !words.isEmpty()) {
-                System.out.println("Total words: " + nodes.size());
-                Map<String, Object> indexesMap = new HashMap<String, Object>();
-                Map<String, Object> wordInfoMap = new HashMap<String, Object>();
-                List<String> groupList = Arrays.asList(groupBy);
-                controllerUtil.getIndexInfo(languageId, indexesMap, words, groupList);
-                System.out.println("indexesMap size: " + indexesMap.size());
-                controllerUtil.getWordInfo(languageId, wordInfoMap, words);
-                System.out.println("wordInfoMap size: " + wordInfoMap.size());
-                if (null != nodeMap && !nodeMap.isEmpty()) {
-                    for (Entry<String, Node> entry : nodeMap.entrySet()) {
-                        Node node = entry.getValue();
-                        String lemma = entry.getKey();
-                        boolean update = false;
-                        Map<String, Object> index = (Map<String, Object>) indexesMap.get(lemma);
-                        List<Map<String, Object>> wordInfo = (List<Map<String, Object>>) wordInfoMap.get(lemma);
-                        if (null != index) {
-                            Map<String, Object> citations = (Map<String, Object>) index.get("citations");
-                            if (null != citations && !citations.isEmpty()) {
-                                Object count = citations.get("count");
-                                if (null != count)
-                                    node.getMetadata().put("occurrenceCount", count);
-                                controllerUtil.setCountsMetadata(node, citations, "sourceType", null);
-                                controllerUtil.setCountsMetadata(node, citations, "source", "source");
-                                controllerUtil.setCountsMetadata(node, citations, "grade", "grade");
-                                controllerUtil.setCountsMetadata(node, citations, "pos", "pos");
-                                controllerUtil.addTags(node, citations, "source");
-                                controllerUtil.updatePosList(node, citations);
-                                controllerUtil.updateSourceTypesList(node, citations);
-                                controllerUtil.updateSourcesList(node, citations);
-                                controllerUtil.updateGradeList(node, citations);
+        int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+                String[] groupBy = new String[] { "pos", "sourceType", "source", "grade" };
+                List<String> words = new ArrayList<String>();
+                Map<String, Node> nodeMap = new HashMap<String, Node>();
+                controllerUtil.getNodeMap(nodes, nodeMap, words);
+                if (null != words && !words.isEmpty()) {
+                    System.out.println("Total words: " + nodes.size());
+                    Map<String, Object> indexesMap = new HashMap<String, Object>();
+                    Map<String, Object> wordInfoMap = new HashMap<String, Object>();
+                    List<String> groupList = Arrays.asList(groupBy);
+                    controllerUtil.getIndexInfo(languageId, indexesMap, words, groupList);
+                    System.out.println("indexesMap size: " + indexesMap.size());
+                    controllerUtil.getWordInfo(languageId, wordInfoMap, words);
+                    System.out.println("wordInfoMap size: " + wordInfoMap.size());
+                    if (null != nodeMap && !nodeMap.isEmpty()) {
+                        for (Entry<String, Node> entry : nodeMap.entrySet()) {
+                            Node node = entry.getValue();
+                            String lemma = entry.getKey();
+                            boolean update = false;
+                            Map<String, Object> index = (Map<String, Object>) indexesMap.get(lemma);
+                            List<Map<String, Object>> wordInfo = (List<Map<String, Object>>) wordInfoMap.get(lemma);
+                            if (null != index) {
+                                Map<String, Object> citations = (Map<String, Object>) index.get("citations");
+                                if (null != citations && !citations.isEmpty()) {
+                                    Object count = citations.get("count");
+                                    if (null != count)
+                                        node.getMetadata().put("occurrenceCount", count);
+                                    controllerUtil.setCountsMetadata(node, citations, "sourceType", null);
+                                    controllerUtil.setCountsMetadata(node, citations, "source", "source");
+                                    controllerUtil.setCountsMetadata(node, citations, "grade", "grade");
+                                    controllerUtil.setCountsMetadata(node, citations, "pos", "pos");
+                                    controllerUtil.addTags(node, citations, "source");
+                                    controllerUtil.updatePosList(node, citations);
+                                    controllerUtil.updateSourceTypesList(node, citations);
+                                    controllerUtil.updateSourcesList(node, citations);
+                                    controllerUtil.updateGradeList(node, citations);
+                                    update = true;
+                                }
+                            }
+                            if (null != wordInfo && !wordInfo.isEmpty()) {
+                                for (Map<String, Object> info : wordInfo) {
+                                    controllerUtil.updateStringMetadata(node, info, "word", "variants");
+                                    controllerUtil.updateStringMetadata(node, info, "category", "pos_categories");
+                                    controllerUtil.updateStringMetadata(node, info, "gender", "genders");
+                                    controllerUtil.updateStringMetadata(node, info, "number", "plurality");
+                                    controllerUtil.updateStringMetadata(node, info, "pers", "person");
+                                    controllerUtil.updateStringMetadata(node, info, "grammaticalCase", "cases");
+                                    controllerUtil.updateStringMetadata(node, info, "inflection", "inflections");
+                                }
                                 update = true;
                             }
-                        }
-                        if (null != wordInfo && !wordInfo.isEmpty()) {
-                            for (Map<String, Object> info : wordInfo) {
-                                controllerUtil.updateStringMetadata(node, info, "word", "variants");
-                                controllerUtil.updateStringMetadata(node, info, "category", "pos_categories");
-                                controllerUtil.updateStringMetadata(node, info, "gender", "genders");
-                                controllerUtil.updateStringMetadata(node, info, "number", "plurality");
-                                controllerUtil.updateStringMetadata(node, info, "pers", "person");
-                                controllerUtil.updateStringMetadata(node, info, "grammaticalCase", "cases");
-                                controllerUtil.updateStringMetadata(node, info, "inflection", "inflections");
-                            }
-                            update = true;
-                        }
-                        if (update) {
-                            node.getMetadata().put("status", "Live");
-                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                    "updateDataNode");
-                            updateReq.put(GraphDACParams.node.name(), node);
-                            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                            try {
-                                getResponse(updateReq, LOGGER);
-                                System.out.println("update complete for: " + node.getIdentifier());
-                            } catch (Exception e) {
-                                System.out
-                                        .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                            if (update) {
+                                node.getMetadata().put("status", "Live");
+                                Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                                        "updateDataNode");
+                                updateReq.put(GraphDACParams.node.name(), node);
+                                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                                try {
+                                    getResponse(updateReq, LOGGER);
+                                } catch (Exception e) {
+                                    System.out
+                                            .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                                }
                             }
                         }
                     }
                 }
+                System.out.println("updateFrequencyCounts complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
             }
         }
         return OK("status", "OK");
     }
 
     @SuppressWarnings("unchecked")
-    private List<Node> getAllWords(String languageId) {
+    private List<Node> getAllWords(String languageId, int startPosition, int batchSize) {
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
         sc.setObjectType(OBJECTTYPE_WORD);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
         Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         req.put(GraphDACParams.get_tags.name(), true);

@@ -360,6 +360,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	    Response response = getResponse(request, LOGGER);
 	    List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
 	    if (null != nodes && !nodes.isEmpty()) {
+	        System.out.println("Total nodes: " + def.getObjectType() + " - " + nodes.size());
 	        for (Node node : nodes) {
 	            lstMessages.add(getKafkaMessage(node));
 	        }
@@ -390,7 +391,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	private Response pushMessageToKafka(List<Map<String, Object>> messages) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
-		if (messages.size() <= 0) {
+		if (null == messages || messages.size() <= 0) {
 			response.put(CompositeSearchParams.graphSyncStatus.name(), "No Graph Objects to Sync!");
 			response.setResponseCode(ResponseCode.CLIENT_ERROR);
 			params.setStatus(CompositeSearchParams.success.name());
@@ -400,8 +401,17 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		System.out.println("Sending to KAFKA.... ");
 		KafkaMessageProducer producer = new KafkaMessageProducer();
 		producer.init();
+		int index = 0;
 		for (Map<String, Object> message: messages) {
 			producer.pushMessage(message);
+			index += 1;
+			if (index != 0 && index%1000 == 0) {
+			    try {
+			        System.out.println("Sleeping for 2 seconds after pushing " + index + " messages");
+			        Thread.sleep(2000);
+			    } catch (Exception e) {
+			    }
+			}
 		}
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
