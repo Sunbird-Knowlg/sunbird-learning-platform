@@ -198,31 +198,31 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                 for (Node node : nodes) {
                     Map<String, Object> metadata = node.getMetadata();
                     Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
-                    Object synsetCount = metadata.get(ATTRIB_SYNSET_COUNT);
-                    if (null == value || StringUtils.isBlank(value.toString()) || null == synsetCount) {
-                        List<String> synsetIds = getSynsetIds(node.getInRelations());
+                    Integer count = null;
+                    List<String> synsetIds = getSynsetIds(node.getInRelations());
+                    if (null != synsetIds && !synsetIds.isEmpty())
+                        count = synsetIds.size();
+                    Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+                    wordNode.setGraphId(node.getGraphId());
+                    Map<String, Object> wordMetadata = new HashMap<String, Object>();
+                    wordMetadata.put(ATTRIB_SYNSET_COUNT, count);
+                    if (null == value || StringUtils.isBlank(value.toString())) {
                         if (null != synsetIds && !synsetIds.isEmpty()) {
-                            Node wordNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
-                            wordNode.setGraphId(node.getGraphId());
-                            Map<String, Object> wordMetadata = new HashMap<String, Object>();
-                            wordMetadata.put(ATTRIB_SYNSET_COUNT, synsetIds.size());
-                            if (null == value || StringUtils.isBlank(value.toString())) {
-                                String id = synsetIds.get(0);
-                                wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
-                            }
-                            wordMetadata.put(ATTRIB_STATUS, "Draft");
-                            wordNode.setMetadata(wordMetadata);
-                            Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                    "updateDataNode");
-                            updateReq.put(GraphDACParams.node.name(), wordNode);
-                            updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
-                            try {
-                                getResponse(updateReq, LOGGER);
-                            } catch (Exception e) {
-                                System.out
-                                        .println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
-                            }
+                            String id = synsetIds.get(0);
+                            wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
                         }
+                    }
+                    wordMetadata.put(ATTRIB_STATUS, "Draft");
+                    wordNode.setMetadata(wordMetadata);
+                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                            "updateDataNode");
+                    updateReq.put(GraphDACParams.node.name(), wordNode);
+                    updateReq.put(GraphDACParams.node_id.name(), wordNode.getIdentifier());
+                    try {
+                        getResponse(updateReq, LOGGER);
+                    } catch (Exception e) {
+                        System.out
+                                .println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
                     }
                 }
                 System.out.println("setPrimaryMeaning complete from " + startPosistion + " - " + BATCH + " words");
