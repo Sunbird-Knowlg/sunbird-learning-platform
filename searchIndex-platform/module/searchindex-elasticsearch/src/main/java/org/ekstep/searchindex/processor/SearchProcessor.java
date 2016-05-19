@@ -61,7 +61,7 @@ public class SearchProcessor {
 		conditionsMap.put("Text", conditionsSetOne);
 		conditionsMap.put("Arithmetic", conditionsSetArithmetic);
 		conditionsMap.put("Not", conditionsSetMustNot);
-
+		boolean relevanceSort = false;
 		List<Map> properties = searchDTO.getProperties();
 
 		String totalOperation = searchDTO.getOperation();
@@ -158,6 +158,7 @@ public class SearchProcessor {
 				}
 				condition.put("subConditions", subConditions);
 			} else if (propertyName.equalsIgnoreCase("all_fields")) {
+			    relevanceSort = true;
 				List<String> queryFields = elasticSearchUtil.getQuerySearchFields();
 				condition.put("operation", "bool");
 				condition.put("operand", "should");
@@ -183,7 +184,7 @@ public class SearchProcessor {
 		}
 		elasticSearchUtil.setResultLimit(searchDTO.getLimit());
 		
-		if(sort){
+		if(sort && !relevanceSort){
 			Map<String, String> sortBy = searchDTO.getSortBy();
 			if(sortBy == null || sortBy.isEmpty()){
 				sortBy = new HashMap<String, String>();

@@ -1141,7 +1141,7 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 6}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "createdBy",
