@@ -9,6 +9,8 @@ public interface ICompositeSearchManager {
 	
 	Response search(Request request);
 	
+	Response metrics(Request request);
+	
 	Response count(Request request);
 
 }

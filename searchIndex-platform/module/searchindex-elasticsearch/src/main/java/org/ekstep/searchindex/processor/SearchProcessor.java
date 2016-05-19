@@ -24,13 +24,15 @@ public class SearchProcessor {
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	@SuppressWarnings({ "unchecked" })
-	public Map<String, Object> processSearch(SearchDTO searchDTO) throws IOException {
+	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws IOException {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
-		response.put("results", results);
+		if (includeResults) {
+		    List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+	        response.put("results", results);
+		}
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {

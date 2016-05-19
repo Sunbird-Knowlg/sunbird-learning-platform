@@ -214,7 +214,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
                         }
                     }
-                    if (null == isPhrase && StringUtils.isNotBlank(lemma) && lemma.contains(" "))
+                    if (null == isPhrase && StringUtils.isNotBlank(lemma) && lemma.trim().contains(" "))
                         wordMetadata.put(ATTRIB_IS_PHRASE, true);
                     wordMetadata.put(ATTRIB_STATUS, "Draft");
                     wordNode.setMetadata(wordMetadata);

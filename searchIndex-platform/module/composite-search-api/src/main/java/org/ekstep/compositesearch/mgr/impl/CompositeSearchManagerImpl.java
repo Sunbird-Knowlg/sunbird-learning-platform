@@ -64,13 +64,25 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	public Response search(Request request) {
 		SearchProcessor processor = new SearchProcessor();
 		try {
-			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request));
+			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
 			return getCompositeSearchResponse(lstResult);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
 		}
 	}
+	
+	@Override
+    public Response metrics(Request request) {
+        SearchProcessor processor = new SearchProcessor();
+        try {
+            Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), false);
+            return getCompositeSearchResponse(lstResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+        }
+    }
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SearchDTO getSearchDTO(Request request) throws Exception {

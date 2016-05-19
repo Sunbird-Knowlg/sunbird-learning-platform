@@ -1735,7 +1735,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Integer synsetCount = otherMeaningIds.size() + 1;
 			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
 			String lemma = (String) item.get(ATTRIB_LEMMA);
-			if (StringUtils.isNotBlank(lemma) && lemma.contains(" ")) {
+			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
                 Object isPhrase = item.get(ATTRIB_IS_PHRASE);
                 if (null == isPhrase)
                     item.put(ATTRIB_IS_PHRASE, true);
@@ -1862,7 +1862,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				errorMessages.append("Lemma cannot be in a different language than " + language);
 				return null;
 			}
-			if (StringUtils.isNotBlank(lemma) && lemma.contains(" ")) {
+			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
 			    Object isPhrase = word.get(ATTRIB_IS_PHRASE);
 			    if (null == isPhrase)
 			        word.put(ATTRIB_IS_PHRASE, true);
