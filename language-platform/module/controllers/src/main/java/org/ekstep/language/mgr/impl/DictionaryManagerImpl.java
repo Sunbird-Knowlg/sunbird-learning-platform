@@ -1734,6 +1734,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			item.remove(LanguageParams.otherMeanings.name());
 			Integer synsetCount = otherMeaningIds.size() + 1;
 			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
+			String lemma = (String) item.get(ATTRIB_LEMMA);
+			if (StringUtils.isNotBlank(lemma) && lemma.contains(" ")) {
+                Object isPhrase = item.get(ATTRIB_IS_PHRASE);
+                if (null == isPhrase)
+                    item.put(ATTRIB_IS_PHRASE, true);
+            }
 			
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
@@ -1842,7 +1848,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 		return wordIds;
 	}
-
+	
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
 			StringBuffer errorMessages, DefinitionDTO definition) {
 		String lemma = (String) word.get(LanguageParams.lemma.name());
@@ -1855,6 +1861,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (!isValid) {
 				errorMessages.append("Lemma cannot be in a different language than " + language);
 				return null;
+			}
+			if (StringUtils.isNotBlank(lemma) && lemma.contains(" ")) {
+			    Object isPhrase = word.get(ATTRIB_IS_PHRASE);
+			    if (null == isPhrase)
+			        word.put(ATTRIB_IS_PHRASE, true);
 			}
 			String identifier = (String) word.get(LanguageParams.identifier.name());
 			if(identifier == null){

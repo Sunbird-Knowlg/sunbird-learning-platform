@@ -197,6 +197,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             if (null != nodes && !nodes.isEmpty()) {
                 for (Node node : nodes) {
                     Map<String, Object> metadata = node.getMetadata();
+                    String lemma = (String) metadata.get(ATTRIB_LEMMA);
+                    Object isPhrase = metadata.get(ATTRIB_IS_PHRASE);
                     Object value = metadata.get(ATTRIB_PRIMARY_MEANING_ID);
                     Integer count = null;
                     List<String> synsetIds = getSynsetIds(node.getInRelations());
@@ -212,6 +214,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             wordMetadata.put(ATTRIB_PRIMARY_MEANING_ID, id);
                         }
                     }
+                    if (null == isPhrase && StringUtils.isNotBlank(lemma) && lemma.contains(" "))
+                        wordMetadata.put(ATTRIB_IS_PHRASE, true);
                     wordMetadata.put(ATTRIB_STATUS, "Draft");
                     wordNode.setMetadata(wordMetadata);
                     Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
