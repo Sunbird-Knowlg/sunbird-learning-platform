@@ -89,11 +89,17 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 					}
 				}
 				OK(LanguageParams.word_features.name(), map, getSender());
-			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.wordComplexityV2.name(), operation)) {
-				String lemma = (String) request.get(LanguageParams.lemma.name());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexity.name(), operation)) {
+				String lemma = (String) request.get(LanguageParams.word.name());
 				Double wordComplexity = wordUtil.getWordComplexity(lemma, languageId);
-				OK(LanguageParams.word_complexity.name(), wordComplexity, getSender());
-			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.syncDefinition.name(), operation)) {
+				Map<String, Double> map = new HashMap<String, Double>();
+				map.put(lemma, wordComplexity);
+				OK(LanguageParams.word_complexity.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexities.name(), operation)) {
+			    List<String> words = (List<String>) request.get(LanguageParams.words.name());
+			    Map<String, Double> map = wordUtil.getWordComplexity(words, languageId);
+                OK(LanguageParams.word_complexity.name(), map, getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.syncDefinition.name(), operation)) {
 				String definitionName = (String) request.get(LanguageParams.definitionName.name());
 				DefinitionDTOCache.syncDefintion(definitionName, languageId);
 				OK(getSender());

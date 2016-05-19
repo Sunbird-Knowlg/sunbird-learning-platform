@@ -92,13 +92,13 @@ public class ToolsController extends BaseLanguageController {
         }
     }
     
-    @RequestMapping(value = "/lexileMeasures/word/{languageId}", method = RequestMethod.POST)
+    @RequestMapping(value = "/wordComplexity/{languageId}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> computeWordComplexityV2(@PathVariable(value = "languageId") String languageId, @RequestBody Map<String, Object> map) {
         String apiId = "word.complexity";
         Request request = getRequest(map);
         request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
-        request.setOperation(LanguageOperations.wordComplexityV2.name());
+        request.setOperation(LanguageOperations.getWordComplexities.name());
         request.getContext().put(LanguageParams.language_id.name(), languageId);
         LOGGER.info("List | Request: " + request);
         try {

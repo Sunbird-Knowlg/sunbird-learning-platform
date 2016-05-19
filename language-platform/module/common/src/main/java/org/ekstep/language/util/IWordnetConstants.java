@@ -8,7 +8,9 @@ public interface IWordnetConstants {
     String ATTRIB_PRIMARY_MEANING_ID = "primaryMeaningId";
     String ATTRIB_HAS_SYNONYMS = "hasSynonyms";
     String ATTRIB_HAS_ANTONYMS = "hasAntonyms";
+    String ATTRIB_SYNSET_COUNT = "synsetCount";
     String ATTRIB_LEMMA = "lemma";
+    String ATTRIB_VARIANTS = "variants";
     String ATTRIB_POS = "pos";
     String ATTRIB_STATUS = "status";
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";

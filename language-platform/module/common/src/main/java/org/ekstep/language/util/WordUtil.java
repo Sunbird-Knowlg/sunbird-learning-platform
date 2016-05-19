@@ -42,6 +42,7 @@ import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -749,6 +750,49 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return errorMessageList;
 	}
+	
+	@SuppressWarnings("unchecked")
+    public Map<String, Node> searchWords(String languageId, List<String> lemmas) {
+	    Map<String, Node> nodeMap = new HashMap<String, Node>();
+        Set<String> words = new HashSet<String>();
+        words.addAll(lemmas);
+        Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0) {
+                for (Node node : nodes) {
+                    String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                    nodeMap.put(wordLemma, node);
+                    words.remove(wordLemma);
+                }
+            }
+        }
+        if (null != words && !words.isEmpty()) {
+            Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
+            if (!checkError(searchRes)) {
+                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+                if (null != nodes && nodes.size() > 0) {
+                    for (Node node : nodes) {
+                        String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                        nodeMap.put(wordLemma, node);
+                    }
+                }
+            }
+        }
+        System.out.println("returning nodemap size: " + nodeMap.size());
+        return nodeMap;
+    }
+	
+	private Response getSearchWordsResponse(String languageId, String property, List<String> words) {
+	    SearchCriteria sc = new SearchCriteria();
+        sc.setObjectType("Word");
+        sc.addMetadata(MetadataCriterion
+                .create(Arrays.asList(new Filter(property, SearchConditions.OP_IN, words))));
+        Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+        req.put(GraphDACParams.search_criteria.name(), sc);
+        Response searchRes = getResponse(req, LOGGER);
+        return searchRes;
+	}
 
 	@SuppressWarnings("unchecked")
 	public Node searchWord(String languageId, String lemma) {
@@ -771,7 +815,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			sc.setResultSize(1);
 			Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 			req.put(GraphDACParams.search_criteria.name(), sc);
-			Response searchRes = getResponse(request, LOGGER);
+			Response searchRes = getResponse(req, LOGGER);
 			if (!checkError(searchRes)) {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
@@ -1548,19 +1592,42 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 		return node;
 	}
+	
+    public Double getWordComplexity(String lemma, String languageId) throws Exception {
+	    Node word = searchWord(languageId, lemma);
+        if (word == null)
+            throw new ResourceNotFoundException(LanguageErrorCodes.ERR_WORDS_NOT_FOUND.name(), "Word not found: " + lemma);
+        return getWordComplexity(word, languageId);
+	}
+    
+    public Map<String, Double> getWordComplexity(List<String> lemmas, String languageId) {
+        Map<String, Node> nodeMap = searchWords(languageId, lemmas);
+        Map<String, Double> map = new HashMap<String, Double>();
+        if (null != lemmas && !lemmas.isEmpty()) {
+            for (String lemma : lemmas) {
+                Node node = nodeMap.get(lemma);
+                if (null != node) {
+                    try {
+                        Double complexity = getWordComplexity(node, languageId);
+                        map.put(lemma, complexity);
+                    } catch (Exception e) {
+                        map.put(lemma, null);
+                    }
+                } else {
+                    map.put(lemma, null);
+                }
+            }
+        }
+        return map;
+    }
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public Double getWordComplexity(String lemma, String languageId) throws Exception {
-		Node word = searchWord(languageId, lemma);
-		if (word == null) {
-			throw new Exception("Word not found");
-		}
+	public Double getWordComplexity(Node word, String languageId) throws Exception {
 		Map<String, Object> wordMap = convertGraphNode(word, languageId, null);
 		String languageGraphName = "language";
 		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(), languageGraphName);
-		if(wordComplexityDefinition == null){
-			throw new Exception("Unable to find definition: " + LanguageObjectTypes.WordComplexity.name() + "in the graph: " + languageId);
-		}
+		if(wordComplexityDefinition == null)
+		    throw new ResourceNotFoundException(LanguageErrorCodes.ERR_DEFINITION_NOT_FOUND.name(), "Definition not found for " + LanguageObjectTypes.WordComplexity.name());
 		List<MetadataDefinition> properties = wordComplexityDefinition.getProperties();
 		Double complexity = 0.0;
 		for (MetadataDefinition property : properties) {
@@ -1573,9 +1640,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						});
 				String field = (String) renderingHintsMap.get("metadata");
 				String dataType = (String) renderingHintsMap.get("datatype");
-				if (dataType == null) {
+				if (StringUtils.isBlank(dataType))
 					dataType = "String";
-				}
 				Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
 				Object wordField = wordMap.get(field);
 				List fieldValues = new ArrayList<>();

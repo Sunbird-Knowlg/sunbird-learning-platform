@@ -1732,6 +1732,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
 			item.remove(LanguageParams.otherMeanings.name());
+			Integer synsetCount = otherMeaningIds.size() + 1;
+			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
+			
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
 			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());

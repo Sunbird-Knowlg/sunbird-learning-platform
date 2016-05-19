@@ -15,4 +15,6 @@ public interface IBatchManager {
     Response cleanupWordNetData(String languageId);
     
     Response setPrimaryMeaning(String languageId);
+    
+    Response updateWordComplexity(String languageId);
 }
