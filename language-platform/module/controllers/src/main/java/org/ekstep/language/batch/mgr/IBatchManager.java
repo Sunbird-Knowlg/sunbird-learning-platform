@@ -11,4 +11,8 @@ public interface IBatchManager {
     Response updateWordFeatures(String languageId);
     
     Response updateFrequencyCounts(String languageId);
+    
+    Response cleanupWordNetData(String languageId);
+    
+    Response setPrimaryMeaning(String languageId);
 }

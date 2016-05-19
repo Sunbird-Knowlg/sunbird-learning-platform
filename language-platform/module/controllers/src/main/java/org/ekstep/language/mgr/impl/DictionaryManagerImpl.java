@@ -1750,6 +1750,16 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 			if (!checkError(createRes)) {
 				String wordId = (String) createRes.get("node_id");
+				Node word = getWord(wordId, languageId, errorMessages);
+				if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
+				    for (Relation rel : word.getInRelations()) {
+				        if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())) {
+				            String synsetId = rel.getStartNodeId();
+				            if (!StringUtils.equals(synsetId, primaryMeaningId) && !otherMeaningIds.contains(synsetId))
+				                removeSynonymRelation(languageId, wordId, synsetId);
+				        }
+				    }
+				}
 				// add Primary Synonym Relation
 				addSynonymRelation(languageId, wordId, primaryMeaningId);
 				// add other meaning Synonym Relation
@@ -1899,6 +1909,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
 	}
+	
+	private void removeSynonymRelation(String languageId, String wordId, String synsetId) {
+        Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "removeRelation");
+        request.put(GraphDACParams.start_node_id.name(), synsetId);
+        request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
+        request.put(GraphDACParams.end_node_id.name(), wordId);
+        Response response = getResponse(request, LOGGER);
+        if (checkError(response)) {
+            throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+        }
+    }
 
 	private Response createWord(Node node, String languageId) {
 		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
