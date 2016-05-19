@@ -40,9 +40,9 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     private WordUtil wordUtil = new WordUtil();
 
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
-    
+
     private static final int BATCH = 1000;
-    
+
     @Override
     public Response updatePictures(String languageId) {
         int startPosistion = 0;
@@ -57,7 +57,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     List<Relation> inRels = node.getInRelations();
                     if (null != inRels && !inRels.isEmpty()) {
                         for (Relation rel : inRels) {
-                            if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())
+                            if (StringUtils.equalsIgnoreCase(rel.getRelationType(),
+                                    RelationTypes.SYNONYM.relationName())
                                     && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
                                 String synsetId = rel.getStartNodeId();
                                 if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
@@ -70,8 +71,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     node.getMetadata().put(ATTRIB_PICTURES, pictures);
                     node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
                     node.getMetadata().put(ATTRIB_STATUS, "Draft");
-                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                            "updateDataNode");
+                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                     updateReq.put(GraphDACParams.node.name(), node);
                     updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                     try {
@@ -89,7 +89,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return OK("status", "OK");
     }
-    
+
     @Override
     public Response cleanupWordNetData(String languageId) {
         int startPosistion = 0;
@@ -118,12 +118,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             try {
                                 getResponse(updateReq, LOGGER);
                             } catch (Exception e) {
-                                System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                                System.out
+                                        .println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
                             }
                         }
                     } else {
-                        Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                                "deleteDataNode");
+                        Request deleteReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "deleteDataNode");
                         deleteReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                         try {
                             getResponse(deleteReq, LOGGER);
@@ -141,7 +141,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return OK("status", "OK");
     }
-    
+
     @SuppressWarnings("rawtypes")
     private boolean checkSourceMetadata(Node node) {
         Map<String, Object> metadata = node.getMetadata();
@@ -161,7 +161,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return false;
     }
-    
+
     private boolean isIWNWord(List<Relation> inRels) {
         if (null != inRels && inRels.size() > 0) {
             for (Relation inRel : inRels) {
@@ -175,18 +175,19 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return false;
     }
-    
+
     private List<String> getSynsetIds(List<Relation> inRels) {
         List<String> synsetIds = new ArrayList<String>();
         if (null != inRels && inRels.size() > 0) {
             for (Relation inRel : inRels) {
-                if (StringUtils.equalsIgnoreCase(inRel.getStartNodeObjectType(), OBJECTTYPE_SYNSET))
+                if (StringUtils.equalsIgnoreCase(inRel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)
+                        && StringUtils.equalsIgnoreCase(inRel.getRelationType(), RelationTypes.SYNONYM.relationName()))
                     synsetIds.add(inRel.getStartNodeId());
             }
         }
         return synsetIds;
     }
-    
+
     @Override
     public Response setPrimaryMeaning(String languageId) {
         int startPosistion = 0;
@@ -218,7 +219,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             try {
                                 getResponse(updateReq, LOGGER);
                             } catch (Exception e) {
-                                System.out.println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
+                                System.out
+                                        .println("Update error : " + wordNode.getIdentifier() + " : " + e.getMessage());
                             }
                         }
                     }
@@ -232,7 +234,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return OK("status", "OK");
     }
-    
+
     @Override
     public Response updatePosList(String languageId) {
         int startPosistion = 0;
@@ -243,8 +245,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                 for (Node node : nodes) {
                     WordnetUtil.updatePOS(node);
                     node.getMetadata().put(ATTRIB_STATUS, "Draft");
-                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                            "updateDataNode");
+                    Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                     updateReq.put(GraphDACParams.node.name(), node);
                     updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                     try {
@@ -262,7 +263,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         }
         return OK("status", "OK");
     }
-    
+
     @Override
     public Response updateWordComplexity(String languageId) {
         int startPosistion = 0;
@@ -327,7 +328,8 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 try {
                                     getResponse(updateReq, LOGGER);
                                 } catch (Exception e) {
-                                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                                    System.out
+                                            .println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
                                 }
                             }
                         }
