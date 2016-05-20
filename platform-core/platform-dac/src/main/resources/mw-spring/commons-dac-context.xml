@@ -8,6 +8,8 @@
        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-4.2.xsd">
+       
+    <bean id="applicationContext" class="com.ilimi.util.ApplicationContextUtils" />
 
 	<bean
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -73,6 +75,7 @@
 		<property name="dataSource" ref="dataSource" />
 	</bean>
 
+	<bean id="auditHistoryDao" class="com.ilimi.dac.impl.entity.dao.AuditHistoryDao" p:sessionFactory-ref="sessionFactory" />
 	<bean id="auditLogDao" class="com.ilimi.dac.impl.entity.dao.AuditLogDao"
 		p:sessionFactory-ref="sessionFactory" />
 	<bean id="commentDao" class="com.ilimi.dac.impl.entity.dao.CommentDao"

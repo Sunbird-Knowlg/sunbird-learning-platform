@@ -60,6 +60,10 @@ public class Neo4jGraphFactory {
     }
 
     public static synchronized GraphDatabaseService getGraphDb(String graphId) {
+    	 return getGraphDb( graphId, null, null);
+    }
+    
+    public static synchronized GraphDatabaseService getGraphDb(String graphId, String userId, String requstId) {
         if (StringUtils.isNotBlank(graphId)) {
             GraphDatabaseService graphDb = graphDbMap.get(graphId);
             if (null == graphDb || !graphDb.isAvailable(0)) {
@@ -69,14 +73,18 @@ public class Neo4jGraphFactory {
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
-                if (!restrictedGraphList.contains(graphId))
-                	graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
+                if (!restrictedGraphList.contains(graphId)&&StringUtils.isNotEmpty(requstId))
+                	graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requstId, graphDb));
                 graphDbMap.put(graphId, graphDb);
                 createRootNode(graphDb, graphId);
                 createConstraints(graphDb);
             }
-            if (null != graphDb && graphDb.isAvailable(0))
-                return graphDb;
+            if (null != graphDb && graphDb.isAvailable(0)){
+                if (!restrictedGraphList.contains(graphId)&&StringUtils.isNotEmpty(requstId))
+            		graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requstId, graphDb));
+            	return graphDb;
+            }
+                
         }
         throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph database: " + graphId + " not found");
     }

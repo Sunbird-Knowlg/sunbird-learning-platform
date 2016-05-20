@@ -108,29 +108,35 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		}
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
-			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("addedProperties");
+			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("properties");
 			if (addedProperties != null && !addedProperties.isEmpty()) {
 				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 					if (propertyMap != null && propertyMap.getKey() != null) {
 						String propertyName = (String) propertyMap.getKey();
-						Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
-						if (propertyDefinition != null) {
-							boolean indexed = (boolean) propertyDefinition.get("indexed");
-							if (indexed) {
-								indexDocument.put(propertyName, propertyMap.getValue());
+						Object propertyNewValue=((Map<String, Object>) propertyMap.getValue()).get("newValue");
+						if(propertyNewValue==null)
+							indexDocument.remove(propertyName);
+						else{
+							Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);
+							if (propertyDefinition != null) {
+								boolean indexed = (boolean) propertyDefinition.get("indexed");
+								if (indexed) {
+									indexDocument.put(propertyName, propertyNewValue);
+								}
 							}
 						}
+
 					}
 				}
 			}
-			List<String> removedProperties = (List<String>) transactionData.get("removedProperties");
+			/*List<String> removedProperties = (List<String>) transactionData.get("removedProperties");
 			if (removedProperties != null && !removedProperties.isEmpty()) {
 				for (String propertyName : removedProperties) {
 					if (propertyName != null && !propertyName.isEmpty()) {
 						indexDocument.remove(propertyName);
 					}
 				}
-			}
+			}*/
 			List<String> addedTags = (List<String>) transactionData.get("addedTags");
 			if (addedTags != null && !addedTags.isEmpty()) {
 				List<String> indexedTags = (List<String>) indexDocument.get(CompositeSearchConstants.INDEX_FIELD_TAGS);
