@@ -1,0 +1,20 @@
+{
+    "name": "getConceptMetrics",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "concept_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/metrics/concepts/*",
+        "pathParams": [
+          "concept_id"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.concept.metrics"
+}

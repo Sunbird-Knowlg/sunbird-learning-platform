@@ -8,11 +8,9 @@ if {$check_error} {
 	return $language_response
 } else {
 set languages [get_resp_value $language_response "languages"]
-puts $languages
 set lang_found false
 java::for {Map map} $languages {
 	set lang_code [$map get "code"]
-	puts $lang_code
 	set lang_eqs [$lang_code equals $language_id]
 	if {$lang_eqs} {
 		set lang_found true

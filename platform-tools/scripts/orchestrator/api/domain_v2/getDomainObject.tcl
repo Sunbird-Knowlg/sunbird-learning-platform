@@ -25,7 +25,6 @@ if {$check_obj_type_error} {
 			set node_metadata [java::prop $graph_node "metadata"]
 			set node_subject [$node_metadata get "subject"]	
 			set node_subject_str [$node_subject toString]	
-			puts "subject str is $node_subject_str"	
 			if {$domain_id == $node_subject_str} {
 				set resp_def_node [getDefinition $graph_id $object_type]
 				set def_node [get_resp_value $resp_def_node "definition_node"]

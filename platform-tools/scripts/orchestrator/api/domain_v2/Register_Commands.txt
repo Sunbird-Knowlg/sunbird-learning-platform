@@ -15,3 +15,9 @@ node registerScript.js api/domain_v2/searchDomainObjects.tcl api/domain_v2/json/
 node registerScript.js api/domain_v2/updateDomainObject.tcl api/domain_v2/json/register-updateDomainObject.json register
 
 node registerScript.js api/domain_v2/retireConcept.tcl api/domain_v2/json/register-retireConcept.json register
+
+node registerScript.js api/domain_v2/getDomainMetrics.tcl api/domain_v2/json/register-getDomainMetrics.json register
+
+node registerScript.js api/domain_v2/getConceptMetrics.tcl api/domain_v2/json/register-getConceptMetrics.json register
+
+node registerScript.js api/domain_v2/getConceptWithoutDomain.tcl api/domain_v2/json/register-getConceptWithoutDomain.json register
