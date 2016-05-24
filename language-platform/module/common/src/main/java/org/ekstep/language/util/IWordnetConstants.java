@@ -12,6 +12,7 @@ public interface IWordnetConstants {
     String ATTRIB_LEMMA = "lemma";
     String ATTRIB_VARIANTS = "variants";
     String ATTRIB_POS = "pos";
+    String ATTRIB_CATEGORY = "category";
     String ATTRIB_STATUS = "status";
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";
     String ATTRIB_PRONUNCIATIONS = "pronunciations";
