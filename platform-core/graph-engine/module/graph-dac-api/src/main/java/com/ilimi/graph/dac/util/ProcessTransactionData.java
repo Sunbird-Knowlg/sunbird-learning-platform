@@ -299,14 +299,14 @@ public class ProcessTransactionData {
 	
 	private List<Map<String, Object>> getAddedRelationShipMessages(TransactionData data, GraphDatabaseService graphDb) {
 		Iterable<Relationship> createdRelations = data.createdRelationships();
-		return getRelationShipMessages(createdRelations);
+		return getRelationShipMessages(createdRelations, GraphDACParams.CREATE.name());
 	}
 	
 	private List<Map<String, Object>> getRemovedRelationShipMessages(TransactionData data, GraphDatabaseService graphDb) {
 		Iterable<Relationship> deletedRelations = data.deletedRelationships();
-		return getRelationShipMessages(deletedRelations);
+		return getRelationShipMessages(deletedRelations, GraphDACParams.DELETE.name());
 	}
-	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> Relations) {
+	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> Relations, String operationType) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 
 		for (Relationship rel: Relations) {
@@ -317,8 +317,7 @@ public class ProcessTransactionData {
             String relationTypeName=rel.getType().name();
             
 			if(StringUtils.equalsIgnoreCase(startNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
-					GraphDACParams.TAG.name()) && StringUtils.equalsIgnoreCase(endNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
-							GraphDACParams.TAG.name()))
+					GraphDACParams.TAG.name()))
             	continue;
 
 			//start_node message 
@@ -327,14 +326,14 @@ public class ProcessTransactionData {
 			Map<String, Object> startRelation = new HashMap<>();		
 
             startRelation.put("relation", relationTypeName);
-            startRelation.put("objectId", endNodeId);
+            startRelation.put("objectId", endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
             startRelation.put("direction", "OUT");
             startRelation.put("objectType", endNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
             startRelation.put("label", getLabel(endNode));
             
         	if(StringUtils.isEmpty(userId)){
-            	Date startNodeLastUpdate = (Date) getPropertyValue(startNode , "lastUpdatedOn");
-            	Date endNodeLastUpdate = (Date) getPropertyValue(endNode ,"lastUpdatedOn");
+            	String startNodeLastUpdate = (String) getPropertyValue(startNode , "lastUpdatedOn");
+            	String endNodeLastUpdate = (String) getPropertyValue(endNode ,"lastUpdatedOn");
             	
             	if(startNodeLastUpdate != null && endNodeLastUpdate != null){
             		if(startNodeLastUpdate.compareTo(endNodeLastUpdate)>0){
@@ -356,7 +355,7 @@ public class ProcessTransactionData {
             
         	map.put(GraphDACParams.requestId.name(), requestId);
         	map.put(GraphDACParams.userId.name(), userId);
-			map.put(GraphDACParams.operationType.name(), GraphDACParams.CREATE.name());
+			map.put(GraphDACParams.operationType.name(), operationType);
 			map.put(GraphDACParams.graphId.name(), getGraphId());
 			map.put(GraphDACParams.nodeGraphId.name(), startNode.getId());
 			map.put(GraphDACParams.nodeUniqueId.name(), startNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
@@ -373,7 +372,7 @@ public class ProcessTransactionData {
 			Map<String, Object> endRelation = new HashMap<>();		
 
 			endRelation.put("relation", relationTypeName);
-			endRelation.put("objectId", startNodeId);
+			endRelation.put("objectId", startNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
 			endRelation.put("direction", "IN");
 			endRelation.put("objectType", startNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
 			endRelation.put("label", getLabel(startNode));
@@ -381,12 +380,12 @@ public class ProcessTransactionData {
             transactionData.put(GraphDACParams.properties.name(), new HashMap<String, Object>());
             transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
             transactionData.put(GraphDACParams.addedTags.name(), new ArrayList<String>());
-            transactionData.put(GraphDACParams.addedRelations.name(), new HashMap<String, Object>());
-            transactionData.put(GraphDACParams.removedRelations.name(), endRelation);
+            transactionData.put(GraphDACParams.addedRelations.name(), endRelation);
+            transactionData.put(GraphDACParams.removedRelations.name(), new HashMap<String, Object>());
 
             map.put(GraphDACParams.requestId.name(), requestId);            
 			map.put(GraphDACParams.userId.name(), userId);
-			map.put(GraphDACParams.operationType.name(), GraphDACParams.CREATE.name());
+			map.put(GraphDACParams.operationType.name(), operationType);
 			map.put(GraphDACParams.graphId.name(), getGraphId());
 			map.put(GraphDACParams.nodeGraphId.name(), endNode.getId());
 			map.put(GraphDACParams.nodeUniqueId.name(), endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
