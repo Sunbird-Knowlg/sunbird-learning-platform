@@ -20,9 +20,9 @@ public class LanguageRequestRouterPool {
     private static int count = 5;
 
     public static long REQ_TIMEOUT = 30000;
-    public static long BULK_REQ_TIMEOUT = 300000;
+    public static long BULK_REQ_TIMEOUT = 600000;
     public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
-    public static Timeout BULK_WAIT_TIMEOUT = new Timeout(Duration.create(5, TimeUnit.MINUTES));
+    public static Timeout BULK_WAIT_TIMEOUT = new Timeout(Duration.create(10, TimeUnit.MINUTES));
     
     public static void init() {
         ActorSystem system = RequestRouterPool.getActorSystem();
