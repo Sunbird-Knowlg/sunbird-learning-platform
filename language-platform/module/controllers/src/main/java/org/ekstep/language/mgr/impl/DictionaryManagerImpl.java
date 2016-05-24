@@ -1732,6 +1732,15 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
 			item.remove(LanguageParams.otherMeanings.name());
+			Integer synsetCount = otherMeaningIds.size() + 1;
+			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
+			String lemma = (String) item.get(ATTRIB_LEMMA);
+			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
+                Object isPhrase = item.get(ATTRIB_IS_PHRASE);
+                if (null == isPhrase)
+                    item.put(ATTRIB_IS_PHRASE, true);
+            }
+			
 			Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), item, definition);
 			node.setObjectType(LanguageParams.Word.name());
 			String wordIdentifier = (String) item.get(LanguageParams.identifier.name());
@@ -1750,6 +1759,16 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			}
 			if (!checkError(createRes)) {
 				String wordId = (String) createRes.get("node_id");
+				Node word = getWord(wordId, languageId, errorMessages);
+				if (null != word && null != word.getInRelations() && !word.getInRelations().isEmpty()) {
+				    for (Relation rel : word.getInRelations()) {
+				        if (StringUtils.equalsIgnoreCase(rel.getRelationType(), RelationTypes.SYNONYM.relationName())) {
+				            String synsetId = rel.getStartNodeId();
+				            if (!StringUtils.equals(synsetId, primaryMeaningId) && !otherMeaningIds.contains(synsetId))
+				                removeSynonymRelation(languageId, wordId, synsetId);
+				        }
+				    }
+				}
 				// add Primary Synonym Relation
 				addSynonymRelation(languageId, wordId, primaryMeaningId);
 				// add other meaning Synonym Relation
@@ -1829,7 +1848,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		}
 		return wordIds;
 	}
-
+	
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
 			StringBuffer errorMessages, DefinitionDTO definition) {
 		String lemma = (String) word.get(LanguageParams.lemma.name());
@@ -1842,6 +1861,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (!isValid) {
 				errorMessages.append("Lemma cannot be in a different language than " + language);
 				return null;
+			}
+			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
+			    Object isPhrase = word.get(ATTRIB_IS_PHRASE);
+			    if (null == isPhrase)
+			        word.put(ATTRIB_IS_PHRASE, true);
 			}
 			String identifier = (String) word.get(LanguageParams.identifier.name());
 			if(identifier == null){
@@ -1899,6 +1923,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
 		}
 	}
+	
+	private void removeSynonymRelation(String languageId, String wordId, String synsetId) {
+        Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "removeRelation");
+        request.put(GraphDACParams.start_node_id.name(), synsetId);
+        request.put(GraphDACParams.relation_type.name(), RelationTypes.SYNONYM.relationName());
+        request.put(GraphDACParams.end_node_id.name(), wordId);
+        Response response = getResponse(request, LOGGER);
+        if (checkError(response)) {
+            throw new ServerException(response.getParams().getErr(), response.getParams().getErrmsg());
+        }
+    }
 
 	private Response createWord(Node node, String languageId) {
 		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");

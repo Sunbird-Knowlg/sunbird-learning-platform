@@ -18,6 +18,7 @@ import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.mgr.impl.ControllerUtil;
+import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 
 import com.ilimi.common.dto.Request;
@@ -35,6 +36,7 @@ public class EnrichActor extends LanguageBaseActor {
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
 	private ControllerUtil controllerUtil = new ControllerUtil();
 	private final int BATCH_SIZE = 10000;
+	private WordUtil wordUtil = new WordUtil();
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -98,6 +100,7 @@ public class EnrichActor extends LanguageBaseActor {
 				updateLexileMeasures(languageId, nodeList);
 				updateFrequencyCount(languageId, nodeList);
 				updatePosList(languageId, nodeList);
+				updateWordComplexity(languageId, nodeList);
 				batch_node_ids = new ArrayList<String>();
 				long diff = System.currentTimeMillis() - startTime;
 				System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
@@ -247,6 +250,18 @@ public class EnrichActor extends LanguageBaseActor {
                     System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
                 }
             }
+	    }
+	}
+	
+	private void updateWordComplexity(String languageId, List<Node> nodes) {
+	    if (null != nodes && !nodes.isEmpty()) {
+	        for (Node node : nodes) {
+	            try {
+                    wordUtil.getWordComplexity(node, languageId);
+                } catch (Exception e) {
+                    LOGGER.error("Error updating word complexity for " + node.getIdentifier(), e);
+                }
+	        }
 	    }
 	}
 

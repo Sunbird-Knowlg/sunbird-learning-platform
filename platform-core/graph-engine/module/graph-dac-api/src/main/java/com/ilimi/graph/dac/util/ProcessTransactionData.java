@@ -49,7 +49,8 @@ public class ProcessTransactionData {
 		messageMap.addAll(getCretedNodeMessages(data, graphDb));
 		messageMap.addAll(getUpdatedNodeMessages(data, graphDb));
 		messageMap.addAll(getDeletedNodeMessages(data, graphDb));
-		
+		messageMap.addAll(getAddedTagsMessage(data, graphDb));
+		messageMap.addAll(getRemovedTagsMessage(data, graphDb));
 		return messageMap;
 	}
 	
@@ -174,7 +175,7 @@ public class ProcessTransactionData {
 			Map<String, Object> map = new HashMap<String, Object>();
 			Map<String, Object> transactionData = new HashMap<String, Object>();
 			transactionData.put(GraphDACParams.addedProperties.name(), getAssignedNodePropertyEntry(nodeId, data));
-			transactionData.put(GraphDACParams.removedProperties.name(), new HashMap<String, Object>());
+			transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>());
 			transactionData.put(GraphDACParams.addedTags.name(), getAddedTagsName(nodeId, data));
 			transactionData.put(GraphDACParams.removedTags.name(), getRemovedTagsName(nodeId, data));
 			transactionData.put(GraphDACParams.addedRelations.name(), getAddedRelations(nodeId, data));
@@ -224,6 +225,70 @@ public class ProcessTransactionData {
 		}
 		return map;
 	}
+	
+	private List<Map<String, Object>> getAddedTagsMessage(TransactionData data, GraphDatabaseService graphDb) {
+        List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
+        Iterable<Relationship> createdRelations = data.createdRelationships();
+        for (Relationship rel: createdRelations) {
+            if (StringUtils.equalsIgnoreCase(
+                        rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
+                        GraphDACParams.TAG.name())) {
+                if (rel.getStartNode().hasProperty(SystemProperties.IL_TAG_NAME.name())) {
+                    Map<String, Object> transactionData = new HashMap<String, Object>();
+                    List<String> tags = new ArrayList<String>();
+                    transactionData.put(GraphDACParams.addedProperties.name(), new HashMap<String, Object>());
+                    transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>());
+                    transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
+                    tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
+                    transactionData.put(GraphDACParams.addedTags.name(), tags);
+                    Node node = graphDb.getNodeById(rel.getEndNode().getId());
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
+                    map.put(GraphDACParams.graphId.name(), getGraphId());
+                    map.put(GraphDACParams.nodeGraphId.name(), node.getId());
+                    map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
+                    if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+                        map.put(GraphDACParams.objectType.name(), node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+                    map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
+                    map.put(GraphDACParams.transactionData.name(), transactionData);
+                    lstMessageMap.add(map);
+                }
+            }
+        }
+        return lstMessageMap;
+    }
+	
+	private List<Map<String, Object>> getRemovedTagsMessage(TransactionData data, GraphDatabaseService graphDb) {
+        List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
+        Iterable<Relationship> createdRelations = data.deletedRelationships();
+        for (Relationship rel: createdRelations) {
+            if (StringUtils.equalsIgnoreCase(
+                        rel.getStartNode().getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
+                        GraphDACParams.TAG.name())) {
+                if (rel.getStartNode().hasProperty(SystemProperties.IL_TAG_NAME.name())) {
+                    Map<String, Object> transactionData = new HashMap<String, Object>();
+                    List<String> tags = new ArrayList<String>();
+                    transactionData.put(GraphDACParams.addedProperties.name(), new HashMap<String, Object>());
+                    transactionData.put(GraphDACParams.removedProperties.name(), new ArrayList<String>());
+                    transactionData.put(GraphDACParams.addedTags.name(), new ArrayList<String>());
+                    tags.add(rel.getStartNode().getProperty(SystemProperties.IL_TAG_NAME.name()).toString());
+                    transactionData.put(GraphDACParams.removedTags.name(), tags);
+                    Node node = graphDb.getNodeById(rel.getEndNode().getId());
+                    Map<String, Object> map = new HashMap<String, Object>();
+                    map.put(GraphDACParams.operationType.name(), GraphDACParams.UPDATE.name());
+                    map.put(GraphDACParams.graphId.name(), getGraphId());
+                    map.put(GraphDACParams.nodeGraphId.name(), node.getId());
+                    map.put(GraphDACParams.nodeUniqueId.name(), node.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
+                    if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+                        map.put(GraphDACParams.objectType.name(), node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+                    map.put(GraphDACParams.nodeType.name(), node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()));
+                    map.put(GraphDACParams.transactionData.name(), transactionData);
+                    lstMessageMap.add(map);
+                }
+            }
+        }
+        return lstMessageMap;
+    }
 	
 	private List<String> getAddedTagsName(Long nodeId, TransactionData data) {
 		List<String> tags = new ArrayList<String>();

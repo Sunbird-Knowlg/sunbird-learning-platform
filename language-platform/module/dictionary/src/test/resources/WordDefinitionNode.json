@@ -43,6 +43,19 @@
           "renderingHints": "{ 'order': 3 }"
         },
         {
+          "propertyName": "morphology",
+          "title": "Morphologically modified word",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
           "propertyName": "exampleSentences",
           "title": "Example Sentences",
           "description": "",
@@ -67,6 +80,19 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "synsetCount",
+          "title": "Number of meanings",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
         },
         {
           "propertyName": "hasSynonyms",
@@ -108,6 +134,19 @@
           "renderingHints": "{ 'order': 5 }"
         },
         {
+          "propertyName": "word_complexity",
+          "title": "Word Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 6 }"
+        },
+        {
           "propertyName": "orthographic_complexity",
           "title": "Orthographic Complexity",
           "description": "",
@@ -118,7 +157,7 @@
           "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 6 }"
+          "renderingHints": "{ 'order': 6 }"
         },
         {
           "propertyName": "phonologic_complexity",
@@ -131,7 +170,7 @@
           "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 7 }"
+          "renderingHints": "{ 'order': 7 }"
         },
         {
           "propertyName": "syllables",
@@ -158,6 +197,21 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
+          "propertyName": "thresholdLevel",
+          "title": "Threshold Level",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Select",
+          "range": [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 9 }"
         },
         {
           "propertyName": "grade",
@@ -617,7 +671,7 @@
                 "Grammatical Word"
             ],
             "required": false,
-			      "indexed": true,
+			"indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "",
             "renderingHints": "{'inputType': 'select', 'order': 3}"

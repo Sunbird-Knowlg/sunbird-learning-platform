@@ -39,12 +39,51 @@ public class BatchController extends BaseLanguageController {
         }
     }
     
+    @RequestMapping(value = "/{languageId}/cleanupWordNetData", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> cleanupWordNetData(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.cleanupWordNetData";
+        try {
+            Response response = batchManager.cleanupWordNetData(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/setPrimaryMeaning", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> setPrimaryMeaning(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.setPrimaryMeaning";
+        try {
+            Response response = batchManager.setPrimaryMeaning(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
     @RequestMapping(value = "/{languageId}/updatePosList", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> updatePosList(@PathVariable(value = "languageId") String languageId) {
         String apiId = "language.updatePosList";
         try {
             Response response = batchManager.updatePosList(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/updateWordComplexity", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updateWordComplexity(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.updateWordComplexity";
+        try {
+            Response response = batchManager.updateWordComplexity(languageId);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             e.printStackTrace();

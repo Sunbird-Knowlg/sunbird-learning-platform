@@ -8,4 +8,7 @@ import com.ilimi.common.controller.BaseController;
  */
 public class BaseCompositeSearchController extends BaseController {
 	
+    protected String getAPIVersion() {
+        return API_VERSION_2;
+    }
 }

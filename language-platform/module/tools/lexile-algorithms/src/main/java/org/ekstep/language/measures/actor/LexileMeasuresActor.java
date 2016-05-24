@@ -20,6 +20,8 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
+import org.ekstep.language.util.DefinitionDTOCache;
+import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -29,6 +31,7 @@ import akka.actor.ActorRef;
 public class LexileMeasuresActor extends LanguageBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
+	private WordUtil wordUtil = new WordUtil(); 
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -86,6 +89,20 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 					}
 				}
 				OK(LanguageParams.word_features.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexity.name(), operation)) {
+				String lemma = (String) request.get(LanguageParams.word.name());
+				Double wordComplexity = wordUtil.getWordComplexity(lemma, languageId);
+				Map<String, Double> map = new HashMap<String, Double>();
+				map.put(lemma, wordComplexity);
+				OK(LanguageParams.word_complexity.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexities.name(), operation)) {
+			    List<String> words = (List<String>) request.get(LanguageParams.words.name());
+			    Map<String, Double> map = wordUtil.getWordComplexity(words, languageId);
+                OK(LanguageParams.word_complexity.name(), map, getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.syncDefinition.name(), operation)) {
+				String definitionName = (String) request.get(LanguageParams.definitionName.name());
+				DefinitionDTOCache.syncDefintion(definitionName, languageId);
+				OK(getSender());
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),

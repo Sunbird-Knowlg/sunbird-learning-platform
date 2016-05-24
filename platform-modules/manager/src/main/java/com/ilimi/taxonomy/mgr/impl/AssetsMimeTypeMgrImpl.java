@@ -15,9 +15,10 @@ public class AssetsMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeT
 	@Override
 	public Response upload(Node node, File uploadFile, String folder) {
 	    String[] urlArray = uploadToAWS(uploadFile, folder);
-	    node.getMetadata().put("s3Key", urlArray[0]);
+	    node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
         node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
         node.getMetadata().put(ContentAPIParams.downloadUrl.name(), urlArray[1]);
+        node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
         return updateContentNode(node, urlArray[1]);
 	}
 

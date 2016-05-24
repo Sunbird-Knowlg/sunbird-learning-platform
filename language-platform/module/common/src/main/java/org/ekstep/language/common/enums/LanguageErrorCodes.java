@@ -50,6 +50,8 @@ public enum LanguageErrorCodes {
     
     ERR_WORDS_NOT_FOUND,
     
+    ERR_DEFINITION_NOT_FOUND,
+    
     ERR_INVALID_UPLOAD_FILE, 
     
     ERR_INVALID_OPERATION,

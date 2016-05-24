@@ -171,7 +171,6 @@ public class WordnetUtil implements IWordnetConstants {
                     }
                 }
             }
-            System.out.println("Pos Value: " + posValue);
             if (StringUtils.isNotBlank(posValue)) {
                 List<String> list = new ArrayList<String>();
                 list.add(posValue);

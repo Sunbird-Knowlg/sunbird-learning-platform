@@ -2,6 +2,8 @@ package org.ekstep.language.util;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +24,7 @@ import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -39,6 +42,7 @@ import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -55,21 +59,22 @@ import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
+import com.ilimi.graph.model.node.MetadataDefinition;
 import com.ilimi.graph.model.node.RelationDefinition;
 
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 @Component
-public class WordUtil extends BaseManager {
+public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 
-    @Autowired
-    private WordCacheUtil wordCacheUtil;
-    
+	@Autowired
+	private WordCacheUtil wordCacheUtil;
+
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -745,6 +750,49 @@ public class WordUtil extends BaseManager {
 		}
 		return errorMessageList;
 	}
+	
+	@SuppressWarnings("unchecked")
+    public Map<String, Node> searchWords(String languageId, List<String> lemmas) {
+	    Map<String, Node> nodeMap = new HashMap<String, Node>();
+        Set<String> words = new HashSet<String>();
+        words.addAll(lemmas);
+        Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0) {
+                for (Node node : nodes) {
+                    String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                    nodeMap.put(wordLemma, node);
+                    words.remove(wordLemma);
+                }
+            }
+        }
+        if (null != words && !words.isEmpty()) {
+            Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
+            if (!checkError(searchRes)) {
+                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+                if (null != nodes && nodes.size() > 0) {
+                    for (Node node : nodes) {
+                        String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                        nodeMap.put(wordLemma, node);
+                    }
+                }
+            }
+        }
+        System.out.println("returning nodemap size: " + nodeMap.size());
+        return nodeMap;
+    }
+	
+	private Response getSearchWordsResponse(String languageId, String property, List<String> words) {
+	    SearchCriteria sc = new SearchCriteria();
+        sc.setObjectType("Word");
+        sc.addMetadata(MetadataCriterion
+                .create(Arrays.asList(new Filter(property, SearchConditions.OP_IN, words))));
+        Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+        req.put(GraphDACParams.search_criteria.name(), sc);
+        Response searchRes = getResponse(req, LOGGER);
+        return searchRes;
+	}
 
 	@SuppressWarnings("unchecked")
 	public Node searchWord(String languageId, String lemma) {
@@ -767,7 +815,7 @@ public class WordUtil extends BaseManager {
 			sc.setResultSize(1);
 			Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
 			req.put(GraphDACParams.search_criteria.name(), sc);
-			Response searchRes = getResponse(request, LOGGER);
+			Response searchRes = getResponse(req, LOGGER);
 			if (!checkError(searchRes)) {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
@@ -776,19 +824,19 @@ public class WordUtil extends BaseManager {
 		}
 		return node;
 	}
-	
+
 	public void cacheAllWords(String languageId, Map<String, String> wordLemmaMap, List<String> errorMessages) {
-		try{
-			long startTime=System.currentTimeMillis();
+		try {
+			long startTime = System.currentTimeMillis();
 			List<Node> nodes = getAllObjects(languageId, LanguageParams.Word.name());
 			long endTime = System.currentTimeMillis();
-			System.out.println("Time taken to load all words: " + (endTime-startTime));
+			System.out.println("Time taken to load all words: " + (endTime - startTime));
 			if (nodes != null) {
 				for (Node node : nodes) {
 					Map<String, Object> metadata = node.getMetadata();
 					String lemma = (String) metadata.get("lemma");
 					wordLemmaMap.put(lemma, node.getIdentifier());
-	
+
 					String[] variants = (String[]) metadata.get("variants");
 					if (variants != null) {
 						for (String variant : variants) {
@@ -797,7 +845,7 @@ public class WordUtil extends BaseManager {
 					}
 				}
 			}
-		} catch(Exception e){
+		} catch (Exception e) {
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -815,7 +863,7 @@ public class WordUtil extends BaseManager {
 		}
 		return null;
 	}
-	
+
 	public Node getDataNode(String languageId, String nodeId) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		request.put(GraphDACParams.node_id.name(), nodeId);
@@ -866,7 +914,8 @@ public class WordUtil extends BaseManager {
 	}
 
 	private List<String> processRelationWords(List<Map<String, Object>> synsetRelations, String languageId,
-			List<String> errorMessages, DefinitionDTO wordDefintion, Map<String, String> wordLemmaMap, ArrayList<String> nodeIds) {
+			List<String> errorMessages, DefinitionDTO wordDefintion, Map<String, String> wordLemmaMap,
+			ArrayList<String> nodeIds) {
 		List<String> wordIds = new ArrayList<String>();
 		if (synsetRelations != null) {
 			for (Map<String, Object> word : synsetRelations) {
@@ -881,7 +930,8 @@ public class WordUtil extends BaseManager {
 	}
 
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
-			List<String> errorMessages, DefinitionDTO definition, Map<String, String> wordLemmaMap, ArrayList<String> nodeIds) {
+			List<String> errorMessages, DefinitionDTO definition, Map<String, String> wordLemmaMap,
+			ArrayList<String> nodeIds) {
 		String lemma = (String) word.get(LanguageParams.lemma.name());
 		if (lemma == null || lemma.trim().isEmpty()) {
 			return null;
@@ -892,13 +942,13 @@ public class WordUtil extends BaseManager {
 				if (identifier != null) {
 					return identifier;
 				}
-				/*Node existingWordNode = searchWord(languageId, lemma);
-				if (existingWordNode != null) {
-					identifier = existingWordNode.getIdentifier();
-					wordLemmaMap.put(lemma, identifier);
-					word.put(LanguageParams.identifier.name(), identifier);
-					return identifier;
-				}*/
+				/*
+				 * Node existingWordNode = searchWord(languageId, lemma); if
+				 * (existingWordNode != null) { identifier =
+				 * existingWordNode.getIdentifier(); wordLemmaMap.put(lemma,
+				 * identifier); word.put(LanguageParams.identifier.name(),
+				 * identifier); return identifier; }
+				 */
 			}
 			Response wordResponse;
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
@@ -1215,7 +1265,8 @@ public class WordUtil extends BaseManager {
 		}
 	}
 
-	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition) throws Exception {
+	private Response createSynset(String languageId, Map<String, Object> synsetObj, DefinitionDTO synsetDefinition)
+			throws Exception {
 		String operation = "updateDataNode";
 		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
 		if (identifier == null || identifier.isEmpty()) {
@@ -1237,7 +1288,8 @@ public class WordUtil extends BaseManager {
 
 	@SuppressWarnings("unchecked")
 	public List<String> createOrUpdateWord(Map<String, Object> item, String languageId,
-			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds, DefinitionDTO synsetDefinition) {
+			Map<String, String> wordLemmaMap, DefinitionDTO wordDefinition, ArrayList<String> nodeIds,
+			DefinitionDTO synsetDefinition) {
 		Response createRes = new Response();
 		List<String> errorMessages = new ArrayList<String>();
 		try {
@@ -1297,24 +1349,19 @@ public class WordUtil extends BaseManager {
 			}
 
 			// get Synset data
-			/*Node synsetNode = getDataNode(languageId, primaryMeaningId);
-			if (synsetNode != null) {
-				Map<String, Object> synsetMetadata = synsetNode.getMetadata();
-				String category = (String) synsetMetadata.get(LanguageParams.category.name());
-				if (category != null) {
-					item.put(LanguageParams.category.name(), category);
-				}
-
-				List<String> tags = synsetNode.getTags();
-				if (tags != null) {
-					List<String> wordTags = (List<String>) item.get(LanguageParams.tags.name());
-					if (wordTags == null) {
-						wordTags = new ArrayList<String>();
-					}
-					wordTags.addAll(tags);
-					item.put(LanguageParams.tags.name(), wordTags);
-				}
-			}*/
+			/*
+			 * Node synsetNode = getDataNode(languageId, primaryMeaningId); if
+			 * (synsetNode != null) { Map<String, Object> synsetMetadata =
+			 * synsetNode.getMetadata(); String category = (String)
+			 * synsetMetadata.get(LanguageParams.category.name()); if (category
+			 * != null) { item.put(LanguageParams.category.name(), category); }
+			 * 
+			 * List<String> tags = synsetNode.getTags(); if (tags != null) {
+			 * List<String> wordTags = (List<String>)
+			 * item.get(LanguageParams.tags.name()); if (wordTags == null) {
+			 * wordTags = new ArrayList<String>(); } wordTags.addAll(tags);
+			 * item.put(LanguageParams.tags.name(), wordTags); } }
+			 */
 
 			// create Word
 			item.remove(LanguageParams.primaryMeaning.name());
@@ -1328,18 +1375,19 @@ public class WordUtil extends BaseManager {
 				Map<String, Object> wordMap = new HashMap<String, Object>();
 				wordMap.put(LanguageParams.lemma.name(), lemma);
 				wordMap.put(LanguageParams.primaryMeaningId.name(), primaryMeaningId);
+				wordMap.put(ATTRIB_SOURCES, ATTRIB_SOURCE_IWN);
 
 				boolean createFlag = true;
-				/*if (wordIdentifier == null) {
-					Node existingWordNode = searchWord(languageId, lemma);
-					if (existingWordNode != null) {
-						wordIdentifier = existingWordNode.getIdentifier();
-						wordMap.put(LanguageParams.identifier.name(), wordIdentifier);
-						createFlag = false;
-					}
-				}*/
+				/*
+				 * if (wordIdentifier == null) { Node existingWordNode =
+				 * searchWord(languageId, lemma); if (existingWordNode != null)
+				 * { wordIdentifier = existingWordNode.getIdentifier();
+				 * wordMap.put(LanguageParams.identifier.name(),
+				 * wordIdentifier); createFlag = false; } }
+				 */
 				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
-				//System.out.println("Time to convert word to node: " + (endTime-startTime));
+				// System.out.println("Time to convert word to node: " +
+				// (endTime-startTime));
 				node.setObjectType(LanguageParams.Word.name());
 				if (createFlag) {
 					createRes = createWord(node, languageId);
@@ -1370,7 +1418,7 @@ public class WordUtil extends BaseManager {
 		request.put(GraphDACParams.end_node_id.name(), wordId);
 		Response response = getResponse(request, LOGGER);
 		if (checkError(response)) {
-		    errorMessages.add(getErrorMessage(response));
+			errorMessages.add(getErrorMessage(response));
 		}
 	}
 
@@ -1423,61 +1471,61 @@ public class WordUtil extends BaseManager {
 		}
 	}
 
-	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream){
+	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream) {
 
 		wordCacheUtil.loadWordArpabetCollection(wordsArpabetsStream);
 	}
-	
-	public String getArpabets(String word){
-		
-		return wordCacheUtil.getArpabets(word);   
+
+	public String getArpabets(String word) {
+
+		return wordCacheUtil.getArpabets(word);
 	}
-	
-	public Set<String> getSimilarSoundWords(String word){
-		
+
+	public Set<String> getSimilarSoundWords(String word) {
+
 		return wordCacheUtil.getSimilarSoundWords(word);
 	}
 
-	public String getPhoneticSpellingByLanguage(String languageId, String word){
-		
+	public String getPhoneticSpellingByLanguage(String languageId, String word) {
+
 		String arpabets = getArpabets(word);
-		if(StringUtils.isEmpty(arpabets))
+		if (StringUtils.isEmpty(arpabets))
 			return "";
-		
-		String arpabetArr[]=arpabets.split("\\s");
-		int itr=0;
-		List<String> unicodes=new ArrayList<String>();
-		int arpabetsCount=arpabetArr.length;
-		for(String arpabet:arpabetArr){
+
+		String arpabetArr[] = arpabets.split("\\s");
+		int itr = 0;
+		List<String> unicodes = new ArrayList<String>();
+		int arpabetsCount = arpabetArr.length;
+		for (String arpabet : arpabetArr) {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
-			Node EnglishvarnaNode=getVarnaNodeByProperty("en", arpabetProp);
-			Map<String,Object> metaData=EnglishvarnaNode.getMetadata();
-			String ipaSymbol=(String)metaData.get(GraphDACParams.ipaSymbol.name());
+			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
+			Map<String, Object> metaData = EnglishvarnaNode.getMetadata();
+			String ipaSymbol = (String) metaData.get(GraphDACParams.ipaSymbol.name());
 			Property ipaSymbolProp = new Property(GraphDACParams.ipaSymbol.name(), ipaSymbol);
-			String type=(String)metaData.get(GraphDACParams.type.name());
-			
-			Node LanguageVarnaNode=getVarnaNodeByProperty(languageId, ipaSymbolProp);
-			if(LanguageVarnaNode!=null){
-				String unicode=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
-				String langageVarnaType=(String)LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
-				if(type.equalsIgnoreCase("Vowel")&&itr!=0&&langageVarnaType.equalsIgnoreCase("Vowel")){
-					//get vowelSign unicode
-					Relation associatedTo=(Relation)LanguageVarnaNode.getInRelations().get(0);
-					if(associatedTo!=null){
-						Map<String, Object> vowelSignMetaData=associatedTo.getStartNodeMetadata();
-						unicode=(String)vowelSignMetaData.get(GraphDACParams.unicode.name());
+			String type = (String) metaData.get(GraphDACParams.type.name());
+
+			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, ipaSymbolProp);
+			if (LanguageVarnaNode != null) {
+				String unicode = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+				String langageVarnaType = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
+				if (type.equalsIgnoreCase("Vowel") && itr != 0 && langageVarnaType.equalsIgnoreCase("Vowel")) {
+					// get vowelSign unicode
+					Relation associatedTo = (Relation) LanguageVarnaNode.getInRelations().get(0);
+					if (associatedTo != null) {
+						Map<String, Object> vowelSignMetaData = associatedTo.getStartNodeMetadata();
+						unicode = (String) vowelSignMetaData.get(GraphDACParams.unicode.name());
 					}
 				}
 				unicodes.add(unicode);
 
-				if(arpabetsCount==itr+1){
-					//check last character is consonant
-					if(!langageVarnaType.equalsIgnoreCase("Vowel")){
-						//Get virama and append to the unicode list
+				if (arpabetsCount == itr + 1) {
+					// check last character is consonant
+					if (!langageVarnaType.equalsIgnoreCase("Vowel")) {
+						// Get virama and append to the unicode list
 						Property viramaProperty = new Property(GraphDACParams.type.name(), "Virama");
-						Node viramaVarnaNode=getVarnaNodeByProperty(languageId, viramaProperty);
-						if(viramaVarnaNode!=null){
-							unicode=(String)viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+						Node viramaVarnaNode = getVarnaNodeByProperty(languageId, viramaProperty);
+						if (viramaVarnaNode != null) {
+							unicode = (String) viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
 							unicodes.add(unicode);
 						}
 					}
@@ -1485,63 +1533,305 @@ public class WordUtil extends BaseManager {
 			}
 			itr++;
 		}
-		
+
 		return getTextFromUnicode(unicodes);
 	}
-	
-	private String getTextFromUnicode(List<String> unicodes){
-		
+
+	private String getTextFromUnicode(List<String> unicodes) {
+
 		String text = "";
-		for(String unicode: unicodes){
-			    int hexVal = Integer.parseInt(unicode, 16);
-			    text += (char)hexVal;
+		for (String unicode : unicodes) {
+			int hexVal = Integer.parseInt(unicode, 16);
+			text += (char) hexVal;
 		}
 		return text;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public List<String> buildSyllables(String languageId, String word){
-		String syllables="";
-		
+	public List<String> buildSyllables(String languageId, String word) {
+		String syllables = "";
+
 		String arpabets = getArpabets(word);
-		if(StringUtils.isEmpty(arpabets))
+		if (StringUtils.isEmpty(arpabets))
 			return ListUtils.EMPTY_LIST;
-		
-		String arpabetArr[]=arpabets.split("\\s");
 
-		for(String arpabet:arpabetArr){
+		String arpabetArr[] = arpabets.split("\\s");
+
+		for (String arpabet : arpabetArr) {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
-			Node varnaNode=getVarnaNodeByProperty(languageId, arpabetProp);
-			Map<String,Object> metaData=varnaNode.getMetadata();
-			String iso=(String)metaData.get(GraphDACParams.ipaSymbol.name());
-			String type=(String)metaData.get(GraphDACParams.type.name());
-			syllables+=iso;
-			if(type.equalsIgnoreCase("Vowel")){
-				syllables+=",";
+			Node varnaNode = getVarnaNodeByProperty(languageId, arpabetProp);
+			Map<String, Object> metaData = varnaNode.getMetadata();
+			String iso = (String) metaData.get(GraphDACParams.ipaSymbol.name());
+			String type = (String) metaData.get(GraphDACParams.type.name());
+			syllables += iso;
+			if (type.equalsIgnoreCase("Vowel")) {
+				syllables += ",";
 			}
-			syllables+=" ";
+			syllables += " ";
 		}
-		
-		if(syllables.endsWith(", "))
-			syllables=syllables.substring(0, syllables.length()-2);
-		else
-			syllables=syllables.substring(0, syllables.length()-1);
 
-		return syllables.length()>0?Arrays.asList(syllables.split(", ")):ListUtils.EMPTY_LIST;
+		if (syllables.endsWith(", "))
+			syllables = syllables.substring(0, syllables.length() - 2);
+		else
+			syllables = syllables.substring(0, syllables.length() - 1);
+
+		return syllables.length() > 0 ? Arrays.asList(syllables.split(", ")) : ListUtils.EMPTY_LIST;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Node getVarnaNodeByProperty(String languageId, Property property) {
+		Node node = null;
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+		request.put(GraphDACParams.metadata.name(), property);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0)
+				node = nodes.get(0);
+		}
+		return node;
 	}
 	
-	@SuppressWarnings("unchecked")
-    private Node getVarnaNodeByProperty(String languageId, Property property) {
-        Node node = null;
-        Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
-        request.put(GraphDACParams.metadata.name(), property);
-        request.put(GraphDACParams.get_tags.name(), true);
-        Response findRes = getResponse(request, LOGGER);
-        if (!checkError(findRes)) {
-            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
-            if (null != nodes && nodes.size() > 0)
-                node = nodes.get(0);
+    public Double getWordComplexity(String lemma, String languageId) throws Exception {
+	    Node word = searchWord(languageId, lemma);
+        if (word == null)
+            throw new ResourceNotFoundException(LanguageErrorCodes.ERR_WORDS_NOT_FOUND.name(), "Word not found: " + lemma);
+        return getWordComplexity(word, languageId);
+	}
+    
+    public Map<String, Double> getWordComplexity(List<String> lemmas, String languageId) {
+        Map<String, Node> nodeMap = searchWords(languageId, lemmas);
+        Map<String, Double> map = new HashMap<String, Double>();
+        if (null != lemmas && !lemmas.isEmpty()) {
+            for (String lemma : lemmas) {
+                Node node = nodeMap.get(lemma);
+                if (null != node) {
+                    try {
+                        Double complexity = getWordComplexity(node, languageId);
+                        map.put(lemma, complexity);
+                    } catch (Exception e) {
+                        map.put(lemma, null);
+                    }
+                } else {
+                    map.put(lemma, null);
+                }
+            }
         }
-        return node;
+        return map;
     }
+
+	@SuppressWarnings({ "unchecked", "rawtypes" })
+	public Double getWordComplexity(Node word, String languageId) throws Exception {
+		Map<String, Object> wordMap = convertGraphNode(word, languageId, null);
+		String languageGraphName = "language";
+		DefinitionDTO wordComplexityDefinition = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.WordComplexity.name(), languageGraphName);
+		if(wordComplexityDefinition == null)
+		    throw new ResourceNotFoundException(LanguageErrorCodes.ERR_DEFINITION_NOT_FOUND.name(), "Definition not found for " + LanguageObjectTypes.WordComplexity.name());
+		List<MetadataDefinition> properties = wordComplexityDefinition.getProperties();
+		Double complexity = 0.0;
+		for (MetadataDefinition property : properties) {
+			nextProperty: {
+				String renderingHintsString = property.getRenderingHints();
+				renderingHintsString = renderingHintsString.replaceAll("'", "\"");
+				Double defaultValue = Double.valueOf((String) property.getDefaultValue());
+				Map<String, Object> renderingHintsMap = mapper.readValue(renderingHintsString,
+						new TypeReference<Map<String, Object>>() {
+						});
+				String field = (String) renderingHintsMap.get("metadata");
+				String dataType = (String) renderingHintsMap.get("datatype");
+				if (StringUtils.isBlank(dataType))
+					dataType = "String";
+				Map<String, Object> valueMap = (Map<String, Object>) renderingHintsMap.get("value");
+				Object wordField = wordMap.get(field);
+				List fieldValues = new ArrayList<>();
+				if (wordField == null) {
+					fieldValues.add(null);
+				} else {
+					fieldValues = getList(mapper, wordField, null);
+				}
+				for (Map.Entry<String, Object> entry : valueMap.entrySet()) {
+					String operation = entry.getKey();
+					List compareValues = getList(mapper, entry.getValue(), null);
+					for (Object fieldValue : fieldValues) {
+						for (Object compareValue : compareValues) {
+							switch (dataType) {
+							case "String": {
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										String compareString = (String) compareValue;
+										String fieldString = (String) fieldValue;
+										switch (operation) {
+										case "in":
+										case "eq": {
+											if (compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "not in":
+											if (!compareValues.containsAll(fieldValues)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										case "ne": {
+											if (!compareString.equalsIgnoreCase(fieldString)) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								break;
+							}
+							case "Number": {
+								if (compareValue != null && fieldValue != null && !operation.equalsIgnoreCase("null")) {
+									try {
+										Double compareNumber = Double.valueOf((String) compareValue);
+										Double fieldNumber = Double.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareNumber == fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ne": {
+											if (compareNumber != fieldNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ge": {
+											if (fieldNumber >= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "gt": {
+											if (fieldNumber > compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "le": {
+											if (fieldNumber <= compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "lt": {
+											if (fieldNumber < compareNumber) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								break;
+							}
+							case "Boolean": {
+								if (compareValue != null && fieldValue != null) {
+									try {
+										boolean compareBoolean = Boolean.valueOf((String) compareValue);
+										boolean fieldBoolean = Boolean.valueOf((String) fieldValue);
+										switch (operation) {
+										case "eq": {
+											if (compareBoolean == fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										case "ne": {
+											if (compareBoolean != fieldBoolean) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								if (compareValue != null) {
+									try {
+										switch (operation) {
+										case "null": {
+											boolean nullBool = Boolean.valueOf((String) compareValue);
+											if (fieldValue == null && nullBool) {
+												complexity = complexity + defaultValue;
+												break nextProperty;
+											}
+											break;
+										}
+										}
+									} catch (Exception e) {
+										throw new Exception("Invalid operation or operands");
+									}
+								}
+								break;
+							}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		BigDecimal bd = new BigDecimal(complexity);
+		bd = bd.setScale(2, RoundingMode.HALF_UP);
+		
+		word.getMetadata().put(LanguageParams.word_complexity.name(), bd.doubleValue());
+		updateWord(word, languageId, word.getIdentifier());
+		return bd.doubleValue();
+	}
 }

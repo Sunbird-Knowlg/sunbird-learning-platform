@@ -64,6 +64,6 @@ public class SearchProcessorTest {
 		dto.setProperties(properties);
 		dto.setOperation("AND");
 		dto.setLimit(10000);
-		processor.processSearch(dto);
+		processor.processSearch(dto, true);
 	}
 }

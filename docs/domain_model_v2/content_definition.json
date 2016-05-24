@@ -1141,7 +1141,7 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{'inputType': 'table', 'order': 6}",
-          "indexed": false
+          "indexed": true
         },
         {
           "propertyName": "createdBy",
@@ -1425,7 +1425,7 @@
         "limit": 50,
         "status": ["Live"],
         "ttl": 0.08,
-        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon",
+        "fields": ["identifier", "name", "description", "code", "keywords", "appIcon", "grayScaleAppIcon", "size",
         "downloadUrl", "artifactUrl", "pkgVersion", "loadingMessage", "launchUrl", "osId", "posterImage",
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",

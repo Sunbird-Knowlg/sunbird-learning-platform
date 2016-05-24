@@ -24,7 +24,7 @@ proc proc_isEmpty {value} {
 			set exist true
 		} else {
 			set strValue [$value toString]
-			set newStrValue [java::new String $strValue] 
+			set newStrValue [java::new String $strValue]
 			set strLength [$newStrValue length]
 			if {$strLength == 0} {
 				set exist true
@@ -54,7 +54,7 @@ if {$object_null == 1} {
 	set osId_Error false
 	set contentType [$content get "contentType"]
 	set contentTypeNotNull [proc_isNotNull $contentType]
-	set contentTypeEmpty false 
+	set contentTypeEmpty false
 	if {$contentTypeNotNull} {
 		set contentTypeEmpty [proc_isEmpty $contentType]
 	}
@@ -68,7 +68,7 @@ if {$object_null == 1} {
 		set osIdCheck 1
 		if {$contentTypeNotNull} {
 			set osIdCheck [[java::new String [$contentType toString]] equalsIgnoreCase "Asset"]
-		}	
+		}
 		if {$osIdCheck != 1 && $osIdEmpty} {
 			set osId_Error true
 		}
@@ -80,6 +80,12 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
+			set status = [$content get "status"]
+			if ([string compare -nocase $status "review"] == 0){
+				set now [clock seconds]
+				set fmt "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+				$content put "lastSubmittedOn" [clock format $now -format $fmt]
+			}
 			set domain_obj [convert_to_graph_node $content $def_node]
 			set create_response [updateDataNode $graph_id $content_id $domain_obj]
 			return $create_response
@@ -91,5 +97,5 @@ if {$object_null == 1} {
 		$result_map put "responseCode" [java::new Integer 400]
 		set response_list [create_error_response $result_map]
 		return $response_list
-	}	
+	}
 }

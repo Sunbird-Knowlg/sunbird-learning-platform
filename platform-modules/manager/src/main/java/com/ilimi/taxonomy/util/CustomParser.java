@@ -133,7 +133,7 @@ public class CustomParser {
 					fileNameInURL = src.split("/");
 					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
 					System.out.println(src);
-					media.setAttribute("src", "widgets" + File.separator + fileNameWithExtn);
+					media.setAttribute("src", fileNameWithExtn);
 				} else {
 					HttpDownloadUtility.downloadFile(src, assetDir);
 					fileNameInURL = src.split("/");
