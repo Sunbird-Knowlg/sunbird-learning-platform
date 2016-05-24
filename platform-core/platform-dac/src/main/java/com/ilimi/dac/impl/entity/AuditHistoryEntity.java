@@ -9,6 +9,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.SequenceGenerator;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
 
 import org.hibernate.annotations.Type;
 
@@ -49,8 +51,8 @@ public class AuditHistoryEntity extends BaseDataAccessEntity {
     @Column(name = "OPEARATION")
     private String operation;
     
-    @Type(type="date")
-    @Column(name = "CREATED_ON", nullable = false, updatable=false)
+    @Column(name = "CREATED_ON",columnDefinition="DATETIME")
+    @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
     
 	@Override

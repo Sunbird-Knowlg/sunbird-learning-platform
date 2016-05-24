@@ -40,17 +40,18 @@ public class AuditHistoryManager implements IAuditHistoryManager {
     }
 
     @Override
-    public Response getAuditHistory(String graphId, String timeStamp1, String timeStamp2) {
+    public Response getAuditHistory(String graphId, String startTime, String endTime) {
 
     	Request request = new Request();
     	request.put(CommonDACParams.graph_id.name(), graphId);
-    	Date startDate=null;
-    	Date endDate=null;
-        DateFormat df = new SimpleDateFormat("ddMMyyyy");
+    	Date startDate = null;
+    	Date endDate = null;
+    	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try{
-        	startDate=df.parse(timeStamp1);
-        	if(timeStamp2!=null)
-        		endDate=df.parse(timeStamp2);
+        	startDate = df.parse(startTime);
+        	if(endTime!=null){
+        		endDate = df.parse(endTime);
+        	}	
         }catch(Exception ex){
         }
 
@@ -62,17 +63,18 @@ public class AuditHistoryManager implements IAuditHistoryManager {
     }
 
 	@Override
-	public Response getAuditHistoryByType(String graphId, String objectType, String timeStamp1, String timeStamp2) {
+	public Response getAuditHistoryByType(String graphId, String objectType, String startTime, String endTime) {
     	Request request = new Request();
     	request.put(CommonDACParams.graph_id.name(), graphId);
     	request.put(CommonDACParams.object_type.name(), objectType);
-    	Date startDate=null;
-    	Date endDate=null;
-        DateFormat df = new SimpleDateFormat("ddMMyyyy");
+    	Date startDate = null;
+    	Date endDate = null;
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try{
-        	startDate=df.parse(timeStamp1);
-        	if(timeStamp2!=null)
-        		endDate=df.parse(timeStamp2);
+        	startDate = df.parse(startTime);
+        	if(endTime!=null){
+        		endDate = df.parse(endTime);
+        	}	
         }catch(Exception ex){
         }
 
@@ -84,17 +86,18 @@ public class AuditHistoryManager implements IAuditHistoryManager {
     }
 
 	@Override
-	public Response getAuditHistoryById(String graphId, String objectId, String timeStamp1, String timeStamp2) {
+	public Response getAuditHistoryById(String graphId, String objectId, String startTime, String endTime) {
     	Request request = new Request();
     	request.put(CommonDACParams.graph_id.name(), graphId);
     	request.put(CommonDACParams.object_id.name(), objectId);
-    	Date startDate=null;
-    	Date endDate=null;
-        DateFormat df = new SimpleDateFormat("ddMMyyyy");
+    	Date startDate = null;
+    	Date endDate = null;
+    	DateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
         try{
-        	startDate=df.parse(timeStamp1);
-        	if(timeStamp2!=null)
-        		endDate=df.parse(timeStamp2);
+        	startDate = df.parse(startTime);
+        	if(endTime!=null){
+        		endDate = df.parse(endTime);
+        	}	
         }catch(Exception ex){
         }
 

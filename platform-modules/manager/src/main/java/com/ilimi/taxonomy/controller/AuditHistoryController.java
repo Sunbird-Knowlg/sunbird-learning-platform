@@ -31,24 +31,24 @@ public class AuditHistoryController extends BaseController{
     @Autowired
     private IAuditHistoryManager auditHistoryManager;
 
-    @RequestMapping(value = {"/{graphId:.+}/all/{t1:.+}/{t2:.+}","/{graphId:.+}/all/{t1:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/{graphId:.+}/all/{startTime:.+}/{endTime:.+}","/{graphId:.+}/all/{startTime:.+}/"}, method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> getAll(@PathVariable Map<String, String> pathVariables,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "audit_history.getAll";
-        String graphId, t1, t2;		
+        String graphId, startTime, endTime;		
 
 		graphId=pathVariables.get("graphId");
-    	t1=pathVariables.get("t1");
-    	if(pathVariables.containsKey("t2")){
-    		t2=pathVariables.get("t1");
+    	startTime=pathVariables.get("startTime");
+    	if(pathVariables.containsKey("endTime")){
+    		endTime=pathVariables.get("endTime");
     	}else{
-    		t2=null;
+    		endTime=null;
     	}
         
-        LOGGER.info("get all AuditHistory | GraphId: " + graphId + " | TimeStamp1: " + t1 + " | Timestamp2: " + t2);
+        LOGGER.info("get all AuditHistory | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime);
         try {
-            Response response = auditHistoryManager.getAuditHistory(graphId, t1, t2);
+            Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime);
             LOGGER.info("Find Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
@@ -57,25 +57,25 @@ public class AuditHistoryController extends BaseController{
         }
     }
     
-    @RequestMapping(value = {"/history/{graphId:.+}/{objectId:.+}/{t1:.+}/{t2:.+}","/history/{graphId:.+}/{objectId:.+}/{t1:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/history/{graphId:.+}/{objectId:.+}/{startTime:.+}/{endTime:.+}","/history/{graphId:.+}/{objectId:.+}/{startTime:.+}/"}, method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> getById(@PathVariable Map<String, String> pathVariables,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "audit_history.getAll";
         
-        String graphId, objectId, t1, t2;		
+        String graphId, objectId, startTime, endTime;		
 
 		graphId=pathVariables.get("graphId");
 		objectId=pathVariables.get("objectId");
-    	t1=pathVariables.get("t1");
-    	if(pathVariables.containsKey("t2")){
-    		t2=pathVariables.get("t1");
+    	startTime=pathVariables.get("startTime");
+    	if(pathVariables.containsKey("endTime")){
+    		endTime=pathVariables.get("endTime");
     	}else{
-    		t2=null;
+    		endTime=null;
     	}
-    	LOGGER.info("get AuditHistory By ObjectId | GraphId: " + graphId + " | TimeStamp1: " + t1 + " | Timestamp2: " + t2 + " | ObjectId: "+objectId);
+    	LOGGER.info("get AuditHistory By ObjectId | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime + " | ObjectId: "+objectId);
         try {
-            Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, t1, t2);
+            Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime);
             LOGGER.info("Find Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
@@ -84,25 +84,25 @@ public class AuditHistoryController extends BaseController{
         }
     }
     
-    @RequestMapping(value = {"/{graphId:.+}/{objectType:.+}/{t1:.+}/{t2:.+}","/{graphId:.+}/{objectId:.+}/{t1:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = {"/{graphId:.+}/{objectType:.+}/{startTime:.+}/{endTime:.+}","/{graphId:.+}/{objectType:.+}/{startTime:.+}/"}, method = RequestMethod.GET)
     @ResponseBody
     public ResponseEntity<Response> getByType(@PathVariable Map<String, String> pathVariables,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "audit_history.getAll";
         
-        String graphId, objectType, t1, t2;		
+        String graphId, objectType, startTime, endTime;		
 
 		graphId=pathVariables.get("graphId");
 		objectType=pathVariables.get("objectType");
-    	t1=pathVariables.get("t1");
-    	if(pathVariables.containsKey("t2")){
-    		t2=pathVariables.get("t1");
+    	startTime=pathVariables.get("startTime");
+    	if(pathVariables.containsKey("endTime")){
+    		endTime=pathVariables.get("endTime");
     	}else{
-    		t2=null;
+    		endTime=null;
     	}
-        LOGGER.info("get AuditHistory By ObjectType | GraphId: " + graphId + " | TimeStamp1: " + t1 + " | Timestamp2: " + t2 + " | ObjectType: "+objectType);
+        LOGGER.info("get AuditHistory By ObjectType | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime + " | ObjectType: "+objectType);
         try {
-            Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, t1, t2);
+            Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime);
             LOGGER.info("Find Item | Response: " + response);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
