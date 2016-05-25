@@ -4,9 +4,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -81,30 +83,35 @@ public class EnrichActor extends LanguageBaseActor {
 			}
 		} catch (Exception e) {
 		    System.out.println("Error: " + e.getMessage());
+		    LOGGER.error("Error in enrich actor", e);
 			handleException(e, getSender());
 		}
 	}
 
 	private void enrichWords(List<String> node_ids, String languageId) {
-		ArrayList<String> batch_node_ids = new ArrayList<String>();
-		int count = 0;
-		for (String nodeId : node_ids) {
-			count++;
-			batch_node_ids.add(nodeId);
-			if (batch_node_ids.size() % BATCH_SIZE == 0 || (node_ids.size() % BATCH_SIZE == batch_node_ids.size() && (node_ids.size() - count) < BATCH_SIZE)) {
-				long startTime = System.currentTimeMillis();
-				List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-				if(languageId.equalsIgnoreCase("en")){
-					updateSyllablesList(nodeList);
-				}
-				updateLexileMeasures(languageId, nodeList);
-				updateFrequencyCount(languageId, nodeList);
-				updatePosList(languageId, nodeList);
-				updateWordComplexity(languageId, nodeList);
-				batch_node_ids = new ArrayList<String>();
-				long diff = System.currentTimeMillis() - startTime;
-				System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
-			}
+		if (null != node_ids && !node_ids.isEmpty()) {
+		    Set<String> nodeIds = new HashSet<String>();
+		    nodeIds.addAll(node_ids);
+		    ArrayList<String> batch_node_ids = new ArrayList<String>();
+	        int count = 0;
+		    for (String nodeId : nodeIds) {
+	            count++;
+	            batch_node_ids.add(nodeId);
+	            if (batch_node_ids.size() % BATCH_SIZE == 0 || (nodeIds.size() % BATCH_SIZE == batch_node_ids.size() && (nodeIds.size() - count) < BATCH_SIZE)) {
+	                long startTime = System.currentTimeMillis();
+	                List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+	                if(languageId.equalsIgnoreCase("en")){
+	                    updateSyllablesList(nodeList);
+	                }
+	                updateLexileMeasures(languageId, nodeList);
+	                updateFrequencyCount(languageId, nodeList);
+	                updatePosList(languageId, nodeList);
+	                updateWordComplexity(languageId, nodeList);
+	                batch_node_ids = new ArrayList<String>();
+	                long diff = System.currentTimeMillis() - startTime;
+	                System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
+	            }
+	        }
 		}
 	}
 
@@ -209,12 +216,12 @@ public class EnrichActor extends LanguageBaseActor {
 		 if (null != nodes && !nodes.isEmpty()) {
             System.out.println("updateSyllablesList | Total words: " + nodes.size());
             for (Node node : nodes) {
-            	WordnetUtil.updateSyllables(node);
-            	Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
-                        "updateDataNode");
-                updateReq.put(GraphDACParams.node.name(), node);
-                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                 try {
+                    WordnetUtil.updateSyllables(node);
+                    Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
+                            "updateDataNode");
+                    updateReq.put(GraphDACParams.node.name(), node);
+                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                     Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
                     if (checkError(updateResponse)) {
                         System.out.println(updateResponse.getParams().getErr());
@@ -224,6 +231,7 @@ public class EnrichActor extends LanguageBaseActor {
                     }
                 } catch (Exception e) {
                     System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+                    LOGGER.error("Error updating syllable list for " + node.getIdentifier(), e);
                 }
             }
 		 }
@@ -233,12 +241,12 @@ public class EnrichActor extends LanguageBaseActor {
 	    if (null != nodes && !nodes.isEmpty()) {
             System.out.println("updatePosList | Total words: " + nodes.size());
             for (Node node : nodes) {
-                WordnetUtil.updatePOS(node);
-                Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                        "updateDataNode");
-                updateReq.put(GraphDACParams.node.name(), node);
-                updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                 try {
+                    WordnetUtil.updatePOS(node);
+                    Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+                            "updateDataNode");
+                    updateReq.put(GraphDACParams.node.name(), node);
+                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
                     Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
                     if (checkError(updateResponse)) {
                         System.out.println(updateResponse.getParams().getErr());
@@ -292,11 +300,11 @@ public class EnrichActor extends LanguageBaseActor {
 							node.getMetadata().put("unicodeNotation", wc.getUnicode());
 							node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
 							node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-							Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-									"updateDataNode");
-							updateReq.put(GraphDACParams.node.name(), node);
-							updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 							try {
+							    Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+	                                    "updateDataNode");
+	                            updateReq.put(GraphDACParams.node.name(), node);
+	                            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 								//System.out.println("Sending update req for : " + node.getIdentifier());
 								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
 								if (checkError(updateResponse)) {
