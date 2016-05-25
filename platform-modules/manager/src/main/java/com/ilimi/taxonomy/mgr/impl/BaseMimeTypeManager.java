@@ -83,10 +83,10 @@ public class BaseMimeTypeManager extends BaseManager {
         }
         return null;
     }
-
+    
     public boolean isJSONValid(String content) {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
             mapper.readTree(content);
             return true;
         } catch (IOException e) {
@@ -181,7 +181,7 @@ public class BaseMimeTypeManager extends BaseManager {
     	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
     	String cleanedJson = "";
     	if (StringUtils.isNotBlank(jsonString)) {
-    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]");
+    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\\"", "\"");
     	}
     	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
     	return cleanedJson;
