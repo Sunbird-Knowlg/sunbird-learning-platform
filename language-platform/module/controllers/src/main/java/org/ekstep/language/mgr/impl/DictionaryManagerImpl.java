@@ -1870,6 +1870,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	private String createOrUpdateWordsWithoutPrimaryMeaning(Map<String, Object> word, String languageId,
 			StringBuffer errorMessages, DefinitionDTO definition) {
 		String lemma = (String) word.get(LanguageParams.name.name());
+		if (StringUtils.isBlank(lemma)) 
+		    lemma = (String) word.get(LanguageParams.lemma.name());
 		if (StringUtils.isBlank(lemma)) {
 			errorMessages.append("Lemma is mandatory");
 			return null;
