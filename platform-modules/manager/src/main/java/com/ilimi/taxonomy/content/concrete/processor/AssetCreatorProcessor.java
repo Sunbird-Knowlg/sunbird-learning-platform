@@ -16,6 +16,7 @@ import org.apache.tika.Tika;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
+import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -135,7 +136,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 				mimeType = tika.detect(file);
 			}
 		} catch (IOException e) {
-			LOGGER.error("Error: ", e);
+			LOGGER.error(ContentErrorMessageConstants.FILE_READ_ERROR, e);
 		}
 		return mimeType;
 	}

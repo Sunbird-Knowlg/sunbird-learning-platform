@@ -205,7 +205,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	@SuppressWarnings("unchecked")
 	public List<String> createRelation(String graphId, Map<String, Object> mapRelation,
 			List<Relation> outRelations) {
-		if (null != mapRelation && !mapRelation.isEmpty()) {
+		if (null != mapRelation) {
 			List<String> lstResponse = new ArrayList<String>();
 			for (Entry<String, Object> entry : mapRelation.entrySet()) {
 				List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();

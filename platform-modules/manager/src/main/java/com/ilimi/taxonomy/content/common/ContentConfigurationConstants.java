@@ -22,6 +22,10 @@ public class ContentConfigurationConstants {
 	
 	public static final String DEFAULT_CONTENT_CODE_PREFIX = "org.ekstep.content.";
 	
+	public static final String DEFAULT_ASSESSMENT_ITEM_CODE_PREFIX = "org.ekstep.assessment.item.";
+	
+	public static final String DEFAULT_ASSESSMENT_ITEM_SET_CODE_PREFIX = "org.ekstep.assessment.item.set.";
+	
 	public static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 	
 	public static final int DEFAULT_CONTENT_PACKAGE_VERSION = 1;
