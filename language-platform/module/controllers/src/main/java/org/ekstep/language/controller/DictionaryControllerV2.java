@@ -1,11 +1,13 @@
 package org.ekstep.language.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
@@ -61,12 +63,15 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			Response response = dictionaryManager.createWordV2(languageId, objectType, request, forceUpdate);
 			LOGGER.info("Create | Response: " + response);
 			if (!checkError(response)) {
+			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            if (StringUtils.isNotBlank(nodeId))
+	                response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
@@ -91,12 +96,15 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request, forceUpdate);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
+			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            if (StringUtils.isNotBlank(nodeId))
+                    response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
