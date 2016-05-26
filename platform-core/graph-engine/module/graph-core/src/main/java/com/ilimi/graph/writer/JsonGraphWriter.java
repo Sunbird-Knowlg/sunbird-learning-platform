@@ -27,7 +27,7 @@ public class JsonGraphWriter implements GraphWriter {
     public JsonGraphWriter(List<Node> nodes, List<Relation> relations) {
         mapper = new ObjectMapper();
         this.nodes = nodes;
-        this.relations = relations;
+        this.relations = null == relations ? new ArrayList<Relation>() : relations;
     }
 
     @SuppressWarnings("unchecked")

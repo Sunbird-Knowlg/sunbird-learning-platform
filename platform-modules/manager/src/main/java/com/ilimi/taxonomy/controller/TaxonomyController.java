@@ -125,8 +125,14 @@ public class TaxonomyController extends BaseController {
         String format = ImportType.CSV.name();
         LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
         try {
-        	map.put(GraphEngineParams.format.name(), format);
-            Response response = taxonomyManager.export(id, map);
+            Request req = getRequest(map);
+            try {
+                SearchCriteria criteria = mapper.convertValue(req.get(TaxonomyAPIParams.search_criteria.name()), SearchCriteria.class);
+                req.put(TaxonomyAPIParams.search_criteria.name(), criteria);
+            } catch (Exception e) {
+            }
+        	req.put(GraphEngineParams.format.name(), format);
+            Response response = taxonomyManager.export(id, req);
             if (!checkError(response)) {
                 OutputStreamValue graphOutputStream = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
                 OutputStream os = graphOutputStream.getOutputStream();

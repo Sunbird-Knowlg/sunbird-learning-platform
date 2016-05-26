@@ -1,0 +1,20 @@
+{
+    "name": "getDomainMetrics",
+    "type": "SCRIPT",
+    "parameters": [
+        {
+          "name": "domain_id",
+          "index": 0,
+          "routingParam": false
+        }
+    ],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/metrics/domains/*",
+        "pathParams": [
+          "domain_id"
+        ]
+    },
+    "body": "",
+    "apiId": "ekstep.domain.metrics"
+}

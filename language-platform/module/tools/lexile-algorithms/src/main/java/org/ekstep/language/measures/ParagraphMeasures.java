@@ -47,11 +47,12 @@ public class ParagraphMeasures {
                 return null;
             String[] headerRows = new String[] { "File Name", "Total Orthographic Complexity", "Avg. Syllable Orthographic Complexity",
                     "Total Phonological Complexity", "Avg. Syllable Phonological Complexity", "Word Count", "Syllable Count"};
-            String[] wordRowsHeader = new String[]{"Word", "PoS", "Orthographic Complexity", "Phonological Complexity"};
-            String[] totalWordsHeader = new String[]{"Word", "Root Word", "Frequency", "Number of stories", "PoS", "Orthographic Complexity", "Phonological Complexity"};
+            String[] wordRowsHeader = new String[]{"Word", "PoS", "Orthographic Complexity", "Phonological Complexity", "Category", "Root Word"};
+            String[] totalWordsHeader = new String[]{"Word", "Root Word", "Frequency", "Number of stories", "PoS", "Orthographic Complexity", "Phonological Complexity", "Category"};
 
             Map<String, String> posMap = new HashMap<String, String>();
             Map<String, String> rootWordMap = new HashMap<String, String>();
+            Map<String, String> categoryMap = new HashMap<String, String>();
             Map<String, Integer> frequencyMap = new HashMap<String, Integer>();
             Map<String, Integer> storyCountMap = new HashMap<String, Integer>();
             Map<String, ComplexityMeasures> complexityMap = new HashMap<String, ComplexityMeasures>();
@@ -85,13 +86,16 @@ public class ParagraphMeasures {
                 for (Entry<String, ComplexityMeasures> entry : sortedMap.entrySet()) {
                     String pos = posMap.get(entry.getKey());
                     String lemma = rootWordMap.get(entry.getKey());
-                    if (StringUtils.isBlank(pos)) {
+                    String category = categoryMap.get(entry.getKey());
+                    if (StringUtils.isBlank(lemma)) {
                         Node node = getNode("variants", entry.getKey(), languageId);
                         if (null == node)
                             node = getNode("lemma", entry.getKey(), languageId);
                         pos = getPOSValue(node, languageId);
                         lemma = getLemmaValue(node, languageId);
+                        category = getCategoryValue(node, languageId);
                         posMap.put(entry.getKey(), pos);
+                        categoryMap.put(entry.getKey(), category);
                         rootWordMap.put(entry.getKey(), lemma);
                     }
                     String[] wordRow = new String[wordRowsHeader.length];
@@ -99,6 +103,8 @@ public class ParagraphMeasures {
                     wordRow[1] = pos;
                     wordRow[2] = entry.getValue().getOrthographic_complexity() + "";
                     wordRow[3] = entry.getValue().getPhonologic_complexity() + "";
+                    wordRow[4] = category;
+                    wordRow[5] = lemma;
                     wordRows.add(wordRow);
                     Integer count = (null == frequencyMap.get(entry.getKey()) ? 0 : frequencyMap.get(entry.getKey()));
                     count += (null == wordFrequency.get(entry.getKey()) ? 1 : wordFrequency.get(entry.getKey()));
@@ -145,6 +151,7 @@ public class ParagraphMeasures {
                 row[4] = posMap.get(entry.getKey());
                 row[5] = entry.getValue().getOrthographic_complexity() + "";
                 row[6] = entry.getValue().getPhonologic_complexity() + "";
+                row[7] = categoryMap.get(entry.getKey());
                 summaryRows.add(row);
             }
             sWriter = new StringWriter();
@@ -203,8 +210,8 @@ public class ParagraphMeasures {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
             tx = graphDb.beginTx();
             if (null != neo4jNode) {
-                if (neo4jNode.hasProperty("lemma"))
-                    lemma = (String) neo4jNode.getProperty("lemma");
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_LEMMA))
+                    lemma = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_LEMMA);
             }
             tx.success();
         } catch (Exception e) {
@@ -216,6 +223,28 @@ public class ParagraphMeasures {
                 tx.close();
         }
         return lemma;
+    }
+    
+    private static String getCategoryValue(Node neo4jNode, String languageId) {
+        Transaction tx = null;
+        String category = null;
+        try {
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
+            tx = graphDb.beginTx();
+            if (null != neo4jNode) {
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_CATEGORY))
+                    category = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_CATEGORY);
+            }
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
+        return category;
     }
     
     private static String getPOSValue(Node neo4jNode, String languageId) {

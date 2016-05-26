@@ -34,8 +34,10 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
+import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.importer.ImportData;
 import com.ilimi.graph.importer.InputStreamValue;
@@ -925,23 +927,42 @@ public class Graph extends AbstractDomainObject {
             }
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     public void exportGraph(final Request request) {
         try {
             final ExecutionContext ec = manager.getContext().dispatcher();
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             final String format = (String) request.get(GraphEngineParams.format.name());
+            SearchCriteria sc = null;
+            if (null != request.get(GraphEngineParams.search_criteria.name()))
+                sc = (SearchCriteria) request.get(GraphEngineParams.search_criteria.name());
 
-            Request nodesReq = new Request(request);
-            nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            nodesReq.setOperation("getAllNodes");
-            Future<Object> nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            Future<Object> nodesResponse = null;
+            if (null == sc) {
+                Request nodesReq = new Request(request);
+                nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                nodesReq.setOperation("getAllNodes");
+                nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            } else {
+                Request nodesReq = new Request(request);
+                nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                nodesReq.setOperation("searchNodes");
+                nodesReq.put(GraphDACParams.search_criteria.name(), sc);
+                nodesReq.put(GraphDACParams.get_tags.name(), true);
+                nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            }
 
-            Request relationsReq = new Request(request);
-            relationsReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            relationsReq.setOperation("getAllRelations");
-            Future<Object> relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
+            Future<Object> relationsResponse = null;
+            if (!StringUtils.equalsIgnoreCase(ImportType.CSV.name(), format)) {
+                Request relationsReq = new Request(request);
+                relationsReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                relationsReq.setOperation("getAllRelations");
+                relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
+            } else {
+                Object blankResponse = new Response();
+                relationsResponse = Futures.successful(blankResponse);
+            }
 
             Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
                     .map(new Mapper<Tuple2<Object, Object>, Object>() {

@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +56,7 @@ public class RDFGraphWriter implements GraphWriter {
 
     public RDFGraphWriter(List<Node> nodes, List<Relation> relations) {
         this.nodes = nodes;
-        this.relations = relations;
+        this.relations = null == relations ? new ArrayList<Relation>() : relations;
 
         namespaceMap = new HashMap<String, String>();
         propertyNamespaceMap = new HashMap<String, String>();

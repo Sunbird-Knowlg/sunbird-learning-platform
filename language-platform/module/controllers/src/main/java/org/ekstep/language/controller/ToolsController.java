@@ -81,7 +81,7 @@ public class ToolsController extends BaseLanguageController {
         request.getContext().put(LanguageParams.language_id.name(), language);
         LOGGER.info("List | Request: " + request);
         try {
-            Response response = getResponse(request, LOGGER);
+            Response response = getBulkOperationResponse(request, LOGGER);
             LOGGER.info("List | Response: " + response);
             return getResponseEntity(response, apiId,
                     (null != request.getParams()) ? request.getParams().getMsgid() : null);

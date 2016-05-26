@@ -1442,12 +1442,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					Node wordNode = getWord(wordId, languageId, errorMessages);
 					Map<String, Object> metadata = wordNode.getMetadata();
 					if (metadata != null) {
-						String primaryMeaningId = (String) metadata.get("primaryMeaningId");
+						String primaryMeaningId = (String) metadata.get(ATTRIB_PRIMARY_MEANING_ID);
 						if (primaryMeaningId != null && !primaryMeaningId.equalsIgnoreCase(synsetId)) {
 							errorMessages.add("Word :" + wordId + " has an existing different primary meaning");
 							continue;
 						} else if (primaryMeaningId == null) {
-							metadata.put(LanguageParams.primaryMeaning.name(), synsetId);
+							metadata.put(ATTRIB_PRIMARY_MEANING_ID, synsetId);
 							wordNode.setMetadata(metadata);
 							wordNode.setObjectType(LanguageParams.Word.name());
 							updateWord(wordNode, languageId, wordId);
