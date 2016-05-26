@@ -320,6 +320,7 @@ public class ProcessTransactionData {
 		Iterable<Relationship> deletedRelations = data.deletedRelationships();
 		return getRelationShipMessages(deletedRelations, GraphDACParams.DELETE.name());
 	}
+	
 	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> Relations, String operationType) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 
