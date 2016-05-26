@@ -17,6 +17,9 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class KafkaMessageProducer implements IMessageProducer{
 	private String TOPIC;
@@ -24,6 +27,8 @@ public class KafkaMessageProducer implements IMessageProducer{
 	private Producer<String, String> producer;
 	private ObjectMapper mapper = new ObjectMapper();
 
+	private static final Logger transactionMsgLogger = LogManager.getLogger("TransactionMessageLogger");
+	
 	public void init() {
 		TOPIC = PropertiesUtil.getProperty("topic");
 		Properties properties = new Properties();
@@ -34,6 +39,7 @@ public class KafkaMessageProducer implements IMessageProducer{
 	}
 
 	public void pushMessage(Map<String, Object> message) {
+		String jsonMessage="";
 		try {
 			if (message != null && message.get("objectType") != null) {
 				String objectType = (String) message.get("objectType");
@@ -43,13 +49,15 @@ public class KafkaMessageProducer implements IMessageProducer{
 				        objectType = (String) message.get("nodeUniqueId");
 				}
 				producer = new kafka.javaapi.producer.Producer<String, String>(producerConfig);
-				String jsonMessage = mapper.writeValueAsString(message);
+				jsonMessage = mapper.writeValueAsString(message);
 				KeyedMessage<String, String> keyedMessage = new KeyedMessage<String, String>(TOPIC,
 						objectType, jsonMessage);
 				producer.send(keyedMessage);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
+			if(StringUtils.isNotEmpty(jsonMessage))
+				transactionMsgLogger.error(jsonMessage);
 		} finally {
 		    if (null != producer)
 		        producer.close();
@@ -132,7 +140,7 @@ public class KafkaMessageProducer implements IMessageProducer{
 				});
 		
 		producer.pushMessage(message);
-		
+
 		builder = new JSONStringer();
 		builder.object().key("operationType").value(CompositeSearchConstants.
 				  OPERATION_UPDATE).key("graphId").value("hi")

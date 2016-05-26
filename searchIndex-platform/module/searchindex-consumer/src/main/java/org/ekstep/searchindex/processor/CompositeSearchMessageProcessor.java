@@ -113,8 +113,8 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 					if (propertyMap != null && propertyMap.getKey() != null) {
 						String propertyName = (String) propertyMap.getKey();
-						Object propertyNewValue=((Map<String, Object>) propertyMap.getValue()).get("newValue");
-						if(propertyNewValue==null)
+						Object propertyNewValue=((Map<String, Object>) propertyMap.getValue()).get("nv"); //new value of the property
+						if(propertyNewValue==null) //New value from transaction data is null, then remove the property from document
 							indexDocument.remove(propertyName);
 						else{
 							Map<String, Object> propertyDefinition = (Map<String, Object>) definitionNode.get(propertyName);

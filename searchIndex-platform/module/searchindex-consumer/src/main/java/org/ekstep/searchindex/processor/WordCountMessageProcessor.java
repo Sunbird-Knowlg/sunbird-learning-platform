@@ -123,13 +123,13 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
-									.get("addedProperties");
+									.get("properties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
 										if (propertyName.equalsIgnoreCase("status")) {
-											String propertyValue = (String) propertyMap.getValue();
+											String propertyValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");//new value
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount + 1;
 											} 
@@ -144,13 +144,13 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
-									.get("addedProperties");
+									.get("properties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
 										if (propertyName.equalsIgnoreCase("status")) {
-											String propertyValue = (String) propertyMap.getValue();
+											String propertyValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("nv");//new value											
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount + 1;
 											} else {
@@ -168,13 +168,13 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 						Map transactionData = (Map) message.get("transactionData");
 						if (transactionData != null) {
 							Map<String, Object> addedProperties = (Map<String, Object>) transactionData
-									.get("addedProperties");
+									.get("properties");
 							if (addedProperties != null && !addedProperties.isEmpty()) {
 								for (Map.Entry<String, Object> propertyMap : addedProperties.entrySet()) {
 									if (propertyMap != null && propertyMap.getKey() != null) {
 										String propertyName = (String) propertyMap.getKey();
 										if (propertyName.equalsIgnoreCase("status")) {
-											String propertyValue = (String) propertyMap.getValue();
+											String propertyValue = (String) ((Map<String, Object>) propertyMap.getValue()).get("ov");//old value
 											if (propertyValue.equalsIgnoreCase("Live")) {
 												liveWordsCount = liveWordsCount - 1;
 											}

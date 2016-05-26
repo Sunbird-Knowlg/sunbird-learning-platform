@@ -51,7 +51,10 @@ public class AuditHistoryEntity extends BaseDataAccessEntity {
     @Column(name = "OPEARATION")
     private String operation;
     
-    @Column(name = "CREATED_ON",columnDefinition="DATETIME")
+    @Column(name = "LABEL")
+    private String label;
+
+	@Column(name = "CREATED_ON", columnDefinition="DATETIME")
     @Temporal(TemporalType.TIMESTAMP)
     private Date createdOn;
     
@@ -112,12 +115,28 @@ public class AuditHistoryEntity extends BaseDataAccessEntity {
 	public void setRequestId(String requestId) {
 		this.requestId = requestId;
 	}
+	
+    public String getOperation() {
+		return operation;
+	}
 
-	public Date getCreated() {
+	public void setOperation(String operation) {
+		this.operation = operation;
+	}
+
+	public String getLabel() {
+		return label;
+	}
+
+	public void setLabel(String label) {
+		this.label = label;
+	}
+
+	public Date getCreatedOn() {
 		return createdOn;
 	}
 
-	public void setCreated(Date createdOn) {
+	public void setCreatedOn(Date createdOn) {
 		this.createdOn = createdOn;
 	}
 

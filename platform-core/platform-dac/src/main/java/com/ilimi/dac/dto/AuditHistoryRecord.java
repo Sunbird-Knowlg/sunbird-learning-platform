@@ -3,6 +3,8 @@ package com.ilimi.dac.dto;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 public class AuditHistoryRecord implements Serializable {
 
 	private static final long serialVersionUID = -5779950964487302125L;
@@ -10,23 +12,25 @@ public class AuditHistoryRecord implements Serializable {
 	private Integer id;
     private String objectId;
     private String objectType;
+    private String label;
     private String graphId;
     private String userId;
     private String requestId;
     private String logRecord;
     private String operation;
-	private Date createdOn;
+    private Date createdOn;
     
     public AuditHistoryRecord(){
     	
     }
     
-	public AuditHistoryRecord(Integer id, String objectId, String objectType, String graphId, String userId,
+	public AuditHistoryRecord(Integer id, String objectId, String objectType, String label, String graphId, String userId,
 			String requestId, String logRecord, String operation, Date createdOn) {
 		super();
 		this.id = id;
 		this.objectId = objectId;
 		this.objectType = objectType;
+		this.label = label;
 		this.graphId = graphId;
 		this.userId = userId;
 		this.requestId = requestId;
@@ -52,6 +56,12 @@ public class AuditHistoryRecord implements Serializable {
 	}
 	public void setObjectType(String objectType) {
 		this.objectType = objectType;
+	}
+	public String getLabel() {
+		return label;
+	}
+	public void setLabel(String label) {
+		this.label = label;
 	}
 	public String getGraphId() {
 		return graphId;

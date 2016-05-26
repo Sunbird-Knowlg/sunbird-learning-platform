@@ -1,8 +1,12 @@
 package com.ilimi.dac.impl;
 
 import java.lang.reflect.Type;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
@@ -10,13 +14,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.googlecode.genericdao.search.Search;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.dac.BaseDataAccessService;
 import com.ilimi.dac.TransformationHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
-import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.dac.impl.entity.AuditHistoryEntity;
 import com.ilimi.dac.impl.entity.dao.AuditHistoryDao;
@@ -26,10 +30,16 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
 
     /** The model mapper. */
     private ModelMapper modelMapper = null;
+    private ObjectMapper objecMapper = null;
 
 	public AuditHistoryDataService() {
         modelMapper = new ModelMapper();
         TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
+        objecMapper = new ObjectMapper();
+//        objecMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm a z");
+        objecMapper.setDateFormat(df);
+
 	}
 
     @Autowired
@@ -59,7 +69,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Type listType = new TypeToken<List<AuditHistoryRecord>>() {
         }.getType();
         List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-        return OK(CommonDACParams.audit_history_record.name(), auditHistoryRecords);
+        return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryRecords));
     }
     
     @Transactional
@@ -80,7 +90,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Type listType = new TypeToken<List<AuditHistoryRecord>>() {
         }.getType();
         List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-        return OK(CommonDACParams.audit_history_record.name(), auditHistoryRecords);
+        return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryRecords));
 
     }
     
@@ -102,8 +112,19 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Type listType = new TypeToken<List<AuditHistoryRecord>>() {
         }.getType();
         List<AuditHistoryRecord> auditHistoryRecords = modelMapper.map(auditHistoryLogEntities, listType);
-        return OK(CommonDACParams.audit_history_record.name(), auditHistoryRecords);
+        return OK(CommonDACParams.audit_history_record.name(), getResponseObject(auditHistoryRecords));
 
+    }
+    
+    
+    private List<Map<String, Object>> getResponseObject(List<AuditHistoryRecord> records){
+    	List<Map<String, Object>> respObj=new ArrayList<Map<String, Object>>();
+    	
+    	for(AuditHistoryRecord record:records){
+    		Map<String, Object> props = objecMapper.convertValue(record, Map.class);
+    		respObj.add(props);
+    	}
+    	return respObj;
     }
 
 

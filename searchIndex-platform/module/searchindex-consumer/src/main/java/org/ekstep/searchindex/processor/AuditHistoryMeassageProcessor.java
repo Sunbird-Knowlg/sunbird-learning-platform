@@ -63,6 +63,7 @@ public class AuditHistoryMeassageProcessor implements IMessageProcessor {
 		record.setObjectType((String)transactionDataMap.get("objectType"));
 		record.setGraphId((String)transactionDataMap.get("graphId"));
 		record.setOperation((String)transactionDataMap.get("operationType"));
+		record.setLabel((String)transactionDataMap.get("label"));
 
 		String transactionDataStr = mapper.writeValueAsString(transactionDataMap.get("transactionData"));
 
