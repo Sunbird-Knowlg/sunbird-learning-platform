@@ -7,8 +7,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import com.ilimi.taxonomy.content.common.ElementMap;
+import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
+import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
@@ -55,7 +57,7 @@ public class EcrfToJsonConvertor {
 	
 	private Map<String, Object> getGroupedElementMap(List<Map<String, String>> elements) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != elements && elements.size() > 0) {
+		if (null != elements) {
 			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
 			for (Map<String, String> element: elements) {
 				String groupKey = element.get(ContentWorkflowPipelineParams.group_element_name.name());
@@ -68,6 +70,36 @@ public class EcrfToJsonConvertor {
 		return map;
 	}
 	
+	private Map<String, Object> getGroupedElementMapByElementName(List<Map<String, String>> elements) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (null != elements) {
+			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
+			for (Map<String, String> element: elements) {
+				String groupKey = element.get(ContentWorkflowPipelineParams.element_name.name());
+				if (null == groupingMap.get(groupKey))
+					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
+				groupingMap.get(groupKey).add(element);
+				map = createGroupedElementMap(groupingMap);
+			}
+		}
+		return map;
+	}
+	
+//	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != elements) {
+//			Map<String, List<Map<String, Object>>> groupingMap = new HashMap<String, List<Map<String, Object>>>();
+//			for (Map<String, Object> element: elements) {
+//				String groupKey = (String) element.get(ContentWorkflowPipelineParams.element_name.name());
+//				if (null == groupingMap.get(groupKey))
+//					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
+//				groupingMap.get(groupKey).add(element);
+//				map = createGroupedElementMap(groupingMap);
+//			}
+//		}
+//		return map;
+//	}
+	
 	private Map<String, Object> createGroupedElementMap(Map<String, List<Map<String, String>>> groupingMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != groupingMap) {
@@ -78,7 +110,6 @@ public class EcrfToJsonConvertor {
 					lstMap.add(getElementMap(m));
 				}
 				map.put(entry.getKey(), lstMap);
-				
 			}
 		}
 		return map;
@@ -105,9 +136,9 @@ public class EcrfToJsonConvertor {
 	
 	private List<Map<String, Object>> getPluginMaps(List<Plugin> plugins) {
 		List<Map<String, Object>> pluginMaps = new ArrayList<Map<String, Object>>();
-		if (null != plugins && plugins.size() > 0) {
+		if (null != plugins) {
 			for (Plugin plugin: plugins) {
-				
+				pluginMaps.add(getPluginMap(plugin));
 			}
 		}
 		return pluginMaps;
@@ -116,11 +147,73 @@ public class EcrfToJsonConvertor {
 	private Map<String, Object> getPluginMap(Plugin plugin) {
 		Map<String, Object> pluginMap = new HashMap<String, Object>();
 		if (null != plugin) {
-//			plu
+			pluginMap.putAll(getElementMap(plugin.getData()));
+			pluginMap.putAll(getNonPluginElementMap(plugin.getChildrenData()));
+			pluginMap.putAll(getChildrenPluginMap(plugin.getChildrenPlugin()));
+			pluginMap.putAll(getEventsMap(plugin.getEvents()));
 		}
 		return pluginMap;
 	}
 	
+	private Map<String, Object> getNonPluginElementMap(List<Map<String, String>> nonPluginElements) {
+		Map<String, Object> nonPluginElementMap = new HashMap<String, Object>();
+		if (null != nonPluginElements)
+			nonPluginElementMap = getGroupedElementMapByElementName(nonPluginElements);
+		return nonPluginElementMap;
+	}
+	
+	private Map<String, Object> getChildrenPluginMap(List<Plugin> childrenPlugin) {
+		Map<String, Object> childrenPluginMap = new HashMap<String, Object>();
+		if (null != childrenPlugin) {
+			List<Map<String, Object>> childPlugins = new ArrayList<Map<String, Object>>();
+			for (Plugin plugin: childrenPlugin) {
+				childPlugins.add(getPluginMap(plugin));
+			}
+//			childrenPluginMap = getGroupedElementMapByElementName(childPlugins);
+		}
+		return childrenPluginMap;
+	}
+	
+	private Map<String, Object> getEventsMap(List<Event> events) {
+		Map<String, Object> eventsMap = new HashMap<String, Object>();
+		if (null != events) {
+			List<Object> eventObjects = new ArrayList<Object>();
+			for (Event event: events) {
+				Map<String, Object> eventMap = new HashMap<String, Object>();
+				eventMap.putAll(getActionsMap(event.getActions()));
+				eventMap.putAll(getElementMap(event.getData()));
+				eventObjects.add(eventMap);
+			}
+			if (events.size() == 1)
+				eventsMap.put(ContentWorkflowPipelineParams.event.name(), filterListForSingleItem(eventObjects));
+			else if (events.size() > 1)
+				eventsMap.put(ContentWorkflowPipelineParams.events.name(), filterListForSingleItem(eventObjects));
+		}
+		return eventsMap;
+	}
+	
+	private Map<String, Object> getActionsMap(List<Action> actions) {
+		Map<String, Object> actionsMap = new HashMap<String, Object>();
+		if (null != actions) {
+			List<Object> actionObjects = new ArrayList<Object>();
+			for (Action action: actions) {
+				actionObjects.add(getElementMap(action.getData()));
+			}
+			actionsMap.put(ContentWorkflowPipelineParams.action.name(), filterListForSingleItem(actionObjects));
+		}
+		return actionsMap;
+	}
+	
+	private Object filterListForSingleItem(List<Object> objects) {
+		Object object = new Object();
+		if (null != objects) {
+			if (objects.size() == 1)
+				object = objects.get(0);
+			else
+				object = objects;
+		}
+		return object;
+	}
 	private Map<String, String> getElementMap(Map<String, String> data) {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != data) {

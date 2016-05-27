@@ -239,6 +239,10 @@ public class XmlContentParser {
 			NodeList nodes = node.getChildNodes();
 			for (int i = 0; i < nodes.getLength(); i++) {
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
+						StringUtils.equalsIgnoreCase(nodes.item(i).getNodeName(), ContentWorkflowPipelineParams.events.name())) {
+					getEvents(nodes.item(i));
+				}
+				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
 						isEvent(nodes.item(i).getNodeName())) {
 					Event event = new Event();
 					event.setData(getDataMap(nodes.item(i)));
