@@ -35,16 +35,9 @@ public class AuditHistoryMeassageProcessor implements IMessageProcessor {
 	@Override
 	public void processMessage(Map<String, Object> message) throws Exception {
 		if (null == manager) {
-//			System.out.println("App context: " + ApplicationContextUtils.getApplicationContext());
-//			String[] arr = ApplicationContextUtils.getApplicationContext().getBeanDefinitionNames();
-//			if (null != arr) {
-//				for (String s : arr) {
-//					System.out.println(s);
-//				}
-//			}
 			manager = (IAuditHistoryManager) ApplicationContextUtils.getApplicationContext().getBean("auditHistoryManager");
 		}
-		if (message != null && message.get("operationType") != null) {
+		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")) {
 			AuditHistoryRecord record=getAuditHistory(message);
 			manager.saveAuditHistory(record); 
 		}

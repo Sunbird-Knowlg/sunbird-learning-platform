@@ -1,14 +1,12 @@
 package com.ilimi.graph.dac.util;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang.time.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -18,6 +16,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.event.TransactionData;
 
+import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemProperties;
 
@@ -57,7 +56,6 @@ public class ProcessTransactionData {
 		messageMap.addAll(getRemovedTagsMessage(data, graphDb));
 		messageMap.addAll(getAddedRelationShipMessages(data));
 		messageMap.addAll(getRemovedRelationShipMessages(data));
-
 		return messageMap;
 	}
 	
@@ -222,14 +220,71 @@ public class ProcessTransactionData {
 		Map<String, Object> map = new HashMap<String, Object>();
 		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe: nodeProp) {
 			if (nodeId == pe.entity().getId()) {
-				Map<String, Object> valueMap=new HashMap<String, Object>();
-				valueMap.put("ov", pe.previouslyCommitedValue()); // old value
-				valueMap.put("nv", pe.value()); // new value
-				map.put((String) pe.key(), valueMap);
+			    if (!compareValues(pe.previouslyCommitedValue(), pe.value())) {
+			        Map<String, Object> valueMap=new HashMap<String, Object>();
+	                valueMap.put("ov", pe.previouslyCommitedValue()); // old value
+	                valueMap.put("nv", pe.value()); // new value
+	                map.put((String) pe.key(), valueMap);
+			    }
 			}
 		}
+		if (map.size() == 1 && null != map.get(AuditProperties.lastUpdatedOn.name()))
+		    map = new HashMap<String, Object>();
 		return map;
 	}
+	
+	@SuppressWarnings("rawtypes")
+    private boolean compareValues(Object o1, Object o2) {
+	    if (null == o1)
+	        o1 = "";
+	    if (null == o2)
+            o2 = "";
+	    if (o1.equals(o2))
+	        return true;
+	    else {
+	        if (o1 instanceof List) {
+	            if (!(o2 instanceof List))
+	                return false;
+	            else
+	                return compareLists((List) o1, (List) o2);
+	        } else if (o1 instanceof Object[]) {
+	            if (!(o2 instanceof Object[]))
+                    return false;
+	            else
+	                return compareArrays((Object[]) o1, (Object[]) o2);
+	        }
+	    }
+	    return false;
+	}
+	
+	@SuppressWarnings("rawtypes")
+    private boolean compareLists(List l1, List l2) {
+	    if (l1.size() != l2.size())
+            return false;
+	    for (int i=0; i<l1.size(); i++) {
+	        Object v1 = l1.get(i);
+	        Object v2 = l2.get(i);
+            if ((null == v1 && null != v2) || (null != v1 && null == v2))
+                return false;
+            if (null != v1 && null != v2 && !v1.equals(v2))
+                return false;
+        }
+	    return true;
+	}
+	
+    private boolean compareArrays(Object[] l1, Object[] l2) {
+        if (l1.length != l2.length)
+            return false;
+        for (int i=0; i<l1.length; i++) {
+            Object v1 = l1[i];
+            Object v2 = l2[i];
+            if ((null == v1 && null != v2) || (null != v1 && null == v2))
+                return false;
+            if (null != v1 && null != v2 && !v1.equals(v2))
+                return false;
+        }
+        return true;
+    }
 	
 	private List<Map<String, Object>> getAddedTagsMessage(TransactionData data, GraphDatabaseService graphDb) {
         List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
@@ -313,22 +368,20 @@ public class ProcessTransactionData {
 	
 	private List<Map<String, Object>> getAddedRelationShipMessages(TransactionData data) {
 		Iterable<Relationship> createdRelations = data.createdRelationships();
-		return getRelationShipMessages(createdRelations, GraphDACParams.CREATE.name());
+		return getRelationShipMessages(createdRelations, GraphDACParams.UPDATE.name(), false);
 	}
 	
 	private List<Map<String, Object>> getRemovedRelationShipMessages(TransactionData data) {
 		Iterable<Relationship> deletedRelations = data.deletedRelationships();
-		return getRelationShipMessages(deletedRelations, GraphDACParams.DELETE.name());
+		return getRelationShipMessages(deletedRelations, GraphDACParams.UPDATE.name(), true);
 	}
 	
-	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> Relations, String operationType) {
+	private List<Map<String, Object>> getRelationShipMessages(Iterable<Relationship> relations, String operationType, boolean delete) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
-
-		for (Relationship rel: Relations) {
+		for (Relationship rel: relations) {
 			Node startNode = rel.getStartNode();
 			Node endNode =  rel.getEndNode();
             String relationTypeName=rel.getType().name();
-            
 			if(StringUtils.equalsIgnoreCase(startNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()).toString(), 
 					GraphDACParams.TAG.name()))
             	continue;
@@ -341,7 +394,8 @@ public class ProcessTransactionData {
             startRelation.put("rel", relationTypeName);
             startRelation.put("id", endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
             startRelation.put("dir", "OUT");
-            startRelation.put("type", endNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+            if (endNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+                startRelation.put("type", endNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
             startRelation.put("label", getLabel(endNode));
             
         	if(StringUtils.isEmpty(userId)){
@@ -355,17 +409,21 @@ public class ProcessTransactionData {
             			userId=(String) getPropertyValue(endNode ,"lastUpdatedBy");            			
             		}
             	}
-            	
-            	if(StringUtils.isEmpty(userId))
+            	if(StringUtils.isBlank(userId))
 					userId = "ANONYMOUS";
         	}
-        		
+        	List<Map<String, Object>> startRelations = new ArrayList<Map<String, Object>>();
+        	startRelations.add(startRelation);
             transactionData.put(GraphDACParams.properties.name(), new HashMap<String, Object>());
             transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
             transactionData.put(GraphDACParams.addedTags.name(), new ArrayList<String>());
-            transactionData.put(GraphDACParams.addedRelations.name(), startRelation);
-            transactionData.put(GraphDACParams.removedRelations.name(), new HashMap<String, Object>());
-            
+            if (delete) {
+                transactionData.put(GraphDACParams.removedRelations.name(), startRelations);
+                transactionData.put(GraphDACParams.addedRelations.name(), new ArrayList<Map<String, Object>>());
+            } else {
+                transactionData.put(GraphDACParams.addedRelations.name(), startRelations);
+                transactionData.put(GraphDACParams.removedRelations.name(), new ArrayList<Map<String, Object>>());
+            }
         	map.put(GraphDACParams.requestId.name(), requestId);
         	map.put(GraphDACParams.userId.name(), userId);
 			map.put(GraphDACParams.operationType.name(), operationType);
@@ -388,15 +446,21 @@ public class ProcessTransactionData {
 			endRelation.put("rel", relationTypeName);
 			endRelation.put("id", startNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()));
 			endRelation.put("dir", "IN");
-			endRelation.put("type", startNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
+			if (startNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()))
+			    endRelation.put("type", startNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name()));
 			endRelation.put("label", getLabel(startNode));
-            
+			List<Map<String, Object>> endRelations = new ArrayList<Map<String, Object>>();
+			endRelations.add(endRelation);
             transactionData.put(GraphDACParams.properties.name(), new HashMap<String, Object>());
             transactionData.put(GraphDACParams.removedTags.name(), new ArrayList<String>());
             transactionData.put(GraphDACParams.addedTags.name(), new ArrayList<String>());
-            transactionData.put(GraphDACParams.addedRelations.name(), endRelation);
-            transactionData.put(GraphDACParams.removedRelations.name(), new HashMap<String, Object>());
-
+            if (delete) {
+                transactionData.put(GraphDACParams.removedRelations.name(), endRelations);
+                transactionData.put(GraphDACParams.addedRelations.name(), new ArrayList<Map<String, Object>>());
+            } else {
+                transactionData.put(GraphDACParams.addedRelations.name(), endRelations);
+                transactionData.put(GraphDACParams.removedRelations.name(), new ArrayList<Map<String, Object>>());
+            }
             map.put(GraphDACParams.requestId.name(), requestId);            
 			map.put(GraphDACParams.userId.name(), userId);
 			map.put(GraphDACParams.operationType.name(), operationType);
@@ -411,12 +475,10 @@ public class ProcessTransactionData {
 			map.put(GraphDACParams.transactionData.name(), transactionData);
 			lstMessageMap.add(map);
 		}
-        
 		return lstMessageMap;
 	}
 	
 	private String getLabel(Node node){
-		
 		if(node.hasProperty("name")){
 			return (String) node.getProperty("name");
 		}else if(node.hasProperty("lemma")){
@@ -426,7 +488,6 @@ public class ProcessTransactionData {
 		}else if(node.hasProperty("gloss")){
 			return (String) node.getProperty("gloss");
 		}
-		
 		return "";
 	}
 

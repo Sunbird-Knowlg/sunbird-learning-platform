@@ -8,7 +8,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -177,8 +176,7 @@ public class TestGraphImportUsingCSV {
         ResponseParams params = response.getParams();
         assertEquals(StatusType.successful.name(), params.getStatus());
 
-        String userId=null, requestId=UUID.randomUUID().toString();;            
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, userId, requestId);
+        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
         GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
         int nodesCount = IteratorUtil.count(globalOps.getAllNodes().iterator());
@@ -202,8 +200,7 @@ public class TestGraphImportUsingCSV {
         ResponseParams params = response.getParams();
         assertEquals(StatusType.successful.name(), params.getStatus());
         Thread.sleep(15000);
-        String userId=null, requestId=UUID.randomUUID().toString();;            
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, userId, requestId);
+        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
         GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
         int tagsCount = 0;
@@ -264,8 +261,7 @@ public class TestGraphImportUsingCSV {
         ResponseParams params = response.getParams();
         assertEquals(StatusType.successful.name(), params.getStatus());
 
-        String userId=null, requestId=UUID.randomUUID().toString();;            
-        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, userId, requestId);
+        GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
         GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
         Iterator<Relationship> relations = globalOps.getAllRelationships().iterator();

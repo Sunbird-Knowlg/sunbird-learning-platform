@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
@@ -47,17 +48,18 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			switch (nodeType) {
 			case CompositeSearchConstants.NODE_TYPE_DATA: {
 				Map<String, Object> definitionNode = ObjectDefinitionCache.getDefinitionNode(objectType, graphId);
+				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);
 				// objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, false);
+					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
-					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, true);
+					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
@@ -94,7 +96,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Map<String, Object> getIndexDocument(Map<String, Object> message, Map<String, Object> definitionNode,
-			boolean updateRequest) throws IOException {
+	        Map<String, String> relationDefinition, boolean updateRequest) throws IOException {
 		Map<String, Object> indexDocument = new HashMap<String, Object>();
 		String uniqueId = (String) message.get("nodeUniqueId");
 		if (updateRequest) {
@@ -129,14 +131,40 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 					}
 				}
 			}
-			/*List<String> removedProperties = (List<String>) transactionData.get("removedProperties");
-			if (removedProperties != null && !removedProperties.isEmpty()) {
-				for (String propertyName : removedProperties) {
-					if (propertyName != null && !propertyName.isEmpty()) {
-						indexDocument.remove(propertyName);
-					}
-				}
-			}*/
+			List<Map<String, Object>> addedRelations = (List<Map<String, Object>>) transactionData.get("addedRelations");
+			if (null != addedRelations && !addedRelations.isEmpty()) {
+			    for (Map<String, Object> rel : addedRelations) {
+			        String key = rel.get("dir") + "_" + rel.get("type") + "_" + rel.get("rel");
+			        String title = relationDefinition.get(key);
+			        if (StringUtils.isNotBlank(title)) {
+			            List<String> list = (List<String>) indexDocument.get(title);
+	                    if (null == list)
+	                        list = new ArrayList<String>();
+	                    String id = (String) rel.get("id");
+	                    if (StringUtils.isNotBlank(id) && !list.contains(id)) {
+	                        list.add(id);
+	                        indexDocument.put(title, list);
+	                    }
+			        }
+			    }
+			}
+			List<Map<String, Object>> removedRelations = (List<Map<String, Object>>) transactionData.get("removedRelations");
+            if (null != removedRelations && !removedRelations.isEmpty()) {
+                for (Map<String, Object> rel : removedRelations) {
+                    String key = rel.get("dir") + "_" + rel.get("type") + "_" + rel.get("rel");
+                    String title = relationDefinition.get(key);
+                    if (StringUtils.isNotBlank(title)) {
+                        List<String> list = (List<String>) indexDocument.get(title);
+                        if (null != list && !list.isEmpty()) {
+                            String id = (String) rel.get("id");
+                            if (StringUtils.isNotBlank(id) && list.contains(id)) {
+                                list.remove(id);
+                                indexDocument.put(title, list);
+                            }
+                        }
+                    }
+                }
+            }
 			List<String> addedTags = (List<String>) transactionData.get("addedTags");
 			if (addedTags != null && !addedTags.isEmpty()) {
 				List<String> indexedTags = (List<String>) indexDocument.get(CompositeSearchConstants.INDEX_FIELD_TAGS);

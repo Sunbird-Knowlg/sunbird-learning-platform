@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * This contains data (value objects) to be passed to middleware command
  * 
@@ -36,7 +38,7 @@ public class Request implements Serializable {
         }
         
         //set request_id
-		request_id=(String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
+		request_id = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
     }
 
     public Request() {
@@ -46,7 +48,9 @@ public class Request implements Serializable {
 
     public Request(Request request) {
     	this.params = request.getParams();
-    	if(this.params.getMsgid()==null&&request_id!=null)
+    	if (null == this.params)
+    	    this.params = new RequestParams();
+    	if(StringUtils.isBlank(this.params.getMsgid()) && StringUtils.isNotBlank(request_id))
     		this.params.setMsgid(request_id);
         this.context.putAll(request.getContext());
     }
