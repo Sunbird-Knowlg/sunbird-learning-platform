@@ -1540,6 +1540,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 							}
 							String nodeId = (String) wordResponse.get(GraphDACParams.node_id.name());
 							if (nodeId != null) {
+							    createRes.put(GraphDACParams.node_id.name(), nodeId);
 								lstNodeId.add(nodeId);
 							}
 						}
@@ -2037,7 +2038,6 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			if (StringUtils.isNotBlank(wordId))
 			    lstNodeId.add(wordId);
 			if (!lstNodeId.isEmpty()) {
-				updateResponse.getResult().remove(GraphDACParams.node_id.name());
 				lstNodeId.add(wordId);
 				updateResponse.put(GraphDACParams.node_ids.name(), lstNodeId);
 			}

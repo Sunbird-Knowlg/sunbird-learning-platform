@@ -80,5 +80,15 @@
 			<version>1.1.6</version>
 			<scope>test</scope>
 		</dependency>
+		        <dependency>
+            <groupId>net.bramp.ffmpeg</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.im4java</groupId>
+            <artifactId>im4java</artifactId>
+            <version>1.4.0</version>
+        </dependency>
 	</dependencies>
 </project>
