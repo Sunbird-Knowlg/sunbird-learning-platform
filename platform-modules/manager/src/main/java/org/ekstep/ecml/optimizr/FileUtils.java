@@ -16,12 +16,16 @@ import java.util.zip.ZipFile;
 import java.util.zip.ZipOutputStream;
 import javax.activation.MimetypesFileTypeMap;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  *
  * @author feroz
  */
 public class FileUtils {
 
+	private static Logger LOGGER = LogManager.getLogger(FileUtils.class.getName());
     private static DecimalFormat decimalFormat = new DecimalFormat("#.00");
     private static MimetypesFileTypeMap mimeTypesMap = null;
 
@@ -32,6 +36,7 @@ public class FileUtils {
             double kilobytes = (bytes / 1024);
             double megabytes = (kilobytes / 1024);
             System.err.println(fileName + " Size: " + decimalFormat.format(megabytes) + " MB");
+            //LOGGER.error(fileName + " Size: " + decimalFormat.format(megabytes) + " MB");
             return bytes;
         }
         return 0;
@@ -45,6 +50,7 @@ public class FileUtils {
 
         try {
             // Open the zip file
+        	LOGGER.debug("extract | file =" + zfile.getName() + " | outputFolder =" + outputFolder);
             ZipFile zipFile = new ZipFile(zfile);
             Enumeration<?> enu = zipFile.entries();
             while (enu.hasMoreElements()) {
@@ -91,7 +97,8 @@ public class FileUtils {
     }
 
     public static void compress(String zipFileName, String dir) throws Exception {
-        File dirObj = new File(dir);
+    	LOGGER.debug("compress | zipFileName =" + zipFileName + " | dir =" + dir);
+    	File dirObj = new File(dir);
         ZipOutputStream out = new ZipOutputStream(new FileOutputStream(zipFileName, false));
         System.out.println("Creating : " + zipFileName);
         addDir(dirObj, out, dirObj);
