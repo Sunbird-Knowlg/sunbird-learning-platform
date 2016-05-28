@@ -4,14 +4,18 @@ import java.io.File;
 import java.io.IOException;
 
 import org.apache.commons.io.FilenameUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.ecml.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.ecml.optimizr.image.ResizeImagemagickProcessor;
 
+import com.ilimi.assessment.controller.AssessmentItemController;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
 
 public class Optimizr {
 
-
+	private static Logger LOGGER = LogManager.getLogger(Optimizr.class.getName());
+	
 	private static final String tempFileLocation = "/data/contentBundle/";
 	
 	public static void main(String ap[]) throws Exception{
@@ -21,9 +25,10 @@ public class Optimizr {
 	}
 	
 	public File optimizeECAR(String url)  throws Exception{
+		LOGGER.info("optimizeECAR URL"+url);
 		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
 		File ecarFile = HttpDownloadUtility.downloadFile(url, tempFileDwn);
-		optimizeECAR(ecarFile);
+		LOGGER.info("optimizeECAR ecarFile -"+ecarFile.getPath());
 		return optimizeECAR(ecarFile);
 	}
 	
@@ -39,6 +44,7 @@ public class Optimizr {
 		String outputFileName = inputFieName + ".min";
 		String output = input.getParent() + File.separator + outputFileName + ".ecar";
 		FileUtils.compress(output, temp);
+		input.delete();
 		delete(tempDir);
 		return new File(output);
 	}
