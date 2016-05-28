@@ -3,7 +3,7 @@ package com.ilimi.graph.common;
 import java.util.List;
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 public class JSONUtils {
 

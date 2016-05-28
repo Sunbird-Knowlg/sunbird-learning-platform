@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -21,6 +22,7 @@ import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.mgr.Configuration;
@@ -58,8 +60,20 @@ public class Neo4jGraphFactory {
             e.printStackTrace();
         }
     }
-
+    
     public static synchronized GraphDatabaseService getGraphDb(String graphId) {
+        return getGraphDb(graphId, null);
+    }
+
+    public static synchronized GraphDatabaseService getGraphDb(String graphId, Request request) {
+        String userId = null;
+        String requestId = null;        
+        if(null != request && null != request.getParams()){
+            userId = request.getParams().getUid();
+            requestId = request.getParams().getMsgid();
+        }
+        if (StringUtils.isBlank(requestId))
+            requestId = UUID.randomUUID().toString();
         if (StringUtils.isNotBlank(graphId)) {
             GraphDatabaseService graphDb = graphDbMap.get(graphId);
             if (null == graphDb || !graphDb.isAvailable(0)) {
@@ -69,14 +83,18 @@ public class Neo4jGraphFactory {
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
-                if (!restrictedGraphList.contains(graphId))
-                	graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
+                if (!restrictedGraphList.contains(graphId) && StringUtils.isNotEmpty(requestId))
+                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requestId, graphDb));
                 graphDbMap.put(graphId, graphDb);
                 createRootNode(graphDb, graphId);
                 createConstraints(graphDb);
             }
-            if (null != graphDb && graphDb.isAvailable(0))
+            if (null != graphDb && graphDb.isAvailable(0)){
+                if (!restrictedGraphList.contains(graphId)&&StringUtils.isNotEmpty(requestId))
+                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requestId, graphDb));
                 return graphDb;
+            }
+                
         }
         throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph database: " + graphId + " not found");
     }

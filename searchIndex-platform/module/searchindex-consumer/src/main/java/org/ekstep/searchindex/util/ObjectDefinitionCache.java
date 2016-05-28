@@ -7,10 +7,11 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+@SuppressWarnings("rawtypes")
 public class ObjectDefinitionCache {
 
-	@SuppressWarnings("rawtypes")
 	private static Map<String, Map> definitionMap = new HashMap<String, Map>();
+	private static Map<String, Map<String, String>> relationMap = new HashMap<String, Map<String, String>>();
 	private static ObjectMapper mapper = new ObjectMapper();
 	private static ConsumerUtil consumerUtil = new ConsumerUtil();
 
@@ -18,37 +19,50 @@ public class ObjectDefinitionCache {
 	public static Map<String, Object> getDefinitionNode(String objectType, String graphId) throws Exception {
 		Map<String, Object> definition = definitionMap.get(objectType);
 		if (definition == null) {
-			definition = getDefinitionFromGraph(objectType, graphId);
-			definitionMap.put(objectType, definition);
+			getDefinitionFromGraph(objectType, graphId);
+			definition = definitionMap.get(objectType);
 		}
 		return definition;
 	}
+	
+    public static Map<String, String> getRelationDefinition(String objectType, String graphId) throws Exception {
+        Map<String, String> definition = relationMap.get(objectType);
+        if (definition == null) {
+            getDefinitionFromGraph(objectType, graphId);
+            definition = relationMap.get(objectType);
+        }
+        return definition;
+    }
 
-	private static Map<String, Object> getDefinitionFromGraph(String objectType, String graphId) throws Exception {
+	private static void getDefinitionFromGraph(String objectType, String graphId) throws Exception {
 		String url = consumerUtil.getConsumerConfig().consumerInit.ekstepPlatformURI + "/taxonomy/" + graphId + "/definition/"
 				+ objectType;
 		String result = consumerUtil.makeHTTPGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result,
 				new TypeReference<Map<String, Object>>() {
 				});
-		Map<String, Object> definition = retrieveProperties(definitionObject);
-		return definition;
+		if (definitionObject == null) {
+            throw new Exception("Unable to find Defintion object.");
+        }
+        Map resultMap = (Map) definitionObject.get("result");
+        if (resultMap == null) {
+            throw new Exception("Result in response is empty");
+        }
+        Map definitionNode = (Map) resultMap.get("definition_node");
+        if (definitionNode == null) {
+            throw new Exception("Definition node in result is empty");
+        }
+		Map<String, Object> definition = retrieveProperties(definitionNode);
+		definitionMap.put(objectType, definition);
+		
+		Map<String, String> relationDefinition = retrieveRelations(definitionNode, "IN", "inRelations");
+		relationDefinition.putAll(retrieveRelations(definitionNode, "OUT", "outRelations"));
+		relationMap.put(objectType, relationDefinition);
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private static Map<String, Object> retrieveProperties(Map<String, Object> definitionObject) throws Exception {
-		if (definitionObject == null) {
-			throw new Exception("Unable to find Defintion object.");
-		}
-		Map<String, Object> definition = new HashMap<String, Object>();
-		Map result = (Map) definitionObject.get("result");
-		if (result == null) {
-			throw new Exception("Result in response is empty");
-		}
-		Map definitionNode = (Map) result.get("definition_node");
-		if (definitionNode == null) {
-			throw new Exception("Definition node in result is empty");
-		}
+	@SuppressWarnings({ "unchecked" })
+	private static Map<String, Object> retrieveProperties(Map definitionNode) throws Exception {
+	    Map<String, Object> definition = new HashMap<String, Object>();
 		List<Map> propertiesList = (List<Map>) definitionNode.get("properties");
 		if (propertiesList == null || propertiesList.isEmpty()) {
 			throw new Exception("Properties List in Definition node is empty");
@@ -58,17 +72,28 @@ public class ObjectDefinitionCache {
 		}
 		return definition;
 	}
+	
+	@SuppressWarnings({ "unchecked" })
+    private static Map<String, String> retrieveRelations(Map definitionNode, String direction, String relationProperty) throws Exception {
+        Map<String, String> definition = new HashMap<String, String>();
+        List<Map> inRelsList = (List<Map>) definitionNode.get(relationProperty);
+        if (null != inRelsList && !inRelsList.isEmpty()) {
+            for (Map relMap : inRelsList) {
+                List<String> objectTypes = (List<String>) relMap.get("objectTypes");
+                if (null != objectTypes && !objectTypes.isEmpty()) {
+                    for (String type : objectTypes) {
+                        String key = direction + "_" + type + "_" + (String)relMap.get("relationName");
+                        definition.put(key, (String)relMap.get("title"));
+                    }
+                }
+            }
+        }
+        return definition;
+    }
 
-	public static Map<String, Object> resyncDefinition(String objectType, String graphId) throws Exception {
+    public static void resyncDefinition(String objectType, String graphId) throws Exception {
 	    System.out.println("resyncDefinition : " + objectType + " -- " + graphId);
-		Map<String, Object> definition = getDefinitionFromGraph(objectType, graphId);
-		definitionMap.put(objectType, definition);
-		return definition;
-	}
-
-	public static void main(String[] args) throws Exception {
-		getDefinitionNode("Word", "en");
-		getDefinitionNode("Word", "en");
+		getDefinitionFromGraph(objectType, graphId);
 	}
 
 }
