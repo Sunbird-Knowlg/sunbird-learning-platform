@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.ecml.optimizr.Optimizr;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -671,6 +674,78 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return null;
 	}
+	
+	public static void main(String[] args) {
+        String r = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/ecar_files/org.ekstep.story.hi.elephant_1458713044510.ecar";
+        System.out.println(FilenameUtils.getExtension(r));
+        String s = r.substring(0, r.lastIndexOf('/'));
+        System.out.println(s);
+        System.out.println(s.substring(s.lastIndexOf('/') + 1));
+    }
+	
+	public Response optimize(String taxonomyId, String contentId) {
+	    Response response = new Response();
+	    if (StringUtils.isBlank(taxonomyId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(),
+                    "Taxonomy Id is blank");
+        if (StringUtils.isBlank(contentId))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(),
+                    "Content Id is blank");
+        Response responseNode = getDataNode(taxonomyId, contentId);
+        if (checkError(responseNode))
+            throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+                    "Content not found with id: " + contentId);
+        Node node = (Node) responseNode.get(GraphDACParams.node.name());
+        String status = (String) node.getMetadata().get(ContentAPIParams.status.name());
+        if (!StringUtils.equalsIgnoreCase("Live", status))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
+                    "UnPublished content cannot be optimized");
+        String downloadUrl = (String) node.getMetadata().get(ContentAPIParams.downloadUrl.name());
+        if (StringUtils.isBlank(downloadUrl))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
+                    "ECAR file not available for content");
+        if (!StringUtils.equalsIgnoreCase("ecar", FilenameUtils.getExtension(downloadUrl)))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
+                    "Content package is not an ECAR file");
+        String optStatus = (String) node.getMetadata().get(ContentAPIParams.optStatus.name());
+        if (StringUtils.equalsIgnoreCase("Processing", optStatus))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(),
+                    "Content optimization is in progress. Please try after the current optimization is complete");
+        node.getMetadata().put(ContentAPIParams.optStatus.name(), "Processing");
+        updateNode(node);
+        Optimizr optimizr = new Optimizr();
+        try {
+            File minEcar = optimizr.optimizeECAR(downloadUrl);
+            String folder = getFolderName(downloadUrl);
+            String[] arr = AWSUploader.uploadFile(bucketName, folder, minEcar);
+            response.put("url", arr[1]);
+            node.getMetadata().put(ContentAPIParams.optStatus.name(), "Complete");
+            updateNode(node);
+            FileUtils.deleteDirectory(minEcar.getParentFile());
+        } catch (Exception e) {
+            node.getMetadata().put(ContentAPIParams.optStatus.name(), "Error");
+            updateNode(node);
+            response = ERROR(ContentErrorCodes.ERR_CONTENT_OPTIMIZE.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
+        }
+	    return response;
+	}
+	
+	private String getFolderName(String url) {
+	    try {
+	        String s = url.substring(0, url.lastIndexOf('/'));
+	        return s.substring(s.lastIndexOf('/') + 1);
+	    } catch (Exception e) {
+	    }
+	    return "";
+	}
+	
+	protected Response updateNode(Node node) {
+        Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+        updateReq.put(GraphDACParams.node.name(), node);
+        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+        Response updateRes = getResponse(updateReq, LOGGER);
+        return updateRes;
+    }
 
 	public Response publish(String taxonomyId, String contentId) {
 		Response response = new Response();

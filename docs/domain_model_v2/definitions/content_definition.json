@@ -1055,6 +1055,24 @@
           "indexed": true
         },
         {
+          "propertyName": "optStatus",
+          "title": "Optimization Status",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Select",
+          "range": [
+            "Pending",
+            "Processing",
+            "Error",
+            "Complete"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'select', 'order': 9}",
+          "indexed": true
+        },
+        {
           "propertyName": "description",
           "title": "Description",
           "description": "",

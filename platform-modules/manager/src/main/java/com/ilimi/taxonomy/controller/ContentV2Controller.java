@@ -59,6 +59,21 @@ public class ContentV2Controller extends BaseController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    @RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
+            @RequestHeader(value = "user-id") String userId) {
+        String apiId = "content.optimize";
+        LOGGER.info("Optimize content | Content Id : " + contentId);
+        try {
+            Response response = contentManager.optimize(graphId, contentId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Optimize | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
     @RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
     @ResponseBody

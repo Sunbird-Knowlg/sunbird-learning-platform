@@ -9,7 +9,6 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.ecml.optimizr.audio.MonoChannelProcessor;
 import org.ekstep.ecml.optimizr.image.ResizeImagemagickProcessor;
 
-import com.ilimi.assessment.controller.AssessmentItemController;
 import com.ilimi.taxonomy.util.HttpDownloadUtility;
 
 public class Optimizr {
