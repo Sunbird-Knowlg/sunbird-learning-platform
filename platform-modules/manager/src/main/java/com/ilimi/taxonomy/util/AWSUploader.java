@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import org.ekstep.ecml.slugs.Slug;
+
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
@@ -25,6 +27,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 public class AWSUploader {
     
     public static String[] uploadFile(String bucketName, String folderName, File file) throws Exception {
+        file = Slug.createSlugFile(file);
         AmazonS3Client s3 = new AmazonS3Client();
         Region region = Region.getRegion(Regions.AP_SOUTHEAST_1);
         s3.setRegion(region);
