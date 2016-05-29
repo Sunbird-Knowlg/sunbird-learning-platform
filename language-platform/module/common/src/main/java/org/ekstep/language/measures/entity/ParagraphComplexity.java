@@ -14,8 +14,12 @@ public class ParagraphComplexity implements Serializable {
 	private Double totalOrthoComplexity;
 	private Double meanPhonicComplexity;
 	private Double totalPhonicComplexity;
+	private Double meanWordComplexity;
+    private Double totalWordComplexity;
 	private Map<String, ComplexityMeasures> wordMeasures = new HashMap<String, ComplexityMeasures>();
+	private Map<String, Double> wordComplexityMap = new HashMap<String, Double>();
 	private Map<String, Integer> wordFrequency = new HashMap<String, Integer>();
+	private Map<String, Integer> syllableCountMap = new HashMap<String, Integer>();
 
 	public String getText() {
 		return text;
@@ -91,6 +95,38 @@ public class ParagraphComplexity implements Serializable {
 
     public void setWordFrequency(Map<String, Integer> wordFrequency) {
         this.wordFrequency = wordFrequency;
+    }
+
+    public Double getMeanWordComplexity() {
+        return meanWordComplexity;
+    }
+
+    public void setMeanWordComplexity(Double meanWordComplexity) {
+        this.meanWordComplexity = meanWordComplexity;
+    }
+
+    public Double getTotalWordComplexity() {
+        return totalWordComplexity;
+    }
+
+    public void setTotalWordComplexity(Double totalWordComplexity) {
+        this.totalWordComplexity = totalWordComplexity;
+    }
+
+    public Map<String, Double> getWordComplexityMap() {
+        return wordComplexityMap;
+    }
+
+    public void setWordComplexityMap(Map<String, Double> wordComplexityMap) {
+        this.wordComplexityMap = wordComplexityMap;
+    }
+
+    public Map<String, Integer> getSyllableCountMap() {
+        return syllableCountMap;
+    }
+
+    public void setSyllableCountMap(Map<String, Integer> syllableCountMap) {
+        this.syllableCountMap = syllableCountMap;
     }
 
 }

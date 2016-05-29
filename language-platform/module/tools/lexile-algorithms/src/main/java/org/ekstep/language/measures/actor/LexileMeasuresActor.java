@@ -53,6 +53,10 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 			    Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
 			    Map<String, Object> response = ParagraphMeasures.analyseTexts(languageId, texts);
                 OK(LanguageParams.text_complexity.name(), response, getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTextsCSV.name(), operation)) {
+                Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
+                Map<String, Object> response = ParagraphMeasures.analyseTextsCSV(languageId, texts);
+                OK(LanguageParams.text_complexity.name(), response, getSender());
             } else if (StringUtils.equalsIgnoreCase(LanguageOperations.loadLanguageVectors.name(), operation)) {
 				SyllableMap.loadSyllables(languageId);
 				OrthographicVectors.load(languageId);

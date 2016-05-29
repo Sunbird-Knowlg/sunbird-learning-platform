@@ -72,6 +72,28 @@ public class ToolsController extends BaseLanguageController {
     
     @RequestMapping(value = "/text/analysis", method = RequestMethod.POST)
     @ResponseBody
+    public ResponseEntity<Response> analyseTextsCSV(@RequestBody Map<String, Object> map) {
+        String apiId = "text.analysis.csv";
+        Request request = getRequest(map);
+        String language = (String) request.get(LanguageParams.language_id.name());
+        request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
+        request.setOperation(LanguageOperations.analyseTextsCSV.name());
+        request.getContext().put(LanguageParams.language_id.name(), language);
+        LOGGER.info("List | Request: " + request);
+        try {
+            Response response = getBulkOperationResponse(request, LOGGER);
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
+    
+    @RequestMapping(value = "/textAnalysis", method = RequestMethod.POST)
+    @ResponseBody
     public ResponseEntity<Response> analyseTexts(@RequestBody Map<String, Object> map) {
         String apiId = "text.analysis";
         Request request = getRequest(map);

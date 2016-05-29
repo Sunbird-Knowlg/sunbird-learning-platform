@@ -23,6 +23,7 @@ public interface IWordnetConstants {
     String ATTRIB_HAS_CONNOTATIVE = "hasConnotative";
     String ATTRIB_IS_LOAN_WORD = "isLoanWord";
     String ATTRIB_POS_TAGS = "posTags";
+    String ATTRIB_THRESHOLD_LEVEL = "thresholdLevel";
     String ATTRIB_POS_CATEGORIES = "pos_categories";
     String ATTRIB_SYLLABLES="syllables";
     String ATTRIB_IWN_ID = "indowordnetId";
