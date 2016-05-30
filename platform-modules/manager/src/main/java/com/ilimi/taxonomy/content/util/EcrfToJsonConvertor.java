@@ -23,8 +23,8 @@ public class EcrfToJsonConvertor {
 		Map<String, Object> map = new HashMap<String, Object>(); 
 		if (null != ecrf) {
 			map.putAll(getElementMap(ecrf.getData()));
-			map.put(ContentWorkflowPipelineParams.manifest.name(), getManifestMap(ecrf.getManifest()));
-			map.put(ContentWorkflowPipelineParams.controller.name(), getControllerMaps(ecrf.getControllers()));
+			map.putAll(getManifestMap(ecrf.getManifest()));
+			map.putAll(getControllersMap(ecrf.getControllers()));
 			map.putAll(getPluginMaps(ecrf.getPlugins()));
 		}
 		return content;
@@ -33,18 +33,20 @@ public class EcrfToJsonConvertor {
 	private Map<String, Object> getManifestMap(Manifest manifest) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != manifest) {
-			map.put(ContentWorkflowPipelineParams.media.name(), getMediaMaps(manifest.getMedias()));
+			map.put(ContentWorkflowPipelineParams.manifest.name(), getMediasMap(manifest.getMedias()));
 		}
 		return map;
 	}
 	
-	private List<Map<String, Object>> getMediaMaps(List<Media> medias) {
-		List<Map<String, Object>> mediaMaps = new ArrayList<Map<String, Object>>();
-		if (null != medias && medias.size() > 0) {
+	private Map<String, Object> getMediasMap(List<Media> medias) {
+		Map<String, Object> mediasMap = new HashMap<String, Object>();
+		if (null != medias) {
+			List<Map<String, Object>> mediaMaps = new ArrayList<Map<String, Object>>();
 			for (Media media: medias)
 				mediaMaps.add(getMediaMap(media));
+			mediasMap.put(ContentWorkflowPipelineParams.media.name(), mediaMaps);
 		}
-		return mediaMaps;
+		return mediasMap;
 	}
 	
 	private Map<String, Object> getMediaMap(Media media) {
@@ -135,13 +137,15 @@ public class EcrfToJsonConvertor {
 		
 	}
 	
-	private List<Map<String, Object>> getControllerMaps(List<Controller> controllers) {
-		List<Map<String, Object>> controllerMaps = new ArrayList<Map<String, Object>>();
-		if (null != controllers && controllers.size() > 0) {
+	private Map<String, Object> getControllersMap(List<Controller> controllers) {
+		Map<String, Object> controllersMap = new HashMap<String, Object>();
+		if (null != controllers) {
+			List<Map<String, Object>> controllerMaps = new ArrayList<Map<String, Object>>();
 			for (Controller controller: controllers)
 				controllerMaps.add(getControllerMap(controller));
+			controllersMap.put(ContentWorkflowPipelineParams.controller.name(), controllerMaps);
 		}
-		return controllerMaps;
+		return controllersMap;
 	}
 	
 	private Map<String, Object> getControllerMap(Controller controller) {
