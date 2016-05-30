@@ -40,9 +40,6 @@ public class CustomParser {
 
 	private Document doc;
 
-	private static String fileNameInURL[] = null;
-	private static String fileNameWithExtn = null;
-
 	/**
 	 * This method read ECML file
 	 * 
@@ -129,17 +126,15 @@ public class CustomParser {
 						(StringUtils.equalsIgnoreCase(type, "plugin") || 
 						StringUtils.equalsIgnoreCase(type, "css") ||
 						StringUtils.equalsIgnoreCase(type, "js"))) {
-					HttpDownloadUtility.downloadFile(src, widgetDir);
-					fileNameInURL = src.split("/");
-					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-					System.out.println(src);
-					media.setAttribute("src", fileNameWithExtn);
+					File downloadedFile = HttpDownloadUtility.downloadFile(src, widgetDir);
+					System.out.println(downloadedFile);
+					if (null != downloadedFile)
+					    media.setAttribute("src", downloadedFile.getName());
 				} else {
-					HttpDownloadUtility.downloadFile(src, assetDir);
-					fileNameInURL = src.split("/");
-					fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-					System.out.println(src);
-					media.setAttribute("src", fileNameWithExtn);
+				    File downloadedFile = HttpDownloadUtility.downloadFile(src, assetDir);
+					System.out.println(downloadedFile);
+					if (null != downloadedFile)
+					    media.setAttribute("src", downloadedFile.getName());
 				}
 			}
 			doc.getDocumentElement().normalize();
@@ -324,17 +319,17 @@ public class CustomParser {
 				Map.Entry entry = (Map.Entry) mediaEntries.next();
 				String src = (String) entry.getValue();
 				String type = mediaTypeMap.get(entry.getKey());
+				File downloadedFile = null;
 				if (!StringUtils.isBlank(type) && 
 						(StringUtils.equalsIgnoreCase(type, "plugin") || 
 						StringUtils.equalsIgnoreCase(type, "css") ||
 						StringUtils.equalsIgnoreCase(type, "js"))) {
-					HttpDownloadUtility.downloadFile(src, widgetDir);
+				    downloadedFile = HttpDownloadUtility.downloadFile(src, widgetDir);
 				} else {
-					HttpDownloadUtility.downloadFile(src, assetDir);
+				    downloadedFile = HttpDownloadUtility.downloadFile(src, assetDir);
 				}
-				fileNameInURL = src.split("/");
-				fileNameWithExtn = fileNameInURL[fileNameInURL.length - 1];
-				idSrcMap.put((String) entry.getKey(), fileNameWithExtn);
+				if (null != downloadedFile)
+				    idSrcMap.put((String) entry.getKey(), downloadedFile.getName());
 			}
 			List<Map<String, Object>> updatedListOfMedia = updateJsonMedia(
 					jsonMap, idSrcMap);

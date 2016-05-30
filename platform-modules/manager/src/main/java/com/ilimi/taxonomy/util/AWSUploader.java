@@ -26,6 +26,11 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
  */
 public class AWSUploader {
     
+    public static void main(String[] args) {
+        File f = new File("/Users/rayulu/work/EkStep/learning-platform/api/slugs/src/main/java/feroz/rnd/slugs/Slug.java");
+        System.out.println(f.getName());
+    }
+    
     public static String[] uploadFile(String bucketName, String folderName, File file) throws Exception {
         file = Slug.createSlugFile(file);
         AmazonS3Client s3 = new AmazonS3Client();

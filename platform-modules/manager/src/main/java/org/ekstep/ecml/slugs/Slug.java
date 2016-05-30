@@ -21,6 +21,10 @@ public class Slug {
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DUPDASH = Pattern.compile("-+");
     
+    public static void main(String[] args) {
+        System.out.println(makeSlug("Cover+Image.png", true));
+    }
+    
     public static File createSlugFile(File f) {
         try {
             String name = f.getName();
@@ -38,7 +42,7 @@ public class Slug {
         }
         return f;
     }
-
+    
     public static String makeSlug(String input) {
         // Default is slugging without transliteration
         return makeSlug(input, false);
@@ -57,7 +61,7 @@ public class Slug {
         if (transliterate) {
             // Tranlisterate & cleanup
             String transliterated = transliterate(input);
-            transliterated = removeDuplicateChars(transliterated);
+            //transliterated = removeDuplicateChars(transliterated);
             input = transliterated;
         }
         // Replace all whitespace with dashes

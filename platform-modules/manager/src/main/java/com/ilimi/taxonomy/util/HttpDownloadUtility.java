@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -98,15 +97,6 @@ public class HttpDownloadUtility {
             return false;
         }
 
-    }
-
-    public static InputStream downloadFile(String fileURL) {
-        try {
-            final InputStream is = (new URL(fileURL).openConnection()).getInputStream();
-            return is;
-        } catch (IOException ioe) {
-            return null;
-        }
     }
 
     public static void DeleteFiles(List<File> files) {
