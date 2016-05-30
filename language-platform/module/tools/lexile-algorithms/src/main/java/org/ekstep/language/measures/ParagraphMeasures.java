@@ -458,9 +458,12 @@ public class ParagraphMeasures {
 
     private static Double formatDoubleValue(Double d) {
         if (null != d) {
-            BigDecimal bd = new BigDecimal(d);
-            bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-            return bd.doubleValue();
+            try {
+                BigDecimal bd = new BigDecimal(d);
+                bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+                return bd.doubleValue();
+            } catch (Exception e) {
+            }
         }
         return d;
     }

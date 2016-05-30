@@ -70,9 +70,13 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            response.getResult().remove(GraphDACParams.node_id.name());
 	            if (StringUtils.isNotBlank(nodeId))
 	                response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
-			}
+			} else {
+                response.getResult().remove(GraphDACParams.node_ids.name());
+                response.getResult().remove(GraphDACParams.node_id.name());
+            }
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -103,8 +107,12 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            response.getResult().remove(GraphDACParams.node_id.name());
 	            if (StringUtils.isNotBlank(nodeId))
                     response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
+			} else {
+			    response.getResult().remove(GraphDACParams.node_ids.name());
+                response.getResult().remove(GraphDACParams.node_id.name());
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);

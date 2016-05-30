@@ -1434,7 +1434,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			for (Entry<String, Object> entry : map.entrySet()) {
 				if (StringUtils.equalsIgnoreCase("identifier", entry.getKey())) {
-					node.setIdentifier((String) entry.getValue());
+				    if (StringUtils.isNotBlank((String) entry.getValue()))
+				        node.setIdentifier((String) entry.getValue()); 
 				} else if (StringUtils.equalsIgnoreCase("objectType", entry.getKey())) {
 					node.setObjectType((String) entry.getValue());
 				} else if (StringUtils.equalsIgnoreCase("tags", entry.getKey())) {
@@ -1916,7 +1917,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			        word.put(ATTRIB_IS_PHRASE, true);
 			}
 			String identifier = (String) word.get(LanguageParams.identifier.name());
-			if(identifier == null){
+			if(StringUtils.isBlank(identifier)){
 				Node existingWordNode = wordUtil.searchWord(languageId, lemma);
 				if(existingWordNode != null){
 					identifier = existingWordNode.getIdentifier();
@@ -1943,7 +1944,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	private Response createSynset(String languageId, Map<String, Object> synsetObj) throws Exception {
 		String operation = "updateDataNode";
 		String identifier = (String) synsetObj.get(LanguageParams.identifier.name());
-		if (identifier == null || identifier.isEmpty()) {
+		if (StringUtils.isBlank(identifier)) {
 			operation = "createDataNode";
 		}
 

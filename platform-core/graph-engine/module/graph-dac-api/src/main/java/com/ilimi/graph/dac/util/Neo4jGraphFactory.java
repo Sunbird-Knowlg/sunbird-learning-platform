@@ -22,6 +22,8 @@ import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
+import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -74,6 +76,8 @@ public class Neo4jGraphFactory {
         }
         if (StringUtils.isBlank(requestId))
             requestId = UUID.randomUUID().toString();
+        ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.USER_ID.name(), userId);
+        ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.name(), requestId);
         if (StringUtils.isNotBlank(graphId)) {
             GraphDatabaseService graphDb = graphDbMap.get(graphId);
             if (null == graphDb || !graphDb.isAvailable(0)) {
@@ -84,17 +88,13 @@ public class Neo4jGraphFactory {
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
                 registerShutdownHook(graphDb);
                 if (!restrictedGraphList.contains(graphId) && StringUtils.isNotEmpty(requestId))
-                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requestId, graphDb));
+                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
                 graphDbMap.put(graphId, graphDb);
                 createRootNode(graphDb, graphId);
                 createConstraints(graphDb);
             }
-            if (null != graphDb && graphDb.isAvailable(0)){
-                if (!restrictedGraphList.contains(graphId)&&StringUtils.isNotEmpty(requestId))
-                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, userId, requestId, graphDb));
+            if (null != graphDb && graphDb.isAvailable(0))
                 return graphDb;
-            }
-                
         }
         throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(), "Graph database: " + graphId + " not found");
     }
