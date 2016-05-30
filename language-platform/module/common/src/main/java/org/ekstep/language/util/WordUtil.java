@@ -770,10 +770,49 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
         if (null != words && !words.isEmpty()) {
             Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
             if (!checkError(searchRes)) {
-                List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+                List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
                 if (null != nodes && nodes.size() > 0) {
                     for (Node node : nodes) {
                         String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                        nodeMap.put(wordLemma, node);
+                    }
+                }
+            }
+        }
+        System.out.println("returning nodemap size: " + nodeMap.size());
+        return nodeMap;
+    }
+	
+	@SuppressWarnings("unchecked")
+    public Map<String, Node> searchWordsForComplexity(String languageId, List<String> lemmas) {
+	    Map<String, Node> nodeMap = new HashMap<String, Node>();
+        Set<String> words = new HashSet<String>();
+        words.addAll(lemmas);
+        Response findRes = getSearchWordsResponse(languageId, ATTRIB_LEMMA, lemmas);
+        if (!checkError(findRes)) {
+            List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+            if (null != nodes && nodes.size() > 0) {
+                for (Node node : nodes) {
+                    String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                    nodeMap.put(wordLemma, node);
+                    words.remove(wordLemma);
+                }
+            }
+        }
+        if (null != words && !words.isEmpty()) {
+            Response searchRes = getSearchWordsResponse(languageId, ATTRIB_VARIANTS, new ArrayList<String>(words));
+            if (!checkError(searchRes)) {
+                List<Node> nodes = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+                if (null != nodes && nodes.size() > 0) {
+                    for (Node node : nodes) {
+                    	node.getMetadata().put(LanguageParams.morphology.name(),true);
+                        String wordLemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                        if(node.getMetadata().get(ATTRIB_VARIANTS) != null){
+                        	String[] variants = (String[]) node.getMetadata().get(ATTRIB_VARIANTS);
+                        	for(String variant: variants){
+                        		 nodeMap.put(variant, node);
+                        	}
+                        }
                         nodeMap.put(wordLemma, node);
                     }
                 }
@@ -820,6 +859,38 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
 				if (null != nodes && nodes.size() > 0)
 					node = nodes.get(0);
+			}
+		}
+		return node;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public Node searchWordForComplexity(String languageId, String lemma) {
+		Node node = null;
+		Property property = new Property(LanguageParams.lemma.name(), lemma);
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+		request.put(GraphDACParams.metadata.name(), property);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+			if (null != nodes && nodes.size() > 0)
+				node = nodes.get(0);
+		}
+		if (null == node) {
+			SearchCriteria sc = new SearchCriteria();
+			sc.setObjectType("Word");
+			sc.addMetadata(MetadataCriterion
+					.create(Arrays.asList(new Filter("variants", SearchConditions.OP_IN, Arrays.asList(lemma)))));
+			sc.setResultSize(1);
+			Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes");
+			req.put(GraphDACParams.search_criteria.name(), sc);
+			Response searchRes = getResponse(req, LOGGER);
+			if (!checkError(searchRes)) {
+				List<Node> nodes = (List<Node>) findRes.get(GraphDACParams.node_list.name());
+				if (null != nodes && nodes.size() > 0)
+					node = nodes.get(0);
+					node.getMetadata().put(LanguageParams.morphology.name(), true);
 			}
 		}
 		return node;
@@ -1594,14 +1665,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 	
     public Double getWordComplexity(String lemma, String languageId) throws Exception {
-	    Node word = searchWord(languageId, lemma);
+	    Node word = searchWordForComplexity(languageId, lemma);
         if (word == null)
             throw new ResourceNotFoundException(LanguageErrorCodes.ERR_WORDS_NOT_FOUND.name(), "Word not found: " + lemma);
         return getWordComplexity(word, languageId);
 	}
     
     public Map<String, Double> getWordComplexity(List<String> lemmas, String languageId) {
-        Map<String, Node> nodeMap = searchWords(languageId, lemmas);
+        Map<String, Node> nodeMap = searchWordsForComplexity(languageId, lemmas);
         Map<String, Double> map = new HashMap<String, Double>();
         if (null != lemmas && !lemmas.isEmpty()) {
             for (String lemma : lemmas) {
@@ -1831,6 +1902,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		bd = bd.setScale(2, RoundingMode.HALF_UP);
 		
 		word.getMetadata().put(LanguageParams.word_complexity.name(), bd.doubleValue());
+		//remove temporary "morphology" metadata
+		word.getMetadata().remove(LanguageParams.morphology.name());
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
 	}
