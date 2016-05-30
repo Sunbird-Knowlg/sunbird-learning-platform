@@ -36,9 +36,13 @@ public class ProcessTransactionData {
 	
 	public void processTxnData (TransactionData data) {
 		LOGGER.debug("Txn Data : " + data.toString());
-		List<Map<String, Object>> kafkaMessages = getMessageObj(data);
-		if(kafkaMessages != null && !kafkaMessages.isEmpty())
-			pushMessageToKafka(kafkaMessages);
+		try {
+		    List<Map<String, Object>> kafkaMessages = getMessageObj(data);
+	        if(kafkaMessages != null && !kafkaMessages.isEmpty())
+	            pushMessageToKafka(kafkaMessages);
+		} catch (Exception e) {
+		    LOGGER.error(e.getMessage(), e);
+		}
 	}
 	
 	private  String getGraphId() {
