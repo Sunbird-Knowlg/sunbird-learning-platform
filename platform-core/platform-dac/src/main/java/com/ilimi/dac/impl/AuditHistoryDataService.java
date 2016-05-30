@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.googlecode.genericdao.search.Search;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -37,7 +39,7 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         TransformationHelper.createTypeMap(modelMapper, AuditHistoryRecord.class, AuditHistoryEntity.class);
         objecMapper = new ObjectMapper();
 //        objecMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm a z");
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss a z");
         objecMapper.setDateFormat(df);
 
 	}
@@ -122,6 +124,14 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
     	
     	for(AuditHistoryRecord record:records){
     		Map<String, Object> props = objecMapper.convertValue(record, Map.class);
+    		Object logRecordObj = props.get("logRecord");
+    		if(logRecordObj!= null && logRecordObj instanceof String){
+    			Gson gson = new GsonBuilder()
+    					.setDateFormat("yyyy-MM-dd HH:mm:ss a z")
+    					.create();
+    			Map logRecordProps = gson.fromJson(logRecordObj.toString(), Map.class);
+    			props.put("logRecord", logRecordProps);
+    		}
     		respObj.add(props);
     	}
     	return respObj;
