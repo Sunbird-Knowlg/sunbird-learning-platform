@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.gson.Gson;
 import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
@@ -20,13 +21,15 @@ public class EcrfToJsonConvertor {
 	
 	public String getContentJsonString(Content ecrf) {
 		String content = "";
-		Map<String, Object> map = new HashMap<String, Object>(); 
+		Map<String, Object> map = new HashMap<String, Object>();
+		Gson gson = new Gson(); 
 		if (null != ecrf) {
 			map.putAll(getElementMap(ecrf.getData()));
 			map.putAll(getManifestMap(ecrf.getManifest()));
 			map.putAll(getControllersMap(ecrf.getControllers()));
 			map.putAll(getPluginMaps(ecrf.getPlugins()));
 		}
+		content = gson.toJson(map);
 		return content;
 	}
 	
