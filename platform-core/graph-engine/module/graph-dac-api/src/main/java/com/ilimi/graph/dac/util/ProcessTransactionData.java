@@ -117,9 +117,13 @@ public class ProcessTransactionData {
 	            Node node = graphDb.getNodeById(nodeId);
 	            map.put(GraphDACParams.requestId.name(), requestId);
 	            if(StringUtils.isEmpty(userId)){
-	                if (node.hasProperty("lastUpdatedBy"))
-	                    userId=(String) node.getProperty("lastUpdatedBy");
-	                else
+	                if (node.hasProperty("lastUpdatedBy")) {
+	                    Object objUserId = node.getProperty("lastUpdatedBy");
+	                    if (null != objUserId)
+	                        userId = objUserId.toString();
+	                    else
+	                        userId = "ANONYMOUS";
+	                } else
 	                    userId = "ANONYMOUS";
 	            }
 	            map.put(GraphDACParams.userId.name(), userId);
