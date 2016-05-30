@@ -30,7 +30,7 @@ RUN cp src/redis-server /usr/local/bin/
 RUN cp src/redis-cli /usr/local/bin/
 
 # Install image magick
-RUN apt-get install imagemagick
+RUN apt-get install -y imagemagick
 
 # Switch to tomcat director
 WORKDIR $CATALINA_HOME
