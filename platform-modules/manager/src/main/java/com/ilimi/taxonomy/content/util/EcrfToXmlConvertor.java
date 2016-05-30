@@ -48,7 +48,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getContentMediasXml(List<Media> medias) {
 		StringBuilder xml = new StringBuilder();
-		if (null != medias && medias.size() > 0) {
+		if (null != medias) {
 			for (Media media: medias) {
 				xml.append(getContentMediaXml(media));
 			}
@@ -68,7 +68,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getGroupedElementXml(List<Map<String, String>> elements) {
 		StringBuilder xml = new StringBuilder();
-		if (null != elements && elements.size() > 0) {
+		if (null != elements) {
 			Map<String, List<Map<String, String>>> groupingTags = new HashMap<String, List<Map<String, String>>>();
 			for (Map<String, String> element: elements) {
 				String groupTag = element.get(ContentWorkflowPipelineParams.group_element_name.name());
@@ -83,7 +83,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder createGroupedElementXML(Map<String, List<Map<String, String>>> elements) {
 		StringBuilder xml = new StringBuilder();
-		if (null != elements && elements.size() > 0) {
+		if (null != elements) {
 			for (Entry<String, List<Map<String, String>>> entry: elements.entrySet()) {
 				xml.append(getStartTag(entry.getKey()));
 				List<Map<String, String>> lstMap = entry.getValue();
@@ -98,7 +98,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getContentControllersXml(List<Controller> controllers) {
 		StringBuilder xml = new StringBuilder();
-		if (null != controllers && controllers.size() > 0) {
+		if (null != controllers) {
 			for (Controller controller: controllers)
 				xml.append(getContentControllerXml(controller));
 		}
@@ -117,7 +117,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getPluginsXml(List<Plugin> plugins) {
 		StringBuilder xml = new StringBuilder();
-		if (null != plugins && plugins.size() > 0) {
+		if (null != plugins) {
 			for (Plugin plugin: plugins)
 				xml.append(getPluginXml(plugin));
 		}
@@ -146,7 +146,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getChildrenPlugin(List<Plugin> childrenPlugin) {
 		StringBuilder xml = new StringBuilder();
-		if (null != childrenPlugin && childrenPlugin.size() > 0) {
+		if (null != childrenPlugin) {
 			for (Plugin plugin: childrenPlugin)
 				xml.append(getPluginXml(plugin));
 		}
@@ -155,7 +155,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getEventsXml(List<Event> events) {
 		StringBuilder xml = new StringBuilder();
-		if (null != events && events.size() > 0) {
+		if (null != events) {
 			for (Event event: events)
 				xml.append(getEventXml(event));
 		}
@@ -174,7 +174,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getActionsXml(List<Action> actions) {
 		StringBuilder xml = new StringBuilder();
-		if (null != actions && actions.size() > 0) {
+		if (null != actions) {
 			for (Action action: actions)
 				xml.append(getActionXml(action));
 		}
@@ -192,7 +192,7 @@ public class EcrfToXmlConvertor {
 	
 	private StringBuilder getNonPluginElementsXml(List<Map<String, String>> nonPluginElements) {
 		StringBuilder xml = new StringBuilder();
-		if (null != nonPluginElements && nonPluginElements.size() > 0) {
+		if (null != nonPluginElements) {
 			for (Map<String, String> nonPluginElement: nonPluginElements)
 				xml.append(getElementXml(nonPluginElement));
 		}
