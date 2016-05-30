@@ -25,6 +25,7 @@ public class EcrfToJsonConvertor {
 			map.putAll(getElementMap(ecrf.getData()));
 			map.put(ContentWorkflowPipelineParams.manifest.name(), getManifestMap(ecrf.getManifest()));
 			map.put(ContentWorkflowPipelineParams.controller.name(), getControllerMaps(ecrf.getControllers()));
+			map.putAll(getPluginMaps(ecrf.getPlugins()));
 		}
 		return content;
 	}
@@ -85,20 +86,38 @@ public class EcrfToJsonConvertor {
 		return map;
 	}
 	
-//	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
-//		Map<String, Object> map = new HashMap<String, Object>();
-//		if (null != elements) {
-//			Map<String, List<Map<String, Object>>> groupingMap = new HashMap<String, List<Map<String, Object>>>();
-//			for (Map<String, Object> element: elements) {
-//				String groupKey = (String) element.get(ContentWorkflowPipelineParams.element_name.name());
-//				if (null == groupingMap.get(groupKey))
-//					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
-//				groupingMap.get(groupKey).add(element);
-//				map = createGroupedElementMap(groupingMap);
-//			}
-//		}
-//		return map;
-//	}
+	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (null != elements) {
+			Map<String, List<Map<String, Object>>> groupingMap = new HashMap<String, List<Map<String, Object>>>();
+			for (Map<String, Object> element: elements) {
+				for (Entry<String, Object> entry: element.entrySet()) {
+					String groupKey = entry.getKey();
+					if (null == groupingMap.get(groupKey))
+						groupingMap.put(groupKey, new ArrayList<Map<String, Object>>());
+					groupingMap.get(groupKey).add(element);
+					map = createGroupedPluginMap(groupingMap);
+				}
+			}
+		}
+		return map;
+	}
+	
+	private Map<String, Object> createGroupedPluginMap(Map<String, List<Map<String, Object>>> groupingMap) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		if (null != groupingMap) {
+			for (Entry<String, List<Map<String, Object>>> entry: groupingMap.entrySet()) {
+				List<Map<String, Object>> lstMap = new ArrayList<Map<String, Object>>();
+				List<Map<String, Object>> maps = entry.getValue();
+				for (Map<String, Object> m: maps) {
+					lstMap.add(m);
+				}
+				map.put(entry.getKey(), lstMap);
+			}
+		}
+		return map;
+		
+	}
 	
 	private Map<String, Object> createGroupedElementMap(Map<String, List<Map<String, String>>> groupingMap) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -134,14 +153,16 @@ public class EcrfToJsonConvertor {
 		return controllerMap;
 	}
 	
-	private List<Map<String, Object>> getPluginMaps(List<Plugin> plugins) {
-		List<Map<String, Object>> pluginMaps = new ArrayList<Map<String, Object>>();
+	private Map<String, Object> getPluginMaps(List<Plugin> plugins) {
+		Map<String, Object> pluginMap = new HashMap<String, Object>();
 		if (null != plugins) {
+			List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
 			for (Plugin plugin: plugins) {
-				pluginMaps.add(getPluginMap(plugin));
+				maps.add(getPluginMap(plugin));
 			}
+			pluginMap = getGroupedPluginMap(maps);
 		}
-		return pluginMaps;
+		return pluginMap;
 	}
 	
 	private Map<String, Object> getPluginMap(Plugin plugin) {
@@ -151,8 +172,17 @@ public class EcrfToJsonConvertor {
 			pluginMap.putAll(getNonPluginElementMap(plugin.getChildrenData()));
 			pluginMap.putAll(getChildrenPluginMap(plugin.getChildrenPlugin()));
 			pluginMap.putAll(getEventsMap(plugin.getEvents()));
+			pluginMap.putAll(getPluginInnerTextMap(plugin.getInnerText()));
 		}
 		return pluginMap;
+	}
+	
+	private Map<String, Object> getPluginInnerTextMap(String innerText) {
+		Map<String, Object> innerTextMap = new HashMap<String, Object>();
+		if (null != innerTextMap) {
+			innerTextMap.put(ContentWorkflowPipelineParams.__text.name(), innerText);
+		}
+		return innerTextMap;
 	}
 	
 	private Map<String, Object> getNonPluginElementMap(List<Map<String, String>> nonPluginElements) {
@@ -169,7 +199,7 @@ public class EcrfToJsonConvertor {
 			for (Plugin plugin: childrenPlugin) {
 				childPlugins.add(getPluginMap(plugin));
 			}
-//			childrenPluginMap = getGroupedElementMapByElementName(childPlugins);
+			childrenPluginMap = getGroupedPluginMap(childPlugins);
 		}
 		return childrenPluginMap;
 	}
