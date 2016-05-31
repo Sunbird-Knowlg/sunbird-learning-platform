@@ -20,17 +20,17 @@ import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -38,6 +38,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class CompositeSearchManagerImpl extends BaseCompositeSearchManager implements ICompositeSearchManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchManager.class.getName());
+	private static final int SYNC_BATCH_SIZE = 1000;
 	
 	@Override
 	public Response sync(String graphId, String objectType, Request request) {
@@ -363,21 +364,23 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return lstMessages;
 	}
 	
-	@SuppressWarnings("unchecked")
     private List<Map<String, Object>> genCompositeSearchMessage(String graphId, DefinitionDTO def) {
 	    List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
-	    Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
-	    Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), def.getObjectType());
-	    request.put(GraphDACParams.metadata.name(), property);
-	    request.put(GraphDACParams.get_tags.name(), true);
-	    Response response = getResponse(request, LOGGER);
-	    List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-	    if (null != nodes && !nodes.isEmpty()) {
-	        System.out.println("Total nodes: " + def.getObjectType() + " - " + nodes.size());
-	        for (Node node : nodes) {
-	            lstMessages.add(getKafkaMessage(node));
-	        }
-	    }
+	    int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getNodes(graphId, def.getObjectType(), startPosistion, SYNC_BATCH_SIZE);
+            if (null != nodes && !nodes.isEmpty()) {
+                for (Node node : nodes) {
+                    lstMessages.add(getKafkaMessage(node));
+                }
+                startPosistion += SYNC_BATCH_SIZE;
+                System.out.println("Fetched " + startPosistion + " " + def.getObjectType() + " objects");
+            } else {
+                found = false;
+                break;
+            }
+        }
 	    return lstMessages;
     }
 	
@@ -490,5 +493,24 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+    private List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req, LOGGER);
+        if (checkError(listRes))
+            throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found for language: " + graphId);
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            return nodes;
+        }
+    }
 
 }
