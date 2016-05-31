@@ -31,21 +31,13 @@ public class AuditHistoryController extends BaseController{
     @Autowired
     private IAuditHistoryManager auditHistoryManager;
 
-    @RequestMapping(value = {"/{graphId:.+}/all/{startTime:.+}/{endTime:.+}","/{graphId:.+}/all/{startTime:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = "/{graphId:.+}/all", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> getAll(@PathVariable Map<String, String> pathVariables,
+    public ResponseEntity<Response> getAll(@PathVariable(value = "graphId") String graphId,
+    		@RequestParam(value = "start", required = false) String startTime, @RequestParam(value = "end", required = false) String endTime,
             @RequestHeader(value = "user-id") String userId) {
         String apiId = "audit_history.getAll";
-        String graphId, startTime, endTime;		
-
-		graphId=pathVariables.get("graphId");
-    	startTime=pathVariables.get("startTime");
-    	if(pathVariables.containsKey("endTime")){
-    		endTime=pathVariables.get("endTime");
-    	}else{
-    		endTime=null;
-    	}
-        
+                
         LOGGER.info("get all AuditHistory | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime);
         try {
             Response response = auditHistoryManager.getAuditHistory(graphId, startTime, endTime);
@@ -57,23 +49,14 @@ public class AuditHistoryController extends BaseController{
         }
     }
     
-    @RequestMapping(value = {"/history/{graphId:.+}/{objectId:.+}/{startTime:.+}/{endTime:.+}","/history/{graphId:.+}/{objectId:.+}/{startTime:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = "/history/{graphId:.+}/{objectId:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> getById(@PathVariable Map<String, String> pathVariables,
+    public ResponseEntity<Response> getById(@PathVariable(value = "graphId") String graphId, @PathVariable(value = "objectId") String objectId,
+    		@RequestParam(value = "start", required = false) String startTime, @RequestParam(value = "end", required = false) String endTime,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "audit_history.getAll";
-        
-        String graphId, objectId, startTime, endTime;		
+        String apiId = "audit_history.getById";
 
-		graphId=pathVariables.get("graphId");
-		objectId=pathVariables.get("objectId");
-    	startTime=pathVariables.get("startTime");
-    	if(pathVariables.containsKey("endTime")){
-    		endTime=pathVariables.get("endTime");
-    	}else{
-    		endTime=null;
-    	}
-    	LOGGER.info("get AuditHistory By ObjectId | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime + " | ObjectId: "+objectId);
+        LOGGER.info("get AuditHistory By ObjectId | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime + " | ObjectId: "+objectId);
         try {
             Response response = auditHistoryManager.getAuditHistoryById(graphId, objectId, startTime, endTime);
             LOGGER.info("Find Item | Response: " + response);
@@ -84,22 +67,13 @@ public class AuditHistoryController extends BaseController{
         }
     }
     
-    @RequestMapping(value = {"/{graphId:.+}/{objectType:.+}/{startTime:.+}/{endTime:.+}","/{graphId:.+}/{objectType:.+}/{startTime:.+}/"}, method = RequestMethod.GET)
+    @RequestMapping(value = "/{graphId:.+}/{objectType:.+}", method = RequestMethod.GET)
     @ResponseBody
-    public ResponseEntity<Response> getByType(@PathVariable Map<String, String> pathVariables,
+    public ResponseEntity<Response> getByType(@PathVariable(value = "graphId") String graphId, @PathVariable(value = "objectType") String objectType,
+    		@RequestParam(value = "start", required = false) String startTime, @RequestParam(value = "end", required = false) String endTime,
             @RequestHeader(value = "user-id") String userId) {
-        String apiId = "audit_history.getAll";
+        String apiId = "audit_history.getByType";
         
-        String graphId, objectType, startTime, endTime;		
-
-		graphId=pathVariables.get("graphId");
-		objectType=pathVariables.get("objectType");
-    	startTime=pathVariables.get("startTime");
-    	if(pathVariables.containsKey("endTime")){
-    		endTime=pathVariables.get("endTime");
-    	}else{
-    		endTime=null;
-    	}
         LOGGER.info("get AuditHistory By ObjectType | GraphId: " + graphId + " | TimeStamp1: " + startTime + " | Timestamp2: " + endTime + " | ObjectType: "+objectType);
         try {
             Response response = auditHistoryManager.getAuditHistoryByType(graphId, objectType, startTime, endTime);
