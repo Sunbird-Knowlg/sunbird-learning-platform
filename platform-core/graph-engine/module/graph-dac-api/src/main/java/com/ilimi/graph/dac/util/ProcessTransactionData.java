@@ -221,7 +221,7 @@ public class ProcessTransactionData {
 	
 	private Map<String, Object> getRemovedNodePropertyEntry(Long nodeId, TransactionData data) {
 		Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> removedNodeProp = data.removedNodeProperties();
-		return getNodePropertyEntry(nodeId, removedNodeProp);
+		return getNodeRemovedPropertyEntry(nodeId, removedNodeProp);
 	}
 	
 	private Map<String, Object> getNodePropertyEntry(Long nodeId, Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> nodeProp){
@@ -238,6 +238,22 @@ public class ProcessTransactionData {
 		}
 		if (map.size() == 1 && null != map.get(AuditProperties.lastUpdatedOn.name()))
 		    map = new HashMap<String, Object>();
+		return map;
+	}
+	
+	private Map<String, Object> getNodeRemovedPropertyEntry(Long nodeId,
+			Iterable<org.neo4j.graphdb.event.PropertyEntry<Node>> nodeProp) {
+		Map<String, Object> map = new HashMap<String, Object>();
+		for (org.neo4j.graphdb.event.PropertyEntry<Node> pe : nodeProp) {
+			if (nodeId == pe.entity().getId()) {
+				Map<String, Object> valueMap = new HashMap<String, Object>();
+				valueMap.put("ov", pe.previouslyCommitedValue()); // old value
+				valueMap.put("nv",null); // new value
+				map.put((String) pe.key(), valueMap);
+			}
+		}
+		if (map.size() == 1 && null != map.get(AuditProperties.lastUpdatedOn.name()))
+			map = new HashMap<String, Object>();
 		return map;
 	}
 	

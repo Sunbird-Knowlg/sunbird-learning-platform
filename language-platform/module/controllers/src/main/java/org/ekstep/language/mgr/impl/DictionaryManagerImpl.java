@@ -1667,11 +1667,12 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			primaryMeaning.remove(LanguageParams.workers.name());
 			primaryMeaning.remove(LanguageParams.converse.name());
 			
-			Object exampleSentences = primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES);
-			if(exampleSentences != null){
+			if(primaryMeaning.containsKey(ATTRIB_EXAMPLE_SENTENCES)){
+				Object exampleSentences = primaryMeaning.get(ATTRIB_EXAMPLE_SENTENCES);
 				item.put(ATTRIB_EXAMPLE_SENTENCES, exampleSentences);
+				primaryMeaning.remove(ATTRIB_EXAMPLE_SENTENCES);
 			}
-			primaryMeaning.remove(ATTRIB_EXAMPLE_SENTENCES);
+			
 			Response synsetResponse = createSynset(languageId, primaryMeaning);
 			if (checkError(synsetResponse)) {
 				return synsetResponse;
@@ -1720,9 +1721,10 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					wordTags.addAll(tags);
 					item.put(LanguageParams.tags.name(), wordTags);
 				}
-				Object pictures = synsetMetadata.get(ATTRIB_PICTURES);
-				if (null != pictures)
-				    item.put(ATTRIB_PICTURES, pictures);
+				if (primaryMeaning.containsKey(ATTRIB_PICTURES)){
+					Object pictures = primaryMeaning.get(ATTRIB_PICTURES);
+					item.put(ATTRIB_PICTURES, pictures);
+				}
 			}
 			
 			// create or update Other meaning Synsets
