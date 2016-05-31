@@ -233,7 +233,7 @@ public class XmlContentParser {
 		return nonPluginChildren;
 	}
 	
-	private List<Event> getEvents(Node node) {				//'<events>' tag is not handled
+	private List<Event> getEvents(Node node) {				
 		List<Event> events = new ArrayList<Event>();
 		if (null != node && node.hasChildNodes()) {
 			NodeList nodes = node.getChildNodes();
