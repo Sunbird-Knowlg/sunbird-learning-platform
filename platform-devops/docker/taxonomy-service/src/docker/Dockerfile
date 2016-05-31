@@ -37,7 +37,8 @@ ENV FFMPEG_HOME /usr/local/ffmpeg
 RUN mkdir -p "$FFMPEG_HOME"
 WORKDIR $FFMPEG_HOME
 RUN wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
-RUN cd ffmpeg-3.0.2-64bit-static
+RUN tar xf ffmpeg-release-64bit-static.tar.xz
+WORKDIR ffmpeg-3.0.2-64bit-static
 RUN cp ffmpeg /usr/local/bin/
 RUN cp ffprobe /usr/local/bin/
 RUN cp ffserver /usr/local/bin/
