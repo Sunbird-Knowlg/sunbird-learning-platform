@@ -1,7 +1,8 @@
 package require java
 java::import -package java.util ArrayList List
-java::import -package java.util HashMap Map
+java::import -package java.util HashMap Map Date
 java::import -package com.ilimi.graph.dac.model Node
+java::import -package com.ilimi.graph.common DateUtils
 
 proc proc_isNotNull {value} {
 	set exist false
@@ -80,15 +81,40 @@ if {$object_null == 1} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		} else {
-			set status = [$content get "status"]
-			if ([string compare -nocase $status "review"] == 0){
-				set now [clock seconds]
-				set fmt "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
-				$content put "lastSubmittedOn" [clock format $now -format $fmt]
+			set get_node_response [getDataNode $graph_id $content_id]
+			set get_node_response_error [check_response_error $get_node_response]
+			if {$get_node_response_error} {
+				return $get_node_response;
+			} else {
+				set graph_node [get_resp_value $get_node_response "node"]
+				set metadata [java::prop $graph_node "metadata"]
+				set domain_val [$metadata get "domain"]
+				set domain_val_null [java::isnull $domain_val]
+				if {$domain_val_null == 0} {
+					set domain_val_instance [java::instanceof $domain_val {String[]}]	
+					if {$domain_val_instance == 0} {
+						set input_domain [$content get "domain"]
+						set input_domain_null [java::isnull $input_domain]
+						if {$input_domain_null == 1} {
+							set domain_list [java::new ArrayList]
+							$domain_list add $domain_val
+							$content put "domain" $domain_list
+						}
+					}	
+				}
+				set status_val [$metadata get "status"]
+				set status_val_str [java::new String [$status_val toString]]
+				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
+				set input_status [$content get "status"]
+				set input_status_str [java::new String [$input_status toString]]
+				set updateToReviewState [$input_status_str equalsIgnoreCase "Review"]
+				if {$updateToReviewState == 1 && $isReviewState != 1} {
+					$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
+				}
+				set domain_obj [convert_to_graph_node $content $def_node]
+				set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				return $create_response
 			}
-			set domain_obj [convert_to_graph_node $content $def_node]
-			set create_response [updateDataNode $graph_id $content_id $domain_obj]
-			return $create_response
 		}
 	} else {
 		set result_map [java::new HashMap]

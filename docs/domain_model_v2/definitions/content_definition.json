@@ -1034,6 +1034,22 @@
           "indexed": true
         },
         {
+          "propertyName": "domain",
+          "title": "Domain",
+          "description": "",
+          "category": "General",
+          "dataType": "Multi-Select",
+          "range": [
+            "numeracy",
+            "literacy"
+          ],
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Draft",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
           "propertyName": "status",
           "title": "Status",
           "description": "",
@@ -1448,7 +1464,7 @@
         "activity_class", "filter", "mimeType", "minSupportedVersion", "checksum", "lastUpdatedOn", "createdOn",
         "status", "contentType", "filter", "visibility", "thumbnail", "language", "owner", "collaborators",
         "imageCredits", "audioCredits", "voiceCredits", "portalOwner", "developer", "attributions", "forkable", 
-        "translatable", "mediaType", "soundCredits", "optStatus"]
+        "translatable", "mediaType", "soundCredits", "optStatus", "domain"]
       }
     }
   ]
