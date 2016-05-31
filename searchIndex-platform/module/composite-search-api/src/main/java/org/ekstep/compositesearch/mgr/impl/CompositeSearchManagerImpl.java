@@ -46,19 +46,16 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
 		LOGGER.info("Get All Definitions : " + graphId);
-		List<Map<String, Object>> messages = null;
+		Response response = OK();
 		if (StringUtils.isNotBlank(objectType)) {
 		    Map<String, Object> result = getDefinition(graphId, objectType).getResult();
 		    DefinitionDTO dto = (DefinitionDTO) result.get(GraphDACParams.definition_node.name());
-		    messages = genCompositeSearchMessage(graphId, dto);
+		    response = genCompositeSearchMessage(graphId, dto);
 		} else {
 		    Map<String, Object> result = getAllDefinitions(graphId).getResult();
 	        List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
-	        messages = genCompositeSearchMessages(graphId, lstDefDTO);
+	        response = genCompositeSearchMessages(graphId, lstDefDTO);
 		}
-		Response response = OK();
-		if (null != messages && !messages.isEmpty())
-		    response = pushMessageToKafka(messages);
 		return response;
 	}
 	
@@ -356,32 +353,34 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return lstDefDTO;
 	}
 	
-	private List<Map<String, Object>> genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
-		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+	private Response genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
+	    Response response = OK();
 		for(DefinitionDTO def: lstDefDTO) {
-			lstMessages.addAll(genCompositeSearchMessage(graphId, def));
+			response = genCompositeSearchMessage(graphId, def);
 		}
-		return lstMessages;
+		return response;
 	}
 	
-    private List<Map<String, Object>> genCompositeSearchMessage(String graphId, DefinitionDTO def) {
-	    List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+    private Response genCompositeSearchMessage(String graphId, DefinitionDTO def) {
+        Response response = OK();
 	    int startPosistion = 0;
         boolean found = true;
         while (found) {
             List<Node> nodes = getNodes(graphId, def.getObjectType(), startPosistion, SYNC_BATCH_SIZE);
             if (null != nodes && !nodes.isEmpty()) {
+                List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
                 for (Node node : nodes) {
                     lstMessages.add(getKafkaMessage(node));
                 }
                 startPosistion += SYNC_BATCH_SIZE;
+                response = pushMessageToKafka(lstMessages);
                 System.out.println("Fetched " + startPosistion + " " + def.getObjectType() + " objects");
             } else {
                 found = false;
                 break;
             }
         }
-	    return lstMessages;
+	    return response;
     }
 	
 	private Map<String, Object> getKafkaMessage(Node node) {
@@ -462,17 +461,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		System.out.println("Sending to KAFKA.... ");
 		KafkaMessageProducer producer = new KafkaMessageProducer();
 		producer.init();
-		int index = 0;
 		for (Map<String, Object> message: messages) {
 			producer.pushMessage(message);
-			index += 1;
-			if (index != 0 && index%1000 == 0) {
-			    try {
-			        System.out.println("Sleeping for 2 seconds after pushing " + index + " messages");
-			        Thread.sleep(2000);
-			    } catch (Exception e) {
-			    }
-			}
 		}
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
