@@ -1578,7 +1578,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	    }
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked" })
 	private Response createOrUpdateWord(Map<String, Object> item, DefinitionDTO definition, String languageId,
 			boolean createFlag, List<String> nodeIdList, boolean forceUpdate) {
 		Response createRes = new Response();
@@ -1746,6 +1746,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Integer synsetCount = otherMeaningIds.size() + 1;
 			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
 			String lemma = (String) item.get(ATTRIB_LEMMA);
+			lemma = lemma.trim();
+			item.put(ATTRIB_LEMMA, lemma);
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
                 Object isPhrase = item.get(ATTRIB_IS_PHRASE);
                 if (null == isPhrase)
@@ -1760,6 +1762,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				if(existingWordNode != null){
 					wordIdentifier = existingWordNode.getIdentifier();
 					item.put(LanguageParams.identifier.name(), wordIdentifier);
+					Object lastUpdatedBy = existingWordNode.getMetadata().get(ATTRIB_LAST_UPDATED_BY);
+					String stringLastUpdatedBy = null;
+					if(lastUpdatedBy != null && lastUpdatedBy instanceof String[]){
+						if(((String[])lastUpdatedBy).length > 0) {
+							stringLastUpdatedBy = ((String[])lastUpdatedBy)[0];
+						}
+						node.getMetadata().put(ATTRIB_LAST_UPDATED_BY, stringLastUpdatedBy);
+					}
 					createFlag = false;
 				}
 			}
@@ -1903,6 +1913,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			errorMessages.add("Lemma is mandatory");
 			return null;
 		} else {
+			lemma = lemma.trim();
 		    word.put(LanguageParams.lemma.name(), lemma);
 		    word.remove(LanguageParams.name.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();
@@ -1922,6 +1933,14 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				if(existingWordNode != null){
 					identifier = existingWordNode.getIdentifier();
 					word.put(LanguageParams.identifier.name(), identifier);
+					Object lastUpdatedBy = existingWordNode.getMetadata().get(ATTRIB_LAST_UPDATED_BY);
+					String stringLastUpdatedBy = null;
+					if(lastUpdatedBy != null && lastUpdatedBy instanceof String[]){
+						if(((String[])lastUpdatedBy).length > 0) {
+							stringLastUpdatedBy = ((String[])lastUpdatedBy)[0];
+						}
+						word.put(ATTRIB_LAST_UPDATED_BY, stringLastUpdatedBy);
+					}
 				}
 			}
 			Response wordResponse;

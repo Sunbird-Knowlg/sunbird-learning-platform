@@ -29,6 +29,7 @@ public interface IWordnetConstants {
     String ATTRIB_IWN_ID = "indowordnetId";
     String ATTRIB_SOURCES = "sources";
     String ATTRIB_SOURCE_IWN = "IndoWordnet";
+    String ATTRIB_LAST_UPDATED_BY = "lastUpdatedBy";
     
     String POS_NOUN = "noun";
     String POS_PRONOUN = "pronoun";
