@@ -32,6 +32,13 @@ RUN cp src/redis-cli /usr/local/bin/
 # Install image magick
 RUN apt-get install -y imagemagick
 
+# Install ffmpeg
+RUN wget http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz
+WORKDIR ffmpeg-3.0.2-64bit-static
+RUN cp ffmpeg /usr/local/bin/
+RUN cp ffprobe /usr/local/bin/
+RUN cp ffserver /usr/local/bin/
+
 # Switch to tomcat director
 WORKDIR $CATALINA_HOME
 
