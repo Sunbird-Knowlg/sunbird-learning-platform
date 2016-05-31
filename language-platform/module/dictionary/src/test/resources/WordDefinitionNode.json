@@ -448,7 +448,7 @@
           "title": "Last Updated By",
           "description": "",
           "category": "audit",
-          "dataType": "List",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": false,
