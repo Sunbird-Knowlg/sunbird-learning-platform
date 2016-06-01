@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Event;
@@ -30,9 +31,9 @@ public class JsonContentParser {
 		try {
 			JSONObject root = new JSONObject(json);
 			content = processContentDocument(root);
-		} catch (JSONException ex) {
+		} catch (JSONException e) {
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_WP_JSON_PARSE_ERROR.name(),
-					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
+					ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR, e);
 		}
 		return content;
 	}
@@ -41,8 +42,10 @@ public class JsonContentParser {
 		Content content = new Content();
 		if (null != root) {
 			content.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
-			content.setManifest(getContentManifest(root.getJSONObject(ContentWorkflowPipelineParams.manifest.name())));
-			content.setControllers(getControllers(root.getJSONObject(ContentWorkflowPipelineParams.controller.name())));
+			if (root.has(ContentWorkflowPipelineParams.manifest.name()))
+				content.setManifest(getContentManifest(root.getJSONObject(ContentWorkflowPipelineParams.manifest.name())));
+			if (root.has(ContentWorkflowPipelineParams.controller.name()))
+				content.setControllers(getControllers(root.getJSONObject(ContentWorkflowPipelineParams.controller.name())));
 			content.setPlugins(getPlugins(root));
 		}
 		return content;
@@ -127,9 +130,62 @@ public class JsonContentParser {
 	private List<Event> getEvents(JSONObject object) {
 		List<Event> events = new ArrayList<Event>();
 		if (null != object) {
-			
+			if (object.has(ContentWorkflowPipelineParams.events.name())) {
+				JSONObject eventsObj = object.getJSONObject(ContentWorkflowPipelineParams.events.name());
+				if (eventsObj.has(ContentWorkflowPipelineParams.event.name()))
+					events.addAll(getEventFromObject(object.get(ContentWorkflowPipelineParams.event.name())));
+			} else if (object.has(ContentWorkflowPipelineParams.event.name()))
+				events.addAll(getEventFromObject(object.get(ContentWorkflowPipelineParams.event.name())));
 		}
 		return events;
+	}
+	
+	private List<Event> getEventFromObject(Object object) {
+		List<Event> events = new ArrayList<Event>();
+		if (null != object) {
+			if (object instanceof JSONArray) {
+				events.addAll(getEventList((JSONArray) object));
+			} else if (object instanceof JSONObject) {
+				events.add(getEvent((JSONObject) object));
+			} 
+		}
+		return events;
+	}
+	
+	private List<Event> getEventList(JSONArray array) {
+		List<Event> events = new ArrayList<Event>();
+		for(int i = 0; i < array.length(); i++)
+			events.add(getEvent(array.getJSONObject(i)));
+		return events;
+	}
+	
+	private Event getEvent(JSONObject object) {
+		Event event = new Event();
+		List<Action> actions = new ArrayList<Action>();
+		event.setData(getData(object, ContentWorkflowPipelineParams.event.name()));
+		if (object.has(ContentWorkflowPipelineParams.action.name())) {
+			Object actionObj = object.get(ContentWorkflowPipelineParams.action.name());
+			if (actionObj instanceof JSONArray) {
+				actions.addAll(getActions((JSONArray) actionObj));
+			} else if (actionObj instanceof JSONObject) {
+				actions.add(getAction((JSONObject) actionObj));
+			} 
+		}
+		event.setActions(actions);
+		return event;
+	}
+	
+	private List<Action> getActions(JSONArray array) {
+		List<Action> actions = new ArrayList<Action>();
+		for(int i = 0; i < array.length(); i++)
+			actions.add(getAction(array.getJSONObject(i)));
+		return actions;
+	}
+	
+	private Action getAction(JSONObject object) {
+		Action action = new Action();
+		action.setData(getData(object, ContentWorkflowPipelineParams.action.name()));
+		return action;
 	}
 	
 	private String getInnerText(JSONObject object, String elementName) {
