@@ -20,7 +20,6 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
-import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -66,13 +65,10 @@ public class ParagraphMeasures {
                 Map<String, Object> summary = new HashMap<String, Object>();
                 summary.put("total_orthographic_complexity", pc.getTotalOrthoComplexity());
                 summary.put("total_phonologic_complexity", pc.getTotalPhonicComplexity());
-                summary.put("total_word_complexity", pc.getTotalWordComplexity());
                 summary.put("avg_orthographic_complexity", pc.getMeanOrthoComplexity());
                 summary.put("avg_phonologic_complexity", pc.getMeanPhonicComplexity());
-                summary.put("avg_word_complexity", pc.getMeanWordComplexity());
                 summary.put("word_count", pc.getWordCount());
                 summary.put("syllable_count", pc.getSyllableCount());
-                summaryMap.put(textEntry.getKey(), summary);
                 
                 Map<String, Integer> wordFrequency = pc.getWordFrequency();
                 Map<String, ComplexityMeasures> wordMeasures = pc.getWordMeasures();
@@ -81,6 +77,7 @@ public class ParagraphMeasures {
                 sortedMap.putAll(wordMeasures);
                 complexityMap.putAll(wordMeasures);
                 
+                double totalWordComplexity = 0;
                 Map<String, Map<String, Object>> wordDetailsMap = new HashMap<String, Map<String, Object>>();
                 for (Entry<String, ComplexityMeasures> entry : sortedMap.entrySet()) {
                     String pos = posMap.get(entry.getKey());
@@ -98,6 +95,13 @@ public class ParagraphMeasures {
                         lemma = getLemmaValue(node, languageId);
                         thresholdLevel = getThresholdLevelValue(node, languageId);
                         category = getCategoryValue(node, languageId);
+                        wc = getWordComplexityValue(node, languageId);
+                        if (null == wc)
+                            wc = (double) 0;
+                        else
+                            wc = formatDoubleValue(wc);
+                        pc.getWordComplexityMap().put(entry.getKey(), wc);
+                        totalWordComplexity += wc;
                         posMap.put(entry.getKey(), pos);
                         categoryMap.put(entry.getKey(), category);
                         rootWordMap.put(entry.getKey(), lemma);
@@ -122,6 +126,10 @@ public class ParagraphMeasures {
                     storyCountMap.put(entry.getKey(), storyCount);
                 }
                 wordRowMap.put(filename, wordDetailsMap);
+                summary.put("total_word_complexity", totalWordComplexity);
+                double meanWordComplexity = formatDoubleValue(totalWordComplexity / sortedMap.size());
+                summary.put("avg_word_complexity", meanWordComplexity);
+                summaryMap.put(textEntry.getKey(), summary);
             }
             Map<String, Object> response = new HashMap<String, Object>();
             response.put("cutoff_complexity", 50);
@@ -363,6 +371,28 @@ public class ParagraphMeasures {
         return category;
     }
     
+    private static Double getWordComplexityValue(Node neo4jNode, String languageId) {
+        Transaction tx = null;
+        Double value = null;
+        try {
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
+            tx = graphDb.beginTx();
+            if (null != neo4jNode) {
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY))
+                    value = (Double) neo4jNode.getProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY);
+            }
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
+        return value;
+    }
+    
     private static String getPOSValue(Node neo4jNode, String languageId) {
         Transaction tx = null;
         String posValue = null;
@@ -414,8 +444,8 @@ public class ParagraphMeasures {
                     wordFrequency.put(word, count);
                     syllableCountMap.put(word, wc.getCount());
                 }
-                WordUtil wordUtil = new WordUtil();
-                wcMap = wordUtil.getWordComplexity(tokens, language);
+                //WordUtil wordUtil = new WordUtil();
+                //wcMap = wordUtil.getWordComplexity(tokens, language);
             }
             ParagraphComplexity pc = new ParagraphComplexity();
             pc.setText(text);

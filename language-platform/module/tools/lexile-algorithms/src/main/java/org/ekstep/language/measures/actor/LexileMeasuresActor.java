@@ -36,8 +36,8 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.info("Received Command: " + msg);
 		Request request = (Request) msg;
+		LOGGER.info(request.getRequestId() + " | Received Command: " + request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
