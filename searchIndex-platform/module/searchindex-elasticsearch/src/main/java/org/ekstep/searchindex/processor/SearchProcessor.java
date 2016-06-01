@@ -1,8 +1,11 @@
 package org.ekstep.searchindex.processor;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,7 +27,7 @@ public class SearchProcessor {
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
 	@SuppressWarnings({ "unchecked" })
-	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws IOException {
+	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
@@ -43,7 +46,7 @@ public class SearchProcessor {
 		return response;
 	}
 	
-	public Map<String, Object> processCount(SearchDTO searchDTO) throws IOException {
+	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
 		String query = processSearchQuery(searchDTO, null, false);
 		
@@ -55,14 +58,14 @@ public class SearchProcessor {
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort){
+	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort) throws Exception{
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
 		Map<String, List> conditionsMap = new HashMap<String, List>();
-		conditionsMap.put("Text", conditionsSetOne);
-		conditionsMap.put("Arithmetic", conditionsSetArithmetic);
-		conditionsMap.put("Not", conditionsSetMustNot);
+		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST, conditionsSetOne);
+		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_ARITHMETIC, conditionsSetArithmetic);
+		conditionsMap.put(CompositeSearchConstants.CONDITION_SET_MUST_NOT, conditionsSetMustNot);
 		boolean relevanceSort = false;
 		List<Map> properties = searchDTO.getProperties();
 
@@ -84,64 +87,69 @@ public class SearchProcessor {
 			switch (operation) {
 			case CompositeSearchConstants.SEARCH_OPERATION_EQUAL: {
 				queryOperation = "equal";
-				conditionSet = "Text";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EQUAL: {
 				queryOperation = "equal";
-				conditionSet = "Not";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
 				break;
 			}
 
 			case CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH: {
 				queryOperation = "endsWith";
-				conditionSet = "Text";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LIKE:
 			case CompositeSearchConstants.SEARCH_OPERATION_CONTAINS: {
 				queryOperation = "like";
-				conditionSet = "Text";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_LIKE: {
 				queryOperation = "like";
-				conditionSet = "Not";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH: {
 				queryOperation = "prefix";
-				conditionSet = "Text";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_EXISTS: {
 				queryOperation = "exists";
-				conditionSet = "Text";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_NOT_EXISTS: {
 				queryOperation = "exists";
-				conditionSet = "Not";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST_NOT;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN: {
 				queryOperation = ">";
-				conditionSet = "Arithmetic";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS: {
 				queryOperation = ">=";
-				conditionSet = "Arithmetic";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
 				queryOperation = "<";
-				conditionSet = "Arithmetic";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
 				break;
 			}
 			case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS: {
 				queryOperation = "<=";
-				conditionSet = "Arithmetic";
+				conditionSet = CompositeSearchConstants.CONDITION_SET_ARITHMETIC;
+				break;
+			}
+			case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
+				queryOperation = CompositeSearchConstants.SEARCH_OPERATION_RANGE;
+				conditionSet = CompositeSearchConstants.CONDITION_SET_MUST;
 				break;
 			}
 			}
@@ -201,26 +209,26 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQuery(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy) {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy) throws Exception {
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
-		List<Map> textConditions = conditionsMap.get("Text");
-		List<Map> arithmeticConditions = conditionsMap.get("Arithmetic");
-		List<Map> notConditions = conditionsMap.get("Not");
+		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
+		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
+		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 
-		if ((textConditions != null && !textConditions.isEmpty())
+		if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
 				|| (notConditions != null && !notConditions.isEmpty())) {
 			builder.key("query").object().key("filtered").object().key("query").object().key("bool").object();
 		}
 
-		if (textConditions != null && !textConditions.isEmpty()) {
+		if (mustConditions != null && !mustConditions.isEmpty()) {
 			String allOperation = "should";
 			if (totalOperation == "AND") {
 				allOperation = "must";
 			}
 			builder.key(allOperation).array();
-			for (Map textCondition : textConditions) {
+			for (Map textCondition : mustConditions) {
 				String conditionOperation = (String) textCondition.get("operation");
 				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = (String) textCondition.get("operand");
@@ -254,7 +262,6 @@ public class SearchProcessor {
 					Object value = (Object) textCondition.get("value");
 					getConditionsQuery(queryOperation, fieldName, value, builder);
 					builder.endObject();
-
 				}
 			}
 			builder.endArray();
@@ -342,8 +349,8 @@ public class SearchProcessor {
 			}
 			builder.endArray();
 		}
-
-		if ((textConditions != null && !textConditions.isEmpty())
+		
+		if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
 				|| (notConditions != null && !notConditions.isEmpty())) {
 			builder.endObject().endObject().endObject().endObject();
@@ -388,7 +395,8 @@ public class SearchProcessor {
 		return builder.toString();
 	}
 	
-	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) {
+	@SuppressWarnings("unchecked")
+	private void getConditionsQuery(String queryOperation, String fieldName, Object value, JSONBuilder builder) throws Exception {
 		switch (queryOperation) {
 		case "equal": {
 			builder.key("match").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value).endObject();
@@ -412,6 +420,39 @@ public class SearchProcessor {
 			String stringValue = (String) value;
 			builder.key("query").object().key("wildcard").object().key(fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION)
 					.value("*" + stringValue.toLowerCase()).endObject().endObject();
+			break;
+		}
+		case CompositeSearchConstants.SEARCH_OPERATION_RANGE: {
+			Map<String, Object> rangeMap = (Map<String, Object>) value;
+				if(!rangeMap.isEmpty()){
+				List<String> dateFields = elasticSearchUtil.getDateFields();
+				if(!dateFields.contains(fieldName)){
+					fieldName = fieldName + CompositeSearchConstants.RAW_FIELD_EXTENSION;
+				}
+				builder.key("query").object().key("range").object().key(fieldName).object();
+				for(Map.Entry<String, Object> rangeEntry: rangeMap.entrySet()){
+					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+					SimpleDateFormat esFromatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+0530'");
+					Object rangeValue;
+					try{
+						String dateString = (String)rangeEntry.getValue();
+						if(dateString.split(" ").length>1){
+							formatter = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+						}
+						try {
+							Date date = formatter.parse((String)rangeEntry.getValue());
+							rangeValue = esFromatter.format(date);
+						} catch (ParseException e) {
+								throw new Exception("Invalid date format");
+						}
+					}
+					catch(java.lang.ClassCastException e){
+						rangeValue = rangeEntry.getValue();
+					}
+					builder.key(rangeEntry.getKey()).value(rangeValue);
+				}
+				builder.endObject().endObject().endObject();
+			}
 			break;
 		}
 		}

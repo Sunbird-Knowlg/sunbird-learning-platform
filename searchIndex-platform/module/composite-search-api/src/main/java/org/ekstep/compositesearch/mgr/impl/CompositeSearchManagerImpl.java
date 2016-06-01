@@ -90,11 +90,6 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			Map<String, Object> req = request.getRequest();
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
 			int limit = 100;
-			
-	/*		if (StringUtils.isBlank(queryString))
-				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
-						"Query String is blank.");
-	*/
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
@@ -191,34 +186,51 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				Object filterObject = entry.getValue();
 				if(filterObject instanceof Map){
 					Map<String, Object> filterMap = (Map<String, Object>) filterObject;
-					for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
-						Map<String, Object> property = new HashMap<String, Object>();
-						property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
-						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-						switch(filterEntry.getKey()){
-							case "startsWith":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
-								break;
+					if(!filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN) && !filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX)){
+						for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
+							Map<String, Object> property = new HashMap<String, Object>();
+							property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
+							property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+							switch(filterEntry.getKey()){
+								case "startsWith":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+									break;
+								}
+								case "endsWith":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
+									break;
+								}
+								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
+								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
+								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
+								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
+									property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
+									break;
+								}
+								case "value":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+									break;
+								}
+								default:{
+									throw new Exception("Unsupported operation");
+								}
 							}
-							case "endsWith":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
-								break;
-							}
-							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
-							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
-							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
-							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
-								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
-								break;
-							}
-							case "value":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-								break;
-							}
-							default:{
-								throw new Exception("Unsupported operation");
-							}
+							properties.add(property);
 						}
+					} else {
+						Map<String, Object> property = new HashMap<String, Object>();
+						Map<String, Object> rangeMap = new HashMap<String, Object>();
+						Object minFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+						if(minFilterValue != null){
+							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE, minFilterValue);
+						}
+						Object maxFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX);
+						if(maxFilterValue != null){
+							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE, maxFilterValue);
+						}	
+						property.put(CompositeSearchParams.values.name(), rangeMap);
+						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_RANGE);
 						properties.add(property);
 					}
 				}
