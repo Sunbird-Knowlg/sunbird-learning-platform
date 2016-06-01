@@ -100,9 +100,8 @@ public class JsonContentParser {
 		        	for(int i = 0; i < array.length(); i++) {
 		        		plugins.add(getPlugin((JSONObject) array.get(i), key));
 		        	}
-		        } else if(value instanceof JSONObject) {
+		        } else if(value instanceof JSONObject)
 		        	plugins.add(getPlugin((JSONObject) value, key));
-		        }
 		    }
 		}
 		return plugins;
@@ -140,9 +139,8 @@ public class JsonContentParser {
 			        	for(int i = 0; i < array.length(); i++)
 			        		childrenPlugins.add(getPlugin(array.getJSONObject(i), key));
 			        }
-			        else if(value instanceof JSONObject){
+			        else if(value instanceof JSONObject)
 			        	childrenPlugins.add(getPlugin(object, key));
-			        }
 		        }
 		    }
 		}
@@ -165,11 +163,10 @@ public class JsonContentParser {
 	private List<Event> getEventFromObject(Object object) {
 		List<Event> events = new ArrayList<Event>();
 		if (null != object) {
-			if (object instanceof JSONArray) {
+			if (object instanceof JSONArray)
 				events.addAll(getEventList((JSONArray) object));
-			} else if (object instanceof JSONObject) {
+			else if (object instanceof JSONObject)
 				events.add(getEvent((JSONObject) object));
-			} 
 		}
 		return events;
 	}
@@ -187,11 +184,10 @@ public class JsonContentParser {
 		event.setData(getData(object, ContentWorkflowPipelineParams.event.name()));
 		if (object.has(ContentWorkflowPipelineParams.action.name())) {
 			Object actionObj = object.get(ContentWorkflowPipelineParams.action.name());
-			if (actionObj instanceof JSONArray) {
+			if (actionObj instanceof JSONArray)
 				actions.addAll(getActions((JSONArray) actionObj));
-			} else if (actionObj instanceof JSONObject) {
+			else if (actionObj instanceof JSONObject)
 				actions.add(getAction((JSONObject) actionObj));
-			} 
 		}
 		event.setActions(actions);
 		return event;
@@ -304,11 +300,10 @@ public class JsonContentParser {
 	    List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 	    for(int i = 0; i < array.length(); i++) {
 	        Object value = array.get(i);
-	        if(value instanceof JSONArray) {
+	        if(value instanceof JSONArray)
 	        	list.addAll(toList((JSONArray) value, parentKey, isOnlyNonPluginChildrenAllowed));
-	        } else if(value instanceof JSONObject) {
+	        else if(value instanceof JSONObject)
 	        	list.addAll(toMap((JSONObject) value, parentKey, isOnlyNonPluginChildrenAllowed));
-	        }
 	    }
 	    return list;
 	}
