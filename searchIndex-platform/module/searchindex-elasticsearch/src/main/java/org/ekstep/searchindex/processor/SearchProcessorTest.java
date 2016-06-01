@@ -1,6 +1,5 @@
 package org.ekstep.searchindex.processor;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 public class SearchProcessorTest {
 	@SuppressWarnings("rawtypes")
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws Exception {
 		SearchProcessor processor = new SearchProcessor();
 		
 		SearchDTO dto =  new SearchDTO();

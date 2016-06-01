@@ -4,8 +4,6 @@ import java.util.Date;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +20,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.Comment;
 import com.ilimi.dac.enums.CommonDACParams;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
@@ -31,7 +30,7 @@ import com.ilimi.util.AuditLogUtil;
 @RequestMapping("/comment")
 public class CommentController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(CommentController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(CommentController.class.getName());
 
     @Autowired
     IAuditLogManager auditLogManager;

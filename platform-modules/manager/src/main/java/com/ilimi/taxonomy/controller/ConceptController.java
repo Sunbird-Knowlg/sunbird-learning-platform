@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +19,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -32,7 +31,7 @@ import com.ilimi.taxonomy.mgr.IConceptManager;
 @RequestMapping("/concept")
 public class ConceptController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(ConceptController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(ConceptController.class.getName());
 
     @Autowired
     private IConceptManager conceptManager;

@@ -2,8 +2,6 @@ package com.ilimi.assessment.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -23,6 +21,7 @@ import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.dac.model.Node;
 
 /**
@@ -35,7 +34,7 @@ import com.ilimi.graph.dac.model.Node;
 @RequestMapping("/v1/assessmentitemset")
 public class AssessmentItemSetController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(AssessmentItemSetController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(AssessmentItemSetController.class.getName());
 
     private static final String V2_GRAPH_ID = "domain";
 

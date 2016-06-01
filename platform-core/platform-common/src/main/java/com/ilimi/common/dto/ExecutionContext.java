@@ -28,6 +28,14 @@ public class ExecutionContext {
     public static ExecutionContext getCurrent() {
         return context.get();
     }
+    
+    public static void setRequestId(String requestId) {
+        ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.getParamName(), requestId);
+    }
+    
+    public static String getRequestId() {
+        return (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
+    }
 
     Stack<String> serviceCallStack = new Stack<String>();
 

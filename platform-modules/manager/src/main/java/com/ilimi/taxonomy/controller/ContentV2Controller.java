@@ -2,8 +2,6 @@ package com.ilimi.taxonomy.controller;
 
 import java.util.Map;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -19,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
@@ -27,7 +26,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @RequestMapping("/v2/content")
 public class ContentV2Controller extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(ContentV2Controller.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
 
     @Autowired
     private ContentController contentController;

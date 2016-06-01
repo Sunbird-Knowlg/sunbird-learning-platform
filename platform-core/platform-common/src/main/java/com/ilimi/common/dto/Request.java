@@ -50,9 +50,19 @@ public class Request implements Serializable {
     	this.params = request.getParams();
     	if (null == this.params)
     	    this.params = new RequestParams();
+    	else if (StringUtils.isNotBlank(this.params.getMsgid())) {
+    	    ExecutionContext.setRequestId(this.params.getMsgid());
+    	    this.request_id = this.params.getMsgid();
+    	}
     	if(StringUtils.isBlank(this.params.getMsgid()) && StringUtils.isNotBlank(request_id))
     		this.params.setMsgid(request_id);
         this.context.putAll(request.getContext());
+    }
+    
+    public String getRequestId() {
+        if (null != this.params)
+            return this.params.getMsgid();
+        return request_id;
     }
 
     public Map<String, Object> getContext() {
