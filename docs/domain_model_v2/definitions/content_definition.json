@@ -1043,9 +1043,9 @@
             "numeracy",
             "literacy"
           ],
-          "required": true,
+          "required": false,
           "displayProperty": "Editable",
-          "defaultValue": "Draft",
+          "defaultValue": "",
           "renderingHints": "",
           "indexed": true
         },

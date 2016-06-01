@@ -106,10 +106,13 @@ if {$object_null == 1} {
 				set status_val_str [java::new String [$status_val toString]]
 				set isReviewState [$status_val_str equalsIgnoreCase "Review"]
 				set input_status [$content get "status"]
-				set input_status_str [java::new String [$input_status toString]]
-				set updateToReviewState [$input_status_str equalsIgnoreCase "Review"]
-				if {$updateToReviewState == 1 && $isReviewState != 1} {
-					$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
+				set input_status_null [java::isnull $input_status]
+				if {$input_status_null == 0} {
+					set input_status_str [java::new String [$input_status toString]]
+					set updateToReviewState [$input_status_str equalsIgnoreCase "Review"]
+					if {$updateToReviewState == 1 && $isReviewState != 1} {
+						$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
+					}
 				}
 				set domain_obj [convert_to_graph_node $content $def_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
