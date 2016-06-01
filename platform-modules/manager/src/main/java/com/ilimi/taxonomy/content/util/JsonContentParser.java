@@ -14,6 +14,7 @@ import org.json.JSONObject;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
+import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
@@ -111,7 +112,7 @@ public class JsonContentParser {
 		Plugin plugin = new Plugin();
 		if (null != object) {
 			plugin.setData(getData(object, key));
-			plugin.setChildrenData(getChildrenData(object, key));
+			plugin.setChildrenData(getNonPluginChildren(object, key));
 			plugin.setChildrenPlugin(getChildrenPlugins(object));
 			plugin.setEvents(getEvents(object));
 			plugin.setInnerText(getInnerText(object, ContentWorkflowPipelineParams.__text.name()));
@@ -119,10 +120,31 @@ public class JsonContentParser {
 		return plugin;
 	}
 	
+	private List<Map<String, String>> getNonPluginChildren(JSONObject object, String elementName) {
+		List<Map<String, String>> nonPluginChildren = new ArrayList<Map<String, String>>();
+		if (null != object && !StringUtils.isBlank(elementName))
+			nonPluginChildren = toMap(object, elementName, true);
+		return nonPluginChildren;
+	}
+	
 	private List<Plugin> getChildrenPlugins(JSONObject object) {
 		List<Plugin> childrenPlugins = new ArrayList<Plugin>();
 		if (null != object) {
-			
+			Iterator<String> keysItr = object.keys();
+		    while(keysItr.hasNext()) {
+		        String key = keysItr.next();
+		        if (ElementMap.isPlugin(key)) {
+			        Object value = object.get(key);
+			        if(value instanceof JSONArray) {
+			        	JSONArray array = (JSONArray) value;
+			        	for(int i = 0; i < array.length(); i++)
+			        		childrenPlugins.add(getPlugin(array.getJSONObject(i), key));
+			        }
+			        else if(value instanceof JSONObject){
+			        	childrenPlugins.add(getPlugin(object, key));
+			        }
+		        }
+		    }
 		}
 		return childrenPlugins;
 	}
@@ -235,10 +257,10 @@ public class JsonContentParser {
 	}
 	
 	private List<Map<String, String>> getChildrenData(JSONObject object, String elementName) {
-		List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
+		List<Map<String, String>> childrenMaps = new ArrayList<Map<String, String>>();
 		if (null != object && !StringUtils.isBlank(elementName))
-			maps = toMap(object, elementName);
-		return maps;
+			childrenMaps = toMap(object, elementName, false);
+		return childrenMaps;
 	}
 	
 	private Map<String, String> getMapFromJsonObj(JSONObject object) {
@@ -255,39 +277,40 @@ public class JsonContentParser {
 		return map;
 	}
 	
-	private List<Map<String, String>> toMap(JSONObject object, String parentKey) throws JSONException {
+	private List<Map<String, String>> toMap(JSONObject object, String parentKey, boolean isOnlyNonPluginChildrenAllowed) throws JSONException {
 	    List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
 	    Map<String, String> map = new HashMap<String, String>();
 	    Iterator<String> keysItr = object.keys();
 	    while(keysItr.hasNext()) {
 	        String key = keysItr.next();
-	        Object value = object.get(key);
-	        if(value instanceof JSONArray)
-	        	maps.addAll(toList((JSONArray) value, key));
-	        else if(value instanceof JSONObject)
-	        	maps.addAll(toMap((JSONObject) value, key));
-	        else {
-		        map.put(key, (String)value);
-		        map.put(ContentWorkflowPipelineParams.element_name.name(), key);
-		        map.put(ContentWorkflowPipelineParams.group_element_name.name(), parentKey);
-		        maps.add(map);
+	        if (!isOnlyNonPluginChildrenAllowed && !ElementMap.isPlugin(key)) {
+		        Object value = object.get(key);
+		        if(value instanceof JSONArray)
+		        	maps.addAll(toList((JSONArray) value, key, isOnlyNonPluginChildrenAllowed));
+		        else if(value instanceof JSONObject)
+		        	maps.addAll(toMap((JSONObject) value, key, isOnlyNonPluginChildrenAllowed));
+		        else {
+			        map.put(key, (String)value);
+			        map.put(ContentWorkflowPipelineParams.element_name.name(), key);
+			        map.put(ContentWorkflowPipelineParams.group_element_name.name(), parentKey);
+			        maps.add(map);
+		        }
 	        }
 	    }
 	    return maps;
 	}
 
-	private List<Map<String, String>> toList(JSONArray array, String parentKey) throws JSONException {
+	private List<Map<String, String>> toList(JSONArray array, String parentKey, boolean isOnlyNonPluginChildrenAllowed) throws JSONException {
 	    List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 	    for(int i = 0; i < array.length(); i++) {
 	        Object value = array.get(i);
 	        if(value instanceof JSONArray) {
-	        	list.addAll(toList((JSONArray) value, parentKey));
+	        	list.addAll(toList((JSONArray) value, parentKey, isOnlyNonPluginChildrenAllowed));
 	        } else if(value instanceof JSONObject) {
-	        	list.addAll(toMap((JSONObject) value, parentKey));
+	        	list.addAll(toMap((JSONObject) value, parentKey, isOnlyNonPluginChildrenAllowed));
 	        }
 	    }
 	    return list;
 	}
-	
 
 }
