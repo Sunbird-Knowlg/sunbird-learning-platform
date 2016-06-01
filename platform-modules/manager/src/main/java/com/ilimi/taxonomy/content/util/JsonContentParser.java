@@ -16,6 +16,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Content;
 import com.ilimi.taxonomy.content.entity.Controller;
+import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
@@ -39,8 +40,10 @@ public class JsonContentParser {
 	private Content processContentDocument(JSONObject root) {
 		Content content = new Content();
 		if (null != root) {
+			content.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
 			content.setManifest(getContentManifest(root.getJSONObject(ContentWorkflowPipelineParams.manifest.name())));
 			content.setControllers(getControllers(root.getJSONObject(ContentWorkflowPipelineParams.controller.name())));
+			content.setPlugins(getPlugins(root));
 		}
 		return content;
 	}
@@ -82,8 +85,61 @@ public class JsonContentParser {
 	
 	private List<Plugin> getPlugins(JSONObject object) {
 		List<Plugin> plugins = new ArrayList<Plugin>();
-		
+		object = getPluginViewOfDocument(object);
+		if (null != object) {
+			Iterator<String> keysItr = object.keys();
+		    while(keysItr.hasNext()) {
+		    	String key = keysItr.next();
+		        Object value = object.get(key);
+		        if(value instanceof JSONArray) {
+		        	JSONArray array = (JSONArray) value;
+		        	for(int i = 0; i < array.length(); i++) {
+		        		plugins.add(getPlugin((JSONObject) array.get(i), key));
+		        	}
+		        } else if(value instanceof JSONObject) {
+		        	plugins.add(getPlugin((JSONObject) value, key));
+		        }
+		    }
+		}
 		return plugins;
+	}
+	
+	private Plugin getPlugin(JSONObject object, String key) {
+		Plugin plugin = new Plugin();
+		if (null != object) {
+			plugin.setData(getData(object, key));
+			plugin.setChildrenData(getChildrenData(object, key));
+			plugin.setChildrenPlugin(getChildrenPlugins(object));
+			plugin.setEvents(getEvents(object));
+			plugin.setInnerText(getInnerText(object, ContentWorkflowPipelineParams.__text.name()));
+		}
+		return plugin;
+	}
+	
+	private List<Plugin> getChildrenPlugins(JSONObject object) {
+		List<Plugin> childrenPlugins = new ArrayList<Plugin>();
+		if (null != object) {
+			
+		}
+		return childrenPlugins;
+	}
+	
+	private List<Event> getEvents(JSONObject object) {
+		List<Event> events = new ArrayList<Event>();
+		if (null != object) {
+			
+		}
+		return events;
+	}
+	
+	private String getInnerText(JSONObject object, String elementName) {
+		String innerText = "";
+		if (null != object && !StringUtils.isBlank(elementName)) {
+			String text = getMapFromJsonObj(object).get(elementName);
+			if (!StringUtils.isBlank(innerText))
+				innerText = text;
+		}
+		return innerText;
 	}
 	
 	private JSONObject getPluginViewOfDocument(JSONObject object) {
