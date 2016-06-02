@@ -1442,12 +1442,11 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 					try {
 						String objectStr = mapper.writeValueAsString(entry.getValue());
 						List<String> tags = mapper.readValue(objectStr, List.class);
-						if (null != tags && !tags.isEmpty())
-							node.setTags(tags);
+						node.setTags(tags);
 					} catch (Exception e) {
 						e.printStackTrace();
 						throw e;
-}
+					}
 				} else if (inRelDefMap.containsKey(entry.getKey())) {
 					try {
 						String objectStr = mapper.writeValueAsString(entry.getValue());
