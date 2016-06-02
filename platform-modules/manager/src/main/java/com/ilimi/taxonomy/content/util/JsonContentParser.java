@@ -42,26 +42,51 @@ public class JsonContentParser {
 	private Content processContentDocument(JSONObject root) {
 		Content content = new Content();
 		if (null != root) {
-			content.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
-			if (root.has(ContentWorkflowPipelineParams.manifest.name()))
-				content.setManifest(getContentManifest(root.getJSONObject(ContentWorkflowPipelineParams.manifest.name())));
-			if (root.has(ContentWorkflowPipelineParams.controller.name()))
-				content.setControllers(getControllers(root.getJSONObject(ContentWorkflowPipelineParams.controller.name())));
-			content.setPlugins(getPlugins(root));
+			if (root.has(ContentWorkflowPipelineParams.theme.name())) {
+				root = root.getJSONObject(ContentWorkflowPipelineParams.theme.name());
+				content.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
+				content.setManifest(getContentManifest(root));
+				content.setControllers(getControllers(root));
+				content.setPlugins(getPlugins(root));
+			}
 		}
 		return content;
 	}
 	
-	private Manifest getContentManifest(JSONObject manifestObj) {
+	private Manifest getContentManifest(JSONObject object) {
 		Manifest manifest = new Manifest();
-		if (null != manifestObj) {
-			List<Media> medias = new ArrayList<Media>();
-			JSONArray mediaObjs = manifestObj.getJSONArray(ContentWorkflowPipelineParams.media.name());
-			for (int i = 0; i < mediaObjs.length(); i++)
-				medias.add(getContentMedia(mediaObjs.getJSONObject(i)));
-			manifest.setMedias(medias);
+		if (null != object) {
+			if (object.has(ContentWorkflowPipelineParams.manifest.name())) {
+				Object value = object.get(ContentWorkflowPipelineParams.manifest.name());
+				if (value instanceof JSONArray) {
+					JSONArray manifestObjs = (JSONArray) value;
+					for (int i = 0; i < manifestObjs.length(); i++) {
+						if (manifestObjs.getJSONObject(i).has(ContentWorkflowPipelineParams.media.name()))
+							manifest.setMedias(getMediaFromObject(manifestObjs.getJSONObject(i).get(ContentWorkflowPipelineParams.media.name())));
+					}
+				} else if (value instanceof JSONObject) {
+					JSONObject manifestObj = (JSONObject) value;
+					if (manifestObj.has(ContentWorkflowPipelineParams.media.name()))
+						manifest.setMedias(getMediaFromObject(manifestObj.get(ContentWorkflowPipelineParams.media.name())));
+				}
+			}
 		}
 		return manifest;
+	}
+	
+	private List<Media> getMediaFromObject(Object object) {
+		List<Media> medias = new ArrayList<Media>();
+		if (null != object) {
+			if (object instanceof JSONArray) {
+				JSONArray mediaObjs = (JSONArray) object;
+				for (int i = 0; i < mediaObjs.length(); i++)
+					medias.add(getContentMedia(mediaObjs.getJSONObject(i)));
+			} else if (object instanceof JSONObject) {
+				JSONObject mediaObj = (JSONObject) object;
+				medias.add(getContentMedia(mediaObj));
+			}
+		}
+		return medias;
 	}
 	
 	private Media getContentMedia(JSONObject mediaObj) {
@@ -73,15 +98,26 @@ public class JsonContentParser {
 		return media;
 	}
 	
-	private List<Controller> getControllers(JSONObject controllerObj) {
+	private List<Controller> getControllers(JSONObject object) {
 		List<Controller> controllers = new ArrayList<Controller>();
-		if (null !=  controllerObj) {
-			JSONArray controllerObjs = controllerObj.getJSONArray(ContentWorkflowPipelineParams.controller.name());
-			for (int i = 0; i < controllerObjs.length(); i++) {
-				Controller controller = new Controller();
-				controller.setData(getData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.controller.name()));
-				controller.setcData(getCData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.__cdata.name()));
-				controllers.add(controller);
+		if (null !=  object) {
+			if (object.has(ContentWorkflowPipelineParams.controller.name())) {
+				Object value = object.get(ContentWorkflowPipelineParams.controller.name());
+				if (value instanceof JSONArray) {
+					JSONArray controllerObjs = (JSONArray) value;
+					for (int i = 0; i < controllerObjs.length(); i++) {
+						Controller controller = new Controller();
+						controller.setData(getData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.controller.name()));
+						controller.setcData(getCData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.__cdata.name()));
+						controllers.add(controller);
+					}
+				} else if (value instanceof JSONObject) {
+					JSONObject controllerObj = (JSONObject) value;
+					Controller controller = new Controller();
+					controller.setData(getData(controllerObj, ContentWorkflowPipelineParams.controller.name()));
+					controller.setcData(getCData(controllerObj, ContentWorkflowPipelineParams.__cdata.name()));
+					controllers.add(controller);
+				}
 			}
 		}
 		return controllers;
@@ -132,16 +168,14 @@ public class JsonContentParser {
 			Iterator<String> keysItr = object.keys();
 		    while(keysItr.hasNext()) {
 		        String key = keysItr.next();
-		        if (ElementMap.isPlugin(key)) {
 			        Object value = object.get(key);
-			        if(value instanceof JSONArray) {
+			        if((value instanceof JSONArray) && ElementMap.isPlugin(key)) {
 			        	JSONArray array = (JSONArray) value;
 			        	for(int i = 0; i < array.length(); i++)
 			        		childrenPlugins.add(getPlugin(array.getJSONObject(i), key));
 			        }
-			        else if(value instanceof JSONObject)
-			        	childrenPlugins.add(getPlugin(object, key));
-		        }
+			        else if((value instanceof JSONObject) && ElementMap.isPlugin(key))
+			        	childrenPlugins.add(getPlugin((JSONObject) value, key));
 		    }
 		}
 		return childrenPlugins;
@@ -151,9 +185,18 @@ public class JsonContentParser {
 		List<Event> events = new ArrayList<Event>();
 		if (null != object) {
 			if (object.has(ContentWorkflowPipelineParams.events.name())) {
-				JSONObject eventsObj = object.getJSONObject(ContentWorkflowPipelineParams.events.name());
-				if (eventsObj.has(ContentWorkflowPipelineParams.event.name()))
-					events.addAll(getEventFromObject(object.get(ContentWorkflowPipelineParams.event.name())));
+				Object value = object.get(ContentWorkflowPipelineParams.events.name());
+				if (value instanceof JSONArray) {
+					JSONArray eventObjs = (JSONArray) value;
+					for (int i = 0; i < eventObjs.length(); i++) {
+						events.add(getEvent(eventObjs.getJSONObject(i)));
+					}
+				} else if (value instanceof JSONObject) {
+					JSONObject eventsObj = (JSONObject) value;
+					if (eventsObj.has(ContentWorkflowPipelineParams.event.name()))
+						events.addAll(getEventFromObject(eventsObj.get(ContentWorkflowPipelineParams.event.name())));
+				}
+				
 			} else if (object.has(ContentWorkflowPipelineParams.event.name()))
 				events.addAll(getEventFromObject(object.get(ContentWorkflowPipelineParams.event.name())));
 		}
@@ -245,7 +288,7 @@ public class JsonContentParser {
 		String cData = "";
 		if (null != object && !StringUtils.isBlank(elementName)){
 			Map<String, Object> map = ConversionUtil.toMap(object);
-			JSONObject obj = (JSONObject) map.get(elementName);
+			Object obj = map.get(elementName);
 			if (null != obj)
 				cData = obj.toString(); 
 		}
@@ -266,8 +309,12 @@ public class JsonContentParser {
 			while(keysItr.hasNext()) {
 		        String key = keysItr.next();
 		        Object value = object.get(key);
-		        if(!(value instanceof JSONArray) && !(value instanceof JSONObject))
-		        	map.put(key, (String) value);
+		        if(!(value instanceof JSONArray) && !(value instanceof JSONObject)) {
+		        	if (null != value)
+		        		map.put(key, String.valueOf(value));
+		        	else
+		        		map.put(key, "");
+		        }
 			}
 		}
 		return map;
@@ -279,7 +326,8 @@ public class JsonContentParser {
 	    Iterator<String> keysItr = object.keys();
 	    while(keysItr.hasNext()) {
 	        String key = keysItr.next();
-	        if (!isOnlyNonPluginChildrenAllowed && !ElementMap.isPlugin(key)) {
+	        if ((isOnlyNonPluginChildrenAllowed == true && !ElementMap.isPlugin(key)) ||
+	        		isOnlyNonPluginChildrenAllowed == false) {
 		        Object value = object.get(key);
 		        if(value instanceof JSONArray)
 		        	maps.addAll(toList((JSONArray) value, key, isOnlyNonPluginChildrenAllowed));

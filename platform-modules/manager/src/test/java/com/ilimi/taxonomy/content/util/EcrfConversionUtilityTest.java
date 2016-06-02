@@ -14,9 +14,10 @@ public class EcrfConversionUtilityTest {
 	@Test
 	public void getECRF_Test01() {
 		EcrfConversionUtility fixture = new EcrfConversionUtility();
-		String strContent = getFileString("Sample_XML_1.ecml");
-		Content content = fixture.getECRF(strContent);
-//		Content content = fixture.getEcrfFromJson(strContent);
+//		String strContent = getFileString("Sample_XML_1.ecml");
+//		Content content = fixture.getECRF(strContent);
+		String strContent = getFileString("Sample_JSON_1.json");
+		Content content = fixture.getEcrfFromJson(strContent);
 	}
 	
 	private String getFileString(String fileName) {
