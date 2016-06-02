@@ -1,6 +1,5 @@
 package org.ekstep.searchindex.processor;
 
-import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -431,7 +430,7 @@ public class SearchProcessor {
 				}
 				builder.key("query").object().key("range").object().key(fieldName).object();
 				for(Map.Entry<String, Object> rangeEntry: rangeMap.entrySet()){
-					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
+/*					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
 					SimpleDateFormat esFromatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+"+elasticSearchUtil.getTimeZone()+"'");
 					Object rangeValue;
 					try{
@@ -448,8 +447,8 @@ public class SearchProcessor {
 					}
 					catch(java.lang.ClassCastException e){
 						rangeValue = rangeEntry.getValue();
-					}
-					builder.key(rangeEntry.getKey()).value(rangeValue);
+					}*/
+					builder.key(rangeEntry.getKey()).value(rangeEntry.getValue());
 				}
 				builder.endObject().endObject().endObject();
 			}
