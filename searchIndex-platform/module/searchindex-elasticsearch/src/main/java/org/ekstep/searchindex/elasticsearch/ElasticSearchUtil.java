@@ -108,6 +108,14 @@ public class ElasticSearchUtil {
 		}
 		return querySearchFields;
 	}
+	
+	public String getTimeZone() {
+		String timeZoneProperty = PropertiesUtil.getProperty("time-zone");
+		if(timeZoneProperty == null){
+			timeZoneProperty = "0000";
+		}
+		return timeZoneProperty;
+	}
 
 	@SuppressWarnings("unused")
 	private JestClient createClient() {

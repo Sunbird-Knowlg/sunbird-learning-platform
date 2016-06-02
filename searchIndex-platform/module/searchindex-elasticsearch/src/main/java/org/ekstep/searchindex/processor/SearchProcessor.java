@@ -432,7 +432,7 @@ public class SearchProcessor {
 				builder.key("query").object().key("range").object().key(fieldName).object();
 				for(Map.Entry<String, Object> rangeEntry: rangeMap.entrySet()){
 					SimpleDateFormat formatter = new SimpleDateFormat("dd/MM/yyyy");
-					SimpleDateFormat esFromatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+0530'");
+					SimpleDateFormat esFromatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'+"+elasticSearchUtil.getTimeZone()+"'");
 					Object rangeValue;
 					try{
 						String dateString = (String)rangeEntry.getValue();
