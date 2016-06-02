@@ -1713,14 +1713,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 				if (StringUtils.isNotBlank(category))
 					item.put(LanguageParams.category.name(), category);
 				List<String> tags = synsetNode.getTags();
-				if (tags != null) {
-					List<String> wordTags = (List<String>) item.get(LanguageParams.tags.name());
-					if(wordTags == null){
-						wordTags =  new ArrayList<String>();
-					}
-					wordTags.addAll(tags);
-					item.put(LanguageParams.tags.name(), wordTags);
-				}
+				item.put(LanguageParams.tags.name(), tags);
 				if (primaryMeaning.containsKey(ATTRIB_PICTURES)){
 					Object pictures = primaryMeaning.get(ATTRIB_PICTURES);
 					item.put(ATTRIB_PICTURES, pictures);
@@ -1748,7 +1741,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			Integer synsetCount = otherMeaningIds.size() + 1;
 			item.put(ATTRIB_SYNSET_COUNT, synsetCount);
 			String lemma = (String) item.get(ATTRIB_LEMMA);
-			lemma = lemma.trim();
+			lemma = lemma.trim().toLowerCase();
 			item.put(ATTRIB_LEMMA, lemma);
 			if (StringUtils.isNotBlank(lemma) && lemma.trim().contains(" ")) {
                 Object isPhrase = item.get(ATTRIB_IS_PHRASE);
@@ -1915,7 +1908,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 			errorMessages.add("Lemma is mandatory");
 			return null;
 		} else {
-			lemma = lemma.trim();
+			lemma = lemma.trim().toLowerCase();
 		    word.put(LanguageParams.lemma.name(), lemma);
 		    word.remove(LanguageParams.name.name());
 			String language = LanguageMap.getLanguage(languageId).toUpperCase();

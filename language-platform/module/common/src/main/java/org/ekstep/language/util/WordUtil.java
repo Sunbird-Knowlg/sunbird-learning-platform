@@ -938,6 +938,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	public Node getDataNode(String languageId, String nodeId) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
 		request.put(GraphDACParams.node_id.name(), nodeId);
+		request.put(GraphDACParams.get_tags.name(), true);
 
 		Response findRes = getResponse(request, LOGGER);
 		if (checkError(findRes))

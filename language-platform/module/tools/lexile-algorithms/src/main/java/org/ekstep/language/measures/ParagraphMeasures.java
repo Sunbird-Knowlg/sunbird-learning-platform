@@ -112,6 +112,7 @@ public class ParagraphMeasures {
                     wordDetailMap.put("phonologic_complexity", phc + "");
                     wordDetailMap.put("word_complexity", wc);
                     wordDetailMap.put("syllableCount", pc.getSyllableCountMap().get(entry.getKey()) + "");
+                    wordDetailMap.put("pos", pos);
                     wordDetailMap.put("category", category);
                     wordDetailMap.put("thresholdLevel", thresholdLevel);
                     wordDetailMap.put("total_complexity", oc + phc + ((null == wc) ? 0 : wc.doubleValue()));
