@@ -194,7 +194,7 @@ public class XmlContentParser {
 	}
 	
 	private String cleanupString(String str) {
-		return str.replace("/n", "").replace("  ", "").replace("/t", ""); 
+		return str.replace("\n", " ").replace("  ", "").replace("\t", " "); 
 	}
 	
 	private List<Plugin> getChildrenPlugins(Node node) {
@@ -225,7 +225,10 @@ public class XmlContentParser {
 		if (null != node && node.hasChildNodes()) {
 			NodeList nodes = node.getChildNodes();
 			for (int i = 0; i < nodes.getLength(); i++) {
-				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && !isPlugin(nodes.item(i).getNodeName())) {
+				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
+						!isPlugin(nodes.item(i).getNodeName()) &&
+						!isEvent(nodes.item(i).getNodeName()) &&
+						!isReservedWrapper(nodes.item(i).getNodeName())) {
 					nonPluginChildren.add(getDataMap(nodes.item(i)));
 				}
 			}
@@ -240,7 +243,7 @@ public class XmlContentParser {
 			for (int i = 0; i < nodes.getLength(); i++) {
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
 						StringUtils.equalsIgnoreCase(nodes.item(i).getNodeName(), ContentWorkflowPipelineParams.events.name())) {
-					getEvents(nodes.item(i));
+					events.addAll(getEvents(nodes.item(i)));
 				}
 				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
 						isEvent(nodes.item(i).getNodeName())) {
@@ -315,6 +318,10 @@ public class XmlContentParser {
 
 	private boolean isAction(String elementName) {
 		return ElementMap.isAction(elementName);
+	}
+	
+	private boolean isReservedWrapper(String elementName) {
+		return ElementMap.isReservedWrapper(elementName);
 	}
 
 }

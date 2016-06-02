@@ -15,6 +15,8 @@ public class ElementMap {
 
 	private static final Map<String, String> actionElements = new HashMap<String, String>();
 	
+	private static final Map<String, String> reservedWrapperElements = new HashMap<String, String>();
+	
 	private static final List<String> systemGeneratedAttribute = new ArrayList<String>() {
 		private static final long serialVersionUID = 7315113992066657012L;
 		{
@@ -36,6 +38,8 @@ public class ElementMap {
 
 		eventElements.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
 		actionElements.put(ContentWorkflowPipelineParams.action.name(), ContentWorkflowPipelineParams.action.name());
+		
+		reservedWrapperElements.put(ContentWorkflowPipelineParams.events.name(), ContentWorkflowPipelineParams.events.name());
 	}
 	
 	public static boolean isPlugin(String elementName) {
@@ -48,6 +52,10 @@ public class ElementMap {
 	
 	public static boolean isAction(String elementName) {
 		return actionElements.containsKey(elementName);
+	}
+	
+	public static boolean isReservedWrapper(String elementName) {
+		return reservedWrapperElements.containsKey(elementName);
 	}
 	
 	public static boolean isSystemGenerateAttribute(String attributeName)  {
