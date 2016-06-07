@@ -322,18 +322,25 @@ public class JsonContentParser {
 	
 	private List<Map<String, String>> toMap(JSONObject object, String parentKey, boolean isOnlyNonPluginChildrenAllowed) throws JSONException {
 	    List<Map<String, String>> maps = new ArrayList<Map<String, String>>();
-	    Map<String, String> map = new HashMap<String, String>();
 	    Iterator<String> keysItr = object.keys();
 	    while(keysItr.hasNext()) {
 	        String key = keysItr.next();
-	        if ((isOnlyNonPluginChildrenAllowed == true && !ElementMap.isPlugin(key)) ||
+	        if (((isOnlyNonPluginChildrenAllowed == true && 
+	        		!ElementMap.isPlugin(key) && 
+	        		!ElementMap.isEvent(key) &&
+	        		!ElementMap.isReservedWrapper(key)) || 
+	        		(isOnlyNonPluginChildrenAllowed == true && !ElementMap.isPlugin(parentKey))) ||
 	        		isOnlyNonPluginChildrenAllowed == false) {
 		        Object value = object.get(key);
 		        if(value instanceof JSONArray)
 		        	maps.addAll(toList((JSONArray) value, key, isOnlyNonPluginChildrenAllowed));
 		        else if(value instanceof JSONObject)
 		        	maps.addAll(toMap((JSONObject) value, key, isOnlyNonPluginChildrenAllowed));
-		        else {
+		        else if((isOnlyNonPluginChildrenAllowed == true && 
+		        		!ElementMap.isPlugin(parentKey) &&
+		        		!ElementMap.isEvent(parentKey) &&
+		        		!ElementMap.isReservedWrapper(parentKey)) || isOnlyNonPluginChildrenAllowed == false){
+		        	Map<String, String> map = new HashMap<String, String>();
 			        map.put(key, (String)value);
 			        map.put(ContentWorkflowPipelineParams.element_name.name(), key);
 			        map.put(ContentWorkflowPipelineParams.group_element_name.name(), parentKey);
