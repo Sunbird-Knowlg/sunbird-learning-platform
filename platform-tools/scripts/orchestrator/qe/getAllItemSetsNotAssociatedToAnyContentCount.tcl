@@ -29,6 +29,8 @@ if {$check_error} {
 	return $search_response;
 } else {
   set item_count 0
+  set assessment_item_count 0
+  set result_map [java::new HashMap]
 	set item_list [java::new ArrayList]
 	set graph_nodes [get_resp_value $search_response "node_list"]
 	java::for {Node graph_node} $graph_nodes {
@@ -56,6 +58,7 @@ if {$check_error} {
             if {[java::prop $relation "endNodeObjectType"] == "AssessmentItem"} {
               set assessmentItemId [java::prop $relation "endNodeId"]
               $assessment_item_list add $assessmentItemId
+              set assessment_item_count [expr {$assessment_item_count+1}]
             }
           }
         }
@@ -63,5 +66,7 @@ if {$check_error} {
       $item_list add $itemId
     }
 	}
-	return $item_count
+  $result_map put "item_set_count" $item_count
+  $result_map put "assessment_item_count" $assessment_item_count
+	return $result_map
 }
