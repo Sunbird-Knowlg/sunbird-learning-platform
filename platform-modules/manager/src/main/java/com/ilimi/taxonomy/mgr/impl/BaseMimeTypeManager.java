@@ -181,12 +181,12 @@ public class BaseMimeTypeManager extends BaseManager {
     	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
     	String cleanedJson = "";
     	if (StringUtils.isNotBlank(jsonString)) {
-    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\\"", "\"");
+    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\\\\"", "\\\"");
     	}
     	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
     	return cleanedJson;
     }
-
+    
     protected Response compress(Node node) {
     	node = setNodeStatus(node, ContentAPIParams.Live.name());
         String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
