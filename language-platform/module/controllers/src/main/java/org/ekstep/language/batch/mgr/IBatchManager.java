@@ -4,6 +4,8 @@ import com.ilimi.common.dto.Response;
 
 public interface IBatchManager {
     
+	Response correctWordnetData(String languageId);
+	
     Response updatePictures(String languageId);
     
     Response updatePosList(String languageId);

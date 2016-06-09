@@ -42,6 +42,89 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
 
     private static final int BATCH = 1000;
+    
+    @Override
+    @SuppressWarnings("unchecked")
+	public Response correctWordnetData(String languageId) {
+    	int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+        	List<Node> nodes = getAllWords(languageId, startPosistion, BATCH);
+            if (null != nodes && !nodes.isEmpty()) {
+            	List<String> words = new ArrayList<String>();
+                Map<String, Node> nodeMap = new HashMap<String, Node>();
+                controllerUtil.getNodeMap(nodes, nodeMap, words);
+                Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
+                        LanguageOperations.getWordFeatures.name());
+                langReq.put(LanguageParams.words.name(), words);
+                Response langRes = getLanguageResponse(langReq, LOGGER);
+                Map<String, WordComplexity> featureMap = new HashMap<String, WordComplexity>();
+                if (!checkError(langRes)) {
+                	featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
+                	if (null != featureMap)
+                		System.out.println("Word features returned for " + featureMap.size() + " words");
+                }
+            	for (Node node : nodes) {
+            		Object pictures = null;
+                    Object wordImages = (Object) node.getMetadata().get(ATTRIB_PICTURES);
+                    String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
+                    List<Relation> inRels = node.getInRelations();
+                    if (null != inRels && !inRels.isEmpty()) {
+                        for (Relation rel : inRels) {
+                            if (StringUtils.equalsIgnoreCase(rel.getRelationType(),
+                                    RelationTypes.SYNONYM.relationName())
+                                    && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                            	String synsetId = rel.getStartNodeId();
+                            	if (StringUtils.isBlank(primaryMeaning))
+                            		primaryMeaning = synsetId;
+                                if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
+                                    pictures = (Object) rel.getStartNodeMetadata().get(ATTRIB_PICTURES);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    node.getMetadata().put(ATTRIB_PRIMARY_MEANING_ID, primaryMeaning);
+                    node.getMetadata().put(ATTRIB_PICTURES, pictures);
+                    node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
+                    node.getMetadata().put(ATTRIB_STATUS, "Draft");
+                    WordnetUtil.updatePOS(node);
+                    if (null != featureMap && !featureMap.isEmpty()) {
+                    	String lemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                    	WordComplexity wc = null;
+                    	if (StringUtils.isNotBlank(lemma))
+                    		wc = featureMap.get(lemma);
+                    	if (null != wc) {
+                            node.getMetadata().put("syllableCount", wc.getCount());
+                            node.getMetadata().put("syllableNotation", wc.getNotation());
+                            node.getMetadata().put("unicodeNotation", wc.getUnicode());
+                            node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
+                            node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
+                        }
+                    }
+                    try {
+                        wordUtil.getWordComplexity(node, languageId);
+                    } catch (Exception e) {
+                        System.out.println("Update wordcomplexity error : " + node.getIdentifier() + " : " + e.getMessage());
+                        Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+                        updateReq.put(GraphDACParams.node.name(), node);
+                        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+                        try {
+                            getResponse(updateReq, LOGGER);
+                        } catch (Exception ex) {
+                            System.out.println("Update error : " + node.getIdentifier() + " : " + ex.getMessage());
+                        }
+                    }
+            	}
+            	System.out.println("CorrectWordnetData complete from " + startPosistion + " - " + BATCH + " words");
+                startPosistion += BATCH;
+            } else {
+                found = false;
+                break;
+            }
+        }
+        return OK("status", "OK");
+    }
 
     @Override
     public Response updatePictures(String languageId) {
