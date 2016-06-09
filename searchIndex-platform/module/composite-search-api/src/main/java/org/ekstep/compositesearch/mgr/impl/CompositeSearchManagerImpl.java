@@ -471,11 +471,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			return response;
 		}
 		System.out.println("Sending to KAFKA.... ");
-		KafkaMessageProducer producer = new KafkaMessageProducer();
-		producer.init();
-		for (Map<String, Object> message: messages) {
-			producer.pushMessage(message);
-		}
+		Thread producerThread = new Thread(new KafkaMessageProducer(messages));
+		producerThread.start();
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
 		response.setParams(params);
