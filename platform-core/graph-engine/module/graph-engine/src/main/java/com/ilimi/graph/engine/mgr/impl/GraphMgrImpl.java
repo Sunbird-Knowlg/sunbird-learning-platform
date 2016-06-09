@@ -1,6 +1,7 @@
 package com.ilimi.graph.engine.mgr.impl;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -166,6 +167,36 @@ public class GraphMgrImpl extends BaseGraphManager implements IGraphManager {
             } catch (Exception e) {
                 handleException(e, getSender());
             }
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public void addOutRelations(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        String startNodeId = (String) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        List<String> endNodeIds = (List<String>) request.get(GraphDACParams.end_node_id.name());
+        if (!validateRequired(startNodeId, relationType, endNodeIds)) {
+            throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
+        } else {
+            Graph graph = new Graph(this, graphId);
+            graph.addOutRelations(request);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
+	@Override
+    public void addInRelations(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        List<String> startNodeIds = (List<String>) request.get(GraphDACParams.start_node_id.name());
+        String relationType = (String) request.get(GraphDACParams.relation_type.name());
+        String endNodeId = (String) request.get(GraphDACParams.end_node_id.name());
+        if (!validateRequired(startNodeIds, relationType, endNodeId)) {
+            throw new ClientException(GraphRelationErrorCodes.ERR_RELATION_CREATE.name(), "Required parameters are missing...");
+        } else {
+            Graph graph = new Graph(this, graphId);
+            graph.addOutRelations(request);
         }
     }
 

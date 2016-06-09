@@ -64,13 +64,10 @@ public class ProcessTransactionData {
 	}
 	
 	private void pushMessageToKafka(List<Map<String, Object>> messages) {
-		if (messages.size() <= 0) return; 
+		if (null == messages || messages.size() <= 0) return; 
 		LOGGER.debug("Sending to KAFKA.... ");
-		KafkaMessageProducer producer = new KafkaMessageProducer();
-		producer.init();
-		for (Map<String, Object> message: messages) {
-			producer.pushMessage(message);
-		}
+		Thread producerThread = new Thread(new KafkaMessageProducer(messages));
+		producerThread.start();
 		LOGGER.debug("Sending to KAFKA : FINISHED");
 	}
 

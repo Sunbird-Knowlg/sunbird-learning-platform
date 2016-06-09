@@ -85,7 +85,9 @@ public class Neo4jGraphFactory {
                     graphDbMap.remove(graphId);
                 }
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
-                        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
+                        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
+                        .setConfig(GraphDatabaseSettings.cache_type, "weak")
+                        .newGraphDatabase();
                 registerShutdownHook(graphDb);
                 if (!restrictedGraphList.contains(graphId) && StringUtils.isNotEmpty(requestId))
                     graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));

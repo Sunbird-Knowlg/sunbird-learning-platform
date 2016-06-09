@@ -104,16 +104,23 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         final ActorRef parent = getSender();
         final Node node = (Node) request.get(GraphDACParams.node.name());
+        Boolean skipValidations = (Boolean) request.get(GraphDACParams.skip_validations.name());
         if (!validateRequired(node)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(),
                     "Required parameters are missing...");
         } else {
             try {
+            	if (null == skipValidations)
+            		skipValidations = false;
                 final DataNode datanode = new DataNode(this, graphId, node);
                 final ExecutionContext ec = getContext().dispatcher();
                 final List<String> messages = new ArrayList<String>();
                 // validate the node
-                Future<Map<String, List<String>>> nodeValidationFuture = datanode.validateNode(request);
+                Future<Map<String, List<String>>> nodeValidationFuture = null;
+                if (null != skipValidations && skipValidations)
+                	nodeValidationFuture = Futures.successful(null);
+                else 
+                	nodeValidationFuture = datanode.validateNode(request);
                 nodeValidationFuture.andThen(new OnComplete<Map<String, List<String>>>() {
                     @Override
                     public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
@@ -288,6 +295,7 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         String nodeId = (String) request.get(GraphDACParams.node_id.name());
         final Node node = (Node) request.get(GraphDACParams.node.name());
+        final Boolean skipValidations = (Boolean) request.get(GraphDACParams.skip_validations.name());
         if (!validateRequired(nodeId, node)) {
             throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_UPDATE_NODE_MISSING_REQ_PARAMS.name(),
                     "Required parameters are missing...");
@@ -326,7 +334,11 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
                 public void onComplete(Throwable arg0, Node arg1) throws Throwable {
                     if (messages.isEmpty()) {
                         // validate the node
-                        Future<Map<String, List<String>>> nodeValidationFuture = datanode.validateNode(request);
+                    	Future<Map<String, List<String>>> nodeValidationFuture = null;
+                        if (null != skipValidations && skipValidations)
+                        	nodeValidationFuture = Futures.successful(null);
+                        else 
+                        	nodeValidationFuture = datanode.validateNode(request);
                         nodeValidationFuture.onComplete(new OnComplete<Map<String, List<String>>>() {
                             @Override
                             public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {

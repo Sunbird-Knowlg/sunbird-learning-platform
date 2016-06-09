@@ -2,7 +2,7 @@ package com.ilimi.graph.dac.enums;
 
 public enum GraphDACParams {
 
-    graph_id, start_node_id, end_node_id, relation_type, metadata, property_key, node, node_id, node_ids, property_keys, count, 
+    graph_id, start_node_id, end_node_id, relation_type, metadata, property_key, node, node_id, node_ids, property_keys, count, skip_validations,
     node_list, relations, relation, property, loop, message, messages, object_type, member_type, required_metadata_key, indexable_metadata_key, 
     non_indexable_metadata_key, in_relations_key, out_relations_key, system_tags_key, sequence_id, members, collection_id, collection_type, member_id, 
     index, cardinality, import_input_object, search_criteria, traversal_description, sub_graph, path, depth, is_member, set_id, criteria, 

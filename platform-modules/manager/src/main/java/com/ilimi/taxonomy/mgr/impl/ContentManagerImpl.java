@@ -773,7 +773,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Response extract(String taxonomyId, String contentId) {
 		Response updateRes = null;
 		if (StringUtils.isBlank(taxonomyId))
@@ -815,19 +814,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			if (checkError(validateRes)) {
 				return validateRes;
 			} else {
+				node.setInRelations(null);
+				node.setOutRelations(null);
 				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
 						"updateDataNode");
 				updateReq.put(GraphDACParams.node.name(), node);
 				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 				updateRes = getResponse(updateReq, LOGGER);
-			}
-			List<Relation> outRelations = (List<Relation>) response.get("outRelations");
-			System.out.println("Out relations size: " + outRelations.size());
-			if (null != outRelations && !outRelations.isEmpty()) {
-				for (Relation outRel : outRelations) {
-					addRelation(taxonomyId, node.getIdentifier(), outRel.getRelationType(),
-							outRel.getEndNodeId());
-				}
 			}
 		}
 		return updateRes;

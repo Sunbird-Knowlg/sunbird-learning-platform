@@ -72,11 +72,6 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
             String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
             try {
                 Graph graph = new Graph(this, graphId);
-                SearchCriteria sc = new SearchCriteria();
-                sc.setNodeType(SystemNodeTypes.DEFINITION_NODE.name());
-                sc.setObjectType(objectType);
-                sc.setResultSize(1);
-                request.put(GraphDACParams.search_criteria.name(), sc);
                 graph.getDefinitionNode(request);
             } catch (Exception e) {
                 handleException(e, getSender());

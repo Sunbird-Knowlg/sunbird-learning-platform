@@ -47,6 +47,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
 @Component
@@ -73,14 +74,17 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
                     "AssessmentItem Object is blank");
-        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-        validateReq.put(GraphDACParams.node.name(), item);
-        Response validateRes = getResponse(validateReq, LOGGER);
-
-        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
         if (null == skipValidation)
             skipValidation = false;
-        List<String> assessmentErrors = validator.validateAssessmentItem(item);
+        Response validateRes = new Response();
+        List<String> assessmentErrors = new ArrayList<String>();
+        if (!skipValidation) {
+        	Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+            validateReq.put(GraphDACParams.node.name(), item);
+            validateRes = getResponse(validateReq, LOGGER);
+            assessmentErrors = validator.validateAssessmentItem(item);
+        }
         if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
@@ -95,6 +99,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
             } else {
                 Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
                 createReq.put(GraphDACParams.node.name(), item);
+                createReq.put(GraphDACParams.skip_validations.name(), skipValidation);
                 Response createRes = getResponse(createReq, LOGGER);
                 if (checkError(createRes)) {
                     return createRes;
@@ -130,14 +135,17 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (null == item)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
                     "AssessmentItem Object is blank");
-        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-        validateReq.put(GraphDACParams.node.name(), item);
-        Response validateRes = getResponse(validateReq, LOGGER);
-        
-        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
         if (null == skipValidation)
             skipValidation = false;
-        List<String> assessmentErrors = validator.validateAssessmentItem(item);
+        Response validateRes = new Response();
+        List<String> assessmentErrors = new ArrayList<String>();
+        if (!skipValidation) {
+        	Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+            validateReq.put(GraphDACParams.node.name(), item);
+            validateRes = getResponse(validateReq, LOGGER);
+            assessmentErrors = validator.validateAssessmentItem(item);
+        }
         if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());
@@ -154,6 +162,7 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
                 Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                 updateReq.put(GraphDACParams.node.name(), item);
                 updateReq.put(GraphDACParams.node_id.name(), item.getIdentifier());
+                updateReq.put(GraphDACParams.skip_validations.name(), skipValidation);
                 Response updateRes = getResponse(updateReq, LOGGER);
                 if (checkError(updateRes)) {
                     return updateRes;
@@ -697,13 +706,17 @@ public class AssessmentManagerImpl extends BaseManager implements IAssessmentMan
         if (null == node)
             throw new ClientException(AssessmentErrorCodes.ERR_ASSESSMENT_BLANK_ITEM.name(),
                     "AssessmentItemSet Object is blank");
-        Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-        validateReq.put(GraphDACParams.node.name(), node);
-        Response validateRes = getResponse(validateReq, LOGGER);
-        Boolean skipValidation = (Boolean) request.get("skipValidations");
+        Boolean skipValidation = (Boolean) request.get(ContentAPIParams.skipValidations.name());
         if (null == skipValidation)
             skipValidation = false;
-        List<String> assessmentErrors = validator.validateAssessmentItemSet(node);
+        Response validateRes = new Response();
+        List<String> assessmentErrors = new ArrayList<String>();
+        if (!skipValidation) {
+        	Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
+            validateReq.put(GraphDACParams.node.name(), node);
+            validateRes = getResponse(validateReq, LOGGER);
+            assessmentErrors = validator.validateAssessmentItemSet(node);
+        }
         if (checkError(validateRes) && !skipValidation) {
             if (assessmentErrors.size() > 0) {
                 List<String> messages = (List<String>) validateRes.get(GraphDACParams.messages.name());

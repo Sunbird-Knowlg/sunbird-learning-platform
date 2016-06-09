@@ -8,21 +8,10 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
-import scala.concurrent.ExecutionContext;
-import scala.concurrent.Future;
-import scala.concurrent.Promise;
-import akka.actor.ActorRef;
-import akka.dispatch.Mapper;
-import akka.dispatch.OnComplete;
-import akka.dispatch.OnSuccess;
-import akka.pattern.Patterns;
-
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
-import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -32,6 +21,16 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.AbstractDomainObject;
 import com.ilimi.graph.model.IRelation;
+import com.ilimi.graph.model.cache.DefinitionCache;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.dispatch.Mapper;
+import akka.dispatch.OnSuccess;
+import akka.pattern.Patterns;
+import scala.concurrent.ExecutionContext;
+import scala.concurrent.Future;
+import scala.concurrent.Promise;
 
 public abstract class AbstractRelation extends AbstractDomainObject implements IRelation {
 
@@ -57,7 +56,12 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
 
     public void create(final Request req) {
         try {
-            Future<Map<String, List<String>>> aggregate = validateRelation(req);
+        	Boolean skipValidation = (Boolean) req.get(GraphDACParams.skip_validations.name());
+        	Future<Map<String, List<String>>> aggregate = null;
+        	if (null != skipValidation && skipValidation)
+        		aggregate = Futures.successful(null);
+        	else
+        		aggregate = validateRelation(req);
             aggregate.onSuccess(new OnSuccess<Map<String, List<String>>>() {
                 @Override
                 public void onSuccess(Map<String, List<String>> messageMap) throws Throwable {
@@ -388,45 +392,24 @@ public abstract class AbstractRelation extends AbstractDomainObject implements I
                         @Override
                         public void onSuccess(final String endNodeType) throws Throwable {
                             if (StringUtils.isNotBlank(endNodeType)) {
-                                ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-                                Request cacheReq = new Request(request);
-                                cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-                                cacheReq.setOperation("getOutRelationObjectTypes");
-                                cacheReq.put(GraphDACParams.object_type.name(), type);
-                                Future<Object> response = Patterns.ask(cacheRouter, cacheReq, timeout);
-                                response.onComplete(new OnComplete<Object>() {
-                                    @Override
-                                    public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                                        if (null != arg0) {
-                                            objectTypePromise.success(null);
-                                        } else {
-                                            if (arg1 instanceof Response) {
-                                                Response res = (Response) arg1;
-                                                List<String> outRelations = (List<String>) res
-                                                        .get(GraphDACParams.metadata.name());
-                                                boolean found = false;
-                                                if (null != outRelations && !outRelations.isEmpty()) {
-                                                    for (String outRel : outRelations) {
-                                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType,
-                                                                outRel)) {
-                                                            found = true;
-                                                            break;
-                                                        }
-                                                    }
-                                                }
-                                                if (!found) {
-                                                    objectTypePromise
-                                                            .success(getRelationType() + " is not allowed between "
-                                                                    + type + " and " + endNodeType);
-                                                } else {
-                                                    objectTypePromise.success(null);
-                                                }
-                                            } else {
-                                                objectTypePromise.success(null);
-                                            }
+                            	List<String> outRelations = DefinitionCache.getOutRelationObjectTypes(graphId, type);
+                            	boolean found = false;
+                            	if (null != outRelations && !outRelations.isEmpty()) {
+                                    for (String outRel : outRelations) {
+                                        if (StringUtils.equals(getRelationType() + ":" + endNodeType,
+                                                outRel)) {
+                                            found = true;
+                                            break;
                                         }
                                     }
-                                }, ec);
+                                }
+                                if (!found) {
+                                    objectTypePromise
+                                            .success(getRelationType() + " is not allowed between "
+                                                    + type + " and " + endNodeType);
+                                } else {
+                                    objectTypePromise.success(null);
+                                }
                             } else {
                                 objectTypePromise.success(null);
                             }

@@ -97,6 +97,30 @@ public interface IGraphManager {
      * @response - STATUS: API call status
      */
     void createRelation(Request request);
+    
+    /**
+     * Creates the specified relation between a given start node and list of end nodes. 
+     * Relation validation is not performed before creating the relations.
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - START_NODE_ID unique id of the relation start node
+     * @request - RELATION_TYPE relation type
+     * @request - END_NODE_ID list of relation end node ids
+     * @response - STATUS: API call status
+     */
+    void addOutRelations(Request request);
+    
+    /**
+     * Creates the specified relation between a list of start nodes and an end node. 
+     * Relation validation is not performed before creating the relations.
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - START_NODE_ID list of relation start node ids
+     * @request - RELATION_TYPE relation type
+     * @request - END_NODE_ID unique id of the relation end node
+     * @response - STATUS: API call status
+     */
+    void addInRelations(Request request);
 
     /**
      * Removes the specified relation type between the two given nodes.

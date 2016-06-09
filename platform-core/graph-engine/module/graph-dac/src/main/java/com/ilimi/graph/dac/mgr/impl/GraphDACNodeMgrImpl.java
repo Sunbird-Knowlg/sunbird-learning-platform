@@ -18,6 +18,7 @@ import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
@@ -64,6 +65,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 Node neo4jNode = null;
                 try {
                     neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+                    validateNodeUpdate(neo4jNode, node);
                 } catch (ResourceNotFoundException e) {
                     neo4jNode = graphDb.createNode(NODE_LABEL);
                     if (StringUtils.isBlank(node.getIdentifier()))
@@ -136,6 +138,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+                validateNodeUpdate(neo4jNode, node);
                 setNodeData(graphDb, node, neo4jNode);
                 neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
@@ -149,6 +152,21 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 ERROR(e, getSender());
             }
         }
+    }
+    
+    private void validateNodeUpdate(Node neo4jNode, com.ilimi.graph.dac.model.Node node) {
+    	if (neo4jNode.hasProperty(SystemProperties.IL_SYS_NODE_TYPE.name())) {
+    		String nodeType = (String) neo4jNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name());
+    		if (!StringUtils.equals(nodeType, node.getNodeType()))
+    			throw new ServerException(GraphDACErrorCodes.ERR_UPDATE_NODE_INVALID_NODE_TYPE.name(), 
+    					"Cannot update a node of type " + nodeType + " to " + node.getNodeType());
+    	}
+    	if (neo4jNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())) {
+    		String objectType = (String) neo4jNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+    		if (!StringUtils.equals(objectType, node.getObjectType()))
+    			throw new ServerException(GraphDACErrorCodes.ERR_UPDATE_NODE_INVALID_NODE_TYPE.name(), 
+    					"Cannot update a node of type " + objectType + " to " + node.getObjectType());
+    	}
     }
 
     private void setNodeData(GraphDatabaseService graphDb, com.ilimi.graph.dac.model.Node node, Node neo4jNode) {
