@@ -144,7 +144,7 @@ public class DictionaryAPITests extends BaseTest
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/dictionary/word/en/").
+			post("language/dictionary/word/en/").
 		then().
 			log().all().
 			spec(get200ResponseSpec());

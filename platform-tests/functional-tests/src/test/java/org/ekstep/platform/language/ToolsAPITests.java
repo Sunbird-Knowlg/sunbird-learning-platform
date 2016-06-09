@@ -2,12 +2,10 @@ package org.ekstep.platform.language;
 
 
 import static com.jayway.restassured.RestAssured.given;
-import static org.hamcrest.CoreMatchers.hasItems;
-import static org.hamcrest.CoreMatchers.is;
-
-import org.junit.Test;
-import org.ekstep.platform.domain.BaseTest;
 import static com.jayway.restassured.http.ContentType.JSON;
+
+import org.ekstep.platform.domain.BaseTest;
+import org.junit.Test;
 
 public class ToolsAPITests extends BaseTest {
 

@@ -5,12 +5,15 @@ package org.ekstep.platform.domain;
 /// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.basePath;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+
+import java.util.Random;
+
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import static org.hamcrest.CoreMatchers.*;
-import java.util.Random;
 
 public class BaseTest 
 {
@@ -18,9 +21,9 @@ public class BaseTest
 	
 	public String liveStatus = "Live";
 	public String contentType = "application/json";
+	public String uploadContentType = "multipart/mixed";
 	public String validuserId = "rayuluv";
 	public String invalidUserId = "abc";
-	//public String apiVersion = "v2";
 	
 	/**
 	 * sets baseURI and basePath
@@ -28,9 +31,10 @@ public class BaseTest
 	public void setURI()
 	{
 		//TO-DO: This will be read from config file, soon.
-		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
+		baseURI = "http://localhost:8080/taxonomy-service";
+		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
 		//baseURI ="http://localhost:9090/ekstep-service"; 
-		//basePath = apiVersion;
+		basePath = "v2/";
 	}
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder
