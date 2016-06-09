@@ -1023,6 +1023,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				 */
 			}
 			Response wordResponse;
+			List<String> sources = new ArrayList<String>();
+			sources.add(ATTRIB_SOURCE_IWN);
+			word.put(ATTRIB_SOURCES, sources);
 			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
 			wordNode.setObjectType(LanguageParams.Word.name());
 			if (identifier == null) {
@@ -1042,33 +1045,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 
 	private Response createWord(Node node, String languageId) {
-		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-		validateReq.put(GraphDACParams.node.name(), node);
-		Response validateRes = getResponse(validateReq, LOGGER);
-		if (checkError(validateRes)) {
-			return validateRes;
-		} else {
-			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
-			createReq.put(GraphDACParams.node.name(), node);
-			Response res = getResponse(createReq, LOGGER);
-			return res;
-		}
+		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "createDataNode");
+		createReq.put(GraphDACParams.node.name(), node);
+		Response res = getResponse(createReq, LOGGER);
+		return res;
 	}
 
 	private Response updateWord(Node node, String languageId, String wordId) {
-		Request validateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-		validateReq.put(GraphDACParams.node.name(), node);
-		validateReq.put(GraphDACParams.node_id.name(), wordId);
-		Response validateRes = getResponse(validateReq, LOGGER);
-		if (checkError(validateRes)) {
-			return validateRes;
-		} else {
-			Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-			createReq.put(GraphDACParams.node.name(), node);
-			createReq.put(GraphDACParams.node_id.name(), wordId);
-			Response res = getResponse(createReq, LOGGER);
-			return res;
-		}
+		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+		createReq.put(GraphDACParams.node.name(), node);
+		createReq.put(GraphDACParams.node_id.name(), wordId);
+		Response res = getResponse(createReq, LOGGER);
+		return res;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -1439,8 +1427,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			item.remove(LanguageParams.primaryMeaning.name());
 			List<String> words = (List<String>) item.get(LanguageParams.words.name());
 			for (String lemma : words) {
+				boolean createFlag = true;
 				String wordIdentifier = wordLemmaMap.get(lemma);
 				if (wordIdentifier != null) {
+					createFlag = false;
 					addSynonymRelation(languageId, wordIdentifier, primaryMeaningId, errorMessages);
 					continue;
 				}
@@ -1450,8 +1440,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List<String> sources = new ArrayList<String>();
 				sources.add(ATTRIB_SOURCE_IWN);
 				wordMap.put(ATTRIB_SOURCES, sources);
-
-				boolean createFlag = true;
 				/*
 				 * if (wordIdentifier == null) { Node existingWordNode =
 				 * searchWord(languageId, lemma); if (existingWordNode != null)
