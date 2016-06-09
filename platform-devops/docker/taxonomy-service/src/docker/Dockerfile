@@ -30,7 +30,7 @@ RUN cp src/redis-server /usr/local/bin/
 RUN cp src/redis-cli /usr/local/bin/
 
 # Install image magick
-RUN apt-get install -y imagemagick
+RUN apt-get update && apt-get install -y imagemagick
 
 # Install ffmpeg
 ENV FFMPEG_HOME /usr/local/ffmpeg
@@ -45,6 +45,9 @@ RUN cp ffserver /usr/local/bin/
 
 # Switch to tomcat director
 WORKDIR $CATALINA_HOME
+
+# Add URI Encoding to server.xml
+RUN sed -i -e 's|redirectPort.*|redirectPort="8443" URIEncoding="utf-8"/>|' $CATALINA_HOME/conf/server.xml
 
 # Copy the webapp
 COPY taxonomy-service.war $CATALINA_HOME/webapps/
