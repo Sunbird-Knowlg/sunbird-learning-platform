@@ -60,6 +60,18 @@
             "indexed": true,
             "draft": false
         }, {
+            "required": false,
+            "dataType": "Text",
+            "propertyName": "template_id",
+            "title": "Template Id",
+            "description": "Id of the Template/Layout used to render this item",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'text', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
             "required": true,
             "dataType": "Select",
             "propertyName": "type",
