@@ -64,8 +64,8 @@ async.waterfall([
     	importItems(callback);
     },
     function(arg1, callback) {
-    	printAssessmentItems(callback);
-    	//createAssessmentItems(callback);
+    	//printAssessmentItems(callback);
+    	createAssessmentItems(callback);
     }
 ], function (err, result) {
     if (err) {
