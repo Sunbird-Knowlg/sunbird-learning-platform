@@ -19,7 +19,7 @@
 		"feedback": {"col-def": {"column" : 11}},
 		"gradeLevel": {"col-def": {"column" : 12}},
 		"qlevel": {"col-def": {"column" : 13}},
-		
+		"keywords": {"col-def": {"column" : 14, "type": "list"}},
 		"options": [
 			{
 				"value" : {

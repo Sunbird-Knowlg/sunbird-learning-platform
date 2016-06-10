@@ -385,6 +385,10 @@ function _getValueFromRow(row, startCol, col, def) {
 			if (_.isFinite(data)) {
 				data = parseFloat(data);
 				return data;
+			} else if (def.type == 'list') {
+				data = data.split(',');
+				data = data.map(function(e) { return e.trim();}); 
+				return data;
 			}
 		}
 	}
