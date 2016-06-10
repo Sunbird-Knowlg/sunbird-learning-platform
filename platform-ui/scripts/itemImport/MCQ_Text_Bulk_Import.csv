@@ -1,0 +1,302 @@
+Code,Title,,,,,template,template_id,Number of Answers,Maximum Score,Partial Scoring,Feedback,Grade Level,Difficulty Level,,Options 1 asset,Options 1 answer,Options 2 asset,Options 2 answer,Options 3 asset,Options 3 answer,Options 4 asset,Options 4 answer
+Unique code for the question,Title for the assessment item,Question Body,,,,,,How many answers are there?,How many marks can be allotted?,Partial scoring is allowed?,Feedback to show if the item is answered incorrectly,Grade level,How difficult is the question?,,,,,,,,,
+ek.n.ib.a.ssnc.bp1.1,Single Digit Add - sums to 9,4 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,Yes,4,No,5,No,2,No
+ek.n.ib.a.ssnc.bp1.2,Single Digit Add - sums to 9,4 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,Yes,4,No,5,No,5,No
+ek.n.ib.a.ssnc.bp1.3,Single Digit Add - sums to 9,3 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,Yes,3,No,6,No,2,No
+ek.n.ib.a.ssnc.bp1.4,Single Digit Add - sums to 9,4 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,6,Yes,4,No,2,No,3,No
+ek.n.ib.a.ssnc.bp1.5,Single Digit Add - sums to 9,5 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,Yes,5,No,4,No,5,No
+ek.n.ib.a.ssnc.bp2.1,Single Digit Add - sums to 9,1 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,#NUM!,No,5,Yes,1,No,4,No
+ek.n.ib.a.ssnc.bp2.2,Single Digit Add - sums to 9,5 अौर 3 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,2,No,8,Yes,5,No,3,No
+ek.n.ib.a.ssnc.bp2.3,Single Digit Add - sums to 9,4 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,2,No,8,Yes,4,No,5,No
+ek.n.ib.a.ssnc.bp2.4,Single Digit Add - sums to 9,8 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,#NUM!,No,9,Yes,8,No,1,No
+ek.n.ib.a.ssnc.bp2.5,Single Digit Add - sums to 9,6 अौर 3 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,9,Yes,6,No,3,No
+ek.n.ib.a.ssnc.bp3.1,Single Digit Add - sums to 9,8 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,#NUM!,No,9,Yes,8,No
+ek.n.ib.a.ssnc.bp3.2,Single Digit Add - sums to 9,8 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,#NUM!,No,9,Yes,8,No
+ek.n.ib.a.ssnc.bp3.3,Single Digit Add - sums to 9,1 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,#NUM!,No,5,Yes,1,No
+ek.n.ib.a.ssnc.bp3.4,Single Digit Add - sums to 9,5 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,2,No,3,No,7,Yes,5,No
+ek.n.ib.a.ssnc.bp3.5,Single Digit Add - sums to 9,8 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,#NUM!,No,9,Yes,8,No
+ek.n.ib.a.ssnc.bp4.1,Single Digit Add - sums to 9,3 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,4,No,1,No,7,Yes
+ek.n.ib.a.ssnc.bp4.2,Single Digit Add - sums to 9,3 अौर 3 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,3,No,4,No,6,Yes
+ek.n.ib.a.ssnc.bp4.3,Single Digit Add - sums to 9,2 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,2,No,3,No,1,No,4,Yes
+ek.n.ib.a.ssnc.bp4.4,Single Digit Add - sums to 9,8 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,8,No,1,No,#NUM!,No,9,Yes
+ek.n.ib.a.ssnc.bp4.5,Single Digit Add - sums to 9,4 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,2,No,2,No,6,Yes
+ek.n.ib.a.ssc.bp1.1,Single Digit Add - sums over 10,7 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,13,Yes,7,No,6,No,14,No
+ek.n.ib.a.ssc.bp1.2,Single Digit Add - sums over 10,9 अौर 8 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,17,Yes,9,No,8,No,10,No
+ek.n.ib.a.ssc.bp1.3,Single Digit Add - sums over 10,9 अौर 8 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,17,Yes,9,No,8,No,15,No
+ek.n.ib.a.ssc.bp1.4,Single Digit Add - sums over 10,6 अौर 9 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,15,Yes,6,No,9,No,12,No
+ek.n.ib.a.ssc.bp1.5,Single Digit Add - sums over 10,6 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,13,Yes,6,No,7,No,14,No
+ek.n.ib.a.ssc.bp2.1,Single Digit Add - sums over 10,9 अौर 9 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,14,No,18,Yes,9,No,16,No
+ek.n.ib.a.ssc.bp2.2,Single Digit Add - sums over 10,7 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,14,No,12,Yes,7,No,5,No
+ek.n.ib.a.ssc.bp2.3,Single Digit Add - sums over 10,6 अौर 8 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,10,No,14,Yes,6,No,8,No
+ek.n.ib.a.ssc.bp2.4,Single Digit Add - sums over 10,7 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,14,No,13,Yes,7,No,6,No
+ek.n.ib.a.ssc.bp2.5,Single Digit Add - sums over 10,7 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,14,No,14,Yes,7,No,13,No
+ek.n.ib.a.ssc.bp3.1,Single Digit Add - sums over 10,9 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,5,No,15,No,14,Yes,9,No
+ek.n.ib.a.ssc.bp3.2,Single Digit Add - sums over 10,9 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,7,No,13,No,16,Yes,9,No
+ek.n.ib.a.ssc.bp3.3,Single Digit Add - sums over 10,9 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,5,No,15,No,14,Yes,9,No
+ek.n.ib.a.ssc.bp3.4,Single Digit Add - sums over 10,9 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,6,No,12,No,15,Yes,9,No
+ek.n.ib.a.ssc.bp3.5,Single Digit Add - sums over 10,7 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,16,No,14,No,14,Yes,7,No
+ek.n.ib.a.ssc.bp4.1,Single Digit Add - sums over 10,7 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,7,No,10,No,#NUM!,No,14,Yes
+ek.n.ib.a.ssc.bp4.2,Single Digit Add - sums over 10,6 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,6,No,7,No,15,No,13,Yes
+ek.n.ib.a.ssc.bp4.3,Single Digit Add - sums over 10,9 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,9,No,5,No,14,No,14,Yes
+ek.n.ib.a.ssc.bp4.4,Single Digit Add - sums over 10,8 अौर 9 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,8,No,9,No,11,No,17,Yes
+ek.n.ib.a.ssc.bp4.5,Single Digit Add - sums over 10,7 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,7,No,5,No,13,No,12,Yes
+ek.n.ib.a.dsnc.bp1.1,Double Digit and Single Digit Add - Without Carry,54 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,58,Yes,50,No,94,No,88,No
+ek.n.ib.a.dsnc.bp1.2,Double Digit and Single Digit Add - Without Carry,25 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,29,Yes,21,No,65,No,15,No
+ek.n.ib.a.dsnc.bp1.3,Double Digit and Single Digit Add - Without Carry,47 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,49,Yes,45,No,67,No,18,No
+ek.n.ib.a.dsnc.bp1.4,Double Digit and Single Digit Add - Without Carry,61 अौर 5 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,66,Yes,56,No,111,No,15,No
+ek.n.ib.a.dsnc.bp1.5,Double Digit and Single Digit Add - Without Carry,86 अौर 3 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,89,Yes,83,No,116,No,88,No
+ek.n.ib.a.dsnc.bp2.1,Double Digit and Single Digit Add - Without Carry,71 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,70,No,72,Yes,70,No,81,No
+ek.n.ib.a.dsnc.bp2.2,Double Digit and Single Digit Add - Without Carry,68 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,11,No,69,Yes,67,No,78,No
+ek.n.ib.a.dsnc.bp2.3,Double Digit and Single Digit Add - Without Carry,57 अौर 1 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,41,No,58,Yes,56,No,67,No
+ek.n.ib.a.dsnc.bp2.4,Double Digit and Single Digit Add - Without Carry,12 अौर 2 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,#NUM!,No,14,Yes,10,No,32,No
+ek.n.ib.a.dsnc.bp2.5,Double Digit and Single Digit Add - Without Carry,86 अौर 3 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,MEDIUM,,82,No,89,Yes,83,No,116,No
+ek.n.ib.a.dsc.bp3.1,Double Digit and Single Digit Add - With Carry,77 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,137,No,713,No,83,Yes,71,No
+ek.n.ib.a.dsc.bp3.2,Double Digit and Single Digit Add - With Carry,43 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,113,No,410,No,50,Yes,36,No
+ek.n.ib.a.dsc.bp3.3,Double Digit and Single Digit Add - With Carry,45 अौर 8 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,125,No,413,No,53,Yes,37,No
+ek.n.ib.a.dsc.bp3.4,Double Digit and Single Digit Add - With Carry,64 अौर 7 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,134,No,611,No,71,Yes,57,No
+ek.n.ib.a.dsc.bp3.5,Double Digit and Single Digit Add - With Carry,63 अौर 9 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,153,No,612,No,72,Yes,54,No
+ek.n.ib.a.dsc.bp4.1,Double Digit and Single Digit Add - With Carry,34 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,28,No,94,No,310,No,40,Yes
+ek.n.ib.a.dsc.bp4.2,Double Digit and Single Digit Add - With Carry,56 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,52,No,96,No,510,No,60,Yes
+ek.n.ib.a.dsc.bp4.3,Double Digit and Single Digit Add - With Carry,38 अौर 6 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,32,No,98,No,314,No,44,Yes
+ek.n.ib.a.dsc.bp4.4,Double Digit and Single Digit Add - With Carry,56 अौर 4 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,52,No,96,No,510,No,60,Yes
+ek.n.ib.a.dsc.bp4.5,Double Digit and Single Digit Add - With Carry,22 अौर 8 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,14,No,102,No,210,No,30,Yes
+ek.n.ib.a.ddnc.bp1.1,Double Digit Add - Without Carry,28 अौर 41 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,69,Yes,13,No,70,No,68,No
+ek.n.ib.a.ddnc.bp1.2,Double Digit Add - Without Carry,43 अौर 33 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,76,Yes,10,No,81,No,#NUM!,No
+ek.n.ib.a.ddnc.bp1.3,Double Digit Add - Without Carry,16 अौर 41 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,57,Yes,25,No,60,No,33,No
+ek.n.ib.a.ddnc.bp1.4,Double Digit Add - Without Carry,15 अौर 71 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,86,Yes,56,No,81,No,90,No
+ek.n.ib.a.ddnc.bp1.5,Double Digit Add - Without Carry,62 अौर 36 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,98,Yes,26,No,94,No,31,No
+ek.n.ib.a.ddnc.bp2.1,Double Digit Add - Without Carry,16 अौर 63 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,53,No,79,Yes,47,No,84,No
+ek.n.ib.a.ddnc.bp2.2,Double Digit Add - Without Carry,18 अौर 61 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,87,No,79,Yes,43,No,74,No
+ek.n.ib.a.ddnc.bp2.3,Double Digit Add - Without Carry,10 अौर 50 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,59,No,60,Yes,40,No,57,No
+ek.n.ib.a.ddnc.bp2.4,Double Digit Add - Without Carry,15 अौर 34 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,62,No,49,Yes,19,No,54,No
+ek.n.ib.a.ddnc.bp2.5,Double Digit Add - Without Carry,64 अौर 35 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,39,No,99,Yes,29,No,97,No
+ek.n.ib.a.ddnc.bp3.1,Double Digit Add - Without Carry,23 अौर 46 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,64,No,48,No,69,Yes,23,No
+ek.n.ib.a.ddnc.bp3.2,Double Digit Add - Without Carry,54 अौर 10 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,66,No,62,No,64,Yes,44,No
+ek.n.ib.a.ddnc.bp3.3,Double Digit Add - Without Carry,36 अौर 40 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,75,No,87,No,76,Yes,4,No
+ek.n.ib.a.ddnc.bp3.4,Double Digit Add - Without Carry,34 अौर 63 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,93,No,61,No,97,Yes,29,No
+ek.n.ib.a.ddnc.bp3.5,Double Digit Add - Without Carry,27 अौर 10 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,35,No,62,No,37,Yes,17,No
+ek.n.ib.a.ddnc.bp4.1,Double Digit Add - Without Carry,20 अौर 76 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,56,No,95,No,18,No,96,Yes
+ek.n.ib.a.ddnc.bp4.2,Double Digit Add - Without Carry,60 अौर 20 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,40,No,84,No,90,No,80,Yes
+ek.n.ib.a.ddnc.bp4.3,Double Digit Add - Without Carry,52 अौर 37 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,15,No,91,No,90,No,89,Yes
+ek.n.ib.a.ddnc.bp4.4,Double Digit Add - Without Carry,57 अौर 42 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,15,No,101,No,71,No,99,Yes
+ek.n.ib.a.ddnc.bp4.5,Double Digit Add - Without Carry,34 अौर 33 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,1,No,69,No,14,No,67,Yes
+ek.n.ib.a.ddc.bp1.1,Double Digit Add - With Carry,42 अौर 49 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,91,Yes,81,No,811,No,62,No
+ek.n.ib.a.ddc.bp1.2,Double Digit Add - With Carry,51 अौर 29 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,80,Yes,70,No,710,No,93,No
+ek.n.ib.a.ddc.bp1.3,Double Digit Add - With Carry,21 अौर 39 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,60,Yes,50,No,510,No,28,No
+ek.n.ib.a.ddc.bp1.4,Double Digit Add - With Carry,34 अौर 19 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,53,Yes,43,No,413,No,83,No
+ek.n.ib.a.ddc.bp1.5,Double Digit Add - With Carry,45 अौर 45 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,90,Yes,80,No,810,No,67,No
+ek.n.ib.a.ddc.bp2.1,Double Digit Add - With Carry,66 अौर 25 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,28,No,91,Yes,81,No,811,No
+ek.n.ib.a.ddc.bp2.2,Double Digit Add - With Carry,31 अौर 19 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,30,No,50,Yes,40,No,410,No
+ek.n.ib.a.ddc.bp2.3,Double Digit Add - With Carry,65 अौर 26 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,28,No,91,Yes,81,No,811,No
+ek.n.ib.a.ddc.bp2.4,Double Digit Add - With Carry,44 अौर 29 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,14,No,73,Yes,63,No,613,No
+ek.n.ib.a.ddc.bp2.5,Double Digit Add - With Carry,26 अौर 39 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,64,No,65,Yes,55,No,515,No
+ek.n.ib.a.ddc.bp3.1,Double Digit Add - With Carry,39 अौर 24 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,513,No,17,No,63,Yes,53,No
+ek.n.ib.a.ddc.bp3.2,Double Digit Add - With Carry,29 अौर 52 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,711,No,73,No,81,Yes,71,No
+ek.n.ib.a.ddc.bp3.3,Double Digit Add - With Carry,75 अौर 18 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,813,No,89,No,93,Yes,83,No
+ek.n.ib.a.ddc.bp3.4,Double Digit Add - With Carry,78 अौर 12 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,810,No,79,No,90,Yes,80,No
+ek.n.ib.a.ddc.bp3.5,Double Digit Add - With Carry,37 अौर 17 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,414,No,60,No,54,Yes,44,No
+ek.n.ib.a.ddc.bp4.1,Double Digit Add - With Carry,11 अौर 59 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,60,No,610,No,66,No,70,Yes
+ek.n.ib.a.ddc.bp4.2,Double Digit Add - With Carry,66 अौर 28 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,84,No,814,No,62,No,94,Yes
+ek.n.ib.a.ddc.bp4.3,Double Digit Add - With Carry,66 अौर 26 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,82,No,812,No,36,No,92,Yes
+ek.n.ib.a.ddc.bp4.4,Double Digit Add - With Carry,53 अौर 17 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,60,No,610,No,66,No,70,Yes
+ek.n.ib.a.ddc.bp4.5,Double Digit Add - With Carry,53 अौर 39 को जोडीये,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,82,No,812,No,28,No,92,Yes
+ek.n.ib.s.ssnb.bp1.1,Single Digit Subtraction,7 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,5,Yes,9,No,7,No,4,No
+ek.n.ib.s.ssnb.bp1.2,Single Digit Subtraction,9 में से 4 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,5,Yes,13,No,9,No,5,No
+ek.n.ib.s.ssnb.bp1.3,Single Digit Subtraction,5 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,3,Yes,7,No,5,No,4,No
+ek.n.ib.s.ssnb.bp1.4,Single Digit Subtraction,6 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,4,Yes,8,No,6,No,3,No
+ek.n.ib.s.ssnb.bp1.5,Single Digit Subtraction,2 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,1,Yes,3,No,2,No,#NUM!,No
+ek.n.ib.s.ssnb.bp2.1,Single Digit Subtraction,8 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,6,No,7,Yes,9,No,8,No
+ek.n.ib.s.ssnb.bp2.2,Single Digit Subtraction,2 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,#NUM!,No,1,Yes,3,No,2,No
+ek.n.ib.s.ssnb.bp2.3,Single Digit Subtraction,6 में से 3 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,3,Yes,9,No,6,No
+ek.n.ib.s.ssnb.bp2.4,Single Digit Subtraction,3 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,#NUM!,No,1,Yes,5,No,3,No
+ek.n.ib.s.ssnb.bp2.5,Single Digit Subtraction,6 में से 4 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,2,Yes,10,No,6,No
+ek.n.ib.s.ssnb.bp3.1,Single Digit Subtraction,7 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,7,No,1,No,6,Yes,8,No
+ek.n.ib.s.ssnb.bp3.2,Single Digit Subtraction,6 में से 4 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,6,No,3,No,2,Yes,10,No
+ek.n.ib.s.ssnb.bp3.3,Single Digit Subtraction,4 में से 3 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,#NUM!,No,1,Yes,7,No
+ek.n.ib.s.ssnb.bp3.4,Single Digit Subtraction,4 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,1,No,3,Yes,5,No
+ek.n.ib.s.ssnb.bp3.5,Single Digit Subtraction,3 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,#NUM!,No,1,Yes,5,No
+ek.n.ib.s.ssnb.bp4.1,Single Digit Subtraction,7 में से 6 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,13,No,7,No,#NUM!,No,1,Yes
+ek.n.ib.s.ssnb.bp4.2,Single Digit Subtraction,8 में से 5 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,13,No,8,No,5,No,3,Yes
+ek.n.ib.s.ssnb.bp4.3,Single Digit Subtraction,2 में से 1 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,2,No,#NUM!,No,1,Yes
+ek.n.ib.s.ssnb.bp4.4,Single Digit Subtraction,5 में से 4 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,No,5,No,#NUM!,No,1,Yes
+ek.n.ib.s.ssnb.bp4.5,Single Digit Subtraction,3 में से 2 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,5,No,3,No,#NUM!,No,1,Yes
+ek.n.ib.s.ddnb.bp1.1,Double Digit Subtraction - Without Borrowing,41 में से 20 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,21,Yes,61,No,22,No,40,No
+ek.n.ib.s.ddnb.bp1.2,Double Digit Subtraction - Without Borrowing,42 में से 10 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,32,Yes,52,No,27,No,72,No
+ek.n.ib.s.ddnb.bp1.3,Double Digit Subtraction - Without Borrowing,23 में से 10 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,13,Yes,33,No,11,No,38,No
+ek.n.ib.s.ddnb.bp1.4,Double Digit Subtraction - Without Borrowing,41 में से 30 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,11,Yes,71,No,14,No,67,No
+ek.n.ib.s.ddnb.bp1.5,Double Digit Subtraction - Without Borrowing,23 में से 11 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,12,Yes,34,No,7,No,58,No
+ek.n.ib.s.ddnb.bp2.1,Double Digit Subtraction - Without Borrowing,76 में से 34 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,93,No,42,Yes,110,No,46,No
+ek.n.ib.s.ddnb.bp2.2,Double Digit Subtraction - Without Borrowing,65 में से 41 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,17,No,24,Yes,106,No,21,No
+ek.n.ib.s.ddnb.bp2.3,Double Digit Subtraction - Without Borrowing,53 में से 21 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,89,No,32,Yes,74,No,29,No
+ek.n.ib.s.ddnb.bp2.4,Double Digit Subtraction - Without Borrowing,89 में से 60 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,40,No,29,Yes,149,No,26,No
+ek.n.ib.s.ddnb.bp2.5,Double Digit Subtraction - Without Borrowing,55 में से 42 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,EASY,,46,No,13,Yes,97,No,8,No
+ek.n.ib.s.ddnb.bp3.1,Double Digit Subtraction - Without Borrowing,65 में से 43 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,17,No,52,No,22,Yes,108,No
+ek.n.ib.s.ddnb.bp3.2,Double Digit Subtraction - Without Borrowing,51 में से 40 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,6,No,49,No,11,Yes,91,No
+ek.n.ib.s.ddnb.bp3.3,Double Digit Subtraction - Without Borrowing,77 में से 65 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,16,No,1,No,12,Yes,142,No
+ek.n.ib.s.ddnb.bp3.4,Double Digit Subtraction - Without Borrowing,45 में से 12 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,35,No,49,No,33,Yes,57,No
+ek.n.ib.s.ddnb.bp3.5,Double Digit Subtraction - Without Borrowing,63 में से 20 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,42,No,17,No,43,Yes,83,No
+ek.n.ib.s.ddnb.bp4.1,Double Digit Subtraction - Without Borrowing,41 में से 30 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,71,No,9,No,6,No,11,Yes
+ek.n.ib.s.ddnb.bp4.2,Double Digit Subtraction - Without Borrowing,37 में से 21 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,58,No,21,No,60,No,16,Yes
+ek.n.ib.s.ddnb.bp4.3,Double Digit Subtraction - Without Borrowing,95 में से 82 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,177,No,10,No,77,No,13,Yes
+ek.n.ib.s.ddnb.bp4.4,Double Digit Subtraction - Without Borrowing,21 में से 10 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,31,No,15,No,72,No,11,Yes
+ek.n.ib.s.ddnb.bp4.5,Double Digit Subtraction - Without Borrowing,96 में से 53 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,149,No,42,No,63,No,43,Yes
+ek.n.ib.s.ddb.bp1.1,Double Digit Subtraction - With Borrowing,96 में से 78 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,18,Yes,28,No,22,No,76,No
+ek.n.ib.s.ddb.bp1.2,Double Digit Subtraction - With Borrowing,58 में से 39 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,19,Yes,29,No,21,No,4,No
+ek.n.ib.s.ddb.bp1.3,Double Digit Subtraction - With Borrowing,25 में से 19 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,6,Yes,16,No,14,No,29,No
+ek.n.ib.s.ddb.bp1.4,Double Digit Subtraction - With Borrowing,74 में से 39 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,35,Yes,45,No,45,No,13,No
+ek.n.ib.s.ddb.bp1.5,Double Digit Subtraction - With Borrowing,88 में से 79 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,9,Yes,19,No,11,No,38,No
+ek.n.ib.s.ddb.bp2.1,Double Digit Subtraction - With Borrowing,51 में से 18 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,36,No,33,Yes,43,No,47,No
+ek.n.ib.s.ddb.bp2.2,Double Digit Subtraction - With Borrowing,56 में से 27 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,92,No,29,Yes,39,No,31,No
+ek.n.ib.s.ddb.bp2.3,Double Digit Subtraction - With Borrowing,35 में से 26 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,8,No,9,Yes,19,No,11,No
+ek.n.ib.s.ddb.bp2.4,Double Digit Subtraction - With Borrowing,86 में से 38 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,54,No,48,Yes,58,No,52,No
+ek.n.ib.s.ddb.bp2.5,Double Digit Subtraction - With Borrowing,87 में से 39 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,50,No,48,Yes,58,No,52,No
+ek.n.ib.s.ddb.bp3.1,Double Digit Subtraction - With Borrowing,44 में से 28 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,24,No,93,No,16,Yes,26,No
+ek.n.ib.s.ddb.bp3.2,Double Digit Subtraction - With Borrowing,71 में से 35 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,44,No,11,No,36,Yes,46,No
+ek.n.ib.s.ddb.bp3.3,Double Digit Subtraction - With Borrowing,66 में से 38 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,32,No,93,No,28,Yes,38,No
+ek.n.ib.s.ddb.bp3.4,Double Digit Subtraction - With Borrowing,77 में से 28 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,51,No,72,No,49,Yes,59,No
+ek.n.ib.s.ddb.bp3.5,Double Digit Subtraction - With Borrowing,66 में से 19 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,53,No,80,No,47,Yes,57,No
+ek.n.ib.s.ddb.bp4.1,Double Digit Subtraction - With Borrowing,85 में से 26 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,69,No,61,No,18,No,59,Yes
+ek.n.ib.s.ddb.bp4.2,Double Digit Subtraction - With Borrowing,28 में से 19 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,19,No,11,No,76,No,9,Yes
+ek.n.ib.s.ddb.bp4.3,Double Digit Subtraction - With Borrowing,37 में से 28 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,19,No,11,No,78,No,9,Yes
+ek.n.ib.s.ddb.bp4.4,Double Digit Subtraction - With Borrowing,72 में से 33 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,49,No,41,No,48,No,39,Yes
+ek.n.ib.s.ddb.bp4.5,Double Digit Subtraction - With Borrowing,83 में से 34 को घटाइए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,59,No,51,No,38,No,49,Yes
+ek.n.ib.m.ss.bp1.1,Single Digit Multiplication,8 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,16,Yes,10,No,24,No,8,No
+ek.n.ib.m.ss.bp1.2,Single Digit Multiplication,4 × 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,36,Yes,13,No,40,No,32,No
+ek.n.ib.m.ss.bp1.3,Single Digit Multiplication,9 × 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,72,Yes,17,No,81,No,63,No
+ek.n.ib.m.ss.bp1.4,Single Digit Multiplication,5 × 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,40,Yes,13,No,45,No,35,No
+ek.n.ib.m.ss.bp1.5,Single Digit Multiplication,4 × 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,36,Yes,13,No,40,No,32,No
+ek.n.ib.m.ss.bp2.1,Single Digit Multiplication,7 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,7,No,14,Yes,9,No,21,No
+ek.n.ib.m.ss.bp2.2,Single Digit Multiplication,9 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,36,No,45,Yes,14,No,54,No
+ek.n.ib.m.ss.bp2.3,Single Digit Multiplication,3 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,9,No,12,Yes,7,No,15,No
+ek.n.ib.m.ss.bp2.4,Single Digit Multiplication,7 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,28,No,35,Yes,12,No,42,No
+ek.n.ib.m.ss.bp2.5,Single Digit Multiplication,1 × 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,DIFFICULT,,5,No,6,Yes,7,No,1,No
+ek.n.ib.m.ss.bp3.1,Single Digit Multiplication,4 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,24,No,16,No,20,Yes,9,No
+ek.n.ib.m.ss.bp3.2,Single Digit Multiplication,7 × 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,28,No,14,No,21,Yes,10,No
+ek.n.ib.m.ss.bp3.3,Single Digit Multiplication,3 × 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,6,No,0,No,3,Yes,4,No
+ek.n.ib.m.ss.bp3.4,Single Digit Multiplication,4 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,12,No,4,No,8,Yes,6,No
+ek.n.ib.m.ss.bp3.5,Single Digit Multiplication,8 × 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,64,No,48,No,56,Yes,15,No
+ek.n.ib.m.ss.bp4.1,Single Digit Multiplication,5 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,10,No,30,No,20,No,25,Yes
+ek.n.ib.m.ss.bp4.2,Single Digit Multiplication,2 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,2,No,6,No,2,No,4,Yes
+ek.n.ib.m.ss.bp4.3,Single Digit Multiplication,9 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,14,No,54,No,36,No,45,Yes
+ek.n.ib.m.ss.bp4.4,Single Digit Multiplication,5 × 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,12,No,40,No,30,No,35,Yes
+ek.n.ib.m.ss.bp4.5,Single Digit Multiplication,4 × 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 2,MEDIUM,,12,No,36,No,28,No,32,Yes
+ek.n.ib.d.ss.bp1.1,Division,4 ÷ 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,4,Yes,5,No,3,No,4,No
+ek.n.ib.d.ss.bp1.2,Division,72 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,8,Yes,81,No,63,No,6,No
+ek.n.ib.d.ss.bp1.3,Division,64 ÷ 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,8,Yes,72,No,56,No,1,No
+ek.n.ib.d.ss.bp1.4,Division,15 ÷ 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,3,Yes,20,No,10,No,4,No
+ek.n.ib.d.ss.bp1.5,Division,18 ÷ 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,9,Yes,20,No,16,No,4,No
+ek.n.ib.d.ss.bp2.1,Division,9 ÷ 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,1,No,3,Yes,12,No,6,No
+ek.n.ib.d.ss.bp2.2,Division,9 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,#NUM!,No,1,Yes,18,No,0,No
+ek.n.ib.d.ss.bp2.3,Division,21 ÷ 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,3,No,7,Yes,24,No,18,No
+ek.n.ib.d.ss.bp2.4,Division,10 ÷ 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,4,No,2,Yes,15,No,5,No
+ek.n.ib.d.ss.bp2.5,Division,28 ÷ 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,4,No,7,Yes,32,No,24,No
+ek.n.ib.d.ss.bp3.1,Division,24 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,18,No,2,No,4,Yes,30,No
+ek.n.ib.d.ss.bp3.2,Division,16 ÷ 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,8,No,5,No,2,Yes,24,No
+ek.n.ib.d.ss.bp3.3,Division,4 ÷ 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,1,No,#NUM!,No,2,Yes,6,No
+ek.n.ib.d.ss.bp3.4,Division,42 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,35,No,2,No,6,Yes,49,No
+ek.n.ib.d.ss.bp3.5,Division,28 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,21,No,3,No,4,Yes,35,No
+ek.n.ib.d.ss.bp4.1,Division,7 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,14,No,0,No,#NUM!,No,1,Yes
+ek.n.ib.d.ss.bp4.2,Division,36 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,42,No,30,No,1,No,6,Yes
+ek.n.ib.d.ss.bp4.3,Division,12 ÷ 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,15,No,9,No,2,No,4,Yes
+ek.n.ib.d.ss.bp4.4,Division,54 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,60,No,48,No,2,No,9,Yes
+ek.n.ib.d.ss.bp4.5,Division,8 ÷ 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 3,MEDIUM,,9,No,7,No,1,No,8,Yes
+ek.n.ib.nb.s.bp1.1,Missing Number (1-9),6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,7,Yes,5,No,9,No,6,No
+ek.n.ib.nb.s.bp1.2,Missing Number (1-9),6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,7,Yes,5,No,9,No,7,No
+ek.n.ib.nb.s.bp1.3,Missing Number (1-9),7 अौर 9 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,8,Yes,6,No,10,No,3,No
+ek.n.ib.nb.s.bp1.4,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,2,Yes,0,No,4,No,5,No
+ek.n.ib.nb.s.bp1.5,Missing Number (1-9),3 अौर 5 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,Yes,2,No,6,No,6,No
+ek.n.ib.nb.s.bp2.1,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,2,Yes,0,No,4,No
+ek.n.ib.nb.s.bp2.2,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,7,No,2,Yes,0,No,4,No
+ek.n.ib.nb.s.bp2.3,Missing Number (1-9),2 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,#NUM!,No,3,Yes,1,No,5,No
+ek.n.ib.nb.s.bp2.4,Missing Number (1-9),7 अौर 9 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,8,Yes,6,No,10,No
+ek.n.ib.nb.s.bp2.5,Missing Number (1-9),6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,5,No,7,Yes,5,No,9,No
+ek.n.ib.nb.s.bp3.1,Missing Number (1-9),2 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,5,No,#NUM!,No,3,Yes,1,No
+ek.n.ib.nb.s.bp3.2,Missing Number (1-9),5 अौर 7 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,8,No,7,No,6,Yes,4,No
+ek.n.ib.nb.s.bp3.3,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,4,No,2,Yes,0,No
+ek.n.ib.nb.s.bp3.4,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,6,No,2,Yes,0,No
+ek.n.ib.nb.s.bp3.5,Missing Number (1-9),6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,9,No,1,No,7,Yes,5,No
+ek.n.ib.nb.s.bp4.1,Missing Number (1-9),6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,5,No,9,No,6,No,7,Yes
+ek.n.ib.nb.s.bp4.2,Missing Number (1-9),4 अौर 6 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,7,No,3,No,5,Yes
+ek.n.ib.nb.s.bp4.3,Missing Number (1-9),5 अौर 7 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,4,No,8,No,4,No,6,Yes
+ek.n.ib.nb.s.bp4.4,Missing Number (1-9),4 अौर 6 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,3,No,7,No,5,No,5,Yes
+ek.n.ib.nb.s.bp4.5,Missing Number (1-9),1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,0,No,4,No,7,No,2,Yes
+ek.n.ib.nb.d.bp1.1,Missing Number (10-99),45 अौर 47 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,46,Yes,44,No,48,No,2,No
+ek.n.ib.nb.d.bp1.2,Missing Number (10-99),13 अौर 15 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,14,Yes,12,No,16,No,35,No
+ek.n.ib.nb.d.bp1.3,Missing Number (10-99),73 अौर 75 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,74,Yes,72,No,76,No,71,No
+ek.n.ib.nb.d.bp1.4,Missing Number (10-99),91 अौर 93 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,92,Yes,90,No,94,No,20,No
+ek.n.ib.nb.d.bp1.5,Missing Number (10-99),20 अौर 22 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,21,Yes,19,No,23,No,84,No
+ek.n.ib.nb.d.bp2.1,Missing Number (10-99),71 अौर 73 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,1,No,72,Yes,70,No,74,No
+ek.n.ib.nb.d.bp2.2,Missing Number (10-99),47 अौर 49 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,81,No,48,Yes,46,No,50,No
+ek.n.ib.nb.d.bp2.3,Missing Number (10-99),27 अौर 29 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,69,No,28,Yes,26,No,30,No
+ek.n.ib.nb.d.bp2.4,Missing Number (10-99),83 अौर 85 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,75,No,84,Yes,82,No,86,No
+ek.n.ib.nb.d.bp2.5,Missing Number (10-99),52 अौर 54 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,75,No,53,Yes,51,No,55,No
+ek.n.ib.nb.d.bp3.1,Missing Number (10-99),28 अौर 30 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,31,No,55,No,29,Yes,27,No
+ek.n.ib.nb.d.bp3.2,Missing Number (10-99),68 अौर 70 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,71,No,67,No,69,Yes,67,No
+ek.n.ib.nb.d.bp3.3,Missing Number (10-99),45 अौर 47 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,48,No,28,No,46,Yes,44,No
+ek.n.ib.nb.d.bp3.4,Missing Number (10-99),69 अौर 71 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,72,No,38,No,70,Yes,68,No
+ek.n.ib.nb.d.bp3.5,Missing Number (10-99),20 अौर 22 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,23,No,90,No,21,Yes,19,No
+ek.n.ib.nb.d.bp4.1,Missing Number (10-99),72 अौर 74 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,71,No,75,No,9,No,73,Yes
+ek.n.ib.nb.d.bp4.2,Missing Number (10-99),57 अौर 59 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,56,No,60,No,18,No,58,Yes
+ek.n.ib.nb.d.bp4.3,Missing Number (10-99),19 अौर 21 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,18,No,22,No,78,No,20,Yes
+ek.n.ib.nb.d.bp4.4,Missing Number (10-99),62 अौर 64 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,61,No,65,No,7,No,63,Yes
+ek.n.ib.nb.d.bp4.5,Missing Number (10-99),92 अौर 94 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,EASY,,91,No,95,No,66,No,93,Yes
+ek.n.ib.nbr.d.bp1.1,Missing Number (Reverse),26 अौर 24 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,25,Yes,23,No,27,No,93,No
+ek.n.ib.nbr.d.bp1.2,Missing Number (Reverse),84 अौर 82 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,83,Yes,81,No,85,No,47,No
+ek.n.ib.nbr.d.bp1.3,Missing Number (Reverse),15 अौर 13 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,14,Yes,12,No,16,No,34,No
+ek.n.ib.nbr.d.bp1.4,Missing Number (Reverse),69 अौर 67 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,68,Yes,66,No,70,No,5,No
+ek.n.ib.nbr.d.bp1.5,Missing Number (Reverse),55 अौर 53 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,54,Yes,52,No,56,No,86,No
+ek.n.ib.nbr.d.bp2.1,Missing Number (Reverse),78 अौर 76 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,56,No,77,Yes,75,No,79,No
+ek.n.ib.nbr.d.bp2.2,Missing Number (Reverse),95 अौर 93 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,2,No,94,Yes,92,No,96,No
+ek.n.ib.nbr.d.bp2.3,Missing Number (Reverse),9 अौर 7 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,10,No,8,Yes,6,No,10,No
+ek.n.ib.nbr.d.bp2.4,Missing Number (Reverse),51 अौर 49 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,65,No,50,Yes,48,No,52,No
+ek.n.ib.nbr.d.bp2.5,Missing Number (Reverse),89 अौर 87 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,62,No,88,Yes,86,No,90,No
+ek.n.ib.nbr.d.bp3.1,Missing Number (Reverse),38 अौर 36 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,39,No,29,No,37,Yes,35,No
+ek.n.ib.nbr.d.bp3.2,Missing Number (Reverse),24 अौर 22 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,25,No,58,No,23,Yes,21,No
+ek.n.ib.nbr.d.bp3.3,Missing Number (Reverse),41 अौर 39 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,42,No,90,No,40,Yes,38,No
+ek.n.ib.nbr.d.bp3.4,Missing Number (Reverse),71 अौर 69 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,72,No,84,No,70,Yes,68,No
+ek.n.ib.nbr.d.bp3.5,Missing Number (Reverse),94 अौर 92 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,95,No,67,No,93,Yes,91,No
+ek.n.ib.nbr.d.bp4.1,Missing Number (Reverse),3 अौर 1 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,0,No,4,No,53,No,2,Yes
+ek.n.ib.nbr.d.bp4.2,Missing Number (Reverse),77 अौर 75 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,74,No,78,No,3,No,76,Yes
+ek.n.ib.nbr.d.bp4.3,Missing Number (Reverse),22 अौर 20 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,19,No,23,No,28,No,21,Yes
+ek.n.ib.nbr.d.bp4.4,Missing Number (Reverse),42 अौर 40 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,39,No,43,No,28,No,41,Yes
+ek.n.ib.nbr.d.bp4.5,Missing Number (Reverse),24 अौर 22 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,,Grade 1,DIFFICULT,,21,No,25,No,79,No,23,Yes
+ek.n.ib.nb2.d.bp1.1,Multiple Missing Numbers (2),36 अौर 39 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,33,No,38,Yes,37,Yes,42,No
+ek.n.ib.nb2.d.bp1.2,Multiple Missing Numbers (2),44 अौर 47 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,41,No,46,Yes,45,Yes,50,No
+ek.n.ib.nb2.d.bp1.3,Multiple Missing Numbers (2),89 अौर 92 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,88,No,91,Yes,90,Yes,94,No
+ek.n.ib.nb2.d.bp1.4,Multiple Missing Numbers (2),31 अौर 34 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,28,No,33,Yes,32,Yes,37,No
+ek.n.ib.nb2.d.bp1.5,Multiple Missing Numbers (2),64 अौर 67 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,61,No,66,Yes,65,Yes,70,No
+ek.n.ib.nb2.d.bp2.1,Multiple Missing Numbers (2),14 अौर 17 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,20,No,13,No,16,Yes,15,Yes
+ek.n.ib.nb2.d.bp2.2,Multiple Missing Numbers (2),43 अौर 46 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,48,No,40,No,45,Yes,44,Yes
+ek.n.ib.nb2.d.bp2.3,Multiple Missing Numbers (2),46 अौर 49 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,51,No,45,No,48,Yes,47,Yes
+ek.n.ib.nb2.d.bp2.4,Multiple Missing Numbers (2),24 अौर 27 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,29,No,23,No,26,Yes,25,Yes
+ek.n.ib.nb2.d.bp2.5,Multiple Missing Numbers (2),41 अौर 44 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,45,No,38,No,43,Yes,42,Yes
+ek.n.ib.nb2.d.bp3.1,Multiple Missing Numbers (2),10 अौर 13 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,11,Yes,15,No,7,No,12,Yes
+ek.n.ib.nb2.d.bp3.2,Multiple Missing Numbers (2),44 अौर 47 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,45,Yes,50,No,41,No,46,Yes
+ek.n.ib.nb2.d.bp3.3,Multiple Missing Numbers (2),69 अौर 72 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,70,Yes,75,No,67,No,71,Yes
+ek.n.ib.nb2.d.bp3.4,Multiple Missing Numbers (2),6 अौर 9 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,7,Yes,12,No,5,No,8,Yes
+ek.n.ib.nb2.d.bp3.5,Multiple Missing Numbers (2),43 अौर 46 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,44,Yes,47,No,40,No,45,Yes
+ek.n.ib.nb2.d.bp4.1,Multiple Missing Numbers (2),30 अौर 33 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,32,Yes,31,Yes,34,No,27,No
+ek.n.ib.nb2.d.bp4.2,Multiple Missing Numbers (2),33 अौर 36 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,35,Yes,34,Yes,38,No,31,No
+ek.n.ib.nb2.d.bp4.3,Multiple Missing Numbers (2),58 अौर 61 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,60,Yes,59,Yes,63,No,57,No
+ek.n.ib.nb2.d.bp4.4,Multiple Missing Numbers (2),63 अौर 66 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,65,Yes,64,Yes,69,No,60,No
+ek.n.ib.nb2.d.bp4.5,Multiple Missing Numbers (2),69 अौर 72 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,MEDIUM,,71,Yes,70,Yes,73,No,68,No
+ek.n.ib.nb3.d.bp1.1,Multiple Missing Numbers (3),26 अौर 30 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,28,Yes,27,Yes,24,No,29,Yes
+ek.n.ib.nb3.d.bp1.2,Multiple Missing Numbers (3),48 अौर 52 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,50,Yes,49,Yes,54,No,51,Yes
+ek.n.ib.nb3.d.bp1.3,Multiple Missing Numbers (3),94 अौर 98 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,96,Yes,95,Yes,100,No,97,Yes
+ek.n.ib.nb3.d.bp1.4,Multiple Missing Numbers (3),41 अौर 45 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,43,Yes,42,Yes,48,No,44,Yes
+ek.n.ib.nb3.d.bp1.5,Multiple Missing Numbers (3),60 अौर 64 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,62,Yes,61,Yes,59,No,63,Yes
+ek.n.ib.nb3.d.bp2.1,Multiple Missing Numbers (3),84 अौर 88 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,87,Yes,86,Yes,85,Yes,81,No
+ek.n.ib.nb3.d.bp2.2,Multiple Missing Numbers (3),5 अौर 9 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,8,Yes,7,Yes,6,Yes,3,No
+ek.n.ib.nb3.d.bp2.3,Multiple Missing Numbers (3),32 अौर 36 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,35,Yes,34,Yes,33,Yes,31,No
+ek.n.ib.nb3.d.bp2.4,Multiple Missing Numbers (3),58 अौर 62 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,61,Yes,60,Yes,59,Yes,64,No
+ek.n.ib.nb3.d.bp2.5,Multiple Missing Numbers (3),14 अौर 18 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,17,Yes,16,Yes,15,Yes,19,No
+ek.n.ib.nb3.d.bp3.1,Multiple Missing Numbers (3),2 अौर 6 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,1,No,5,Yes,4,Yes,3,Yes
+ek.n.ib.nb3.d.bp3.2,Multiple Missing Numbers (3),16 अौर 20 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,23,No,19,Yes,18,Yes,17,Yes
+ek.n.ib.nb3.d.bp3.3,Multiple Missing Numbers (3),79 अौर 83 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,77,No,82,Yes,81,Yes,80,Yes
+ek.n.ib.nb3.d.bp3.4,Multiple Missing Numbers (3),37 अौर 41 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,42,No,40,Yes,39,Yes,38,Yes
+ek.n.ib.nb3.d.bp3.5,Multiple Missing Numbers (3),4 अौर 8 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,1,No,7,Yes,6,Yes,5,Yes
+ek.n.ib.nb3.d.bp4.1,Multiple Missing Numbers (3),6 अौर 10 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,7,Yes,11,No,9,Yes,8,Yes
+ek.n.ib.nb3.d.bp4.2,Multiple Missing Numbers (3),69 अौर 73 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,70,Yes,66,No,72,Yes,71,Yes
+ek.n.ib.nb3.d.bp4.3,Multiple Missing Numbers (3),18 अौर 22 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,19,Yes,15,No,21,Yes,20,Yes
+ek.n.ib.nb3.d.bp4.4,Multiple Missing Numbers (3),56 अौर 60 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,57,Yes,61,No,59,Yes,58,Yes
+ek.n.ib.nb3.d.bp4.5,Multiple Missing Numbers (3),75 अौर 79 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,,Grade 1,DIFFICULT,,76,Yes,82,No,78,Yes,77,Yes

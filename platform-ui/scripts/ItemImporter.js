@@ -24,6 +24,7 @@ Errors are written to itemImport/output.json file
 Example:
 node ItemImporter.js mcq literacy_v2 hindi itemImport/Item-Template-mcq.csv itemImport/mcq_mapping.json itemImport/Micro-Concepts.csv
 node ItemImporter.js mcq numeracy Hindi itemImport/RajMathMcq.csv itemImport/mcq_mixed_mapping.json itemImport/Micro-Concepts.csv
+node ItemImporter.js mcq numeracy Hindi itemImport/MCQ_Text_Bulk_Import.csv itemImport/mcq_mixed_mapping.json itemImport/Micro-Concepts.csv
 
 **/
 
@@ -63,8 +64,8 @@ async.waterfall([
     	importItems(callback);
     },
     function(arg1, callback) {
-    	//printAssessmentItems(callback);
-    	createAssessmentItems(callback);
+    	printAssessmentItems(callback);
+    	//createAssessmentItems(callback);
     }
 ], function (err, result) {
     if (err) {
@@ -136,23 +137,12 @@ function importItems(callback) {
 			}
 			item['type'] = questionType;
 			item['domain'] = taxonomyId;
-			item['lastUpdatedOn'] = "2016-06-02T05:36:11.386+0000";
-			item['createdOn'] = "2016-06-02T05:36:11.386+0000";
-			item['lastUpdatedBy'] = "feroz";
+			item['lastUpdatedBy'] = "csv-import";
 			item['used_for'] = "worksheet";
 			item['owner'] = "feroz";
 			item['language'] =  [language];
 			item['name'] = item['title']; // name is same as title
 			item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
-			
-			item['media'] = [
-				{
-					'id': 'goat.png',
-					'type': 'image',
-					'src': 'https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/1464790394785goat.png',
-					'asset_id': 'domain_56576_p_goat'
-				}
-			];
 			
 			items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': conceptIds});
 		}
