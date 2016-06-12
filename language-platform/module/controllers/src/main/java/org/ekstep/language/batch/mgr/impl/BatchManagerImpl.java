@@ -69,17 +69,18 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     Object wordImages = (Object) node.getMetadata().get(ATTRIB_PICTURES);
                     String primaryMeaning = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
                     List<Relation> inRels = node.getInRelations();
+                    int synsetCount = 0;
                     if (null != inRels && !inRels.isEmpty()) {
                         for (Relation rel : inRels) {
                             if (StringUtils.equalsIgnoreCase(rel.getRelationType(),
                                     RelationTypes.SYNONYM.relationName())
                                     && StringUtils.equalsIgnoreCase(rel.getStartNodeObjectType(), OBJECTTYPE_SYNSET)) {
+                            	synsetCount += 1;
                             	String synsetId = rel.getStartNodeId();
                             	if (StringUtils.isBlank(primaryMeaning))
                             		primaryMeaning = synsetId;
                                 if (StringUtils.equalsIgnoreCase(synsetId, primaryMeaning)) {
                                     pictures = (Object) rel.getStartNodeMetadata().get(ATTRIB_PICTURES);
-                                    break;
                                 }
                             }
                         }
@@ -87,6 +88,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     node.getMetadata().put(ATTRIB_PRIMARY_MEANING_ID, primaryMeaning);
                     node.getMetadata().put(ATTRIB_PICTURES, pictures);
                     node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
+                    node.getMetadata().put(ATTRIB_SYNSET_COUNT, synsetCount);
                     node.getMetadata().put(ATTRIB_STATUS, "Draft");
                     WordnetUtil.updatePOS(node);
                     if (null != featureMap && !featureMap.isEmpty()) {

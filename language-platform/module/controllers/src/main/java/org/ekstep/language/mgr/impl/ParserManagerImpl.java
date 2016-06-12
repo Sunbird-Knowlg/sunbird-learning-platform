@@ -1,6 +1,7 @@
 package org.ekstep.language.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -101,6 +102,8 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
         MetadataCriterion mc = MetadataCriterion.create(filters);
         mc.setOp(SearchConditions.LOGICAL_OR);
         sc.addMetadata(mc);
+        MetadataCriterion mc2 = MetadataCriterion.create(Arrays.asList(new Filter(ATTRIB_STATUS, SearchConditions.OP_EQUAL, "Live")));
+        sc.addMetadata(mc2);
         Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         req.put(GraphDACParams.get_tags.name(), true);
