@@ -23,3 +23,5 @@ node registerScript.js api/get-synset.tcl api/json/register-get-synset.json regi
 node registerScript.js api/get-vowel-signs.tcl api/json/register-get-vowel-signs.json register
 
 node registerScript.js api/update-word-list-membership.tcl api/json/register-update-word-list-membership.json register
+
+node registerScript.js api/update-ipa-to-iso.tcl api/json/register-update-ipa-to-iso.json register
