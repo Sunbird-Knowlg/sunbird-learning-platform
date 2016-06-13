@@ -1,11 +1,11 @@
 {
   "definitionNodes": [
     {
-      "objectType": "Varna_IPA",
+      "objectType": "Varna_ISO",
       "properties": [
         {
-          "propertyName": "ipaSymbol",
-          "title": "IPA Symbol",
+          "propertyName": "isoSymbol",
+          "title": "ISO Symbol",
           "description": "",
           "category": "general",
           "dataType": "Text",

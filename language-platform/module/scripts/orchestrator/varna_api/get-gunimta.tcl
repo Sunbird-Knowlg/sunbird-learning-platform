@@ -4,8 +4,8 @@ java::import -package java.util HashMap Map
 java::import -package com.ilimi.graph.dac.model Node
 
 set varna_object_type "Varna"
-set varna_ipa_object_type "Varna_IPA"
-set varna_ipa_graph_id "language"
+set varna_iso_object_type "Varna_ISO"
+set varna_iso_graph_id "language"
 set object_null [java::isnull $unicode]
 if {$object_null == 1} {
 	set result_map [java::new HashMap]

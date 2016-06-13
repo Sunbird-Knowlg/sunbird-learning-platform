@@ -50,8 +50,8 @@
             "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
-          "propertyName": "ipaSymbol",
-          "title": "IPA Symbol",
+          "propertyName": "isoSymbol",
+          "title": "ISO Symbol",
           "description": "",
           "category": "general",
           "dataType": "Text",
