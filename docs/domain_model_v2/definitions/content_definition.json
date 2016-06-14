@@ -395,7 +395,7 @@
           "description": "Content Developer",
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "EkStep",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -408,7 +408,7 @@
           "description": "Source of the content (e.g. MangoSense)",
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "EkStep",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -421,7 +421,7 @@
           "description": "Publisher of the content (e.g. Pratham Books)",
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "EkStep",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -434,7 +434,7 @@
           "description": "Content Owner",
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "EkStep",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
@@ -447,7 +447,7 @@
           "description": "Portal Owner",
           "category": "Ownership",
           "displayProperty": "Editable",
-          "defaultValue": "EkStep",
+          "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text',  'order': 14 }",
           "indexed": true,
           "draft": false
