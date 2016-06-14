@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ConsumerConfig>
-	<ConsumerInit serverURI="localhost:2181" topic="composite-search-topic-test5"
+	<ConsumerInit serverURI="localhost:2181" topic="composite-search-topic-test6"
 		ekstepPlatformURI="http://localhost:8080/taxonomy-service"
 		ekstepPlatformApiUserId="ilimi">
 	</ConsumerInit>
