@@ -24,7 +24,7 @@ public class ToolsController extends BaseLanguageController {
 
     private static Logger LOGGER = LogManager.getLogger(ToolsController.class.getName());
 
-    @RequestMapping(value = "/lexileMeasures", method = RequestMethod.POST)
+    @RequestMapping(value = "/complexityMeasures", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
         String apiId = "language.complexity";
@@ -48,7 +48,7 @@ public class ToolsController extends BaseLanguageController {
     }
     
     
-    @RequestMapping(value = "/lexileMeasures/text", method = RequestMethod.POST)
+    @RequestMapping(value = "/complexityMeasures/text", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> computeTextComplexity(@RequestBody Map<String, Object> map) {
         String apiId = "text.complexity";

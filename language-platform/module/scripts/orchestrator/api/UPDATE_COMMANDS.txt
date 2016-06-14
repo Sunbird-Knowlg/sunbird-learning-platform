@@ -25,3 +25,5 @@ node registerScript.js api/get-vowel-signs.tcl api/json/register-get-vowel-signs
 node registerScript.js api/update-word-list-membership.tcl api/json/register-update-word-list-membership.json update
 
 node registerScript.js api/update-ipa-to-iso.tcl api/json/register-update-ipa-to-iso.json update
+
+node registerScript.js api/delete-varna-ipa.tcl api/json/register-delete-varna-ipa.json update
