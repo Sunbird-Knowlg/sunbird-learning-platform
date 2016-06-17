@@ -64,7 +64,8 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Date end_date = (Date) request.get(CommonDACParams.end_date.name());
 
         Search search = new Search();
-        search.addFilterGreaterOrEqual("createdOn", start_date);
+        if(start_date!=null)
+        	search.addFilterGreaterOrEqual("createdOn", start_date);
         if(end_date!=null)
         	search.addFilterLessOrEqual("createdOn", end_date);
         List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
@@ -85,7 +86,8 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Search search = new Search();
         search.addFilterEqual("graphId", graphId);
         search.addFilterEqual("objectType", objectType);
-        search.addFilterGreaterOrEqual("createdOn", start_date);
+        if(start_date!=null)
+        	search.addFilterGreaterOrEqual("createdOn", start_date);
         if(end_date!=null)
         	search.addFilterLessOrEqual("createdOn", end_date);
         List<AuditHistoryEntity> auditHistoryLogEntities = dao.search(search);
@@ -106,7 +108,8 @@ public class AuditHistoryDataService extends BaseDataAccessService implements IA
         Search search = new Search();
         search.addFilterEqual("graphId", graphId);
         search.addFilterEqual("objectId", objectId);
-        search.addFilterGreaterOrEqual("createdOn", start_date);
+        if(start_date!=null)
+        	search.addFilterGreaterOrEqual("createdOn", start_date);
         if(end_date!=null)
         	search.addFilterLessOrEqual("createdOn", end_date);
         

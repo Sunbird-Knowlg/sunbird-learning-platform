@@ -34,6 +34,14 @@ public class ObjectDefinitionCache {
         return definition;
     }
 
+    public static void setDefinitionNode(String objectType, Map<String, Object> definition) {
+		definitionMap.put(objectType, definition);
+	}
+	
+    public static void setRelationDefinition(String objectType, Map<String, String> definition) {
+            relationMap.put(objectType, definition);
+    }
+    
 	private static void getDefinitionFromGraph(String objectType, String graphId) throws Exception {
 		String url = consumerUtil.getConsumerConfig().consumerInit.ekstepPlatformURI + "/taxonomy/" + graphId + "/definition/"
 				+ objectType;
