@@ -26,6 +26,8 @@ public class EcrfToXmlConvertor {
 	private static final String ATTRIBUTE_KEY_VALUE_SAPERATOR = "=";
 	private static final String BLANK_SPACE = " ";
 	
+	private static final char DOUBLE_QUOTE = '"';
+	
 	public String getContentXmlString(Content ecrf) {
 		StringBuilder xml = new StringBuilder();
 		if (null != ecrf) {
@@ -85,12 +87,14 @@ public class EcrfToXmlConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != elements) {
 			for (Entry<String, List<Map<String, String>>> entry: elements.entrySet()) {
-				xml.append(getStartTag(entry.getKey()));
-				List<Map<String, String>> lstMap = entry.getValue();
-				for (Map<String, String> map: lstMap) {
-					xml.append(getElementXml(map));
+				if (!StringUtils.isBlank(entry.getKey())) {
+					xml.append(getStartTag(entry.getKey()));
+					List<Map<String, String>> lstMap = entry.getValue();
+					for (Map<String, String> map: lstMap) {
+						xml.append(getElementXml(map));
+					}
+					xml.append(getEndTag(entry.getKey()));
 				}
-				xml.append(getEndTag(entry.getKey()));
 			}
 		}
 		return xml;
@@ -205,7 +209,7 @@ public class EcrfToXmlConvertor {
 			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.element_name.name()));
 			for (Entry<String, String> entry: data.entrySet()) {
 				if (!ElementMap.isSystemGenerateAttribute(entry.getKey())) {
-					xml.append(entry.getKey() + ATTRIBUTE_KEY_VALUE_SAPERATOR + entry.getValue() + BLANK_SPACE);
+					xml.append(BLANK_SPACE + entry.getKey() + ATTRIBUTE_KEY_VALUE_SAPERATOR + addQuote(entry.getValue()));
 				}
 			}
 			xml.append(TAG_CLOSING);
@@ -233,6 +237,10 @@ public class EcrfToXmlConvertor {
 		if (!StringUtils.isBlank(elementName))
 			xml.append(START_TAG_OPENING + elementName + TAG_CLOSING);
 		return xml;
+	}
+	
+	public static String addQuote(String str) {
+		return DOUBLE_QUOTE + str + DOUBLE_QUOTE;
 	}
 
 }
