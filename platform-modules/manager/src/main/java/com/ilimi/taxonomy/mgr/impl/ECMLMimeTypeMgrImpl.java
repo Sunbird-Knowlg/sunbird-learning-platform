@@ -732,6 +732,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		response = extract(node);
 		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
 			node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
+			node.getMetadata().put(ContentAPIParams.editorState.name(), null);
 			node.setInRelations(null);
 			node.setOutRelations(null);
 			return updateNode(node);

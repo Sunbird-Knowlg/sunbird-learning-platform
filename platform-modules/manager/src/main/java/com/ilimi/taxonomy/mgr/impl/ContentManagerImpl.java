@@ -806,6 +806,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			metadata = node.getMetadata();
 			metadata.put(ContentAPIParams.body.name(), response.get("ecmlBody"));
+			metadata.put(ContentAPIParams.editorState.name(), null);
 			String appIconUrl = (String) node.getMetadata().get("appIcon");
 			if (StringUtils.isBlank(appIconUrl)) {
 				String newUrl = uploadFile(tempFileLocation, "logo.png");
