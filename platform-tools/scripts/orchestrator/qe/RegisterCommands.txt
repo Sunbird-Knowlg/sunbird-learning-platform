@@ -16,3 +16,4 @@ node registerScript.js qe/getPublishedContentIds.tcl qe/json/register-getPublish
 node registerScript.js qe/getRetiredContentCount.tcl qe/json/register-getRetiredContentCount.json register
 node registerScript.js qe/updateAssetMediaType.tcl qe/json/register-updateAssetMediaType.json register
 node registerScript.js qe/updateSizeMetadata.tcl qe/json/register-updateSizeMetadata.json register
+node registerScript.js qe/updateOwnerMetadata.tcl qe/json/register-updateOwnerMetadata.json register
