@@ -1,5 +1,9 @@
 package org.ekstep.searchindex.producer;
 
-public interface IMessageProducer extends Runnable {
+import java.util.List;
+import java.util.Map;
 
+public interface IMessageProducer {
+
+	void sendMessage(List<Map<String, Object>> messages);
 }
