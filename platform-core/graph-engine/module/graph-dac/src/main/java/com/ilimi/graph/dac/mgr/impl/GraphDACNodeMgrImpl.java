@@ -20,6 +20,7 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -69,7 +70,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 } catch (ResourceNotFoundException e) {
                     neo4jNode = graphDb.createNode(NODE_LABEL);
                     if (StringUtils.isBlank(node.getIdentifier()))
-                        node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                    	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                     neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                     neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
@@ -105,7 +106,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 tx = graphDb.beginTx();
                 Node neo4jNode = graphDb.createNode(NODE_LABEL);
                 if (StringUtils.isBlank(node.getIdentifier()))
-                    node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                 if (StringUtils.isNotBlank(node.getObjectType()))
@@ -205,7 +206,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     }
                     if (StringUtils.isBlank(node.getIdentifier()))
-                        node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                    	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                     neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                     if (StringUtils.isNotBlank(node.getObjectType()))

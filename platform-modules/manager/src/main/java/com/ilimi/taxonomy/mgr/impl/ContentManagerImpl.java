@@ -268,7 +268,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			mimeType = "assets";
 		}
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-		return mimeTypeManager.upload(node,uploadedFile,folder);
+		Response res = mimeTypeManager.upload(node,uploadedFile,folder);
+		if (null != uploadedFile && uploadedFile.exists()) {
+			try {
+				uploadedFile.delete();
+			} catch (Exception e) {
+			}
+		}
+		return res;
 	}
 
 	@SuppressWarnings("unchecked")

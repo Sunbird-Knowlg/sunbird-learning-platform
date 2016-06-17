@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -858,7 +859,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     private void upsertRootNode(GraphDatabaseService graphDb, String graphId, Map<String, Node> existingNodes,
             Integer nodesCount, Integer relationsCount) {
-        String rootNodeUniqueId = graphId + "_" + SystemNodeTypes.ROOT_NODE.name();
+        String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
         if (existingNodes.get(rootNodeUniqueId) == null) {
             Node rootNode = graphDb.createNode(NODE_LABEL);
             rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);

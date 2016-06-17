@@ -27,6 +27,7 @@ import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -176,7 +177,7 @@ public class Neo4jGraphFactory {
 		Node rootNode = null;
 		try {
 			tx = graphDb.beginTx();
-			String rootNodeUniqueId = graphId + "_" + SystemNodeTypes.ROOT_NODE.name();
+			String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
 			rootNode = graphDb.createNode(NODE_LABEL);
 			rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
 			rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
