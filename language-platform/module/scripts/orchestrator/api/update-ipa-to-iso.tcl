@@ -27,6 +27,7 @@ if {$check_error} {
 			$metadataMap put "ipaSymbol" $null_value
 			puts "Varna"
 			set update_response [updateDataNode $graph_id $varna_id $graph_node]
+			set check_update_error [check_response_error $update_response]
 			if {$check_update_error} {
 				puts "Error response from updateDataNode for the varna $varna_id"
 				puts $varna_id
