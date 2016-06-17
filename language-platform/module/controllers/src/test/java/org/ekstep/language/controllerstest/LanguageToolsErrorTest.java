@@ -52,7 +52,7 @@ public class LanguageToolsErrorTest {
 		String contentString = "{  \"request\": {    \"language_id\": \""+TEST_LANGUAGE+"\",    \"words\": [\"समोसा\",\"आम\", \"माला\",\"शेर\",\"पेड़\",\"धागा\",\"बाल\",\"दिया\",\"जल\",\"दूध\"],    \"texts\": [\"एक चर्मरोग जिसमें बहुत खुजली होती है\", \"वे अपने भुलक्कड़पन की कथा बखान करते\"]  }}";
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
-		String path = "/v1/language/tools/lexileMeasures";
+		String path = "/v1/language/tools/complexityMeasures";
 		try {
 			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
 					.contentType(MediaType.APPLICATION_JSON)

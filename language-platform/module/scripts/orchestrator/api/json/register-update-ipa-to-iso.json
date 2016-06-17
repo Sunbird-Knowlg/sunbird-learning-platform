@@ -1,5 +1,5 @@
 {
-    "name": "getSynset",
+    "name": "updateIPAtoISO",
     "parameters": [{
     	"name":"graph_id",
     	"index": 0,
