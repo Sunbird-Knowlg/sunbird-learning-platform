@@ -10,7 +10,7 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.searchindex.producer.KafkaMessageProducer;
+import org.codehaus.jackson.map.ObjectMapper;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -25,6 +25,8 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 public class ProcessTransactionData {
 		
 	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());
+	private static final Logger kafkaMessageLogger = LogManager.getLogger("KafkaMessageLogger");
+	private static ObjectMapper mapper = new ObjectMapper();
 	
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
@@ -39,7 +41,7 @@ public class ProcessTransactionData {
 		try {
 		    List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 	        if(kafkaMessages != null && !kafkaMessages.isEmpty())
-	            pushMessageToKafka(kafkaMessages);
+	        	pushMessageToLogger(kafkaMessages);
 		} catch (Exception e) {
 		    LOGGER.error(e.getMessage(), e);
 		}
@@ -62,14 +64,21 @@ public class ProcessTransactionData {
 		messageMap.addAll(getRemovedRelationShipMessages(data, userId, requestId));
 		return messageMap;
 	}
-	
-	private void pushMessageToKafka(List<Map<String, Object>> messages) {
-		if (null == messages || messages.size() <= 0) return; 
-		LOGGER.debug("Sending to KAFKA.... ");
-		KafkaMessageProducer.sendMessage(messages);
-		LOGGER.debug("Sending to KAFKA : FINISHED");
-	}
 
+	private void pushMessageToLogger(List<Map<String, Object>> messages) {
+		if (null == messages || messages.size() <= 0) return; 
+		LOGGER.debug("sending KafkaMessages to AsyncLogger.... ");
+		for (Map<String, Object> message : messages) {
+			try{
+				String jsonMessage = mapper.writeValueAsString(message);
+				if (StringUtils.isNotBlank(jsonMessage))
+					kafkaMessageLogger.info(jsonMessage);
+			}catch(Exception e){
+				LOGGER.error(e.getMessage(), e);
+			}
+		}
+		LOGGER.debug("sending KafkaMessages to AsyncLogger : FINISHED");
+	}
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb, String userId, String requestId) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		List<Long> createdNodeIds = getCreatedNodeIds(data);
