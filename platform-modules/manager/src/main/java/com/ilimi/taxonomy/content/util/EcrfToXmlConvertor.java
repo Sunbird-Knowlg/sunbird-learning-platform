@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringUtils;
-
+import org.apache.commons.lang3.StringEscapeUtils;
 import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Action;
 import com.ilimi.taxonomy.content.entity.Content;
@@ -43,7 +43,9 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getContentManifestXml(Manifest manifest) {
 		StringBuilder xml = new StringBuilder();
 		if (null != manifest) {
+			xml.append(getStartTag(ContentWorkflowPipelineParams.manifest.name()));
 			xml.append(getContentMediasXml(manifest.getMedias()));
+			xml.append(getEndTag(ContentWorkflowPipelineParams.manifest.name()));
 		}
 		return xml;
 	}
@@ -92,6 +94,7 @@ public class EcrfToXmlConvertor {
 					List<Map<String, String>> lstMap = entry.getValue();
 					for (Map<String, String> map: lstMap) {
 						xml.append(getElementXml(map));
+						xml.append(getEndTag(map.get(ContentWorkflowPipelineParams.element_name.name())));
 					}
 					xml.append(getEndTag(entry.getKey()));
 				}
@@ -144,7 +147,7 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getPluginInnerText(String text) {
 		StringBuilder xml = new StringBuilder();
 		if (!StringUtils.isBlank(text))
-			xml.append(text);
+			xml.append(StringEscapeUtils.escapeXml11(text));
 		return xml;
 	}
 	
@@ -160,8 +163,12 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getEventsXml(List<Event> events) {
 		StringBuilder xml = new StringBuilder();
 		if (null != events) {
+			if (events.size() > 1) 
+				xml.append(getStartTag(ContentWorkflowPipelineParams.events.name()));
 			for (Event event: events)
 				xml.append(getEventXml(event));
+			if (events.size() > 1) 
+				xml.append(getEndTag(ContentWorkflowPipelineParams.events.name()));
 		}
 		return xml;
 	}
@@ -197,8 +204,10 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getNonPluginElementsXml(List<Map<String, String>> nonPluginElements) {
 		StringBuilder xml = new StringBuilder();
 		if (null != nonPluginElements) {
-			for (Map<String, String> nonPluginElement: nonPluginElements)
+			for (Map<String, String> nonPluginElement: nonPluginElements) {
 				xml.append(getElementXml(nonPluginElement));
+				xml.append(getEndTag(nonPluginElement.get(ContentWorkflowPipelineParams.element_name.name())));
+			}
 		}
 		return xml;
 	}
@@ -220,7 +229,7 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getPluginEndTag(Plugin plugin) {
 		StringBuilder xml = new StringBuilder();
 		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
-			xml.append(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name()));
+			xml.append(getEndTag(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())));
 		}
 		return xml;
 	}

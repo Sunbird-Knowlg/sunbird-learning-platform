@@ -2,6 +2,7 @@ package com.ilimi.taxonomy.content.common;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -16,6 +17,15 @@ import org.xml.sax.SAXException;
 import com.google.gson.Gson;
 
 public class BaseTest {
+	
+	public void writeStringToFile(String fileName, String data, boolean append) throws IOException {
+		try {
+			File file = new File(getClass().getResource("/Contents/" + fileName).getFile());
+			FileUtils.writeStringToFile(file, data, append);
+		} catch(IOException e) {
+			throw new IOException("Error: While writing XML string to file.", e);
+		}
+	}
 	
 	public String getFileString(String fileName) {
 		String fileString = "";
