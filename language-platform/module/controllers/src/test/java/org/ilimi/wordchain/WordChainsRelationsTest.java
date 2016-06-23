@@ -22,7 +22,6 @@ import org.neo4j.tooling.GlobalGraphOperations;
 
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.router.Rels;
 import com.ilimi.graph.dac.util.RelationType;
 
 public class WordChainsRelationsTest {
