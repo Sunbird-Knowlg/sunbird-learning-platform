@@ -34,7 +34,7 @@ public class EcrfToXmlConvertorTest extends BaseTest {
 			writeStringToFile(TEMP_OUTPUT_FILE_NAME, contentXmlString, false);
 			XMLUnit.setIgnoreWhitespace(true);
 	        XMLUnit.setIgnoreAttributeOrder(true);
-	        DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(contentXmlString, xml));
+	        DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(xml, contentXmlString));
 			List<?> allDifferences = diff.getAllDifferences();
 	        assertEquals("Differences found: "+ diff.toString(), 0, allDifferences.size());
 	    } catch (SAXException e) {

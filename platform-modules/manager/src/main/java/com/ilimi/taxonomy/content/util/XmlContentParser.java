@@ -188,8 +188,12 @@ public class XmlContentParser {
 	
 	private String getInnerText(Node node) {
 		String innerText = "";
-		if (null != node && node.getNodeType() == Node.ELEMENT_NODE)
-			innerText = cleanupString(node.getTextContent());
+		if (null != node && node.getNodeType() == Node.ELEMENT_NODE && node.hasChildNodes()) {
+			NodeList childrenItems = node.getChildNodes();
+			for (int i = 0; i < childrenItems.getLength(); i++)
+				if (childrenItems.item(i).getNodeType() == Node.TEXT_NODE) 
+						innerText = StringUtils.trimToEmpty(cleanupString(childrenItems.item(i).getTextContent()));
+		}
 		return innerText;
 	}
 	
