@@ -3,11 +3,7 @@ package com.ilimi.taxonomy.content.util;
 import static org.junit.Assert.*;
 
 import java.io.IOException;
-import java.util.List;
-
 import org.junit.Test;
-import org.xml.sax.SAXException;
-import org.xmlunit.XMLUnitException;
 import org.xmlunit.builder.DiffBuilder;
 import org.xmlunit.diff.DefaultNodeMatcher;
 import org.xmlunit.diff.Diff;
