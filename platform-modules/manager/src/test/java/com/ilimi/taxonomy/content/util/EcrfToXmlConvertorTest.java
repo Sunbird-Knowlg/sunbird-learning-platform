@@ -5,10 +5,13 @@ import static org.junit.Assert.*;
 import java.io.IOException;
 import java.util.List;
 
-import org.custommonkey.xmlunit.DetailedDiff;
-import org.custommonkey.xmlunit.XMLUnit;
 import org.junit.Test;
 import org.xml.sax.SAXException;
+import org.xmlunit.XMLUnitException;
+import org.xmlunit.builder.DiffBuilder;
+import org.xmlunit.diff.DefaultNodeMatcher;
+import org.xmlunit.diff.Diff;
+import org.xmlunit.diff.ElementSelectors;
 
 import com.ilimi.taxonomy.content.common.BaseTest;
 import com.ilimi.taxonomy.content.entity.Content;
@@ -32,14 +35,15 @@ public class EcrfToXmlConvertorTest extends BaseTest {
 			Content ecrf = parser.parseContent(xml);
 			String contentXmlString = fixture.getContentXmlString(ecrf);
 			writeStringToFile(TEMP_OUTPUT_FILE_NAME, contentXmlString, false);
-			XMLUnit.setIgnoreWhitespace(true);
-	        XMLUnit.setIgnoreAttributeOrder(true);
-	        DetailedDiff diff = new DetailedDiff(XMLUnit.compareXML(xml, contentXmlString));
-			List<?> allDifferences = diff.getAllDifferences();
-	        assertEquals("Differences found: "+ diff.toString(), 0, allDifferences.size());
-	    } catch (SAXException e) {
-			assertTrue("SAX Exception while getting differences.", false);
-		} catch (IOException e) {
+	        Diff diff = DiffBuilder.compare(contentXmlString).withTest(xml)
+	        		.ignoreComments()
+	        		.ignoreWhitespace()
+	        		.normalizeWhitespace()
+	                .checkForSimilar() // a different order is always 'similar' not equals.
+	                .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+	                .build();
+	        assertFalse("XML similar " + diff.toString(), diff.hasDifferences());
+	    } catch (IOException e) {
 			assertTrue("IO Exception while getting differences.", false);
 		}
 	}
@@ -55,6 +59,22 @@ public class EcrfToXmlConvertorTest extends BaseTest {
 		Content ecrf = parser.parseContent(xml);
 		String contentXmlString = fixture.getContentXmlString(ecrf);
 		assertTrue(isValidXmlString(contentXmlString));
+	}
+	
+	/*
+	 * Dummy Test Case 
+	 */
+	@Test
+	public void dummy_test(){
+		String controlXml = "<flowers><flower>Roses</flower><flower>Daisy</flower><flower>Crocus</flower></flowers>";
+		String testXml = "<flowers><flower>Daisy</flower><flower>Roses</flower><flower>Crocus</flower></flowers>";
+
+		Diff myDiff = DiffBuilder.compare(controlXml).withTest(testXml)
+		        .checkForSimilar() // a different order is always 'similar' not equals.
+		        .withNodeMatcher(new DefaultNodeMatcher(ElementSelectors.byNameAndText))
+		        .build();
+
+		assertFalse("XML similar " + myDiff.toString(), myDiff.hasDifferences());
 	}
 
 }
