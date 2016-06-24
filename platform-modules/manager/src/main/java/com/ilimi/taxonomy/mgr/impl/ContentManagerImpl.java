@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.TelemetryEvent;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
@@ -64,7 +65,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private ContentMimeTypeFactory contentFactory;
 
 	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
-
+	private static Logger telemetryEventMessageLogger = LogManager.getLogger("TelemetryEventMessageLogger");
+	
 	private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
@@ -774,6 +776,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
+            logAsTelemeryEvent(contentId, node.getMetadata());
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
@@ -903,4 +906,23 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 		return request;
 	}
+	
+    private void logAsTelemeryEvent(String contentId, Map<String, Object> metadata){
+
+    	TelemetryEvent te=new TelemetryEvent();
+    	long unixTime = System.currentTimeMillis() / 1000L;
+    	te.setEid("BE_CONTENT_LIFECYCLE");
+    	te.setEts(unixTime);
+    	te.setVer("2.0");
+    	te.setPdata("org.ekstep.content.platform", "", "1.0", "");
+    	te.setEdata(contentId, metadata.get("status"), metadata.get("size"), metadata.get("pkgVersion"), metadata.get("concepts"), metadata.get("flags"));
+		String jsonMessage ;
+		try{
+			jsonMessage= mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage))
+				telemetryEventMessageLogger.info(jsonMessage);
+		}catch(Exception e){
+		
+		}
+    }
 }

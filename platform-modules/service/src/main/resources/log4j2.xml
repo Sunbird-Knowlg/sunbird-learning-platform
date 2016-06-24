@@ -42,8 +42,21 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
+		<RollingRandomAccessFile name="TelemetryEventMessageLAppender" fileName="/data/logs/telemetry_event_messages.log"
+			filePattern="/data/logs/telemetry_event_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
+
 	</Appenders>
 	<Loggers>
+		<AsyncLogger name="TelemetryEventMessageLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventMessageLAppender" />
+		</AsyncLogger>
 		<AsyncLogger name="KafkaMessageLogger" level="INFO" additivity="false">
 			<AppenderRef ref="KafkaMessageAppender" />
 		</AsyncLogger>

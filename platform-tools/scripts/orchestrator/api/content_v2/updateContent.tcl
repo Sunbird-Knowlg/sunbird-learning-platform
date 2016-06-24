@@ -91,7 +91,7 @@ if {$object_null == 1} {
 				set domain_val [$metadata get "domain"]
 				set domain_val_null [java::isnull $domain_val]
 				if {$domain_val_null == 0} {
-					set domain_val_instance [java::instanceof $domain_val {String[]}]	
+					set domain_val_instance [java::instanceof $domain_val {String[]}]
 					if {$domain_val_instance == 0} {
 						set input_domain [$content get "domain"]
 						set input_domain_null [java::isnull $input_domain]
@@ -100,7 +100,7 @@ if {$object_null == 1} {
 							$domain_list add $domain_val
 							$content put "domain" $domain_list
 						}
-					}	
+					}
 				}
 				set status_val [$metadata get "status"]
 				set status_val_str [java::new String [$status_val toString]]
@@ -116,6 +116,7 @@ if {$object_null == 1} {
 				}
 				set domain_obj [convert_to_graph_node $content $def_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
+				set log_response [log_as_telemetry_event $content_id $metadata]
 				return $create_response
 			}
 		}
