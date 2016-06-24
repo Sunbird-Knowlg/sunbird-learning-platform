@@ -1,0 +1,14 @@
+{
+    "name": "deleteVarnaIPA",
+    "parameters": [{
+    	"name":"graph_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "DELETE",
+        "url": "/v1/language/varnaIPA/*",
+        "pathParams": ["graph_id"]
+    },
+    "body": ""
+}

@@ -2,12 +2,13 @@ package com.ilimi.taxonomy.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+
+import org.ekstep.ecml.slugs.Slug;
 
 /**
  * A utility that downloads a file from a URL.
@@ -66,10 +67,11 @@ public class HttpDownloadUtility {
                 while ((bytesRead = inputStream.read(buffer)) != -1) {
                     outputStream.write(buffer, 0, bytesRead);
                 }
-
                 outputStream.close();
                 inputStream.close();
-                return new File(saveFilePath);
+                File file = new File(saveFilePath);
+                file = Slug.createSlugFile(file);
+                return file;
             } else {
                 System.out.println("No file to download. Server replied HTTP code: " + responseCode);
             }
@@ -97,18 +99,9 @@ public class HttpDownloadUtility {
 
     }
 
-    public static InputStream downloadFile(String fileURL) {
-        try {
-            final InputStream is = (new URL(fileURL).openConnection()).getInputStream();
-            return is;
-        } catch (IOException ioe) {
-            return null;
-        }
-    }
-
     public static void DeleteFiles(List<File> files) {
         for (File file : files) {
-            if (file.exists()) {
+            if (file.exists() && !file.isDirectory()) {
                 if (file.delete()) {
                     System.out.println(file.getName() + " is deleted!");
                 }

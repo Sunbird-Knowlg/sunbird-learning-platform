@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.UUID;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -21,8 +22,12 @@ import org.neo4j.io.fs.FileUtils;
 import org.neo4j.unsafe.batchinsert.BatchInserter;
 import org.neo4j.unsafe.batchinsert.BatchInserters;
 
+import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -58,8 +63,22 @@ public class Neo4jGraphFactory {
             e.printStackTrace();
         }
     }
-
+    
     public static synchronized GraphDatabaseService getGraphDb(String graphId) {
+        return getGraphDb(graphId, null);
+    }
+
+    public static synchronized GraphDatabaseService getGraphDb(String graphId, Request request) {
+        String userId = null;
+        String requestId = null;        
+        if(null != request && null != request.getParams()){
+            userId = request.getParams().getUid();
+            requestId = request.getParams().getMsgid();
+        }
+        if (StringUtils.isBlank(requestId))
+            requestId = UUID.randomUUID().toString();
+        ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.USER_ID.name(), userId);
+        ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.name(), requestId);
         if (StringUtils.isNotBlank(graphId)) {
             GraphDatabaseService graphDb = graphDbMap.get(graphId);
             if (null == graphDb || !graphDb.isAvailable(0)) {
@@ -67,10 +86,12 @@ public class Neo4jGraphFactory {
                     graphDbMap.remove(graphId);
                 }
                 graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
-                        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true").newGraphDatabase();
+                        .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
+                        .setConfig(GraphDatabaseSettings.cache_type, "weak")
+                        .newGraphDatabase();
                 registerShutdownHook(graphDb);
-                if (!restrictedGraphList.contains(graphId))
-                	graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
+                if (!restrictedGraphList.contains(graphId) && StringUtils.isNotEmpty(requestId))
+                    graphDb.registerTransactionEventHandler(new Neo4JTransactionEventHandler(graphId, graphDb));
                 graphDbMap.put(graphId, graphDb);
                 createRootNode(graphDb, graphId);
                 createConstraints(graphDb);
@@ -156,7 +177,7 @@ public class Neo4jGraphFactory {
 		Node rootNode = null;
 		try {
 			tx = graphDb.beginTx();
-			String rootNodeUniqueId = graphId + "_" + SystemNodeTypes.ROOT_NODE.name();
+			String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
 			rootNode = graphDb.createNode(NODE_LABEL);
 			rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
 			rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());

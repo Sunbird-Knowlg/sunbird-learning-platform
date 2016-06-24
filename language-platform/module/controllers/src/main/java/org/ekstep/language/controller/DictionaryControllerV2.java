@@ -1,11 +1,13 @@
 package org.ekstep.language.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageActorNames;
@@ -52,21 +54,29 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
     @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> create(@PathVariable(value = "languageId") String languageId,
+	        @RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".save";
 		Request request = getRequest(map);
 		try {
-			Response response = dictionaryManager.createWordV2(languageId, objectType, request);
+			Response response = dictionaryManager.createWordV2(languageId, objectType, request, forceUpdate);
 			LOGGER.info("Create | Response: " + response);
 			if (!checkError(response)) {
+			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
-			}
-			
+	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            response.getResult().remove(GraphDACParams.node_id.name());
+	            if (StringUtils.isNotBlank(nodeId))
+	                response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
+			} else {
+                response.getResult().remove(GraphDACParams.node_ids.name());
+                response.getResult().remove(GraphDACParams.node_id.name());
+            }
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -81,19 +91,28 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> update(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "objectId") String objectId, @RequestBody Map<String, Object> map,
+			@RequestParam(name = "force", required = false, defaultValue = "false") boolean forceUpdate,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".update";
 		Request request = getRequest(map);
 		try {
-			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request);
+			Response response = dictionaryManager.updateWordV2(languageId, objectId, objectType, request, forceUpdate);
 			LOGGER.info("Update | Response: " + response);
 			if (!checkError(response)) {
+			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
 			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
 	                    map.get("request").toString(), (String) map.get("COMMENT"));
 	            auditLogManager.saveAuditRecord(audit);
+	            response.getResult().remove(GraphDACParams.node_ids.name());
+	            response.getResult().remove(GraphDACParams.node_id.name());
+	            if (StringUtils.isNotBlank(nodeId))
+                    response.put(GraphDACParams.node_ids.name(), Arrays.asList(nodeId));
+			} else {
+			    response.getResult().remove(GraphDACParams.node_ids.name());
+                response.getResult().remove(GraphDACParams.node_id.name());
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);

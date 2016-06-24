@@ -46,8 +46,12 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchConditions;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
@@ -104,8 +108,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			} else {
 				return ERROR("Failed", "'index' file does not exist.", ResponseCode.CLIENT_ERROR);
 			}
-			List<Relation> outRelations = new ArrayList<Relation>();
-			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, outRelations, isJSONIndex);
+			List<String> itemSetIds = new ArrayList<String>();
+			Map<String, List<String>> conceptItemMap = new HashMap<String, List<String>>();
+			createAssessmentItemFromContent(taxonomyId, zipFileDir, contentId, conceptItemMap, itemSetIds, isJSONIndex);
 			Map<String, List<String>> mediaIdMap = new HashMap<String, List<String>>();
 			if (isJSONIndex == false) {
 				mediaIdMap = CustomParser.readECMLFile(filePath);
@@ -170,19 +175,14 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 								values.add(url[1]);
 								values.add(nodeExt.getIdentifier());
 								mediaIdURL.put(mediaAssetIdMap.get(nodeExt.getIdentifier()), values);
-								Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-										"validateNode");
-								validateReq.put(GraphDACParams.node.name(), newItem);
-								Response validateRes = getResponse(validateReq, LOGGER);
-								if (checkError(validateRes)) {
-									return validateRes;
-								} else {
-									Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-											"updateDataNode");
-									updateReq.put(GraphDACParams.node.name(), newItem);
-									updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
-									getResponse(updateReq, LOGGER);
-								}
+								Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+										"updateDataNode");
+								updateReq.put(GraphDACParams.skip_validations.name(), true);
+								updateReq.put(GraphDACParams.node.name(), newItem);
+								updateReq.put(GraphDACParams.node_id.name(), newItem.getIdentifier());
+								Response updateRes = getResponse(updateReq, LOGGER);
+								if (checkError(updateRes))
+									return updateRes;
 							}
 						}
 					}
@@ -204,18 +204,14 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 								FileUtils.copyFile(olderName, newName);
 								String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
 								Node item = createNode(new Node(), url[1], mediaId, olderName);
-								// Creating a graph.
-								Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-										"validateNode");
-								validateReq.put(GraphDACParams.node.name(), item);
-								Response validateRes = getResponse(validateReq, LOGGER);
-								if (checkError(validateRes)) {
-									return validateRes;
-								} else {
-									Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
-											"createDataNode");
-									createReq.put(GraphDACParams.node.name(), item);
-									getResponse(createReq, LOGGER);
+								Request createReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER,
+										"createDataNode");
+								createReq.put(GraphDACParams.skip_validations.name(), true);
+								createReq.put(GraphDACParams.node.name(), item);
+								Response createRes = getResponse(createReq, LOGGER);
+								if (checkError(createRes))
+									return createRes;
+								else {
 									List<String> values = new ArrayList<String>();
 									values.add(url[1]);
 									values.add(item.getIdentifier());
@@ -241,7 +237,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 				customParser.updateJsonInIndexJSON(jsonFilePath, listOfCtrlType);
 				response.put("ecmlBody", CustomParser.readFile(new File(jsonFilePath)));
 			}
-			response.put(ContentAPIParams.outRelations.name(), outRelations);
+			if (null != itemSetIds && !itemSetIds.isEmpty()) {
+				Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER,
+						"addOutRelations");
+				request.put(GraphDACParams.start_node_id.name(), node.getIdentifier());
+				request.put(GraphDACParams.relation_type.name(), RelationTypes.ASSOCIATED_TO.relationName());
+				request.put(GraphDACParams.end_node_id.name(), itemSetIds);
+				getResponse(request, LOGGER);
+			}
+			createConceptRelations(taxonomyId, node.getIdentifier(), conceptItemMap);
 		} catch (Exception ex) {
 		    ex.printStackTrace();
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
@@ -258,7 +262,42 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 			}
 		}
 		return response;
-
+	}
+	
+	@SuppressWarnings("unchecked")
+	private void createConceptRelations(String taxonomyId, String contentId, Map<String, List<String>> conceptItemMap) {
+		if (null != conceptItemMap && !conceptItemMap.isEmpty()) {
+			Set<String> conceptIds = conceptItemMap.keySet();
+			SearchCriteria sc = new SearchCriteria();
+			sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+			sc.setObjectType("Concept");
+			MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter(
+					"identifier", SearchConditions.OP_IN, new ArrayList<String>(conceptIds))));
+			sc.addMetadata(mc);
+			Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER,
+					"searchNodes");
+			request.put(GraphDACParams.search_criteria.name(), sc);
+			Response searchRes = getResponse(request, LOGGER);;
+			if (!checkError(searchRes)) {
+				List<Node> nodeList = (List<Node>) searchRes.get(GraphDACParams.node_list.name());
+				if (null != nodeList && !nodeList.isEmpty()) {
+					for (Node concept : nodeList) {
+						if (StringUtils.equals("Concept", concept.getObjectType())) {
+							List<String> itemIds = conceptItemMap.get(concept.getIdentifier());
+							if (null == itemIds)
+								itemIds = new ArrayList<String>();
+							itemIds.add(contentId);
+							Request req = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER,
+									"addInRelations");
+							req.put(GraphDACParams.start_node_id.name(), itemIds);
+							req.put(GraphDACParams.relation_type.name(), RelationTypes.ASSOCIATED_TO.relationName());
+							req.put(GraphDACParams.end_node_id.name(), concept.getIdentifier());
+							getResponse(request, LOGGER);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	private Node createNode(Node item, String url, String mediaId, File olderName) {
@@ -315,7 +354,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@SuppressWarnings({ "unchecked" })
 	private Map<String, Object> createAssessmentItemFromContent(String taxonomyId, String contentExtractedPath,
-			String contentId, List<Relation> outRelations, boolean isJSONIndex) {
+			String contentId, Map<String, List<String>> conceptItemMap, List<String> itemSetIds, boolean isJSONIndex) {
 		if (null != contentExtractedPath) {
 			List<File> fileList = getControllerFileList(contentExtractedPath, isJSONIndex);
 			Map<String, Object> mapResDetail = new HashMap<String, Object>();
@@ -377,14 +416,11 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 									String itemSetNodeId = (String) mapItemSetRes.get(ContentAPIParams.set_id.name());
 									System.out.println("itemSetNodeId: " + itemSetNodeId);
 									if (StringUtils.isNotBlank(itemSetNodeId)) {
-										Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(),
-												itemSetNodeId);
-										outRelations.add(outRel);
+										if (!itemSetIds.contains(itemSetNodeId))
+											itemSetIds.add(itemSetNodeId);
 									}
 								}
-								List<String> lstAssessItemRelRes = createRelation(taxonomyId, mapRelation,
-										outRelations);
-								assessResMap.put(ContentAPIParams.AssessmentItemRelation.name(), lstAssessItemRelRes);
+								createRelation(taxonomyId, mapRelation, conceptItemMap);
 								mapResDetail.put(file.getName(), assessResMap);
 							}
 						} else {
@@ -404,26 +440,25 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<String> createRelation(String taxonomyId, Map<String, Object> mapRelation,
-			List<Relation> outRelations) {
+	private void createRelation(String taxonomyId, Map<String, Object> mapRelation,
+			Map<String, List<String>> conceptItemMap) {
 		if (null != mapRelation && !mapRelation.isEmpty()) {
-			List<String> lstResponse = new ArrayList<String>();
 			for (Entry<String, Object> entry : mapRelation.entrySet()) {
 				List<Map<String, Object>> lstConceptMap = (List<Map<String, Object>>) entry.getValue();
 				if (null != lstConceptMap && !lstConceptMap.isEmpty()) {
 					for (Map<String, Object> conceptMap : lstConceptMap) {
 						String conceptId = (String) conceptMap.get(ContentAPIParams.identifier.name());
-						Response response = addRelation(taxonomyId, entry.getKey(),
-								RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
-						lstResponse.add(response.getResult().toString());
-						Relation outRel = new Relation(null, RelationTypes.ASSOCIATED_TO.relationName(), conceptId);
-						outRelations.add(outRel);
+						List<String> itemIds = conceptItemMap.get(conceptId);
+						if (null == itemIds)
+							itemIds = new ArrayList<String>();
+						if (!itemIds.contains(entry.getKey())) {
+							itemIds.add(entry.getKey());
+							conceptItemMap.put(conceptId, itemIds);
+						}
 					}
 				}
 			}
-			return lstResponse;
 		}
-		return null;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -505,7 +540,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 		return null;
 	}
-
+	
 	private String[] qlevels = new String[] { "EASY", "MEDIUM", "DIFFICULT", "RARE" };
 	private List<String> qlevelList = Arrays.asList(qlevels);
 
@@ -581,6 +616,7 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		if (StringUtils.isBlank(relation))
 			throw new ClientException(ContentErrorCodes.ERR_INVALID_RELATION_NAME.name(), "Relation name is blank");
 		Request request = getRequest(taxonomyId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.skip_validations.name(), true);
 		request.put(GraphDACParams.start_node_id.name(), objectId1);
 		request.put(GraphDACParams.relation_type.name(), relation);
 		request.put(GraphDACParams.end_node_id.name(), objectId2);
@@ -696,6 +732,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		response = extract(node);
 		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
 			node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
+			node.getMetadata().put(ContentAPIParams.editorState.name(), null);
+			node.setInRelations(null);
+			node.setOutRelations(null);
 			return updateNode(node);
 		} else {
 			return response;

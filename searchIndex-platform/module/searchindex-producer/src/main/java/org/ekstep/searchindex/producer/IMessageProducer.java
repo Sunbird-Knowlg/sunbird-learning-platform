@@ -1,11 +1,9 @@
 package org.ekstep.searchindex.producer;
 
+import java.util.List;
 import java.util.Map;
 
 public interface IMessageProducer {
 
-	public void init();
-	
-	public void pushMessage(Map<String, Object> message);
-	
+	void sendMessage(List<Map<String, Object>> messages);
 }

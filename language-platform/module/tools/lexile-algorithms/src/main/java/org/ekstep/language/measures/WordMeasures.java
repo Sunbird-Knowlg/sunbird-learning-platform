@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.Syllable;
 import org.ekstep.language.measures.entity.WordComplexity;
@@ -23,10 +24,17 @@ public class WordMeasures {
     }
 
     public static WordComplexity getWordComplexity(String language, String word) {
-        if (!SyllableMap.isLanguageEnabled(language))
+        if (StringUtils.isBlank(word)) 
+            throw new ServerException(LanguageErrorCodes.ERR_INVALID_WORD.name(), "Word Features cannot be computed for blank word");
+        WordComplexity wc = new WordComplexity();
+        if (StringUtils.equalsIgnoreCase("en", language)) {
+            wc.setWord(word);
+            wc.setCount(word.length());
+            return wc;
+        }
+        if (!SyllableMap.isLanguageEnabled(language)) 
             throw new ServerException(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Lexile Measures for " + language + " not supported");
         List<Syllable> syllables = getSyllables(language, word);
-        WordComplexity wc = new WordComplexity();
         wc.setWord(word);
         wc.setCount(syllables.size());
         wc.setOrthoComplexity(0.0);

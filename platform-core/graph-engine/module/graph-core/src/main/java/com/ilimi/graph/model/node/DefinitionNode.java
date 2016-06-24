@@ -32,6 +32,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
+import com.ilimi.graph.model.cache.DefinitionCache;
 
 public class DefinitionNode extends AbstractNode {
 
@@ -67,7 +68,7 @@ public class DefinitionNode extends AbstractNode {
         this.objectType = defNode.getObjectType();
         fromNode(defNode);
     }
-
+    
     @SuppressWarnings("unchecked")
     private void fromNode(Node defNode) {
         Map<String, Object> metadata = defNode.getMetadata();
@@ -238,6 +239,7 @@ public class DefinitionNode extends AbstractNode {
                                         manager.getErrorMessage(res), res.getResponseCode(), getParent());
                             } else {
                                 ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+                                DefinitionCache.cacheDefinitionNode(graphId, getValueObject());
                                 loadToCache(cacheRouter, req);
                                 manager.OK(GraphDACParams.node_id.name(), getNodeId(), getParent());
                             }

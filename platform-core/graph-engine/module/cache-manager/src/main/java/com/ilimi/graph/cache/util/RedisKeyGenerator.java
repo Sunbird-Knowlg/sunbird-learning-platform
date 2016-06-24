@@ -3,7 +3,7 @@ package com.ilimi.graph.cache.util;
 public class RedisKeyGenerator {
 
     private static final String KEY_SEPARATOR = ":";
-
+    
     public static String getUniqueIdKey() {
         return RedisKeysEnum.UNIQUE_ID.name();
     }

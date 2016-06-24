@@ -4,18 +4,33 @@ public interface IWordnetConstants {
     
     String OBJECTTYPE_WORD = "Word";
     String OBJECTTYPE_SYNSET = "Synset";
-
+    
+    String ATTRIB_PRIMARY_MEANING_ID = "primaryMeaningId";
+    String ATTRIB_HAS_SYNONYMS = "hasSynonyms";
+    String ATTRIB_HAS_ANTONYMS = "hasAntonyms";
+    String ATTRIB_SYNSET_COUNT = "synsetCount";
     String ATTRIB_LEMMA = "lemma";
+    String ATTRIB_VARIANTS = "variants";
     String ATTRIB_POS = "pos";
+    String ATTRIB_CATEGORY = "category";
+    String ATTRIB_STATUS = "status";
     String ATTRIB_EXAMPLE_SENTENCES = "exampleSentences";
     String ATTRIB_PRONUNCIATIONS = "pronunciations";
     String ATTRIB_PICTURES = "pictures";
+    String ATTRIB_WORD_IMAGES = "wordImages";
+    String ATTRIB_WORD_COMPLEXITY = "word_complexity";
     String ATTRIB_IS_PHRASE = "isPhrase";
     String ATTRIB_HAS_CONNOTATIVE_MEANING = "hasConnotativeMeaning";
     String ATTRIB_HAS_CONNOTATIVE = "hasConnotative";
     String ATTRIB_IS_LOAN_WORD = "isLoanWord";
     String ATTRIB_POS_TAGS = "posTags";
+    String ATTRIB_THRESHOLD_LEVEL = "thresholdLevel";
     String ATTRIB_POS_CATEGORIES = "pos_categories";
+    String ATTRIB_SYLLABLES="syllables";
+    String ATTRIB_IWN_ID = "indowordnetId";
+    String ATTRIB_SOURCES = "sources";
+    String ATTRIB_SOURCE_IWN = "IndoWordnet";
+    String ATTRIB_LAST_UPDATED_BY = "lastUpdatedBy";
     
     String POS_NOUN = "noun";
     String POS_PRONOUN = "pronoun";

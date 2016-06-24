@@ -20,6 +20,8 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.OrthographicVectors;
 import org.ekstep.language.measures.meta.PhonologicVectors;
 import org.ekstep.language.measures.meta.SyllableMap;
+import org.ekstep.language.util.DefinitionDTOCache;
+import org.ekstep.language.util.WordUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -29,12 +31,13 @@ import akka.actor.ActorRef;
 public class LexileMeasuresActor extends LanguageBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(LexileMeasuresActor.class.getName());
+	private WordUtil wordUtil = new WordUtil(); 
 
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
-		LOGGER.info("Received Command: " + msg);
 		Request request = (Request) msg;
+		LOGGER.info(request.getRequestId() + " | Received Command: " + request);
 		String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
 		String operation = request.getOperation();
 		try {
@@ -49,6 +52,10 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTexts.name(), operation)) {
 			    Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
 			    Map<String, Object> response = ParagraphMeasures.analyseTexts(languageId, texts);
+                OK(LanguageParams.text_complexity.name(), response, getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.analyseTextsCSV.name(), operation)) {
+                Map<String, String> texts = (Map<String, String>) request.get(LanguageParams.texts.name());
+                Map<String, Object> response = ParagraphMeasures.analyseTextsCSV(languageId, texts);
                 OK(LanguageParams.text_complexity.name(), response, getSender());
             } else if (StringUtils.equalsIgnoreCase(LanguageOperations.loadLanguageVectors.name(), operation)) {
 				SyllableMap.loadSyllables(languageId);
@@ -86,6 +93,20 @@ public class LexileMeasuresActor extends LanguageBaseActor {
 					}
 				}
 				OK(LanguageParams.word_features.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexity.name(), operation)) {
+				String lemma = (String) request.get(LanguageParams.word.name());
+				Double wordComplexity = wordUtil.getWordComplexity(lemma, languageId);
+				Map<String, Double> map = new HashMap<String, Double>();
+				map.put(lemma, wordComplexity);
+				OK(LanguageParams.word_complexity.name(), map, getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.getWordComplexities.name(), operation)) {
+			    List<String> words = (List<String>) request.get(LanguageParams.words.name());
+			    Map<String, Double> map = wordUtil.getWordComplexity(words, languageId);
+                OK(LanguageParams.word_complexity.name(), map, getSender());
+            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.syncDefinition.name(), operation)) {
+				String definitionName = (String) request.get(LanguageParams.definitionName.name());
+				DefinitionDTOCache.syncDefintion(definitionName, languageId);
+				OK(getSender());
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
 				throw new ClientException(LanguageErrorCodes.ERR_INVALID_OPERATION.name(),

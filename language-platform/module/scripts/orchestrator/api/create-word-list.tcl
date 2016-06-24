@@ -56,5 +56,7 @@ if {$check_error} {
 	set set_node [java::new Node]
 	java::prop $set_node "metadata" $metadata
 	set resp [createSet $language_id $word_id_list $set_type $object_type $set_node]
+	puts "updateWordListMembership"
+	updateWordListMembership $language_id $word_id_list
 	return $resp
 }

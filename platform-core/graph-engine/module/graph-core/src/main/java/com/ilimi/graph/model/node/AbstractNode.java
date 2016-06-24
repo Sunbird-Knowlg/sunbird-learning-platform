@@ -214,12 +214,18 @@ public abstract class AbstractNode extends AbstractDomainObject implements INode
                 List list = (List) value;
                 Object[] array = getArray(key, list);
                 if (null == array) {
-                    try {
-                        value = new String(mapper.writeValueAsString(list));
+                    if (list.isEmpty()) {
+                        value = null;
                         if(null != metadata) 
                             metadata.put(key, value);
-                    } catch (Exception e) {
-                        throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid JSON for property:"+key, e);
+                    } else {
+                        try {
+                            value = new String(mapper.writeValueAsString(list));
+                            if(null != metadata) 
+                                metadata.put(key, value);
+                        } catch (Exception e) {
+                            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_INVALID_JSON.name(), "Invalid value for the property: "+key, e);
+                        }
                     }
                 } else {
                     value = array;

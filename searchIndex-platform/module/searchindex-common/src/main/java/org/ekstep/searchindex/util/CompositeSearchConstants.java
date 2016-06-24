@@ -37,4 +37,15 @@ public class CompositeSearchConstants {
 	public static final String SEARCH_OPERATION_IN = "IN";
 	public static final String CONSUMER_TYPE_COMPOSITE_INDEX = "composite_index";
 	public static final String CONSUMER_TYPE_WORD_COUNT = "word_count";
+	public static final String FACET_COUNT_KEY = "_count";
+	public static final String RAW_FIELD_EXTENSION = ".raw";
+	public static final String SEARCH_OPERATION_RANGE_MIN = "min";
+	public static final String SEARCH_OPERATION_RANGE_MAX = "max";
+	public static final String CONDITION_SET_RANGE = "Range";
+	public static final String CONDITION_SET_ARITHMETIC="Arithmetic";
+	public static final String CONDITION_SET_MUST= "Must";
+	public static final String CONDITION_SET_MUST_NOT= "Not";
+	public static final String SEARCH_OPERATION_RANGE = "range";
+	public static final String SEARCH_OPERATION_RANGE_GTE="gte";
+	public static final String SEARCH_OPERATION_RANGE_LTE="lte";
 }

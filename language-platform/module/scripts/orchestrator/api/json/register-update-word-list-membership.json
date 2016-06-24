@@ -1,0 +1,15 @@
+{
+    "name": "updateWordListMembership",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+        "name": "wordIds",
+        "index": 1,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    }],
+    "body": "",
+    "apiId": "ekstep.wordlist.update.membership"
+}

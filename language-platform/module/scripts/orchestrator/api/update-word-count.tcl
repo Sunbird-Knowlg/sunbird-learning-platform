@@ -33,9 +33,7 @@ set def_node [get_resp_value $resp_def_node "definition_node"]
 set resp_object [convert_graph_node $graph_node $def_node]
 
 if {[java::isnull $wordCount] == 1} {
-	puts "wordCount is null"
 	set wordCount [java::new Integer 0]
-	
 }
 
 set wordCount [$wordCount intValue]
@@ -45,16 +43,13 @@ set words [$ogWords intValue]
 set updatedWordsCount [expr $words + $wordCount]
 
 if {[java::isnull $liveWordCount] == 1} {
-	puts "liveWordCount is null"
 	set liveWordCount [java::new Integer 0]
-	
 }
 
 set liveWordCount [$liveWordCount intValue]
 
 set ogLiveWordsObj [$resp_object get "liveWords"]
 if {[java::isnull $ogLiveWordsObj] == 1} {
-	puts "is null"
 	set ogLiveWords [java::new Integer 0]
 } else {
 	set ogLiveWords [java::new Integer [$resp_object get "liveWords"]]
@@ -63,7 +58,6 @@ if {[java::isnull $ogLiveWordsObj] == 1} {
 set liveWords [$ogLiveWords intValue]
 set updatedLiveWordsCount [expr $liveWords + $liveWordCount]
 $resp_object put "words" [java::new Integer $updatedWordsCount]
-$resp_object put "liveWords" [java::new Integer $updatedLiveWordsCount]
 $resp_object put "objectType" "Language"
 set language_obj [convert_to_graph_node $resp_object $def_node]
 set create_response [updateDataNode "domain" $lang_node_id $language_obj]

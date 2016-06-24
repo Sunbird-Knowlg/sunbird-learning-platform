@@ -74,7 +74,11 @@ public class AkkaCommand implements Command {
                 req.getContext().put(key, req.get(key));
             }
 			try {
-				Response response = AkkaRequestRouter.sendRequest(req, info.getActorPath());
+				Response response = null;
+				if (null != info.getAsync() && info.getAsync().booleanValue())
+				    response = AkkaRequestRouter.sendRequestAsync(req, info.getActorPath());
+				else
+				    response = AkkaRequestRouter.sendRequest(req, info.getActorPath());
 				interp.setResult(ReflectObject.newInstance(interp, Response.class, response));
 			} catch (MiddlewareException e) {
 				Response response = ERROR(e.getErrCode(), e.getMessage(), e.getResponseCode());

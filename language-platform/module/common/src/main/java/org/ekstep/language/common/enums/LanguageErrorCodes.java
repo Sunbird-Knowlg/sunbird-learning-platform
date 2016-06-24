@@ -16,6 +16,8 @@ public enum LanguageErrorCodes {
     
     ERR_UNSUPPORTED_LANGUAGE,
     
+    ERR_INVALID_WORD,
+    
     ERR_INVALID_OBJECTTYPE,
     
     ERR_INVALID_OBJECT,
@@ -47,6 +49,8 @@ public enum LanguageErrorCodes {
     ERR_CREATE_SYNONYM,
     
     ERR_WORDS_NOT_FOUND,
+    
+    ERR_DEFINITION_NOT_FOUND,
     
     ERR_INVALID_UPLOAD_FILE, 
     

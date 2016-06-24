@@ -28,10 +28,12 @@ public class Neo4JTransactionEventHandler implements TransactionEventHandler<Voi
 
 	@Override
 	public void afterCommit(TransactionData data, Void state) {
+	    
 	}
 
 	@Override
 	public void afterRollback(TransactionData data, Void state) {
+	    
 	}
 	
 }

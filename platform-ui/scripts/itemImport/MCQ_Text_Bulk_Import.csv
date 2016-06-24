@@ -1,0 +1,302 @@
+Code,Title,,,,,Template,Template ID,Number of Answers,Maximum Score,Partial Scoring,Feedback,Grade Grade,Difficulty Level,Keywords,Options 1 asset,Options 1 answer,Options 2 asset,Options 2 answer,Options 3 asset,Options 3 answer,Options 4 asset,Options 4 answer
+Unique code for the question,Title for the assessment item,Question Body,,,,,,How many answers are there?,How many marks can be allotted?,Partial scoring is allowed?,Feedback to show if the item is answered incorrectly,Grade Grade,How difficult is the question?,,,,,,,,,
+ek.n.ib.a.ssnc.bp1.1,जोड़,7 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",8,Yes,7,No,1,No,4,No
+ek.n.ib.a.ssnc.bp1.2,जोड़,1 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",5,Yes,1,No,4,No,6,No
+ek.n.ib.a.ssnc.bp1.3,जोड़,5 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",6,Yes,5,No,1,No,7,No
+ek.n.ib.a.ssnc.bp1.4,जोड़,1 + 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",9,Yes,1,No,8,No,3,No
+ek.n.ib.a.ssnc.bp1.5,जोड़,3 + 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",8,Yes,3,No,5,No,2,No
+ek.n.ib.a.ssnc.bp2.1,जोड़,2 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",1,No,6,Yes,2,No,4,No
+ek.n.ib.a.ssnc.bp2.2,जोड़,4 + 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",6,No,7,Yes,4,No,3,No
+ek.n.ib.a.ssnc.bp2.3,जोड़,1 + 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",9,No,6,Yes,1,No,5,No
+ek.n.ib.a.ssnc.bp2.4,जोड़,1 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",8,No,5,Yes,1,No,4,No
+ek.n.ib.a.ssnc.bp2.5,जोड़,8 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",4,No,9,Yes,8,No,1,No
+ek.n.ib.a.ssnc.bp3.1,जोड़,7 + 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",2,No,6,No,9,Yes,7,No
+ek.n.ib.a.ssnc.bp3.2,जोड़,8 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",1,No,3,No,9,Yes,8,No
+ek.n.ib.a.ssnc.bp3.3,जोड़,5 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",1,No,3,No,6,Yes,5,No
+ek.n.ib.a.ssnc.bp3.4,जोड़,5 + 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",3,No,2,No,8,Yes,5,No
+ek.n.ib.a.ssnc.bp3.5,जोड़,7 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",1,No,9,No,8,Yes,7,No
+ek.n.ib.a.ssnc.bp4.1,जोड़,4 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",4,No,3,No,5,No,8,Yes
+ek.n.ib.a.ssnc.bp4.2,जोड़,1 + 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",1,No,3,No,8,No,4,Yes
+ek.n.ib.a.ssnc.bp4.3,जोड़,4 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",4,No,1,No,8,No,5,Yes
+ek.n.ib.a.ssnc.bp4.4,जोड़,3 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",3,No,4,No,6,No,7,Yes
+ek.n.ib.a.ssnc.bp4.5,जोड़,3 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"addition, add, sum",3,No,1,No,6,No,4,Yes
+ek.n.ib.a.ssc.bp1.1,जोड़,8 + 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",16,Yes,8,No,10,No,14,No
+ek.n.ib.a.ssc.bp1.2,जोड़,7 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",13,Yes,7,No,6,No,10,No
+ek.n.ib.a.ssc.bp1.3,जोड़,6 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",13,Yes,6,No,7,No,14,No
+ek.n.ib.a.ssc.bp1.4,जोड़,6 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",13,Yes,6,No,7,No,11,No
+ek.n.ib.a.ssc.bp1.5,जोड़,9 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",15,Yes,9,No,6,No,16,No
+ek.n.ib.a.ssc.bp2.1,जोड़,6 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",15,No,13,Yes,6,No,7,No
+ek.n.ib.a.ssc.bp2.2,जोड़,6 + 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",16,No,14,Yes,6,No,8,No
+ek.n.ib.a.ssc.bp2.3,जोड़,8 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",11,No,14,Yes,8,No,6,No
+ek.n.ib.a.ssc.bp2.4,जोड़,6 + 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",16,No,11,Yes,6,No,5,No
+ek.n.ib.a.ssc.bp2.5,जोड़,9 + 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",11,No,14,Yes,9,No,5,No
+ek.n.ib.a.ssc.bp3.1,जोड़,6 + 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",8,No,15,No,14,Yes,6,No
+ek.n.ib.a.ssc.bp3.2,जोड़,6 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",15,No,10,No,12,Yes,6,No
+ek.n.ib.a.ssc.bp3.3,जोड़,8 + 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",14,No,11,No,16,Yes,8,No
+ek.n.ib.a.ssc.bp3.4,जोड़,9 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",6,No,12,No,15,Yes,9,No
+ek.n.ib.a.ssc.bp3.5,जोड़,8 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",7,No,12,No,15,Yes,8,No
+ek.n.ib.a.ssc.bp4.1,जोड़,5 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",5,No,7,No,16,No,12,Yes
+ek.n.ib.a.ssc.bp4.2,जोड़,6 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",6,No,15,No,11,No,12,Yes
+ek.n.ib.a.ssc.bp4.3,जोड़,8 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",8,No,7,No,13,No,15,Yes
+ek.n.ib.a.ssc.bp4.4,जोड़,5 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",5,No,9,No,12,No,14,Yes
+ek.n.ib.a.ssc.bp4.5,जोड़,8 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",8,No,9,No,14,No,17,Yes
+ek.n.ib.a.dsnc.bp1.1,जोड़,23 + 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",28,Yes,18,No,73,No,31,No
+ek.n.ib.a.dsnc.bp1.2,जोड़,52 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",53,Yes,51,No,62,No,93,No
+ek.n.ib.a.dsnc.bp1.3,जोड़,78 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",79,Yes,77,No,88,No,78,No
+ek.n.ib.a.dsnc.bp1.4,जोड़,86 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",87,Yes,85,No,96,No,99,No
+ek.n.ib.a.dsnc.bp1.5,जोड़,46 + 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",48,Yes,44,No,66,No,26,No
+ek.n.ib.a.dsnc.bp2.1,जोड़,71 + 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",70,No,75,Yes,67,No,111,No
+ek.n.ib.a.dsnc.bp2.2,जोड़,32 + 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",55,No,34,Yes,30,No,52,No
+ek.n.ib.a.dsnc.bp2.3,जोड़,98 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",10,No,99,Yes,97,No,108,No
+ek.n.ib.a.dsnc.bp2.4,जोड़,28 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",23,No,29,Yes,27,No,38,No
+ek.n.ib.a.dsnc.bp2.5,जोड़,16 + 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,MEDIUM,"addition, add, sum",95,No,17,Yes,15,No,26,No
+ek.n.ib.a.dsc.bp3.1,जोड़,89 + 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",109,No,811,No,91,Yes,87,No
+ek.n.ib.a.dsc.bp3.2,जोड़,24 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",114,No,213,No,33,Yes,15,No
+ek.n.ib.a.dsc.bp3.3,जोड़,89 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",149,No,815,No,95,Yes,83,No
+ek.n.ib.a.dsc.bp3.4,जोड़,34 + 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",94,No,310,No,40,Yes,28,No
+ek.n.ib.a.dsc.bp3.5,जोड़,21 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",111,No,210,No,30,Yes,12,No
+ek.n.ib.a.dsc.bp4.1,जोड़,66 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",59,No,136,No,613,No,73,Yes
+ek.n.ib.a.dsc.bp4.2,जोड़,47 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",38,No,137,No,416,No,56,Yes
+ek.n.ib.a.dsc.bp4.3,जोड़,82 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",73,No,172,No,811,No,91,Yes
+ek.n.ib.a.dsc.bp4.4,जोड़,43 + 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",36,No,113,No,410,No,50,Yes
+ek.n.ib.a.dsc.bp4.5,जोड़,46 + 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",37,No,136,No,415,No,55,Yes
+ek.n.ib.a.ddnc.bp1.1,जोड़,46 + 20 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",66,Yes,26,No,65,No,43,No
+ek.n.ib.a.ddnc.bp1.2,जोड़,68 + 11 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",79,Yes,57,No,77,No,53,No
+ek.n.ib.a.ddnc.bp1.3,जोड़,74 + 14 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",88,Yes,60,No,83,No,70,No
+ek.n.ib.a.ddnc.bp1.4,जोड़,26 + 11 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",37,Yes,15,No,39,No,50,No
+ek.n.ib.a.ddnc.bp1.5,जोड़,55 + 14 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",69,Yes,41,No,66,No,48,No
+ek.n.ib.a.ddnc.bp2.1,जोड़,70 + 17 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",58,No,87,Yes,53,No,92,No
+ek.n.ib.a.ddnc.bp2.2,जोड़,84 + 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",74,No,97,Yes,71,No,98,No
+ek.n.ib.a.ddnc.bp2.3,जोड़,10 + 23 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",75,No,33,Yes,13,No,32,No
+ek.n.ib.a.ddnc.bp2.4,जोड़,10 + 27 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",80,No,37,Yes,17,No,38,No
+ek.n.ib.a.ddnc.bp2.5,जोड़,87 + 12 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",87,No,99,Yes,75,No,101,No
+ek.n.ib.a.ddnc.bp3.1,जोड़,34 + 60 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",92,No,48,No,94,Yes,26,No
+ek.n.ib.a.ddnc.bp3.2,जोड़,81 + 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",94,No,74,No,99,Yes,63,No
+ek.n.ib.a.ddnc.bp3.3,जोड़,62 + 37 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",97,No,96,No,99,Yes,25,No
+ek.n.ib.a.ddnc.bp3.4,जोड़,86 + 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",98,No,91,No,99,Yes,73,No
+ek.n.ib.a.ddnc.bp3.5,जोड़,52 + 42 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",91,No,28,No,94,Yes,10,No
+ek.n.ib.a.ddnc.bp4.1,जोड़,10 + 62 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",52,No,69,No,56,No,72,Yes
+ek.n.ib.a.ddnc.bp4.2,जोड़,34 + 25 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",9,No,56,No,33,No,59,Yes
+ek.n.ib.a.ddnc.bp4.3,जोड़,87 + 12 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",75,No,96,No,87,No,99,Yes
+ek.n.ib.a.ddnc.bp4.4,जोड़,34 + 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",21,No,48,No,40,No,47,Yes
+ek.n.ib.a.ddnc.bp4.5,जोड़,71 + 22 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",49,No,91,No,48,No,93,Yes
+ek.n.ib.a.ddc.bp1.1,जोड़,43 + 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",61,Yes,51,No,511,No,68,No
+ek.n.ib.a.ddc.bp1.2,जोड़,43 + 38 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",81,Yes,71,No,711,No,48,No
+ek.n.ib.a.ddc.bp1.3,जोड़,22 + 58 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",80,Yes,70,No,710,No,55,No
+ek.n.ib.a.ddc.bp1.4,जोड़,12 + 59 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",71,Yes,61,No,611,No,42,No
+ek.n.ib.a.ddc.bp1.5,जोड़,74 + 17 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"addition, add, sum",91,Yes,81,No,811,No,71,No
+ek.n.ib.a.ddc.bp2.1,जोड़,22 + 49 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",48,No,71,Yes,61,No,611,No
+ek.n.ib.a.ddc.bp2.2,जोड़,28 + 37 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",51,No,65,Yes,55,No,515,No
+ek.n.ib.a.ddc.bp2.3,जोड़,74 + 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",46,No,93,Yes,83,No,813,No
+ek.n.ib.a.ddc.bp2.4,जोड़,42 + 29 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",55,No,71,Yes,61,No,611,No
+ek.n.ib.a.ddc.bp2.5,जोड़,64 + 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",56,No,83,Yes,73,No,713,No
+ek.n.ib.a.ddc.bp3.1,जोड़,59 + 35 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",814,No,87,No,94,Yes,84,No
+ek.n.ib.a.ddc.bp3.2,जोड़,57 + 16 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",613,No,32,No,73,Yes,63,No
+ek.n.ib.a.ddc.bp3.3,जोड़,33 + 39 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",612,No,75,No,72,Yes,62,No
+ek.n.ib.a.ddc.bp3.4,जोड़,62 + 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",711,No,42,No,81,Yes,71,No
+ek.n.ib.a.ddc.bp3.5,जोड़,65 + 28 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"addition, add, sum",813,No,74,No,93,Yes,83,No
+ek.n.ib.a.ddc.bp4.1,जोड़,72 + 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"addition, add, sum",81,No,811,No,22,No,91,Yes
+ek.n.ib.a.ddc.bp4.2,जोड़,26 + 16 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"addition, add, sum",32,No,312,No,17,No,42,Yes
+ek.n.ib.a.ddc.bp4.3,जोड़,41 + 29 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"addition, add, sum",60,No,610,No,82,No,70,Yes
+ek.n.ib.a.ddc.bp4.4,जोड़,51 + 39 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"addition, add, sum",80,No,810,No,56,No,90,Yes
+ek.n.ib.a.ddc.bp4.5,जोड़,18 + 67 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"addition, add, sum",75,No,715,No,40,No,85,Yes
+ek.n.ib.s.ssnb.bp1.1,घटाव,3 − 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"subtraction, subtract, difference",1,Yes,5,No,3,No,7,No
+ek.n.ib.s.ssnb.bp1.2,घटाव,9 − 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"subtraction, subtract, difference",8,Yes,10,No,9,No,4,No
+ek.n.ib.s.ssnb.bp1.3,घटाव,4 − 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"subtraction, subtract, difference",3,Yes,5,No,4,No,8,No
+ek.n.ib.s.ssnb.bp1.4,घटाव,6 − 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"subtraction, subtract, difference",2,Yes,10,No,6,No,4,No
+ek.n.ib.s.ssnb.bp1.5,घटाव,6 − 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"subtraction, subtract, difference",5,Yes,7,No,6,No,2,No
+ek.n.ib.s.ssnb.bp2.1,घटाव,4 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",9,No,1,Yes,7,No,4,No
+ek.n.ib.s.ssnb.bp2.2,घटाव,4 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",6,No,1,Yes,7,No,4,No
+ek.n.ib.s.ssnb.bp2.3,घटाव,9 − 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",4,No,2,Yes,16,No,9,No
+ek.n.ib.s.ssnb.bp2.4,घटाव,4 − 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",1,No,3,Yes,5,No,4,No
+ek.n.ib.s.ssnb.bp2.5,घटाव,6 − 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",5,No,2,Yes,10,No,6,No
+ek.n.ib.s.ssnb.bp3.1,घटाव,7 − 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",7,No,6,No,1,Yes,13,No
+ek.n.ib.s.ssnb.bp3.2,घटाव,9 − 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",9,No,2,No,3,Yes,15,No
+ek.n.ib.s.ssnb.bp3.3,घटाव,8 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",8,No,1,No,5,Yes,11,No
+ek.n.ib.s.ssnb.bp3.4,घटाव,6 − 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",6,No,8,No,1,Yes,11,No
+ek.n.ib.s.ssnb.bp3.5,घटाव,5 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",5,No,3,No,2,Yes,8,No
+ek.n.ib.s.ssnb.bp4.1,घटाव,9 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",12,No,9,No,7,No,6,Yes
+ek.n.ib.s.ssnb.bp4.2,घटाव,9 − 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",16,No,9,No,4,No,2,Yes
+ek.n.ib.s.ssnb.bp4.3,घटाव,8 − 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",14,No,8,No,3,No,2,Yes
+ek.n.ib.s.ssnb.bp4.4,घटाव,4 − 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",6,No,4,No,3,No,2,Yes
+ek.n.ib.s.ssnb.bp4.5,घटाव,8 − 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"subtraction, subtract, difference",11,No,8,No,6,No,5,Yes
+ek.n.ib.s.ddnb.bp1.1,घटाव,25 − 11 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",14,Yes,36,No,13,No,69,No
+ek.n.ib.s.ddnb.bp1.2,घटाव,56 − 30 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",26,Yes,86,No,22,No,66,No
+ek.n.ib.s.ddnb.bp1.3,घटाव,83 − 42 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",41,Yes,125,No,42,No,37,No
+ek.n.ib.s.ddnb.bp1.4,घटाव,49 − 34 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",15,Yes,83,No,19,No,79,No
+ek.n.ib.s.ddnb.bp1.5,घटाव,54 − 33 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",21,Yes,87,No,26,No,97,No
+ek.n.ib.s.ddnb.bp2.1,घटाव,77 − 43 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",42,No,34,Yes,120,No,29,No
+ek.n.ib.s.ddnb.bp2.2,घटाव,89 − 58 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",93,No,31,Yes,147,No,30,No
+ek.n.ib.s.ddnb.bp2.3,घटाव,28 − 12 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",56,No,16,Yes,40,No,15,No
+ek.n.ib.s.ddnb.bp2.4,घटाव,25 − 14 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",81,No,11,Yes,39,No,8,No
+ek.n.ib.s.ddnb.bp2.5,घटाव,43 − 21 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,EASY,"subtraction, subtract, difference",15,No,22,Yes,64,No,26,No
+ek.n.ib.s.ddnb.bp3.1,घटाव,77 − 20 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",61,No,52,No,57,Yes,97,No
+ek.n.ib.s.ddnb.bp3.2,घटाव,89 − 74 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",13,No,42,No,15,Yes,163,No
+ek.n.ib.s.ddnb.bp3.3,घटाव,52 − 20 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",28,No,99,No,32,Yes,72,No
+ek.n.ib.s.ddnb.bp3.4,घटाव,71 − 50 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",22,No,20,No,21,Yes,121,No
+ek.n.ib.s.ddnb.bp3.5,घटाव,23 − 12 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",12,No,93,No,11,Yes,35,No
+ek.n.ib.s.ddnb.bp4.1,घटाव,98 − 15 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",113,No,80,No,56,No,83,Yes
+ek.n.ib.s.ddnb.bp4.2,घटाव,48 − 14 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",62,No,33,No,8,No,34,Yes
+ek.n.ib.s.ddnb.bp4.3,घटाव,36 − 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",49,No,25,No,86,No,23,Yes
+ek.n.ib.s.ddnb.bp4.4,घटाव,92 − 21 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",113,No,70,No,69,No,71,Yes
+ek.n.ib.s.ddnb.bp4.5,घटाव,25 − 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",38,No,7,No,67,No,12,Yes
+ek.n.ib.s.ddb.bp1.1,घटाव,44 − 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",26,Yes,36,No,34,No,58,No
+ek.n.ib.s.ddb.bp1.2,घटाव,45 − 16 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",29,Yes,39,No,31,No,42,No
+ek.n.ib.s.ddb.bp1.3,घटाव,83 − 77 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",6,Yes,16,No,14,No,5,No
+ek.n.ib.s.ddb.bp1.4,घटाव,78 − 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",59,Yes,69,No,61,No,47,No
+ek.n.ib.s.ddb.bp1.5,घटाव,34 − 16 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",18,Yes,28,No,22,No,81,No
+ek.n.ib.s.ddb.bp2.1,घटाव,82 − 27 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",28,No,55,Yes,65,No,65,No
+ek.n.ib.s.ddb.bp2.2,घटाव,22 − 13 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",79,No,9,Yes,19,No,11,No
+ek.n.ib.s.ddb.bp2.3,घटाव,76 − 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",86,No,58,Yes,68,No,62,No
+ek.n.ib.s.ddb.bp2.4,घटाव,28 − 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",27,No,9,Yes,19,No,11,No
+ek.n.ib.s.ddb.bp2.5,घटाव,93 − 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"subtraction, subtract, difference",58,No,74,Yes,84,No,86,No
+ek.n.ib.s.ddb.bp3.1,घटाव,25 − 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",13,No,48,No,7,Yes,17,No
+ek.n.ib.s.ddb.bp3.2,घटाव,51 − 49 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",18,No,20,No,2,Yes,12,No
+ek.n.ib.s.ddb.bp3.3,घटाव,45 − 28 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",23,No,6,No,17,Yes,27,No
+ek.n.ib.s.ddb.bp3.4,घटाव,77 − 38 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",41,No,80,No,39,Yes,49,No
+ek.n.ib.s.ddb.bp3.5,घटाव,27 − 18 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",11,No,95,No,9,Yes,19,No
+ek.n.ib.s.ddb.bp4.1,घटाव,71 − 44 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",37,No,33,No,32,No,27,Yes
+ek.n.ib.s.ddb.bp4.2,घटाव,72 − 63 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",19,No,11,No,14,No,9,Yes
+ek.n.ib.s.ddb.bp4.3,घटाव,56 − 19 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",47,No,43,No,27,No,37,Yes
+ek.n.ib.s.ddb.bp4.4,घटाव,44 − 25 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",29,No,21,No,17,No,19,Yes
+ek.n.ib.s.ddb.bp4.5,घटाव,42 − 24 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"subtraction, subtract, difference",28,No,22,No,65,No,18,Yes
+ek.n.ib.m.ss.bp1.1,गुणन,9 × 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",9,Yes,10,No,18,No,0,No
+ek.n.ib.m.ss.bp1.2,गुणन,5 × 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",40,Yes,13,No,45,No,35,No
+ek.n.ib.m.ss.bp1.3,गुणन,5 × 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",15,Yes,8,No,20,No,10,No
+ek.n.ib.m.ss.bp1.4,गुणन,4 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",8,Yes,6,No,12,No,4,No
+ek.n.ib.m.ss.bp1.5,गुणन,2 × 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",6,Yes,5,No,8,No,4,No
+ek.n.ib.m.ss.bp2.1,गुणन,4 × 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",24,No,28,Yes,11,No,32,No
+ek.n.ib.m.ss.bp2.2,गुणन,8 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",24,No,32,Yes,12,No,40,No
+ek.n.ib.m.ss.bp2.3,गुणन,3 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",9,No,12,Yes,7,No,15,No
+ek.n.ib.m.ss.bp2.4,गुणन,5 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",15,No,20,Yes,9,No,25,No
+ek.n.ib.m.ss.bp2.5,गुणन,6 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,DIFFICULT,"multiplication, multiply, product",18,No,24,Yes,10,No,30,No
+ek.n.ib.m.ss.bp3.1,गुणन,4 × 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",24,No,16,No,20,Yes,9,No
+ek.n.ib.m.ss.bp3.2,गुणन,3 × 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",24,No,18,No,21,Yes,10,No
+ek.n.ib.m.ss.bp3.3,गुणन,1 × 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",1,No,8,No,9,Yes,10,No
+ek.n.ib.m.ss.bp3.4,गुणन,5 × 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",10,No,0,No,5,Yes,6,No
+ek.n.ib.m.ss.bp3.5,गुणन,8 × 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",16,No,0,No,8,Yes,9,No
+ek.n.ib.m.ss.bp4.1,गुणन,6 × 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",13,No,48,No,36,No,42,Yes
+ek.n.ib.m.ss.bp4.2,गुणन,8 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",12,No,40,No,24,No,32,Yes
+ek.n.ib.m.ss.bp4.3,गुणन,5 × 2 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",7,No,15,No,5,No,10,Yes
+ek.n.ib.m.ss.bp4.4,गुणन,7 × 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",11,No,35,No,21,No,28,Yes
+ek.n.ib.m.ss.bp4.5,गुणन,3 × 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 2,MEDIUM,"multiplication, multiply, product",9,No,21,No,15,No,18,Yes
+ek.n.ib.d.ss.bp1.1,विभाजन,16 ÷ 8 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",2,Yes,24,No,8,No,1,No
+ek.n.ib.d.ss.bp1.2,विभाजन,35 ÷ 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",7,Yes,40,No,30,No,3,No
+ek.n.ib.d.ss.bp1.3,विभाजन,54 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",6,Yes,63,No,45,No,3,No
+ek.n.ib.d.ss.bp1.4,विभाजन,30 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",5,Yes,36,No,24,No,1,No
+ek.n.ib.d.ss.bp1.5,विभाजन,21 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",3,Yes,28,No,14,No,1,No
+ek.n.ib.d.ss.bp2.1,विभाजन,63 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",2,No,9,Yes,70,No,56,No
+ek.n.ib.d.ss.bp2.2,विभाजन,48 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",3,No,8,Yes,54,No,42,No
+ek.n.ib.d.ss.bp2.3,विभाजन,6 ÷ 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",1,No,2,Yes,9,No,3,No
+ek.n.ib.d.ss.bp2.4,विभाजन,45 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",7,No,5,Yes,54,No,36,No
+ek.n.ib.d.ss.bp2.5,विभाजन,54 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",1,No,6,Yes,63,No,45,No
+ek.n.ib.d.ss.bp3.1,विभाजन,36 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",27,No,2,No,4,Yes,45,No
+ek.n.ib.d.ss.bp3.2,विभाजन,3 ÷ 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",2,No,5,No,3,Yes,4,No
+ek.n.ib.d.ss.bp3.3,विभाजन,5 ÷ 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",0,No,7,No,1,Yes,10,No
+ek.n.ib.d.ss.bp3.4,विभाजन,12 ÷ 6 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",6,No,7,No,2,Yes,18,No
+ek.n.ib.d.ss.bp3.5,विभाजन,42 ÷ 7 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",35,No,7,No,6,Yes,49,No
+ek.n.ib.d.ss.bp4.1,विभाजन,81 ÷ 9 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",90,No,72,No,5,No,9,Yes
+ek.n.ib.d.ss.bp4.2,विभाजन,5 ÷ 1 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",6,No,4,No,3,No,5,Yes
+ek.n.ib.d.ss.bp4.3,विभाजन,12 ÷ 3 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",15,No,9,No,1,No,4,Yes
+ek.n.ib.d.ss.bp4.4,विभाजन,10 ÷ 5 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",15,No,5,No,8,No,2,Yes
+ek.n.ib.d.ss.bp4.5,विभाजन,36 ÷ 4 = ?,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 3,MEDIUM,"division, divide",40,No,32,No,6,No,9,Yes
+ek.n.ib.nb.s.bp1.1,गिनती,4 अौर 6 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",5,Yes,3,No,7,No,4,No
+ek.n.ib.nb.s.bp1.2,गिनती,7 अौर 9 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",8,Yes,6,No,10,No,3,No
+ek.n.ib.nb.s.bp1.3,गिनती,7 अौर 9 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",8,Yes,6,No,10,No,9,No
+ek.n.ib.nb.s.bp1.4,गिनती,1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",2,Yes,0,No,4,No,5,No
+ek.n.ib.nb.s.bp1.5,गिनती,5 अौर 7 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",6,Yes,4,No,8,No,5,No
+ek.n.ib.nb.s.bp2.1,गिनती,1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",8,No,2,Yes,0,No,4,No
+ek.n.ib.nb.s.bp2.2,गिनती,2 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",10,No,3,Yes,1,No,5,No
+ek.n.ib.nb.s.bp2.3,गिनती,6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",8,No,7,Yes,5,No,9,No
+ek.n.ib.nb.s.bp2.4,गिनती,2 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",10,No,3,Yes,1,No,5,No
+ek.n.ib.nb.s.bp2.5,गिनती,1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",9,No,2,Yes,0,No,4,No
+ek.n.ib.nb.s.bp3.1,गिनती,6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",9,No,4,No,7,Yes,5,No
+ek.n.ib.nb.s.bp3.2,गिनती,6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",9,No,3,No,7,Yes,5,No
+ek.n.ib.nb.s.bp3.3,गिनती,5 अौर 7 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",8,No,2,No,6,Yes,4,No
+ek.n.ib.nb.s.bp3.4,गिनती,7 अौर 9 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",10,No,2,No,8,Yes,6,No
+ek.n.ib.nb.s.bp3.5,गिनती,3 अौर 5 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",6,No,7,No,4,Yes,2,No
+ek.n.ib.nb.s.bp4.1,गिनती,1 अौर 3 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",0,No,4,No,6,No,2,Yes
+ek.n.ib.nb.s.bp4.2,गिनती,3 अौर 5 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",2,No,6,No,7,No,4,Yes
+ek.n.ib.nb.s.bp4.3,गिनती,6 अौर 8 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",5,No,9,No,3,No,7,Yes
+ek.n.ib.nb.s.bp4.4,गिनती,2 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",1,No,5,No,2,No,3,Yes
+ek.n.ib.nb.s.bp4.5,गिनती,3 अौर 5 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",2,No,6,No,1,No,4,Yes
+ek.n.ib.nb.d.bp1.1,गिनती,71 अौर 73 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",72,Yes,70,No,74,No,29,No
+ek.n.ib.nb.d.bp1.2,गिनती,97 अौर 99 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",98,Yes,96,No,100,No,61,No
+ek.n.ib.nb.d.bp1.3,गिनती,73 अौर 75 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",74,Yes,72,No,76,No,93,No
+ek.n.ib.nb.d.bp1.4,गिनती,14 अौर 16 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",15,Yes,13,No,17,No,44,No
+ek.n.ib.nb.d.bp1.5,गिनती,26 अौर 28 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",27,Yes,25,No,29,No,15,No
+ek.n.ib.nb.d.bp2.1,गिनती,27 अौर 29 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",71,No,28,Yes,26,No,30,No
+ek.n.ib.nb.d.bp2.2,गिनती,82 अौर 84 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",1,No,83,Yes,81,No,85,No
+ek.n.ib.nb.d.bp2.3,गिनती,10 अौर 12 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",81,No,11,Yes,9,No,13,No
+ek.n.ib.nb.d.bp2.4,गिनती,73 अौर 75 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",45,No,74,Yes,72,No,76,No
+ek.n.ib.nb.d.bp2.5,गिनती,44 अौर 46 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",83,No,45,Yes,43,No,47,No
+ek.n.ib.nb.d.bp3.1,गिनती,73 अौर 75 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",76,No,56,No,74,Yes,72,No
+ek.n.ib.nb.d.bp3.2,गिनती,64 अौर 66 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",67,No,50,No,65,Yes,63,No
+ek.n.ib.nb.d.bp3.3,गिनती,15 अौर 17 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",18,No,29,No,16,Yes,14,No
+ek.n.ib.nb.d.bp3.4,गिनती,76 अौर 78 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",79,No,71,No,77,Yes,75,No
+ek.n.ib.nb.d.bp3.5,गिनती,78 अौर 80 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",81,No,71,No,79,Yes,77,No
+ek.n.ib.nb.d.bp4.1,गिनती,22 अौर 24 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",21,No,25,No,87,No,23,Yes
+ek.n.ib.nb.d.bp4.2,गिनती,25 अौर 27 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",24,No,28,No,29,No,26,Yes
+ek.n.ib.nb.d.bp4.3,गिनती,65 अौर 67 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",64,No,68,No,13,No,66,Yes
+ek.n.ib.nb.d.bp4.4,गिनती,52 अौर 54 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",51,No,55,No,63,No,53,Yes
+ek.n.ib.nb.d.bp4.5,गिनती,38 अौर 40 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,EASY,"numbers, number, missing, counting",37,No,41,No,51,No,39,Yes
+ek.n.ib.nbr.d.bp1.1,गिनती,22 अौर 20 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",21,Yes,19,No,23,No,14,No
+ek.n.ib.nbr.d.bp1.2,गिनती,8 अौर 6 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",7,Yes,5,No,9,No,54,No
+ek.n.ib.nbr.d.bp1.3,गिनती,58 अौर 56 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",57,Yes,55,No,59,No,88,No
+ek.n.ib.nbr.d.bp1.4,गिनती,87 अौर 85 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",86,Yes,84,No,88,No,79,No
+ek.n.ib.nbr.d.bp1.5,गिनती,66 अौर 64 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",65,Yes,63,No,67,No,45,No
+ek.n.ib.nbr.d.bp2.1,गिनती,60 अौर 58 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",44,No,59,Yes,57,No,61,No
+ek.n.ib.nbr.d.bp2.2,गिनती,22 अौर 20 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",24,No,21,Yes,19,No,23,No
+ek.n.ib.nbr.d.bp2.3,गिनती,61 अौर 59 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",63,No,60,Yes,58,No,62,No
+ek.n.ib.nbr.d.bp2.4,गिनती,86 अौर 84 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",27,No,85,Yes,83,No,87,No
+ek.n.ib.nbr.d.bp2.5,गिनती,7 अौर 5 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",86,No,6,Yes,4,No,8,No
+ek.n.ib.nbr.d.bp3.1,गिनती,29 अौर 27 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",30,No,27,No,28,Yes,26,No
+ek.n.ib.nbr.d.bp3.2,गिनती,97 अौर 95 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",98,No,68,No,96,Yes,94,No
+ek.n.ib.nbr.d.bp3.3,गिनती,78 अौर 76 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",79,No,84,No,77,Yes,75,No
+ek.n.ib.nbr.d.bp3.4,गिनती,33 अौर 31 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",34,No,59,No,32,Yes,30,No
+ek.n.ib.nbr.d.bp3.5,गिनती,66 अौर 64 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",67,No,6,No,65,Yes,63,No
+ek.n.ib.nbr.d.bp4.1,गिनती,71 अौर 69 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",68,No,72,No,42,No,70,Yes
+ek.n.ib.nbr.d.bp4.2,गिनती,83 अौर 81 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",80,No,84,No,4,No,82,Yes
+ek.n.ib.nbr.d.bp4.3,गिनती,83 अौर 81 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",80,No,84,No,67,No,82,Yes
+ek.n.ib.nbr.d.bp4.4,गिनती,44 अौर 42 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",41,No,45,No,23,No,43,Yes
+ek.n.ib.nbr.d.bp4.5,गिनती,6 अौर 4 के बीच आने वाली संख्या को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,No,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",3,No,7,No,78,No,5,Yes
+ek.n.ib.nb2.d.bp1.1,गिनती,83 अौर 86 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",82,No,85,Yes,84,Yes,87,No
+ek.n.ib.nb2.d.bp1.2,गिनती,47 अौर 50 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",46,No,49,Yes,48,Yes,52,No
+ek.n.ib.nb2.d.bp1.3,गिनती,9 अौर 12 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",8,No,11,Yes,10,Yes,14,No
+ek.n.ib.nb2.d.bp1.4,गिनती,46 अौर 49 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",45,No,48,Yes,47,Yes,50,No
+ek.n.ib.nb2.d.bp1.5,गिनती,14 अौर 17 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",12,No,16,Yes,15,Yes,20,No
+ek.n.ib.nb2.d.bp2.1,गिनती,86 अौर 89 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",91,No,85,No,88,Yes,87,Yes
+ek.n.ib.nb2.d.bp2.2,गिनती,19 अौर 22 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",24,No,18,No,21,Yes,20,Yes
+ek.n.ib.nb2.d.bp2.3,गिनती,26 अौर 29 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",31,No,23,No,28,Yes,27,Yes
+ek.n.ib.nb2.d.bp2.4,गिनती,63 अौर 66 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",67,No,62,No,65,Yes,64,Yes
+ek.n.ib.nb2.d.bp2.5,गिनती,90 अौर 93 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",94,No,89,No,92,Yes,91,Yes
+ek.n.ib.nb2.d.bp3.1,गिनती,71 अौर 74 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",72,Yes,76,No,68,No,73,Yes
+ek.n.ib.nb2.d.bp3.2,गिनती,56 अौर 59 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",57,Yes,62,No,53,No,58,Yes
+ek.n.ib.nb2.d.bp3.3,गिनती,39 अौर 42 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",40,Yes,45,No,38,No,41,Yes
+ek.n.ib.nb2.d.bp3.4,गिनती,68 अौर 71 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",69,Yes,74,No,66,No,70,Yes
+ek.n.ib.nb2.d.bp3.5,गिनती,18 अौर 21 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",19,Yes,22,No,16,No,20,Yes
+ek.n.ib.nb2.d.bp4.1,गिनती,57 अौर 60 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",59,Yes,58,Yes,62,No,56,No
+ek.n.ib.nb2.d.bp4.2,गिनती,1 अौर 4 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",3,Yes,2,Yes,5,No,-2,No
+ek.n.ib.nb2.d.bp4.3,गिनती,62 अौर 65 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",64,Yes,63,Yes,66,No,59,No
+ek.n.ib.nb2.d.bp4.4,गिनती,57 अौर 60 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",59,Yes,58,Yes,61,No,54,No
+ek.n.ib.nb2.d.bp4.5,गिनती,17 अौर 20 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,MEDIUM,"numbers, number, missing, counting",19,Yes,18,Yes,22,No,15,No
+ek.n.ib.nb3.d.bp1.1,गिनती,92 अौर 96 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",94,Yes,93,Yes,99,No,95,Yes
+ek.n.ib.nb3.d.bp1.2,गिनती,76 अौर 80 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",78,Yes,77,Yes,74,No,79,Yes
+ek.n.ib.nb3.d.bp1.3,गिनती,39 अौर 43 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",41,Yes,40,Yes,37,No,42,Yes
+ek.n.ib.nb3.d.bp1.4,गिनती,27 अौर 31 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",29,Yes,28,Yes,24,No,30,Yes
+ek.n.ib.nb3.d.bp1.5,गिनती,68 अौर 72 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",70,Yes,69,Yes,74,No,71,Yes
+ek.n.ib.nb3.d.bp2.1,गिनती,88 अौर 92 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",91,Yes,90,Yes,89,Yes,95,No
+ek.n.ib.nb3.d.bp2.2,गिनती,5 अौर 9 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",8,Yes,7,Yes,6,Yes,4,No
+ek.n.ib.nb3.d.bp2.3,गिनती,71 अौर 75 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",74,Yes,73,Yes,72,Yes,69,No
+ek.n.ib.nb3.d.bp2.4,गिनती,33 अौर 37 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",36,Yes,35,Yes,34,Yes,39,No
+ek.n.ib.nb3.d.bp2.5,गिनती,56 अौर 60 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",59,Yes,58,Yes,57,Yes,63,No
+ek.n.ib.nb3.d.bp3.1,गिनती,96 अौर 100 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",101,No,99,Yes,98,Yes,97,Yes
+ek.n.ib.nb3.d.bp3.2,गिनती,16 अौर 20 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",14,No,19,Yes,18,Yes,17,Yes
+ek.n.ib.nb3.d.bp3.3,गिनती,9 अौर 13 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",14,No,12,Yes,11,Yes,10,Yes
+ek.n.ib.nb3.d.bp3.4,गिनती,31 अौर 35 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",37,No,34,Yes,33,Yes,32,Yes
+ek.n.ib.nb3.d.bp3.5,गिनती,93 अौर 97 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",92,No,96,Yes,95,Yes,94,Yes
+ek.n.ib.nb3.d.bp4.1,गिनती,50 अौर 54 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",51,Yes,57,No,53,Yes,52,Yes
+ek.n.ib.nb3.d.bp4.2,गिनती,13 अौर 17 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",14,Yes,19,No,16,Yes,15,Yes
+ek.n.ib.nb3.d.bp4.3,गिनती,72 अौर 76 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",73,Yes,71,No,75,Yes,74,Yes
+ek.n.ib.nb3.d.bp4.4,गिनती,39 अौर 43 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",40,Yes,46,No,42,Yes,41,Yes
+ek.n.ib.nb3.d.bp4.5,गिनती,19 अौर 23 के बीच आने वाली सभी संख्याओं को चुनिए,,,,org.ekstep.mcq.t.ta,domain_49164,1,1,Yes,दोबारा कोशिश करें,Grade 1,DIFFICULT,"numbers, number, missing, counting",20,Yes,24,No,22,Yes,21,Yes

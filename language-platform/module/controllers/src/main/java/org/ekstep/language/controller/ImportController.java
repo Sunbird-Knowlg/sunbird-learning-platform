@@ -18,11 +18,13 @@ import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IImportManager;
+import org.ekstep.language.mgr.impl.ControllerUtil;
 import org.ekstep.language.util.Constants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -40,6 +42,7 @@ public class ImportController extends BaseLanguageController {
 	
 	@Autowired
     private IImportManager importManager;
+	private ControllerUtil controllerUtil = new ControllerUtil();
 	
     private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
@@ -119,6 +122,30 @@ public class ImportController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/importwordnet/{languageId:.+}", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> importwordnet(@PathVariable(value = "languageId") String languageId,
+            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "wordnet.import";
+        Request request = getRequestObject(map);
+
+        request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());
+        request.setOperation(LanguageOperations.importIndowordnet.name());
+        request.getContext().put(LanguageParams.language_id.name(), languageId);
+        LOGGER.info("List | Request: " + request);
+        try {
+        	controllerUtil.makeAsyncLanguageRequest(request, LOGGER);
+            Response response = new Response();
+            LOGGER.info("List | Response: " + response);
+            return getResponseEntity(response, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        } catch (Exception e) {
+            LOGGER.error("List | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId,
+                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
+        }
+    }
 	
 	@RequestMapping(value = "/{languageId:.+}/enrich/{sourceId:.+}", method = RequestMethod.POST)
 	@ResponseBody

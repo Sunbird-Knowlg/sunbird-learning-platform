@@ -1,0 +1,19 @@
+{
+    "name": "updateVarnaISO",
+    "parameters": [{
+    	"name":"varnaISO_id",
+    	"index": 1,
+    	"routingParam": false
+    },{
+        "name": "iso",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/language/dictionary/iso/*",
+        "pathParams": ["varnaISO_id"]
+    },
+    "body": ""
+}

@@ -6,8 +6,6 @@ import java.util.Map;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +24,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
@@ -40,7 +39,7 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 @RequestMapping("/v1/content")
 public class ContentController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(ContentController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(ContentController.class.getName());
 
     @Autowired
     private IContentManager contentManager;

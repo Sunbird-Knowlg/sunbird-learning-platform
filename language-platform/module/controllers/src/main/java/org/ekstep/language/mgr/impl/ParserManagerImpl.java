@@ -1,6 +1,7 @@
 package org.ekstep.language.mgr.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -15,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.mgr.IParserManager;
+import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.springframework.stereotype.Component;
 
@@ -33,7 +35,7 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 @Component
-public class ParserManagerImpl extends BaseLanguageManager implements IParserManager {
+public class ParserManagerImpl extends BaseLanguageManager implements IParserManager, IWordnetConstants {
 
     private static Logger LOGGER = LogManager.getLogger(ParserManagerImpl.class.getName());
 
@@ -46,13 +48,14 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
             limit = 10;
         List<Node> nodes = searchWords(languageId, tokens);
         Map<String, Node> nodeMap = new HashMap<String, Node>();
-        Map<String, Set<String>> synsetIdMap = new HashMap<String, Set<String>>();
+        Map<String, String> synsetIdMap = new HashMap<String, String>();
         Map<String, Map<String, Object>> returnMap = new HashMap<String, Map<String, Object>>();
         if (null != nodes && !nodes.isEmpty()) {
+            Set<String> synsetIds = new HashSet<String>();
             System.out.println("Number of words: " + nodes.size());
             for (Node node : nodes) {
-                Set<String> list = getSynsetIds(node);
                 if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+                    String primarySynsetId = getPrimarySynsetId(node);
                     Map<String, Object> wordMap = new HashMap<String, Object>();
                     String lemma = (String) node.getMetadata().get("lemma");
                     try {
@@ -66,12 +69,13 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
                         System.out.println(e.getMessage());
                     }
                     returnMap.put(lemma, wordMap);
-                    if (null != list && !list.isEmpty()) {
-                        synsetIdMap.put(lemma, list);
-                        getNodes(nodeMap, languageId, list, limit);
+                    if (StringUtils.isNotBlank(primarySynsetId)) {
+                        synsetIdMap.put(lemma, primarySynsetId);
+                        synsetIds.add(primarySynsetId);
                     }
                 }
             }
+            getNodes(nodeMap, languageId, synsetIds, synsetIds.size());
             if (null != synsetIdMap && !synsetIdMap.isEmpty() && (equivalentWords || relatedWords)) {
                 Map<String, Set<String>> lemmaMap = new HashMap<String, Set<String>>();
                 if (equivalentWords)
@@ -98,6 +102,8 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
         MetadataCriterion mc = MetadataCriterion.create(filters);
         mc.setOp(SearchConditions.LOGICAL_OR);
         sc.addMetadata(mc);
+        MetadataCriterion mc2 = MetadataCriterion.create(Arrays.asList(new Filter(ATTRIB_STATUS, SearchConditions.OP_EQUAL, "Live")));
+        sc.addMetadata(mc2);
         Request req = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
                 GraphDACParams.search_criteria.name(), sc);
         req.put(GraphDACParams.get_tags.name(), true);
@@ -138,15 +144,13 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
         }
     }
 
-    private Set<String> getSynsetIds(Node node) {
+    private String getPrimarySynsetId(Node node) {
         if (null != node && null != node.getInRelations() && !node.getInRelations().isEmpty()) {
-            Set<String> synsetIds = new HashSet<String>();
-            for (Relation rel : node.getInRelations()) {
-                if (StringUtils.equalsIgnoreCase(RelationTypes.SYNONYM.relationName(), rel.getRelationType())) {
-                    synsetIds.add(rel.getStartNodeId());
-                }
-            }
-            return synsetIds;
+            String primaryMeaningId = (String) node.getMetadata().get(ATTRIB_PRIMARY_MEANING_ID);
+            if (StringUtils.isNotBlank(primaryMeaningId))
+                return primaryMeaningId;
+            else
+                return node.getInRelations().get(0).getStartNodeId();
         }
         return null;
     }
@@ -214,30 +218,28 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
     }
 
     @SuppressWarnings("unchecked")
-    private void updateEquivalentWords(Map<String, Map<String, Object>> returnMap, Map<String, Set<String>> synsetIdMap,
+    private void updateEquivalentWords(Map<String, Map<String, Object>> returnMap, Map<String, String> synsetIdMap,
             Map<String, Node> nodeMap, Map<String, Set<String>> lemmaMap) {
         for (Entry<String, Map<String, Object>> entry : returnMap.entrySet()) {
             String lemma = entry.getKey();
             Map<String, Object> wordMap = entry.getValue();
-            Set<String> synsetIds = synsetIdMap.get(lemma);
-            if (null != synsetIds && !synsetIds.isEmpty()) {
+            String synsetId = synsetIdMap.get(lemma);
+            if (StringUtils.isNotBlank(synsetId)) {
                 Set<String> words = (Set<String>) wordMap.get("equivalentWords");
                 if (null == words)
                     words = new HashSet<String>();
-                for (String synsetId : synsetIds) {
-                    Node synset = nodeMap.get(synsetId);
-                    if (null != synset) {
-                        Set<String> lemmas = lemmaMap.get(synsetId);
-                        if (null == lemmas) {
-                            lemmas = getWordLemmas(synset);
-                            if (null != lemmas)
-                                lemmaMap.put(synsetId, lemmas);
-                        }
-                        if (null != lemmas && !lemmas.isEmpty()) {
-                            Set<String> eqWords = removeWordFromList(lemmas, lemma);
-                            if (null != eqWords && !eqWords.isEmpty())
-                                words.addAll(eqWords);
-                        }
+                Node synset = nodeMap.get(synsetId);
+                if (null != synset) {
+                    Set<String> lemmas = lemmaMap.get(synsetId);
+                    if (null == lemmas) {
+                        lemmas = getWordLemmas(synset);
+                        if (null != lemmas)
+                            lemmaMap.put(synsetId, lemmas);
+                    }
+                    if (null != lemmas && !lemmas.isEmpty()) {
+                        Set<String> eqWords = removeWordFromList(lemmas, lemma);
+                        if (null != eqWords && !eqWords.isEmpty())
+                            words.addAll(eqWords);
                     }
                 }
                 if (null != words && !words.isEmpty())
@@ -248,24 +250,22 @@ public class ParserManagerImpl extends BaseLanguageManager implements IParserMan
 
     @SuppressWarnings("unchecked")
     private void updateRelatedWords(String languageId, Map<String, Map<String, Object>> returnMap,
-            Map<String, Set<String>> synsetIdMap, Map<String, Set<String>> lemmaMap, Map<String, Node> nodeMap, int limit) {
+            Map<String, String> synsetIdMap, Map<String, Set<String>> lemmaMap, Map<String, Node> nodeMap, int limit) {
         for (Entry<String, Map<String, Object>> entry : returnMap.entrySet()) {
             String lemma = entry.getKey();
             System.out.println("Getting related words for : " + lemma);
             Map<String, Object> wordMap = entry.getValue();
-            Set<String> synsetIds = synsetIdMap.get(lemma);
-            if (null != synsetIds && !synsetIds.isEmpty()) {
+            String synsetId = synsetIdMap.get(lemma);
+            if (StringUtils.isNotBlank(synsetId)) {
                 Set<String> words = (Set<String>) wordMap.get("relatedWords");
                 if (null == words)
                     words = new HashSet<String>();
                 Set<String> hypernymIds = new HashSet<String>();
-                for (String synsetId : synsetIds) {
-                    Node synset = nodeMap.get(synsetId);
-                    if (null != synset) {
-                        Set<String> list = getHypernymIds(synset);
-                        if (null != list && !list.isEmpty()) {
-                            hypernymIds.addAll(list);
-                        }
+                Node synset = nodeMap.get(synsetId);
+                if (null != synset) {
+                    Set<String> list = getHypernymIds(synset);
+                    if (null != list && !list.isEmpty()) {
+                        hypernymIds.addAll(list);
                     }
                 }
                 if (null != hypernymIds && !hypernymIds.isEmpty()) {

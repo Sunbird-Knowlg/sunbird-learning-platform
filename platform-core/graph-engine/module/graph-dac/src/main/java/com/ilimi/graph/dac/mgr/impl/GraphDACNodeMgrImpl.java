@@ -18,7 +18,9 @@ import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.AuditProperties;
@@ -59,15 +61,16 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         else {
             try {
                 String date = DateUtils.formatCurrentDate();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node neo4jNode = null;
                 try {
                     neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+                    validateNodeUpdate(neo4jNode, node);
                 } catch (ResourceNotFoundException e) {
                     neo4jNode = graphDb.createNode(NODE_LABEL);
                     if (StringUtils.isBlank(node.getIdentifier()))
-                        node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                    	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                     neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                     neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
@@ -99,11 +102,11 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         else {
             try {
                 String date = DateUtils.formatCurrentDate();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node neo4jNode = graphDb.createNode(NODE_LABEL);
                 if (StringUtils.isBlank(node.getIdentifier()))
-                    node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                 if (StringUtils.isNotBlank(node.getObjectType()))
@@ -133,9 +136,10 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
         else {
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+                validateNodeUpdate(neo4jNode, node);
                 setNodeData(graphDb, node, neo4jNode);
                 neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
@@ -149,6 +153,21 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                 ERROR(e, getSender());
             }
         }
+    }
+    
+    private void validateNodeUpdate(Node neo4jNode, com.ilimi.graph.dac.model.Node node) {
+    	if (neo4jNode.hasProperty(SystemProperties.IL_SYS_NODE_TYPE.name())) {
+    		String nodeType = (String) neo4jNode.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name());
+    		if (!StringUtils.equals(nodeType, node.getNodeType()))
+    			throw new ServerException(GraphDACErrorCodes.ERR_UPDATE_NODE_INVALID_NODE_TYPE.name(), 
+    					"Cannot update a node of type " + nodeType + " to " + node.getNodeType());
+    	}
+    	if (neo4jNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())) {
+    		String objectType = (String) neo4jNode.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+    		if (!StringUtils.equals(objectType, node.getObjectType()))
+    			throw new ServerException(GraphDACErrorCodes.ERR_UPDATE_NODE_INVALID_NODE_TYPE.name(), 
+    					"Cannot update a node of type " + objectType + " to " + node.getObjectType());
+    	}
     }
 
     private void setNodeData(GraphDatabaseService graphDb, com.ilimi.graph.dac.model.Node node, Node neo4jNode) {
@@ -176,7 +195,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         else {
             try {
                 String date = DateUtils.formatCurrentDate();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 for (com.ilimi.graph.dac.model.Node node : nodes) {
                     Node neo4jNode = null;
@@ -187,7 +206,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
                         neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
                     }
                     if (StringUtils.isBlank(node.getIdentifier()))
-                        node.setIdentifier(graphId + "_" + neo4jNode.getId());
+                    	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
                     neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                     neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
                     if (StringUtils.isNotBlank(node.getObjectType()))
@@ -219,10 +238,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
-                tx.acquireWriteLock(node);
                 if (null == property.getPropertyValue())
                     node.removeProperty(property.getPropertyName());
                 else
@@ -252,11 +270,10 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 if (null != metadata && metadata.size() > 0) {
                     Node node = getNodeByUniqueId(graphDb, nodeId);
-                    tx.acquireWriteLock(node);
                     for (Entry<String, Object> entry : metadata.entrySet()) {
                         if (null == entry.getValue())
                             node.removeProperty(entry.getKey());
@@ -288,10 +305,9 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
-                tx.acquireWriteLock(node);
                 node.removeProperty(key);
                 node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
                 tx.success();
@@ -318,7 +334,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
                 for (String key : keys) {
@@ -347,7 +363,7 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node node = getNodeByUniqueId(graphDb, nodeId);
                 Iterable<Relationship> rels = node.getRelationships();

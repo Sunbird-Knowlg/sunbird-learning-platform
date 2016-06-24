@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * This contains data (value objects) to be passed to middleware command
  * 
@@ -20,10 +22,11 @@ public class Request implements Serializable {
     private String ts;
     private RequestParams params;
 
-    private Map<String, Object> request = new HashMap<String, Object>();
+	private Map<String, Object> request = new HashMap<String, Object>();
 
     private String managerName;
     private String operation;
+    private String request_id;
 
     {
         // Set the context here.
@@ -33,13 +36,33 @@ public class Request implements Serializable {
             context.put(HeaderParam.REQUEST_PATH.getParamName(),
                     ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.CURRENT_INVOCATION_PATH.getParamName()));
         }
+        
+        //set request_id
+		request_id = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
     }
 
     public Request() {
+    	this.params = new RequestParams();
+    	this.params.setMsgid(request_id);
     }
 
     public Request(Request request) {
+    	this.params = request.getParams();
+    	if (null == this.params)
+    	    this.params = new RequestParams();
+    	else if (StringUtils.isNotBlank(this.params.getMsgid())) {
+    	    ExecutionContext.setRequestId(this.params.getMsgid());
+    	    this.request_id = this.params.getMsgid();
+    	}
+    	if(StringUtils.isBlank(this.params.getMsgid()) && StringUtils.isNotBlank(request_id))
+    		this.params.setMsgid(request_id);
         this.context.putAll(request.getContext());
+    }
+    
+    public String getRequestId() {
+        if (null != this.params)
+            return this.params.getMsgid();
+        return request_id;
     }
 
     public Map<String, Object> getContext() {
@@ -127,6 +150,9 @@ public class Request implements Serializable {
 
     public void setParams(RequestParams params) {
         this.params = params;
+    	if(this.params.getMsgid()==null&&request_id!=null)
+    		this.params.setMsgid(request_id);
+
     }
 
 }

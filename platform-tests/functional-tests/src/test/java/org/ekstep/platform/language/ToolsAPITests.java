@@ -24,7 +24,7 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/lexileMeasures").
+			post("v1/language/tools/complexityMeasures").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -40,7 +40,7 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/lexileMeasures").
+			post("v1/language/tools/complexityMeasures").
 		then().
 			log().all().
 			spec(get200ResponseSpec());
@@ -55,7 +55,7 @@ public class ToolsAPITests extends BaseTest {
 		with().
 			contentType(JSON).
 		when().
-			post("v1/language/tools/lexileMeasures").
+			post("v1/language/tools/complexityMeasures").
 		then().
 			log().all().
 			spec(get400ResponseSpec());

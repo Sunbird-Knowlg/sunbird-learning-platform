@@ -2,7 +2,6 @@ package org.ekstep.compositesearch.mgr.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,16 +20,17 @@ import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
-import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
@@ -38,6 +38,7 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class CompositeSearchManagerImpl extends BaseCompositeSearchManager implements ICompositeSearchManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchManager.class.getName());
+	private static final int SYNC_BATCH_SIZE = 1000;
 	
 	@Override
 	public Response sync(String graphId, String objectType, Request request) {
@@ -45,19 +46,16 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
 		LOGGER.info("Get All Definitions : " + graphId);
-		List<Map<String, Object>> messages = null;
+		Response response = OK();
 		if (StringUtils.isNotBlank(objectType)) {
 		    Map<String, Object> result = getDefinition(graphId, objectType).getResult();
 		    DefinitionDTO dto = (DefinitionDTO) result.get(GraphDACParams.definition_node.name());
-		    messages = genCompositeSearchMessage(graphId, dto);
+		    response = genCompositeSearchMessage(graphId, dto);
 		} else {
 		    Map<String, Object> result = getAllDefinitions(graphId).getResult();
 	        List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
-	        messages = genCompositeSearchMessages(graphId, lstDefDTO);
+	        response = genCompositeSearchMessages(graphId, lstDefDTO);
 		}
-		Response response = OK();
-		if (null != messages && !messages.isEmpty())
-		    response = pushMessageToKafka(messages);
 		return response;
 	}
 	
@@ -65,13 +63,25 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	public Response search(Request request) {
 		SearchProcessor processor = new SearchProcessor();
 		try {
-			List<Object> lstResult = processor.processSearch(getSearchDTO(request));
+			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
 			return getCompositeSearchResponse(lstResult);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), e.getMessage(), ResponseCode.SERVER_ERROR);
+			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
 		}
 	}
+	
+	@Override
+    public Response metrics(Request request) {
+        SearchProcessor processor = new SearchProcessor();
+        try {
+            Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), false);
+            return getCompositeSearchResponse(lstResult);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+        }
+    }
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SearchDTO getSearchDTO(Request request) throws Exception {
@@ -79,12 +89,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		try {
 			Map<String, Object> req = request.getRequest();
 			String queryString = (String) req.get(CompositeSearchParams.query.name());
-			int limit = 1000;
-			
-	/*		if (StringUtils.isBlank(queryString))
-				throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_QUERY_STRING.name(),
-						"Query String is blank.");
-	*/
+			int limit = 100;
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
@@ -93,10 +98,14 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
 			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
 			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
+			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
+			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
 			properties.addAll(getSearchFilterProperties(filters));
+			searchObj.setSortBy(sortBy);
+			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
@@ -105,6 +114,19 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 					"Invalid Input.");
 		}
 		return searchObj;
+	}
+	
+	@SuppressWarnings("unchecked")
+	private List<String> getList(Object param){
+		List<String> paramList;
+		try{
+			paramList = (List<String>) param;
+		}
+		catch(Exception e){
+			String str = (String) param;
+			paramList = Arrays.asList(str);
+		}
+		return paramList;
 	}
 	
 	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {
@@ -164,34 +186,51 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				Object filterObject = entry.getValue();
 				if(filterObject instanceof Map){
 					Map<String, Object> filterMap = (Map<String, Object>) filterObject;
-					for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
-						Map<String, Object> property = new HashMap<String, Object>();
-						property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
-						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-						switch(filterEntry.getKey()){
-							case "startsWith":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
-								break;
+					if(!filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN) && !filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX)){
+						for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
+							Map<String, Object> property = new HashMap<String, Object>();
+							property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
+							property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+							switch(filterEntry.getKey()){
+								case "startsWith":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+									break;
+								}
+								case "endsWith":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
+									break;
+								}
+								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
+								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
+								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
+								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
+									property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
+									break;
+								}
+								case "value":{
+									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+									break;
+								}
+								default:{
+									throw new Exception("Unsupported operation");
+								}
 							}
-							case "endsWith":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
-								break;
-							}
-							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
-							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
-							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
-							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
-								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
-								break;
-							}
-							case "value":{
-								property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-								break;
-							}
-							default:{
-								throw new Exception("Unsupported operation");
-							}
+							properties.add(property);
 						}
+					} else {
+						Map<String, Object> property = new HashMap<String, Object>();
+						Map<String, Object> rangeMap = new HashMap<String, Object>();
+						Object minFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
+						if(minFilterValue != null){
+							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE, minFilterValue);
+						}
+						Object maxFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX);
+						if(maxFilterValue != null){
+							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE, maxFilterValue);
+						}	
+						property.put(CompositeSearchParams.values.name(), rangeMap);
+						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_RANGE);
 						properties.add(property);
 					}
 				}
@@ -227,32 +266,53 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-    private Response getCompositeSearchResponse(List<Object> lstResult) {
+	private Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");
 		response.setParams(params);
 		response.setResponseCode(ResponseCode.OK);
-		if (null != lstResult && !lstResult.isEmpty()) {
-		    Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
-		    for (Object obj : lstResult) {
-		        if (obj instanceof Map) {
-		            Map<String, Object> map = (Map<String, Object>) obj;
-		            String objectType = (String) map.get(GraphDACParams.objectType.name());
-		            if (StringUtils.isNotBlank(objectType)) {
-		                String key = getResultParamKey(objectType);
-		                if (StringUtils.isNotBlank(key)) {
-		                    List<Map<String, Object>> list = result.get(key);
-		                    if (null == list) {
-		                        list = new ArrayList<Map<String, Object>>();
-		                        result.put(key, list);
-		                        response.put(key, list);
-		                    }
-		                    list.add(map);
-		                }
-		            }
-		        }
-		    }
+
+		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
+			if (entry.getKey().equalsIgnoreCase("results")) {
+				List<Object> lstResult = (List<Object>) entry.getValue();
+				if (null != lstResult && !lstResult.isEmpty()) {
+					Map<String, List<Map<String, Object>>> result = new HashMap<String, List<Map<String, Object>>>();
+					for (Object obj : lstResult) {
+						if (obj instanceof Map) {
+							Map<String, Object> map = (Map<String, Object>) obj;
+							String objectType = (String) map.get(GraphDACParams.objectType.name());
+							if (StringUtils.isNotBlank(objectType)) {
+								String key = getResultParamKey(objectType);
+								if (StringUtils.isNotBlank(key)) {
+									List<Map<String, Object>> list = result.get(key);
+									if (null == list) {
+										list = new ArrayList<Map<String, Object>>();
+										result.put(key, list);
+										response.put(key, list);
+									}
+									list.add(map);
+								}
+							}
+						}
+					}
+				}
+			} else {
+				response.put(entry.getKey(), entry.getValue());
+			}
+		}
+		return response;
+	}
+	
+    private Response getCompositeSearchCountResponse(Map<String, Object> countResponse) {
+		Response response = new Response();
+		ResponseParams params = new ResponseParams();
+		params.setStatus("Success");
+		response.setParams(params);
+		response.setResponseCode(ResponseCode.OK);
+		
+		if (null != countResponse.get("count")){
+			response.put("count", (Double) countResponse.get("count"));
 		}
 		return response;
 	}
@@ -305,41 +365,76 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return lstDefDTO;
 	}
 	
-	private List<Map<String, Object>> genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
-		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+	private Response genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
+	    Response response = OK();
 		for(DefinitionDTO def: lstDefDTO) {
-			lstMessages.addAll(genCompositeSearchMessage(graphId, def));
+			response = genCompositeSearchMessage(graphId, def);
 		}
-		return lstMessages;
+		return response;
 	}
 	
-	@SuppressWarnings("unchecked")
-    private List<Map<String, Object>> genCompositeSearchMessage(String graphId, DefinitionDTO def) {
-	    List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
-	    Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
-	    Property property = new Property(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), def.getObjectType());
-	    request.put(GraphDACParams.metadata.name(), property);
-	    request.put(GraphDACParams.get_tags.name(), true);
-	    Response response = getResponse(request, LOGGER);
-	    List<Node> nodes = (List<Node>) response.get(GraphDACParams.node_list.name());
-	    if (null != nodes && !nodes.isEmpty()) {
-	        for (Node node : nodes) {
-	            lstMessages.add(getKafkaMessage(node));
-	        }
-	    }
-	    return lstMessages;
+    private Response genCompositeSearchMessage(String graphId, DefinitionDTO def) {
+        Response response = OK();
+	    int startPosistion = 0;
+        boolean found = true;
+        while (found) {
+            List<Node> nodes = getNodes(graphId, def.getObjectType(), startPosistion, SYNC_BATCH_SIZE);
+            if (null != nodes && !nodes.isEmpty()) {
+                List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+                for (Node node : nodes) {
+                    lstMessages.add(getKafkaMessage(node));
+                }
+                startPosistion += SYNC_BATCH_SIZE;
+                response = pushMessageToKafka(lstMessages);
+                System.out.println("Fetched " + startPosistion + " " + def.getObjectType() + " objects");
+            } else {
+                found = false;
+                break;
+            }
+        }
+	    return response;
     }
 	
 	private Map<String, Object> getKafkaMessage(Node node) {
 	    Map<String, Object> map = new HashMap<String, Object>();
         Map<String, Object> transactionData = new HashMap<String, Object>();
-        if (null != node.getMetadata() && !node.getMetadata().isEmpty())
-            transactionData.put(CompositeSearchParams.addedProperties.name(), node.getMetadata());
-        else
-            transactionData.put(CompositeSearchParams.addedProperties.name(), new HashMap<String, Object>());
-        transactionData.put(CompositeSearchParams.removedProperties.name(), new ArrayList<String>());
-        transactionData.put(CompositeSearchParams.addedTags.name(), new ArrayList<String>());
+        if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+            Map<String, Object> propertyMap = new HashMap<String, Object>();
+            for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+                Map<String, Object> valueMap=new HashMap<String, Object>();
+                valueMap.put("ov", null); // old value
+                valueMap.put("nv", entry.getValue()); // new value
+                propertyMap.put((String) entry.getKey(), valueMap);
+            }
+            transactionData.put(CompositeSearchParams.properties.name(), propertyMap);
+        } else
+            transactionData.put(CompositeSearchParams.properties.name(), new HashMap<String, Object>());
+        transactionData.put(CompositeSearchParams.addedTags.name(), null == node.getTags() ? new ArrayList<String>() : node.getTags());
         transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
+        List<Map<String, Object>> relations = new ArrayList<Map<String, Object>>();
+        if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
+            for (Relation rel : node.getInRelations()) {
+                Map<String, Object> relMap = new HashMap<>();
+                relMap.put("rel", rel.getRelationType());
+                relMap.put("id", rel.getStartNodeId());
+                relMap.put("dir", "IN");
+                relMap.put("type", rel.getStartNodeObjectType());
+                relMap.put("label", getLabel(rel.getStartNodeMetadata()));
+                relations.add(relMap);
+            }
+        }
+        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+            for (Relation rel : node.getOutRelations()) {
+                Map<String, Object> relMap = new HashMap<>();
+                relMap.put("rel", rel.getRelationType());
+                relMap.put("id", rel.getEndNodeId());
+                relMap.put("dir", "OUT");
+                relMap.put("type", rel.getEndNodeObjectType());
+                relMap.put("label", getLabel(rel.getEndNodeMetadata()));
+                relations.add(relMap);
+            }
+        }
+        transactionData.put(CompositeSearchParams.addedRelations.name(), relations);
         map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
         map.put(CompositeSearchParams.graphId.name(), node.getGraphId());
         map.put(CompositeSearchParams.nodeGraphId.name(), node.getId());
@@ -347,13 +442,28 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
         map.put(CompositeSearchParams.objectType.name(), node.getObjectType());
         map.put(CompositeSearchParams.nodeType.name(), SystemNodeTypes.DATA_NODE.name());
         map.put(CompositeSearchParams.transactionData.name(), transactionData);
+        map.put(CompositeSearchParams.syncMessage.name(), true);
         return map;
 	}
+	
+	private String getLabel(Map<String, Object> metadata){
+        if (null != metadata && !metadata.isEmpty()) {
+            if (StringUtils.isNotBlank((String) metadata.get("name")))
+                return (String) metadata.get("name");
+            else if (StringUtils.isNotBlank((String) metadata.get("lemma")))
+                return (String) metadata.get("lemma");
+            else if (StringUtils.isNotBlank((String) metadata.get("title")))
+                return (String) metadata.get("title");
+            else if (StringUtils.isNotBlank((String) metadata.get("gloss")))
+                return (String) metadata.get("gloss");
+        }
+        return "";
+    }
 	
 	private Response pushMessageToKafka(List<Map<String, Object>> messages) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
-		if (messages.size() <= 0) {
+		if (null == messages || messages.size() <= 0) {
 			response.put(CompositeSearchParams.graphSyncStatus.name(), "No Graph Objects to Sync!");
 			response.setResponseCode(ResponseCode.CLIENT_ERROR);
 			params.setStatus(CompositeSearchParams.success.name());
@@ -361,13 +471,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			return response;
 		}
 		System.out.println("Sending to KAFKA.... ");
-		KafkaMessageProducer producer = new KafkaMessageProducer();
-		producer.init();
-		for (Map<String, Object> message: messages) {
-			System.out.println("Message : " + message);
-			producer.pushMessage(message);
-		}
-		System.out.println("Sending to KAFKA : FINISHED");
+		KafkaMessageProducer.sendMessage(messages);
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
 		response.setParams(params);
@@ -375,5 +479,36 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		response.setParams(params);
 		return response;
 	}
+
+	@Override
+	public Response count(Request request) {
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
+			return getCompositeSearchCountResponse(countResult);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+    private List<Node> getNodes(String graphId, String objectType, int startPosition, int batchSize) {
+        SearchCriteria sc = new SearchCriteria();
+        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+        sc.setObjectType(objectType);
+        sc.setResultSize(batchSize);
+        sc.setStartPosition(startPosition);
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+                GraphDACParams.search_criteria.name(), sc);
+        req.put(GraphDACParams.get_tags.name(), true);
+        Response listRes = getResponse(req, LOGGER);
+        if (checkError(listRes))
+            throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found for language: " + graphId);
+        else {
+            List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
+            return nodes;
+        }
+    }
 
 }

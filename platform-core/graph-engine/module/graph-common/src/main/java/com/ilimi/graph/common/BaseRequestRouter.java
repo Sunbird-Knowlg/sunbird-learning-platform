@@ -83,7 +83,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
                 long exeTime = endTime - (Long) request.getContext().get(GraphHeaderParams.start_time.name());
                 Response res = (Response) arg0;
                 ResponseParams params = res.getParams();
-                LOGGER.info(request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
+                LOGGER.info(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() + ", SUCCESS, " + params.toString());
                 perfLogger.info(request.getContext().get(GraphHeaderParams.scenario_name.name()) + ","
                         + request.getContext().get(GraphHeaderParams.request_id.name()) + "," + request.getManagerName() + ","
                         + request.getOperation() + ",ENDTIME," + endTime);
@@ -102,7 +102,7 @@ public abstract class BaseRequestRouter extends UntypedActor {
     }
 
     protected void handleException(final Request request, Throwable e, final ActorRef parent) {
-        LOGGER.error(request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
+        LOGGER.error(request.getRequestId() + " | " + request.getManagerName() + "," + request.getOperation() + ", ERROR: " + e.getMessage(), e);
         Response response = new Response();
         ResponseParams params = new ResponseParams();
         params.setStatus(StatusType.failed.name());

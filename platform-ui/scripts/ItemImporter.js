@@ -1,10 +1,19 @@
 
 /**
+
+Setup:
+npm install
+csv
+underscore
+async
+node-rest-client
+
 Usage:
-node ItemImporter.js <question_type> <taxonomy_id> <item-csv> <mapping-json> <concepts-csv>
+node ItemImporter.js <question_type> <taxonomy_id> <language> <item-csv> <mapping-json> <concepts-csv>
 
 <question_type> - ftb, mcq, mtf, etc
 <taxonomy_id> - numeracy, literacy_v2
+<language> - English, Hindi
 <item-csv> - Items to be imported in CSV format
 <mapping-json> - JSON mapping file to map columns in csv to metadata
 <concepts-csv> - micro concepts csv
@@ -13,9 +22,11 @@ Sample CSV and JSON files are checked in itemImport folder.
 Errors are written to itemImport/output.json file
 
 Example:
-node ItemImporter.js mcq literacy_v2 itemImport/Item-Template-mcq.csv itemImport/mcq_mapping.json itemImport/Micro-Concepts.csv
-**/
+node ItemImporter.js mcq literacy_v2 hindi itemImport/Item-Template-mcq.csv itemImport/mcq_mapping.json itemImport/Micro-Concepts.csv
+node ItemImporter.js mcq numeracy Hindi itemImport/RajMathMcq.csv itemImport/mcq_mixed_mapping.json itemImport/Micro-Concepts.csv
+node ItemImporter.js mcq numeracy Hindi itemImport/MCQ_Text_Bulk_Import.csv itemImport/mcq_mixed_mapping.json itemImport/Micro-Concepts.csv
 
+**/
 
 var csv = require('csv');
 var fs = require('fs'),
@@ -24,13 +35,16 @@ var fs = require('fs'),
 	Client = require('node-rest-client').Client;
 
 var client = new Client();
-var API_ENDPOINT = "http://localhost:8080";
-var CREATE_ITEM_URL = "/taxonomy-service/v1/assessmentitem/${id}?taxonomyId=${tid}";
+
+// var API_ENDPOINT = "http://lp-sandbox.ekstep.org:8080/taxonomy-service/";
+var API_ENDPOINT = "https://api.ekstep.org/learning-api/";
+var CREATE_ITEM_URL = "/v1/assessmentitem/${id}";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
-var inputFilePath = process.argv[4];
-var mappingFile = process.argv[5];
-var conceptsFile = process.argv[6];
+var language = process.argv[4];
+var inputFilePath = process.argv[5];
+var mappingFile = process.argv[6];
+var conceptsFile = process.argv[7];
 
 var mapping = fs.readFileSync(mappingFile);
 var mappingJson = JSON.parse(mapping);
@@ -52,6 +66,7 @@ async.waterfall([
     	importItems(callback);
     },
     function(arg1, callback) {
+    	//printAssessmentItems(callback);
     	createAssessmentItems(callback);
     }
 ], function (err, result) {
@@ -122,7 +137,21 @@ function importItems(callback) {
 				});
 				delete item['rel:associatedTo'];
 			}
+
+			// Shuffle options before loading
+			item['options'] = _.shuffle(item['options']);
+
+			// Default fields
 			item['type'] = questionType;
+			item['domain'] = taxonomyId;
+			item['lastUpdatedBy'] = "csv-import";
+			item['used_for'] = "worksheet";
+			item['owner'] = "Feroz";
+			item['portalOwner'] = "128";
+			item['language'] =  [language];
+			item['name'] = item['title']; // name is same as title
+			item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
+
 			items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': conceptIds});
 		}
 	})
@@ -134,6 +163,17 @@ function importItems(callback) {
 		console.log('import item error', error);
 		callback('import item error: ' + error);
 	});
+}
+
+
+function printAssessmentItems(callback) {
+	if (items.length > 0) {
+		var asyncFns = [];
+		items.forEach(function(item) {
+			var metadata = JSON.stringify(item.metadata);
+			console.log(metadata);
+		});
+	}
 }
 
 function createAssessmentItems(callback) {
@@ -269,6 +309,10 @@ function getObjectData(row, startCol, obj, objData) {
 			var val = getColumnValue(row, startCol, data['col-def']);
 			if (null != val)
 				objData[k] = val;
+		} else if (data['literal']) {
+			var val = data['literal'];
+			if (null != val)
+				objData[k] = val;
 		} else if (_.isObject(data)) {
 			objData[k] = {};
 			getObjectData(row, startCol, data, objData[k]);
@@ -346,8 +390,12 @@ function _getValueFromRow(row, startCol, col, def) {
 		}
 	} else {
 		if (data && data != null) {
-			if (!isNaN(parseFloat(data))) {
+			if (_.isFinite(data)) {
 				data = parseFloat(data);
+				return data;
+			} else if (def.type == 'list') {
+				data = data.split(',');
+				data = data.map(function(e) { return e.trim();});
 				return data;
 			}
 		}
@@ -356,7 +404,7 @@ function _getValueFromRow(row, startCol, col, def) {
 }
 
 function isEmpty(val) {
-	if (!val || val == null) {
+	if (val == null) {
 		return true;
 	} else {
 		if (_.isString(val) && val.trim().length <= 0)

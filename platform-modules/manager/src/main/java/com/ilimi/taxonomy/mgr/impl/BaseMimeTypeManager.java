@@ -2,7 +2,9 @@ package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,6 +60,8 @@ public class BaseMimeTypeManager extends BaseManager {
 
     private static final String bucketName = "ekstep-public";
     private static final String folderName = "content";
+    
+    private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 
     public boolean isArtifactUrlSet(Map<String, Object> contentMap) {
         return false;
@@ -79,10 +83,10 @@ public class BaseMimeTypeManager extends BaseManager {
         }
         return null;
     }
-
+    
     public boolean isJSONValid(String content) {
         try {
-            final ObjectMapper mapper = new ObjectMapper();
+            ObjectMapper mapper = new ObjectMapper();
             mapper.readTree(content);
             return true;
         } catch (IOException e) {
@@ -172,14 +176,24 @@ public class BaseMimeTypeManager extends BaseManager {
     	}
     	return node;
     }
-
+    
+    private String cleanJsonString(String jsonString) {
+    	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
+    	String cleanedJson = "";
+    	if (StringUtils.isNotBlank(jsonString)) {
+    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\\\\"", "\\\"");
+    	}
+    	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
+    	return cleanedJson;
+    }
+    
     protected Response compress(Node node) {
     	node = setNodeStatus(node, ContentAPIParams.Live.name());
         String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
         String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
         Map<String, Object> metadata = new HashMap<String, Object>();
         metadata = node.getMetadata();
-        String contentBody = (String) metadata.get(ContentAPIParams.body.name());
+        String contentBody = cleanJsonString((String) metadata.get(ContentAPIParams.body.name()));
         String contentType = checkBodyContentType(contentBody);
         if (StringUtils.isBlank(contentType))
             throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
@@ -327,13 +341,41 @@ public class BaseMimeTypeManager extends BaseManager {
         getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
         String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
         String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
-        node.getMetadata().put("s3Key", urlArray[0]);
+        node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
         node.getMetadata().put("status", "Live");
+        node.getMetadata().put(ContentAPIParams.lastPublishedOn.name(), formatCurrentDate());
+        node.getMetadata().put(ContentAPIParams.size.name(), getS3FileSize(urlArray[0]));
         Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
         newNode.setGraphId(node.getGraphId());
         newNode.setMetadata(node.getMetadata());
         return updateContentNode(newNode, urlArray[1]);
+    }
+    
+    protected Double getS3FileSize(String key) {
+        Double bytes = null;
+        if (StringUtils.isNotBlank(key)) {
+            try {
+                return AWSUploader.getObjectSize(bucketName, key);
+            } catch (IOException e) {
+                LOGGER.error("Error: While getting the file size from AWS", e);
+            }
+        }
+        return bytes;
+    }
+    
+    private static String formatCurrentDate() {
+        return format(new Date());
+    }
+    
+    private static String format(Date date) {
+        if (null != date) {
+            try {
+                return sdf.format(date);
+            } catch (Exception e) {
+            }
+        }
+        return null;
     }
 
     protected Response updateContentNode(Node node, String url) {
@@ -418,6 +460,25 @@ public class BaseMimeTypeManager extends BaseManager {
                 }
             }
         }
+    }
+    
+    @SuppressWarnings("unused")
+	private double getFileSizeInKB(File file) {
+    	double bytes = 0;
+    	try {
+    		bytes = getFileSize(file) / 1024;
+    	} catch(IOException e) {
+    		LOGGER.error("Error: While Calculating the file size.", e);
+    	}
+    	return bytes;
+    }
+    
+    private double getFileSize(File file) throws IOException {
+    	double bytes = 0;
+		if (file.exists()) {
+			bytes = file.length();
+		}
+		return bytes;
     }
 
     private Response searchNodes(String taxonomyId, List<String> contentIds) {

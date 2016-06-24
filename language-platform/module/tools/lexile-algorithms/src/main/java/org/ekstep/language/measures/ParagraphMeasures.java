@@ -40,18 +40,122 @@ public class ParagraphMeasures {
         SyllableMap.loadSyllables("ka");
     }
     
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public static Map<String, Object> analyseTexts(String languageId, Map<String, String> texts) {
+        try {
+            if (!SyllableMap.isLanguageEnabled(languageId) || null == texts || texts.isEmpty())
+                return null;
+            
+            Map<String, Map<String, Object>> summaryMap = new HashMap<String, Map<String, Object>>();
+
+            Map<String, String> posMap = new HashMap<String, String>();
+            Map<String, String> rootWordMap = new HashMap<String, String>();
+            Map<String, String> categoryMap = new HashMap<String, String>();
+            Map<String, Integer> frequencyMap = new HashMap<String, Integer>();
+            Map<String, Integer> storyCountMap = new HashMap<String, Integer>();
+            Map<String, ComplexityMeasures> complexityMap = new HashMap<String, ComplexityMeasures>();
+            Map<String, Map> wordRowMap = new HashMap<String, Map>();
+            
+            for (Entry<String, String> textEntry : texts.entrySet()) {
+                String filename = textEntry.getKey();
+                String s = textEntry.getValue();
+                ParagraphComplexity pc = getTextComplexity(languageId, s);
+                System.out.println(
+                        filename + ": " + pc.getMeanOrthoComplexity() + ", " + pc.getMeanPhonicComplexity());
+                Map<String, Object> summary = new HashMap<String, Object>();
+                summary.put("total_orthographic_complexity", pc.getTotalOrthoComplexity());
+                summary.put("total_phonologic_complexity", pc.getTotalPhonicComplexity());
+                summary.put("avg_orthographic_complexity", pc.getMeanOrthoComplexity());
+                summary.put("avg_phonologic_complexity", pc.getMeanPhonicComplexity());
+                summary.put("word_count", pc.getWordCount());
+                summary.put("syllable_count", pc.getSyllableCount());
+                
+                Map<String, Integer> wordFrequency = pc.getWordFrequency();
+                Map<String, ComplexityMeasures> wordMeasures = pc.getWordMeasures();
+                ComplexityMeasuresComparator comparator = new ComplexityMeasuresComparator(wordMeasures);
+                Map<String, ComplexityMeasures> sortedMap = new TreeMap<String,ComplexityMeasures>(comparator);
+                sortedMap.putAll(wordMeasures);
+                complexityMap.putAll(wordMeasures);
+                
+                double totalWordComplexity = 0;
+                Map<String, Map<String, Object>> wordDetailsMap = new HashMap<String, Map<String, Object>>();
+                for (Entry<String, ComplexityMeasures> entry : sortedMap.entrySet()) {
+                    String pos = posMap.get(entry.getKey());
+                    String lemma = rootWordMap.get(entry.getKey());
+                    String category = categoryMap.get(entry.getKey());
+                    String thresholdLevel = null;
+                    double oc = entry.getValue().getOrthographic_complexity();
+                    double phc = entry.getValue().getPhonologic_complexity();
+                    Double wc = pc.getWordComplexityMap().get(entry.getKey());
+                    if (StringUtils.isBlank(lemma)) {
+                        Node node = getNode("variants", entry.getKey(), languageId);
+                        if (null == node)
+                            node = getNode("lemma", entry.getKey(), languageId);
+                        pos = getPOSValue(node, languageId);
+                        lemma = getLemmaValue(node, languageId);
+                        thresholdLevel = getThresholdLevelValue(node, languageId);
+                        category = getCategoryValue(node, languageId);
+                        wc = getWordComplexityValue(node, languageId);
+                        if (null == wc)
+                            wc = (double) 0;
+                        else
+                            wc = formatDoubleValue(wc);
+                        pc.getWordComplexityMap().put(entry.getKey(), wc);
+                        totalWordComplexity += wc;
+                        posMap.put(entry.getKey(), pos);
+                        categoryMap.put(entry.getKey(), category);
+                        rootWordMap.put(entry.getKey(), lemma);
+                    }
+                    Map<String, Object> wordDetailMap = new HashMap<String, Object>();
+                    wordDetailMap.put("word", entry.getKey());
+                    wordDetailMap.put("orthographic_complexity", oc + "");
+                    wordDetailMap.put("phonologic_complexity", phc + "");
+                    wordDetailMap.put("word_complexity", wc);
+                    wordDetailMap.put("syllableCount", pc.getSyllableCountMap().get(entry.getKey()) + "");
+                    wordDetailMap.put("pos", pos);
+                    wordDetailMap.put("category", category);
+                    wordDetailMap.put("thresholdLevel", thresholdLevel);
+                    wordDetailMap.put("total_complexity", oc + phc + ((null == wc) ? 0 : wc.doubleValue()));
+                    wordDetailsMap.put(entry.getKey(), wordDetailMap);
+                    
+                    Integer count = (null == frequencyMap.get(entry.getKey()) ? 0 : frequencyMap.get(entry.getKey()));
+                    count += (null == wordFrequency.get(entry.getKey()) ? 1 : wordFrequency.get(entry.getKey()));
+                    frequencyMap.put(entry.getKey(), count);
+                        
+                    Integer storyCount = (null == storyCountMap.get(entry.getKey()) ? 0 : storyCountMap.get(entry.getKey()));
+                    storyCount += 1;
+                    storyCountMap.put(entry.getKey(), storyCount);
+                }
+                wordRowMap.put(filename, wordDetailsMap);
+                summary.put("total_word_complexity", totalWordComplexity);
+                double meanWordComplexity = formatDoubleValue(totalWordComplexity / sortedMap.size());
+                summary.put("avg_word_complexity", meanWordComplexity);
+                summaryMap.put(textEntry.getKey(), summary);
+            }
+            Map<String, Object> response = new HashMap<String, Object>();
+            response.put("cutoff_complexity", 50);
+            response.put("summary", summaryMap);
+            response.put("texts", wordRowMap);
+            return response;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    
+    @SuppressWarnings("unchecked")
+    public static Map<String, Object> analyseTextsCSV(String languageId, Map<String, String> texts) {
         try {
             if (!SyllableMap.isLanguageEnabled(languageId) || null == texts || texts.isEmpty())
                 return null;
             String[] headerRows = new String[] { "File Name", "Total Orthographic Complexity", "Avg. Syllable Orthographic Complexity",
                     "Total Phonological Complexity", "Avg. Syllable Phonological Complexity", "Word Count", "Syllable Count"};
-            String[] wordRowsHeader = new String[]{"Word", "PoS", "Orthographic Complexity", "Phonological Complexity"};
-            String[] totalWordsHeader = new String[]{"Word", "Root Word", "Frequency", "Number of stories", "PoS", "Orthographic Complexity", "Phonological Complexity"};
+            String[] wordRowsHeader = new String[]{"Word", "PoS", "Orthographic Complexity", "Phonological Complexity", "Category", "Root Word"};
+            String[] totalWordsHeader = new String[]{"Word", "Root Word", "Frequency", "Number of stories", "PoS", "Orthographic Complexity", "Phonological Complexity", "Category"};
 
             Map<String, String> posMap = new HashMap<String, String>();
             Map<String, String> rootWordMap = new HashMap<String, String>();
+            Map<String, String> categoryMap = new HashMap<String, String>();
             Map<String, Integer> frequencyMap = new HashMap<String, Integer>();
             Map<String, Integer> storyCountMap = new HashMap<String, Integer>();
             Map<String, ComplexityMeasures> complexityMap = new HashMap<String, ComplexityMeasures>();
@@ -85,13 +189,16 @@ public class ParagraphMeasures {
                 for (Entry<String, ComplexityMeasures> entry : sortedMap.entrySet()) {
                     String pos = posMap.get(entry.getKey());
                     String lemma = rootWordMap.get(entry.getKey());
-                    if (StringUtils.isBlank(pos)) {
+                    String category = categoryMap.get(entry.getKey());
+                    if (StringUtils.isBlank(lemma)) {
                         Node node = getNode("variants", entry.getKey(), languageId);
                         if (null == node)
                             node = getNode("lemma", entry.getKey(), languageId);
                         pos = getPOSValue(node, languageId);
                         lemma = getLemmaValue(node, languageId);
+                        category = getCategoryValue(node, languageId);
                         posMap.put(entry.getKey(), pos);
+                        categoryMap.put(entry.getKey(), category);
                         rootWordMap.put(entry.getKey(), lemma);
                     }
                     String[] wordRow = new String[wordRowsHeader.length];
@@ -99,6 +206,8 @@ public class ParagraphMeasures {
                     wordRow[1] = pos;
                     wordRow[2] = entry.getValue().getOrthographic_complexity() + "";
                     wordRow[3] = entry.getValue().getPhonologic_complexity() + "";
+                    wordRow[4] = category;
+                    wordRow[5] = lemma;
                     wordRows.add(wordRow);
                     Integer count = (null == frequencyMap.get(entry.getKey()) ? 0 : frequencyMap.get(entry.getKey()));
                     count += (null == wordFrequency.get(entry.getKey()) ? 1 : wordFrequency.get(entry.getKey()));
@@ -145,6 +254,7 @@ public class ParagraphMeasures {
                 row[4] = posMap.get(entry.getKey());
                 row[5] = entry.getValue().getOrthographic_complexity() + "";
                 row[6] = entry.getValue().getPhonologic_complexity() + "";
+                row[7] = categoryMap.get(entry.getKey());
                 summaryRows.add(row);
             }
             sWriter = new StringWriter();
@@ -203,8 +313,8 @@ public class ParagraphMeasures {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
             tx = graphDb.beginTx();
             if (null != neo4jNode) {
-                if (neo4jNode.hasProperty("lemma"))
-                    lemma = (String) neo4jNode.getProperty("lemma");
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_LEMMA))
+                    lemma = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_LEMMA);
             }
             tx.success();
         } catch (Exception e) {
@@ -216,6 +326,72 @@ public class ParagraphMeasures {
                 tx.close();
         }
         return lemma;
+    }
+    
+    private static String getThresholdLevelValue(Node neo4jNode, String languageId) {
+        Transaction tx = null;
+        String level = null;
+        try {
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
+            tx = graphDb.beginTx();
+            if (null != neo4jNode) {
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_THRESHOLD_LEVEL))
+                    level = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_THRESHOLD_LEVEL);
+            }
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
+        return level;
+    }
+    
+    private static String getCategoryValue(Node neo4jNode, String languageId) {
+        Transaction tx = null;
+        String category = null;
+        try {
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
+            tx = graphDb.beginTx();
+            if (null != neo4jNode) {
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_CATEGORY))
+                    category = (String) neo4jNode.getProperty(IWordnetConstants.ATTRIB_CATEGORY);
+            }
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
+        return category;
+    }
+    
+    private static Double getWordComplexityValue(Node neo4jNode, String languageId) {
+        Transaction tx = null;
+        Double value = null;
+        try {
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(languageId);
+            tx = graphDb.beginTx();
+            if (null != neo4jNode) {
+                if (neo4jNode.hasProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY))
+                    value = (Double) neo4jNode.getProperty(IWordnetConstants.ATTRIB_WORD_COMPLEXITY);
+            }
+            tx.success();
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (null != tx)
+                tx.failure();
+        } finally {
+            if (null != tx)
+                tx.close();
+        }
+        return value;
     }
     
     private static String getPOSValue(Node neo4jNode, String languageId) {
@@ -256,8 +432,10 @@ public class ParagraphMeasures {
             return null;
         if (StringUtils.isNotBlank(text)) {
             List<String> tokens = LanguageUtil.getTokens(text);
+            Map<String, Integer> syllableCountMap = new HashMap<String, Integer>();
             Map<String, Integer> wordFrequency = new HashMap<String, Integer>();
             Map<String, WordComplexity> wordComplexities = new HashMap<String, WordComplexity>();
+            Map<String, Double> wcMap = new HashMap<String, Double>();
             if (null != tokens && !tokens.isEmpty()) {
                 for (String word : tokens) {
                     WordComplexity wc = WordMeasures.getWordComplexity(language, word);
@@ -265,44 +443,58 @@ public class ParagraphMeasures {
                     Integer count = null == wordFrequency.get(word) ? 0 : wordFrequency.get(word);
                     count += 1;
                     wordFrequency.put(word, count);
+                    syllableCountMap.put(word, wc.getCount());
                 }
+                //WordUtil wordUtil = new WordUtil();
+                //wcMap = wordUtil.getWordComplexity(tokens, language);
             }
             ParagraphComplexity pc = new ParagraphComplexity();
             pc.setText(text);
             pc.setWordFrequency(wordFrequency);
-            computeMeans(pc, wordComplexities);
+            pc.setWordComplexityMap(wcMap);
+            pc.setSyllableCountMap(syllableCountMap);
+            computeMeans(pc, wordComplexities, wcMap);
             return pc;
         } else {
             return null;
         }
     }
 
-    private static void computeMeans(ParagraphComplexity pc, Map<String, WordComplexity> wordComplexities) {
+    private static void computeMeans(ParagraphComplexity pc, Map<String, WordComplexity> wordComplexities, Map<String, Double> wcMap) {
         int count = 0;
         double orthoComplexity = 0;
         double phonicComplexity = 0;
+        double wordComplexity = 0;
         Map<String, ComplexityMeasures> wordMeasures = new HashMap<String, ComplexityMeasures>();
         for (Entry<String, WordComplexity> entry : wordComplexities.entrySet()) {
             WordComplexity wc = entry.getValue();
             orthoComplexity += wc.getOrthoComplexity();
             phonicComplexity += wc.getPhonicComplexity();
+            double wcValue = (null == wcMap.get(entry.getKey()) ? 0 : wcMap.get(entry.getKey()).doubleValue());
+            wordComplexity += wcValue;
             count += wc.getCount();
             wordMeasures.put(entry.getKey(), new ComplexityMeasures(wc.getOrthoComplexity(), wc.getPhonicComplexity()));
         }
         pc.setWordCount(wordComplexities.size());
         pc.setSyllableCount(count);
         pc.setWordMeasures(wordMeasures);
+        pc.setWordComplexityMap(wcMap);
         pc.setTotalOrthoComplexity(formatDoubleValue(orthoComplexity));
         pc.setTotalPhonicComplexity(formatDoubleValue(phonicComplexity));
+        pc.setTotalWordComplexity(formatDoubleValue(wordComplexity));
         pc.setMeanOrthoComplexity(formatDoubleValue(orthoComplexity / count));
         pc.setMeanPhonicComplexity(formatDoubleValue(phonicComplexity / count));
+        pc.setMeanWordComplexity(formatDoubleValue(wordComplexity / count));
     }
 
     private static Double formatDoubleValue(Double d) {
         if (null != d) {
-            BigDecimal bd = new BigDecimal(d);
-            bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-            return bd.doubleValue();
+            try {
+                BigDecimal bd = new BigDecimal(d);
+                bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+                return bd.doubleValue();
+            } catch (Exception e) {
+            }
         }
         return d;
     }

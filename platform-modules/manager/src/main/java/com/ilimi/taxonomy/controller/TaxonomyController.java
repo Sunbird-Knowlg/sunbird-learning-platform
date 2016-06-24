@@ -8,8 +8,6 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -26,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.enums.ImportType;
@@ -38,7 +37,7 @@ import com.ilimi.taxonomy.mgr.ITaxonomyManager;
 @RequestMapping("/taxonomy")
 public class TaxonomyController extends BaseController {
 
-    private static Logger LOGGER = LogManager.getLogger(TaxonomyController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(TaxonomyController.class.getName());
 
     @Autowired
     private ITaxonomyManager taxonomyManager;
@@ -125,8 +124,14 @@ public class TaxonomyController extends BaseController {
         String format = ImportType.CSV.name();
         LOGGER.info("Export | Id: " + id + " | Format: " + format + " | user-id: " + userId);
         try {
-        	map.put(GraphEngineParams.format.name(), format);
-            Response response = taxonomyManager.export(id, map);
+            Request req = getRequest(map);
+            try {
+                SearchCriteria criteria = mapper.convertValue(req.get(TaxonomyAPIParams.search_criteria.name()), SearchCriteria.class);
+                req.put(TaxonomyAPIParams.search_criteria.name(), criteria);
+            } catch (Exception e) {
+            }
+        	req.put(GraphEngineParams.format.name(), format);
+            Response response = taxonomyManager.export(id, req);
             if (!checkError(response)) {
                 OutputStreamValue graphOutputStream = (OutputStreamValue) response.get(GraphEngineParams.output_stream.name());
                 OutputStream os = graphOutputStream.getOutputStream();

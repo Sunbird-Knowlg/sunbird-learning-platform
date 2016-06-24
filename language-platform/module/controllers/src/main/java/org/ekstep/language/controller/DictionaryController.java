@@ -1,6 +1,8 @@
 package org.ekstep.language.controller;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +19,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,7 +35,10 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.dac.dto.AuditRecord;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 public abstract class DictionaryController extends BaseLanguageController {
@@ -305,6 +311,92 @@ public abstract class DictionaryController extends BaseLanguageController {
 		}
 		return request;
 	}*/
+
+	@RequestMapping(value = "/loadWordsArpabetsMap/", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> loadWordsArpabetsMap(@RequestParam("wordsArpabetsFile") MultipartFile wordsArpabetsFile,
+			@RequestHeader(value = "user-id") String userId,
+			HttpServletResponse resp) {
+		String objectType = getObjectType();
+		String apiId=objectType+".loadWordsArpabetsMap";
+		try {
+				InputStream wordsArpabetsStream = null;
+		        if (null != wordsArpabetsFile)
+		        	wordsArpabetsStream = wordsArpabetsFile.getInputStream();
+		        Response response=dictionaryManager.loadEnglishWordsArpabetsMap(wordsArpabetsStream);
+		        LOGGER.info("loadWordsArpabetsMap | Response: " + response);
+		        return getResponseEntity(response, apiId, null);
+		} catch (IOException e) {
+				e.printStackTrace();
+				LOGGER.error("loadWordsArpabetsMap | Exception: " + e.getMessage(), e);
+				return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@RequestMapping(value = "/{languageId}/syllables/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getSyllables(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".Syllable";
+		try {
+			//String arpabets=getArpabets(word);
+			Response response = dictionaryManager.getSyllables(languageId, word);
+			LOGGER.info("Get Syllables | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@RequestMapping(value = "/{languageId}/arpabets/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getArpabets(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".Arpabets";
+		try {
+			Response response = dictionaryManager.getArpabets(languageId, word);
+			LOGGER.info("Get Arpabets | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+	
+	@RequestMapping(value = "/{languageId}/phoneticSpelling/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getPhoneticSpelling(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
+		try {
+			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word);
+			LOGGER.info("Get PhoneticSpelling | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	@RequestMapping(value = "/{languageId}/similarSound/{word:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> getSimilarSoundWords(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "word") String word,
+			@RequestHeader(value = "user-id") String userId) {
+		String objectType = getObjectType();
+		String apiId = objectType.toLowerCase() + ".SimilarSound";
+		try {
+			Response response = dictionaryManager.getSimilarSoundWords(languageId, word);
+			LOGGER.info("Get SimilarSound | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	protected String getAPIVersion() {
         return API_VERSION_2;

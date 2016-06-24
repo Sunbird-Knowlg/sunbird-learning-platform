@@ -34,11 +34,24 @@ public interface IDictionaryManager {
     
     void findWordsCSV(String languageId, String objectType, InputStream is, OutputStream out);
 	
-	Response createWordV2(String languageId, String objectType, Request request);
+	Response createWordV2(String languageId, String objectType, Request request, boolean forceUpdate);
 	
-	Response updateWordV2(String languageId, String id, String objectType, Request request);
+	Response updateWordV2(String languageId, String id, String objectType, Request request, boolean forceUpdate);
 
 	Response findV2(String languageId, String id, String[] fields);
 
 	Response findAllV2(String languageId, String objectType, String[] fields, Integer limit);
+
+	Response listV2(String languageId, String name, Request request);
+    
+    Response loadEnglishWordsArpabetsMap(InputStream in);
+    
+    Response getSyllables(String languageID, String word);
+    
+    Response getArpabets(String languageID, String word);
+    
+    Response getPhoneticSpellingByLanguage(String languageID, String word);
+    
+    Response getSimilarSoundWords(String languageId, String word);
+
 }

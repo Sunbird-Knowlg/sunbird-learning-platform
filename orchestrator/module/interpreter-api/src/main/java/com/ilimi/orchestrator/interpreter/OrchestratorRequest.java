@@ -4,16 +4,24 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 
 public class OrchestratorRequest implements Serializable {
 
 	private static final long serialVersionUID = 6662469130673179559L;
+	
+	{   
+        //set request id
+        requestId = (String) ExecutionContext.getCurrent().getGlobalContext().get(HeaderParam.REQUEST_ID.getParamName());
+    }
 
 	private String action;
 	private List<OrchestratorScript> scripts;
 	private OrchestratorScript script;
 	private Map<String, Object> params;
+	private String requestId;
 
 	public String getAction() {
 		return action;
@@ -50,5 +58,13 @@ public class OrchestratorRequest implements Serializable {
 	public static enum ACTION_TYPES {
 		INIT, EXECUTE;
 	}
+
+    public String getRequestId() {
+        return requestId;
+    }
+
+    public void setRequestId(String requestId) {
+        this.requestId = requestId;
+    }
 
 }

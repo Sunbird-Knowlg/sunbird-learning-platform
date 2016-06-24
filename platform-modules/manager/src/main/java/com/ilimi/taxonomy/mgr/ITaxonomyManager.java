@@ -15,7 +15,7 @@ public interface ITaxonomyManager {
 
     Response create(String id, InputStream stream);
     
-    Response export(String id, Map<String,Object> reqMap);
+    Response export(String id, Request req);
 
     Response delete(String id);
 

@@ -20,32 +20,10 @@ node registerScript.js api/search-synset.tcl api/json/register-search-synset.jso
 
 node registerScript.js api/get-synset.tcl api/json/register-get-synset.json register
 
-node registerScript.js api/create-varna.tcl api/json/register-create-varna.json register
-
-node registerScript.js api/update-varna.tcl api/json/register-update-varna.json register
-
-node registerScript.js api/get-varna.tcl api/json/register-get-varna.json register
-
-node registerScript.js api/create-varna-ipa.tcl api/json/register-create-varna-ipa.json register
-
-node registerScript.js api/update-varna-ipa.tcl api/json/register-update-varna-ipa.json register
-
-node registerScript.js api/get-varna-ipa.tcl api/json/register-get-varna-ipa.json register
-
-node registerScript.js api/get-varna-unicode.tcl api/json/register-get-varna-unicode.json register
-
-node registerScript.js api/get-varna-ipa-symbol.tcl api/json/register-get-varna-ipa-symbol.json register
-
-node registerScript.js api/is-vowel-unicode.tcl api/json/register-is-vowel-unicode.json register
-
-node registerScript.js api/get-vowels-syllable.tcl api/json/register-get-vowels-syllable.json register
-
-node registerScript.js api/get-consonants-syllable.tcl api/json/register-get-consonants-syllable.json register
-
-node registerScript.js api/get-syllables.tcl api/json/register-get-syllables.json register
-
-node registerScript.js api/get-gunimta.tcl api/json/register-get-gunimta.json register
-
-node registerScript.js api/get-varnas.tcl api/json/register-get-varnas.json register
-
 node registerScript.js api/get-vowel-signs.tcl api/json/register-get-vowel-signs.json register
+
+node registerScript.js api/update-word-list-membership.tcl api/json/register-update-word-list-membership.json register
+
+node registerScript.js api/update-ipa-to-iso.tcl api/json/register-update-ipa-to-iso.json register
+
+node registerScript.js api/delete-varna-ipa.tcl api/json/register-delete-varna-ipa.json register

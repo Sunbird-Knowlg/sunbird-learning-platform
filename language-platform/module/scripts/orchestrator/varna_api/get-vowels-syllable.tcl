@@ -5,8 +5,8 @@ java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.common.dto NodeDTO
 
 set varna_object_type "Varna"
-set varna_ipa_object_type "Varna_IPA"
-set varna_ipa_graph_id "language"
+set varna_iso_object_type "Varna_ISO"
+set varna_iso_graph_id "language"
 set vowelString [java::new String "Vowel"]
 set vowelSignString [java::new String "VowelSign"]
 set object_null [java::isnull $syllable]

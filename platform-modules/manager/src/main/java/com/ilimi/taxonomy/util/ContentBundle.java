@@ -27,6 +27,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.ecml.slugs.Slug;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
@@ -85,7 +86,7 @@ public class ContentBundle {
                         if (file.endsWith(".ecar")) {
                             entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
                         } else {
-                            entry.setValue(identifier.trim() + File.separator + file);
+                            entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
                         }
                     }
                 }

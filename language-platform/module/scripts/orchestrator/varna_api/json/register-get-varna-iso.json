@@ -1,0 +1,14 @@
+{
+    "name": "getVarnaISO",
+    "parameters": [{
+    	"name":"iso_id",
+    	"index": 0,
+    	"routingParam": false
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/dictionary/iso/*",
+        "pathParams": ["iso_id"]
+    },
+    "body": ""
+}

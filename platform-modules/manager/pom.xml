@@ -96,5 +96,20 @@
 		    <artifactId>xmlunit-core</artifactId>
 		    <version>2.2.0</version>
 		</dependency>
+		<dependency>
+            <groupId>net.bramp.ffmpeg</groupId>
+            <artifactId>ffmpeg</artifactId>
+            <version>0.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.im4java</groupId>
+            <artifactId>im4java</artifactId>
+            <version>1.4.0</version>
+        </dependency>
+        <dependency>
+    		<groupId>com.moparisthebest</groupId>
+    		<artifactId>junidecode</artifactId>
+    		<version>0.1.1</version>
+		</dependency>
 	</dependencies>
 </project>

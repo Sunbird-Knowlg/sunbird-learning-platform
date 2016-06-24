@@ -5,6 +5,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.actor.EnrichActor;
 import org.ekstep.language.actor.IndexesActor;
+import org.ekstep.language.actor.IndowordnetActor;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageParams;
@@ -37,6 +38,7 @@ public class LanguageRequestRouter extends UntypedActor {
     private static Logger LOGGER = LogManager.getLogger(LanguageRequestRouter.class.getName());
 
     protected long timeout = 30000;
+    protected long bulk_timeout = 600000;
 
     @Override
     public void onReceive(Object message) throws Exception {
@@ -52,7 +54,11 @@ public class LanguageRequestRouter extends UntypedActor {
             ActorRef parent = getSender();
             try {
                 ActorRef actorRef = getActorFromPool(request);
-                Future<Object> future = Patterns.ask(actorRef, request, timeout);
+                long t = timeout;
+                Boolean isBulkRequest = (Boolean) request.getContext().get(LanguageParams.bulk_request.name());
+                if (null != isBulkRequest && isBulkRequest.booleanValue())
+                    t = bulk_timeout;
+                Future<Object> future = Patterns.ask(actorRef, request, t);
                 handleFuture(request, future, parent);
             } catch (Exception e) {
                 handleException(request, e, parent);
@@ -79,6 +85,10 @@ public class LanguageRequestRouter extends UntypedActor {
         Props enrichProps = Props.create(EnrichActor.class);
         ActorRef enrichMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(enrichProps));
         LanguageActorPool.addActorRefToPool(null, LanguageActorNames.ENRICH_ACTOR.name(), enrichMgr);
+        
+        Props indowordnetProps = Props.create(IndowordnetActor.class);
+        ActorRef indowordnetMgr = system.actorOf(new SmallestMailboxPool(poolSize).props(indowordnetProps));
+        LanguageActorPool.addActorRefToPool(null, LanguageActorNames.INDOWORDNET_ACTOR.name(), indowordnetMgr);
     }
 
     private ActorRef getActorFromPool(Request request) {

@@ -9,6 +9,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.ilimi.common.dto.ExecutionContext;
+import com.ilimi.common.dto.HeaderParam;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
@@ -46,6 +48,8 @@ public class TclExecutorActor extends UntypedActor {
             Response response = null;
             try {
                 OrchestratorRequest request = (OrchestratorRequest) message;
+                if (null != request && StringUtils.isNotBlank(request.getRequestId()))
+                    ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.getParamName(), request.getRequestId());
                 if (StringUtils.equalsIgnoreCase(OrchestratorRequest.ACTION_TYPES.INIT.name(), request.getAction())) {
                     init(request.getScripts());
                     response = OK();

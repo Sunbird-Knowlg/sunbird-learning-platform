@@ -4,6 +4,7 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,10 +32,13 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACSearchMgr;
+import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.Graph;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.RelationTraversal;
+import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
@@ -71,7 +75,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         Transaction tx = null;
         try {
-            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
             tx = graphDb.beginTx();
             org.neo4j.graphdb.Node neo4jNode = graphDb.getNodeById(nodeId);
             tx.success();
@@ -99,7 +103,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 org.neo4j.graphdb.Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, nodeId);
                 Node node = new Node(graphId, neo4jNode);
@@ -198,7 +202,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 ResourceIterator<org.neo4j.graphdb.Node> nodes = graphDb.findNodes(NODE_LABEL, property.getPropertyName(),
                         property.getPropertyValue());
@@ -227,44 +231,53 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             }
         }
     }
+    
     @SuppressWarnings("unchecked")
 	@Override
 	public void getNodesByUniqueIds(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
 		List<String> nodeIds = (List<String>) request.get(GraphDACParams.node_ids.name());
-		Property property = new Property(SystemProperties.IL_UNIQUE_ID.name(), nodeIds);
-		if (!validateRequired(property)) {
+		if (!validateRequired(nodeIds)) {
 			throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_LIST_MISSING_REQ_PARAMS.name(),
 					"Required parameters are missing");
 		} else {
+			SearchCriteria sc = new SearchCriteria();
+			MetadataCriterion mc = MetadataCriterion.create(Arrays.asList(new Filter("identifier", SearchConditions.OP_IN, nodeIds)));
+			sc.addMetadata(mc);
+			sc.setCountQuery(false);
 			Transaction tx = null;
-			try {
-				GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
-				tx = graphDb.beginTx();
-				ResourceIterator<org.neo4j.graphdb.Node> nodes = graphDb.findNodes(NODE_LABEL);
-				List<Node> nodeList = null;
-				if (null != nodes) {
-					nodeList = new ArrayList<Node>();
-					while (nodes.hasNext()) {
-						org.neo4j.graphdb.Node neo4jNode = nodes.next();
-						if (nodeIds.contains((String) neo4jNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()))) {
-							Node node = new Node(graphId, neo4jNode);
-							nodeList.add(node);
-							// nodes.close();
-						}
-					}
-					nodes.close();
-				}
-				tx.success();
-				OK(GraphDACParams.node_list.name(), nodeList, getSender());
-			} catch (Exception e) {
-				if (null != tx)
-					tx.failure();
-				ERROR(e, getSender());
-			} finally {
-				if (null != tx)
-					tx.close();
-			}
+            try {
+                Map<String, Object> params = sc.getParams();
+                String query = sc.getQuery();
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
+                tx = graphDb.beginTx();
+                Result result = graphDb.execute(query, params);
+                List<Node> nodes = new ArrayList<Node>();
+                if (null != result) {
+                    while (result.hasNext()) {
+                        Map<String, Object> map = result.next();
+                        if (null != map && !map.isEmpty()) {
+                            Object o = map.values().iterator().next();
+                            if (o instanceof org.neo4j.graphdb.Node) {
+                                org.neo4j.graphdb.Node dbNode = (org.neo4j.graphdb.Node) o;
+                                Node node = new Node(graphId, dbNode);
+                                setTags(dbNode, node);
+                                nodes.add(node);
+                            }
+                        }
+                    }
+                    result.close();
+                }
+                tx.success();
+                OK(GraphDACParams.node_list.name(), nodes, getSender());
+            } catch (Exception e) {
+                if (null != tx)
+                    tx.failure();
+                ERROR(e, getSender());
+            } finally {
+                if (null != tx)
+                    tx.close();
+            }
 		}
 	}
 
@@ -278,7 +291,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Property property = null;
                 Map<String, Object> params = new HashMap<String, Object>();
@@ -313,7 +326,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Transaction tx = null;
         try {
-            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
             tx = graphDb.beginTx();
             GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
             Iterable<org.neo4j.graphdb.Node> dbNodes = graphOps.getAllNodes();
@@ -340,7 +353,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         Transaction tx = null;
         try {
-            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+            GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
             tx = graphDb.beginTx();
             GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
             Iterable<Relationship> dbRelations = graphOps.getAllRelationships();
@@ -374,7 +387,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Object value = null;
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
@@ -405,7 +418,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Relation relation = null;
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
@@ -435,7 +448,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 org.neo4j.graphdb.Node startNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
                 org.neo4j.graphdb.Node endNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, endNodeId);
@@ -483,7 +496,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Map<String, Object> params = new HashMap<String, Object>();
                 if (validateRequired(paramMap))
@@ -529,7 +542,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
                     returnNode = false;
                 Map<String, Object> params = sc.getParams();
                 String query = sc.getQuery();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Result result = graphDb.execute(query, params);
                 List<Node> nodes = new ArrayList<Node>();
@@ -580,7 +593,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
                 sc.setCountQuery(true);
                 Map<String, Object> params = sc.getParams();
                 String query = sc.getQuery();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Result result = graphDb.execute(query, params);
                 if (null != result && result.hasNext()) {
@@ -618,7 +631,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 SubGraph subGraph = traverser.traverse();
                 tx.success();
@@ -643,7 +656,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Graph subGraph = traverser.getSubGraph();
                 tx.success();
@@ -670,7 +683,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Traverser traverser = new Traverser(graphId, startNodeId);
                 traverser.traverseRelation(new RelationTraversal(relationType, RelationTraversal.DIRECTION_OUT));

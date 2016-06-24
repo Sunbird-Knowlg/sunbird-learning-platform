@@ -14,8 +14,17 @@ public class RequestParams implements Serializable {
     private String did;
     private String key;
     private String msgid;
+    private String uid;
 
-    public String getDid() {
+    public String getUid() {
+		return uid;
+	}
+
+	public void setUid(String uid) {
+		this.uid = uid;
+	}
+
+	public String getDid() {
         return did;
     }
 

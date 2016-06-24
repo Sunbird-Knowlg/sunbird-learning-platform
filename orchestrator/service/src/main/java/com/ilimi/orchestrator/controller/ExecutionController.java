@@ -21,6 +21,7 @@ import org.springframework.web.servlet.HandlerMapping;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 import com.ilimi.orchestrator.dac.model.RequestPath;
 import com.ilimi.orchestrator.dac.model.RequestTypes;
@@ -33,6 +34,8 @@ import com.ilimi.orchestrator.mgr.service.OrchestratorScriptMap;
 @Controller
 @RequestMapping("")
 public class ExecutionController extends BaseOrchestratorController {
+    
+    private static LogHelper LOGGER = LogHelper.getInstance(ExecutionController.class.getName());
 
     @Autowired
     private IOrchestratorManager manager;
@@ -76,6 +79,7 @@ public class ExecutionController extends BaseOrchestratorController {
         } else {
             try {
                 Map<String, Object> params = getParams(request, script, path, map);
+                LOGGER.info(script.getName() + "," + params);
                 Response resp = executor.execute(script, params);
                 String format = request.getParameter("format");
                 if (StringUtils.isNotBlank(format) && StringUtils.equalsIgnoreCase("csv", format)) {
@@ -90,7 +94,7 @@ public class ExecutionController extends BaseOrchestratorController {
                 }
                 return getResponseEntity(resp, script);
             } catch (Exception e) {
-                e.printStackTrace();
+                LOGGER.error("Error executing script: " + script.getName(), e);
                 return getExceptionResponseEntity(e, script);
             }
         }

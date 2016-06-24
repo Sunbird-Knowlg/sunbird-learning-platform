@@ -26,12 +26,77 @@ public class BatchController extends BaseLanguageController {
     @Autowired
     private IWordnetCSVManager wordnetCSVManager;
     
+    @RequestMapping(value = "/{languageId}/correctWordnetData", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> correctWordnetData(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.correctWordnetData";
+        try {
+            Response response = batchManager.correctWordnetData(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/updatePictures", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updatePictures(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.updatePictures";
+        try {
+            Response response = batchManager.updatePictures(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/cleanupWordNetData", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> cleanupWordNetData(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.cleanupWordNetData";
+        try {
+            Response response = batchManager.cleanupWordNetData(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/setPrimaryMeaning", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> setPrimaryMeaning(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.setPrimaryMeaning";
+        try {
+            Response response = batchManager.setPrimaryMeaning(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
     @RequestMapping(value = "/{languageId}/updatePosList", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> updatePosList(@PathVariable(value = "languageId") String languageId) {
         String apiId = "language.updatePosList";
         try {
             Response response = batchManager.updatePosList(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/updateWordComplexity", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updateWordComplexity(@PathVariable(value = "languageId") String languageId) {
+        String apiId = "language.updateWordComplexity";
+        try {
+            Response response = batchManager.updateWordComplexity(languageId);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             e.printStackTrace();

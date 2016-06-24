@@ -32,6 +32,7 @@ if {$check_obj_type_error} {
 			if {$is_resultSize_null == 0} {
 				$map put "resultSize" $limit
 			}
+			$map put "status" "Live"
 			$map put "order" $order
 
 			set search_criteria [create_search_criteria $map]

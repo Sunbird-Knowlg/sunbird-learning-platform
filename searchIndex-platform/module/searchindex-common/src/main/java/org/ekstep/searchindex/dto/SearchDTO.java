@@ -7,6 +7,8 @@ public class SearchDTO {
 
 	@SuppressWarnings("rawtypes")
 	private List<Map> properties;
+	private List<String> facets;
+	private Map<String, String> sortBy;
 	private String operation;
 	private int limit;
 	
@@ -40,7 +42,16 @@ public class SearchDTO {
 	public void setLimit(int limit) {
 		this.limit = limit;
 	}
-	
-	
-	
+	public List<String> getFacets() {
+		return facets;
+	}
+	public void setFacets(List<String> facets) {
+		this.facets = facets;
+	}
+	public Map<String, String> getSortBy() {
+		return sortBy;
+	}
+	public void setSortBy(Map<String, String> sortBy) {
+		this.sortBy = sortBy;
+	}
 }

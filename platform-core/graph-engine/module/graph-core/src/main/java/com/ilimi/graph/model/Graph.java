@@ -34,12 +34,15 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.router.GraphDACActorPoolMgr;
 import com.ilimi.graph.dac.router.GraphDACManagers;
+import com.ilimi.graph.enums.ImportType;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.importer.ImportData;
 import com.ilimi.graph.importer.InputStreamValue;
 import com.ilimi.graph.importer.OutputStreamValue;
+import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.node.DataNode;
 import com.ilimi.graph.model.node.DefinitionDTO;
@@ -353,6 +356,32 @@ public class Graph extends AbstractDomainObject {
         }
         manager.OK(GraphEngineParams.task_id.name(),taskId, getParent());
 	}
+    
+    public void addOutRelations(Request request) {
+    	try {
+    		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        	request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+            request.setOperation("addOutgoingRelations");
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            manager.returnResponse(response, getParent());
+    	} catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(), e.getMessage(),
+                    e);
+        }
+    }
+    
+    public void addInRelations(Request request) {
+    	try {
+    		ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+        	request.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
+            request.setOperation("addIncomingRelations");
+            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+            manager.returnResponse(response, getParent());
+    	} catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_CREATE_RELATION_NODE_FAILED.name(), e.getMessage(),
+                    e);
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public void importGraph(final Request request) {
@@ -718,37 +747,17 @@ public class Graph extends AbstractDomainObject {
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void getDefinitionNode(Request req) {
         try {
-            ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-            Request request = new Request(req);
-            request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            request.setOperation("searchNodes");
-            request.copyRequestValueObjects(req.getRequest());
-            Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-            response.onComplete(new OnComplete<Object>() {
-                @Override
-                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
-                    boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
-                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
-                            "Failed to get definition node");
-                    if (valid) {
-                        Response res = (Response) arg1;
-                        List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-                        if (null != nodes && !nodes.isEmpty()) {
-                            Node node = nodes.get(0);
-                            DefinitionNode defNode = new DefinitionNode(manager, node);
-                            DefinitionDTO definition = defNode.getValueObject();
-                            manager.OK(GraphDACParams.definition_node.name(), definition, getParent());
-                        } else {
-                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
-                                    "Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
-                        }
-                    }
-                }
-            }, manager.getContext().dispatcher());
-
+        	String objectType = (String) req.get(GraphDACParams.object_type.name());
+        	String graphId = (String) req.getContext().get(GraphHeaderParams.graph_id.name());
+        	DefinitionDTO definition = DefinitionCache.getDefinitionNode(graphId, objectType);
+        	if (null != definition)
+        		manager.OK(GraphDACParams.definition_node.name(), definition, getParent());
+        	else {
+        		manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                        "Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+        	}
         } catch (Exception e) {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
                     e);
@@ -778,6 +787,7 @@ public class Graph extends AbstractDomainObject {
                             for (Node node : nodes) {
                                 DefinitionNode defNode = new DefinitionNode(manager, node);
                                 DefinitionDTO definition = defNode.getValueObject();
+                                DefinitionCache.cacheDefinitionNode(graphId, definition);
                                 definitions.add(definition);
                             }
                             manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());
@@ -925,23 +935,42 @@ public class Graph extends AbstractDomainObject {
             }
         }
     }
-
+    
     @SuppressWarnings("unchecked")
     public void exportGraph(final Request request) {
         try {
             final ExecutionContext ec = manager.getContext().dispatcher();
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             final String format = (String) request.get(GraphEngineParams.format.name());
+            SearchCriteria sc = null;
+            if (null != request.get(GraphEngineParams.search_criteria.name()))
+                sc = (SearchCriteria) request.get(GraphEngineParams.search_criteria.name());
 
-            Request nodesReq = new Request(request);
-            nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            nodesReq.setOperation("getAllNodes");
-            Future<Object> nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            Future<Object> nodesResponse = null;
+            if (null == sc) {
+                Request nodesReq = new Request(request);
+                nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                nodesReq.setOperation("getAllNodes");
+                nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            } else {
+                Request nodesReq = new Request(request);
+                nodesReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                nodesReq.setOperation("searchNodes");
+                nodesReq.put(GraphDACParams.search_criteria.name(), sc);
+                nodesReq.put(GraphDACParams.get_tags.name(), true);
+                nodesResponse = Patterns.ask(dacRouter, nodesReq, timeout);
+            }
 
-            Request relationsReq = new Request(request);
-            relationsReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-            relationsReq.setOperation("getAllRelations");
-            Future<Object> relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
+            Future<Object> relationsResponse = null;
+            if (!StringUtils.equalsIgnoreCase(ImportType.CSV.name(), format)) {
+                Request relationsReq = new Request(request);
+                relationsReq.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
+                relationsReq.setOperation("getAllRelations");
+                relationsResponse = Patterns.ask(dacRouter, relationsReq, timeout);
+            } else {
+                Object blankResponse = new Response();
+                relationsResponse = Futures.successful(blankResponse);
+            }
 
             Future<Object> exportFuture = nodesResponse.zip(relationsResponse)
                     .map(new Mapper<Tuple2<Object, Object>, Object>() {

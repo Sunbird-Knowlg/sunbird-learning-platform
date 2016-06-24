@@ -27,6 +27,7 @@ public class OrchestratorScript implements Serializable {
 	private ActorPath actorPath;
 	@Field("request_path")
 	private RequestPath requestPath;
+	private Boolean async;
 
 	public String getId() {
 		return id;
@@ -106,6 +107,14 @@ public class OrchestratorScript implements Serializable {
 
     public void setApiId(String apiId) {
         this.apiId = apiId;
+    }
+
+    public Boolean getAsync() {
+        return async;
+    }
+
+    public void setAsync(Boolean async) {
+        this.async = async;
     }
 
 }

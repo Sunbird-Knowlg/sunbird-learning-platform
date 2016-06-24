@@ -23,6 +23,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.graph.common.DateUtils;
+import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
@@ -71,8 +72,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     "Graph '" + graphId + "' already exists");
         } else {
             try {
-                Neo4jGraphFactory.createGraph(graphId);
-                Neo4jGraphFactory.getGraphDb(graphId);
+                Neo4jGraphFactory.createGraph(graphId);                
+                Neo4jGraphFactory.getGraphDb(graphId, request);
                 OK(GraphDACParams.graph_id.name(), graphId, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -91,7 +92,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Schema schema = graphDb.schema();
                 for (String prop : indexProperties) {
@@ -121,7 +122,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Schema schema = graphDb.schema();
                 for (String prop : indexProperties) {
@@ -149,8 +150,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             throw new ClientException(GraphDACErrorCodes.ERR_GRAPH_NOT_FOUND.name(),
                     "Graph '" + graphId + "' not found to delete.");
         } else {
-            try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+            try {                
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 if (null != graphDb) {
                     Neo4jGraphFactory.shutdownGraph(graphId);
                 }
@@ -174,7 +175,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node startNode = getNodeByUniqueId(graphDb, startNodeId);
                 RelationType relType = new RelationType(relationType);
@@ -211,7 +212,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node endNode = getNodeByUniqueId(graphDb, endNodeId);
                 RelationType relType = new RelationType(relationType);
@@ -250,7 +251,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 int index = 0;
                 RelationType relation = new RelationType(relationType);
@@ -313,7 +314,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 for (String startNodeId : startNodeIds) {
                     Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType,
@@ -348,7 +349,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 for (String endNodeId : endNodeIds) {
                     Relationship relation = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType,
@@ -382,7 +383,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel) {
@@ -415,11 +416,10 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else if (null != metadata && metadata.size() > 0) {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel) {
-                    tx.acquireWriteLock(rel);
                     for (Entry<String, Object> entry : metadata.entrySet()) {
                         rel.setProperty(entry.getKey(), entry.getValue());
                     }
@@ -452,7 +452,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else if (StringUtils.isNotBlank(key)) {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Relationship rel = Neo4jGraphUtil.getRelationship(graphDb, startNodeId, relationType, endNodeId);
                 if (null != rel && rel.hasProperty(key))
@@ -489,7 +489,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
             Transaction tx = null;
             try {
                 String date = DateUtils.formatCurrentDate();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 RelationType relation = new RelationType(relationType);
                 Node startNode = null;
@@ -559,7 +559,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             Transaction tx = null;
             try {
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
                 Node collection = Neo4jGraphUtil.getNodeByUniqueId(graphDb, collectionId);
                 if (null != collection) {
@@ -595,7 +595,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
         } else {
             try {
                 Map<String, List<String>> messages = new HashMap<String, List<String>>();
-                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
 
                 GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
@@ -859,7 +859,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     private void upsertRootNode(GraphDatabaseService graphDb, String graphId, Map<String, Node> existingNodes,
             Integer nodesCount, Integer relationsCount) {
-        String rootNodeUniqueId = graphId + "_" + SystemNodeTypes.ROOT_NODE.name();
+        String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
         if (existingNodes.get(rootNodeUniqueId) == null) {
             Node rootNode = graphDb.createNode(NODE_LABEL);
             rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);

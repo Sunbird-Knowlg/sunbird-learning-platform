@@ -3,8 +3,6 @@ package com.ilimi.taxonomy.controller;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,6 +16,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.util.AWSUploader;
 
@@ -25,7 +24,7 @@ import com.ilimi.taxonomy.util.AWSUploader;
 @RequestMapping("/media")
 public class MediaController extends BaseController {
     
-    private static Logger LOGGER = LogManager.getLogger(MediaController.class.getName());
+    private static LogHelper LOGGER = LogHelper.getInstance(MediaController.class.getName());
 
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     @ResponseBody

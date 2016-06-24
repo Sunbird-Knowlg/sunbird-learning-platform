@@ -25,6 +25,8 @@ public interface IContentManager {
     
 	Response  extract(String taxonomyId ,String contentId);
 	
+	Response  optimize(String taxonomyId ,String contentId);
+	
 	Response  publish(String taxonomyId ,String contentId);
 
 	Response bundle(Request request, String taxonomyId, String version);

@@ -40,6 +40,7 @@ import com.ilimi.graph.dac.router.GraphDACManagers;
 import com.ilimi.graph.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.exception.GraphRelationErrorCodes;
 import com.ilimi.graph.model.IRelation;
+import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.collection.Tag;
 import com.ilimi.graph.model.relation.RelationHandler;
 
@@ -530,37 +531,17 @@ public class DataNode extends AbstractNode {
                 Future<List<String>> message = Futures.successful(messages);
                 return getMessageMap(message, ec);
             } else {
-                ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
-                Request request = new Request(req);
-                request.setManagerName(GraphDACManagers.DAC_SEARCH_MANAGER);
-                request.setOperation("getNodeByUniqueId");
-                request.put(GraphDACParams.node_id.name(),
-                        SystemNodeTypes.DEFINITION_NODE.name() + "_" + this.objectType);
-                Future<Object> response = Patterns.ask(dacRouter, request, timeout);
-                Future<List<String>> props = response.map(new Mapper<Object, List<String>>() {
-                    @Override
-                    public List<String> apply(Object parameter) {
-                        if (null != parameter && parameter instanceof Response) {
-                            Response res = (Response) parameter;
-                            Node node = (Node) res.get(GraphDACParams.node.name());
-                            if (null != node) {
-                                DefinitionNode definitionNode = new DefinitionNode(getManager(), node);
-                                validateMetadata(definitionNode.getIndexedMetadata(), messages);
-                                validateMetadata(definitionNode.getNonIndexedMetadata(), messages);
-                                List<RelationDefinition> inRelDefs = definitionNode.getInRelations();
-                                validateRelations(inRelDefs, "incoming", messages);
-                                List<RelationDefinition> outRelDefs = definitionNode.getOutRelations();
-                                validateRelations(outRelDefs, "outgoing", messages);
-                            } else {
-                                messages.add("Definition node not found for Object Type: " + objectType);
-                            }
-                        } else {
-                            messages.add("Definition node not found for Object Type: " + objectType);
-                        }
-                        return messages;
-                    }
-                }, manager.getContext().dispatcher());
-                return getMessageMap(props, ec);
+            	DefinitionDTO dto = DefinitionCache.getDefinitionNode(graphId, objectType);
+            	if (null != dto) {
+            		validateMetadata(dto.getProperties(), messages);
+            		validateRelations(dto.getInRelations(), "incoming", messages);
+            		validateRelations(dto.getOutRelations(), "outgoing", messages);
+            	} else {
+                    messages.add("Definition node not found for Object Type: " + objectType);
+                }
+            	Map<String, List<String>> map = new HashMap<String, List<String>>();
+            	map.put(getNodeId(), messages);
+            	return Futures.successful(map);
             }
         } catch (Exception e) {
             throw new ServerException(GraphRelationErrorCodes.ERR_RELATION_GET_PROPERTY.name(), e.getMessage(), e);

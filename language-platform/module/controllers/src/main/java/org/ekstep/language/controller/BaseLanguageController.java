@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 
 import com.ilimi.common.controller.BaseController;
@@ -88,6 +89,7 @@ public abstract class BaseLanguageController extends BaseController {
     protected Response getBulkOperationResponse(Request request, Logger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
+            request.getContext().put(LanguageParams.bulk_request.name(), true);
             Future<Object> future = Patterns.ask(router, request, LanguageRequestRouterPool.BULK_REQ_TIMEOUT);
             Object obj = Await.result(future, LanguageRequestRouterPool.BULK_WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
