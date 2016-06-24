@@ -189,7 +189,6 @@
             </data>
         </media>
         <media id="mic" src="mic.png" type="image" />
-        <plugin id="imageExt" src="ImageExtPlugin.js"/> <!-- Registering custom plugin - example -->
     </manifest>
     <controller name="storyData" type="data" id="story_data"/>
     <controller name="assessment" type="items" id="assessment"/>
