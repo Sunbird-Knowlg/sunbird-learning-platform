@@ -265,6 +265,23 @@ public class ElasticSearchUtil {
 		}
 		return documents;
 	}
+	
+	@SuppressWarnings("rawtypes")
+	public List<Map> getDocumentsFromSearchResultWithScore(SearchResult result) {
+		List<Hit<Map, Void>> hits = result.getHits(Map.class);
+		return getDocumentsFromHitsWithScore(hits);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Map> getDocumentsFromHitsWithScore(List<Hit<Map, Void>> hits) {
+		List<Map> documents = new ArrayList<Map>();
+		for (Hit hit : hits) {
+			Map<String, Object> hitDocument = (Map)hit.source;
+			hitDocument.put("score", hit.score);
+			documents.add(hitDocument);
+		}
+		return documents;
+	}
 
 	@SuppressWarnings({ "rawtypes" })
 	public List<Object> wildCardSearch(Class objectClass, String textKeyWord, String wordWildCard, String indexName,

@@ -202,14 +202,14 @@ public class WordChainsTraversalsTest extends BaseManager {
 							String objectType = (String) endNode
 									.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
 							if (objectType.equalsIgnoreCase(OBJECT_TYPE_PB)) {
-								return Evaluation.EXCLUDE_AND_CONTINUE;
+								//return Evaluation.EXCLUDE_AND_CONTINUE;
 							}
 						}
 
 						if (endNode.hasProperty(attrib_lemma)) {
 							String lemma = (String) endNode.getProperty(attrib_lemma);
 							if (lemma.equalsIgnoreCase("eagle")) {
-								return Evaluation.EXCLUDE_AND_PRUNE;
+								//return Evaluation.EXCLUDE_AND_PRUNE;
 							}
 						}
 						return Evaluation.INCLUDE_AND_CONTINUE;
@@ -229,7 +229,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 			Traverser pathsTraverser = getTraverser(node, graphDb);
 
 			for (Path traversedPath : pathsTraverser) {
-				render(traversedPath);
+				//render(traversedPath);
 				if (traversedPath.length() > previousPathLength) {
 					previousPath = traversedPath;
 					previousPathLength = traversedPath.length();
@@ -252,7 +252,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 				previousPath = null;
 			}
 
-			System.out.println("Final paths:**************************************");
+			//System.out.println("Final paths:**************************************");
 			for (Path finalPath : finalPaths) {
 				render(finalPath);
 			}
