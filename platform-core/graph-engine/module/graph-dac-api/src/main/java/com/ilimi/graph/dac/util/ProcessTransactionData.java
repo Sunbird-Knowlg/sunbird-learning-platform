@@ -11,6 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.searchindex.util.LogAsyncKafkaMessage;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -41,7 +42,7 @@ public class ProcessTransactionData {
 		try {
 		    List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 	        if(kafkaMessages != null && !kafkaMessages.isEmpty())
-	        	pushMessageToLogger(kafkaMessages);
+	        	LogAsyncKafkaMessage.pushMessageToLogger(kafkaMessages);
 		} catch (Exception e) {
 		    LOGGER.error(e.getMessage(), e);
 		}
@@ -65,20 +66,6 @@ public class ProcessTransactionData {
 		return messageMap;
 	}
 
-	private void pushMessageToLogger(List<Map<String, Object>> messages) {
-		if (null == messages || messages.size() <= 0) return; 
-		LOGGER.debug("sending KafkaMessages to AsyncLogger.... ");
-		for (Map<String, Object> message : messages) {
-			try{
-				String jsonMessage = mapper.writeValueAsString(message);
-				if (StringUtils.isNotBlank(jsonMessage))
-					kafkaMessageLogger.info(jsonMessage);
-			}catch(Exception e){
-				LOGGER.error(e.getMessage(), e);
-			}
-		}
-		LOGGER.debug("sending KafkaMessages to AsyncLogger : FINISHED");
-	}
 	private List<Map<String, Object>> getCretedNodeMessages(TransactionData data, GraphDatabaseService graphDb, String userId, String requestId) {
 		List<Map<String, Object>> lstMessageMap = new ArrayList<Map<String, Object>>();
 		List<Long> createdNodeIds = getCreatedNodeIds(data);

@@ -116,7 +116,7 @@ if {$object_null == 1} {
 				}
 				set domain_obj [convert_to_graph_node $content $def_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
-				set log_response [log_as_telemetry_event $content_id $metadata]
+				set log_response [log_content_lifecycle_event $content_id $metadata]
 				return $create_response
 			}
 		}
