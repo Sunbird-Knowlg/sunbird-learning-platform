@@ -44,7 +44,7 @@ java::for {String unicode} $unicode_list {
 	set search_response [getNodesByProperty $language_id $property]
 	set check_error [check_response_error $search_response]
 	if {$check_error} {
-		puts "Error response from searchNodes"
+
 	} else {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set varna_node [$graph_nodes get 0]
@@ -56,7 +56,6 @@ java::for {String unicode} $unicode_list {
 		set varnaType [$varna_obj get "type"]
 		set varnaTypeTemp [$varnaType toString]
 		set varnaTypeString [java::new String $varnaTypeTemp]
-		puts $varnaTypeTemp
 		set isVowel [$varnaTypeString equalsIgnoreCase $vowelString]
 		if {$isVowel == 1} {
 			$vowel_list add $varna_obj
@@ -67,13 +66,11 @@ java::for {String unicode} $unicode_list {
 			set parentVowelAList [java::cast List $parentVowelList]
 			set parentVowel [$parentVowelAList get 0]
 			set parentVowelNodeDTO [java::cast NodeDTO $parentVowel]
-			puts "crossed"
 			set parentVowelId [$parentVowelNodeDTO getIdentifier]
 			
 			set get_node_response [getDataNode $language_id $parentVowelId]
 			set get_node_response_error [check_response_error $get_node_response]
 			if {$get_node_response_error} {
-				puts "Error response from getDataNode"
 				return $get_node_response
 			}
 

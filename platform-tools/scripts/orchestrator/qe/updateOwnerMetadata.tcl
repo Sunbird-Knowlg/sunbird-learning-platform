@@ -73,7 +73,6 @@ while {$count > 0} {
     		break
     	}
     }
-    puts "update complete for $startPosistion - $resultSize content"
     set startPosistion [expr {$startPosistion+5000}]
 }
 return "OK"

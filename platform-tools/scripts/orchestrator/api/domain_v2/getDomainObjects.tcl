@@ -39,7 +39,6 @@ if {$check_obj_type_error} {
 			set search_response [searchNodes $graph_id $search_criteria]
 			set check_error [check_response_error $search_response]
 			if {$check_error} {
-				puts "Error response from searchNodes"
 				return $search_response;
 			} else {
 				set returnFields false

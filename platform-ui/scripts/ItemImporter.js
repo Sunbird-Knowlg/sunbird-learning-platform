@@ -2,7 +2,7 @@
 /**
 
 Setup:
-npm install 
+npm install
 csv
 underscore
 async
@@ -35,7 +35,9 @@ var fs = require('fs'),
 	Client = require('node-rest-client').Client;
 
 var client = new Client();
-var API_ENDPOINT = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+
+// var API_ENDPOINT = "http://lp-sandbox.ekstep.org:8080/taxonomy-service/";
+var API_ENDPOINT = "https://api.ekstep.org/learning-api/";
 var CREATE_ITEM_URL = "/v1/assessmentitem/${id}";
 var questionType = process.argv[2];
 var taxonomyId = process.argv[3];
@@ -135,15 +137,21 @@ function importItems(callback) {
 				});
 				delete item['rel:associatedTo'];
 			}
+
+			// Shuffle options before loading
+			item['options'] = _.shuffle(item['options']);
+
+			// Default fields
 			item['type'] = questionType;
 			item['domain'] = taxonomyId;
 			item['lastUpdatedBy'] = "csv-import";
 			item['used_for'] = "worksheet";
-			item['owner'] = "feroz";
+			item['owner'] = "Feroz";
+			item['portalOwner'] = "128";
 			item['language'] =  [language];
 			item['name'] = item['title']; // name is same as title
 			item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
-			
+
 			items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': conceptIds});
 		}
 	})
@@ -289,7 +297,7 @@ function getItemRecord(row, startCol, mapping, item) {
 			} else if (_.isObject(data)) {
 				item[x] = {};
 				getObjectData(row, startCol, data, item[x]);
-			} 
+			}
 		}
 	}
 }
@@ -308,7 +316,7 @@ function getObjectData(row, startCol, obj, objData) {
 		} else if (_.isObject(data)) {
 			objData[k] = {};
 			getObjectData(row, startCol, data, objData[k]);
-		} 
+		}
 	}
 }
 
@@ -387,7 +395,7 @@ function _getValueFromRow(row, startCol, col, def) {
 				return data;
 			} else if (def.type == 'list') {
 				data = data.split(',');
-				data = data.map(function(e) { return e.trim();}); 
+				data = data.map(function(e) { return e.trim();});
 				return data;
 			}
 		}
@@ -396,7 +404,7 @@ function _getValueFromRow(row, startCol, col, def) {
 }
 
 function isEmpty(val) {
-	if (!val || val == null) {
+	if (val == null) {
 		return true;
 	} else {
 		if (_.isString(val) && val.trim().length <= 0)

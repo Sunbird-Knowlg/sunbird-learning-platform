@@ -9,7 +9,6 @@ set error_status "Failed"
 set contains_response [containsLanguage $language_id]
 set contains_response_error [check_response_error $contains_response]
 if {$contains_response_error} {
-	puts "Error response from containsLanguage"
 	return $contains_response;
 }
 set result [$contains_response get "result"]
@@ -22,11 +21,9 @@ if {!$lang_eqs} {
 	set err_response [create_error_response $result_map]
 	return $err_response
 }
-puts [$varna_id toString]
 set get_node_response [getDataNode $language_id $varna_id]
 set get_node_response_error [check_response_error $get_node_response]
 if {$get_node_response_error} {
-	puts "Error response from getDataNode"
 	return $get_node_response
 }
 
