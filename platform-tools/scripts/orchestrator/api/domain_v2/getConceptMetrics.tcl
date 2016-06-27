@@ -45,7 +45,6 @@ if {$check_error} {
 		$resp_object put "methods" $methods
 		$result_map put "concept" $resp_object
 	} catch {Exception err} {
-    	puts [$err getMessage]
     	$result_map put "error" [$err getMessage]
 	}
 	set response_list [create_response $result_map]

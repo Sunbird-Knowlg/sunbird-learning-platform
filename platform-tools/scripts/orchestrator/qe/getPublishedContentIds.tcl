@@ -19,7 +19,6 @@ set search_criteria [create_search_criteria $search]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set identifiers [java::new ArrayList]

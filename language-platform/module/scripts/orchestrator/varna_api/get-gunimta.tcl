@@ -26,7 +26,6 @@ set property [create_search_property $searchProperty]
 set search_response [getNodesByProperty $language_id $property]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } 
 set graph_nodes [get_resp_value $search_response "node_list"]
@@ -46,7 +45,6 @@ if {$check_error_vowel} {
 	set response_list [create_error_response $result_map]
 	return $response_list
 } 
-puts "Crossed"
 set vowel_list [get_resp_value $vowel_response "result"]
 
 set gunimta_list [java::new ArrayList]

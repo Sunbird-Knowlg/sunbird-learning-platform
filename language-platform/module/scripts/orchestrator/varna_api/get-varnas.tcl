@@ -15,7 +15,6 @@ set property [create_search_property $searchProperty]
 set search_response [getNodesByProperty $language_id $property]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } 
 set resp_def_node [getDefinition $language_id $varna_object_type]
@@ -37,7 +36,6 @@ java::for {Node varna_node} $graph_nodes {
 		set search_response [getNodesByProperty $varna_iso_graph_id $property]
 		set check_error [check_response_error $search_response]
 		if {$check_error} {
-			puts "Error response from searchNodes"
 			return $varnaIpaSymbol;
 		} 
 		set graph_nodes [get_resp_value $search_response "node_list"]

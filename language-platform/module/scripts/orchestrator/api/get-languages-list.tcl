@@ -13,7 +13,6 @@ set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set result_map [java::new HashMap]
@@ -30,7 +29,6 @@ if {$check_error} {
 		}
 		$result_map put "languages" $language_list
 	} catch {Exception err} {
-    	puts [$err getMessage]
     	$result_map put "error" [$err getMessage]
 	}
 	set response_list [create_response $result_map]

@@ -22,7 +22,6 @@ set search_criteria [create_search_criteria $search]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set item_list [java::new ArrayList]
@@ -33,11 +32,9 @@ if {$check_error} {
 		set itemId [java::prop $graph_node "identifier"]
 		$item_list add $itemId
     set count [expr {$count+1}]
-    puts "Deleting Content ID: $itemId"
     set delete_response [deleteDataNode $graph_id $itemId]
     set check_error [check_response_error $delete_response]
     if {$check_error} {
-        puts "Failed to delete $itemId $delete_response"
         set messages [get_resp_value $delete_response "messages"]
         java::for {String msg} $messages {
             puts "$msg"

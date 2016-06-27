@@ -31,17 +31,15 @@ if {$isRespContentNodesNull == 0} {
 					$metadata put "size" $numeric_size
 					set update 1
 				} catch {Exception err} {
-			    	puts "Error: $err"
+
 				}
 			}
 		}
 		if {$update == 1} {
 			java::prop $content_node "metadata" $metadata
-			puts "update content $content_id"
 			set update_response [updateDataNode $graph_id $content_id $content_node]
 			set check_error [check_response_error $update_response]
 			if {$check_error} {
-				puts "Failed to update $content_id $update_response"
 				set messages [get_resp_value $update_response "messages"]
 				java::for {String msg} $messages {
 					puts "$msg"
