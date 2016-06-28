@@ -11,6 +11,7 @@ public class SearchDTO {
 	private Map<String, String> sortBy;
 	private String operation;
 	private int limit;
+	boolean traversalSearch = false;
 	
 	public SearchDTO() {
 		super();
@@ -53,5 +54,11 @@ public class SearchDTO {
 	}
 	public void setSortBy(Map<String, String> sortBy) {
 		this.sortBy = sortBy;
+	}
+	public boolean isTraversalSearch() {
+		return traversalSearch;
+	}
+	public void setTraversalSearch(boolean traversalSearch) {
+		this.traversalSearch = traversalSearch;
 	}
 }

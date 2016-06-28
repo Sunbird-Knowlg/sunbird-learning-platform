@@ -22,12 +22,17 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		String query = processSearchQuery(searchDTO, groupByFinalList, true);
+		String query = processSearchQuery(searchDTO, groupByFinalList, true, searchDTO.isTraversalSearch());
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		if(searchDTO.isTraversalSearch()){
+			 List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+		     response.put("results", results);
+		     return response;
+		}
 		if (includeResults) {
 		    List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 	        response.put("results", results);
@@ -44,7 +49,7 @@ public class SearchProcessor {
 	
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
-		String query = processSearchQuery(searchDTO, null, false);
+		String query = processSearchQuery(searchDTO, null, false, false);
 		
 		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		response.put("count", countResult.getCount());
@@ -54,7 +59,7 @@ public class SearchProcessor {
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort) throws Exception{
+	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort, boolean isTraversalSearch) throws Exception{
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
@@ -199,8 +204,201 @@ public class SearchProcessor {
 				searchDTO.setSortBy(sortBy);
 			}
 		}
-		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		String query;
+		if(isTraversalSearch){
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		}
+		else
+		{
+			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		}
 		return query;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy) throws Exception {
+		
+		
+/*		{
+			  "query": {
+			    "function_score": {
+			      "query": {
+			        "match": {
+			          "objectType.raw": "Word"
+			        }
+			      },
+			      "functions": [
+			        {
+			          "filter": {
+			            "match": {
+			              "word_complexity.raw": "0.8"
+			            }
+			          },
+			          "weight": 10
+			        },
+			        {
+			          "filter": {
+			            "bool": {
+			              "should": [
+			                {
+			                  "match": {
+			                    "category.raw": "Person"
+			                  }
+			                },
+			                {
+			                  "match": {
+			                    "category.raw": "Thing"
+			                  }
+			                }
+			              ]
+			            }
+			          },
+			          "weight": 5
+			        }
+			      ],
+			      "score_mode": "sum",
+			      "boost_mode": "multiply"
+			    }
+			  }
+			}
+		*/
+		
+
+		JSONBuilder builder = new JSONStringer();
+		builder.object();
+		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
+		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
+		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
+
+		if ((mustConditions != null && !mustConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {
+			builder.key("query").object()
+				.key("function_score")
+					.object()
+						.key("query")
+							.object()
+								.key("match")
+									.object()
+										.key("objectType.raw").value("Word")
+									.endObject()
+							.endObject()
+						.key("functions").array();
+		}
+
+		if (mustConditions != null && !mustConditions.isEmpty()) {
+			for (Map textCondition : mustConditions) {
+				builder.object().key("filter").object();
+				String conditionOperation = (String) textCondition.get("operation");
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = (String) textCondition.get("operand");
+					builder.key("bool").object();
+					builder.key(operand).array();
+					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
+					if (null != subConditions && !subConditions.isEmpty()) {
+					    for (Map subCondition : subConditions) {
+	                        builder.object();
+	                        String queryOperation = (String) subCondition.get("operation");
+	                        String fieldName = (String) subCondition.get("fieldName");
+	                        Object value = subCondition.get("value");
+	                        getConditionsQuery(queryOperation, fieldName, value, builder);
+	                        builder.endObject();
+	                    }
+					} 
+					builder.endArray();
+					builder.endObject();
+				} else {
+					String queryOperation = (String) textCondition.get("operation");
+					String fieldName = (String) textCondition.get("fieldName");
+					Object value = (Object) textCondition.get("value");
+					getConditionsQuery(queryOperation, fieldName, value, builder);
+				}
+				builder.endObject().key("weight").value("10").endObject();
+			}
+		}
+
+		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
+			for (Map arithmeticCondition : arithmeticConditions) {
+				builder.object().key("filter").object().key("script").object().key("script");
+				String conditionOperation = (String) arithmeticCondition.get("operation");
+				String conditionScript = "";
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = "||";
+					StringBuffer finalScript = new StringBuffer();
+					finalScript.append("(");
+					List<Map> subConditions = (List<Map>) arithmeticCondition.get("subConditions");
+					List<String> scripts = new ArrayList<String>();
+					for (Map subCondition : subConditions) {
+						StringBuffer script = new StringBuffer();
+						String queryOperation = (String) subCondition.get("operation");
+						String fieldName = (String) subCondition.get("fieldName");
+						Object value = (Object) subCondition.get("value");
+						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+								.append(" ").append(value);
+						scripts.add(script.toString());
+					}
+					String tempScript = "";
+					for (String script : scripts) {
+						tempScript = tempScript + operand + script;
+					}
+					tempScript = tempScript.substring(2);
+					finalScript.append(tempScript).append(")");
+					conditionScript = finalScript.toString();
+				} else {
+					StringBuffer script = new StringBuffer();
+					String queryOperation = (String) arithmeticCondition.get("operation");
+					String fieldName = (String) arithmeticCondition.get("fieldName");
+					Object value = (Object) arithmeticCondition.get("value");
+					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+							.append(" ").append(value);
+					conditionScript = script.toString();
+				}
+				builder.value(conditionScript).endObject().endObject().key("weight").value("5").endObject();
+			}
+		}
+
+		if (notConditions != null && !notConditions.isEmpty()) {
+			String allOperation = "must_not";
+			for (Map notCondition : notConditions) {
+				
+				builder.object().key("filter").object().key("bool").object().key(allOperation).object();
+				
+				String conditionOperation = (String) notCondition.get("operation");
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = (String) notCondition.get("operand");
+					builder.key("bool").object();
+					builder.key(operand).array();
+					List<Map> subConditions = (List<Map>) notCondition.get("subConditions");
+					for (Map subCondition : subConditions) {
+						builder.object();
+						String queryOperation = (String) subCondition.get("operation");
+						String fieldName = (String) subCondition.get("fieldName");
+						Object value = subCondition.get("value");
+						getConditionsQuery(queryOperation, fieldName, value, builder);
+						builder.endObject();
+					}
+					builder.endArray();
+					builder.endObject();
+				} else {
+					String queryOperation = (String) notCondition.get("operation");
+					String fieldName = (String) notCondition.get("fieldName");
+					Object value = notCondition.get("value");
+					getConditionsQuery(queryOperation, fieldName, value, builder);
+				}
+				builder.endObject().endObject().endObject().key("weight").value("4").endObject();
+			}
+		}
+/*		"score_mode": "sum",
+	      "boost_mode": "multiply"*/
+		if ((mustConditions != null && !mustConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {
+			builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
+		}
+
+		builder.endObject();
+		return builder.toString();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

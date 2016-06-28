@@ -18,6 +18,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.hibernate.envers.synchronization.work.WorkUnitMergeDispatcher;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -72,6 +73,18 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@Override
+	public Map<String, Object> searchForTraversal(Request request) {
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
+			return lstResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	@Override
     public Response metrics(Request request) {
         SearchProcessor processor = new SearchProcessor();
         try {
@@ -93,6 +106,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
+			Boolean traversal = (Boolean) request.get("traversal");
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
@@ -103,12 +117,16 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
-			properties.addAll(getSearchFilterProperties(filters));
+			properties.addAll(getSearchFilterProperties(filters, traversal));
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+			
+			if(traversal != null){
+				searchObj.setTraversalSearch(traversal);
+			}
 		} catch(ClassCastException e) {
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
 					"Invalid Input.");
@@ -177,7 +195,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) throws Exception {
+	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal) throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		boolean objTypeFilter = false;
 		boolean statusFilter = false;
@@ -247,7 +265,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				    statusFilter = true;
 			}
 		}
-		if (!objTypeFilter) {
+		if (!objTypeFilter && !traversal) {
 		    Map<String, Object> property = new HashMap<String, Object>();
 		    property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
             property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.objectType.name());
@@ -255,7 +273,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
             property.put(CompositeSearchParams.values.name(), Arrays.asList(objectTypes));
             properties.add(property);
 		}
-		if (!statusFilter) {
+		if (!statusFilter && !traversal) {
 		    Map<String, Object> property = new HashMap<String, Object>();
             property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
             property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
