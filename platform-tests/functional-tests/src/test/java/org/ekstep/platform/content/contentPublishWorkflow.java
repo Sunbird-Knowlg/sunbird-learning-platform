@@ -511,6 +511,115 @@ public class contentPublishWorkflow extends BaseTest{
 			spec(get400ResponseSpec());
 	}
 	
+	// Upload file with invalid ecml
+	
+	//Create content
+	@Test
+	public void uploadContentWithInvalidEcmlExpect400(){
+		setURI();
+		Response R =
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(jsonCreateValidContent).
+		with().
+			contentType(JSON).
+		when().
+			post("content").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response();
+		
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String ecmlNode = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpec(uploadContentType, validuserId)).
+		multiPart(new File("/Users/purnima/Documents/Upload Files/haircut_invalidEcml.zip")).
+		when().
+			post("content/upload/"+ecmlNode).
+		then().
+			log().all().
+			spec(get400ResponseSpec());
+	}
+
+	// Upload file with Empty zip
+
+	//Create content
+	@Test
+	public void uploadContentWithEmptyZipExpect400(){
+		setURI();
+		Response R =
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(jsonCreateValidContent).
+		with().
+			contentType(JSON).
+		when().
+			post("content").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response();
+		
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String ecmlNode = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpec(uploadContentType, validuserId)).
+		multiPart(new File("/Users/purnima/Documents/Upload Files/haircut_empty.zip")).
+		when().
+			post("content/upload/"+ecmlNode).
+		then().
+			log().all().
+			spec(get400ResponseSpec());
+	}
+	
+	//Upload file more than 20 MB
+	
+	//Create content
+	@Test
+	public void uploadContentAboveLimitExpect400(){
+		setURI();
+		Response R =
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(jsonCreateValidContent).
+		with().
+			contentType(JSON).
+		when().
+			post("content").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response();
+		
+		// Extracting the JSON path
+		JsonPath jp = R.jsonPath();
+		String ecmlNode = jp.get("result.node_id");
+
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpec(uploadContentType, validuserId)).
+		multiPart(new File("/Users/purnima/Documents/Upload Files/the_moon_and_the_cap.zip")).
+		when().
+			post("content/upload/"+ecmlNode).
+		then().
+			log().all().
+			spec(get400ResponseSpec());
+	}	
+
+	
 	// Upload File without assets
 	//Create content
 	@Test
@@ -735,8 +844,9 @@ public class contentPublishWorkflow extends BaseTest{
 		JsonPath jP1 = R1.jsonPath();
 		String artifactUrl = jP1.get("result.content.artifactUrl");
 		String downloadUrl = jP1.get("result.content.downloadUrl");
+		int size = jP1.get("result.content.size");
 		String status = jP1.get("result.content.status");
-		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(ecmlNode)&&status.equals("Live")){
+		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(ecmlNode)&&status.equals("Live")&&size<=20000000){
 			System.out.println("Publish Success");
 		}
 		else{
@@ -808,7 +918,8 @@ public class contentPublishWorkflow extends BaseTest{
 		String artifactUrl = jP1.get("result.content.artifactUrl");
 		String downloadUrl = jP1.get("result.content.downloadUrl");
 		String status = jP1.get("result.content.status");
-		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(ecmlNode)&&status.equals("Live")){
+		int size = jP1.get("result.content.size");
+		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(ecmlNode)&&status.equals("Live")&&size<=20000000){
 			System.out.println("Publish Success");
 		}
 		else{
@@ -881,7 +992,8 @@ public class contentPublishWorkflow extends BaseTest{
 		String artifactUrl = jP1.get("result.content.artifactUrl");
 		String downloadUrl = jP1.get("result.content.downloadUrl");
 		String status = jP1.get("result.content.status");
-		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(htmlNode)&&status.equals("Live")){
+		int size = jP1.get("result.content.size");
+		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(htmlNode)&&status.equals("Live")&&size<=20000000){
 			System.out.println("Publish Success");
 		}
 		else{
@@ -954,7 +1066,8 @@ public class contentPublishWorkflow extends BaseTest{
 		String artifactUrl = jP1.get("result.content.artifactUrl");
 		String downloadUrl = jP1.get("result.content.downloadUrl");
 		String status = jP1.get("result.content.status");
-		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(apkNode)&&status.equals("Live")){
+		int size = jP1.get("result.content.size");
+		if (artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(apkNode)&&status.equals("Live")&&size<=20000000){
 			System.out.println("Publish Success");
 		}
 		else{
