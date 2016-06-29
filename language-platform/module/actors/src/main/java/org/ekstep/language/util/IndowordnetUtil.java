@@ -1,4 +1,4 @@
-package org.ekstep.language.Util;
+package org.ekstep.language.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.Util.HibernateSessionFactory;
+import org.ekstep.language.Util.IndowordnetConstants;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;

@@ -1,4 +1,4 @@
-package org.ekstep.language.mgr.impl;
+package org.ekstep.language.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;

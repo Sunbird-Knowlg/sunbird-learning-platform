@@ -26,6 +26,7 @@
 		<module>module/controllers</module>
 		<module>module/common</module>
 		<module>module/indexes</module>
+		<module>module/actors</module>
 		<module>module/indowordnetimporter</module>
 	</modules>
 

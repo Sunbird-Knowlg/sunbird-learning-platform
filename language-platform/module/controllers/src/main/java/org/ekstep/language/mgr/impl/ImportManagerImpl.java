@@ -39,6 +39,8 @@ import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
+import org.ekstep.language.util.BaseLanguageManager;
+import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 

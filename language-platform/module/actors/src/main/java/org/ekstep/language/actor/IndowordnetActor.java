@@ -3,10 +3,10 @@ package org.ekstep.language.actor;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.language.Util.IndowordnetUtil;
 import org.ekstep.language.common.LanguageBaseActor;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.util.IndowordnetUtil;
 
 import com.ilimi.common.dto.Request;
 
