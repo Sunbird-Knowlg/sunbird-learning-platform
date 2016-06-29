@@ -1,0 +1,7 @@
+---
+# tasks file for imagemagick
+
+- name: install imagemagick
+  become_method: sudo
+  become: yes
+  yum: name=ImageMagick state=present update_cache=yes

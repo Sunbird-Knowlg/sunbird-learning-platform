@@ -1,0 +1,11 @@
+---
+# This role deploys the mongodb processes and sets up settings.
+- name: add 10gen repo file
+  template: src=mongodb.repo.j2 dest=/etc/yum.repos.d/mongodb.repo
+
+- name: install mongodb
+  yum: name=mongodb-org state=present 
+
+- name: mongodb start 
+  service: name=mongod state=started 
+

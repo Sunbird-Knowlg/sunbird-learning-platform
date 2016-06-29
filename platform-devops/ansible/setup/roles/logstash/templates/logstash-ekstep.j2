@@ -1,0 +1,32 @@
+
+input {
+     file {
+         path => ["/data/logs/Kafka_messages.log"]
+     }
+}
+
+filter {
+	grok {
+    		match => [ "message",
+               	"%{TIMESTAMP_ISO8601:timestamp} %{GREEDYDATA:msg}"]
+  	}
+  	mutate {
+    		gsub => [ "message","%{timestamp}","" ]
+    		strip => [ "message" ]
+  	}
+}
+
+output {
+  kafka {
+   bootstrap_servers => "{{ ip }}:{{ port }}"
+   codec => plain {
+            format => "%{message}"
+        }
+   topic_id => "composite-search-topic"
+   retries => 10
+   retry_backoff_ms => 60000
+ }
+
+}
+
+
