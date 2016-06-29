@@ -23,13 +23,12 @@ public class WordIdEvaluator implements Evaluator {
 		Node endNode = path.endNode();
 		if (endNode.hasProperty(ATTRIB_IDENTIFIER)) {
 			String identifier = (String) endNode.getProperty(ATTRIB_IDENTIFIER);
-
 			for (String id : ids) {
 				if (id.equalsIgnoreCase(identifier)) {
-					return Evaluation.EXCLUDE_AND_PRUNE;
+					return Evaluation.INCLUDE_AND_CONTINUE;
 				}
 			}
 		}
-		return Evaluation.INCLUDE_AND_CONTINUE;
+		return Evaluation.EXCLUDE_AND_PRUNE;
 	}
 }

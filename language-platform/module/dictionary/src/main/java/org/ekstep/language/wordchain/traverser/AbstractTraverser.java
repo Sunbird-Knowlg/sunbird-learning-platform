@@ -26,14 +26,14 @@ public abstract class AbstractTraverser implements ITraverserInterface {
 	}
 
 	@Override
-	public Traverser traverse(final Node startNode, int maxTraversalDepth, int minTraversalDepth, String graphId) {
-		traversalDescription = getTraversalDescription(maxTraversalDepth, minTraversalDepth, graphId);
+	public Traverser traverse(final Node startNode) {
 		return traversalDescription.traverse(startNode);
 	}
-
+	
 	@Override
-	public TraversalDescription getTraversalDescription() {
+	public TraversalDescription createTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId) {
+		traversalDescription = getTraversalDescription(maxTraversalDepth, minTraversalDepth, graphId);
 		return traversalDescription;
 	}
-	
+
 }

@@ -88,7 +88,7 @@ public class WordChainsController extends BaseLanguageController implements Word
         	List<Map> words = (List<Map>) response.get("results");
         	Node ruleNode = wordUtil.getDataNode(languageId, traversalId);
         	
-        	wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode);
+        	wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode, languageId);
         	System.out.println();
             return getResponseEntity(new Response(), apiId, null);
         } catch (Exception e) {
