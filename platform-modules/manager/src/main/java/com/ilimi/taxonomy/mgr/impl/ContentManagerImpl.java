@@ -23,12 +23,14 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.TelemetryBEEvent;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -64,7 +66,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private ContentMimeTypeFactory contentFactory;
 
 	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
-
+	
 	private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
@@ -774,6 +776,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
+			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
@@ -902,5 +905,5 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		}
 		return request;
-	}
+	}	
 }

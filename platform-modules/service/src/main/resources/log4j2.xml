@@ -33,20 +33,33 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
-		<RollingFile name="TransactionMessageAppender" fileName="/data/logs/transaction_messages.log"
-			filePattern="/data/logs/transaction_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
+			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
 			<Policies>
 				<OnStartupTriggeringPolicy />
 			</Policies>
-		</RollingFile>
+		</RollingRandomAccessFile>
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
+			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+			<PatternLayout>
+				<Pattern>%d %msg%n</Pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+			</Policies>
+		</RollingRandomAccessFile>
+
 	</Appenders>
 	<Loggers>
-		<Logger name="TransactionMessageLogger" level="INFO" additivity="false">
-			<AppenderRef ref="TransactionMessageAppender" />
-		</Logger>
+		<AsyncLogger name="TelemetryEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventAppender" />
+		</AsyncLogger>
+		<AsyncLogger name="GraphEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="GraphEventAppender" />
+		</AsyncLogger>
 		<Logger name="AuditTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="AuditLogAppender" />
 		</Logger>
