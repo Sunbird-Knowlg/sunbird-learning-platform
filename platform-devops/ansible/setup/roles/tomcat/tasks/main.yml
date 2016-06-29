@@ -1,13 +1,4 @@
 ---
-# tasks file for tomcat-test
-#- name: add group "lpdeploy"
-#  group: name=lpdeploy
-
-#- name: add user "lpdeploy"
- # become: yes
- # user: name=lpdeploy group=lpdeploy home=/usr/share/tomcat createhome=no
-
-
 - name: Download Tomcat
   get_url: url=http://mirror.fibergrid.in/apache/tomcat/tomcat-8/v8.0.35/bin/apache-tomcat-8.0.35.tar.gz dest=/home/ec2-user/apache-tomcat-8.0.35.tar.gz timeout=1000 force=no owner=ec2-user
 
@@ -36,22 +27,31 @@
   become: yes
   copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
 
-- name: Start Tomcat
+#- name: Start Tomcat
   #become_user: ec2-user
   #become: yes
-  service: name=tomcat state=started enabled=yes
+ # service: name=tomcat state=started enabled=yes
 
 - name: deploy iptables rules
   become: yes
   template: src=iptables-save dest=/etc/sysconfig/iptables
   notify: restart iptables
 
+#- name: copy catalina
+#  become: yes
+#  template: src=catalina.j2 dest=/home/ec2-user/apache-tomcat-8.0.35/bin/catalina.sh
+
 - name: add a string to the new file
   become: yes
-  lineinfile: dest=/usr/share/tomcat/bin/catalina.sh
+  lineinfile: dest=/home/ec2-user/apache-tomcat-8.0.35/bin/catalina.sh
                 regexp='#!/bin/sh'
-                line='#!/bin/sh \n export JAVA_OPTS="-Xms512m -Xmx2048m -XX:+CMSClassUnloadingEnabled -XX:+CMSPermGenSweepingEnabled -XX:MaxPermSize=256M"'
+                line='#!/bin/sh \n export JAVA_OPTS="{{ tomcat_init_mem }} {{ tomcat_max_mem }}  -XX:+CMSClassUnloadingEnabled {{ tomcat_perm_size }}"'
                 state=present
+
+
+- name: copy content
+  become: yes
+  template: src=context.xml dest=/home/ec2-user/apache-tomcat-8.0.35/conf
 
 
 #- name: Install Tomcat init script

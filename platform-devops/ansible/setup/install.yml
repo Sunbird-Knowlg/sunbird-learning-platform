@@ -1,16 +1,16 @@
 - hosts: all
   become: yes
-  vars:
-     access: "{{ lookup('env', 'aws_access_key') }}"
-     secret: "{{ lookup('env', 'aws_secret_key') }}"
+  vars: 
+       access: "{{ lookup('env', 'aws_access_key') }}"
+       secret: "{{ lookup('env', 'aws_secret_key') }}"
   roles:
-        #- aws-login
-        #- java
-        #- tomcat
-        #- elasticsearch
-        #- redis
-        #- ffmpeg
-        #- mongodb
-        #- imagemagick
-        #- createpath
+        - aws-login
+        - java
+        - tomcat
+        - elasticsearch
+        - redis
+        - ffmpeg
+        - mongodb
+        - imagemagick
+        - createpath
         - logstash

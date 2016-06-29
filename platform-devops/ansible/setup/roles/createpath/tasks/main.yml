@@ -18,6 +18,11 @@
   become: yes
   file: path=/data/contentBundle state=directory mode=0755
 
+- name: create folder contentBundle
+  become_method: sudo
+  become: yes
+  file: path=/data/properties state=directory mode=0755
+
 - name: Change ownership of data directory
   become_method: sudo
   become: yes

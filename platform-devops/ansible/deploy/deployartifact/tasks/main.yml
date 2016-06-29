@@ -1,0 +1,45 @@
+---
+#tasks file for deployartifact
+
+- name: stop tomcat
+  sercice: name=tomcat state=stopped
+
+- name: copy the consumer-config.xml
+  template: src=consumer-config.xml.j2 dest=/data/properties
+
+- name: copy the database.properties
+  template: src=database.properties.j2 dest=/data/properties
+
+
+- name: copy the elasticsearch.properties
+  template: src=elasticsearch.properties.j2 dest=/data/properties
+
+- name: copy the graph.properties
+  template: src=graph.properties.j2 dest=/data/properties
+
+
+- name: copy the language-indexes.properties
+  template: src=language-indexes.properties.j2 dest=/data/properties
+
+
+- name: copy the mongo.properties
+  template: src=mongo.properties.j2 dest=/data/properties
+
+
+- name: copy the producer.properties
+  template: src=producer.properties.j2 dest=/data/properties
+
+- name: copy the artifacts files
+  copy: src=taxonomy-service.war dest=/home/ubuntu/apache-tomcat-8.0.35/webapps
+
+
+- name: remove
+  file: name=/home/ubuntu/apache-tomcat-8.0.35/webapps/taxonomy-service state=absent
+
+
+- name: start tomcat
+  become_user: ec2-user
+  become: yes
+  sercice: name=tomcat state=started
+
+

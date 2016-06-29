@@ -18,11 +18,11 @@ filter {
 
 output {
   kafka {
-   bootstrap_servers => "{{ ip }}:{{ port }}"
+   bootstrap_servers => "{{ graphevent_kafka_url }}"
    codec => plain {
             format => "%{message}"
         }
-   topic_id => "composite-search-topic"
+   topic_id => {{ graphevent_kafka_topic_id }}
    retries => 10
    retry_backoff_ms => 60000
  }
