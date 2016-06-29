@@ -18,13 +18,13 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>language-common</artifactId>
+			<artifactId>language-controller</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>language-controller</artifactId>
+			<groupId>com.ilimi</groupId>
+			<artifactId>orchestrator-service</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>

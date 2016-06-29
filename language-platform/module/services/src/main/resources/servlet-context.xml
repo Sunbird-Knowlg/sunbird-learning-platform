@@ -2,18 +2,18 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
-	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task"
-	xsi:schemaLocation="http://www.springframework.org/schema/mvc
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:task="http://www.springframework.org/schema/task" 
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc 
 		http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
-		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans 
 		http://www.springframework.org/schema/beans/spring-beans-4.2.xsd
 		http://www.springframework.org/schema/context
 		http://www.springframework.org/schema/context/spring-context-4.2.xsd
-		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx 
        http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
-       http://www.springframework.org/schema/aop
+       http://www.springframework.org/schema/aop 
        http://www.springframework.org/schema/aop/spring-aop-4.2.xsd
-       http://www.springframework.org/schema/task
+       http://www.springframework.org/schema/task 
        http://www.springframework.org/schema/task/spring-task-4.2.xsd
        ">
 
@@ -22,15 +22,15 @@
 	<context:component-scan base-package="org.ekstep" />
 	<mvc:annotation-driven />
 	<context:annotation-config />
-
+	
 	<task:annotation-driven/>
-
+	
 	<mvc:cors>
-		<mvc:mapping path="/**" />
+		<mvc:mapping path="/**" allowed-methods="*"/>
 	</mvc:cors>
-
+	
 	<bean id="jacksonMessageConverter"
-		class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter"></bean>
+		class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter"></bean>
 	<bean
 		class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
 		<property name="messageConverters">
@@ -41,9 +41,16 @@
 
 	</bean>
 
-	<!-- <bean id="multipartResolver"
+	<bean id="multipartResolver"
 		class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		<!-- setting maximum upload size -->
 		<property name="maxUploadSize" value="100000000" />
-	</bean> -->
+	</bean>
+	
+	<!--Added Inceptor  -->
+	<mvc:interceptors>
+		<bean class="org.ekstep.interceptor.RequestInterceptor" />
+	</mvc:interceptors>
+	
 
 </beans>
