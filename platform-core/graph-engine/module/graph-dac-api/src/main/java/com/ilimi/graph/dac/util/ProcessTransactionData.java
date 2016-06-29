@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.searchindex.util.LogAsyncKafkaMessage;
+import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -25,10 +25,7 @@ import com.ilimi.graph.dac.enums.SystemProperties;
 
 public class ProcessTransactionData {
 		
-	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());
-	private static final Logger kafkaMessageLogger = LogManager.getLogger("KafkaMessageLogger");
-	private static ObjectMapper mapper = new ObjectMapper();
-	
+	private static Logger LOGGER = LogManager.getLogger(ProcessTransactionData.class.getName());	
 	protected String graphId;
 	protected GraphDatabaseService graphDb;
 
@@ -42,7 +39,7 @@ public class ProcessTransactionData {
 		try {
 		    List<Map<String, Object>> kafkaMessages = getMessageObj(data);
 	        if(kafkaMessages != null && !kafkaMessages.isEmpty())
-	        	LogAsyncKafkaMessage.pushMessageToLogger(kafkaMessages);
+	        	LogAsyncGraphEvent.pushMessageToLogger(kafkaMessages);
 		} catch (Exception e) {
 		    LOGGER.error(e.getMessage(), e);
 		}

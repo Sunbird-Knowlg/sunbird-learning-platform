@@ -11,7 +11,7 @@ import com.ilimi.common.dto.TelemetryBEEvent;
 
 public class LogTelemetryEventUtil {
 
-	private static final Logger telemetryEventMessageLogger = LogManager.getLogger("TelemetryEventMessageLogger");
+	private static final Logger telemetryEventLogger = LogManager.getLogger("TelemetryEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	
     public static void logContentLifecycleEvent(String contentId, Map<String, Object> metadata){
@@ -27,7 +27,7 @@ public class LogTelemetryEventUtil {
 		try{
 			jsonMessage= mapper.writeValueAsString(te);
 			if (StringUtils.isNotBlank(jsonMessage))
-				telemetryEventMessageLogger.info(jsonMessage);
+				telemetryEventLogger.info(jsonMessage);
 		}catch(Exception e){
 		
 		}

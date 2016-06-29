@@ -33,8 +33,8 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
-		<RollingRandomAccessFile name="KafkaMessageAppender" fileName="/data/logs/Kafka_messages.log"
-			filePattern="/data/logs/Kafka_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
+			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -42,8 +42,8 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
-		<RollingRandomAccessFile name="TelemetryEventMessageLAppender" fileName="/data/logs/telemetry_event_messages.log"
-			filePattern="/data/logs/telemetry_event_messages-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
+			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -54,11 +54,11 @@
 
 	</Appenders>
 	<Loggers>
-		<AsyncLogger name="TelemetryEventMessageLogger" level="INFO" additivity="false">
-			<AppenderRef ref="TelemetryEventMessageLAppender" />
+		<AsyncLogger name="TelemetryEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="TelemetryEventAppender" />
 		</AsyncLogger>
-		<AsyncLogger name="KafkaMessageLogger" level="INFO" additivity="false">
-			<AppenderRef ref="KafkaMessageAppender" />
+		<AsyncLogger name="GraphEventLogger" level="INFO" additivity="false">
+			<AppenderRef ref="GraphEventAppender" />
 		</AsyncLogger>
 		<Logger name="AuditTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="AuditLogAppender" />

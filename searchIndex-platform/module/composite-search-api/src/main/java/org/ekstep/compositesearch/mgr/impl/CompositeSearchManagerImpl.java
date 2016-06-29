@@ -18,7 +18,7 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.ekstep.searchindex.util.LogAsyncKafkaMessage;
+import org.ekstep.searchindex.util.LogAsyncGraphEvent;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -473,7 +473,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 		System.out.println("Sending to KAFKA.... ");
 		//KafkaMessageProducer.sendMessage(messages);
-		LogAsyncKafkaMessage.pushMessageToLogger(messages);
+		LogAsyncGraphEvent.pushMessageToLogger(messages);
 		response.put(CompositeSearchParams.graphSyncStatus.name(), "Graph Sync Started Successfully!");
 		response.setResponseCode(ResponseCode.OK);
 		response.setParams(params);

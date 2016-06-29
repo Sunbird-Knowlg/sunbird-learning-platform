@@ -8,9 +8,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 
-public class LogAsyncKafkaMessage {
+public class LogAsyncGraphEvent {
 
-	private static final Logger kafkaMessageLogger = LogManager.getLogger("KafkaMessageLogger");
+	private static final Logger graphEventLogger = LogManager.getLogger("GraphEventLogger");
 	private static ObjectMapper mapper = new ObjectMapper();
 	
 	
@@ -20,7 +20,7 @@ public class LogAsyncKafkaMessage {
 			try{
 				String jsonMessage = mapper.writeValueAsString(message);
 				if (StringUtils.isNotBlank(jsonMessage))
-					kafkaMessageLogger.info(jsonMessage);
+					graphEventLogger.info(jsonMessage);
 			}catch(Exception e){
 				e.printStackTrace();
 			}
