@@ -6,8 +6,6 @@
 - name: install mongodb
   yum: name=mongodb-org state=present 
 
-- name: mongodb start 
-  service: name=mongod state=started 
-  sync: 50
-  poll: 10
+- name: mongodb start
+  service: name=mongod state=started
 
