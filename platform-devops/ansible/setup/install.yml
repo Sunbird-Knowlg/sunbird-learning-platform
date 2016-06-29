@@ -5,7 +5,7 @@
        secret: "{{ lookup('env', 'aws_secret_key') }}"
   roles:
         - aws-login
-        - java
+        #- java
         - tomcat
         - elasticsearch
         - redis
