@@ -29,6 +29,7 @@ async.waterfall([
     	arg1 = arg1.split(':"[{').join(':[{');
     	arg1 = arg1.split('}]"').join('}]');
     	arg1 = arg1.split('\\\"').join('"');
+        arg1 = arg1.split(',"]"').join('');
     	arg1 = arg1.split('"id":"recorder",').join('"id":"recorder", "z-index":200,');
     	contentBody = arg1;
     	callback(null, 'ok');
@@ -76,6 +77,7 @@ function getContentBody(callback) {
 function updateContent(callback) {
 	var reqBody = {"request": {"content": {}}};
 	reqBody.request.content.body = contentBody;
+    reqBody.request.content.editorState = null;
 	var args = {
 		path: {id:contentId},
         headers: {
