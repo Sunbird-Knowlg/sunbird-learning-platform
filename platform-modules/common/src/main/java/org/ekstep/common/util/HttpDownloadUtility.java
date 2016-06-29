@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.util;
+package org.ekstep.common.util;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -8,7 +8,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
 
-import org.ekstep.ecml.slugs.Slug;
+import org.ekstep.common.slugs.Slug;
 
 /**
  * A utility that downloads a file from a URL.

@@ -2,16 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ekstep.ecml.optimizr;
+package org.ekstep.common.optimizr;
+
+import static org.ekstep.common.optimizr.FileType.Audio;
+import static org.ekstep.common.optimizr.FileType.Image;
+import static org.ekstep.common.optimizr.FileType.Video;
 
 import java.text.DecimalFormat;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import static org.ekstep.ecml.optimizr.FileType.Audio;
-import static org.ekstep.ecml.optimizr.FileType.Image;
-import static org.ekstep.ecml.optimizr.FileType.Video;
 
 /**
  *

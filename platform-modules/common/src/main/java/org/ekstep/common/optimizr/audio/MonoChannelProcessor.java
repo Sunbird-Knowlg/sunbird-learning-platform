@@ -2,14 +2,16 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ekstep.ecml.optimizr.audio;
+package org.ekstep.common.optimizr.audio;
 
 import java.io.File;
+
+import org.ekstep.common.optimizr.FileUtils;
+
 import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
-import org.ekstep.ecml.optimizr.FileUtils;
 
 /**
  *

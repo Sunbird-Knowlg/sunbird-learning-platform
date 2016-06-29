@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.util;
+package org.ekstep.common.util;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

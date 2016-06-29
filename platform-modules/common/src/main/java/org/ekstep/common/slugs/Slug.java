@@ -1,4 +1,4 @@
-package org.ekstep.ecml.slugs;
+package org.ekstep.common.slugs;
 
 import java.io.File;
 import java.net.URLDecoder;

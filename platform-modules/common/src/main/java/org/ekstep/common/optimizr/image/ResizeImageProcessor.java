@@ -1,3 +1,4 @@
+package org.ekstep.common.optimizr.image;
 ///*
 // * To change this template, choose Tools | Templates
 // * and open the template in the editor.

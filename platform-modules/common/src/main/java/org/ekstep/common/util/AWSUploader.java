@@ -1,10 +1,10 @@
-package com.ilimi.taxonomy.util;
+package org.ekstep.common.util;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
-import org.ekstep.ecml.slugs.Slug;
+import org.ekstep.common.slugs.Slug;
 
 import com.amazonaws.regions.Region;
 import com.amazonaws.regions.Regions;

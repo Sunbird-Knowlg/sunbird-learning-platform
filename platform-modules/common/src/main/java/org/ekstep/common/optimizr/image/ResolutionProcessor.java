@@ -2,12 +2,14 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package org.ekstep.ecml.optimizr.image;
+package org.ekstep.common.optimizr.image;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.util.Enumeration;
 import javax.imageio.ImageIO;
-import org.ekstep.ecml.optimizr.FileUtils;
+
+import org.ekstep.common.optimizr.FileUtils;
 import org.im4java.core.ConvertCmd;
 import org.im4java.core.IMOperation;
 import org.im4java.core.Info;
@@ -16,7 +18,7 @@ import org.im4java.core.Info;
  *
  * @author feroz
  */
-public class ResizeImagemagickProcessor extends ImageProcessor {
+public class ResolutionProcessor extends ImageProcessor {
 
     @Override
     public File process(File file) {
@@ -25,12 +27,9 @@ public class ResizeImagemagickProcessor extends ImageProcessor {
             // File names
             String inputFileName = file.getAbsolutePath();
             String outputFileName = FileUtils.getOutputFileName(file);
-            
-            // Find the image size and resolution
+
+            // Find the image resolution
             Info imageInfo = new Info(inputFileName,false);
-            int width = imageInfo.getImageWidth();
-            int height = imageInfo.getImageHeight();
-            
             String resString = imageInfo.getProperty("Resolution");
             double xresd = 150; // Assume default 150 ppi
             if (resString != null) {
@@ -38,12 +37,8 @@ public class ResizeImagemagickProcessor extends ImageProcessor {
                 String xres = (res.length > 0 ? res[0] : "150");
                 xresd = Double.parseDouble(xres);
             }
-            
-            // Resize 50%
-            int ow = width/2;
-            int oh = height/2;
-            
-            // Target resolution - reduce to half
+
+            // Target - reduce to half
             double targetResolution = xresd/2;
             
             // create command
@@ -52,17 +47,16 @@ public class ResizeImagemagickProcessor extends ImageProcessor {
             // create the operation, add images and operators/options
             IMOperation op = new IMOperation();
             op.addImage(inputFileName);
-            op.resize(ow, oh);
             op.resample((int)targetResolution);
             op.addImage(outputFileName);
 
             // execute the operation
             cmd.run(op);
-            
+
             // replace the file
             FileUtils.replace(file, new File(outputFileName));
             return file;
-            
+
         } catch (Exception ex) {
             ex.printStackTrace();
         }
