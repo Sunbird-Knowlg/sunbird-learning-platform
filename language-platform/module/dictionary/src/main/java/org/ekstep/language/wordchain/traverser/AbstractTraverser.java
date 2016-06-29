@@ -12,7 +12,7 @@ public abstract class AbstractTraverser implements ITraverserInterface {
 	protected TraversalDescription traversalDescription;
 
 	@Override
-	public abstract TraversalDescription getTraversalDescription(int traversalDepth, String graphId);
+	public abstract TraversalDescription getTraversalDescription(int maxTraversalDepth, int minTraversalDepth,  String graphId);
 
 	public void setEvaluators(List<Evaluator> evaluators) {
 		for (Evaluator evaluator : evaluators) {
@@ -20,17 +20,18 @@ public abstract class AbstractTraverser implements ITraverserInterface {
 		}
 	}
 
+	@Override
 	public void setEvaluator(Evaluator evaluator) {
 		traversalDescription.evaluator(evaluator);
 	}
 
 	@Override
-	public Traverser traverse(final Node startNode, int traversalDepth, String graphId, List<Evaluator> evaluators) {
-		traversalDescription = getTraversalDescription(traversalDepth, graphId);
-		setEvaluators(evaluators);
+	public Traverser traverse(final Node startNode, int maxTraversalDepth, int minTraversalDepth, String graphId) {
+		traversalDescription = getTraversalDescription(maxTraversalDepth, minTraversalDepth, graphId);
 		return traversalDescription.traverse(startNode);
 	}
 
+	@Override
 	public TraversalDescription getTraversalDescription() {
 		return traversalDescription;
 	}

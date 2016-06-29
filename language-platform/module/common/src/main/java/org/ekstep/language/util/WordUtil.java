@@ -32,6 +32,8 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Transaction;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -45,10 +47,12 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
@@ -57,6 +61,8 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
+import com.ilimi.graph.dac.util.Neo4jGraphFactory;
+import com.ilimi.graph.dac.util.Neo4jGraphUtil;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -951,6 +957,25 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
+	
+    public org.neo4j.graphdb.Node getNeo4jNodeByUniqueId(String graphId, String nodeId) {
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+                tx = graphDb.beginTx();
+                org.neo4j.graphdb.Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, nodeId);
+                tx.success();
+                return neo4jNode;
+            } catch (Exception e) {
+                if (null != tx)
+                    tx.failure();
+            } finally {
+                if (null != tx)
+                    tx.close();
+            }
+			return null;
+    }
+	
 	public String createWord(String languageId, String word, String objectType) {
 		Node node = new Node(null, SystemNodeTypes.DATA_NODE.name(), objectType);
 		Map<String, Object> metadata = new HashMap<String, Object>();

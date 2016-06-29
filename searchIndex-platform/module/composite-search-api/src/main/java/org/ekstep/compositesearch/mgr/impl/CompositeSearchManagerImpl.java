@@ -18,7 +18,6 @@ import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.producer.KafkaMessageProducer;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.hibernate.envers.synchronization.work.WorkUnitMergeDispatcher;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;

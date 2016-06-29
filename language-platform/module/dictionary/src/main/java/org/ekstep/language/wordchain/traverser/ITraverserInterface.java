@@ -8,9 +8,13 @@ import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
 public interface ITraverserInterface {
+	
+	public Traverser traverse(final Node startNode, int maxTraversalDepth, int minTraversalDepth, String graphId);
 
-	public TraversalDescription getTraversalDescription(int traversalDepth, String graphId);
+	public void setEvaluator(Evaluator evaluator);
 
-	public Traverser traverse(final Node startNode, int traversalDepth, String graphId, List<Evaluator> evaluators);
+	public TraversalDescription getTraversalDescription();
+
+	public TraversalDescription getTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
 
 }

@@ -12,10 +12,12 @@ import org.ekstep.language.Util.WordChainConstants;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.mgr.IWordChainsManager;
+import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.OkHttpClientHttpRequestFactory;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.dac.model.Node;
 
 @Controller
 @RequestMapping("v2/language")
@@ -31,6 +34,12 @@ public class WordChainsController extends BaseLanguageController implements Word
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;
+	
+	@Autowired
+	private IWordChainsManager wordChainsManager;
+	
+	@Autowired
+	private WordUtil wordUtil;
 
     private static Logger LOGGER = LogManager.getLogger(WordChainsController.class.getName());
     
@@ -62,7 +71,7 @@ public class WordChainsController extends BaseLanguageController implements Word
 	@RequestMapping(value = "/search/{languageId}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(@RequestBody Map<String, Object> map, 
-    		@RequestHeader(value = "user-id") String userId,
+    		@RequestHeader(value = "user-id") String userId, @PathVariable(value = "languageId") String languageId,
             HttpServletResponse resp) {
         String apiId = "composite-search.search";
         LOGGER.info(apiId + " | Request : " + map);
@@ -77,7 +86,9 @@ public class WordChainsController extends BaseLanguageController implements Word
         	request.put("limit", 500);
         	Map<String, Object> response = compositeSearchManager.searchForTraversal(request);
         	List<Map> words = (List<Map>) response.get("results");
+        	Node ruleNode = wordUtil.getDataNode(languageId, traversalId);
         	
+        	wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode);
         	System.out.println();
             return getResponseEntity(new Response(), apiId, null);
         } catch (Exception e) {
