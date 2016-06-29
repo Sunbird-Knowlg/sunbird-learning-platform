@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
@@ -139,7 +140,6 @@ public class WordChainManager implements IWordChainsManager, IWordnetConstants {
 				previousPath = null;
 			}
 
-			//System.out.println("Final paths:**************************************");
 			for (Path finalPath : finalPaths) {
 				render(finalPath);
 			}
@@ -156,7 +156,6 @@ public class WordChainManager implements IWordChainsManager, IWordnetConstants {
 	}
 	
 	public void render(Path path) {
-		StringBuilder sb = new StringBuilder();
 		Iterator<PropertyContainer> pcIteraor = path.iterator();
 		List<String> wordChain = new ArrayList<String>();
 		while (pcIteraor.hasNext()) {
@@ -165,9 +164,9 @@ public class WordChainManager implements IWordChainsManager, IWordnetConstants {
 				org.neo4j.graphdb.Node node = (org.neo4j.graphdb.Node) pc;
 				if (node.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())) {
 					String objectType = (String) node.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-					if(!objectType.equalsIgnoreCase("PB")){
-						if (node.hasProperty("identifier")) {
-							String identifier = (String) node.getProperty("identifier");
+					if(objectType.equalsIgnoreCase(LanguageObjectTypes.Word.name())){
+						if (node.hasProperty(SystemProperties.IL_UNIQUE_ID.name())) {
+							String identifier = (String) node.getProperty(SystemProperties.IL_UNIQUE_ID.name());
 							wordChain.add(identifier);
 						}
 					}
@@ -176,5 +175,4 @@ public class WordChainManager implements IWordChainsManager, IWordnetConstants {
 		}
 		System.out.println(wordChain);
 	}
-	
 }

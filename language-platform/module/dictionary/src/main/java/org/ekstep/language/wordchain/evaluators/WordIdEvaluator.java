@@ -8,9 +8,10 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.traversal.Evaluation;
 import org.neo4j.graphdb.traversal.Evaluator;
 
+import com.ilimi.graph.dac.enums.SystemProperties;
+
 public class WordIdEvaluator implements Evaluator {
 
-	private String ATTRIB_IDENTIFIER = "identifier";
 	private List<String> ids = new ArrayList<String>();
 
 	public WordIdEvaluator(List<String> ids) {
@@ -21,8 +22,8 @@ public class WordIdEvaluator implements Evaluator {
 	@Override
 	public Evaluation evaluate(Path path) {
 		Node endNode = path.endNode();
-		if (endNode.hasProperty(ATTRIB_IDENTIFIER)) {
-			String identifier = (String) endNode.getProperty(ATTRIB_IDENTIFIER);
+		if (endNode.hasProperty(SystemProperties.IL_UNIQUE_ID.name())) {
+			String identifier = (String) endNode.getProperty(SystemProperties.IL_UNIQUE_ID.name());
 			for (String id : ids) {
 				if (id.equalsIgnoreCase(identifier)) {
 					return Evaluation.INCLUDE_AND_CONTINUE;
