@@ -34,15 +34,12 @@ set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set graph_nodes [get_resp_value $search_response "node_list"]
 	set size [$graph_nodes size]
-	puts "result size: $size"
 	java::for {Node graph_node} $graph_nodes {
 		set object_id [java::prop $graph_node "identifier"]
-		puts "Updating $object_id"
 		set metadata [java::prop $graph_node "metadata"]
 		set isMetadataNull [java::isnull $metadata]
 		if {$isMetadataNull == 1} {
@@ -53,7 +50,7 @@ if {$check_error} {
 		set update_response [updateDataNode $graph_id $object_id $graph_node]
 		set check_error [check_response_error $update_response]
 		if {$check_error} {
-			puts "Failed to update $object_id"
+
 		}
 	}
 	set result_map [java::new HashMap]

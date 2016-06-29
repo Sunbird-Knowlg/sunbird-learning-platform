@@ -17,7 +17,6 @@ proc proc_getTranslations {translations mapper} {
 			set trans_object [$mapper readValue $str_translations $map_class]
 			set trans_map [java::cast HashMap $trans_object]
 		} catch {Exception err} {
-	    	puts "Exception: $err"
 		}
 		return $trans_map
 	}
@@ -31,7 +30,6 @@ set search_criteria [create_search_criteria $search]
 set search_response [searchNodes $language_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set word_list [java::new HashSet]

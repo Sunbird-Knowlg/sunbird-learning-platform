@@ -21,6 +21,8 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.traversal.Evaluation;
+import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -35,24 +37,24 @@ import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
 
-public class WordChainsTraversalsTest extends BaseManager{
-	
+public class WordChainsTraversalsTest extends BaseManager {
+
 	private final String attrib_lemma = "lemma";
 	private final String OBJECT_TYPE_WORD = "Word";
-	//private final String attrib_alphabet = "alphabet";
-	private String graphId = "wcpnew";
+	private final String OBJECT_TYPE_PB = "PB";
+	private final String attrib_alphabet = "alphabet";
+	private static String graphId = "wcpnew";
 	private int TRAVERSAL_DEPTH = 8;
+	static GraphDatabaseService graphDb = getGraphDb(graphId);
 
 	@Test
 	public void traverse() throws Exception {
-		
+
 		System.out.println("Sample 1: ");
 		System.out.println("Theme: " + "Animals, Birds, Nature, Insect/Fish, Plants and Trees");
 		System.out.println("Category: " + " Thing");
 		System.out.println("Paths: ");
-		
-		GraphDatabaseService graphDb = getGraphDb(graphId);
-		
+
 		long startTime = System.currentTimeMillis();
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -69,28 +71,26 @@ public class WordChainsTraversalsTest extends BaseManager{
 			MetadataCriterion mc = MetadataCriterion.create(filters);
 			sc.addMetadata(mc);
 		}
-		
-		
+
 		List<Node> nodes = searchNodes(sc, graphDb);
-		
+
 		for (Node node : nodes) {
 			getTraversalPath(graphDb, node);
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time taken for Sample 1: " + (endTime - startTime) / 1000 + "s");
 	}
-	
-	
-	//@Test
+
+	// @Test
 	public void traverseSample2() throws Exception {
-		
+
 		System.out.println("Sample 2: ");
 		System.out.println("Categories: " + "Place, Person, Quality");
 		System.out.println("Pos: " + "noun, verb, adjective");
 		System.out.println("Paths: ");
-		
-		GraphDatabaseService graphDb = getGraphDb(graphId);
-		
+
+		// GraphDatabaseService graphDb = getGraphDb(graphId);
+
 		long startTime = System.currentTimeMillis();
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -100,35 +100,36 @@ public class WordChainsTraversalsTest extends BaseManager{
 		List<Filter> filters = new ArrayList<Filter>();
 
 		filters.add(new Filter("category", SearchConditions.OP_IN,
-				Arrays.asList(new String[] { "Place", "Person" , "Quality" })));
-		filters.add(new Filter("pos", SearchConditions.OP_IN, Arrays.asList(new String[] { "noun", "verb", "adjective" })));
+				Arrays.asList(new String[] { "Place", "Person", "Quality" })));
+		filters.add(
+				new Filter("pos", SearchConditions.OP_IN, Arrays.asList(new String[] { "noun", "verb", "adjective" })));
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
 			sc.addMetadata(mc);
 		}
-		
+
 		List<Node> nodes = searchNodes(sc, graphDb);
-		
-		
+
 		for (Node node : nodes) {
 			getTraversalPath(graphDb, node);
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time taken for Sample 2: " + (endTime - startTime) / 1000 + "s");
 	}
-	
-	//@Test
+
+	// @Test
 	public void traverseSample3() throws Exception {
-		
+
 		System.out.println("Sample 3: ");
-		System.out.println("Themes: " + "Animals, Birds, Nature, Insect/Fish, Plants and Trees, Relations, Vehicles, Common Places");
+		System.out.println("Themes: "
+				+ "Animals, Birds, Nature, Insect/Fish, Plants and Trees, Relations, Vehicles, Common Places");
 		System.out.println("Categories: " + "Place, Person, Quality, Thing, Action/Event");
 		System.out.println("Pos: " + "noun, verb, adjective, adverb, article, preposition");
 		System.out.println("Paths: ");
-		
-		GraphDatabaseService graphDb = getGraphDb(graphId);
-		
+
+		// GraphDatabaseService graphDb = getGraphDb(graphId);
+
 		long startTime = System.currentTimeMillis();
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -137,20 +138,20 @@ public class WordChainsTraversalsTest extends BaseManager{
 
 		List<Filter> filters = new ArrayList<Filter>();
 
-		filters.add(new Filter("theme", SearchConditions.OP_IN,
-				Arrays.asList(new String[] { "Animals", "Birds", "Nature", "Insect/Fish", "Plants and Trees", "Relations", "Vehicles", "Common Places" })));
+		filters.add(new Filter("theme", SearchConditions.OP_IN, Arrays.asList(new String[] { "Animals", "Birds",
+				"Nature", "Insect/Fish", "Plants and Trees", "Relations", "Vehicles", "Common Places" })));
 		filters.add(new Filter("category", SearchConditions.OP_IN,
 				Arrays.asList(new String[] { "Place", "Person", "Quality", "Thing", "Action/Event" })));
 		filters.add(new Filter("pos", SearchConditions.OP_IN,
-				Arrays.asList(new String[] {  "noun", "verb", "adjective", "adverb", "article", "preposition" })));
+				Arrays.asList(new String[] { "noun", "verb", "adjective", "adverb", "article", "preposition" })));
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
 			sc.addMetadata(mc);
 		}
-		
+
 		List<Node> nodes = searchNodes(sc, graphDb);
-		
+
 		for (Node node : nodes) {
 			getTraversalPath(graphDb, node);
 		}
@@ -189,42 +190,72 @@ public class WordChainsTraversalsTest extends BaseManager{
 				.uniqueness(Uniqueness.NODE_GLOBAL).uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				// .uniqueness( Uniqueness.RELATIONSHIP_PATH )
 				// .uniqueness( Uniqueness.NODE_PATH)
-				.evaluator(Evaluators.excludeStartPosition()).evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
+				//.evaluator(Evaluators.excludeStartPosition())
+				.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH))
+				.evaluator(new Evaluator() {
+
+					@Override
+					public Evaluation evaluate(final Path path) {
+						//path.
+						Node endNode = path.endNode();
+						if (endNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())) {
+							String objectType = (String) endNode
+									.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+							if (objectType.equalsIgnoreCase(OBJECT_TYPE_PB)) {
+								return Evaluation.EXCLUDE_AND_CONTINUE;
+							}
+						}
+
+						if (endNode.hasProperty(attrib_lemma)) {
+							String lemma = (String) endNode.getProperty(attrib_lemma);
+							if (lemma.equalsIgnoreCase("eagle")) {
+								return Evaluation.EXCLUDE_AND_PRUNE;
+							}
+						}
+						return Evaluation.INCLUDE_AND_CONTINUE;
+					}
+				});
 		return td.traverse(person);
 	}
 
-	@SuppressWarnings("unused")
 	public void getTraversalPath(GraphDatabaseService graphDb, Node node) {
 		Transaction tx = null;
 		try {
 			tx = graphDb.beginTx();
-			int pathLength = 0;
-			ArrayList<String> finalPaths = new ArrayList<String>();
-			ArrayList<String> allPaths = new ArrayList<String>();
-			Path longestPath = null;
+			List<Path> finalPaths = new ArrayList<Path>();
+			Path previousPath = null;
+			int previousPathLength = 0;
 
 			Traverser pathsTraverser = getTraverser(node, graphDb);
+
 			for (Path traversedPath : pathsTraverser) {
-				if (traversedPath.length() > pathLength) {
-					longestPath = traversedPath;
-					pathLength = traversedPath.length();
-				}
 				render(traversedPath);
-				allPaths.add(traversedPath.toString());
+				if (traversedPath.length() > previousPathLength) {
+					previousPath = traversedPath;
+					previousPathLength = traversedPath.length();
+				} else if (traversedPath.length() == previousPathLength) {
+					if (previousPath != null) {
+						finalPaths.add(previousPath);
+					}
+					previousPath = traversedPath;
+					previousPathLength = traversedPath.length();
+				} else {
+					if (previousPath != null) {
+						finalPaths.add(previousPath);
+						previousPath = null;
+					}
+				}
 			}
 
-			/*
-			 * String longestPathString = longestPath.toString();
-			 * finalPaths.add(longestPathString); for (String path : allPaths) {
-			 * String pathString = path.toString(); if
-			 * (!longestPathString.contains(pathString)) {
-			 * finalPaths.add(pathString); } }
-			 */
+			if (previousPath != null) {
+				finalPaths.add(previousPath);
+				previousPath = null;
+			}
 
-			/*
-			 * System.out.println("Final Paths:************"); for (String
-			 * finalPath : finalPaths) { System.out.println(finalPath); }
-			 */
+			System.out.println("Final paths:**************************************");
+			for (Path finalPath : finalPaths) {
+				render(finalPath);
+			}
 		} catch (Exception e) {
 			if (null != tx)
 				tx.failure();
@@ -238,10 +269,11 @@ public class WordChainsTraversalsTest extends BaseManager{
 		if (node.hasProperty(attrib_lemma)) {
 			return " " + node.getProperty(attrib_lemma) + " ";
 		}
-		/*
-		 * else if(node.hasProperty(attrib_alphabet)){ return "(" +
-		 * node.getProperty(attrib_alphabet) + ")"; }
-		 */
+
+		else if (node.hasProperty(attrib_alphabet)) {
+			return "(" + node.getProperty(attrib_alphabet) + ")";
+		}
+
 		return "";
 	}
 
@@ -314,5 +346,32 @@ public class WordChainsTraversalsTest extends BaseManager{
 				tx.close();
 		}
 		return null;
+	}
+
+	// @Test
+	public void getNodeByPropertyStartsLike() {
+		Transaction tx = null;
+		try {
+			tx = graphDb.beginTx();
+			Result result = graphDb.execute(
+					"match p=(a {lemma:'a'})-[:startsWith|:endsWith*2..5]->(x) with length(p) as size, p order by size desc return p limit 10");
+			if (null != result) {
+				while (result.hasNext()) {
+					Map<String, Object> map = result.next();
+					if (null != map && !map.isEmpty()) {
+						Path path = (Path) map.values().iterator().next();
+						System.out.println(path);
+					}
+				}
+				result.close();
+			}
+			tx.success();
+		} catch (Exception e) {
+			if (null != tx)
+				tx.failure();
+		} finally {
+			if (null != tx)
+				tx.close();
+		}
 	}
 }

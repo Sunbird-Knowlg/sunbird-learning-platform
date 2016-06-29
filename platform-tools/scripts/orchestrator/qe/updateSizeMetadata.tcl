@@ -38,7 +38,6 @@ set search_criteria [create_search_criteria $search]
 set search_response [searchNodes $graph_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set graph_nodes [get_resp_value $search_response "node_list"]
@@ -59,13 +58,12 @@ if {$check_error} {
 				set update_response [updateDataNode $graph_id $contentId $graph_node]
 				set check_error [check_response_error $update_response]
 				if {$check_error} {
-					puts "Failed to update $contentId $update_response"
 					set messages [get_resp_value $update_response "messages"]
 					java::for {String msg} $messages {
 						puts "$msg"
 					}
 				} else {
-					puts "$contentId updated | size is $size"				
+
 				}
 			} catch {Exception err} {
     			puts "error getting $contentId size: $err"				

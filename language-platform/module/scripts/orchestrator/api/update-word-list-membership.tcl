@@ -25,7 +25,6 @@ set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $language_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set graph_nodes [get_resp_value $search_response "node_list"]
@@ -56,7 +55,6 @@ if {$check_error} {
 		$metadata put "wordLists" $wordLists
 		$metadata put "wordListIds" $wordListIds
 		java::prop $graph_node "metadata" $metadata
-		puts "updating word: $wordId"
 		updateDataNode $language_id $wordId $graph_node
 	}	
 	set result_map [java::new HashMap]
