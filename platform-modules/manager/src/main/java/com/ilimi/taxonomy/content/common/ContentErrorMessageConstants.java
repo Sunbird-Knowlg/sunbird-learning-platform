@@ -24,6 +24,18 @@ public class ContentErrorMessageConstants {
 	
 	public static final String FILE_READ_ERROR = "Error! While reading file.";
 	
+	public static final String INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR = "Error! Invalid Content Package Mime Type.";
+	
+	public static final String INVALID_CONTENT_PACKAGE_STRUCTURE_ERROR = "Error! Invalid Content Package File Structure.";
+	
+	public static final String INVALID_CONTENT_PACKAGE_SIZE_ERROR = "Error! Content exceeds the file size limit.";
+	
+	public static final String CONTENT_PACKAGE_FILE_OPERATION_ERROR = "Error! Unable to read Package file.";
+	
+	public static final String CONTENT_PACKAGE_VALIDATOR_ERROR = "Error! Unable to validate Package file.";
+	
+	public static final String INVALID_UPLOADED_FILE_EXTENSION_ERROR = "Error! Invalid File Extension.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

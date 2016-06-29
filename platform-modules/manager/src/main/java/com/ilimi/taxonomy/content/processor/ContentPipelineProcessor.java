@@ -16,7 +16,7 @@ public class ContentPipelineProcessor extends AbstractProcessor{
 		return content;
 	}
 	
-	protected void registerProcessor(AbstractProcessor processor) {
+	public void registerProcessor(AbstractProcessor processor) {
 		if (null != processor)
 			lstProcessor.add(processor);
 	}
