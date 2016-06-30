@@ -7,8 +7,6 @@ public class TraverserFactory {
 		case "rule_1":
 			return new AksharaTraverser();
 		case "rule_2":
-			return new ConsonantTraverser();
-		case "rule_3":
 			return new RhymingWordsTraverser();
 		default:
 			return null;
