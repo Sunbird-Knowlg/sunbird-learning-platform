@@ -14,7 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.ekstep.ecml.optimizr.Optimizr;
+import org.ekstep.common.optimizr.Optimizr;
+import org.ekstep.common.util.AWSUploader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -23,12 +24,14 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
+import com.ilimi.common.dto.TelemetryBEEvent;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
@@ -51,7 +54,6 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 
 @Component
@@ -64,7 +66,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	private ContentMimeTypeFactory contentFactory;
 
 	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
-
+	
 	private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
@@ -774,6 +776,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
+			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
@@ -902,5 +905,5 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			}
 		}
 		return request;
-	}
+	}	
 }

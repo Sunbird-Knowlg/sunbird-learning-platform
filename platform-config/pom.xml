@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.ilimi</groupId>
+		<artifactId>ekstep-platform</artifactId>
+		<version>1.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+    <artifactId>ekstep-config</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Base for configuration module</name>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>4.2.4.RELEASE</spring.version>
+		<version.compiler.plugin>2.3.1</version.compiler.plugin>
+		<maven.compiler.target>1.7</maven.compiler.target>
+		<maven.compiler.source>1.7</maven.compiler.source>
+	</properties>
+
+	<modules>
+		<module>manager</module>
+		<module>service</module>
+	</modules>
+
+	<dependencies>
+	</dependencies>
+
+	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>2.3.2</version>
+					<configuration>
+						<source>1.7</source>
+						<target>1.7</target>
+					</configuration>
+				</plugin>
+
+				<plugin>
+        			<groupId>org.codehaus.mojo</groupId>
+        			<artifactId>cobertura-maven-plugin</artifactId>
+        			<version>2.7</version>
+        			<configuration>
+        				<aggregate>true</aggregate>
+        				<outputDirectory>coverageReport</outputDirectory>
+        				<formats>
+                        	<format>html</format>
+                        	<format>xml</format>
+                    	</formats>
+                    	<instrumentation>
+            				<excludes>
+            					<exclude>**/common/**</exclude>
+              					<exclude>**/dto/**</exclude>
+              					<exclude>**/enums/**</exclude>
+              					<exclude>**/servlet/**</exclude>
+            				</excludes>
+          				</instrumentation>
+          				<check>
+          					<haltOnFailure>false</haltOnFailure>
+          				</check>
+        			</configuration>
+      			</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+
+</project>

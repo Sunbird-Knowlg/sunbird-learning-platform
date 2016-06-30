@@ -19,6 +19,6 @@ private static final long serialVersionUID = 8162107839763607722L;
         super.init(config);
         // Initialising Request Router Pool
         LOGGER.info("Initialising Language Request Router Pool");
-        LanguageRequestRouterPool.getActorSystem();
+        LanguageRequestRouterPool.init();
     }
 }

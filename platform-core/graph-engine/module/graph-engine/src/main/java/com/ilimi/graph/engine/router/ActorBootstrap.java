@@ -73,9 +73,10 @@ public class ActorBootstrap {
                         if (StringUtils.isBlank(systemName))
                             systemName = DEFAULT_SYSTEM_NAME;
                         try {
-                            system = ActorSystem.create(systemName, config.getConfig(DEFAULT_SYSTEM_NAME));
+                            system = ActorSystem.create(systemName, config.getConfig(systemName));
                             registerShutdownHook();
                         } catch (Exception e) {
+                        	e.printStackTrace();
                         }
                     }
                 }

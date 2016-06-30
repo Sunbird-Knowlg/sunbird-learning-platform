@@ -32,13 +32,13 @@
 		</dependency>
 		<dependency>
 			<groupId>com.ilimi</groupId>
-			<artifactId>ekstep-manager</artifactId>
+			<artifactId>ekstep-common</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>language-controller</artifactId>
+			<artifactId>language-actors</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>

@@ -62,6 +62,9 @@ public enum LanguageErrorCodes {
     
     ERROR_PRIMARY_MEANING_MISMATCH,
     
+    ERR_MEDIA_UPLOAD_FILE;
+
+    
     ERROR_ADD_PHONETIC_BOUNTARY,
     
     ERROR_PHONETIC_BOUNTARY_LOOKUP;

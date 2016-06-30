@@ -10,7 +10,6 @@ public class PropertiesUtil {
 
 	static {
 		loadProperties("elasticsearch.properties");
-		loadProperties("producer.properties");
 	}
 
 	public static String getProperty(String key) {

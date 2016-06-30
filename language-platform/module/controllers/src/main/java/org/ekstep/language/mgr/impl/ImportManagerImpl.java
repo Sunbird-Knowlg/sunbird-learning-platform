@@ -26,6 +26,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.util.UnzipUtility;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.LanguageSourceTypeMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
@@ -38,6 +39,8 @@ import org.ekstep.language.mgr.IImportManager;
 import org.ekstep.language.models.DictionaryObject;
 import org.ekstep.language.models.SynsetModel;
 import org.ekstep.language.models.WordModel;
+import org.ekstep.language.util.BaseLanguageManager;
+import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.stereotype.Component;
 
@@ -50,8 +53,6 @@ import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.taxonomy.mgr.ITaxonomyManager;
-import com.ilimi.taxonomy.util.UnzipUtility;
 
 @Component
 public class ImportManagerImpl extends BaseLanguageManager implements IImportManager {
@@ -62,7 +63,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     private static final String tempFileLocation = "/data/temp/";
 
     private ObjectMapper mapper = new ObjectMapper();
-    private static Logger LOGGER = LogManager.getLogger(ITaxonomyManager.class.getName());
+    private static Logger LOGGER = LogManager.getLogger(IImportManager.class.getName());
 
     private List<String> getWordList(Object wordJSONArrObj) {
         String JSONarrStr;
