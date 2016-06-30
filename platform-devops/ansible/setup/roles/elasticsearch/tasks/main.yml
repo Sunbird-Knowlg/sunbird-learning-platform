@@ -17,6 +17,9 @@
 - name: Change plugins folder permissions
   file: path=/usr/share/elasticsearch/plugins owner=ec2-user group=ec2-user mode=755 recurse=yes state=directory
 
+- name: Change plugins folder permissions
+  file: path=/usr/share/elasticsearch owner=ec2-user group=ec2-user mode=755 recurse=yes state=directory
+
 - stat: path=/usr/share/elasticsearch/plugins/head
   register: check_head
 
