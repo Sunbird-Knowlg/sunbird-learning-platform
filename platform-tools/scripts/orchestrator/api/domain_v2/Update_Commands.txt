@@ -21,3 +21,5 @@ node registerScript.js api/domain_v2/getDomainMetrics.tcl api/domain_v2/json/reg
 node registerScript.js api/domain_v2/getConceptMetrics.tcl api/domain_v2/json/register-getConceptMetrics.json update
 
 node registerScript.js api/domain_v2/getConceptWithoutDomain.tcl api/domain_v2/json/register-getConceptWithoutDomain.json update
+
+node registerScript.js api/domain_v2/update-word-count.tcl api/domain_v2/json/register-update-word-count.json update

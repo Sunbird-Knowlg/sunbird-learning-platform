@@ -2,10 +2,10 @@ var fs = require('fs');
 var readLine = require('readline');
 var Client = require('node-rest-client').Client;
 var client = new Client();
-//var host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
-var host = "http://localhost:8083/taxonomy-service";
-//var host = "http://52.77.241.169:8080/taxonomy-service";
-//var host = "http://52.74.171.89:8080/taxonomy-service";
+//var host = "http://lp-sandbox.ekstep.org:8080/language-service";
+var host = "http://localhost:8083/language-service";
+//var host = "http://52.77.241.169:8080/language-service";
+//var host = "http://52.74.171.89:8080/language-service";
 
 console.log('');
 var scriptAsString = fs.readFileSync(process.argv[3]);
