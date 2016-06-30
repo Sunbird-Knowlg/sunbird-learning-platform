@@ -35,9 +35,9 @@
 		</RollingRandomAccessFile>
 	</Appenders>
 	<Loggers>
-		<AsyncLogger name="GraphEventLogger" level="INFO" additivity="false">
+		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
-		</AsyncLogger>
+		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>
