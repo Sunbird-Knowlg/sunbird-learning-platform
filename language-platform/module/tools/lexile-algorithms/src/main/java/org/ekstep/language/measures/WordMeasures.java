@@ -55,6 +55,7 @@ public class WordMeasures {
         wc.setNotation(notation);
         wc.setOrthoVec(orthoVector);
         wc.setPhonicVec(phonicVector);
+        wc.setUnicodeTypeMap(getUnicodeTypeMap(language, word));
         return wc;
     }
 
@@ -175,4 +176,14 @@ public class WordMeasures {
         return syllables;
     }
 
+    private static Map<String, String> getUnicodeTypeMap(String language, String word) {
+        Map<String, String> unicodeTypeMap = new HashMap<String, String>();
+    	for (int i = 0; i < word.length(); i++) {
+            char ch = word.charAt(i);
+            String uc = String.format("%04x", (int) ch);
+            String ucType = SyllableMap.getSyllableType(language, uc);
+            unicodeTypeMap.put(uc.toUpperCase(), ucType);
+        }
+    	return unicodeTypeMap;
+    }
 }

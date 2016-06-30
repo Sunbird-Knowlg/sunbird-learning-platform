@@ -47,12 +47,10 @@ import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
-import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
@@ -1922,5 +1920,86 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		word.getMetadata().remove(LanguageParams.morphology.name());
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
+	}
+	
+	public String getVowelUnicode(String languageId, String vowelSignUnicode){
+		Property vowelSignProp = new Property(GraphDACParams.unicode.name(), vowelSignUnicode);
+		Node varnaNode = getVarnaNodeByProperty(languageId, vowelSignProp);
+		String vowelUnicode = "";
+		if (varnaNode != null) {
+			String unicode = (String) varnaNode.getMetadata().get(GraphDACParams.unicode.name());
+			String langageVarnaType = (String) varnaNode.getMetadata().get(GraphDACParams.type.name());
+			if (langageVarnaType.equalsIgnoreCase("VowelSign")) {
+				// get vowelSign unicode
+				Relation associatedTo = (Relation) varnaNode.getOutRelations().get(0);
+				if (associatedTo != null) {
+					Map<String, Object> vowelMetaData = associatedTo.getEndNodeMetadata();
+					vowelUnicode = (String) vowelMetaData.get(GraphDACParams.unicode.name());
+				}
+			}
+		}
+		return vowelUnicode;
+	}
+	
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public String getPhoneticBoundaryIdentifierFromGraph(String languageId, String text) throws Exception {
+		Map<String, Object> map = new LinkedHashMap<String, Object>();
+		LinkedHashMap<String, List> textMap = new LinkedHashMap<String, List>();
+		textMap.put("text", getList(mapper, text, null));
+		map.put("request", textMap);
+		Request request = getRequest(map);
+		Response response = list(languageId, LanguageObjectTypes.Phonetic_Boundary.name(), request);
+		if (checkError(response))
+			throw new ServerException(LanguageErrorCodes.ERROR_PHONETIC_BOUNTARY_LOOKUP.name(),
+					getErrorMessage(response));
+		
+		LOGGER.info("Search | Response: " + response);
+		List<Map<String, Object>> list = (List<Map<String, Object>>) response.get("words");
+		if (list != null && !list.isEmpty()) {
+			Map<String, Object> wordMap = list.get(0);
+			return (String) wordMap.get("identifier");
+		}
+		return null;
+	}
+	
+	public void addAkshraBoundary(String languageId, String text, String wordId, String relationType) throws Exception{
+		
+		String phoneticBoundaryId = getPhoneticBoundaryIdentifierFromGraph(languageId, text);
+		if(phoneticBoundaryId == null){
+			DefinitionDTO pohneticBoundaryDef = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.Phonetic_Boundary.name(), languageId);
+			Map<String, Object> obj = new HashMap<>();
+			obj.put(LanguageParams.text.name(), text);
+			obj.put(LanguageParams.type.name(), "AksharaBoundary");
+			Response response = createPhoneticBoundary(languageId, obj, pohneticBoundaryDef);
+			phoneticBoundaryId = (String) response.get(GraphDACParams.node_id.name());
+		}
+		addWordPhoneticBoundaryRelation(wordId, relationType, languageId, phoneticBoundaryId);
+	}
+	
+	private Response createPhoneticBoundary(String languageId, Map<String, Object> obj, DefinitionDTO pohneticBoundaryDef)
+			throws Exception {
+		String operation = "createDataNode";
+		Node synsetNode = convertToGraphNode(obj, pohneticBoundaryDef);
+		synsetNode.setObjectType(LanguageObjectTypes.Phonetic_Boundary.name());
+		Request synsetReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, operation);
+		synsetReq.put(GraphDACParams.node.name(), synsetNode);
+		Response res = getResponse(synsetReq, LOGGER);
+		if (checkError(res))
+			throw new ServerException(LanguageErrorCodes.ERROR_ADD_PHONETIC_BOUNTARY.name(),
+					getErrorMessage(res));
+		return res;
+	}
+	
+	private void addWordPhoneticBoundaryRelation(String wordId, String relationType, String languageId, String phoneticBoundaryId) {
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
+		request.put(GraphDACParams.start_node_id.name(), wordId);
+		request.put(GraphDACParams.relation_type.name(), relationType);
+		request.put(GraphDACParams.end_node_id.name(), phoneticBoundaryId);
+		Response response = getResponse(request, LOGGER);
+		if (checkError(response))
+			throw new ServerException(LanguageErrorCodes.ERROR_ADD_PHONETIC_BOUNTARY.name(),
+					getErrorMessage(response));
+
 	}
 }

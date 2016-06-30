@@ -21,9 +21,9 @@
 	      "title": "Type",
 	      "description": "",
 	      "category": "general",
-	      "dataType": "Multi-Select",
+	      "dataType": "Select",
 	      "range": [
-	        "ConsonantBoundary","AksharaBoundary","RhymingSound"
+	        "AksharaBoundary","RhymingSound"
 	      ],
 	      "required": false,
 	      "indexed": true,
