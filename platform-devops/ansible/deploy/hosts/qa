@@ -16,7 +16,7 @@ search_index_port = 9200
 environment_id = 20000000
 language_index_host = http://localhost
 language_index_port = 9200
-mongo.host = 127.0.0.1
-mongo.port = 27017
-metadata.broker.list = 172.31.1.92:9092
+mongo_host = 127.0.0.1
+mongo_port = 27017
+metadata_broker_list = 172.31.1.92:9092
 

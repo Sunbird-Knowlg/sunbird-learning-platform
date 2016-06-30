@@ -30,7 +30,7 @@
   template: src=producer.properties.j2 dest=/data/properties
 
 - name: copy the artifacts files
-  copy: src=taxonomy-service.war dest=/home/ubuntu/apache-tomcat-8.0.35/webapps
+  copy: src=taxonomy-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
 
 
 - name: remove
