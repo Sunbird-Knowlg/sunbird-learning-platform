@@ -9,7 +9,7 @@ public class PropertiesUtil {
 	private static InputStream input = null;
 
 	static {
-		loadProperties("producer.properties");
+		
 	}
 
 	public static String getProperty(String key) {

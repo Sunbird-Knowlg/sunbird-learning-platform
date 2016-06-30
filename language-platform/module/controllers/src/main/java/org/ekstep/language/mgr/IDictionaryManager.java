@@ -53,5 +53,4 @@ public interface IDictionaryManager {
     Response getPhoneticSpellingByLanguage(String languageID, String word);
     
     Response getSimilarSoundWords(String languageId, String word);
-
 }

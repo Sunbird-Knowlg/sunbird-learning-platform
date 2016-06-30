@@ -1,0 +1,47 @@
+
+
+- name: Download
+  become_user: ec2-user
+  become: yes
+  get_url: url=http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz dest=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz timeout=1000 force=no owner=ec2-user
+ 
+- name: unzip 
+  become_user: ec2-user
+  become: yes
+  unarchive: src=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ ffmpeg_home }}
+
+
+
+- name: Change ownership of ffmpeg installation
+  become: yes
+  file: path={{ ffmpeg_home }} owner=ec2-user group=ec2-user mode=755 state=directory recurse=yes  
+
+- name: move file ffmpeg
+  become_method: sudo
+  become: yes
+  command: cp {{ ffmpeg_home }}/ffmpeg /usr/local/bin
+
+- name: move file ffprobe
+  become_method: sudo
+  become: yes
+  command: cp {{ ffmpeg_home }}/ffprobe /usr/local/bin/
+
+- name: move file ffserver
+  become_method: sudo
+  become: yes
+  command: cp {{ ffmpeg_home }}/ffserver /usr/local/bin/
+
+- name: move file ffmpeg
+  become_method: sudo
+  become: yes
+  file: path=/usr/local/bin/ffmpeg owner=ec2-user group=ec2-user mode=0755
+
+- name: move file ffprobe
+  become_method: sudo
+  become: yes
+  file: path=/usr/local/bin/ffprobe owner=ec2-user group=ec2-user mode=0755
+
+- name: move file ffserver
+  become_method: sudo
+  become: yes
+  file: path=/usr/local/bin/ffserver owner=ec2-user group=ec2-user mode=0755

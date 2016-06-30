@@ -19,7 +19,6 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,20 +33,12 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.dac.dto.AuditRecord;
-import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.engine.router.GraphEngineManagers;
-import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 public abstract class DictionaryController extends BaseLanguageController {
 
 	@Autowired
 	private IDictionaryManager dictionaryManager;
-
-	@Autowired
-	private IAuditLogManager auditLogManager;
 
 	private static Logger LOGGER = LogManager.getLogger(DictionaryController.class.getName());
 
@@ -84,11 +75,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 			if (!checkError(response)) {
 			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
-			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
-	                    map.get("request").toString(), (String) map.get("COMMENT"));
-	            auditLogManager.saveAuditRecord(audit);
 			}
-			
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);
 		} catch (Exception e) {
@@ -112,9 +99,6 @@ public abstract class DictionaryController extends BaseLanguageController {
 			if (!checkError(response)) {
 				String nodeId = (String) response.get(GraphDACParams.node_id.name());
 			    asyncUpdate(nodeId, languageId);
-			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
-	                    map.get("request").toString(), (String) map.get("COMMENT"));
-	            auditLogManager.saveAuditRecord(audit);
 			}
 			return getResponseEntity(response, apiId,
 					(null != request.getParams()) ? request.getParams().getMsgid() : null);

@@ -16,7 +16,7 @@
     }],
     "requestPath": {
         "type": "POST",
-        "url": "/v1/language/wordchain/rule/*/*",
+        "url": "/v2/language/traversals/*/*",
         "pathParams": ["language_id", "rule_id"]
     },
     "body": ""

@@ -1,0 +1,11 @@
+---
+# vars file for tomcat-test
+
+http_port: 8080
+https_port: 8443
+
+# This will configure a default manager-gui user:
+
+admin_username: admin
+admin_password: adminsecret
+tomcat_home: /home/ec2-user/apache-tomcat-8.0.35

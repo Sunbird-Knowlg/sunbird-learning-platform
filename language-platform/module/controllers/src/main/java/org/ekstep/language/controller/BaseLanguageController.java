@@ -17,7 +17,6 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.taxonomy.enums.ContentAPIParams;
 
 import akka.actor.ActorRef;
 import akka.pattern.Patterns;
@@ -32,10 +31,10 @@ public abstract class BaseLanguageController extends BaseController {
         ObjectMapper mapper = new ObjectMapper();
         if (null != map && !map.isEmpty()) {
             try {
-                Object obj = map.get(ContentAPIParams.content.name());
+                Object obj = map.get("content");
                 if (null != obj) {
                     Node content = (Node) mapper.convertValue(obj, Node.class);
-                    request.put(ContentAPIParams.content.name(), content);
+                    request.put("content", content);
                 }
             } catch (Exception e) {
                 e.printStackTrace();

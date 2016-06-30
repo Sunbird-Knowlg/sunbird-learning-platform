@@ -23,6 +23,7 @@
 		<module>platform-modules</module>
 		<module>language-platform</module>
 		<module>orchestrator</module>
+		<module>platform-config</module>
 	</modules>
 
 	<dependencies>

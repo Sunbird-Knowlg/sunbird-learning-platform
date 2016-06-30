@@ -21,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.UnzipUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Document;
@@ -56,10 +59,7 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.CustomParser;
-import com.ilimi.taxonomy.util.HttpDownloadUtility;
-import com.ilimi.taxonomy.util.UnzipUtility;
 
 @Component
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {

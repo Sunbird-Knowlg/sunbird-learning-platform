@@ -1,0 +1,28 @@
+---
+# tasks file for aws-login
+
+- name: create .aws
+  become_user: ec2-user
+  become: yes
+  file: path=.aws state=directory
+
+- name: set credentials
+  become_user: ec2-user
+  become: yes
+  file: path=.aws/credentials state=touch
+
+- name: update .aws/credentials
+  become_user: ec2-user
+  become: yes
+  lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
+
+- name: update .aws/credentials
+  become_user: ec2-user
+  become: yes
+  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ access }}'  state=present insertafter=EOF create=yes
+
+- name: update .aws/credentials
+  become_user: ec2-user
+  become: yes
+  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ secret }}' state=present insertafter=EOF create=yes
+  

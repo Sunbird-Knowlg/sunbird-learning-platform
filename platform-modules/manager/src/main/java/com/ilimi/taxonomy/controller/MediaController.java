@@ -3,6 +3,7 @@ package com.ilimi.taxonomy.controller;
 import java.io.File;
 
 import org.apache.commons.io.FilenameUtils;
+import org.ekstep.common.util.AWSUploader;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +19,6 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.logger.LogHelper;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
-import com.ilimi.taxonomy.util.AWSUploader;
 
 @Controller
 @RequestMapping("/media")
