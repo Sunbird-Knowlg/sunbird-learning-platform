@@ -6,40 +6,40 @@
 
 
 - name: copy the database.properties
-  template: src=language/database.properties.j2 dest=/data/properties/language
+  template: src=language/database.properties.j2 dest=/data/properties/language/database.properties
 
 - name: copy the graph.properties
-  template: src=language/graph.properties.j2 dest=/data/properties/language
+  template: src=language/graph.properties.j2 dest=/data/properties/language/graph.properties
 
 
 - name: copy the language-indexes.properties
-  template: src=language/language-indexes.properties.j2 dest=/data/properties/language
+  template: src=language/language-indexes.properties.j2 dest=/data/properties/language/language-indexes.properties
 
 
 - name: copy the mongo.properties
-  template: src=language/mongo.properties.j2 dest=/data/properties/language
+  template: src=language/mongo.properties.j2 dest=/data/properties/language/mongo.properties
 
 #------------------------------------------------------------------------------------
 
 - name: copy the consumer-config.xml
-  template: src=learning/consumer-config.xml.j2 dest=/data/properties/learning
+  template: src=learning/consumer-config.xml.j2 dest=/data/properties/learning/consumer-config.xml
 
 - name: copy the database.properties
-  template: src=learning/database.properties.j2 dest=/data/properties/learning
+  template: src=learning/database.properties.j2 dest=/data/properties/learning/database.properties
 
 - name: copy the elasticsearch.properties
-  template: src=learning/elasticsearch.properties.j2 dest=/data/properties/learning
+  template: src=learning/elasticsearch.properties.j2 dest=/data/properties/learning/elasticsearch.properties
 
 - name: copy the graph.properties
-  template: src=learning/graph.properties.j2 dest=/data/properties/learning
+  template: src=learning/graph.properties.j2 dest=/data/properties/learning/learning/graph.properties
 
 - name: copy the mongo.properties
-  template: src=learning/mongo.properties.j2 dest=/data/properties/learning
+  template: src=learning/mongo.properties.j2 dest=/data/properties/learning/learning/mongo.properties
 
 
 #------------------------------------------------------------------------------------
 - name: copy the elasticsearch.properties
-  template: src=search/elasticsearch.properties.j2 dest=/data/properties/search
+  template: src=search/elasticsearch.properties.j2 dest=/data/properties/search/elasticsearch.properties
 #------------------------------------------------------------------------------------
 - name: copy the artifacts files 
   copy: src=learning-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
@@ -67,8 +67,6 @@
 
 
 - name: start tomcat
-  become_user: ec2-user
-  become: yes
   service: name=tomcat state=started
 
 
