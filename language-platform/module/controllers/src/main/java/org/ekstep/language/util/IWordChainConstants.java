@@ -1,4 +1,4 @@
-package org.ekstep.language.Util;
+package org.ekstep.language.util;
 
 public interface IWordChainConstants {
 

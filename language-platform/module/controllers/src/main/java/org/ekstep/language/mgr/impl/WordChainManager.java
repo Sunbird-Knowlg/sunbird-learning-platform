@@ -9,10 +9,16 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import org.ekstep.language.Util.IWordChainConstants;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.ekstep.language.common.LanguageMap;
+import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IWordChainsManager;
+import org.ekstep.language.util.BaseLanguageManager;
+import org.ekstep.language.util.IWordChainConstants;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.wordchain.evaluators.WordIdEvaluator;
@@ -26,10 +32,17 @@ import org.neo4j.graphdb.traversal.Traverser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 @Component
 public class WordChainManager extends BaseLanguageManager implements IWordChainsManager, IWordnetConstants, IWordChainConstants {
@@ -37,13 +50,16 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 	@Autowired
 	private WordUtil wordUtil;
 	
+	private static Logger LOGGER = LogManager.getLogger(WordChainManager.class);
+	
 	public Comparator<Map<String, Object>> wordChainsComparator = new Comparator<Map<String, Object>>() {
 		@Override
 	    public int compare(Map<String, Object> wordChain1, Map<String, Object> wordChain2) {
 	        return ((Double)wordChain2.get("score")).compareTo((Double)wordChain1.get("score"));
 	    }
 	};
-
+	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public Response getWordChain(String traversalId, int wordChainsLimit, List<Map> words, Node ruleNode,
