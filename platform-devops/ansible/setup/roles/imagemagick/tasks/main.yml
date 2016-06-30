@@ -1,0 +1,4 @@
+---
+# tasks file for imagemagick
+- name: install imagemagick
+  yum: name=ImageMagick state=present update_cache=yes
