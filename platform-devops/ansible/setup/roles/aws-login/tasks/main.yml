@@ -17,8 +17,8 @@
   lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
 
 - name: update .aws/credentials
-  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ access }}'  state=present create=yes
+  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ access }}'  insertafter=EOF state=present create=yes
 
 - name: update .aws/credentials
-  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ secret }}' state=present  create=yes
+  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ secret }}' insertafter=EOF state=present  create=yes
   
