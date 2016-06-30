@@ -1,4 +1,4 @@
-- name: create folder graphDB
+- name: create folder data
   become_method: sudo
   become: yes
   file: path=/data state=directory mode=0755
@@ -18,10 +18,26 @@
   become: yes
   file: path=/data/contentBundle state=directory mode=0755
 
-- name: create folder contentBundle
+- name: create folder properties
   become_method: sudo
   become: yes
   file: path=/data/properties state=directory mode=0755
+
+
+- name: create folder language
+  become_method: sudo
+  become: yes
+  file: path=/data/properties/language state=directory mode=0755
+
+- name: create folder learning
+  become_method: sudo
+  become: yes
+  file: path=/data/properties/learning state=directory mode=0755
+
+- name: create folder search
+  become_method: sudo
+  become: yes
+  file: path=/data/properties/search state=directory mode=0755
 
 - name: Change ownership of data directory
   become_method: sudo

@@ -1,5 +1,5 @@
 #!/bin/sh
-export JAVA_OPTS="{{ Xms }} {{ Xmx }}  -XX:+CMSClassUnloadingEnabled  {{ XX }}"'
+export JAVA_OPTS="{{ tomcat_init_mem }} {{ tomcat_max_mem }}  -XX:+CMSClassUnloadingEnabled  {{ tomcat_perm_size }}"'
 # Licensed to the Apache Software Foundation (ASF) under one or more
 # contributor license agreements.  See the NOTICE file distributed with
 # this work for additional information regarding copyright ownership.

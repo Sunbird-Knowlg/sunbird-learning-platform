@@ -15,7 +15,6 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-
 <!-- The contents of this file will be loaded for each web application -->
 <Context>
 
@@ -23,13 +22,13 @@
     <!-- web application will be reloaded.                                   -->
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
     <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
-
+    
     <Resources className="org.apache.catalina.webresources.StandardRoot">
        <PreResources className="org.apache.catalina.webresources.DirResourceSet"
-           base="/data/properties"
+           base="/data/properties/search"
            internalPath="/"
            webAppMount="/WEB-INF/classes" />
-    </Resources>
+	</Resources>
 
     <!-- Uncomment this to disable session persistence across Tomcat restarts -->
     <!--

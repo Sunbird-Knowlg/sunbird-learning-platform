@@ -10,18 +10,30 @@
 - name: copy config file
   template: src=logstash-graph-events.j2 dest=/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf
 
+
+- name: copy config file
+  template: src=language-graph-events.j2 dest=/home/ec2-user/logstash-2.3.3/language-graph-events.conf
+
+
 - name: set permissions
-  become: yes
   file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
 
 - name: Check if logstash is running
-  become: yes
   become_user: ec2-user
   shell: ps -ef | grep logstash | grep logstash-graph-events.conf | grep -v grep
   register: logstash_process
+
+
+- name: Check if logstash is running
+  become_user: ec2-user
+  shell: ps -ef | grep logstash | grep language-graph-events.conf | grep -v grep
+  register: language_process
+
 
 - name: Run logstash
   shell: chdir=/home/ec2-user/logstash-2.3.3  bin/logstash -f /home/ec2-user/logstash-2.3.3/logstash-graph-events.conf -v &
   when: "logstash_process.stdout == -1"
 
- 
+- name: Run logstash
+  shell: chdir=/home/ec2-user/logstash-2.3.3  bin/logstash -f /home/ec2-user/logstash-2.3.3/language-graph-events.conf -v &
+  when: "language_process.stdout == -1"
