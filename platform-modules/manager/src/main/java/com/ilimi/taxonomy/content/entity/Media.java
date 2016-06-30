@@ -1,24 +1,30 @@
 package com.ilimi.taxonomy.content.entity;
 
 import java.util.List;
-import java.util.Map;
 
-public class Media {
+public class Media extends ECRFObject {
 	
-	private Map<String, String> data = null;
-	private List<Map<String, String>> childrenData = null;
+	private String src = null;
+	private String type = null;
+	private List<Plugin> childrenPlugin = null;
 	
-	public Map<String, String> getData() {
-		return data;
+	public String getSrc() {
+		return src;
 	}
-	public void setData(Map<String, String> data) {
-		this.data = data;
+	public void setSrc(String src) {
+		this.src = src;
 	}
-	public List<Map<String, String>> getChildrenData() {
-		return childrenData;
+	public String getType() {
+		return type;
 	}
-	public void setChildrenData(List<Map<String, String>> childrenData) {
-		this.childrenData = childrenData;
+	public void setType(String type) {
+		this.type = type;
+	}
+	public List<Plugin> getChildrenPlugin() {
+		return childrenPlugin;
+	}
+	public void setChildrenPlugin(List<Plugin> childrenPlugin) {
+		this.childrenPlugin = childrenPlugin;
 	}
 	
 }

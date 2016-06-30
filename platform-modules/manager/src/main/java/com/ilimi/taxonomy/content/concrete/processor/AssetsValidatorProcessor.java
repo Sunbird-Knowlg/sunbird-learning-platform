@@ -2,13 +2,13 @@ package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
 
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
 public class AssetsValidatorProcessor extends AbstractProcessor {
 
 	@Override
-	protected Content process(Content content) {
+	protected Plugin process(Plugin content) {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -1,7 +1,5 @@
 package com.ilimi.taxonomy.content.util;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -9,16 +7,14 @@ import java.util.Map.Entry;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import com.ilimi.taxonomy.content.common.ElementMap;
-import com.ilimi.taxonomy.content.entity.Action;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
-import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
-public class EcrfToXmlConvertor {
+public class ECRFToXMLConvertor {
 	
 	private static final String START_TAG_OPENING = "<";
 	private static final String END_TAG_OPENING = "</";
@@ -28,14 +24,17 @@ public class EcrfToXmlConvertor {
 	
 	private static final char DOUBLE_QUOTE = '"';
 	
-	public String getContentXmlString(Content ecrf) {
+	public String getContentXmlString(Plugin ecrfObject) {
 		StringBuilder xml = new StringBuilder();
-		if (null != ecrf) {
-			xml.append(getElementXml(ecrf.getData()));
-			xml.append(getContentManifestXml(ecrf.getManifest()));
-			xml.append(getContentControllersXml(ecrf.getControllers()));
-			xml.append(getPluginsXml(ecrf.getPlugins()));
-			xml.append(getEndTag(ecrf.getData().get(ContentWorkflowPipelineParams.element_name.name())));
+		if (null != ecrfObject) {
+			xml.append(getElementXml(ecrfObject.getData()));
+			xml.append(getInnerText(ecrfObject.getInnerText()));
+			xml.append(getCData(ecrfObject.getcData()));
+			xml.append(getContentManifestXml(ecrfObject.getManifest()));
+			xml.append(getContentControllersXml(ecrfObject.getControllers()));
+			xml.append(getPluginsXml(ecrfObject.getChildrenPlugin()));
+			xml.append(getEventsXml(ecrfObject.getEvents()));
+			xml.append(getEndTag(ecrfObject.getData().get(ContentWorkflowPipelineParams.element_name.name())));
 		}
 		return xml.toString();
 	}
@@ -43,7 +42,9 @@ public class EcrfToXmlConvertor {
 	private StringBuilder getContentManifestXml(Manifest manifest) {
 		StringBuilder xml = new StringBuilder();
 		if (null != manifest) {
-			xml.append(getStartTag(ContentWorkflowPipelineParams.manifest.name()));
+			xml.append(getElementXml(manifest.getData()));
+			xml.append(getInnerText(manifest.getInnerText()));
+			xml.append(getCData(manifest.getcData()));
 			xml.append(getContentMediasXml(manifest.getMedias()));
 			xml.append(getEndTag(ContentWorkflowPipelineParams.manifest.name()));
 		}
@@ -64,44 +65,46 @@ public class EcrfToXmlConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != media) {
 			xml.append(getElementXml(media.getData()));
-			xml.append(getGroupedElementXml(media.getChildrenData()));
+			xml.append(getInnerText(media.getInnerText()));
+			xml.append(getCData(media.getcData()));
+			xml.append(getChildrenPlugin(media.getChildrenPlugin()));
 			xml.append(getEndTag(ContentWorkflowPipelineParams.media.name()));
 		}
 		return xml;
 	}
 	
-	private StringBuilder getGroupedElementXml(List<Map<String, String>> elements) {
-		StringBuilder xml = new StringBuilder();
-		if (null != elements) {
-			Map<String, List<Map<String, String>>> groupingTags = new HashMap<String, List<Map<String, String>>>();
-			for (Map<String, String> element: elements) {
-				String groupTag = element.get(ContentWorkflowPipelineParams.group_element_name.name());
-				if (null == groupingTags.get(groupTag))
-					groupingTags.put(groupTag, new ArrayList<Map<String, String>>());
-				groupingTags.get(groupTag).add(element);
-				xml = createGroupedElementXML(groupingTags);
-			}
-		}
-		return xml;
-	}
+//	private StringBuilder getGroupedElementXml(List<Map<String, String>> elements) {
+//		StringBuilder xml = new StringBuilder();
+//		if (null != elements) {
+//			Map<String, List<Map<String, String>>> groupingTags = new HashMap<String, List<Map<String, String>>>();
+//			for (Map<String, String> element: elements) {
+//				String groupTag = element.get(ContentWorkflowPipelineParams.group_element_name.name());
+//				if (null == groupingTags.get(groupTag))
+//					groupingTags.put(groupTag, new ArrayList<Map<String, String>>());
+//				groupingTags.get(groupTag).add(element);
+//				xml = createGroupedElementXML(groupingTags);
+//			}
+//		}
+//		return xml;
+//	}
 	
-	private StringBuilder createGroupedElementXML(Map<String, List<Map<String, String>>> elements) {
-		StringBuilder xml = new StringBuilder();
-		if (null != elements) {
-			for (Entry<String, List<Map<String, String>>> entry: elements.entrySet()) {
-				if (!StringUtils.isBlank(entry.getKey())) {
-					xml.append(getStartTag(entry.getKey()));
-					List<Map<String, String>> lstMap = entry.getValue();
-					for (Map<String, String> map: lstMap) {
-						xml.append(getElementXml(map));
-						xml.append(getEndTag(map.get(ContentWorkflowPipelineParams.element_name.name())));
-					}
-					xml.append(getEndTag(entry.getKey()));
-				}
-			}
-		}
-		return xml;
-	}
+//	private StringBuilder createGroupedElementXML(Map<String, List<Map<String, String>>> elements) {
+//		StringBuilder xml = new StringBuilder();
+//		if (null != elements) {
+//			for (Entry<String, List<Map<String, String>>> entry: elements.entrySet()) {
+//				if (!StringUtils.isBlank(entry.getKey())) {
+//					xml.append(getStartTag(entry.getKey()));
+//					List<Map<String, String>> lstMap = entry.getValue();
+//					for (Map<String, String> map: lstMap) {
+//						xml.append(getElementXml(map));
+//						xml.append(getEndTag(map.get(ContentWorkflowPipelineParams.element_name.name())));
+//					}
+//					xml.append(getEndTag(entry.getKey()));
+//				}
+//			}
+//		}
+//		return xml;
+//	}
 	
 	private StringBuilder getContentControllersXml(List<Controller> controllers) {
 		StringBuilder xml = new StringBuilder();
@@ -116,7 +119,8 @@ public class EcrfToXmlConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != controller) {
 			xml.append(getElementXml(controller.getData()));
-			xml.append(controller.getcData());
+			xml.append(getInnerText(controller.getInnerText()));
+			xml.append(getCData(controller.getcData()));
 			xml.append(getEndTag(ContentWorkflowPipelineParams.controller.name()));
 		}
 		return xml;
@@ -135,16 +139,25 @@ public class EcrfToXmlConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != plugin) {
 			xml.append(getElementXml(plugin.getData()));
-			xml.append(getNonPluginElementsXml(plugin.getChildrenData()));
+			xml.append(getInnerText(plugin.getInnerText()));
+			xml.append(getCData(plugin.getcData()));
 			xml.append(getChildrenPlugin(plugin.getChildrenPlugin()));
+			xml.append(getContentManifestXml(plugin.getManifest()));
+			xml.append(getContentControllersXml(plugin.getControllers()));
 			xml.append(getEventsXml(plugin.getEvents()));
-			xml.append(getPluginInnerText(plugin.getInnerText()));
 			xml.append(getPluginEndTag(plugin));
 		}
 		return xml;
 	}
 	
-	private StringBuilder getPluginInnerText(String text) {
+	private StringBuilder getCData(String cDataText) {
+		StringBuilder xml = new StringBuilder();
+		if (!StringUtils.isBlank(cDataText))
+			xml.append(cDataText);
+		return xml;
+	}
+	
+	private StringBuilder getInnerText(String text) {
 		StringBuilder xml = new StringBuilder();
 		if (!StringUtils.isBlank(text))
 			xml.append(StringEscapeUtils.escapeXml11(text));
@@ -177,40 +190,24 @@ public class EcrfToXmlConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != event) {
 			xml.append(getElementXml(event.getData()));
-			xml.append(getActionsXml(event.getActions()));
+			xml.append(getInnerText(event.getInnerText()));
+			xml.append(getCData(event.getcData()));
+			xml.append(getChildrenPlugin(event.getChildrenPlugin()));
 			xml.append(getEndTag(ContentWorkflowPipelineParams.event.name()));
 		}
 		return xml;
 	}
 	
-	private StringBuilder getActionsXml(List<Action> actions) {
-		StringBuilder xml = new StringBuilder();
-		if (null != actions) {
-			for (Action action: actions)
-				xml.append(getActionXml(action));
-		}
-		return xml;
-	}
-	
-	private StringBuilder getActionXml(Action action) {
-		StringBuilder xml = new StringBuilder();
-		if (null != action) {
-			xml.append(getElementXml(action.getData()));
-			xml.append(getEndTag(ContentWorkflowPipelineParams.action.name()));
-		}
-		return xml;
-	}
-	
-	private StringBuilder getNonPluginElementsXml(List<Map<String, String>> nonPluginElements) {
-		StringBuilder xml = new StringBuilder();
-		if (null != nonPluginElements) {
-			for (Map<String, String> nonPluginElement: nonPluginElements) {
-				xml.append(getElementXml(nonPluginElement));
-				xml.append(getEndTag(nonPluginElement.get(ContentWorkflowPipelineParams.element_name.name())));
-			}
-		}
-		return xml;
-	}
+//	private StringBuilder getNonPluginElementsXml(List<Map<String, String>> nonPluginElements) {
+//		StringBuilder xml = new StringBuilder();
+//		if (null != nonPluginElements) {
+//			for (Map<String, String> nonPluginElement: nonPluginElements) {
+//				xml.append(getElementXml(nonPluginElement));
+//				xml.append(getEndTag(nonPluginElement.get(ContentWorkflowPipelineParams.element_name.name())));
+//			}
+//		}
+//		return xml;
+//	}
 	
 	private StringBuilder getElementXml(Map<String, String> data) {
 		StringBuilder xml = new StringBuilder();

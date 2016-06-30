@@ -1,33 +1,31 @@
 package com.ilimi.taxonomy.content.entity;
 
 import java.util.List;
-import java.util.Map;
 
-public class Plugin {
+public class Plugin extends ECRFObject {
 	
-	private Map<String, String> data = null;						// Always Represent attributes
-	private List<Map<String, String>> childrenData = null;			// Always Represent children tags which is not plugin
 	private List<Plugin> childrenPlugin = null;
+	private Manifest manifest = null;
+	private List<Controller> controllers = null;
 	private List<Event> events = null;
-	private String innerText = null; 
 	
-	public Map<String, String> getData() {
-		return data;
-	}
-	public void setData(Map<String, String> data) {
-		this.data = data;
-	}
-	public List<Map<String, String>> getChildrenData() {
-		return childrenData;
-	}
-	public void setChildrenData(List<Map<String, String>> childrenData) {
-		this.childrenData = childrenData;
-	}
 	public List<Plugin> getChildrenPlugin() {
 		return childrenPlugin;
 	}
 	public void setChildrenPlugin(List<Plugin> childrenPlugin) {
 		this.childrenPlugin = childrenPlugin;
+	}
+	public Manifest getManifest() {
+		return manifest;
+	}
+	public void setManifest(Manifest manifest) {
+		this.manifest = manifest;
+	}
+	public List<Controller> getControllers() {
+		return controllers;
+	}
+	public void setControllers(List<Controller> controllers) {
+		this.controllers = controllers;
 	}
 	public List<Event> getEvents() {
 		return events;
@@ -35,11 +33,5 @@ public class Plugin {
 	public void setEvents(List<Event> events) {
 		this.events = events;
 	}
-	public String getInnerText() {
-		return innerText;
-	}
-	public void setInnerText(String innerText) {
-		this.innerText = innerText;
-	}
-
+	
 }

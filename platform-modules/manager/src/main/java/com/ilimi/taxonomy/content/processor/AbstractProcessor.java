@@ -1,7 +1,7 @@
 package com.ilimi.taxonomy.content.processor;
 
 import com.ilimi.taxonomy.content.concrete.processor.BaseConcreteProcessor;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 
 public abstract class AbstractProcessor extends BaseConcreteProcessor {
 	
@@ -19,7 +19,7 @@ public abstract class AbstractProcessor extends BaseConcreteProcessor {
 		this.isAutomaticChainExecutionEnabled = isAutomaticChainExecutionEnabled;
 	}
 	
-	public Content execute(Content content){
+	public Plugin execute(Plugin content){
         content = process(content);
         if(null != nextProcessor && isAutomaticChainExecutionEnabled == true){
         	content = nextProcessor.execute(content);
@@ -27,5 +27,5 @@ public abstract class AbstractProcessor extends BaseConcreteProcessor {
         return content;
     }
 	
-	abstract protected Content process(Content content);
+	abstract protected Plugin process(Plugin content);
 }

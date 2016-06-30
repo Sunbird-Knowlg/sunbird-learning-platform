@@ -10,9 +10,9 @@ import org.xmlunit.diff.Diff;
 import org.xmlunit.diff.ElementSelectors;
 
 import com.ilimi.taxonomy.content.common.BaseTest;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 
-public class EcrfToXmlConvertorTest extends BaseTest {
+public class ECRFToXMLConvertorTest extends BaseTest {
 	
 	private static final String WELL_FORMED_XML_FILE_NAME =  "Sample_XML_1.ecml";
 	
@@ -25,10 +25,10 @@ public class EcrfToXmlConvertorTest extends BaseTest {
 	@Test
 	public void getContentXmlString_Test01() {
 		try {
-			EcrfToXmlConvertor fixture = new EcrfToXmlConvertor();
-			XmlContentParser parser = new XmlContentParser();
+			ECRFToXMLConvertor fixture = new ECRFToXMLConvertor();
+			XMLContentParser parser = new XMLContentParser();
 			String xml = getFileString(WELL_FORMED_XML_FILE_NAME);
-			Content ecrf = parser.parseContent(xml);
+			Plugin ecrf = parser.parseContent(xml);
 			String contentXmlString = fixture.getContentXmlString(ecrf);
 			writeStringToFile(TEMP_OUTPUT_FILE_NAME, contentXmlString, false);
 	        Diff diff = DiffBuilder.compare(contentXmlString).withTest(xml)
@@ -49,10 +49,10 @@ public class EcrfToXmlConvertorTest extends BaseTest {
 	 */
 	@Test
 	public void getContentXmlString_Test02() {
-		EcrfToXmlConvertor fixture = new EcrfToXmlConvertor();
-		XmlContentParser parser = new XmlContentParser();
+		ECRFToXMLConvertor fixture = new ECRFToXMLConvertor();
+		XMLContentParser parser = new XMLContentParser();
 		String xml = getFileString(WELL_FORMED_XML_FILE_NAME);
-		Content ecrf = parser.parseContent(xml);
+		Plugin ecrf = parser.parseContent(xml);
 		String contentXmlString = fixture.getContentXmlString(ecrf);
 		assertTrue(isValidXmlString(contentXmlString));
 	}

@@ -26,7 +26,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
@@ -47,7 +47,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	protected Content process(Content content) {
+	protected Plugin process(Plugin content) {
 		try {
 			
 		} catch(Exception e) {
@@ -57,7 +57,7 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	}
 	
 	@SuppressWarnings({ "unchecked", "unused" })
-	private Map<String, Object> createAssessmentItemSubGraph(Content content) {
+	private Map<String, Object> createAssessmentItemSubGraph(Plugin content) {
 		Map<String, Object> assessmentItemCreationFilewiseResult = new HashMap<String, Object>();
 		try {
 			List<Relation> outRelations = new ArrayList<Relation>();

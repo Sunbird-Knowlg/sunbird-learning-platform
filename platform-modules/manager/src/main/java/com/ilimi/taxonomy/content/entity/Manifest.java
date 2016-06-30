@@ -2,7 +2,7 @@ package com.ilimi.taxonomy.content.entity;
 
 import java.util.List;
 
-public class Manifest {
+public class Manifest extends ECRFObject {
 	
 	private List<Media> medias = null;
 

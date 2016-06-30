@@ -3,7 +3,7 @@ package com.ilimi.taxonomy.content.concrete.processor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
 public class EmbedControllerProcessor extends AbstractProcessor {
@@ -16,7 +16,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	protected Content process(Content content) {
+	protected Plugin process(Plugin content) {
 		// TODO Auto-generated method stub
 		return null;
 	}

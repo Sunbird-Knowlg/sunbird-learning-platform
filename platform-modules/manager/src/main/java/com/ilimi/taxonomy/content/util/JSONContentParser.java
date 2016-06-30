@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -15,20 +14,19 @@ import org.json.JSONObject;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.ElementMap;
-import com.ilimi.taxonomy.content.entity.Action;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
-import com.ilimi.taxonomy.content.entity.Plugin;
+import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
-public class JsonContentParser {
+public class JSONContentParser {
 	
-	public Content parseContent(String json) {
-		Content content = new Content();
+	public Plugin parseContent(String json) {
+		Plugin content = new Plugin();
 		try {
 			JSONObject root = new JSONObject(json);
 			content = processContentDocument(root);
@@ -39,18 +37,22 @@ public class JsonContentParser {
 		return content;
 	}
 	
-	private Content processContentDocument(JSONObject root) {
-		Content content = new Content();
+	private Plugin processContentDocument(JSONObject root) {
+		Plugin plugin = new Plugin();
 		if (null != root) {
 			if (root.has(ContentWorkflowPipelineParams.theme.name())) {
 				root = root.getJSONObject(ContentWorkflowPipelineParams.theme.name());
-				content.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
-				content.setManifest(getContentManifest(root));
-				content.setControllers(getControllers(root));
-				content.setPlugins(getPlugins(root));
+				plugin.setId(getId(root));
+				plugin.setData(getData(root, ContentWorkflowPipelineParams.theme.name()));
+				plugin.setInnerText(getInnerText(root, ContentWorkflowPipelineParams.__text.name()));
+				plugin.setcData(getCData(root, ContentWorkflowPipelineParams.__cdata.name()));
+				plugin.setManifest(getContentManifest(root));
+				plugin.setControllers(getControllers(root));
+				plugin.setChildrenPlugin(getChildrenPlugins(root));
+				plugin.setEvents(getEvents(root));
 			}
 		}
-		return content;
+		return plugin;
 	}
 	
 	private Manifest getContentManifest(JSONObject object) {
@@ -59,15 +61,18 @@ public class JsonContentParser {
 			if (object.has(ContentWorkflowPipelineParams.manifest.name())) {
 				Object value = object.get(ContentWorkflowPipelineParams.manifest.name());
 				if (value instanceof JSONArray) {
-					JSONArray manifestObjs = (JSONArray) value;
-					for (int i = 0; i < manifestObjs.length(); i++) {
-						if (manifestObjs.getJSONObject(i).has(ContentWorkflowPipelineParams.media.name()))
-							manifest.setMedias(getMediaFromObject(manifestObjs.getJSONObject(i).get(ContentWorkflowPipelineParams.media.name())));
-					}
+					throw new ClientException(ContentErrorCodeConstants.EXPECTED_JSON_OBJECT.name(), 
+							ContentErrorMessageConstants.JSON_OBJECT_EXPECTED + 
+							ContentWorkflowPipelineParams.manifest.name());
 				} else if (value instanceof JSONObject) {
 					JSONObject manifestObj = (JSONObject) value;
-					if (manifestObj.has(ContentWorkflowPipelineParams.media.name()))
+					if (manifestObj.has(ContentWorkflowPipelineParams.media.name())) {
+						manifest.setId(getId(manifestObj));
+						manifest.setData(getData(manifestObj, ContentWorkflowPipelineParams.manifest.name()));
+						manifest.setInnerText(getInnerText(manifestObj, ContentWorkflowPipelineParams.__text.name()));
+						manifest.setcData(getCData(manifestObj, ContentWorkflowPipelineParams.__cdata.name()));
 						manifest.setMedias(getMediaFromObject(manifestObj.get(ContentWorkflowPipelineParams.media.name())));
+					}
 				}
 			}
 		}
@@ -91,9 +96,29 @@ public class JsonContentParser {
 	
 	private Media getContentMedia(JSONObject mediaObj) {
 		Media media = new Media();
-		if (null != mediaObj) {
-			media.setData(getData(mediaObj, ContentWorkflowPipelineParams.media.name()));
-			media.setChildrenData(getChildrenData(mediaObj, ContentWorkflowPipelineParams.media.name()));
+		try {
+			if (null != mediaObj) {
+				String id = mediaObj.getString(ContentWorkflowPipelineParams.id.name());
+				String src = mediaObj.getString(ContentWorkflowPipelineParams.src.name());
+				String type = mediaObj.getString(ContentWorkflowPipelineParams.type.name());
+				if (StringUtils.isBlank(id))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+							"Error! Invalid Media ('id' is required.)");
+				if (StringUtils.isBlank(src))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+							"Error! Invalid Media ('src' is required.)");
+				if (StringUtils.isBlank(type))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+							"Error! Invalid Media ('type' is required.)");
+				media.setId(id);
+				media.setData(getData(mediaObj, ContentWorkflowPipelineParams.media.name()));
+				media.setInnerText(getInnerText(mediaObj, ContentWorkflowPipelineParams.__text.name()));
+				media.setcData(getCData(mediaObj, ContentWorkflowPipelineParams.__cdata.name()));
+				media.setChildrenPlugin(getChildrenPlugins(mediaObj));
+			}
+		} catch(JSONException e) {
+			throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
+					ContentErrorMessageConstants.INVALID_MEDIA);
 		}
 		return media;
 	}
@@ -107,14 +132,18 @@ public class JsonContentParser {
 					JSONArray controllerObjs = (JSONArray) value;
 					for (int i = 0; i < controllerObjs.length(); i++) {
 						Controller controller = new Controller();
+						controller.setId(getId(controllerObjs.getJSONObject(i)));
 						controller.setData(getData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.controller.name()));
+						controller.setInnerText(getInnerText(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.__text.name()));
 						controller.setcData(getCData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.__cdata.name()));
 						controllers.add(controller);
 					}
 				} else if (value instanceof JSONObject) {
 					JSONObject controllerObj = (JSONObject) value;
 					Controller controller = new Controller();
+					controller.setId(getId(controllerObj));
 					controller.setData(getData(controllerObj, ContentWorkflowPipelineParams.controller.name()));
+					controller.setInnerText(getInnerText(controllerObj, ContentWorkflowPipelineParams.__text.name()));
 					controller.setcData(getCData(controllerObj, ContentWorkflowPipelineParams.__cdata.name()));
 					controllers.add(controller);
 				}
@@ -123,44 +152,47 @@ public class JsonContentParser {
 		return controllers;
 	}
 	
-	private List<Plugin> getPlugins(JSONObject object) {
-		List<Plugin> plugins = new ArrayList<Plugin>();
-		object = getPluginViewOfDocument(object);
-		if (null != object) {
-			Iterator<String> keysItr = object.keys();
-		    while(keysItr.hasNext()) {
-		    	String key = keysItr.next();
-		        Object value = object.get(key);
-		        if(value instanceof JSONArray) {
-		        	JSONArray array = (JSONArray) value;
-		        	for(int i = 0; i < array.length(); i++) {
-		        		plugins.add(getPlugin((JSONObject) array.get(i), key));
-		        	}
-		        } else if(value instanceof JSONObject)
-		        	plugins.add(getPlugin((JSONObject) value, key));
-		    }
-		}
-		return plugins;
-	}
+//	private List<Plugin> getPlugins(JSONObject object) {
+//		List<Plugin> plugins = new ArrayList<Plugin>();
+//		object = getPluginViewOfDocument(object);
+//		if (null != object) {
+//			Iterator<String> keysItr = object.keys();
+//		    while(keysItr.hasNext()) {
+//		    	String key = keysItr.next();
+//		        Object value = object.get(key);
+//		        if(value instanceof JSONArray) {
+//		        	JSONArray array = (JSONArray) value;
+//		        	for(int i = 0; i < array.length(); i++) {
+//		        		plugins.add(getPlugin((JSONObject) array.get(i), key));
+//		        	}
+//		        } else if(value instanceof JSONObject)
+//		        	plugins.add(getPlugin((JSONObject) value, key));
+//		    }
+//		}
+//		return plugins;
+//	}
 	
 	private Plugin getPlugin(JSONObject object, String key) {
 		Plugin plugin = new Plugin();
 		if (null != object) {
+			plugin.setId(getId(object));
 			plugin.setData(getData(object, key));
-			plugin.setChildrenData(getNonPluginChildren(object, key));
-			plugin.setChildrenPlugin(getChildrenPlugins(object));
-			plugin.setEvents(getEvents(object));
 			plugin.setInnerText(getInnerText(object, ContentWorkflowPipelineParams.__text.name()));
+			plugin.setcData(getCData(object, ContentWorkflowPipelineParams.__cdata.name()));
+			plugin.setChildrenPlugin(getChildrenPlugins(object));
+			plugin.setManifest(getContentManifest(object));
+			plugin.setControllers(getControllers(object));
+			plugin.setEvents(getEvents(object));
 		}
 		return plugin;
 	}
 	
-	private List<Map<String, String>> getNonPluginChildren(JSONObject object, String elementName) {
-		List<Map<String, String>> nonPluginChildren = new ArrayList<Map<String, String>>();
-		if (null != object && !StringUtils.isBlank(elementName))
-			nonPluginChildren = toMap(object, elementName, true);
-		return nonPluginChildren;
-	}
+//	private List<Map<String, String>> getNonPluginChildren(JSONObject object, String elementName) {
+//		List<Map<String, String>> nonPluginChildren = new ArrayList<Map<String, String>>();
+//		if (null != object && !StringUtils.isBlank(elementName))
+//			nonPluginChildren = toMap(object, elementName, true);
+//		return nonPluginChildren;
+//	}
 	
 	private List<Plugin> getChildrenPlugins(JSONObject object) {
 		List<Plugin> childrenPlugins = new ArrayList<Plugin>();
@@ -223,30 +255,12 @@ public class JsonContentParser {
 	
 	private Event getEvent(JSONObject object) {
 		Event event = new Event();
-		List<Action> actions = new ArrayList<Action>();
+		event.setId(getId(object));
 		event.setData(getData(object, ContentWorkflowPipelineParams.event.name()));
-		if (object.has(ContentWorkflowPipelineParams.action.name())) {
-			Object actionObj = object.get(ContentWorkflowPipelineParams.action.name());
-			if (actionObj instanceof JSONArray)
-				actions.addAll(getActions((JSONArray) actionObj));
-			else if (actionObj instanceof JSONObject)
-				actions.add(getAction((JSONObject) actionObj));
-		}
-		event.setActions(actions);
+		event.setInnerText(getInnerText(object, ContentWorkflowPipelineParams.__text.name()));
+		event.setcData(getCData(object, ContentWorkflowPipelineParams.__cdata.name()));
+		event.setChildrenPlugin(getChildrenPlugins(object));
 		return event;
-	}
-	
-	private List<Action> getActions(JSONArray array) {
-		List<Action> actions = new ArrayList<Action>();
-		for(int i = 0; i < array.length(); i++)
-			actions.add(getAction(array.getJSONObject(i)));
-		return actions;
-	}
-	
-	private Action getAction(JSONObject object) {
-		Action action = new Action();
-		action.setData(getData(object, ContentWorkflowPipelineParams.action.name()));
-		return action;
 	}
 	
 	private String getInnerText(JSONObject object, String elementName) {
@@ -259,20 +273,35 @@ public class JsonContentParser {
 		return innerText;
 	}
 	
-	private JSONObject getPluginViewOfDocument(JSONObject object) {
-		if (null != object) {
-			//Remove Manifest From Document
-			object.remove(ContentWorkflowPipelineParams.manifest.name());
-			
-			// Remove Controllers From Document
-			object.remove(ContentWorkflowPipelineParams.controller.name());
-			
-			// Remove all (String) Attributes
-			Set<String> keys = getMapFromJsonObj(object).keySet();
-			for (String key: keys)
-				object.remove(key);
+//	private JSONObject getPluginViewOfDocument(JSONObject object) {
+//		if (null != object) {
+//			//Remove Manifest From Document
+//			object.remove(ContentWorkflowPipelineParams.manifest.name());
+//			
+//			// Remove Controllers From Document
+//			object.remove(ContentWorkflowPipelineParams.controller.name());
+//			
+//			// Remove all (String) Attributes
+//			Set<String> keys = getMapFromJsonObj(object).keySet();
+//			for (String key: keys)
+//				object.remove(key);
+//		}
+//		return object;
+//	}
+	
+	private String getId(JSONObject object) {
+		return getAttributeValueByName(object, ContentWorkflowPipelineParams.id.name());
+	}
+	
+	private String getAttributeValueByName(JSONObject object, String attribute) {
+		String value = "";
+		if (null != object && !StringUtils.isBlank(attribute)) {
+			Map<String, String> map = getMapFromJsonObj(object);
+			String val = map.get(attribute);
+			if (!StringUtils.isBlank(val))
+				value = val;
 		}
-		return object;
+		return value;
 	}
 	
 	private Map<String, String> getData(JSONObject object, String elementName) {
@@ -295,12 +324,12 @@ public class JsonContentParser {
 		return cData;
 	}
 	
-	private List<Map<String, String>> getChildrenData(JSONObject object, String elementName) {
-		List<Map<String, String>> childrenMaps = new ArrayList<Map<String, String>>();
-		if (null != object && !StringUtils.isBlank(elementName))
-			childrenMaps = toMap(object, elementName, false);
-		return childrenMaps;
-	}
+//	private List<Map<String, String>> getChildrenData(JSONObject object, String elementName) {
+//		List<Map<String, String>> childrenMaps = new ArrayList<Map<String, String>>();
+//		if (null != object && !StringUtils.isBlank(elementName))
+//			childrenMaps = toMap(object, elementName, false);
+//		return childrenMaps;
+//	}
 	
 	private Map<String, String> getMapFromJsonObj(JSONObject object) {
 		Map<String, String> map = new HashMap<String, String>();

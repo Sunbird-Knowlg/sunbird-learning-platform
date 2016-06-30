@@ -36,6 +36,16 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_UPLOADED_FILE_EXTENSION_ERROR = "Error! Invalid File Extension.";
 	
+	public static final String MORE_THAN_ONE_MANIFEST_SECTION_ERROR = "Error! Only One Manifest Section Allowed.";
+	
+	public static final String XML_TRANSFORMATION_ERROR = "Error! While transforming the XML Object.";
+	
+	public static final String JSON_OBJECT_EXPECTED = "Error! JSON Object is Expected for the Element -- .";
+	
+	public static final String JSON_ARRAY_EXPECTED = "Error! JSON Array is Expected for the Element -- .";
+	
+	public static final String INVALID_MEDIA = "Error! Invalid Media Entry.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

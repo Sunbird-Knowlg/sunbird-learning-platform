@@ -17,7 +17,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
@@ -34,7 +34,7 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	protected Content process(Content content) {
+	protected Plugin process(Plugin content) {
 		try {
 			if (null != content) {
 				Map<String, String> mediaSrcMap = getNonAssetObjMediaSrcMap(getMedia(content));

@@ -8,26 +8,27 @@ import java.util.Map.Entry;
 
 import com.google.gson.Gson;
 import com.ilimi.taxonomy.content.common.ElementMap;
-import com.ilimi.taxonomy.content.entity.Action;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
-import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
-public class EcrfToJsonConvertor {
+public class ECRFToJSONConvertor {
 	
-	public String getContentJsonString(Content ecrf) {
+	public String getContentJsonString(Plugin ecrf) {
 		String content = "";
 		Map<String, Object> map = new HashMap<String, Object>();
 		Gson gson = new Gson(); 
 		if (null != ecrf) {
 			map.putAll(getElementMap(ecrf.getData()));
+			map.putAll(getPluginInnerTextMap(ecrf.getInnerText()));
+			map.putAll(getCDataMap(ecrf.getcData()));
 			map.putAll(getManifestMap(ecrf.getManifest()));
 			map.putAll(getControllersMap(ecrf.getControllers()));
-			map.putAll(getPluginMaps(ecrf.getPlugins()));
+			map.putAll(getPluginMaps(ecrf.getChildrenPlugin()));
+			map.putAll(getEventsMap(ecrf.getEvents()));
 		}
 		content = gson.toJson(map);
 		return content;
@@ -36,7 +37,12 @@ public class EcrfToJsonConvertor {
 	private Map<String, Object> getManifestMap(Manifest manifest) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != manifest) {
-			map.put(ContentWorkflowPipelineParams.manifest.name(), getMediasMap(manifest.getMedias()));
+			Map<String, Object> manifestMap = new HashMap<String, Object>();
+			manifestMap.putAll(getElementMap(manifest.getData()));
+			manifestMap.putAll(getPluginInnerTextMap(manifest.getInnerText()));
+			manifestMap.putAll(getCDataMap(manifest.getcData()));
+			manifestMap.putAll(getMediasMap(manifest.getMedias()));
+			map.put(ContentWorkflowPipelineParams.manifest.name(), manifestMap);
 		}
 		return map;
 	}
@@ -56,40 +62,42 @@ public class EcrfToJsonConvertor {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != media) {
 			map.putAll(getElementMap(media.getData()));
-			map.putAll(getGroupedElementMap(media.getChildrenData()));
+			map.putAll(getPluginInnerTextMap(media.getInnerText()));
+			map.putAll(getCDataMap(media.getcData()));
+			map.putAll(getChildrenPluginMap(media.getChildrenPlugin()));
 		}
 		return map;
 	}
 	
-	private Map<String, Object> getGroupedElementMap(List<Map<String, String>> elements) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != elements) {
-			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
-			for (Map<String, String> element: elements) {
-				String groupKey = element.get(ContentWorkflowPipelineParams.group_element_name.name());
-				if (null == groupingMap.get(groupKey))
-					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
-				groupingMap.get(groupKey).add(element);
-				map = createGroupedElementMap(groupingMap);
-			}
-		}
-		return map;
-	}
+//	private Map<String, Object> getGroupedElementMap(List<Map<String, String>> elements) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != elements) {
+//			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
+//			for (Map<String, String> element: elements) {
+//				String groupKey = element.get(ContentWorkflowPipelineParams.group_element_name.name());
+//				if (null == groupingMap.get(groupKey))
+//					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
+//				groupingMap.get(groupKey).add(element);
+//				map = createGroupedElementMap(groupingMap);
+//			}
+//		}
+//		return map;
+//	}
 	
-	private Map<String, Object> getGroupedElementMapByElementName(List<Map<String, String>> elements) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != elements) {
-			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
-			for (Map<String, String> element: elements) {
-				String groupKey = element.get(ContentWorkflowPipelineParams.element_name.name());
-				if (null == groupingMap.get(groupKey))
-					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
-				groupingMap.get(groupKey).add(element);
-				map = createGroupedElementMap(groupingMap);
-			}
-		}
-		return map;
-	}
+//	private Map<String, Object> getGroupedElementMapByElementName(List<Map<String, String>> elements) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != elements) {
+//			Map<String, List<Map<String, String>>> groupingMap = new HashMap<String, List<Map<String, String>>>();
+//			for (Map<String, String> element: elements) {
+//				String groupKey = element.get(ContentWorkflowPipelineParams.element_name.name());
+//				if (null == groupingMap.get(groupKey))
+//					groupingMap.put(groupKey, new ArrayList<Map<String, String>>());
+//				groupingMap.get(groupKey).add(element);
+//				map = createGroupedElementMap(groupingMap);
+//			}
+//		}
+//		return map;
+//	}
 	
 	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -124,21 +132,21 @@ public class EcrfToJsonConvertor {
 		
 	}
 	
-	private Map<String, Object> createGroupedElementMap(Map<String, List<Map<String, String>>> groupingMap) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != groupingMap) {
-			for (Entry<String, List<Map<String, String>>> entry: groupingMap.entrySet()) {
-				List<Map<String, String>> lstMap = new ArrayList<Map<String, String>>();
-				List<Map<String, String>> maps = entry.getValue();
-				for (Map<String, String> m: maps) {
-					lstMap.add(getElementMap(m));
-				}
-				map.put(entry.getKey(), lstMap);
-			}
-		}
-		return map;
-		
-	}
+//	private Map<String, Object> createGroupedElementMap(Map<String, List<Map<String, String>>> groupingMap) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != groupingMap) {
+//			for (Entry<String, List<Map<String, String>>> entry: groupingMap.entrySet()) {
+//				List<Map<String, String>> lstMap = new ArrayList<Map<String, String>>();
+//				List<Map<String, String>> maps = entry.getValue();
+//				for (Map<String, String> m: maps) {
+//					lstMap.add(getElementMap(m));
+//				}
+//				map.put(entry.getKey(), lstMap);
+//			}
+//		}
+//		return map;
+//		
+//	}
 	
 	private Map<String, Object> getControllersMap(List<Controller> controllers) {
 		Map<String, Object> controllersMap = new HashMap<String, Object>();
@@ -155,7 +163,8 @@ public class EcrfToJsonConvertor {
 		Map<String, Object> controllerMap = new HashMap<String, Object>();
 		if (null != controller) {
 			controllerMap.putAll(getElementMap(controller.getData()));
-			controllerMap.put(ContentWorkflowPipelineParams.__cdata.name(), controller.getcData());
+			controllerMap.putAll(getPluginInnerTextMap(controller.getInnerText()));
+			controllerMap.putAll(getCDataMap(controller.getcData()));
 		}
 		return controllerMap;
 	}
@@ -176,10 +185,12 @@ public class EcrfToJsonConvertor {
 		Map<String, Object> pluginMap = new HashMap<String, Object>();
 		if (null != plugin) {
 			pluginMap.putAll(getElementMap(plugin.getData()));
-			pluginMap.putAll(getNonPluginElementMap(plugin.getChildrenData()));
-			pluginMap.putAll(getChildrenPluginMap(plugin.getChildrenPlugin()));
-			pluginMap.putAll(getEventsMap(plugin.getEvents()));
 			pluginMap.putAll(getPluginInnerTextMap(plugin.getInnerText()));
+			pluginMap.putAll(getCDataMap(plugin.getcData()));
+			pluginMap.putAll(getChildrenPluginMap(plugin.getChildrenPlugin()));
+			pluginMap.putAll(getManifestMap(plugin.getManifest()));
+			pluginMap.putAll(getControllersMap(plugin.getControllers()));
+			pluginMap.putAll(getEventsMap(plugin.getEvents()));
 		}
 		return pluginMap;
 	}
@@ -192,12 +203,20 @@ public class EcrfToJsonConvertor {
 		return innerTextMap;
 	}
 	
-	private Map<String, Object> getNonPluginElementMap(List<Map<String, String>> nonPluginElements) {
-		Map<String, Object> nonPluginElementMap = new HashMap<String, Object>();
-		if (null != nonPluginElements)
-			nonPluginElementMap = getGroupedElementMapByElementName(nonPluginElements);
-		return nonPluginElementMap;
+	private Map<String, Object> getCDataMap(String cDataText) {
+		Map<String, Object> innerTextMap = new HashMap<String, Object>();
+		if (null != innerTextMap) {
+			innerTextMap.put(ContentWorkflowPipelineParams.__cdata.name(), cDataText);
+		}
+		return innerTextMap;
 	}
+	
+//	private Map<String, Object> getNonPluginElementMap(List<Map<String, String>> nonPluginElements) {
+//		Map<String, Object> nonPluginElementMap = new HashMap<String, Object>();
+//		if (null != nonPluginElements)
+//			nonPluginElementMap = getGroupedElementMapByElementName(nonPluginElements);
+//		return nonPluginElementMap;
+//	}
 	
 	private Map<String, Object> getChildrenPluginMap(List<Plugin> childrenPlugin) {
 		Map<String, Object> childrenPluginMap = new HashMap<String, Object>();
@@ -217,8 +236,10 @@ public class EcrfToJsonConvertor {
 			List<Object> eventObjects = new ArrayList<Object>();
 			for (Event event: events) {
 				Map<String, Object> eventMap = new HashMap<String, Object>();
-				eventMap.putAll(getActionsMap(event.getActions()));
 				eventMap.putAll(getElementMap(event.getData()));
+				eventMap.putAll(getPluginInnerTextMap(event.getInnerText()));
+				eventMap.putAll(getCDataMap(event.getcData()));
+				eventMap.putAll(getChildrenPluginMap(event.getChildrenPlugin()));
 				eventObjects.add(eventMap);
 			}
 			if (events.size() == 1)
@@ -227,18 +248,6 @@ public class EcrfToJsonConvertor {
 				eventsMap.put(ContentWorkflowPipelineParams.events.name(), filterListForSingleItem(eventObjects));
 		}
 		return eventsMap;
-	}
-	
-	private Map<String, Object> getActionsMap(List<Action> actions) {
-		Map<String, Object> actionsMap = new HashMap<String, Object>();
-		if (null != actions) {
-			List<Object> actionObjects = new ArrayList<Object>();
-			for (Action action: actions) {
-				actionObjects.add(getElementMap(action.getData()));
-			}
-			actionsMap.put(ContentWorkflowPipelineParams.action.name(), filterListForSingleItem(actionObjects));
-		}
-		return actionsMap;
 	}
 	
 	private Object filterListForSingleItem(List<Object> objects) {

@@ -19,7 +19,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -35,7 +35,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return response; 
 	}
 	
-	public List<Media> getMedia(Content content) {
+	public List<Media> getMedia(Plugin content) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != content) {
 			medias = content.getManifest().getMedias();

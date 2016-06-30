@@ -1,5 +1,5 @@
 package com.ilimi.taxonomy.content.util;
 
-public class XmlContentParserTest {
+public class XMLContentParserTest {
 
 }

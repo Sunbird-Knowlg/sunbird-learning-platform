@@ -6,18 +6,18 @@ import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 
-import com.ilimi.taxonomy.content.entity.Content;
+import com.ilimi.taxonomy.content.entity.Plugin;
 
-public class EcrfConversionUtilityTest {
+public class ECRFConversionUtilityTest {
 	
 	@SuppressWarnings("unused")
 	@Test
 	public void getECRF_Test01() {
-		EcrfConversionUtility fixture = new EcrfConversionUtility();
-//		String strContent = getFileString("Sample_XML_1.ecml");
-//		Content content = fixture.getECRF(strContent);
-		String strContent = getFileString("Sample_JSON_1.json");
-		Content content = fixture.getEcrfFromJson(strContent);
+		ECRFConversionUtility fixture = new ECRFConversionUtility();
+		String strContent = getFileString("Sample_XML_1.ecml");
+		Plugin plugin = fixture.getECRF(strContent);
+//		String strContent = getFileString("Sample_JSON_1.json");
+//		Plugin plugin = fixture.getEcrfFromJson(strContent);
 	}
 	
 	private String getFileString(String fileName) {
