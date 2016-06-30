@@ -17,7 +17,7 @@
 
 
 - name: Install Tomcat init script
-  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+  copy: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=755
 
 - name: deploy iptables rules
   template: src=iptables-save dest=/etc/sysconfig/iptables
@@ -27,11 +27,11 @@
   template: src=catalina.j2 dest=/home/ec2-user/apache-tomcat-8.0.35/bin/catalina.sh
 
 - name: create Catalina
-  file: path=/home/ec2-user/apache-tomcat-8.0.35/conf/Catalina state=directory mode=0655 
+  file: path=/home/ec2-user/apache-tomcat-8.0.35/conf/Catalina state=directory mode=755 
 
 
 - name: create localhost
-  file: path=/home/ec2-user/apache-tomcat-8.0.35/conf/Catalina/localhost state=directory mode=0655 
+  file: path=/home/ec2-user/apache-tomcat-8.0.35/conf/Catalina/localhost state=directory mode=755 
 
 
 - name: copy language-service.xml
@@ -46,6 +46,8 @@
 - name: set permission
   file: path=/home/ec2-user/apache-tomcat-8.0.35 owner=ec2-user group=ec2-user recurse=yes
 
+- name: Change ownership of Tomcat installation
+  file: path=/home/ec2-user/apache-tomcat-8.0.35 owner=ec2-user group=ec2-user state=directory mode=755 recurse=yes
 
 #- name: Tomcat Home
 #  become_user: lpdeploy

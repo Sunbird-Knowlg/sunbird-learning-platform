@@ -22,7 +22,7 @@ output {
    codec => plain {
             format => "%{message}"
         }
-   topic_id => {{ graphevent_kafka_topic_id }}
+   topic_id => "{{ graphevent_kafka_topic_id }}"
    retries => 20
    retry_backoff_ms => 180000
  }
