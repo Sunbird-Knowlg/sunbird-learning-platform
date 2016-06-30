@@ -54,12 +54,12 @@
 
 	</Appenders>
 	<Loggers>
-		<AsyncLogger name="TelemetryEventLogger" level="INFO" additivity="false">
+		<Logger name="TelemetryEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="TelemetryEventAppender" />
-		</AsyncLogger>
-		<AsyncLogger name="GraphEventLogger" level="INFO" additivity="false">
+		</Logger>
+		<Logger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
-		</AsyncLogger>
+		</Logger>
 		<Logger name="AuditTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="AuditLogAppender" />
 		</Logger>

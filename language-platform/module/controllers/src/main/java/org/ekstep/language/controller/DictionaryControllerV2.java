@@ -27,9 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.dac.dto.AuditRecord;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.taxonomy.mgr.IAuditLogManager;
 
 public abstract class DictionaryControllerV2 extends BaseLanguageController {
 
@@ -38,9 +36,6 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	
 	@Autowired
 	private WordController wordController;
-
-	@Autowired
-	private IAuditLogManager auditLogManager;
 
 	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV2.class.getName());
 
@@ -66,9 +61,6 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 			    List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
-			    AuditRecord audit = new AuditRecord(languageId, null, "CREATE", response.getParams(), userId,
-	                    map.get("request").toString(), (String) map.get("COMMENT"));
-	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
 	            response.getResult().remove(GraphDACParams.node_id.name());
 	            if (StringUtils.isNotBlank(nodeId))
@@ -103,9 +95,6 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 			    String nodeId = (String) response.get(GraphDACParams.node_id.name());
 				List<String> nodeIds = (List<String>) response.get(GraphDACParams.node_ids.name());
 			    asyncUpdate(nodeIds, languageId);
-			    AuditRecord audit = new AuditRecord(languageId, null, "UPDATE", response.getParams(), userId,
-	                    map.get("request").toString(), (String) map.get("COMMENT"));
-	            auditLogManager.saveAuditRecord(audit);
 	            response.getResult().remove(GraphDACParams.node_ids.name());
 	            response.getResult().remove(GraphDACParams.node_id.name());
 	            if (StringUtils.isNotBlank(nodeId))

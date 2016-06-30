@@ -22,7 +22,7 @@ import org.ekstep.language.batch.mgr.IWordnetCSVManager;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.mgr.impl.BaseLanguageManager;
+import org.ekstep.language.util.BaseLanguageManager;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;

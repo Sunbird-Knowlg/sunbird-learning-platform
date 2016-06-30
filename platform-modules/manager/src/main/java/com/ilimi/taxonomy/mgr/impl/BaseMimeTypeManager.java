@@ -21,6 +21,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.util.AWSUploader;
+import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.ZipUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -44,11 +47,8 @@ import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.AWSUploader;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
-import com.ilimi.taxonomy.util.HttpDownloadUtility;
-import com.ilimi.taxonomy.util.ZipUtility;
 
 public class BaseMimeTypeManager extends BaseManager {
 
