@@ -4,8 +4,8 @@
 		<Console name="Console" target="SYSTEM_OUT">
 			<PatternLayout pattern="%d [%t] %-5level %logger{36} - %msg%n" />
 		</Console>
-		<RollingFile name="RollingFileAppender" fileName="/data/logs/graph.log"
-			filePattern="/data/logs/graph-%d{MM-dd-yyyy-hh}-%i.log">
+		<RollingFile name="RollingFileAppender" fileName="/data/logs/language.log"
+			filePattern="/data/logs/language-%d{MM-dd-yyyy-hh}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] %-5level %logger{36} - %msg%n
 				</Pattern>
@@ -15,8 +15,8 @@
 					modulate="true" />
 			</Policies>
 		</RollingFile>
-		<RollingFile name="PerfLogAppender" fileName="/data/logs/perf.log"
-			filePattern="/data/logs/perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingFile name="PerfLogAppender" fileName="/data/logs/language-perf.log"
+			filePattern="/data/logs/language-perf-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d [%t] - %msg%n</Pattern>
 			</PatternLayout>
@@ -24,17 +24,8 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingFile>
-		<RollingFile name="AuditLogAppender" fileName="/data/logs/audit.log"
-			filePattern="/data/logs/audit-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d [%t] - %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-		</RollingFile>
-		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/graph_event.log"
-			filePattern="/data/logs/graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
+		<RollingRandomAccessFile name="GraphEventAppender" fileName="/data/logs/lang_graph_event.log"
+			filePattern="/data/logs/lang_graph_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
 			</PatternLayout>
@@ -42,27 +33,11 @@
 				<OnStartupTriggeringPolicy />
 			</Policies>
 		</RollingRandomAccessFile>
-		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
-			filePattern="/data/logs/telemetry_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
-			<PatternLayout>
-				<Pattern>%d %msg%n</Pattern>
-			</PatternLayout>
-			<Policies>
-				<OnStartupTriggeringPolicy />
-			</Policies>
-		</RollingRandomAccessFile>
-
 	</Appenders>
 	<Loggers>
-		<AsyncLogger name="TelemetryEventLogger" level="INFO" additivity="false">
-			<AppenderRef ref="TelemetryEventAppender" />
-		</AsyncLogger>
 		<AsyncLogger name="GraphEventLogger" level="INFO" additivity="false">
 			<AppenderRef ref="GraphEventAppender" />
 		</AsyncLogger>
-		<Logger name="AuditTestLogger" level="INFO" additivity="false">
-			<AppenderRef ref="AuditLogAppender" />
-		</Logger>
 		<Logger name="PerformanceTestLogger" level="INFO" additivity="false">
 			<AppenderRef ref="PerfLogAppender" />
 		</Logger>

@@ -6,7 +6,7 @@
 	version="3.0" metadata-complete="true">
 	<context-param>
 		<param-name>webAppRootKey</param-name>
-		<param-value>learning-service</param-value>
+		<param-value>config-service</param-value>
 	</context-param>
 	<context-param>
 		<param-name>log4jConfigLocation</param-name>
@@ -32,7 +32,7 @@
 	</listener>
 
 	<servlet>
-		<servlet-name>learning-service</servlet-name>
+		<servlet-name>config-service</servlet-name>
 		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
 		<init-param>
 			<param-name>contextConfigLocation</param-name>
@@ -41,14 +41,8 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
-	<servlet>
-		<servlet-name>init-servlet</servlet-name>
-		<servlet-class>com.ilimi.servlet.InitServlet</servlet-class>
-		<load-on-startup>2</load-on-startup>
-	</servlet>
-
 	<servlet-mapping>
-		<servlet-name>learning-service</servlet-name>
+		<servlet-name>config-service</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
