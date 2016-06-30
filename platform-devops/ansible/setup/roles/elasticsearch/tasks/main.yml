@@ -35,7 +35,8 @@
   register: check_mapper
 
 - name: Install plugin elasticsearch-head
-  elasticsearch_plugin: state=present name="mobz/elasticsearch-head"
+  command: /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
+   #elasticsearch_plugin: state=present name="mobz/elasticsearch-head"
   when: check_head.stat.exists == False
 
 - name:  Install plugin  analysis-icu
