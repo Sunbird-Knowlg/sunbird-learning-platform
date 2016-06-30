@@ -1,0 +1,19 @@
+{
+    "name": "getTraversalRule",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"rule_id",
+    	"index": 1,
+    	"routingParam": false,
+		"datatype":"java.lang.String"
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v1/language/wordchain/rule/*/*",
+        "pathParams": ["language_id", "rule_id"]
+    },
+    "body": ""
+}

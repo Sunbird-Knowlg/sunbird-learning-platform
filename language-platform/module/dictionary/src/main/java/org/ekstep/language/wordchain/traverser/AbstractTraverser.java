@@ -16,13 +16,13 @@ public abstract class AbstractTraverser implements ITraverserInterface {
 
 	public void setEvaluators(List<Evaluator> evaluators) {
 		for (Evaluator evaluator : evaluators) {
-			traversalDescription.evaluator(evaluator);
+			traversalDescription = traversalDescription.evaluator(evaluator);
 		}
 	}
 
 	@Override
 	public void setEvaluator(Evaluator evaluator) {
-		traversalDescription.evaluator(evaluator);
+		traversalDescription = traversalDescription.evaluator(evaluator);
 	}
 
 	@Override

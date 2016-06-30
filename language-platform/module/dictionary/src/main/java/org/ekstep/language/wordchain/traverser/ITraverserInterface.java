@@ -13,6 +13,6 @@ public interface ITraverserInterface {
 
 	public Traverser traverse(Node startNode);
 
-	TraversalDescription createTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
+	public TraversalDescription createTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
 
 }

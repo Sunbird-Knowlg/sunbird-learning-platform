@@ -1,5 +1,6 @@
 package org.ekstep.language.controller;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -8,10 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
-import org.ekstep.language.Util.WordChainConstants;
-import org.ekstep.language.common.enums.LanguageActorNames;
-import org.ekstep.language.common.enums.LanguageOperations;
-import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.Util.IWordChainConstants;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,13 +22,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 
 @Controller
 @RequestMapping("v2/language")
-public class WordChainsController extends BaseLanguageController implements WordChainConstants{
+public class WordChainsController extends BaseLanguageController implements IWordChainConstants{
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;
@@ -40,33 +40,13 @@ public class WordChainsController extends BaseLanguageController implements Word
 	
 	@Autowired
 	private WordUtil wordUtil;
+	
+	//@Autowired
+	private ObjectMapper objectMapper = new ObjectMapper();
 
     private static Logger LOGGER = LogManager.getLogger(WordChainsController.class.getName());
     
 
-    @RequestMapping(value = "/traversals/{languageId}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> getComplexity(@RequestBody Map<String, Object> map) {
-        String apiId = "wordchain.get";
-        Request request = getRequest(map);
-        String language = (String) request.get(LanguageParams.language_id.name());
-        // TODO: return error response if language value is blank
-        request.setManagerName(LanguageActorNames.LEXILE_MEASURES_ACTOR.name());
-        request.setOperation(LanguageOperations.computeComplexity.name());
-        request.getContext().put(LanguageParams.language_id.name(), language);
-        LOGGER.info("List | Request: " + request);
-        try {
-            Response response = getResponse(request, LOGGER);
-            LOGGER.info("List | Response: " + response);
-            return getResponseEntity(response, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        } catch (Exception e) {
-            LOGGER.error("List | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        }
-    }
-    
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/search/{languageId}", method = RequestMethod.POST)
     @ResponseBody
@@ -84,13 +64,36 @@ public class WordChainsController extends BaseLanguageController implements Word
         	request.put(ATTRIB_TRAVERSAL, true);
         	int wordChainsLimit = (int)request.get("limit");
         	request.put("limit", 500);
+        	Node ruleNode = wordUtil.getDataNode(languageId, traversalId);
+        	if(ruleNode == null){
+        		throw new Exception("No Rule found for rule id: "+ traversalId);
+        	}
+        	
+        	
+        	String weightagesJson = (String) ruleNode.getMetadata().get(ATTRIB_WEIGHTAGES);
+        	Map<String, Object> weightagesRequestMap = objectMapper.readValue(weightagesJson, new TypeReference<Map<String, Object>>() {});
+        	
+        	Map<String, Double> weightagesMap =  new HashMap<String, Double>();
+        	
+        	for(Map.Entry<String, Object> entry: weightagesRequestMap.entrySet()){
+        		Double weightage = Double.parseDouble(entry.getKey());
+        		if(entry.getValue() instanceof List){
+        			List<String> fields = (List<String>) entry.getValue();
+        			for(String field: fields){
+        				weightagesMap.put(field, weightage);
+        			}
+        		}
+        		else {
+        			String field = (String) entry.getValue();
+        			weightagesMap.put(field, weightage);
+        		}
+        	}
+        	weightagesMap.put(ATTRIB_DEFAULT_WEIGHTAGE, 1.0);
+        	request.put("weightages", weightagesMap);
         	Map<String, Object> response = compositeSearchManager.searchForTraversal(request);
         	List<Map> words = (List<Map>) response.get("results");
-        	Node ruleNode = wordUtil.getDataNode(languageId, traversalId);
-        	
-        	wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode, languageId);
-        	System.out.println();
-            return getResponseEntity(new Response(), apiId, null);
+        	Response wordChainResponse = wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode, languageId);
+            return getResponseEntity(wordChainResponse, apiId, null);
         } catch (Exception e) {
             LOGGER.error("Error: " + apiId, e);
             return getExceptionResponseEntity(e, apiId, null);

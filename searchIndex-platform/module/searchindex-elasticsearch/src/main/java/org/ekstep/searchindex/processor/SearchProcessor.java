@@ -26,12 +26,14 @@ public class SearchProcessor {
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
-		String query = processSearchQuery(searchDTO, groupByFinalList, true, searchDTO.isTraversalSearch());
+		
+		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
-		if(searchDTO.isTraversalSearch()){
-			 List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
-		     response.put("results", results);
-		     return response;
+		
+		if (searchDTO.isTraversalSearch()) {
+			List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+			response.put("results", results);
+			return response;
 		}
 		if (includeResults) {
 		    List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
@@ -49,7 +51,7 @@ public class SearchProcessor {
 	
 	public Map<String, Object> processCount(SearchDTO searchDTO) throws Exception {
 		Map<String, Object> response = new HashMap<String, Object>();
-		String query = processSearchQuery(searchDTO, null, false, false);
+		String query = processSearchQuery(searchDTO, null, false);
 		
 		CountResult countResult = elasticSearchUtil.count(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		response.put("count", countResult.getCount());
@@ -59,7 +61,7 @@ public class SearchProcessor {
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort, boolean isTraversalSearch) throws Exception{
+	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort) throws Exception{
 		List<Map> conditionsSetOne = new ArrayList<Map>();
 		List<Map> conditionsSetArithmetic = new ArrayList<Map>();
 		List<Map> conditionsSetMustNot = new ArrayList<Map>();
@@ -205,8 +207,9 @@ public class SearchProcessor {
 			}
 		}
 		String query;
-		if(isTraversalSearch){
-			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		if(searchDTO.isTraversalSearch()){
+			Map<String, Double> weightages = (Map<String, Double>) searchDTO.getAdditionalProperty("weightages");
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), weightages);
 		}
 		else
 		{
@@ -217,54 +220,8 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages) throws Exception {
 		
-		
-/*		{
-			  "query": {
-			    "function_score": {
-			      "query": {
-			        "match": {
-			          "objectType.raw": "Word"
-			        }
-			      },
-			      "functions": [
-			        {
-			          "filter": {
-			            "match": {
-			              "word_complexity.raw": "0.8"
-			            }
-			          },
-			          "weight": 10
-			        },
-			        {
-			          "filter": {
-			            "bool": {
-			              "should": [
-			                {
-			                  "match": {
-			                    "category.raw": "Person"
-			                  }
-			                },
-			                {
-			                  "match": {
-			                    "category.raw": "Thing"
-			                  }
-			                }
-			              ]
-			            }
-			          },
-			          "weight": 5
-			        }
-			      ],
-			      "score_mode": "sum",
-			      "boost_mode": "multiply"
-			    }
-			  }
-			}
-		*/
-		
-
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
@@ -291,6 +248,7 @@ public class SearchProcessor {
 			for (Map textCondition : mustConditions) {
 				builder.object().key("filter").object();
 				String conditionOperation = (String) textCondition.get("operation");
+				Double weight = weightages.get("default_weightage");
 				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = (String) textCondition.get("operand");
 					builder.key("bool").object();
@@ -304,6 +262,9 @@ public class SearchProcessor {
 	                        Object value = subCondition.get("value");
 	                        getConditionsQuery(queryOperation, fieldName, value, builder);
 	                        builder.endObject();
+	                        if(weightages.containsKey(fieldName)){
+	                        	weight = weightages.get(fieldName);
+	                        }
 	                    }
 					} 
 					builder.endArray();
@@ -313,8 +274,11 @@ public class SearchProcessor {
 					String fieldName = (String) textCondition.get("fieldName");
 					Object value = (Object) textCondition.get("value");
 					getConditionsQuery(queryOperation, fieldName, value, builder);
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
 				}
-				builder.endObject().key("weight").value("10").endObject();
+				builder.endObject().key("weight").value(weight).endObject();
 			}
 		}
 
@@ -323,6 +287,7 @@ public class SearchProcessor {
 				builder.object().key("filter").object().key("script").object().key("script");
 				String conditionOperation = (String) arithmeticCondition.get("operation");
 				String conditionScript = "";
+				Double weight = weightages.get("default_weightage");
 				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = "||";
 					StringBuffer finalScript = new StringBuffer();
@@ -337,6 +302,9 @@ public class SearchProcessor {
 						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
 								.append(" ").append(value);
 						scripts.add(script.toString());
+						if(weightages.containsKey(fieldName)){
+                        	weight = weightages.get(fieldName);
+                        }
 					}
 					String tempScript = "";
 					for (String script : scripts) {
@@ -353,8 +321,11 @@ public class SearchProcessor {
 					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
 							.append(" ").append(value);
 					conditionScript = script.toString();
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
 				}
-				builder.value(conditionScript).endObject().endObject().key("weight").value("5").endObject();
+				builder.value(conditionScript).endObject().endObject().key("weight").value(weight).endObject();
 			}
 		}
 
@@ -363,7 +334,7 @@ public class SearchProcessor {
 			for (Map notCondition : notConditions) {
 				
 				builder.object().key("filter").object().key("bool").object().key(allOperation).object();
-				
+				Double weight = weightages.get("default_weightage");
 				String conditionOperation = (String) notCondition.get("operation");
 				if (conditionOperation.equalsIgnoreCase("bool")) {
 					String operand = (String) notCondition.get("operand");
@@ -377,16 +348,23 @@ public class SearchProcessor {
 						Object value = subCondition.get("value");
 						getConditionsQuery(queryOperation, fieldName, value, builder);
 						builder.endObject();
+						if(weightages.containsKey(fieldName)){
+	                    	weight = weightages.get(fieldName);
+	                    }
 					}
 					builder.endArray();
 					builder.endObject();
+					
 				} else {
 					String queryOperation = (String) notCondition.get("operation");
 					String fieldName = (String) notCondition.get("fieldName");
 					Object value = notCondition.get("value");
 					getConditionsQuery(queryOperation, fieldName, value, builder);
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
 				}
-				builder.endObject().endObject().endObject().key("weight").value("4").endObject();
+				builder.endObject().endObject().endObject().key("weight").value(weight).endObject();
 			}
 		}
 /*		"score_mode": "sum",

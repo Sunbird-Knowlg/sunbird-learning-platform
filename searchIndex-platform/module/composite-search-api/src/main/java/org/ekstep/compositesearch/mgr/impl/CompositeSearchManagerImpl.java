@@ -71,11 +71,14 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
 	@Override
 	public Map<String, Object> searchForTraversal(Request request) {
 		SearchProcessor processor = new SearchProcessor();
 		try {
-			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
+			SearchDTO searchDTO = getSearchDTO(request);
+			searchDTO.addAdditionalProperty("weightages", (Map<String, Double>) request.get("weightages"));
+			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
 			return lstResult;
 		} catch (Exception e) {
 			e.printStackTrace();

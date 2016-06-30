@@ -72,7 +72,7 @@ public class WordChainsRelationsTest {
 					startsWithRelationNodeMap.put(endsWith, startsWithRelationNode);
 				}
 
-				addRelation(wordNode, startsWithRelationNode, Rels.endsWith.name(), graphDb);
+				addRelation(wordNode, startsWithRelationNode, Rels.endsWithAkshara.name(), graphDb);
 
 				List<Node> nodesStartsWith = startsWithMap.get(endsWith);
 				if (nodesStartsWith == null) {
@@ -81,7 +81,7 @@ public class WordChainsRelationsTest {
 				}
 				for (Node startsWithNode : nodesStartsWith) {
 					// System.out.println(startsWithNode.getProperty(attrib_lemma));
-					addRelation(startsWithRelationNode, startsWithNode, Rels.startsWith.name(), graphDb);
+					addRelation(startsWithNode, startsWithRelationNode, Rels.startsWithAkshara.name(), graphDb);
 				}
 			}
 		}
