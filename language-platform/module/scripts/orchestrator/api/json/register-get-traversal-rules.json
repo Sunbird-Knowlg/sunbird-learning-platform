@@ -7,7 +7,7 @@
     }],
     "requestPath": {
         "type": "GET",
-        "url": "/v1/language/wordchain/rule/*",
+        "url": "/v2/language/traversals/*",
         "pathParams": ["graph_id"]
     },
     "body": ""
