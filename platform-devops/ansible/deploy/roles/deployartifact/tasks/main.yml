@@ -31,10 +31,10 @@
   template: src=learning/elasticsearch.properties.j2 dest=/data/properties/learning/elasticsearch.properties
 
 - name: copy the graph.properties
-  template: src=learning/graph.properties.j2 dest=/data/properties/learning/learning/graph.properties
+  template: src=learning/graph.properties.j2 dest=/data/properties/learning/graph.properties
 
 - name: copy the mongo.properties
-  template: src=learning/mongo.properties.j2 dest=/data/properties/learning/learning/mongo.properties
+  template: src=learning/mongo.properties.j2 dest=/data/properties/learning/mongo.properties
 
 
 #------------------------------------------------------------------------------------
