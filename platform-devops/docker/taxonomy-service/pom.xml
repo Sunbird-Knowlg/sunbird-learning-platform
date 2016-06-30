@@ -66,12 +66,12 @@
 					  <artifactItems>
 						<artifactItem>
 						  <groupId>com.ilimi</groupId>
-						  <artifactId>ekstep-service</artifactId>
+						  <artifactId>learning-service</artifactId>
 						  <version>1.0-SNAPSHOT</version>
 						  <type>war</type>
 						  <overWrite>true</overWrite>
 						  <outputDirectory>${project.build.directory}/docker</outputDirectory>
-						  <destFileName>taxonomy-service.war</destFileName>
+						  <destFileName>learning-service.war</destFileName>
 						</artifactItem>
 					  </artifactItems>
 					</configuration>
