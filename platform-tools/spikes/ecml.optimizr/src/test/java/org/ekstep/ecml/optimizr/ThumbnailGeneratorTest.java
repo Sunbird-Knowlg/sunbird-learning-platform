@@ -21,6 +21,32 @@ import junit.framework.TestCase;
 public class ThumbnailGeneratorTest extends TestCase {
 
     /**
+     * Test nulls
+     */
+    public void testNulls() {
+        String file = null;
+        boolean done = ThumbnailGenerator.generate(file);
+        assertFalse(done);
+        
+        File fileo = null;
+        done = ThumbnailGenerator.generate(fileo);
+        assertFalse(done);
+        
+        File filei = null;
+        done = ThumbnailGenerator.generate(filei, fileo);
+        assertFalse(done);
+    }
+    
+    /**
+     * Test invalid file name
+     */
+    public void testInvalidFile() {
+        String file = "/images/doesnotexist.png";
+        boolean done = ThumbnailGenerator.generate(file);
+        assertFalse(done);
+    }
+    
+    /**
      * Thumbnail generation by giving file name
      */
     public void testSimpleFileName() {
@@ -44,6 +70,19 @@ public class ThumbnailGeneratorTest extends TestCase {
 
         // cleanup
         deleteFile("/images/input1.thumb.png");
+    }
+    
+    /**
+     * Thumbnail generation by giving File object
+     */
+    public void testJpeg() {
+        File file = getFile("/images/input3.jpg");
+        boolean done = ThumbnailGenerator.generate(file);
+        assertTrue(done);
+        assertTrue(exists("/images/input3.thumb.jpg"));
+
+        // cleanup
+        deleteFile("/images/input3.thumb.jpg");
     }
 
     /**
@@ -79,10 +118,11 @@ public class ThumbnailGeneratorTest extends TestCase {
     public void testDirectory() {
         File dir = getFile("/images");
         int count = ThumbnailGenerator.process(dir);
-        assertEquals(count, 3);
+        assertEquals(count, 4);
         assertFalse(exists("/images/small.thumb.png"));
         assertTrue(exists("/images/input1.thumb.png"));
         assertTrue(exists("/images/input2.thumb.png"));
+        assertTrue(exists("/images/input3.thumb.jpg"));
         assertTrue(exists("/images/nested/input3.thumb.png"));
     }
 
