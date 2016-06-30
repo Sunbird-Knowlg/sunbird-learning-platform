@@ -40,15 +40,18 @@
   when: check_head.stat.exists == False
 
 - name:  Install plugin  analysis-icu
-  elasticsearch_plugin: state=present name="analysis-icu"
+  command: /usr/share/elasticsearch/bin/plugin install analysis-icu
+  #elasticsearch_plugin: state=present name="analysis-icu"
   when: check_icu.stat.exists == False
 
 - name:  Install plugin delete-by-query
-  elasticsearch_plugin: state=present name="delete-by-query"
+  command: /usr/share/elasticsearch/bin/plugin install delete-by-query
+  #elasticsearch_plugin: state=present name="delete-by-query"
   when: check_delete.stat.exists == False
 
 - name:  Install plugin  mapper-murmur3
-  elasticsearch_plugin: state=present name="mapper-murmur3"
+  command: /usr/share/elasticsearch/bin/plugin install mapper-murmur3
+  #elasticsearch_plugin: state=present name="mapper-murmur3"
   when: check_mapper.stat.exists == False
 
 - name: start
