@@ -2,7 +2,7 @@
 #tasks file for deployartifact
 
 - name: stop tomcat
-  sercice: name=tomcat state=stopped
+  service: name=tomcat state=stopped
 
 
 - name: copy the database.properties
@@ -53,22 +53,22 @@
 - name: copy the artifacts file config-service.war
   copy: src=config-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
 #------------------------------------------------------------------------------------
-- name: remove learning-service.war
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/learning-service.war state=absent
+- name: remove learning-service
+  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/learning-service state=absent
 
-- name: remove search-service.war
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/search-service.war state=absent
+- name: remove search-service
+  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/search-service state=absent
 
-- name: remove language-service.war
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/language-service.war state=absent
+- name: remove language-service
+  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/language-service state=absent
 
-- name: remove config-service.war
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/config-service.war state=absent
+- name: remove config-service
+  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/config-service state=absent
 
 
 - name: start tomcat
   become_user: ec2-user
   become: yes
-  sercice: name=tomcat state=started
+  service: name=tomcat state=started
 
 

@@ -4,8 +4,8 @@
 es_manage_repos: true
 
 # Elasticsearch release and version to install
-es_release: "1.5"
-es_minor_release: "2"
+es_release: "2.1"
+es_minor_release: "1"
 es_version: "{{ es_release }}.{{es_minor_release}}"
 
 # Wait for elasticsearch to be listening for connections before proceeding

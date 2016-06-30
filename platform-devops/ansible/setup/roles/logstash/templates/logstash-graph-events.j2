@@ -1,7 +1,7 @@
 
 input {
      file {
-         path => ["/data/logs/Kafka_messages.log"]
+         path => ["/data/logs/graph_event.log"]
      }
 }
 
@@ -23,8 +23,8 @@ output {
             format => "%{message}"
         }
    topic_id => {{ graphevent_kafka_topic_id }}
-   retries => 10
-   retry_backoff_ms => 60000
+   retries => 20
+   retry_backoff_ms => 180000
  }
 
 }

@@ -11,22 +11,18 @@
   become: yes
   file: path=.aws/credentials state=touch
 
-
-- name: access test
-  debug: msg={{ access }}
-
-- name: secret test
-  debug: msg={{ secret }}
-
-
+- name: update .aws/credentials
+  become_user: ec2-user
+  become: yes
+  lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
 
 - name: update .aws/credentials
   become_user: ec2-user
   become: yes
-  lineinfile: dest=.aws/credentials line='aws_access_key={{ access }}'  state=present insertafter=EOF create=yes
+  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ access }}'  state=present insertafter=EOF create=yes
 
 - name: update .aws/credentials
   become_user: ec2-user
   become: yes
-  lineinfile: dest=.aws/credentials line='aws_secret_key={{ secret }}' state=present insertafter=EOF create=yes
+  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ secret }}' state=present insertafter=EOF create=yes
   

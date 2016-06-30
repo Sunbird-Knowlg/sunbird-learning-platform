@@ -15,7 +15,7 @@
 #
  
 #Location of JAVA_HOME (bin files)
-export JAVA_HOME=/opt/jdk1.8.0_91
+#export JAVA_HOME=$JAVA_HOME
  
 #Add Java binary files to PATH
 export PATH=$JAVA_HOME/bin:$PATH

@@ -2,6 +2,6 @@
 # tasks file for imagemagick
 
 - name: install imagemagick
-  become_method: sudo
+  become_user: ec2-user
   become: yes
   yum: name=ImageMagick state=present update_cache=yes
