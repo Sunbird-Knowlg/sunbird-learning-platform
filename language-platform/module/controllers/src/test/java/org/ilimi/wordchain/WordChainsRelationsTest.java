@@ -31,7 +31,7 @@ public class WordChainsRelationsTest {
 	Map<String, List<Node>> startsWithMap = new HashMap<String, List<Node>>();
 	Map<String, Node> startsWithRelationNodeMap = new HashMap<String, Node>();
 	String graphId = "wcpnew";
-	final String pbObjType = "PB";
+	final String pbObjType = "Phonetic_Boundary";
 
 	@Test
 	public void createPBandFormRelations() throws Exception {
@@ -94,7 +94,8 @@ public class WordChainsRelationsTest {
 			Node pbNode = graphDb.createNode(NODE_LABEL);
 			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, pbNode.getId()));
 			pbNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "DATA_NODE");
-			pbNode.setProperty("alphabet", endsWith);
+			pbNode.setProperty("lemma", endsWith);
+			pbNode.setProperty("type", "RhymingSound");
 			pbNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), pbObjType);
 			tx.success();
 			return pbNode;

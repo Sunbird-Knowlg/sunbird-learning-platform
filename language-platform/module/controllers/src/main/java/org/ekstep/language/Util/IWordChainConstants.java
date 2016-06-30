@@ -17,6 +17,7 @@ public interface IWordChainConstants {
 	public final String ATTRIB_WORD_CHAIN_LIST = "list";
 	public final String ATTRIB_WORD_CHAIN_SCORE = "score";
 	public final String ATTRIB_WORD_CHAIN_RELATION = "relation";
+	public final String ATTRIB_RULE_TYPE = "type";
 
 	
 }

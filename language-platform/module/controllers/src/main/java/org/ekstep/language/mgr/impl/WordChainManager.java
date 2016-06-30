@@ -11,6 +11,7 @@ import java.util.Map;
 
 import org.ekstep.language.Util.IWordChainConstants;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
+import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
@@ -56,6 +57,8 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		
 		int startWordsLength = (int) ruleNodeMetadata.get(ATTRIB_START_WORDS_SIZE);
 		
+		String relation = (String) ruleNodeMetadata.get(ATTRIB_RULE_TYPE);
+		
 		Response wordChainResponse = OK();
 
 		List<Map> topWords = new ArrayList<Map>(words.subList(0, startWordsLength));
@@ -64,7 +67,7 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		Map<String, Double> wordScore = new HashMap<String, Double>();
 		Map<String, Map> wordIdMap = new HashMap<String, Map>();
 		for (Map word : words) {
-			String id = (String) word.get("identifier");
+			String id = (String) word.get(LanguageParams.identifier.name());
 			ids.add(id);
 			Double score = (Double) word.get("score");
 			wordScore.put(id, score);
@@ -80,13 +83,13 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		List<Map<String, Object>> wordChains = new ArrayList<Map<String, Object>>();
 		List<Map> wordChainWords = new ArrayList<Map>();
 		for (Map topWord : topWords) {
-			String identifier = (String) topWord.get("identifier");
+			String identifier = (String) topWord.get(LanguageParams.identifier.name());
 			org.neo4j.graphdb.Node wordNode = wordUtil.getNeo4jNodeByUniqueId(graphId, identifier);
 			if (wordNode != null) {
 				Traverser traverser = wordTraverser.traverse(wordNode);
 				List<Path> finalPaths = getFinalPaths(traverser, graphDb);
 				for (Path finalPath : finalPaths) {
-					wordChains.add(processPath(finalPath, wordScore, wordIdMap, graphDb));
+					wordChains.add(processPath(finalPath, wordScore, wordIdMap, graphDb, relation));
 				}
 			}
 		}
@@ -99,7 +102,7 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		
 		java.util.Set<String> finalWordIds =  new HashSet<String>();
 		for(Map<String, Object> wordChain: finalWordChains){
-			List<String> word_ids = (List<String>) wordChain.get("list");
+			List<String> word_ids = (List<String>) wordChain.get(ATTRIB_WORD_CHAIN_LIST);
 			finalWordIds.addAll(word_ids);
 		}
 		
@@ -158,7 +161,7 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 
 	@SuppressWarnings("rawtypes")
 	public Map<String, Object> processPath(Path path, Map<String, Double> wordScore, Map<String, Map> wordIdMap,
-			GraphDatabaseService graphDb) throws Exception {
+			GraphDatabaseService graphDb, String relation) throws Exception {
 		Iterator<PropertyContainer> pcIteraor = path.iterator();
 		List<String> wordChain = new ArrayList<String>();
 		Double totalScore = 0.0;
@@ -213,9 +216,10 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 				}
 			}
 		}
-		wordChainRecord.put("title", title);
-		wordChainRecord.put("list", wordChain);
-		wordChainRecord.put("score", totalScore);
+		wordChainRecord.put(ATTRIB_WORD_CHAIN_TITLE, title);
+		wordChainRecord.put(ATTRIB_WORD_CHAIN_LIST, wordChain);
+		wordChainRecord.put(ATTRIB_WORD_CHAIN_SCORE, totalScore);
+		wordChainRecord.put(ATTRIB_WORD_CHAIN_RELATION, relation);
 		return wordChainRecord;
 	}
 }
