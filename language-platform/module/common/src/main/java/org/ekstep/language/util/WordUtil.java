@@ -75,9 +75,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
-
-	@Autowired
-	private WordCacheUtil wordCacheUtil;
+	
+	private WordCacheUtil wordCacheUtil = new WordCacheUtil();
 
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
@@ -1922,6 +1921,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return bd.doubleValue();
 	}
 	
+	//Get Vowel Unicode associated with given VowelSign unicode
 	public String getVowelUnicode(String languageId, String vowelSignUnicode){
 		Property vowelSignProp = new Property(GraphDACParams.unicode.name(), vowelSignUnicode);
 		Node varnaNode = getVarnaNodeByProperty(languageId, vowelSignProp);
@@ -1963,14 +1963,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 	
-	public void addAkshraBoundary(String languageId, String text, String wordId, String relationType) throws Exception{
+	public void addPhoneticBoundary(String languageId, String text, String wordId, String relationType, String boundaryType) throws Exception{
 		
 		String phoneticBoundaryId = getPhoneticBoundaryIdentifierFromGraph(languageId, text);
 		if(phoneticBoundaryId == null){
 			DefinitionDTO pohneticBoundaryDef = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.Phonetic_Boundary.name(), languageId);
 			Map<String, Object> obj = new HashMap<>();
 			obj.put(LanguageParams.text.name(), text);
-			obj.put(LanguageParams.type.name(), "AksharaBoundary");
+			obj.put(LanguageParams.type.name(), boundaryType);
 			Response response = createPhoneticBoundary(languageId, obj, pohneticBoundaryDef);
 			phoneticBoundaryId = (String) response.get(GraphDACParams.node_id.name());
 		}
