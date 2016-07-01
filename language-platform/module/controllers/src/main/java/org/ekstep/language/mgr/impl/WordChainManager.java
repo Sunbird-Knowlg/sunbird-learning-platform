@@ -210,7 +210,7 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 							if (node.hasProperty(SystemProperties.IL_UNIQUE_ID.name())) {
 								String identifier = (String) node.getProperty(SystemProperties.IL_UNIQUE_ID.name());
 								if(wordChain.contains(identifier)){
-									return null;
+									break;
 								}
 								wordChain.add(identifier);
 								
@@ -248,6 +248,9 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 					}
 				}
 			}
+		}
+		if(wordChain.size()==1){
+			return null;
 		}
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_TITLE, title);
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_LIST, wordChain);

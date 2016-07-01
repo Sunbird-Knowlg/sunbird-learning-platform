@@ -65,6 +65,16 @@
         }
       ],
       "outRelations": [
+       {
+          "relationName": "hasRhymingSound",
+          "title": "RhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Word"
+          ],
+          "renderingHints": ""
+        }
        ],
       "systemTags": [],
       "metadata": {

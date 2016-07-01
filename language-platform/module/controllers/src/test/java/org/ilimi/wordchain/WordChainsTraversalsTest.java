@@ -43,7 +43,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 	private final String OBJECT_TYPE_WORD = "Word";
 	private final String OBJECT_TYPE_PB = "PB";
 	private final String attrib_alphabet = "alphabet";
-	private static String graphId = "wcpnew";
+	private static String graphId = "en";
 	private int TRAVERSAL_DEPTH = 8;
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
 
@@ -59,13 +59,13 @@ public class WordChainsTraversalsTest extends BaseManager {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(OBJECT_TYPE_WORD);
-		sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+		//sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
 
 		List<Filter> filters = new ArrayList<Filter>();
 
-		filters.add(new Filter("theme", SearchConditions.OP_IN,
-				Arrays.asList(new String[] { "Animals", "Birds", "Nature", "Insect/Fish", "Plants and Trees" })));
-		filters.add(new Filter("category", SearchConditions.OP_EQUAL, "Thing"));
+		//filters.add(new Filter("theme", SearchConditions.OP_IN,
+				//Arrays.asList(new String[] { "Animals", "Birds", "Nature", "Insect/Fish", "Plants and Trees" })));
+		//filters.add(new Filter("category", SearchConditions.OP_EQUAL, "Thing"));
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
@@ -186,35 +186,14 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 	private Traverser getTraverser(final Node person, GraphDatabaseService graphDb) {
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.relationships(Rels.endsWith, Direction.OUTGOING).relationships(Rels.startsWith, Direction.OUTGOING)
-				.uniqueness(Uniqueness.NODE_GLOBAL).uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
+				.relationships(Rels.hasRhymingSound)
+				//.relationships(Rels.startsWith, Direction.OUTGOING)
+				//.uniqueness(Uniqueness.NONE)
+				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL);
 				// .uniqueness( Uniqueness.RELATIONSHIP_PATH )
-				// .uniqueness( Uniqueness.NODE_PATH)
+				//.uniqueness( Uniqueness.RELATIONSHIP_PATH);
 				//.evaluator(Evaluators.excludeStartPosition())
-				.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH))
-				.evaluator(new Evaluator() {
-
-					@Override
-					public Evaluation evaluate(final Path path) {
-						//path.
-						Node endNode = path.endNode();
-						if (endNode.hasProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name())) {
-							String objectType = (String) endNode
-									.getProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
-							if (objectType.equalsIgnoreCase(OBJECT_TYPE_PB)) {
-								//return Evaluation.EXCLUDE_AND_CONTINUE;
-							}
-						}
-
-						if (endNode.hasProperty(attrib_lemma)) {
-							String lemma = (String) endNode.getProperty(attrib_lemma);
-							if (lemma.equalsIgnoreCase("eagle")) {
-								//return Evaluation.EXCLUDE_AND_PRUNE;
-							}
-						}
-						return Evaluation.INCLUDE_AND_CONTINUE;
-					}
-				});
+				//.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
 		return td.traverse(person);
 	}
 

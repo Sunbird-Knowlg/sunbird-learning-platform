@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
+import com.ilimi.taxonomy.mgr.ICompositeSearchSyncManager;
 
 @Controller
 @RequestMapping("v2/composite-search")
@@ -29,7 +29,7 @@ public class CompositeSearchController extends BaseController {
 	private static Logger LOGGER = LogManager.getLogger(CompositeSearchController.class.getName());
 	
 	@Autowired
-	private ICompositeSearchManager compositeSearchManager;
+	private ICompositeSearchSyncManager compositeSearchManager;
 
 	@RequestMapping(value = "/sync/{id:.+}", method = RequestMethod.POST)
 	@ResponseBody

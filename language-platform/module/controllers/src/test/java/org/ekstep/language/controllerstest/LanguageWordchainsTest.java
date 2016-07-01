@@ -15,6 +15,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
+import org.ekstep.searchindex.consumer.ConsumerRunner;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -52,6 +53,11 @@ public class LanguageWordchainsTest {
 
 	static {
 		LanguageRequestRouterPool.init();
+		try {
+			ConsumerRunner.startConsumers();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
 	@BeforeClass
@@ -62,8 +68,8 @@ public class LanguageWordchainsTest {
 
 	@AfterClass
 	public static void close() throws IOException, InterruptedException {
-		LanguageWordchainsTest test = new LanguageWordchainsTest();
-		test.deleteWords();
+		//LanguageWordchainsTest test = new LanguageWordchainsTest();
+		//test.deleteWords();
 	}
 
 	private void deleteWords() {
@@ -85,7 +91,6 @@ public class LanguageWordchainsTest {
 			Assert.assertEquals("successful", response.getParams().getStatus());
 		}
 	}
-
 	private static void createWord() throws JsonParseException,
 			JsonMappingException, IOException {
 		String contentString = "{  \"request\": {    \"words\": [      {        \"identifier\": \"wct_1\",        \"lemma\": \"catwordChainTestcat\",        \"status\": \"Live\"      },      {        \"identifier\": \"wct_2\",        \"lemma\": \"tigerwordChainTesttiger\",        \"status\": \"Live\"      },      {        \"identifier\": \"wct_3\",        \"lemma\": \"ratwordChainTestrat\",        \"status\": \"Live\"      },       {        \"identifier\": \"wct_4\",        \"lemma\": \"matwordChainTestmat\",        \"status\": \"Live\"      }    ]  }}";
@@ -124,6 +129,10 @@ public class LanguageWordchainsTest {
 		List<Map<String, Object>> relations = (List<Map<String, Object>>) result.get("relations");
 		List<Map<String, Object>> words = (List<Map<String, Object>>) result.get("words");
 		
+		
+		Assert.assertTrue(relations.size()>0);
+		Assert.assertTrue(words.size()>0);
+		
 		for(Map<String, Object> word: words){
 			String id = (String) word.get(LanguageParams.identifier.name());
 			Assert.assertTrue(wordIds.contains(id));
@@ -160,6 +169,9 @@ public class LanguageWordchainsTest {
 		Map<String, Object> result = response.getResult();
 		List<Map<String, Object>> relations = (List<Map<String, Object>>) result.get("relations");
 		List<Map<String, Object>> words = (List<Map<String, Object>>) result.get("words");
+		
+		Assert.assertTrue(relations.size()>0);
+		Assert.assertTrue(words.size()>0);
 		
 		for(Map<String, Object> word: words){
 			String id = (String) word.get(LanguageParams.identifier.name());
@@ -213,7 +225,7 @@ public class LanguageWordchainsTest {
 					.contentType(MediaType.APPLICATION_JSON)
 					.content(contentString.getBytes())
 					.header("user-id", "ilimi"));
-			Assert.assertEquals(200, actions.andReturn().getResponse()
+			Assert.assertNotEquals(200, actions.andReturn().getResponse()
 					.getStatus());
 		} catch (Exception e) {
 			e.printStackTrace();

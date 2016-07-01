@@ -15,7 +15,6 @@ public class RhymingWordsTraverser extends AbstractTraverser {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
 		traversalDescription = graphDb.traversalDescription().depthFirst()
 				.relationships(WordChainRelations.hasRhymingSound)
-				.uniqueness(Uniqueness.NODE_GLOBAL)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				.evaluator(Evaluators.toDepth(maxTraversalDepth))
 				.evaluator(Evaluators.fromDepth(minTraversalDepth));

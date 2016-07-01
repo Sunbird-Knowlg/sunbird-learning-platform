@@ -28,12 +28,12 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.enums.CompositeSearchErrorCodes;
 import com.ilimi.taxonomy.enums.CompositeSearchParams;
-import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
+import com.ilimi.taxonomy.mgr.ICompositeSearchSyncManager;
 
 @Component
-public class CompositeSearchManagerImpl extends BaseManager implements ICompositeSearchManager {
+public class CompositeSearchSyncManagerImpl extends BaseManager implements ICompositeSearchSyncManager {
 
-	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchManager.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(ICompositeSearchSyncManager.class.getName());
 	private static final int SYNC_BATCH_SIZE = 1000;
 	
 	@Override

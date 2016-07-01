@@ -1975,6 +1975,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			phoneticBoundaryId = (String) response.get(GraphDACParams.node_id.name());
 		}
 		addWordPhoneticBoundaryRelation(wordId, relationType, languageId, phoneticBoundaryId);
+		if(relationType.equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
+			addWordPhoneticBoundaryRelation(phoneticBoundaryId, relationType, languageId, wordId);
+		}
 	}
 	
 	private Response createPhoneticBoundary(String languageId, Map<String, Object> obj, DefinitionDTO pohneticBoundaryDef)

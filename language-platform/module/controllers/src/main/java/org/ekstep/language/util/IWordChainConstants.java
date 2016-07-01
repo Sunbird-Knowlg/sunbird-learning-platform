@@ -11,7 +11,7 @@ public interface IWordChainConstants {
 	public final String ATTRIB_WEIGHTAGES = "weightages";
 	public final String ATTRIB_DEFAULT_WEIGHTAGE = "default_weightage";
 	public final String ATTRIB_PHONETIC_BOUNDARY_TYPE = "type";
-	public final String ATTRIB_PHONETIC_BOUNDARY_LEMMA = "lemma";
+	public final String ATTRIB_PHONETIC_BOUNDARY_LEMMA = "text";
 	public final String PHONETIC_BOUNDARY_TYPE_RHYMING_SOUND = "RhymingSound";
 	public final String ATTRIB_WORD_CHAIN_TITLE = "title";
 	public final String ATTRIB_WORD_CHAIN_LIST = "list";

@@ -366,6 +366,7 @@ public class EnrichActor extends LanguageBaseActor {
 
 			Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
 			node.setOutRelations(updatedNode.getOutRelations());
+			node.setInRelations(updatedNode.getInRelations());
 		}
 	}
 	

@@ -557,6 +557,16 @@
             "Synset"
           ],
           "renderingHints": "{ 'order': 26 }"
+        },
+         {
+          "relationName": "hasRhymingSound",
+          "title": "hasRhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Phonetic_Boundary"
+          ],
+          "renderingHints": ""
         }
       ],
       "outRelations": [
