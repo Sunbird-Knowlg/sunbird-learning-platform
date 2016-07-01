@@ -47,8 +47,8 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 @Component
 public class WordChainManager extends BaseLanguageManager implements IWordChainsManager, IWordnetConstants, IWordChainConstants {
 
-	//@Autowired
-	private WordUtil wordUtil = new WordUtil();
+	@Autowired
+	private WordUtil wordUtil;
 	
 	private static Logger LOGGER = LogManager.getLogger(WordChainManager.class);
 	

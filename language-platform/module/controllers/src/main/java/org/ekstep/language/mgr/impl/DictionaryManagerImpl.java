@@ -81,8 +81,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     private static final String LEMMA_PROPERTY = "lemma";
     private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
     
-    
-    private WordUtil wordUtil = new WordUtil();
+    @Autowired
+    private WordUtil wordUtil;
     
     static {
         DEFAULT_STATUS.add("Live");
