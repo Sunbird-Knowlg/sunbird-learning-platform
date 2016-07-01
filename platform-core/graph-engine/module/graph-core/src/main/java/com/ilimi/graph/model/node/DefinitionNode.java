@@ -371,23 +371,15 @@ public class DefinitionNode extends AbstractNode {
         return messages;
     }
 
-    public void loadToCache(ActorRef cacheRouter, Request req) {
+    @SuppressWarnings("unchecked")
+	public void loadToCache(ActorRef cacheRouter, Request req) {
         Request cacheReq = new Request(req);
         cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
         cacheReq.setOperation("saveDefinitionNode");
         cacheReq.put(GraphDACParams.object_type.name(), new String(getFunctionalObjectType()));
-        List<String> indexedFields = new ArrayList<String>();
-        List<String> nonIndexedFields = new ArrayList<String>();
-        List<String> requiredFields = new ArrayList<String>();
-        getMetadataFieldLists(indexedFields, nonIndexedFields, requiredFields);
-        cacheReq.put(GraphDACParams.indexable_metadata_key.name(), indexedFields);
-        cacheReq.put(GraphDACParams.non_indexable_metadata_key.name(), nonIndexedFields);
-        cacheReq.put(GraphDACParams.required_metadata_key.name(), requiredFields);
-        List<String> inRelationObjects = new ArrayList<String>();
-        List<String> outRelationObjects = new ArrayList<String>();
-        getRelationObjects(inRelationObjects, outRelationObjects);
-        cacheReq.put(GraphDACParams.in_relations_key.name(), inRelationObjects);
-        cacheReq.put(GraphDACParams.out_relations_key.name(), outRelationObjects);
+        DefinitionDTO dto = getValueObject();
+        Map<String, Object> map = mapper.convertValue(dto, Map.class);
+        cacheReq.put(GraphDACParams.definition_node.name(), map);
         cacheRouter.tell(cacheReq, manager.getSelf());
     }
 
@@ -441,44 +433,6 @@ public class DefinitionNode extends AbstractNode {
         }
         if (def.isRequired() && null == def.getDefaultValue()) {
             messages.add("Default value must be provided for required property " + propName + ". Object Type: " + objectType);
-        }
-    }
-
-    private void getMetadataFieldLists(List<String> indexedFields, List<String> nonIndexedFields, List<String> requiredFields) {
-        if (null != indexedMetadata && !indexedMetadata.isEmpty()) {
-            for (MetadataDefinition def : indexedMetadata) {
-                indexedFields.add(def.getPropertyName());
-                if (def.isRequired())
-                    requiredFields.add(def.getPropertyName());
-            }
-        }
-        if (null != nonIndexedMetadata && !nonIndexedMetadata.isEmpty()) {
-            for (MetadataDefinition def : nonIndexedMetadata) {
-                nonIndexedFields.add(def.getPropertyName());
-                if (def.isRequired())
-                    requiredFields.add(def.getPropertyName());
-            }
-        }
-    }
-
-    private void getRelationObjects(List<String> inRelationObjects, List<String> outRelationObjects) {
-        if (null != inRelations && !inRelations.isEmpty()) {
-            for (RelationDefinition def : inRelations) {
-                if (null != def.getObjectTypes() && !def.getObjectTypes().isEmpty()) {
-                    for (String objType : def.getObjectTypes()) {
-                        inRelationObjects.add(def.getRelationName() + ":" + objType);
-                    }
-                }
-            }
-        }
-        if (null != outRelations && !outRelations.isEmpty()) {
-            for (RelationDefinition def : outRelations) {
-                if (null != def.getObjectTypes() && !def.getObjectTypes().isEmpty()) {
-                    for (String objType : def.getObjectTypes()) {
-                        outRelationObjects.add(def.getRelationName() + ":" + objType);
-                    }
-                }
-            }
         }
     }
 

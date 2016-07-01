@@ -10,9 +10,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.model.node.MetadataDefinition;
-import com.ilimi.graph.model.node.RelationDefinition;
-import com.ilimi.graph.model.node.TagDefinition;
 
 public class DefinitionDTO implements Serializable {
 

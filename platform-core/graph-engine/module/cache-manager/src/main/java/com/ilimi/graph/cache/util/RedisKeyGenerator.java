@@ -30,32 +30,12 @@ public class RedisKeyGenerator {
         return graphId + KEY_SEPARATOR + RedisKeysEnum.SEQ + KEY_SEPARATOR + nodeId + KEY_SEPARATOR + RedisKeysEnum.MEMBERS;
     }
 
-    public static String getDefNodeRequiredMetadataKey(String graphId, String objectType) {
-        return getDefNodeMetadataKey(graphId, objectType, RedisKeysEnum.REQUIRED_METADATA.name());
-    }
-
-    public static String getDefNodeIndexedMetadataKey(String graphId, String objectType) {
-        return getDefNodeMetadataKey(graphId, objectType, RedisKeysEnum.INDEXED_METADATA.name());
-    }
-
-    public static String getDefNodeNonIndexedMetadataKey(String graphId, String objectType) {
-        return getDefNodeMetadataKey(graphId, objectType, RedisKeysEnum.NON_INDEXED_METADATA.name());
-    }
-
-    public static String getDefNodeOutRelationsKey(String graphId, String objectType) {
-        return getDefNodeMetadataKey(graphId, objectType, RedisKeysEnum.OUT_RELATIONS.name());
-    }
-
-    public static String getDefNodeInRelationsKey(String graphId, String objectType) {
-        return getDefNodeMetadataKey(graphId, objectType, RedisKeysEnum.IN_RELATIONS.name());
+    public static String getDefNodeKey(String graphId, String objectType) {
+    	return graphId + KEY_SEPARATOR + RedisKeysEnum.DEF_NODE + KEY_SEPARATOR + removeSpaces(objectType);
     }
 
     public static String getAllGraphKeysPattern(String graphId) {
         return graphId + KEY_SEPARATOR + "*";
-    }
-
-    private static String getDefNodeMetadataKey(String graphId, String objectType, String key) {
-        return graphId + KEY_SEPARATOR + RedisKeysEnum.DEF_NODE + KEY_SEPARATOR + removeSpaces(objectType) + KEY_SEPARATOR + key;
     }
 
     private static String removeSpaces(String str) {

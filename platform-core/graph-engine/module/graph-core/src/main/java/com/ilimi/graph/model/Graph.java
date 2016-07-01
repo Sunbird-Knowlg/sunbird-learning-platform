@@ -763,6 +763,42 @@ public class Graph extends AbstractDomainObject {
                     e);
         }
     }
+    
+    public void getDefinitionFromCache(Request req) {
+        try {
+        	String objectType = (String) req.get(GraphDACParams.object_type.name());
+        	ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+        	Request cacheReq = new Request(req);
+            cacheReq.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+            cacheReq.setOperation("getDefinitionNode");
+            cacheReq.put(GraphDACParams.object_type.name(), objectType);
+            Future<Object> response = Patterns.ask(cacheRouter, cacheReq, timeout);
+            response.onComplete(new OnComplete<Object>() {
+                @SuppressWarnings("unchecked")
+				@Override
+                public void onComplete(Throwable arg0, Object arg1) throws Throwable {
+                    boolean valid = manager.checkResponseObject(arg0, arg1, getParent(),
+                            GraphEngineErrorCodes.ERR_GRAPH_SEARCH_UNKNOWN_ERROR.name(),
+                            "Failed to get definition node");
+                    if (valid) {
+                    	ObjectMapper mapper = new ObjectMapper();
+                        Response res = (Response) arg1;
+                        Map<String, Object> map = (Map<String, Object>) res.get(GraphDACParams.node_list.name());
+                        if (null != map && !map.isEmpty()) {
+                        	DefinitionDTO dto = mapper.convertValue(map, DefinitionDTO.class);
+                            manager.OK(GraphDACParams.definition_node.name(), dto, getParent());
+                        } else {
+                            manager.ERROR(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODE_NOT_FOUND.name(),
+                                    "Failed to get definition node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
+                        }
+                    }
+                }
+            }, manager.getContext().dispatcher());
+        } catch (Exception e) {
+            throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_NODES_UNKNOWN_ERROR.name(), e.getMessage(),
+                    e);
+        }
+    }
 
     @SuppressWarnings("unchecked")
     public void getDefinitionNodes(Request req) {
