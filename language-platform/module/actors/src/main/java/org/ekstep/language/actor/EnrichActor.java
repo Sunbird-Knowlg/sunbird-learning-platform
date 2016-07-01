@@ -349,7 +349,16 @@ public class EnrichActor extends LanguageBaseActor {
 	}
 	
 	private Node updateWordChainRelationEnglishLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
-		return null;
+		String lemma = (String) node.getMetadata().get(LanguageParams.lemma.name());
+		if(lemma.length()>1){
+			String text = "" + lemma.charAt(0);
+			wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
+			text = "" + lemma.charAt(lemma.length()-1);
+			wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
+
+			return  wordUtil.getDataNode(languageId, node.getIdentifier());
+		}
+		return node;
 	}
 	
 	private Node updateWordChainRelationIndianLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
