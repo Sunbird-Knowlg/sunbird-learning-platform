@@ -77,7 +77,12 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		
 		Response wordChainResponse = OK();
 
-		List<Map> topWords = new ArrayList<Map>(words.subList(0, startWordsLength));
+		List<Map> topWords = new ArrayList<Map>();
+		if(words.size() > startWordsLength){
+			topWords = words.subList(0, startWordsLength);
+		} else {
+			topWords = words;
+		}
 
 		List<String> ids = new ArrayList<String>();
 		Map<String, Double> wordScore = new HashMap<String, Double>();
@@ -105,7 +110,10 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 				Traverser traverser = wordTraverser.traverse(wordNode);
 				List<Path> finalPaths = getFinalPaths(traverser, graphDb);
 				for (Path finalPath : finalPaths) {
-					wordChains.add(processPath(finalPath, wordScore, wordIdMap, graphDb, relation));
+					Map wordChain = processPath(finalPath, wordScore, wordIdMap, graphDb, relation);
+					if(wordChain != null){
+						wordChains.add(wordChain);
+					}
 				}
 			}
 		}
@@ -113,7 +121,13 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 		Collections.sort(wordChains, wordChainsComparator);
 		
 		//TODO: check better ways
-		List<Map<String, Object>> finalWordChains = wordChains.subList(0, wordChainsLimit);
+		List<Map<String, Object>> finalWordChains = new ArrayList<Map<String, Object>>();
+		if(wordChains.size() > wordChainsLimit){
+			finalWordChains = wordChains.subList(0, wordChainsLimit);
+		}
+		else{
+			finalWordChains = wordChains;
+		}
 		wordChainResponse.put("relations", finalWordChains);
 		
 		java.util.Set<String> finalWordIds =  new HashSet<String>();
@@ -195,6 +209,9 @@ public class WordChainManager extends BaseLanguageManager implements IWordChains
 						if (objectType.equalsIgnoreCase(LanguageObjectTypes.Word.name())) {
 							if (node.hasProperty(SystemProperties.IL_UNIQUE_ID.name())) {
 								String identifier = (String) node.getProperty(SystemProperties.IL_UNIQUE_ID.name());
+								if(wordChain.contains(identifier)){
+									return null;
+								}
 								wordChain.add(identifier);
 								
 								Map word = wordIdMap.get(identifier);

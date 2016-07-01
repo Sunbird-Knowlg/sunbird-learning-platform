@@ -233,7 +233,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_NULL_DEFINITION.name(), "Object Type is empty");
 		LOGGER.info("Get Definition : " + id + " : Object Type : " + objectType);
-		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinitionFromCache",
 				GraphDACParams.object_type.name(), objectType);
 		return getResponse(request, LOGGER);
 	}

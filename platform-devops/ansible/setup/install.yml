@@ -1,8 +1,5 @@
 - hosts: all
   become: yes
-  vars: 
-       access: "{{ lookup('env', 'aws_access_key') }}"
-       secret: "{{ lookup('env', 'aws_secret_key') }}"
   roles:
         - aws-login
         #- java
