@@ -38,8 +38,8 @@ public class WordChainsController extends BaseLanguageController implements IWor
 	@Autowired
 	private IWordChainsManager wordChainsManager;
 	
-	@Autowired
-	private WordUtil wordUtil;
+	//@Autowired
+	private WordUtil wordUtil = new WordUtil();
 	
 	//@Autowired
 	private ObjectMapper objectMapper = new ObjectMapper();

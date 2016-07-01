@@ -40,8 +40,9 @@ public class EnrichActor extends LanguageBaseActor {
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
 	private ControllerUtil controllerUtil = new ControllerUtil();
 	private final int BATCH_SIZE = 10000;
+	
 	private WordUtil wordUtil = new WordUtil();
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -105,7 +106,7 @@ public class EnrichActor extends LanguageBaseActor {
 	                if(languageId.equalsIgnoreCase("en")){
 	                    updateSyllablesList(nodeList);
 	                }
-	                nodeList = updateLexileMeasures(languageId, nodeList);
+	                updateLexileMeasures(languageId, nodeList);
 	                updateFrequencyCount(languageId, nodeList);
 	                updatePosList(languageId, nodeList);
 	                updateWordComplexity(languageId, nodeList);
@@ -278,11 +279,10 @@ public class EnrichActor extends LanguageBaseActor {
 	}
 
 	@SuppressWarnings("unchecked")
-	private List<Node> updateLexileMeasures(String languageId, List<Node> nodes) {
+	private void updateLexileMeasures(String languageId, List<Node> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
 			System.out.println("updateLexileMeasures | Total words: " + nodes.size());
 			List<String> words = new ArrayList<String>();
-			List<Node> updatedNodeList = new ArrayList<Node>();
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			controllerUtil.getNodeMap(nodes, nodeMap, words);
 			Request langReq = controllerUtil.getLanguageRequest(languageId,
@@ -324,45 +324,52 @@ public class EnrichActor extends LanguageBaseActor {
 							}
 						}
 						try {
-							Node updatedNode = updateWordChainRelations(languageId, node, wc);
-							updatedNodeList.add(updatedNode);
+							updateWordChainRelations(languageId, node, wc);
 						} catch (Exception e) {
 							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
 						}
 					}
 				}
 			}
-			return updatedNodeList;
 		}
-		return nodes;
 	}
 	
-	private Node updateWordChainRelations(String languageId, Node node, WordComplexity wc) throws Exception {
+	private void updateWordChainRelations(String languageId, Node node, WordComplexity wc) throws Exception {
 		if("Live".equalsIgnoreCase((String)node.getMetadata().get(LanguageParams.status.name()))){
 			if(languageId.equalsIgnoreCase("en")){
-				return updateWordChainRelationEnglishLanguage(languageId, node, wc);
+				updateWordChainRelationEnglishLanguage(languageId, node, wc);
 			}else{
-				return updateWordChainRelationIndianLanguage(languageId, node, wc);
+				updateWordChainRelationIndianLanguage(languageId, node, wc);
 			}
 		}
-		return node;
 	}
 	
-	private Node updateWordChainRelationEnglishLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
+	private void updateWordChainRelationEnglishLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
 		String lemma = (String) node.getMetadata().get(LanguageParams.lemma.name());
 		if(lemma.length()>1){
+			
+			//startWithBoundary
 			String text = "" + lemma.charAt(0);
-			wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
+			wordUtil.addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			//endstWithBoundary
 			text = "" + lemma.charAt(lemma.length()-1);
-			wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
+			wordUtil.addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 
-			return  wordUtil.getDataNode(languageId, node.getIdentifier());
+			//RythmingSound
+			String arpabets = wordUtil.getArpabets(lemma);
+			if (!StringUtils.isEmpty(arpabets)){
+				String arpabetArr[] = arpabets.split("\\s");
+				int arpabetLength = arpabetArr.length;
+				String rythmingText = (arpabetLength > 3) ? (arpabetArr[arpabetLength-2] + " " + arpabetArr[arpabetLength -1]) : (arpabetArr[arpabetLength -1]); 
+				wordUtil.addPhoneticBoundary(languageId, rythmingText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name());
+			}
+
+			Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
+			node.setOutRelations(updatedNode.getOutRelations());
 		}
-		return node;
 	}
 	
-	private Node updateWordChainRelationIndianLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
-//		String lemma = (String) node.getMetadata().get(LanguageParams.lemma);
+	private void updateWordChainRelationIndianLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
@@ -375,73 +382,47 @@ public class EnrichActor extends LanguageBaseActor {
 			if(unicodeTypeMap.get(firstCharUnicode) == null && firstCharUnicode.endsWith("A") ){ //default vowel
 				if(unicodeTypeMap.get(secondCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE))
 				{
-					int hexVal = Integer.parseInt(secondCharUnicode, 16);
-				    String text ="";
-				    text += (char)hexVal;
-					wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
-					
+					wordUtil.addPhoneticBoundary(languageId, getTextValue(secondCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());					
 				}else if (unicodeTypeMap.get(secondCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
-					int hexVal = Integer.parseInt(secondCharUnicode, 16);
-				    String text ="";
-				    text += (char)hexVal;
-					wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
+					wordUtil.addPhoneticBoundary(languageId, getTextValue(secondCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				}
 	
 			}else if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && unicodeTypeMap.get(secondCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-				int hexVal = Integer.parseInt(secondCharUnicode, 16);
-			    String text ="";
-			    text += (char)hexVal;
-				wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(secondCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				
 			}else if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
-				int hexVal = Integer.parseInt(firstCharUnicode, 16);
-			    String text ="";
-			    text += (char)hexVal;
-				wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(firstCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				
 			}
 			
 			String lastSyllable = syllables[1];				
-			String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);
-			
+			String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);			
 			String lastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-1];
 			String secondLastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-2];
 			
 			
 			if(unicodeTypeMap.get(lastCharUnicode) == null && lastCharUnicode.endsWith("A")){//default vowel
 				if(unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-					int hexVal = Integer.parseInt(secondLastCharUnicode, 16);
-				    String text ="";
-				    text += (char)hexVal;			
-					wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
+					wordUtil.addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				}
 				
 			}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-				int hexVal = Integer.parseInt(lastCharUnicode, 16);
-			    String text ="";
-			    text += (char)hexVal;
-				wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(lastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				
-			}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE)){
+			}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){ 
+				//get vowel associated with this vowel_sign
 				String vowelUnicode = wordUtil.getVowelUnicode(languageId, lastCharUnicode);
-				int hexVal = Integer.parseInt(vowelUnicode, 16);
-			    String text ="";
-			    text += (char)hexVal;
-				wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
-				hexVal = Integer.parseInt(secondLastCharUnicode, 16);
-			    text ="";
-			    text += (char)hexVal;
-				wordUtil.addAkshraBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(vowelUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				
-			}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE)){
+			}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+				wordUtil.addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
 				
 			}
 			
-			
-			return  wordUtil.getDataNode(languageId, node.getIdentifier());
+			Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
+			node.setOutRelations(updatedNode.getOutRelations());
 		}
-		
-		return node;
 	}
 	
 	private String[] parseUnicodes(String syllable){
@@ -460,20 +441,9 @@ public class EnrichActor extends LanguageBaseActor {
 		return list.toArray(new String[list.size()]);
 	}
 	
-	private boolean isVowel(String unicode, Map<String, String> unicodeTypeMap){
-		if(unicodeTypeMap.get(unicode).equals(SyllableMap.VOWEL_SIGN_CODE) || unicodeTypeMap.get(unicode).equals(SyllableMap.VOWEL_CODE))
-			return true;
-		else if(unicodeTypeMap.get(unicode).equals(""))
-			return true;
-		return false;
-	}
-
-	private String[] trimLeadingSlashes(String[] sArr){
-		List<String> result = new ArrayList();
-	    for(String s:sArr){
-	    	result.add(s.substring(2));
-	    }
-		return result.toArray(new String[result.size()]);
+	private String getTextValue(String unicode){
+		int hexVal = Integer.parseInt(unicode, 16);
+		return ""+(char)hexVal;
 	}
 	
 	@Override
