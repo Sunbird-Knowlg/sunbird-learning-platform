@@ -1,5 +1,10 @@
 package com.ilimi.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,6 +16,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.graph.common.mgr.Configuration;
 
 @Controller
 @RequestMapping("health")
@@ -25,6 +31,17 @@ public class HealthCheckController extends BaseController {
 		response.put("name", name);
 		try {
 			response.put("healthy", true);
+			List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
+			List<String> graphIds = Configuration.graphIds;
+			if (null != graphIds && graphIds.size() > 0) {
+				for (String id : graphIds) {
+					Map<String, Object> check = new HashMap<String, Object>();
+					check.put("name", id + " graph");
+					check.put("healthy", true);
+					checks.add(check);
+				}
+			}
+			response.put("checks", checks);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			ResponseParams resStatus = new ResponseParams();

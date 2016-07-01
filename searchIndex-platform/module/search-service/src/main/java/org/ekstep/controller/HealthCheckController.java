@@ -1,5 +1,10 @@
 package org.ekstep.controller;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -25,6 +30,12 @@ public class HealthCheckController extends BaseController {
 		response.put("name", name);
 		try {
 			response.put("healthy", true);
+			List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
+			Map<String, Object> esCheck = new HashMap<String, Object>();
+			esCheck.put("name", "ElasticSearch");
+			esCheck.put("healthy", true);
+			checks.add(esCheck);
+			response.put("checks", checks);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			ResponseParams resStatus = new ResponseParams();
