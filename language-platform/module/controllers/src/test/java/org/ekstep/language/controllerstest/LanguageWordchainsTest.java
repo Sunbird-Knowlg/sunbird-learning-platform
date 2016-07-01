@@ -151,7 +151,7 @@ public class LanguageWordchainsTest {
 
 	@SuppressWarnings({ "unchecked" })
 	@Test
-	public void getRhymingWordChainsTest() throws JsonParseException,
+	public void getAllRulesTest() throws JsonParseException,
 			JsonMappingException, IOException {
 		List<String> rhymingWords =  Arrays.asList(new String[]{ "wct_1", "wct_3", "wct_4"});
 		String contentString = "{  \"request\": {      \"traversalId\":\"rule_2\",      \"filters\":{          \"lemma\":{\"value\":\"wordChainTest\"}      },      \"limit\":25  }}";
