@@ -119,7 +119,7 @@ public class GraphCacheActor extends BaseGraphManager {
         IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
         try {
         	Map<String, Object> map = cacheMgr.getDefinitionNode(request);
-            OK(GraphDACParams.metadata.name(), map, getSender());
+            OK(GraphDACParams.definition_node.name(), map, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
         }

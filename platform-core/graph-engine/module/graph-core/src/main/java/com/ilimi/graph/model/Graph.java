@@ -783,7 +783,7 @@ public class Graph extends AbstractDomainObject {
                     if (valid) {
                     	ObjectMapper mapper = new ObjectMapper();
                         Response res = (Response) arg1;
-                        Map<String, Object> map = (Map<String, Object>) res.get(GraphDACParams.node_list.name());
+                        Map<String, Object> map = (Map<String, Object>) res.get(GraphDACParams.definition_node.name());
                         if (null != map && !map.isEmpty()) {
                         	DefinitionDTO dto = mapper.convertValue(map, DefinitionDTO.class);
                             manager.OK(GraphDACParams.definition_node.name(), dto, getParent());
