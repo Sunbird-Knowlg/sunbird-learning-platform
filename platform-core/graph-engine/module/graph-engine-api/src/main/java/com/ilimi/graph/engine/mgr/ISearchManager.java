@@ -68,6 +68,16 @@ public interface ISearchManager {
      * @response - STATUS: API call status
      */
     void getNodeDefinition(Request request);
+    
+    /**
+     * Get node definition for a given object type from cache
+     * 
+     * @request - GRAPH_ID as request context variable
+     * @request - OBJECT_TYPE object type
+     * @response - DEFINITION_NODE definition node object
+     * @response - STATUS: API call status
+     */
+    void getNodeDefinitionFromCache(Request request);
 
     /**
      * Get data node for the given id

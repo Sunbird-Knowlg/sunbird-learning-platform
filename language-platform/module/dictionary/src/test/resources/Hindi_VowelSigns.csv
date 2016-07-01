@@ -1,0 +1,14 @@
+identifier,objectType,rel:associatedTo,varna,unicode,type,status
+ा,Varna,आ,ा,093E,VowelSign,Live
+ि,Varna,इ,ि,093F,VowelSign,Live
+ी,Varna,ई,ी,0940,VowelSign,Live
+ु,Varna,उ,ु,0941,VowelSign,Live
+ू,Varna,ऊ,ू,0942,VowelSign,Live
+ृ,Varna,ऋ,ृ,0943,VowelSign,Live
+ॆ,Varna,ऎ,ॆ,0946,VowelSign,Live
+े,Varna,ए,े,0947,VowelSign,Live
+ै,Varna,ऐ,ै,0948,VowelSign,Live
+ॊ,Varna,ऒ,ॊ,094A,VowelSign,Live
+ो,Varna,ओ,ो,094B,VowelSign,Live
+ौ,Varna,औ,ौ,094C,VowelSign,Live
+्,Varna,,्,094D,Virama,Live

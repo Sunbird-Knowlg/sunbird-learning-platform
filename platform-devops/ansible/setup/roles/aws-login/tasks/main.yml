@@ -17,12 +17,8 @@
   lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
 
 - name: update .aws/credentials
-  become_user: ec2-user
-  become: yes
-  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ access }}'  state=present insertafter=EOF create=yes
+  lineinfile: dest=.aws/credentials line='aws_access_key_id={{ lookup('env', 'lp_aws_access_key_id') }}'  insertafter=EOF state=present create=yes
 
 - name: update .aws/credentials
-  become_user: ec2-user
-  become: yes
-  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ secret }}' state=present insertafter=EOF create=yes
+  lineinfile: dest=.aws/credentials line='aws_secret_access_key={{ lookup('env', 'lp_aws_secret_access_key') }}' insertafter=EOF state=present  create=yes
   
