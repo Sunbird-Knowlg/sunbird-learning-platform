@@ -138,9 +138,6 @@ function importItems(callback) {
 				delete item['rel:associatedTo'];
 			}
 
-			// Shuffle options before loading
-			item['options'] = _.shuffle(item['options']);
-
 			// Default fields
 			item['type'] = questionType;
 			item['domain'] = taxonomyId;
@@ -151,8 +148,26 @@ function importItems(callback) {
 			item['language'] =  [language];
 			item['name'] = item['title']; // name is same as title
 			item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
+			item['num_answers'] = 1;
+			item['max_score'] = 1;
+			item['partial_scoring'] = false;
 
-			items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': conceptIds});
+			// De-dup and Shuffle options before loading
+			if (questionType == 'mcq') {
+				item['options'] = processOptions(item['options']);;
+			}
+			else if (questionType == 'mtf') {
+				item['lhs_options'] = processOptions(item['lhs_options']);
+				item['rhs_options'] = processOptions(item['rhs_options']);
+			}
+
+			// Validate if the data is correct
+			if (validateQuestion(item)) {
+				items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': conceptIds});
+			}
+			else {
+				console.log("Invalid question metadata. Please check the question - " + item['code'] + ", row number " + index);
+			}
 		}
 	})
 	.on('end', function(count){
@@ -165,6 +180,34 @@ function importItems(callback) {
 	});
 }
 
+function processOptions(options) {
+	_.each(options, function(option, index) {
+		if (typeof option.value.text != 'undefined') option.value.asset = option.value.text;
+		else if (typeof option.value.image == 'undefined') option.value.asset = option.value.image;
+    });
+
+    options = _.uniq(options, false, function(p){ return p.value.asset;});
+    options = _.shuffle(options);
+    return options;
+}
+
+function validateQuestion(item) {
+
+	if (item['type'] == 'mcq') {
+		if (item.options.length < 2) return false;
+	}
+	else if (item['type'] == 'mtf') {
+		if (item.lhs_options.length < 2) return false;
+		if (item.rhs_options.length < 2) return false;
+	}
+
+	if (!item.code) return false;
+	if (!item.title) return false;
+	if (!item.template) return false;
+	if (!item.template_id) return false;
+
+	return true;
+}
 
 function printAssessmentItems(callback) {
 	if (items.length > 0) {
@@ -198,9 +241,9 @@ function createAssessmentItems(callback) {
 			}
 		});
 		if (asyncFns.length > 0) {
-			async.parallel(asyncFns,
+			async.parallelLimit(asyncFns,10,
 				function (err, result) {
-			    	if (err) {
+					if (err) {
 						callback(err);
 			    	} else {
 			    		callback(null, 'ok');
@@ -379,8 +422,9 @@ function getColumnValue(row, startCol, colDef) {
 function _getValueFromRow(row, startCol, col, def) {
 	var index = col + startCol;
 	var data = row[index];
-	if (def.type == 'boolean') {
-		if (data && data != null) {
+
+	if (data && data != null) {
+		if (def.type == 'boolean') {
 			var val = data.trim().toLowerCase();
 			if (val == 'yes' || val == 'true') {
 				return true;
@@ -388,18 +432,19 @@ function _getValueFromRow(row, startCol, col, def) {
 				return false;
 			}
 		}
-	} else {
-		if (data && data != null) {
+		else if (def.type == 'list') {
+			data = data.split(',');
+			data = data.map(function(e) { return e.trim();});
+			return data;
+		}
+		else if (def.type == 'number') {
 			if (_.isFinite(data)) {
 				data = parseFloat(data);
-				return data;
-			} else if (def.type == 'list') {
-				data = data.split(',');
-				data = data.map(function(e) { return e.trim();});
 				return data;
 			}
 		}
 	}
+
 	return (data && data != null) ? data.trim() : null;
 }
 
