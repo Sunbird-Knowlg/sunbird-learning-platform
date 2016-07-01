@@ -74,39 +74,6 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-//	private StringBuilder getGroupedElementXml(List<Map<String, String>> elements) {
-//		StringBuilder xml = new StringBuilder();
-//		if (null != elements) {
-//			Map<String, List<Map<String, String>>> groupingTags = new HashMap<String, List<Map<String, String>>>();
-//			for (Map<String, String> element: elements) {
-//				String groupTag = element.get(ContentWorkflowPipelineParams.group_element_name.name());
-//				if (null == groupingTags.get(groupTag))
-//					groupingTags.put(groupTag, new ArrayList<Map<String, String>>());
-//				groupingTags.get(groupTag).add(element);
-//				xml = createGroupedElementXML(groupingTags);
-//			}
-//		}
-//		return xml;
-//	}
-	
-//	private StringBuilder createGroupedElementXML(Map<String, List<Map<String, String>>> elements) {
-//		StringBuilder xml = new StringBuilder();
-//		if (null != elements) {
-//			for (Entry<String, List<Map<String, String>>> entry: elements.entrySet()) {
-//				if (!StringUtils.isBlank(entry.getKey())) {
-//					xml.append(getStartTag(entry.getKey()));
-//					List<Map<String, String>> lstMap = entry.getValue();
-//					for (Map<String, String> map: lstMap) {
-//						xml.append(getElementXml(map));
-//						xml.append(getEndTag(map.get(ContentWorkflowPipelineParams.element_name.name())));
-//					}
-//					xml.append(getEndTag(entry.getKey()));
-//				}
-//			}
-//		}
-//		return xml;
-//	}
-	
 	private StringBuilder getContentControllersXml(List<Controller> controllers) {
 		StringBuilder xml = new StringBuilder();
 		if (null != controllers) {
@@ -199,17 +166,6 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-//	private StringBuilder getNonPluginElementsXml(List<Map<String, String>> nonPluginElements) {
-//		StringBuilder xml = new StringBuilder();
-//		if (null != nonPluginElements) {
-//			for (Map<String, String> nonPluginElement: nonPluginElements) {
-//				xml.append(getElementXml(nonPluginElement));
-//				xml.append(getEndTag(nonPluginElement.get(ContentWorkflowPipelineParams.element_name.name())));
-//			}
-//		}
-//		return xml;
-//	}
-	
 	private StringBuilder getElementXml(Map<String, String> data) {
 		StringBuilder xml = new StringBuilder();
 		if (null != data) {
@@ -223,14 +179,6 @@ public class ECRFToXMLConvertor {
 		}
 		return xml;
 	}
-	
-//	private StringBuilder getPluginEndTag(Plugin plugin) {
-//		StringBuilder xml = new StringBuilder();
-//		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
-//			xml.append(getEndTag(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())));
-//		}
-//		return xml;
-//	}
 	
 	private StringBuilder getECRFComponentEndTag(ECRFObject object) {
 		StringBuilder xml = new StringBuilder();

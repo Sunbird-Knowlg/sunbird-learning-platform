@@ -109,8 +109,6 @@ public class XMLContentParser {
 				manifest.setcData(getCData(manifestNodes.item(i)));
 				manifest.setMedias(medias);
 			}
-			
-			
 		}
 		return manifest;
 	}
@@ -119,9 +117,8 @@ public class XMLContentParser {
 		Media media = new Media();
 		if (null != mediaNode) {
 			String id = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.id.name());
-			String type = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.src.name());
-			String src = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.type.name());
-			//TODO: Error Messages Should Come From Contants Class. 
+			String type = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.type.name());
+			String src = getAttributValueByName(mediaNode, ContentWorkflowPipelineParams.src.name());
 			if (StringUtils.isBlank(id))
 				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 						"Error! Invalid Media ('id' is required.) in '"+ getNodeString(mediaNode) + "' ...");
@@ -155,21 +152,6 @@ public class XMLContentParser {
 		return attributes;
 	}
 	
-//	private List<Map<String, String>> getChildrenData(Node node) {
-//		List<Map<String, String>> childrenTags = new ArrayList<Map<String, String>>();
-//		NodeList nodeList = ((Element) node).getElementsByTagName("*");
-//	    for (int i = 0; i < nodeList.getLength(); i++) {
-//	        Node childNode = nodeList.item(i);
-//	        if (childNode.getNodeType() == Node.ELEMENT_NODE) {
-//	            Map<String, String> map = getDataMap(childNode);
-//	            if (!StringUtils.equalsIgnoreCase(node.getNodeName(), childNode.getParentNode().getNodeName()))
-//	            	map.put(ContentWorkflowPipelineParams.group_element_name.name(), childNode.getParentNode().getNodeName());
-//	            childrenTags.add(map);
-//	        }
-//	    }
-//	    return childrenTags;
-//	}
-	
 	private List<Controller> getControllers(NodeList controllerNodes) {
 		List<Controller> controllers = new ArrayList<Controller>();
 		if (null != controllerNodes && controllerNodes.getLength() > 0) {
@@ -199,20 +181,6 @@ public class XMLContentParser {
 		}
 		return cData;
 	}
-	
-//	private List<Plugin> getPlugins(Node node) {
-//		List<Plugin> plugins = new ArrayList<Plugin>();
-//		node = getPluginViewOfDocument(node);
-//		if (null != node && node.hasChildNodes()) {
-//			NodeList pluginNodes = node.getChildNodes();
-//			for (int i = 0; i < pluginNodes.getLength(); i++) {
-//				if (isPlugin(pluginNodes.item(i).getNodeName()) && pluginNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-//					plugins.add(getPlugin(pluginNodes.item(i)));
-//				}
-//			}
-//		}
-//		return plugins;
-//	}
 	
 	private Plugin getPlugin(Node node) {
 		Plugin plugin = new Plugin();
@@ -260,22 +228,6 @@ public class XMLContentParser {
 		return childrenPlugins;
 	}
 	
-//	private List<Map<String, String>> getNonPluginChildren(Node node) {
-//		List<Map<String, String>> nonPluginChildren = new ArrayList<Map<String, String>>();
-//		if (null != node && node.hasChildNodes()) {
-//			NodeList nodes = node.getChildNodes();
-//			for (int i = 0; i < nodes.getLength(); i++) {
-//				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
-//						!isPlugin(nodes.item(i).getNodeName()) &&
-//						!isEvent(nodes.item(i).getNodeName()) &&
-//						!isReservedWrapper(nodes.item(i).getNodeName())) {
-//					nonPluginChildren.add(getDataMap(nodes.item(i)));
-//				}
-//			}
-//		}
-//		return nonPluginChildren;
-//	}
-	
 	private List<Event> getEvents(Node node) {				
 		List<Event> events = new ArrayList<Event>();
 		if (null != node && node.hasChildNodes()) {
@@ -306,48 +258,6 @@ public class XMLContentParser {
 		}
 		return event;
 	}
-	
-//	private List<Action> getActions(Node node) {
-//		List<Action> actions = new ArrayList<Action>();
-//		if (null != node && node.hasChildNodes()) {
-//			NodeList nodes = node.getChildNodes();
-//			for (int i = 0; i < nodes.getLength(); i++) {
-//				if (nodes.item(i).getNodeType() == Node.ELEMENT_NODE && 
-//						isAction(nodes.item(i).getNodeName())) {
-//					Action action = new Action();
-//					action.setData(getDataMap(nodes.item(i)));
-//					actions.add(action);
-//				}
-//			}
-//		}
-//		return actions;
-//	}
-	
-//	private Node getPluginViewOfDocument(Node node) {
-//		try {
-//		if (null != node) {
-//			//Remove Manifest From Document
-//			NodeList manifestNodeList = ((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name());
-//			while (manifestNodeList.getLength() > 0) {
-//				Node manifestNode = manifestNodeList.item(0);
-//				manifestNode.getParentNode().removeChild(manifestNode);
-//			}
-//			// Remove Controllers From Document
-//			NodeList controllerNodeList = ((Element) node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name());
-//			while (controllerNodeList.getLength() > 0) {
-//				Node controllerNode = controllerNodeList.item(0);
-//				controllerNode.getParentNode().removeChild(controllerNode);
-//			}
-//			// Normalize the DOM tree, puts all text nodes in the
-//			// full depth of the sub-tree underneath this node
-//			node.normalize();
-//		}
-//		} catch (ClassCastException e) {
-//			throw new ServerException(ContentErrorCodes.ERR_CONTENT_WP_OBJECT_CONVERSION.name(), 
-//					ContentErrorMessageConstants.XML_OBJECT_CONVERSION_CASTING_ERROR, e);
-//		}
-//		return node;
-//	}
 	
 	private String getNodeString(Node node) {
 	    try {
@@ -392,9 +302,5 @@ public class XMLContentParser {
 	private boolean isEvent(String elementName) {
 		return ElementMap.isEvent(elementName);
 	}
-
-//	private boolean isReservedWrapper(String elementName) {
-//		return ElementMap.isReservedWrapper(elementName);
-//	}
 
 }
