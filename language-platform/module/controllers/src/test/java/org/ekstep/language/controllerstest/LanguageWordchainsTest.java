@@ -57,10 +57,33 @@ public class LanguageWordchainsTest {
 	@BeforeClass
 	public static void init() throws Exception {
 		createWord();
+		Thread.sleep(5000);
 	}
 
 	@AfterClass
 	public static void close() throws IOException, InterruptedException {
+		LanguageWordchainsTest test = new LanguageWordchainsTest();
+		test.deleteWords();
+	}
+
+	private void deleteWords() {
+		for(String wordId : wordIds){
+			MockMvc mockMvc;
+			mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
+			String path = "/v1/graph/" + TEST_LANGUAGE + "/datanode/"+wordId;
+			try {
+				actions = mockMvc.perform(MockMvcRequestBuilders.delete(path)
+						.contentType(MediaType.APPLICATION_JSON)
+						.header("user-id", "ilimi"));
+				Assert.assertEquals(200, actions.andReturn().getResponse()
+						.getStatus());
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+	
+			Response response = jsonToObject(actions);
+			Assert.assertEquals("successful", response.getParams().getStatus());
+		}
 	}
 
 	private static void createWord() throws JsonParseException,
@@ -153,15 +176,13 @@ public class LanguageWordchainsTest {
 	@Test
 	public void getAllRulesTest() throws JsonParseException,
 			JsonMappingException, IOException {
-		List<String> rhymingWords =  Arrays.asList(new String[]{ "wct_1", "wct_3", "wct_4"});
-		String contentString = "{  \"request\": {      \"traversalId\":\"rule_2\",      \"filters\":{          \"lemma\":{\"value\":\"wordChainTest\"}      },      \"limit\":25  }}";
+		List<String> ruleIds =  Arrays.asList(new String[]{ "rule_1", "rule_2"});
 		MockMvc mockMvc;
 		mockMvc = MockMvcBuilders.webAppContextSetup(context).build();
 		String path = "/v2/language/traversals/" + TEST_LANGUAGE;
 		try {
-			actions = mockMvc.perform(MockMvcRequestBuilders.post(path)
+			actions = mockMvc.perform(MockMvcRequestBuilders.get(path)
 					.contentType(MediaType.APPLICATION_JSON)
-					.content(contentString.getBytes())
 					.header("user-id", "ilimi"));
 			Assert.assertEquals(200, actions.andReturn().getResponse()
 					.getStatus());
@@ -172,21 +193,13 @@ public class LanguageWordchainsTest {
 		Response response = jsonToObject(actions);
 		Assert.assertEquals("successful", response.getParams().getStatus());
 		Map<String, Object> result = response.getResult();
-		List<Map<String, Object>> relations = (List<Map<String, Object>>) result.get("relations");
-		List<Map<String, Object>> words = (List<Map<String, Object>>) result.get("words");
+		List<Map<String, Object>> rules = (List<Map<String, Object>>) result.get("rules");
 		
-		for(Map<String, Object> word: words){
-			String id = (String) word.get(LanguageParams.identifier.name());
-			Assert.assertTrue(wordIds.contains(id));
-		}
-		
-		for(Map<String, Object> relation: relations){
-			List<String> ids = (List<String>) relation.get("list");
-			Assert.assertTrue(rhymingWords.containsAll(ids));
+		for(Map<String, Object> rule: rules){
+			String id = (String) rule.get("ruleId");
+			Assert.assertTrue(ruleIds.contains(id));
 		}
 	}
-
-	
 	
 	@Test
 	public void getWordChainsErrorTest() throws JsonParseException,
