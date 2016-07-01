@@ -1073,7 +1073,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return res;
 	}
 
-	private Response updateWord(Node node, String languageId, String wordId) {
+	public Response updateWord(Node node, String languageId, String wordId) {
 		Request createReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		createReq.put(GraphDACParams.node.name(), node);
 		createReq.put(GraphDACParams.node_id.name(), wordId);
