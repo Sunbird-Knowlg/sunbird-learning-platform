@@ -46,6 +46,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		try {
 			SearchDTO searchDTO = getSearchDTO(request);
 			searchDTO.addAdditionalProperty("weightages", (Map<String, Double>) request.get("weightages"));
+			searchDTO.addAdditionalProperty("graphId", (String) request.get("graphId"));
 			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
 			return lstResult;
 		} catch (Exception e) {

@@ -209,7 +209,8 @@ public class SearchProcessor {
 		String query;
 		if(searchDTO.isTraversalSearch()){
 			Map<String, Double> weightages = (Map<String, Double>) searchDTO.getAdditionalProperty("weightages");
-			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), weightages);
+			String graphId = (String) searchDTO.getAdditionalProperty("graphId");
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), weightages, graphId);
 		}
 		else
 		{
@@ -220,7 +221,7 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, String graphId) throws Exception {
 		
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
@@ -228,21 +229,31 @@ public class SearchProcessor {
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 
-		if ((mustConditions != null && !mustConditions.isEmpty())
+		/*if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {
+				|| (notConditions != null && !notConditions.isEmpty())) {*/
 			builder.key("query").object()
 				.key("function_score")
 					.object()
 						.key("query")
 							.object()
-								.key("match")
-									.object()
-										.key("objectType.raw").value("Word")
-									.endObject()
+								.key("bool").object()
+									.key("must").array()
+										.object()
+											.key("match").object()
+												.key("objectType.raw").value("Word")
+											.endObject()
+										.endObject()
+										.object()
+											.key("match").object()
+												.key("graph_id.raw").value(graphId)
+											.endObject()
+										.endObject()
+									.endArray()
+								.endObject()
 							.endObject()
 						.key("functions").array();
-		}
+		//}
 
 		if (mustConditions != null && !mustConditions.isEmpty()) {
 			for (Map textCondition : mustConditions) {
@@ -369,11 +380,11 @@ public class SearchProcessor {
 		}
 /*		"score_mode": "sum",
 	      "boost_mode": "multiply"*/
-		if ((mustConditions != null && !mustConditions.isEmpty())
+		/*if ((mustConditions != null && !mustConditions.isEmpty())
 				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {
+				|| (notConditions != null && !notConditions.isEmpty())) {*/
 			builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
-		}
+		//}
 
 		builder.endObject();
 		return builder.toString();

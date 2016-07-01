@@ -90,6 +90,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
         	}
         	weightagesMap.put(ATTRIB_DEFAULT_WEIGHTAGE, 1.0);
         	request.put("weightages", weightagesMap);
+        	request.put("graphId", languageId);
         	Map<String, Object> response = compositeSearchManager.searchForTraversal(request);
         	List<Map> words = (List<Map>) response.get("results");
         	Response wordChainResponse = wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode, languageId);
