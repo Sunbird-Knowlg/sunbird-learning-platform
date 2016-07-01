@@ -222,7 +222,7 @@ public class XMLContentParser {
 			plugin.setInnerText(getInnerText(node));
 			plugin.setcData(getCData(node));
 			plugin.setChildrenPlugin(getChildrenPlugins(node));
-			plugin.setControllers(getControllers(node.getChildNodes()));
+			plugin.setControllers(getControllers(((Element)node).getElementsByTagName(ContentWorkflowPipelineParams.controller.name())));
 			plugin.setManifest(getContentManifest(((Element)node).getElementsByTagName(ContentWorkflowPipelineParams.manifest.name())));
 			plugin.setEvents(getEvents(node));
 		}

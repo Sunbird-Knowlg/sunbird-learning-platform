@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringEscapeUtils;
 import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
+import com.ilimi.taxonomy.content.entity.ECRFObject;
 import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
@@ -46,7 +47,7 @@ public class ECRFToXMLConvertor {
 			xml.append(getInnerText(manifest.getInnerText()));
 			xml.append(getCData(manifest.getcData()));
 			xml.append(getContentMediasXml(manifest.getMedias()));
-			xml.append(getEndTag(ContentWorkflowPipelineParams.manifest.name()));
+			xml.append(getECRFComponentEndTag(manifest));
 		}
 		return xml;
 	}
@@ -121,7 +122,7 @@ public class ECRFToXMLConvertor {
 			xml.append(getElementXml(controller.getData()));
 			xml.append(getInnerText(controller.getInnerText()));
 			xml.append(getCData(controller.getcData()));
-			xml.append(getEndTag(ContentWorkflowPipelineParams.controller.name()));
+			xml.append(getECRFComponentEndTag(controller));
 		}
 		return xml;
 	}
@@ -145,7 +146,7 @@ public class ECRFToXMLConvertor {
 			xml.append(getContentManifestXml(plugin.getManifest()));
 			xml.append(getContentControllersXml(plugin.getControllers()));
 			xml.append(getEventsXml(plugin.getEvents()));
-			xml.append(getPluginEndTag(plugin));
+			xml.append(getECRFComponentEndTag(plugin));
 		}
 		return xml;
 	}
@@ -223,10 +224,20 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-	private StringBuilder getPluginEndTag(Plugin plugin) {
+//	private StringBuilder getPluginEndTag(Plugin plugin) {
+//		StringBuilder xml = new StringBuilder();
+//		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
+//			xml.append(getEndTag(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())));
+//		}
+//		return xml;
+//	}
+	
+	private StringBuilder getECRFComponentEndTag(ECRFObject object) {
 		StringBuilder xml = new StringBuilder();
-		if (null != plugin && null != plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
-			xml.append(getEndTag(plugin.getData().get(ContentWorkflowPipelineParams.element_name.name())));
+		if (null != object && 
+				null != object.getData() && 
+				null != object.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
+			xml.append(getEndTag(object.getData().get(ContentWorkflowPipelineParams.element_name.name())));
 		}
 		return xml;
 	}

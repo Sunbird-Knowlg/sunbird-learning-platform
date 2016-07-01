@@ -23,7 +23,7 @@ public class ECRFToJSONConvertor {
 		Gson gson = new Gson(); 
 		if (null != ecrf) {
 			map.putAll(getElementMap(ecrf.getData()));
-			map.putAll(getPluginInnerTextMap(ecrf.getInnerText()));
+			map.putAll(getInnerTextMap(ecrf.getInnerText()));
 			map.putAll(getCDataMap(ecrf.getcData()));
 			map.putAll(getManifestMap(ecrf.getManifest()));
 			map.putAll(getControllersMap(ecrf.getControllers()));
@@ -39,7 +39,7 @@ public class ECRFToJSONConvertor {
 		if (null != manifest) {
 			Map<String, Object> manifestMap = new HashMap<String, Object>();
 			manifestMap.putAll(getElementMap(manifest.getData()));
-			manifestMap.putAll(getPluginInnerTextMap(manifest.getInnerText()));
+			manifestMap.putAll(getInnerTextMap(manifest.getInnerText()));
 			manifestMap.putAll(getCDataMap(manifest.getcData()));
 			manifestMap.putAll(getMediasMap(manifest.getMedias()));
 			map.put(ContentWorkflowPipelineParams.manifest.name(), manifestMap);
@@ -62,7 +62,7 @@ public class ECRFToJSONConvertor {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != media) {
 			map.putAll(getElementMap(media.getData()));
-			map.putAll(getPluginInnerTextMap(media.getInnerText()));
+			map.putAll(getInnerTextMap(media.getInnerText()));
 			map.putAll(getCDataMap(media.getcData()));
 			map.putAll(getChildrenPluginMap(media.getChildrenPlugin()));
 		}
@@ -163,7 +163,7 @@ public class ECRFToJSONConvertor {
 		Map<String, Object> controllerMap = new HashMap<String, Object>();
 		if (null != controller) {
 			controllerMap.putAll(getElementMap(controller.getData()));
-			controllerMap.putAll(getPluginInnerTextMap(controller.getInnerText()));
+			controllerMap.putAll(getInnerTextMap(controller.getInnerText()));
 			controllerMap.putAll(getCDataMap(controller.getcData()));
 		}
 		return controllerMap;
@@ -185,7 +185,7 @@ public class ECRFToJSONConvertor {
 		Map<String, Object> pluginMap = new HashMap<String, Object>();
 		if (null != plugin) {
 			pluginMap.putAll(getElementMap(plugin.getData()));
-			pluginMap.putAll(getPluginInnerTextMap(plugin.getInnerText()));
+			pluginMap.putAll(getInnerTextMap(plugin.getInnerText()));
 			pluginMap.putAll(getCDataMap(plugin.getcData()));
 			pluginMap.putAll(getChildrenPluginMap(plugin.getChildrenPlugin()));
 			pluginMap.putAll(getManifestMap(plugin.getManifest()));
@@ -195,7 +195,7 @@ public class ECRFToJSONConvertor {
 		return pluginMap;
 	}
 	
-	private Map<String, Object> getPluginInnerTextMap(String innerText) {
+	private Map<String, Object> getInnerTextMap(String innerText) {
 		Map<String, Object> innerTextMap = new HashMap<String, Object>();
 		if (null != innerTextMap) {
 			innerTextMap.put(ContentWorkflowPipelineParams.__text.name(), innerText);
@@ -237,7 +237,7 @@ public class ECRFToJSONConvertor {
 			for (Event event: events) {
 				Map<String, Object> eventMap = new HashMap<String, Object>();
 				eventMap.putAll(getElementMap(event.getData()));
-				eventMap.putAll(getPluginInnerTextMap(event.getInnerText()));
+				eventMap.putAll(getInnerTextMap(event.getInnerText()));
 				eventMap.putAll(getCDataMap(event.getcData()));
 				eventMap.putAll(getChildrenPluginMap(event.getChildrenPlugin()));
 				eventObjects.add(eventMap);
