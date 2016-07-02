@@ -127,7 +127,6 @@ if {$object_null == 1} {
 			set search_response [searchNodes $graph_id $search_criteria]
 			set check_error [check_response_error $search_response]
 			if {$check_error} {
-				puts "Error response from searchNodes"
 				return $search_response;
 			} else {
 				set graph_nodes [get_resp_value $search_response "node_list"]

@@ -7,7 +7,7 @@
 		<version>1.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
-	<artifactId>ekstep-service</artifactId>
+	<artifactId>learning-service</artifactId>
     <packaging>war</packaging>
 	<properties>
 		<maven.compiler.source>1.7</maven.compiler.source>
@@ -47,12 +47,6 @@
 			<type>jar</type>
 		</dependency>
 		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>language-controller</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
 			<groupId>com.ilimi</groupId>
 			<artifactId>orchestrator-service</artifactId>
 			<version>1.0-SNAPSHOT</version>
@@ -60,19 +54,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.ekstep</groupId>
-			<artifactId>composite-search-api</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
 			<artifactId>searchindex-consumer</artifactId>
-			<version>1.0-SNAPSHOT</version>
-			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.ekstep</groupId>
-			<artifactId>searchindex-elasticsearch</artifactId>
 			<version>1.0-SNAPSHOT</version>
 			<type>jar</type>
 		</dependency>
@@ -100,6 +82,6 @@
 				</plugin>
 			</plugins>
 		</pluginManagement>
-		<finalName>taxonomy-service</finalName>
+		<finalName>learning-service</finalName>
 	</build>
 </project>

@@ -56,7 +56,6 @@ proc searchQuery {language_id map} {
 	set search_response [searchNodes $language_id $search_criteria]
 	set check_error [check_response_error $search_response]
 	if {$check_error} {
-		puts "Error response from searchNodes"
 		java::throw [java::new Exception "Error response from searchNodes"]
 	} else {
 		set graph_nodes [get_resp_value $search_response "node_list"]
@@ -116,7 +115,6 @@ java::try {
 	}
 	$result_map put "synonyms" $synonyms
 } catch {Exception err} {
-	puts [$err getMessage]
 	$result_map put "error" [$err getMessage]
 }
 set response_list [create_response $result_map]

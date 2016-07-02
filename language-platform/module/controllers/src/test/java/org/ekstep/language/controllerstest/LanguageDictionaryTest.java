@@ -11,6 +11,7 @@ import org.codehaus.jackson.JsonParseException;
 import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.common.util.AWSUploader;
 import org.ekstep.language.mgr.impl.DictionaryManagerImpl;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.test.util.RequestResponseTestHelper;
@@ -35,7 +36,6 @@ import org.springframework.web.context.WebApplicationContext;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
-import com.ilimi.taxonomy.util.AWSUploader;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration

@@ -16,6 +16,7 @@ import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.measures.entity.ComplexityMeasures;
 import org.ekstep.language.mgr.IParserManager;
+import org.ekstep.language.util.BaseLanguageManager;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.LanguageUtil;
 import org.springframework.stereotype.Component;

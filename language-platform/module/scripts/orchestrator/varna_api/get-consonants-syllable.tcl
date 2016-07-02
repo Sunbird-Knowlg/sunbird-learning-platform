@@ -43,7 +43,7 @@ java::for {String unicode} $unicode_list {
 	set search_response [getNodesByProperty $language_id $property]
 	set check_error [check_response_error $search_response]
 	if {$check_error} {
-		puts "Error response from searchNodes"
+
 	} else {
 		set graph_nodes [get_resp_value $search_response "node_list"]
 		set varna_node [$graph_nodes get 0]
@@ -55,7 +55,6 @@ java::for {String unicode} $unicode_list {
 		set varnaType [$varna_obj get "type"]
 		set varnaTypeTemp [$varnaType toString]
 		set varnaTypeString [java::new String $varnaTypeTemp]
-		puts $varnaTypeTemp
 		set isConsonant [$varnaTypeString equalsIgnoreCase $consonantString]
 		if {$isConsonant == 1} {
 			$consonant_list add $varna_obj

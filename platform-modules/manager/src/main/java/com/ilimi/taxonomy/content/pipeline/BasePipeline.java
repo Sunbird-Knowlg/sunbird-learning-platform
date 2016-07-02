@@ -10,6 +10,7 @@ import java.nio.file.Paths;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.util.AWSUploader;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -22,7 +23,6 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
-import com.ilimi.taxonomy.util.AWSUploader;
 
 public class BasePipeline extends BaseManager {
 	

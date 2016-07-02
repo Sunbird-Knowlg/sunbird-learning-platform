@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.ekstep.common.util.AWSUploader;
 import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageActorNames;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -70,8 +71,6 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.RelationDefinition;
-import com.ilimi.taxonomy.enums.ContentErrorCodes;
-import com.ilimi.taxonomy.util.AWSUploader;
 
 import akka.actor.ActorRef;
 
@@ -102,7 +101,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         try {
             urlArray = AWSUploader.uploadFile(bucketName, folder, uploadedFile);
         } catch (Exception e) {
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_UPLOAD_FILE.name(),
+            throw new ServerException(LanguageErrorCodes.ERR_MEDIA_UPLOAD_FILE.name(),
                     "Error wihile uploading the File.", e);
         }
         String url = urlArray[1];

@@ -9,6 +9,7 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.MiddlewareException;
+import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.orchestrator.dac.model.ActorPath;
 
 import akka.actor.ActorRef;
@@ -28,7 +29,8 @@ public class AkkaRequestRouter {
 			throw new MiddlewareException(RouterErrorCodes.ERR_EXEC_INVALID_REQUEST.name(),
 					"Manager and operation cannot be blank in the request");
 		try {
-			ActorRef actor = ServiceLocator.getActorRef(actorPath);
+			String graphId = (String) request.getContext().get(GraphDACParams.graph_id.name());
+			ActorRef actor = ServiceLocator.getActorRef(actorPath, graphId);
 			Future<Object> future = Patterns.ask(actor, request, timeout);
 			Object result = Await.result(future, WAIT_TIMEOUT.duration());
 			if (result instanceof Response) {
@@ -49,7 +51,8 @@ public class AkkaRequestRouter {
             throw new MiddlewareException(RouterErrorCodes.ERR_EXEC_INVALID_REQUEST.name(),
                     "Manager and operation cannot be blank in the request");
         try {
-            ActorRef actor = ServiceLocator.getActorRef(actorPath);
+        	String graphId = (String) request.getContext().get(GraphDACParams.graph_id.name());
+            ActorRef actor = ServiceLocator.getActorRef(actorPath, graphId);
             actor.tell(request, actor);
             Response response = new Response();
             ResponseParams params = new ResponseParams();

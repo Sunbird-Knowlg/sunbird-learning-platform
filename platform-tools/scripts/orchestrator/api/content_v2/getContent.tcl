@@ -54,10 +54,8 @@ proc proc_updateLanguageCode {resp_object graph_node} {
 			set langCode [$language_map get $lang_lc]
 			set langCodeNotNull [proc_isNotNull $langCode]
 			if {$langCodeNotNull} {
-				puts "setting language code $langCode"
 				$resp_object put "languageCode" $langCode
 			} else {
-				puts "setting en as default language code"
 				$resp_object put "languageCode" "en"
 			}
 		}

@@ -1,4 +1,4 @@
-identifier,objectType,varna,unicode,type,ipaSymbol,image,status
+identifier,objectType,varna,unicode,type,isoSymbol,image,status
 ಅ,Varna,ಅ,0C85,Vowel,a,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ka_images/0C85.png,Live
 ಆ,Varna,ಆ,0C86,Vowel,ã,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ka_images/0C86.png,Live
 ಇ,Varna,ಇ,0C87,Vowel,i,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ka_images/0C87.png,Live

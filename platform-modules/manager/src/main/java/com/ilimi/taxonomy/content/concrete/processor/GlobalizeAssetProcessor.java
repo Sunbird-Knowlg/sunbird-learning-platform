@@ -15,13 +15,13 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.util.AWSUploader;
 
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
-import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Manifest;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
-import com.ilimi.taxonomy.util.AWSUploader;
 
 public class GlobalizeAssetProcessor extends AbstractProcessor {
 	

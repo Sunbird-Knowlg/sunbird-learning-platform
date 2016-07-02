@@ -2,6 +2,7 @@ package com.ilimi.graph.cache.actor;
 
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -114,51 +115,11 @@ public class GraphCacheActor extends BaseGraphManager {
         }
     }
 
-    public void getRequiredMetadataFields(Request request) {
+    public void getDefinitionNode(Request request) {
         IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
         try {
-            List<String> list = cacheMgr.getRequiredMetadataFields(request);
-            OK(GraphDACParams.metadata.name(), list, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getIndexedMetadataFields(Request request) {
-        IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
-        try {
-            List<String> list = cacheMgr.getIndexedMetadataFields(request);
-            OK(GraphDACParams.metadata.name(), list, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getNonIndexedMetadataFields(Request request) {
-        IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
-        try {
-            List<String> list = cacheMgr.getNonIndexedMetadataFields(request);
-            OK(GraphDACParams.metadata.name(), list, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getOutRelationObjectTypes(Request request) {
-        IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
-        try {
-            List<String> list = cacheMgr.getOutRelationObjectTypes(request);
-            OK(GraphDACParams.metadata.name(), list, getSender());
-        } catch (Exception e) {
-            ERROR(e, getSender());
-        }
-    }
-
-    public void getInRelationObjectTypes(Request request) {
-        IDefinitionNodeCacheMgr cacheMgr = new DefinitionNodeCacheMgrImpl(this);
-        try {
-            List<String> list = cacheMgr.getInRelationObjectTypes(request);
-            OK(GraphDACParams.metadata.name(), list, getSender());
+        	Map<String, Object> map = cacheMgr.getDefinitionNode(request);
+            OK(GraphDACParams.definition_node.name(), map, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
         }

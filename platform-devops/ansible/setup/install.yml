@@ -1,0 +1,13 @@
+- hosts: all
+  become: yes
+  roles:
+        - aws-login
+        #- java
+        - tomcat
+        - elasticsearch
+        - redis
+        - ffmpeg
+        - mongodb
+        - imagemagick
+        - createpath
+        - logstash

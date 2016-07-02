@@ -9,6 +9,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.util.UnzipUtility;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -25,7 +26,6 @@ import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 import com.ilimi.taxonomy.content.util.JSONContentParser;
 import com.ilimi.taxonomy.content.util.XMLContentParser;
 import com.ilimi.taxonomy.content.validator.ContentValidator;
-import com.ilimi.taxonomy.util.UnzipUtility;
 
 public class InitializePipeline extends BasePipeline {
 	

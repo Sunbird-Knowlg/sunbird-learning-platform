@@ -56,7 +56,6 @@ if {$check_error} {
 	
 		$result_map put "domain" $resp_object
 	} catch {Exception err} {
-    	puts [$err getMessage]
     	$result_map put "error" [$err getMessage]
 	}
 	set response_list [create_response $result_map]

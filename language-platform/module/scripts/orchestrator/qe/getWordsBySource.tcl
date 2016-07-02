@@ -64,7 +64,6 @@ proc procAddStringCriteria {search property filter_list} {
 				procCreateFilter $property "=" $value $filter_list
 			}
 		} catch {Exception err} {
-    		puts "Error adding criteria for $property"
 		}
 	}
 }
@@ -93,7 +92,6 @@ proc procAddNumberCriteria {search property filter_list} {
 				procCreateFilter $property "=" $value $filter_list
 			}
 		} catch {Exception err} {
-    		puts "Error adding criteria for $property"
 		}
 		
 	}
@@ -110,7 +108,6 @@ proc procAddListCriteriaForField {search field property filter_list} {
 				procCreateFilter $property "in" $list $filter_list
 			}
 		} catch {Exception err} {
-    		puts "Error adding criteria for $field"
 		}
 	}
 }
@@ -133,14 +130,11 @@ proc procAddCountCriteria {obj prefix filter_list} {
 				set keyval [java::new String [$keyval trim]]
 				set keyval [$keyval replaceAll "\\s+" "_"]
 				set propValue [$propValue concat $keyval]
-				puts "final propValue is $propValue"
-				puts "size is $val"
 				if {$val > 0} {
 					procCreateFilter $propValue ">=" $val $filter_list
 				}
 			}
 		} catch {Exception err} {
-			puts "Error adding criteria for $property"
 		}
 	}
 }
@@ -162,7 +156,6 @@ proc procCheckCountCriteria {search filter_list} {
 			procAddCountCriteria $grades "grade_" $filter_list
 			procAddCountCriteria $pos "pos_" $filter_list
 		} catch {Exception err} {
-    		puts "Error adding criteria for $property"
 		}
 	}
 }
@@ -307,7 +300,6 @@ set search_criteria [create_search_criteria $map]
 set search_response [searchNodes $language_id $search_criteria]
 set check_error [check_response_error $search_response]
 if {$check_error} {
-	puts "Error response from searchNodes"
 	return $search_response;
 } else {
 	set result_map [java::new HashMap]
@@ -320,7 +312,6 @@ if {$check_error} {
 		}
 		$result_map put "words" $word_list
 	} catch {Exception err} {
-    	puts [$err getMessage]
     	$result_map put "error" [$err getMessage]
 	}
 	set response_list [create_response $result_map]
