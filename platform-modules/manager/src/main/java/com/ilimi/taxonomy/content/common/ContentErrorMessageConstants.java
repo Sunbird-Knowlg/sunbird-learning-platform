@@ -46,6 +46,20 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_MEDIA = "Error! Invalid Media Entry.";
 	
+	public static final String INVALID_CWP_INIT_PARAM = "Error! Invalid Initializer Parameter.";
+	
+	public static final String INVALID_CWP_FINALIZE_PARAM = "Error! Invalid Finalizer Parameter.";
+	
+	public static final String INVALID_CWP_CONST_PARAM = "Error! Invalid Constructor Parameter.";
+	
+	public static final String ZIP_EXTRACTION_ERROR = "Error! While Extracting the ZIP Package.";
+	
+	public static final String MULTIPLE_ECML_FILES_FOUND = "Error! Multiple ECML Files found.";
+	
+	public static final String ECML_FILE_READ_ERROR = "Error! While reading ECML File.";
+	
+	public static final String FILE_UPLOAD_ERROR = "Error! While uploading File.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

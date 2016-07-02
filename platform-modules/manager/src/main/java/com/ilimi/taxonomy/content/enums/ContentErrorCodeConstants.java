@@ -6,7 +6,12 @@ public enum ContentErrorCodeConstants {
 	XML_TRANSFORM(1, "Error while xml transformation."),
 	INVALID_MEDIA(2, "Invalid Media Element."),
 	EXPECTED_JSON_OBJECT(3, "Expected JSON Object for the given Element."),
-	EXPECTED_JSON_ARRAY(4, "Expected JSON Array for the given Element.");
+	EXPECTED_JSON_ARRAY(4, "Expected JSON Array for the given Element."),
+	INVALID_PARAMETER(5, "Invalid Parameter(s)."),
+	ZIP_EXTRACTION(6, "Error while extracting the ZIP file."),
+	MULTIPLE_ECML(6, "Multiple ECML files found."),
+	ECML_FILE_READ(6, "Error while reading ECML file."),
+	UPLOAD_ERROR(7, "Error while uploading a file.");
 
 	private final int code;
 	private final String description;

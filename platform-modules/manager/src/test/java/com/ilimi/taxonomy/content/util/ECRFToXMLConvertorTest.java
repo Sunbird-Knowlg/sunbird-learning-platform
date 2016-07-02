@@ -40,7 +40,7 @@ public class ECRFToXMLConvertorTest extends BaseTest {
 	                .build();
 	        assertFalse("XML similar " + diff.toString(), diff.hasDifferences());
 	    } catch (IOException e) {
-			assertTrue("IO Exception while getting differences.", false);
+			assertTrue("IO Exception while getting differences in XML.", false);
 		}
 	}
 	

@@ -2,7 +2,6 @@ package com.ilimi.taxonomy.content.common;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 
 import javax.xml.parsers.DocumentBuilder;

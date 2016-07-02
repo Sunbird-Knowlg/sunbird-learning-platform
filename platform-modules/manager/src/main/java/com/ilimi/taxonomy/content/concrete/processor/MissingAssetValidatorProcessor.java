@@ -16,13 +16,17 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 	}
 
 	@Override
-	protected Plugin process(Plugin content) {
+	protected Plugin process(Plugin plugin) {
 		try {
 			
 		} catch (Exception e) {
-			LOGGER.error("", e);
+			LOGGER.error("Error! MissingAssetValidatorProcessor | Something went wrong while validating Missing Assets.", e);
 		}
-		return content;
+		return plugin;
+	}
+	
+	private void validateMissingAssets(Plugin plugin) {
+		
 	}
 
 }
