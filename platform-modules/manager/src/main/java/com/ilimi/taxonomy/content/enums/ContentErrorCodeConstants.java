@@ -11,7 +11,11 @@ public enum ContentErrorCodeConstants {
 	ZIP_EXTRACTION(6, "Error while extracting the ZIP file."),
 	MULTIPLE_ECML(6, "Multiple ECML files found."),
 	ECML_FILE_READ(6, "Error while reading ECML file."),
-	UPLOAD_ERROR(7, "Error while uploading a file.");
+	UPLOAD_ERROR(7, "Error while uploading a file."),
+	MISSING_ASSETS(8, "Missing Assets."),
+	PROCESSOR_ERROR(9, "Error in Processor."),
+	CONTROLLER_FILE_READ(10, "Error while reading controller file.."),
+	ASSET_UPLOAD_ERROR(10, "Error while reading controller file..");
 
 	private final int code;
 	private final String description;

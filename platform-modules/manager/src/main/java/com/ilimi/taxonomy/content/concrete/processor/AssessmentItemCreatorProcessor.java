@@ -21,12 +21,15 @@ import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
+import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
@@ -42,26 +45,33 @@ public class AssessmentItemCreatorProcessor extends AbstractProcessor {
 	private List<String> questionLevelList = Arrays.asList("EASY", "MEDIUM", "DIFFICULT", "RARE");
 	
 	public AssessmentItemCreatorProcessor(String basePath, String contentId) {
+		if (!isValidBasePath(basePath))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Path does not Exist.]");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
 	}
 
 	@Override
-	protected Plugin process(Plugin content) {
+	protected Plugin process(Plugin plugin) {
 		try {
-			
+			createAssessmentItemSubGraph(plugin);
 		} catch(Exception e) {
-			 LOGGER.error(ContentErrorMessageConstants.ASSESSMENT_ITEM_CREATOR_PROCESSOR_ERROR, e);
+			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
+					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssessmentItemCreatorProcessor]", e);
 		}
-		return content;
+		return plugin;
 	}
 	
-	@SuppressWarnings({ "unchecked", "unused" })
-	private Map<String, Object> createAssessmentItemSubGraph(Plugin content) {
+	@SuppressWarnings({ "unchecked" })
+	private Map<String, Object> createAssessmentItemSubGraph(Plugin plugin) {
 		Map<String, Object> assessmentItemCreationFilewiseResult = new HashMap<String, Object>();
 		try {
 			List<Relation> outRelations = new ArrayList<Relation>();
-			List<File> controllerFileList = getControllersFileList(content.getControllers(), ContentWorkflowPipelineParams.data.name(), basePath);
+			List<File> controllerFileList = getControllersFileList(plugin.getControllers(), ContentWorkflowPipelineParams.data.name(), basePath);
 			if (null != controllerFileList) {
 				for (File file: controllerFileList) {
 					if (file.exists()) {

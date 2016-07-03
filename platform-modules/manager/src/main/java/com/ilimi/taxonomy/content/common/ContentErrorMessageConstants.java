@@ -60,6 +60,14 @@ public class ContentErrorMessageConstants {
 	
 	public static final String FILE_UPLOAD_ERROR = "Error! While uploading File.";
 	
+	public static final String MISSING_ASSETS_ERROR = "Error! Missing Asset.";
+	
+	public static final String PROCESSOR_ERROR = "Error! While Processing in Processor.";
+	
+	public static final String CONTROLLER_FILE_READ_ERROR = "Error! While Controller JSON File.";
+	
+	public static final String ASSET_UPLOAD_ERROR = "Error! While Uploading the Assets.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

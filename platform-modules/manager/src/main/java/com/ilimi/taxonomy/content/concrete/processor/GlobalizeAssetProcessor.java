@@ -17,9 +17,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.AWSUploader;
 
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
+import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Plugin;
+import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
@@ -28,27 +32,35 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 	private static Logger LOGGER = LogManager.getLogger(GlobalizeAssetProcessor.class.getName());
 	
 	public GlobalizeAssetProcessor(String basePath, String contentId) {
+		if (!isValidBasePath(basePath))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Path does not Exist.]");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
 	}
 
 	@Override
-	protected Plugin process(Plugin content) {
+	protected Plugin process(Plugin plugin) {
 		try {
-			if (null != content) {
-				Map<String, String> mediaSrcMap = getMediaSrcMap(getMedia(content));
+			if (null != plugin) {
+				Map<String, String> mediaSrcMap = getMediaSrcMap(getMedia(plugin));
 				Map<String, String> uploadedAssetsMap = uploadAssets(mediaSrcMap);
-				Manifest manifest = content.getManifest();
+				Manifest manifest = plugin.getManifest();
 				if (null != manifest)
-					manifest.setMedias(getUpdatedMediaWithUrl(uploadedAssetsMap, getMedia(content)));
+					manifest.setMedias(getUpdatedMediaWithUrl(uploadedAssetsMap, getMedia(plugin)));
 			}
 		} catch(InterruptedException | ExecutionException e) {
-			LOGGER.error("", e);
+			throw new ServerException(ContentErrorCodeConstants.ASSET_UPLOAD_ERROR.name(), 
+					ContentErrorMessageConstants.ASSET_UPLOAD_ERROR + " | [GlobalizeAssetProcessor]", e);
 		} catch (Exception e) {
-			LOGGER.error("", e);
+			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
+					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [GlobalizeAssetProcessor]", e);
 		}
 		
-		return content;
+		return plugin;
 	}
 	
 	private Map<String, String> uploadAssets(Map<String, String> files) throws InterruptedException, ExecutionException {

@@ -14,11 +14,14 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Manifest;
+import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
@@ -29,6 +32,12 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 	private static final String URL_REGEX = "^((https?|ftp)://|(www|ftp)\\.)?[a-z0-9-]+(\\.[a-z0-9-]+)+([/?].*)?$";
 	
 	public AssetCreatorProcessor(String basePath, String contentId) {
+		if (!isValidBasePath(basePath))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Path does not Exist.]");
+		if (StringUtils.isBlank(contentId))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM + " | [Invalid Content Id.]");
 		this.basePath = basePath;
 		this.contentId = contentId;
 	}
@@ -44,7 +53,8 @@ public class AssetCreatorProcessor extends AbstractProcessor {
 					manifest.setMedias(getUpdatedMediaWithAssetId(assetIdMap, getMedia(content)));
 			}
 		} catch(Exception e) {
-			LOGGER.error("", e);
+			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
+					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssetCreatorProcessor]", e);
 		}
 		
 		return content;

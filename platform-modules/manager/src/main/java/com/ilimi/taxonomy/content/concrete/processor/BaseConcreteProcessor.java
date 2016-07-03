@@ -1,6 +1,11 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.InvalidPathException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +35,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(BaseConcreteProcessor.class.getName());
 	
-	public Response updateNode(String contentId, Map<String, Object> fields) {
-		Response response = new Response();
-		return response; 
-	}
-	
-	public List<Media> getMedia(Plugin content) {
+	protected List<Media> getMedia(Plugin content) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != content) {
 			medias = content.getManifest().getMedias();
@@ -43,7 +43,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return medias;
 	}
 	
-	public List<String> getMediaSrcList(List<Media> medias) {
+	protected List<String> getMediaSrcList(List<Media> medias) {
 		List<String> mediaSrcList = new ArrayList<String>();
 		if (null != medias) {
 			for (Media media: medias) {
@@ -55,7 +55,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return mediaSrcList;
 	}
 	
-	public Map<String, String> getMediaSrcMap(List<Media> medias) {
+	protected Map<String, String> getMediaSrcMap(List<Media> medias) {
 		Map<String, String> srcMap = new HashMap<String, String>();
 		if (null != medias) {
 			for (Media media: medias) {
@@ -72,7 +72,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return srcMap;
 	}
 	
-	public Map<String, String> getNonAssetObjMediaSrcMap(List<Media> medias) {
+	protected Map<String, String> getNonAssetObjMediaSrcMap(List<Media> medias) {
 		Map<String, String> srcMap = new HashMap<String, String>();
 		if (null != medias) {
 			for (Media media: medias) {
@@ -91,7 +91,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return srcMap;
 	}
 	
-	public List<Media> getUpdatedMediaWithUrl(Map<String, String> urlMap, List<Media> mediaList) {
+	protected List<Media> getUpdatedMediaWithUrl(Map<String, String> urlMap, List<Media> mediaList) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != urlMap && null != mediaList) {
 			for (Media media: mediaList) {
@@ -106,7 +106,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return medias;
 	}
 	
-	public List<Media> getUpdatedMediaWithAssetId(Map<String, String> assetIdMap, List<Media> mediaList) {
+	protected List<Media> getUpdatedMediaWithAssetId(Map<String, String> assetIdMap, List<Media> mediaList) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != assetIdMap && null != mediaList) {
 			for (Media media: mediaList) {
@@ -121,7 +121,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return medias;
 	}
 	
-	public List<File> getControllersFileList(List<Controller> controllers, String type, String basePath) {
+	protected List<File> getControllersFileList(List<Controller> controllers, String type, String basePath) {
 		List<File> controllerFileList = new ArrayList<File>();
 		if (null != controllers && !StringUtils.isBlank(type) && !StringUtils.isBlank(basePath)) {
 			for (Controller controller: controllers) {
@@ -140,7 +140,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return controllerFileList;
 	}
 	
-	public Response createContentNode(Map<String, Object> map) {
+	protected Response createContentNode(Map<String, Object> map) {
 		Response response = new Response();
 		if (null != map) {
 			Node node = getDataNode(map);
@@ -160,7 +160,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return response;
 	}
 	
-	public Response updateContentNode(Node node, Map<String, Object> map) {
+	protected Response updateContentNode(Node node, Map<String, Object> map) {
 		Response response = new Response();
 		if (null != map && null != node) {
 			node = updateDataNode(node, map);
@@ -181,7 +181,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return response;
 	}
 	
-	private Node updateDataNode(Node node, Map<String, Object> map) {
+	protected Node updateDataNode(Node node, Map<String, Object> map) {
 		if (null != map && null != node) {
 			for (Entry<String, Object> entry: map.entrySet())
 				node.getMetadata().put(entry.getKey(), entry.getValue());
@@ -189,7 +189,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return node;
 	}
 	
-	private Node getDataNode(Map<String, Object> map) {
+	protected Node getDataNode(Map<String, Object> map) {
 		Node node = new Node();
 		if (null != map) {
 			Map<String, Object> metadata = new HashMap<String, Object>();
@@ -203,7 +203,7 @@ public class BaseConcreteProcessor extends BaseManager {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public List<String> createRelation(String graphId, Map<String, Object> mapRelation,
+	protected List<String> createRelation(String graphId, Map<String, Object> mapRelation,
 			List<Relation> outRelations) {
 		if (null != mapRelation) {
 			List<String> lstResponse = new ArrayList<String>();
@@ -225,7 +225,7 @@ public class BaseConcreteProcessor extends BaseManager {
 		return null;
 	}
 	
-	public Response addRelation(String graphId, String objectId1, String relation, String objectId2) {
+	protected Response addRelation(String graphId, String objectId1, String relation, String objectId2) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid graph Id");
 		if (StringUtils.isBlank(objectId1) || StringUtils.isBlank(objectId2))
@@ -240,17 +240,45 @@ public class BaseConcreteProcessor extends BaseManager {
 		return response;
 	}
 	
-	public boolean isWidgetTypeAsset(String assetType) {
+	protected boolean isWidgetTypeAsset(String assetType) {
 		return StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.js.name()) ||
 				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.css.name()) ||
 				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.plugin.name());
 	}
 	
-	public void createDirectoryIfNeeded(String directoryName) {
+	protected void createDirectoryIfNeeded(String directoryName) {
         File theDir = new File(directoryName);
         if (!theDir.exists()) {
             theDir.mkdir();
         }
     }
+	
+	protected boolean isValidBasePath(String path) {
+		boolean isValid = true;
+		try {
+			LOGGER.info("Validating the Base Path: " + path);
+			isValid = isPathExist(Paths.get(path));
+		} catch (InvalidPathException |  NullPointerException e) {
+            isValid = false;
+        }
+		return isValid;
+	}
+	
+	protected boolean isPathExist(Path path) {
+		boolean exist = true;
+		try {
+			if (null != path) {
+				LOGGER.info("Creating the Base Path: " + path.getFileName());
+				if (!Files.exists(path))
+					Files.createDirectories(path);
+			}
+		} catch (FileAlreadyExistsException e) {
+			LOGGER.info("Base Path Already Exist: " + path.getFileName());
+		} catch (Exception e) {
+			exist = false;
+			LOGGER.error("Error! Something went wrong while creating the path - " + path.getFileName(), e);
+		}
+		return exist;
+	}
 	
 }
