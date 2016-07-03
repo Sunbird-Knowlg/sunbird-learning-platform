@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.enums;
+package com.ilimi.common.enums;
 
 public enum CompositeSearchErrorCodes {
 	ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID, ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER, ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND;
