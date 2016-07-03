@@ -37,39 +37,10 @@ public class BaseConcreteProcessor extends BaseManager {
 	
 	protected List<Media> getMedia(Plugin content) {
 		List<Media> medias = new ArrayList<Media>();
-		if (null != content) {
+		if (null != content && null != content.getManifest()) {
 			medias = content.getManifest().getMedias();
 		}
 		return medias;
-	}
-	
-	protected List<String> getMediaSrcList(List<Media> medias) {
-		List<String> mediaSrcList = new ArrayList<String>();
-		if (null != medias) {
-			for (Media media: medias) {
-				String src = media.getData().get(ContentWorkflowPipelineParams.src.name());
-				if (!StringUtils.isBlank(src))
-					mediaSrcList.add(src);
-			}
-		}
-		return mediaSrcList;
-	}
-	
-	protected Map<String, String> getMediaSrcMap(List<Media> medias) {
-		Map<String, String> srcMap = new HashMap<String, String>();
-		if (null != medias) {
-			for (Media media: medias) {
-				Map<String, String> data = media.getData();
-				if (null != data) {
-					String src = data.get(ContentWorkflowPipelineParams.src.name());
-					String type = data.get(ContentWorkflowPipelineParams.type.name());
-					if (!StringUtils.isBlank(src) &&
-							!StringUtils.isBlank(type))
-						srcMap.put(src, type);
-				}
-			}
-		}
-		return srcMap;
 	}
 	
 	protected Map<String, String> getNonAssetObjMediaSrcMap(List<Media> medias) {
@@ -96,9 +67,11 @@ public class BaseConcreteProcessor extends BaseManager {
 		if (null != urlMap && null != mediaList) {
 			for (Media media: mediaList) {
 				if (null != media.getData()) {
-					String uUrl = urlMap.get(media.getData().get(ContentWorkflowPipelineParams.src.name()));
-					if (!StringUtils.isBlank(uUrl))
+					String uUrl = urlMap.get(media.getId());
+					if (!StringUtils.isBlank(uUrl)) {
 						media.getData().put(ContentWorkflowPipelineParams.src.name(), uUrl);
+						media.setSrc(uUrl);
+					}
 				}
 				medias.add(media);
 			}

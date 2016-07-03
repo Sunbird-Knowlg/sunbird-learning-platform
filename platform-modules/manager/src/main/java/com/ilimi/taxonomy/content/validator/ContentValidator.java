@@ -13,7 +13,6 @@ import org.apache.tika.Tika;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
-import com.ilimi.taxonomy.content.common.AssetsMimeTypeMap;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
@@ -61,17 +60,21 @@ public class ContentValidator {
 		boolean isValidSize = false;
 		if (file.exists()) {
 			LOGGER.info("Validating File For Size: " + file.getName());
-			if (file.length() < getContentPackageFileSizeLimit())
+			if (file.length() <= getContentPackageFileSizeLimit())
 				isValidSize = true;
 		}
 		return isValidSize;
 	}
 	
 	private double getContentPackageFileSizeLimit() {
-		double size = 20971520;			// In Bytes, Default is 20MB
+		double size = 52428800;			// In Bytes, Default is 50MB
 		String limit = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.MAX_CONTENT_PACKAGE_FILE_SIZE_LIMIT.name());
-		if (!StringUtils.isBlank(limit))
-			size = Double.parseDouble(limit);
+		if (!StringUtils.isBlank(limit)) {
+			try {
+				size = Double.parseDouble(limit);
+			} catch (Exception e) {
+			}
+		}
 		return size;
 	}
 	

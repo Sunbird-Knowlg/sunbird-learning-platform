@@ -35,14 +35,14 @@ public class ECRFToXMLConvertor {
 			xml.append(getContentControllersXml(ecrfObject.getControllers()));
 			xml.append(getPluginsXml(ecrfObject.getChildrenPlugin()));
 			xml.append(getEventsXml(ecrfObject.getEvents()));
-			xml.append(getEndTag(ecrfObject.getData().get(ContentWorkflowPipelineParams.element_name.name())));
+			xml.append(getEndTag(ecrfObject.getData().get(ContentWorkflowPipelineParams.cwp_element_name.name())));
 		}
 		return xml.toString();
 	}
 	
 	private StringBuilder getContentManifestXml(Manifest manifest) {
 		StringBuilder xml = new StringBuilder();
-		if (null != manifest) {
+		if (null != manifest && null != manifest.getMedias() && !manifest.getMedias().isEmpty()) {
 			xml.append(getElementXml(manifest.getData()));
 			xml.append(getInnerText(manifest.getInnerText()));
 			xml.append(getCData(manifest.getcData()));
@@ -121,7 +121,7 @@ public class ECRFToXMLConvertor {
 	private StringBuilder getCData(String cDataText) {
 		StringBuilder xml = new StringBuilder();
 		if (!StringUtils.isBlank(cDataText))
-			xml.append(cDataText);
+			xml.append("![CDATA[" + cDataText + "]]");
 		return xml;
 	}
 	
@@ -143,7 +143,7 @@ public class ECRFToXMLConvertor {
 	
 	private StringBuilder getEventsXml(List<Event> events) {
 		StringBuilder xml = new StringBuilder();
-		if (null != events) {
+		if (null != events && !events.isEmpty()) {
 			if (events.size() > 1) 
 				xml.append(getStartTag(ContentWorkflowPipelineParams.events.name()));
 			for (Event event: events)
@@ -169,7 +169,7 @@ public class ECRFToXMLConvertor {
 	private StringBuilder getElementXml(Map<String, String> data) {
 		StringBuilder xml = new StringBuilder();
 		if (null != data) {
-			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.element_name.name()));
+			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.cwp_element_name.name()));
 			for (Entry<String, String> entry: data.entrySet()) {
 				if (!ElementMap.isSystemGenerateAttribute(entry.getKey())) {
 					xml.append(BLANK_SPACE + entry.getKey() + ATTRIBUTE_KEY_VALUE_SAPERATOR + addQuote(entry.getValue()));
@@ -184,8 +184,8 @@ public class ECRFToXMLConvertor {
 		StringBuilder xml = new StringBuilder();
 		if (null != object && 
 				null != object.getData() && 
-				null != object.getData().get(ContentWorkflowPipelineParams.element_name.name())) {
-			xml.append(getEndTag(object.getData().get(ContentWorkflowPipelineParams.element_name.name())));
+				null != object.getData().get(ContentWorkflowPipelineParams.cwp_element_name.name())) {
+			xml.append(getEndTag(object.getData().get(ContentWorkflowPipelineParams.cwp_element_name.name())));
 		}
 		return xml;
 	}

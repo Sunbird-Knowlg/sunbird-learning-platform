@@ -74,6 +74,12 @@ public class ContentErrorMessageConstants {
 	
 	public static final String ASSET_FILE_READ_ERROR = "Error! While reading Asset File.";
 	
+	public static final String DUPLICATE_ASSET_ID_ERROR = "Error! Duplicate Asset Id used in the manifest.";
+	
+	public static final String DUPLICATE_CONTROLLER_ID_ERROR = "Error! Duplicate Controller Id used in the ECML.";
+	
+	public static final String MISSING_CONTROLLER_FILES_ERROR = "Error! Missing Controller file.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

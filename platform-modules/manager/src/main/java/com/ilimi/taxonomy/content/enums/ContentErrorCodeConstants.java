@@ -18,7 +18,11 @@ public enum ContentErrorCodeConstants {
 	ASSET_UPLOAD_ERROR(11, "Error while reading controller file."),
 	INVALID_MIME_TYPE(12, "Invalid Mime-Type."),
 	FILE_SIZE_EXCEEDS_LIMIT(13, "File Size Exceeded the Limit."),
-	ASSET_FILE_READ(13, "Eror while reading Asset file.");
+	ASSET_FILE_READ(13, "Eror while reading Asset file."),
+	DUPLICATE_ASSET_ID(14, "Duplicate Asset Id used in manifest."),
+	INVALID_CONTROLLER(15, "Invalid Controller Element."),
+	DUPLICATE_CONTROLLER_ID(16, "Duplicate Controller Id used in ECML body."),
+	MISSING_CONTROLLER_FILE(17, "Missing Controller File.");
 
 	private final int code;
 	private final String description;

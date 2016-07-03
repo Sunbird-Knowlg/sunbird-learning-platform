@@ -111,6 +111,8 @@ public class JSONContentParser {
 					throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 							"Error! Invalid Media ('type' is required.)");
 				media.setId(id);
+				media.setSrc(src);
+				media.setType(type);
 				media.setData(getData(mediaObj, ContentWorkflowPipelineParams.media.name()));
 				media.setInnerText(getInnerText(mediaObj, ContentWorkflowPipelineParams.__text.name()));
 				media.setcData(getCData(mediaObj, ContentWorkflowPipelineParams.__cdata.name()));
@@ -131,6 +133,7 @@ public class JSONContentParser {
 				if (value instanceof JSONArray) {
 					JSONArray controllerObjs = (JSONArray) value;
 					for (int i = 0; i < controllerObjs.length(); i++) {
+						validateController(controllerObjs.getJSONObject(i));
 						Controller controller = new Controller();
 						controller.setId(getId(controllerObjs.getJSONObject(i)));
 						controller.setData(getData(controllerObjs.getJSONObject(i), ContentWorkflowPipelineParams.controller.name()));
@@ -140,6 +143,7 @@ public class JSONContentParser {
 					}
 				} else if (value instanceof JSONObject) {
 					JSONObject controllerObj = (JSONObject) value;
+					validateController(controllerObj);
 					Controller controller = new Controller();
 					controller.setId(getId(controllerObj));
 					controller.setData(getData(controllerObj, ContentWorkflowPipelineParams.controller.name()));
@@ -150,6 +154,21 @@ public class JSONContentParser {
 			}
 		}
 		return controllers;
+	}
+	
+	private void validateController(JSONObject controllerObj) {
+		String id = controllerObj.getString(ContentWorkflowPipelineParams.id.name());
+		String type = controllerObj.getString(ContentWorkflowPipelineParams.type.name());
+		if (StringUtils.isBlank(id))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+					"Error! Invalid Controller ('id' is required.)");
+		if (StringUtils.isBlank(type))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+					"Error! Invalid Controller ('type' is required.)");
+		if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type) 
+				&& !StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.data.name(), type))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+					"Error! Invalid Controller ('type' should be either 'items' or 'data')");
 	}
 	
 //	private List<Plugin> getPlugins(JSONObject object) {
@@ -267,7 +286,7 @@ public class JSONContentParser {
 		String innerText = "";
 		if (null != object && !StringUtils.isBlank(elementName)) {
 			String text = getMapFromJsonObj(object).get(elementName);
-			if (!StringUtils.isBlank(innerText))
+			if (null != text)
 				innerText = text;
 		}
 		return innerText;
@@ -308,7 +327,7 @@ public class JSONContentParser {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != object && !StringUtils.isBlank(elementName)) {
 			map = getMapFromJsonObj(object);
-			map.put(ContentWorkflowPipelineParams.element_name.name(), elementName);
+			map.put(ContentWorkflowPipelineParams.cwp_element_name.name(), elementName);
 		}
 		return map;
 	}
@@ -371,8 +390,8 @@ public class JSONContentParser {
 		        		!ElementMap.isReservedWrapper(parentKey)) || isOnlyNonPluginChildrenAllowed == false){
 		        	Map<String, String> map = new HashMap<String, String>();
 			        map.put(key, (String)value);
-			        map.put(ContentWorkflowPipelineParams.element_name.name(), key);
-			        map.put(ContentWorkflowPipelineParams.group_element_name.name(), parentKey);
+			        map.put(ContentWorkflowPipelineParams.cwp_element_name.name(), key);
+			        map.put(ContentWorkflowPipelineParams.cwp_group_element_name.name(), parentKey);
 			        maps.add(map);
 		        }
 	        }

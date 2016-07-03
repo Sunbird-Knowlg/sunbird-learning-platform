@@ -50,7 +50,10 @@ public class InitializePipeline extends BasePipeline {
 	
 	public Response init(String operation, Map<String, Object> parameterMap) {
 		Response response = new Response();
-		if (null != parameterMap && !StringUtils.isBlank(operation)) {
+		if (StringUtils.isBlank(operation))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
+					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
+		if (null != parameterMap && StringUtils.isNotBlank(operation)) {
 			switch (operation) {
 			case "upload":
 			case "UPLOAD":
@@ -59,9 +62,6 @@ public class InitializePipeline extends BasePipeline {
 				if (null == file || !file.exists()) 
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
 							ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [File does not Exist.]");
-				if (StringUtils.isBlank(operation))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
-							ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid Operation.]");
 				if (null == node) 
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
 							ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
@@ -121,7 +121,7 @@ public class InitializePipeline extends BasePipeline {
 		String type = "";
 		if (new File(basePath + File.separator + JSON_ECML_FILE_NAME).exists())
 			type = ContentWorkflowPipelineParams.json.name();
-		if (new File(basePath + File.separator + XML_ECML_FILE_NAME).exists())
+		else if (new File(basePath + File.separator + XML_ECML_FILE_NAME).exists())
 			type = ContentWorkflowPipelineParams.xml.name();
 		return type;
 	}
@@ -148,7 +148,7 @@ public class InitializePipeline extends BasePipeline {
 			LOGGER.info("Reading ECML File.");
 			if (jsonECMLFile.exists())
 				fileString = FileUtils.readFileToString(jsonECMLFile);
-			if (xmlECMLFilePath.exists())
+			else if (xmlECMLFilePath.exists())
 				fileString = FileUtils.readFileToString(xmlECMLFilePath);
 			
 		} catch (IOException e) {

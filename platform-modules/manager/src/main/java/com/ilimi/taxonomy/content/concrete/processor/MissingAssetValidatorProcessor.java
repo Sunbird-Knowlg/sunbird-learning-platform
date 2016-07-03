@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -37,20 +38,29 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 		try {
 			if (null != plugin)
 				validateMissingAssets(plugin);
+		} catch (ClientException ce) {
+			throw ce;
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [MissingAssetValidatorProcessor]", e);
 		}
 		return plugin;
 	}
-
+	
 	private void validateMissingAssets(Plugin plugin) {
 		if (null != plugin) {
 			Manifest manifest = plugin.getManifest();
 			if (null != manifest) {
 				List<Media> medias = manifest.getMedias();
+				List<String> mediaIds = new ArrayList<String>();
 				LOGGER.info("Validating Assets.");
 				for (Media media : medias) {
+					if (mediaIds.contains(media.getId()))
+						throw new ClientException(ContentErrorCodeConstants.DUPLICATE_ASSET_ID.name(),
+								ContentErrorMessageConstants.DUPLICATE_ASSET_ID_ERROR + " | [Asset Id '" + media.getId()
+										+ "' is used more than once in the manifest.]");
+					else
+						mediaIds.add(media.getId());
 					if (isWidgetTypeAsset(media.getType())
 							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
 									+ File.separator + media.getSrc()).exists())

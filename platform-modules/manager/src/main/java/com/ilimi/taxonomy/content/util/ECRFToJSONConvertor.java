@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.Gson;
 import com.ilimi.taxonomy.content.common.ElementMap;
 import com.ilimi.taxonomy.content.entity.Plugin;
@@ -30,13 +32,15 @@ public class ECRFToJSONConvertor {
 			map.putAll(getPluginMaps(ecrf.getChildrenPlugin()));
 			map.putAll(getEventsMap(ecrf.getEvents()));
 		}
-		content = gson.toJson(map);
+		Map<String, Object> themeMap = new HashMap<String, Object>();
+		themeMap.put(ContentWorkflowPipelineParams.theme.name(), map);
+		content = gson.toJson(themeMap);
 		return content;
 	}
 	
 	private Map<String, Object> getManifestMap(Manifest manifest) {
 		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != manifest) {
+		if (null != manifest && null != manifest.getMedias() && !manifest.getMedias().isEmpty()) {
 			Map<String, Object> manifestMap = new HashMap<String, Object>();
 			manifestMap.putAll(getElementMap(manifest.getData()));
 			manifestMap.putAll(getInnerTextMap(manifest.getInnerText()));
@@ -99,38 +103,38 @@ public class ECRFToJSONConvertor {
 //		return map;
 //	}
 	
-	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != elements) {
-			Map<String, List<Map<String, Object>>> groupingMap = new HashMap<String, List<Map<String, Object>>>();
-			for (Map<String, Object> element: elements) {
-				for (Entry<String, Object> entry: element.entrySet()) {
-					String groupKey = entry.getKey();
-					if (null == groupingMap.get(groupKey))
-						groupingMap.put(groupKey, new ArrayList<Map<String, Object>>());
-					groupingMap.get(groupKey).add(element);
-					map = createGroupedPluginMap(groupingMap);
-				}
-			}
-		}
-		return map;
-	}
-	
-	private Map<String, Object> createGroupedPluginMap(Map<String, List<Map<String, Object>>> groupingMap) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		if (null != groupingMap) {
-			for (Entry<String, List<Map<String, Object>>> entry: groupingMap.entrySet()) {
-				List<Map<String, Object>> lstMap = new ArrayList<Map<String, Object>>();
-				List<Map<String, Object>> maps = entry.getValue();
-				for (Map<String, Object> m: maps) {
-					lstMap.add(m);
-				}
-				map.put(entry.getKey(), lstMap);
-			}
-		}
-		return map;
-		
-	}
+//	private Map<String, Object> getGroupedPluginMap(List<Map<String, Object>> elements) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != elements) {
+//			Map<String, List<Map<String, Object>>> groupingMap = new HashMap<String, List<Map<String, Object>>>();
+//			for (Map<String, Object> element: elements) {
+//				for (Entry<String, Object> entry: element.entrySet()) {
+//					String groupKey = entry.getKey();
+//					if (null == groupingMap.get(groupKey))
+//						groupingMap.put(groupKey, new ArrayList<Map<String, Object>>());
+//					groupingMap.get(groupKey).add(element);
+//					map = createGroupedPluginMap(groupingMap);
+//				}
+//			}
+//		}
+//		return map;
+//	}
+//	
+//	private Map<String, Object> createGroupedPluginMap(Map<String, List<Map<String, Object>>> groupingMap) {
+//		Map<String, Object> map = new HashMap<String, Object>();
+//		if (null != groupingMap) {
+//			for (Entry<String, List<Map<String, Object>>> entry: groupingMap.entrySet()) {
+//				List<Map<String, Object>> lstMap = new ArrayList<Map<String, Object>>();
+//				List<Map<String, Object>> maps = entry.getValue();
+//				for (Map<String, Object> m: maps) {
+//					lstMap.add(m);
+//				}
+//				map.put(entry.getKey(), lstMap);
+//			}
+//		}
+//		return map;
+//		
+//	}
 	
 //	private Map<String, Object> createGroupedElementMap(Map<String, List<Map<String, String>>> groupingMap) {
 //		Map<String, Object> map = new HashMap<String, Object>();
@@ -170,15 +174,21 @@ public class ECRFToJSONConvertor {
 	}
 	
 	private Map<String, Object> getPluginMaps(List<Plugin> plugins) {
-		Map<String, Object> pluginMap = new HashMap<String, Object>();
+		Map<String, List<Map<String, Object>>> map = new HashMap<String, List<Map<String, Object>>>();
 		if (null != plugins) {
-			List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
 			for (Plugin plugin: plugins) {
-				maps.add(getPluginMap(plugin));
+				String element = plugin.getData().get(ContentWorkflowPipelineParams.cwp_element_name.name());
+				if (StringUtils.isNotBlank(element)) {
+					List<Map<String, Object>> pluginList = map.get(element);
+					if (null == pluginList) {
+						pluginList = new ArrayList<Map<String, Object>>();
+						map.put(element, pluginList);
+					}
+					pluginList.add(getPluginMap(plugin));
+				}
 			}
-			pluginMap = getGroupedPluginMap(maps);
 		}
-		return pluginMap;
+		return groupPlugins(map);
 	}
 	
 	private Map<String, Object> getPluginMap(Plugin plugin) {
@@ -197,17 +207,15 @@ public class ECRFToJSONConvertor {
 	
 	private Map<String, Object> getInnerTextMap(String innerText) {
 		Map<String, Object> innerTextMap = new HashMap<String, Object>();
-		if (null != innerTextMap) {
+		if (StringUtils.isNotBlank(innerText))
 			innerTextMap.put(ContentWorkflowPipelineParams.__text.name(), innerText);
-		}
 		return innerTextMap;
 	}
 	
 	private Map<String, Object> getCDataMap(String cDataText) {
 		Map<String, Object> innerTextMap = new HashMap<String, Object>();
-		if (null != innerTextMap) {
+		if (StringUtils.isNotBlank(cDataText))
 			innerTextMap.put(ContentWorkflowPipelineParams.__cdata.name(), cDataText);
-		}
 		return innerTextMap;
 	}
 	
@@ -218,16 +226,22 @@ public class ECRFToJSONConvertor {
 //		return nonPluginElementMap;
 //	}
 	
-	private Map<String, Object> getChildrenPluginMap(List<Plugin> childrenPlugin) {
-		Map<String, Object> childrenPluginMap = new HashMap<String, Object>();
-		if (null != childrenPlugin) {
-			List<Map<String, Object>> childPlugins = new ArrayList<Map<String, Object>>();
-			for (Plugin plugin: childrenPlugin) {
-				childPlugins.add(getPluginMap(plugin));
+	private Map<String, Object> getChildrenPluginMap(List<Plugin> childrenPlugins) {
+		Map<String, List<Map<String, Object>>> map = new HashMap<String, List<Map<String, Object>>>();
+		if (null != childrenPlugins) {
+			for (Plugin plugin: childrenPlugins) {
+				String element = plugin.getData().get(ContentWorkflowPipelineParams.cwp_element_name.name());
+				if (StringUtils.isNotBlank(element)) {
+					List<Map<String, Object>> pluginList = map.get(element);
+					if (null == pluginList) {
+						pluginList = new ArrayList<Map<String, Object>>();
+						map.put(element, pluginList);
+					}
+					pluginList.add(getPluginMap(plugin));
+				}
 			}
-			childrenPluginMap = getGroupedPluginMap(childPlugins);
 		}
-		return childrenPluginMap;
+		return groupPlugins(map);
 	}
 	
 	private Map<String, Object> getEventsMap(List<Event> events) {
@@ -264,11 +278,27 @@ public class ECRFToJSONConvertor {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != data) {
 			for (Entry<String, String> entry: data.entrySet()) {
-				if (!ElementMap.isSystemGenerateAttribute(entry.getKey()))
+				if (!ElementMap.isSystemGenerateAttribute(entry.getKey()) && StringUtils.isNotBlank(entry.getValue()))
 					map.put(entry.getKey(), entry.getValue());
 			}
 		}
 		return map;
+	}
+	
+	private Map<String, Object> groupPlugins(Map<String, List<Map<String, Object>>> map) {
+		Map<String, Object> groupedMap = new HashMap<String, Object>();
+		if (null != map && !map.isEmpty()) {
+			for (Entry<String, List<Map<String, Object>>> entry : map.entrySet()) {
+				List<Map<String, Object>> list = entry.getValue();
+				if (null != list && !list.isEmpty()) {
+					if (list.size() == 1)
+						groupedMap.put(entry.getKey(), list.get(0));
+					else
+						groupedMap.put(entry.getKey(), list);
+				}
+			}
+		}
+		return groupedMap;
 	}
 
 }

@@ -42,6 +42,8 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 			if (null != plugin) {
 				validateAssets(plugin);
 			}
+		} catch(ClientException ce) {
+			throw ce;
 		} catch(Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [AssetsValidatorProcessor]", e);
@@ -75,7 +77,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 						throw new ClientException(ContentErrorCodeConstants.FILE_SIZE_EXCEEDS_LIMIT.name(), 
 								ContentErrorMessageConstants.ASSET_FILE_SIZE_LIMIT_EXCEEDS + " | [Asset " + file.getName() + " is Bigger in Size.]");
 					isValid = true;
-					LOGGER.info("Asset Id {0} is Valid.", media.getId());
+					LOGGER.info("Asset Id '" + media.getId() + "' is Valid.");
 				}
 			}
 		} catch(IOException e) {
@@ -88,7 +90,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
-			LOGGER.info("Validating Asset File {0} for Mime-Type.", file.getName());
+			LOGGER.info("Validating Asset File '" + file.getName() + "' for Mime-Type.");
 			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
 			isValidMimeType = AssetsMimeTypeMap.isAllowedMimeType(mimeType);
@@ -99,7 +101,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private boolean isValidAssetSize(File file) {
 		boolean isValidSize = false;
 		if (file.exists()) {
-			LOGGER.info("Validating Asset File {0} for Size.", file.getName());
+			LOGGER.info("Validating Asset File '" + file.getName() + "' for Size.");
 			if (file.length() < getAssetFileSizeLimit())
 				isValidSize = true;
 		}
@@ -109,8 +111,12 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 	private double getAssetFileSizeLimit() {
 		double size = 20971520;			// In Bytes, Default is 20MB
 		String limit = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
-		if (!StringUtils.isBlank(limit))
-			size = Double.parseDouble(limit);
+		if (!StringUtils.isBlank(limit)) {
+			try {
+				size = Double.parseDouble(limit);
+			} catch(Exception e) {
+			}
+		}
 		return size;
 	}
 

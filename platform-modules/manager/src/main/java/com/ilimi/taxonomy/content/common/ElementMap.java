@@ -18,8 +18,8 @@ public class ElementMap {
 	private static final List<String> systemGeneratedAttribute = new ArrayList<String>() {
 		private static final long serialVersionUID = 7315113992066657012L;
 		{
-			add(ContentWorkflowPipelineParams.element_name.name());
-			add(ContentWorkflowPipelineParams.group_element_name.name());
+			add(ContentWorkflowPipelineParams.cwp_element_name.name());
+			add(ContentWorkflowPipelineParams.cwp_group_element_name.name());
 		}
 	};
 

@@ -57,12 +57,19 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 							Map<String, String> data = controller.getData();
 							if (null != data) {
 								String id = data.get(ContentWorkflowPipelineParams.id.name());
-								LOGGER.info("Controller Id: " + id);
-								if (!StringUtils.isBlank(id)) {
-									File file = new File(
+								String type = data.get(ContentWorkflowPipelineParams.type.name());
+								LOGGER.info("Controller Id: " + id + " | type: " + type);
+								if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(type)) {
+									File file = null;
+									if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type))
+										file = new File(
 											basePath + File.separator + ContentWorkflowPipelineParams.items.name()
 													+ File.separator + id + ".json");
-									if (file.exists()) {
+									else if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.data.name(), type))
+										file = new File(
+												basePath + File.separator + ContentWorkflowPipelineParams.data.name()
+														+ File.separator + id + ".json");
+									if (null != file && file.exists()) {
 										LOGGER.info("Reading Controller File: " + file.getName());
 										controller.setcData(FileUtils.readFileToString(file));
 									}

@@ -41,6 +41,9 @@ public class FinalizePipeline extends BasePipeline{
 	
 	public Response finalyze(String operation, Map<String, Object> parameterMap) {
 		Response response = new Response();
+		if (StringUtils.isBlank(operation))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
+					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
 			switch (operation) {
 			case "upload":
@@ -52,9 +55,6 @@ public class FinalizePipeline extends BasePipeline{
 				if (null == file || !file.exists()) 
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
 							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [File does not Exist.]");
-				if (StringUtils.isBlank(operation))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
-							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid Operation.]");
 				if (null == ecrf)
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
 							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");

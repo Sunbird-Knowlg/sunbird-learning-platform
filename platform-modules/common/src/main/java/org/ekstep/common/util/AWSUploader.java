@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 
 import com.amazonaws.regions.Region;
@@ -25,11 +27,8 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
  * 
  */
 public class AWSUploader {
-    
-    public static void main(String[] args) {
-        File f = new File("/Users/rayulu/work/EkStep/learning-platform/api/slugs/src/main/java/feroz/rnd/slugs/Slug.java");
-        System.out.println(f.getName());
-    }
+	
+	private static Logger LOGGER = LogManager.getLogger(AWSUploader.class.getName());
     
     public static String[] uploadFile(String bucketName, String folderName, File file) throws Exception {
         file = Slug.createSlugFile(file);
@@ -40,6 +39,7 @@ public class AWSUploader {
         s3.putObject(new PutObjectRequest(bucketName+"/"+folderName, key, file));
         s3.setObjectAcl(bucketName+"/"+folderName, key, CannedAccessControlList.PublicRead);
         URL url = s3.getUrl(bucketName, folderName+"/"+key);
+        LOGGER.info("AWS Upload '" + file.getName() + "' complete");
         return new String[] {folderName+"/"+key, url.toURI().toString()};
     }
     

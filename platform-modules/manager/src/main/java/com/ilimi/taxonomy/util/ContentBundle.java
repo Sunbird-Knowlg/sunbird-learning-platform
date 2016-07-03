@@ -95,9 +95,7 @@ public class ContentBundle {
                 }
             }
             Object artifactUrl = content.get("artifactUrl");
-            if (null != artifactUrl && StringUtils.isNotBlank(artifactUrl.toString())) {
-                content.put("downloadUrl", artifactUrl);
-            }
+            content.put("downloadUrl", artifactUrl);
         }
         List<File> downloadedFiles = getContentBundle(downloadUrls);
         try {

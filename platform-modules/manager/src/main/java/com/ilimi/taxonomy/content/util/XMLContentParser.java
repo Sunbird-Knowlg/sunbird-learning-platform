@@ -129,11 +129,11 @@ public class XMLContentParser {
 				throw new ClientException(ContentErrorCodeConstants.INVALID_MEDIA.name(), 
 						"Error! Invalid Media ('type' is required.) in '"+ getNodeString(mediaNode) + "' ...");
 			media.setId(id);
+			media.setSrc(src);
+			media.setType(type);
 			media.setData(getDataMap(mediaNode));
 			media.setInnerText(getInnerText(mediaNode));
 			media.setcData(getCData(mediaNode));
-			media.setSrc(src);
-			media.setType(type);
 			media.setChildrenPlugin(getChildrenPlugins(mediaNode));
 		}
 		return media;
@@ -158,6 +158,19 @@ public class XMLContentParser {
 			for (int i = 0; i < controllerNodes.getLength(); i++) {
 				Controller controller = new Controller();
 				if (controllerNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+					String id = getAttributValueByName(controllerNodes.item(i), ContentWorkflowPipelineParams.id.name());
+					String type = getAttributValueByName(controllerNodes.item(i), ContentWorkflowPipelineParams.type.name());
+					if (StringUtils.isBlank(id))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+								"Error! Invalid Controller ('id' is required.) in '"+ getNodeString(controllerNodes.item(i)) + "' ...");
+					if (StringUtils.isBlank(type))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+								"Error! Invalid Controller ('type' is required.) in '"+ getNodeString(controllerNodes.item(i)) + "' ...");
+					if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), type) 
+							&& !StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.data.name(), type))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_CONTROLLER.name(), 
+								"Error! Invalid Controller ('type' should be either 'items' or 'data') in '" 
+										+ getNodeString(controllerNodes.item(i)) + "' ...");
 					controller.setId(getId(controllerNodes.item(i)));
 					controller.setData(getDataMap(controllerNodes.item(i)));
 					controller.setInnerText(getInnerText(controllerNodes.item(i)));
@@ -203,13 +216,9 @@ public class XMLContentParser {
 			NodeList childrenItems = node.getChildNodes();
 			for (int i = 0; i < childrenItems.getLength(); i++)
 				if (childrenItems.item(i).getNodeType() == Node.TEXT_NODE) 
-						innerText = StringUtils.trimToEmpty(cleanupString(childrenItems.item(i).getTextContent()));
+					innerText = childrenItems.item(i).getTextContent();
 		}
 		return innerText;
-	}
-	
-	private String cleanupString(String str) {
-		return str.replace("\n", " ").replace("  ", "").replace("\t", " "); 
 	}
 	
 	private List<Plugin> getChildrenPlugins(Node node) {
@@ -290,7 +299,7 @@ public class XMLContentParser {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != node) {
 			map = getAttributeMap(node);
-			map.put(ContentWorkflowPipelineParams.element_name.name(), node.getNodeName());
+			map.put(ContentWorkflowPipelineParams.cwp_element_name.name(), node.getNodeName());
 		}
 		return map;
 	}
