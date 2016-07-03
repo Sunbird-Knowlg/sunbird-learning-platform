@@ -124,7 +124,7 @@ public class CompositeSearchManagerImpl extends BaseManager implements IComposit
                 response = pushMessageToKafka(lstMessages);
                 System.out.println("sent " + start + " + " + batch + " -- " + def.getObjectType() + " objects");
                 start += batch;
-                if (fetchCount >= total) {
+                if (null != total && fetchCount >= total) {
                 	found = false;
                 	break;
                 }
