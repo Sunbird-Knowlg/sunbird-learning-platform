@@ -102,6 +102,12 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             node.getMetadata().put("unicodeNotation", wc.getUnicode());
                             node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
                             node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
+                            
+    						try {
+    							wordUtil.updateWordChainRelations(languageId, node, wc);
+    						} catch (Exception e) {
+    							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+    						}
                         }
                     }
                     try {

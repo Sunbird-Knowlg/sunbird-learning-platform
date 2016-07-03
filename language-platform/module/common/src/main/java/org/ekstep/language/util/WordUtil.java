@@ -10,6 +10,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,8 @@ import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
+import org.ekstep.language.measures.entity.WordComplexity;
+import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
@@ -1919,6 +1922,172 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		word.getMetadata().remove(LanguageParams.morphology.name());
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
+	}
+	
+	
+	public void updateWordChainRelations(String languageId, Node node, WordComplexity wc) throws Exception {
+		String status = (String) node.getMetadata().get(LanguageParams.status.name());
+		if(status == null)
+			return;
+		if("Live".equalsIgnoreCase(status)){
+			if(languageId.equalsIgnoreCase("en")){
+				updateWordChainRelationEnglishLanguage(languageId, node, wc);
+			}else{
+				updateWordChainRelationIndianLanguage(languageId, node, wc);
+			}
+		}else{
+			List<Relation> outRelation = node.getOutRelations();
+			Iterator<Relation> rItr =outRelation.iterator();
+			while(rItr.hasNext()){
+				Relation rel = rItr.next();
+				if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
+						rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
+						rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
+					rItr.remove();
+				}
+			}
+			node.setOutRelations(outRelation);
+			
+			List<Relation> inRelation = node.getInRelations();
+			Iterator<Relation> irItr =inRelation.iterator();
+			while(irItr.hasNext()){
+				Relation rel = irItr.next();
+				if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
+						rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
+						rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
+					irItr.remove();
+				}
+			}
+			node.setInRelations(inRelation);
+			
+			Response wordResponse = updateWord(node, languageId, node.getIdentifier());
+			if (checkError(wordResponse)) {
+				throw new ServerException(LanguageErrorCodes.ERR_UPDATE_WORD.name(),
+						getErrorMessage(wordResponse));
+			}
+		}
+	}
+	
+	private void updateWordChainRelationEnglishLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
+		String lemma = (String) node.getMetadata().get(LanguageParams.lemma.name());
+		
+		//startWithBoundary
+		String text = "" + lemma.charAt(0);
+		addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+		//endstWithBoundary
+		if(lemma.length()>1){
+			text = "" + lemma.charAt(lemma.length()-1);
+			addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());			
+		}
+		
+		//RythmingSound
+		String arpabets = getArpabets(lemma);
+		if (!StringUtils.isEmpty(arpabets)){
+			String arpabetArr[] = arpabets.split("\\s");
+			int arpabetLength = arpabetArr.length;
+			if(arpabetLength > 1){
+				String rhymingText = (arpabetLength > 3) ? (arpabetArr[arpabetLength-2] + " " + arpabetArr[arpabetLength -1]) : (arpabetArr[arpabetLength -1]); 
+				addPhoneticBoundary(languageId, rhymingText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name());				
+			}
+		}
+
+		Node updatedNode = getDataNode(languageId, node.getIdentifier());
+		node.setOutRelations(updatedNode.getOutRelations());
+		node.setInRelations(updatedNode.getInRelations());
+	}
+	
+	private void updateWordChainRelationIndianLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
+		String unicodeNotation = wc.getUnicode().toUpperCase();
+		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
+		String syllables[] = StringUtils.split(unicodeNotation);
+		
+		String firstSyllable = syllables[0];
+		String[] firstSyllableUnicodes = parseUnicodes(firstSyllable);
+		String firstCharUnicode = firstSyllableUnicodes[0];
+
+		//startWithBoundary
+		if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE) || unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
+			addPhoneticBoundary(languageId, getTextValue(firstCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+		}
+		
+		
+		String lastSyllable = syllables[syllables.length-1];				
+		String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);			
+		String lastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-1];
+		String secondLastCharUnicode = "";
+		
+		if(lastSyllableUnicodes.length > 1){
+			secondLastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-2];
+		}
+		
+		//endstWithBoundary
+		if(isDefualtVowel(lastCharUnicode, unicodeTypeMap)){
+			if(StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+				addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			}
+			
+		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+			addPhoneticBoundary(languageId, getTextValue(lastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			
+		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){ 
+			//get vowel associated with this vowel_sign
+			String vowelUnicode = getVowelUnicode(languageId, lastCharUnicode);
+			addPhoneticBoundary(languageId, getTextValue(vowelUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			
+		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+			addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			
+		}
+		
+		//RythmingSound
+		if(syllables.length>1){
+			String secondLastSyllable = syllables[syllables.length-2];
+			String[] secondLastSyllableUnicodes = parseUnicodes(secondLastSyllable);
+			String secondLastSyllablelastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length-1];
+			String rhymingSoundText = "";
+			if(!isDefualtVowel(secondLastSyllablelastUnicode, unicodeTypeMap) && (unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) || unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE))){
+				String secondLastSyllableSecondlastUnicode = secondLastSyllableUnicodes[lastSyllableUnicodes.length-2];
+				if(unicodeTypeMap.get(secondLastSyllableSecondlastUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+					rhymingSoundText = "\\"+secondLastSyllableSecondlastUnicode;
+				}
+			}
+			rhymingSoundText += lastSyllable;
+			addPhoneticBoundary(languageId, rhymingSoundText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name());
+			
+		}
+		
+		Node updatedNode = getDataNode(languageId, node.getIdentifier());
+		node.setOutRelations(updatedNode.getOutRelations());
+		node.setInRelations(updatedNode.getInRelations());
+	}
+	
+	private boolean isDefualtVowel(String unicode, Map<String, String> unicodeTypeMap){
+		if(unicodeTypeMap.get(unicode) == null && unicode.length()==5 && unicode.endsWith("A")){//default vowel
+			return true;
+		}
+		return false;
+	}
+	
+	private String[] parseUnicodes(String syllable){
+		
+		String[] syllableUnicodes = syllable.split("\\\\");
+		List<String> list = new ArrayList<String>();
+
+		//trim modifier unicode
+		for(String s: syllableUnicodes){
+			if(StringUtils.isNotEmpty(s)){
+				if(s.endsWith("M"))
+					s=s.substring(0, 4);
+				list.add(s);
+			}
+		}
+		return list.toArray(new String[list.size()]);
+	}
+	
+	private String getTextValue(String unicode){
+		int hexVal = Integer.parseInt(unicode, 16);
+		return ""+(char)hexVal;
 	}
 	
 	//Get Vowel Unicode associated with given VowelSign unicode
