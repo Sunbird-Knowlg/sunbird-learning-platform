@@ -7,12 +7,14 @@ import java.util.Map;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.dac.dto.AuditHistoryRecord;
 import com.ilimi.taxonomy.mgr.IAuditHistoryManager;
 import com.ilimi.util.ApplicationContextUtils;
 
 public class AuditHistoryMeassageProcessor implements IMessageProcessor {
 
+	private static LogHelper LOGGER = LogHelper.getInstance(AuditHistoryMeassageProcessor.class.getName());
 	private ObjectMapper mapper = new ObjectMapper();
 	private IAuditHistoryManager manager= null;
 	
@@ -25,7 +27,8 @@ public class AuditHistoryMeassageProcessor implements IMessageProcessor {
 		try {
 			Map<String, Object> message = mapper.readValue(messageData, new TypeReference<Map<String, Object>>() {
 			});
-			processMessage(message);
+			if (null != message)
+				processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -36,17 +39,17 @@ public class AuditHistoryMeassageProcessor implements IMessageProcessor {
 		if (null == manager) {
 			manager = (IAuditHistoryManager) ApplicationContextUtils.getApplicationContext().getBean("auditHistoryManager");
 		}
+		LOGGER.info("Processing audit history message: Object Type: " + message.get("objectType") + " | Identifier: " 
+				+ message.get("nodeUniqueId") + " | Graph: " + message.get("graphId") + " | Operation: " + message.get("operationType"));
 		if (message != null && message.get("operationType") != null && null == message.get("syncMessage")) {
 			AuditHistoryRecord record=getAuditHistory(message);
 			manager.saveAuditHistory(record); 
 		}
-
 	}
 	
 	
 	private AuditHistoryRecord getAuditHistory(Map<String, Object> transactionDataMap){
 		AuditHistoryRecord record=new AuditHistoryRecord();
-		
 		try {
 		record.setUserId((String)transactionDataMap.get("userId"));
 		record.setRequestId((String)transactionDataMap.get("requestId"));
