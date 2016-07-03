@@ -37,22 +37,42 @@ public class CompositeSearchManagerImpl extends BaseManager implements IComposit
 	private static final int SYNC_BATCH_SIZE = 1000;
 	
 	@Override
-	public Response sync(String graphId, String objectType, Request request) {
+	public Response sync(String graphId, String objectType, Integer start, Integer total) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
-		LOGGER.info("Get All Definitions : " + graphId);
+		LOGGER.info("Composite index sync : " + graphId);
 		Response response = OK();
 		if (StringUtils.isNotBlank(objectType)) {
 		    Map<String, Object> result = getDefinition(graphId, objectType).getResult();
 		    DefinitionDTO dto = (DefinitionDTO) result.get(GraphDACParams.definition_node.name());
-		    response = genCompositeSearchMessage(graphId, dto);
+		    response = genCompositeSearchMessage(graphId, dto, start, total);
 		} else {
 		    Map<String, Object> result = getAllDefinitions(graphId).getResult();
 	        List<DefinitionDTO> lstDefDTO = getDefinitionDTOList(result);
-	        response = genCompositeSearchMessages(graphId, lstDefDTO);
+	        response = genCompositeSearchMessages(graphId, lstDefDTO, start, total);
 		}
 		return response;
+	}
+	
+	@Override
+	public Response syncObject(String graphId, String identifier) {
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
+					"Graph Id is blank.");
+		if (StringUtils.isBlank(graphId))
+			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
+					"Identifier is blank.");
+		LOGGER.info("Composite index sync : " + graphId + " | Identifier: " + identifier);
+		Node node = getNode(graphId, identifier);
+		if (null != node) {
+			List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+			lstMessages.add(getKafkaMessage(node));
+			return pushMessageToKafka(lstMessages);
+		} else {
+			throw new ResourceNotFoundException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),
+					"Object not found: " + identifier);
+		}
 	}
 	
 	private Response getDefinition(String graphId, String objectType) {
@@ -75,28 +95,39 @@ public class CompositeSearchManagerImpl extends BaseManager implements IComposit
 		return lstDefDTO;
 	}
 	
-	private Response genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO) {
+	private Response genCompositeSearchMessages(String graphId, List<DefinitionDTO> lstDefDTO, Integer startPosition, Integer total) {
 	    Response response = OK();
 		for(DefinitionDTO def: lstDefDTO) {
-			response = genCompositeSearchMessage(graphId, def);
+			response = genCompositeSearchMessage(graphId, def, startPosition, total);
 		}
 		return response;
 	}
 	
-    private Response genCompositeSearchMessage(String graphId, DefinitionDTO def) {
+    private Response genCompositeSearchMessage(String graphId, DefinitionDTO def, Integer startPosition, Integer total) {
         Response response = OK();
-	    int startPosistion = 0;
+        int start = 0;
+        if (null != startPosition && startPosition.intValue() > 0)
+        	start = startPosition.intValue();
+        int batch = SYNC_BATCH_SIZE;
+        if (null != total && total < batch)
+        	batch = total;
+        int fetchCount = 0;
         boolean found = true;
         while (found) {
-            List<Node> nodes = getNodes(graphId, def.getObjectType(), startPosistion, SYNC_BATCH_SIZE);
+            List<Node> nodes = getNodes(graphId, def.getObjectType(), start, batch);
+            fetchCount += batch;
             if (null != nodes && !nodes.isEmpty()) {
                 List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
                 for (Node node : nodes) {
                     lstMessages.add(getKafkaMessage(node));
                 }
-                startPosistion += SYNC_BATCH_SIZE;
                 response = pushMessageToKafka(lstMessages);
-                System.out.println("Fetched " + startPosistion + " " + def.getObjectType() + " objects");
+                System.out.println("sent " + start + " + " + batch + " -- " + def.getObjectType() + " objects");
+                start += batch;
+                if (fetchCount >= total) {
+                	found = false;
+                	break;
+                }
             } else {
                 found = false;
                 break;
@@ -203,10 +234,23 @@ public class CompositeSearchManagerImpl extends BaseManager implements IComposit
         req.put(GraphDACParams.get_tags.name(), true);
         Response listRes = getResponse(req, LOGGER);
         if (checkError(listRes))
-            throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found for language: " + graphId);
+            throw new ResourceNotFoundException("NODES_NOT_FOUND", "Nodes not found: " + graphId);
         else {
             List<Node> nodes = (List<Node>) listRes.get(GraphDACParams.node_list.name());
             return nodes;
+        }
+    }
+	
+    private Node getNode(String graphId, String identifier) {
+        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
+                GraphDACParams.node_id.name(), identifier);
+        Response listRes = getResponse(req, LOGGER);
+        if (checkError(listRes))
+            throw new ResourceNotFoundException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),
+					"Object not found: " + identifier);
+        else {
+            Node node = (Node) listRes.get(GraphDACParams.node.name());
+            return node;
         }
     }
 
