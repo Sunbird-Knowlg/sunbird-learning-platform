@@ -64,13 +64,15 @@ public class ContentErrorMessageConstants {
 	
 	public static final String PROCESSOR_ERROR = "Error! While Processing in Processor.";
 	
-	public static final String CONTROLLER_FILE_READ_ERROR = "Error! While Controller JSON File.";
+	public static final String CONTROLLER_FILE_READ_ERROR = "Error! While reading Controller JSON File.";
 	
 	public static final String ASSET_UPLOAD_ERROR = "Error! While Uploading the Assets.";
 	
 	public static final String INVALID_ASSET_MIMETYPE = "Error! Invalid Asset Mime-Type.";
 	
 	public static final String ASSET_FILE_SIZE_LIMIT_EXCEEDS = "Error! File Size Exceeded the Limit.";
+	
+	public static final String ASSET_FILE_READ_ERROR = "Error! While reading Asset File.";
 	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();

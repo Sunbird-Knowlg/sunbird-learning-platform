@@ -56,6 +56,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.initializer.InitializePipeline;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
@@ -725,20 +726,26 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Override
 	public Response upload(Node node, File uploadedFile, String folder) {
-		Response response = uploadContent(node, uploadedFile, folder);
-		if (checkError(response))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with node id: " + node.getIdentifier());
-		response = extract(node);
-		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
-			node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
-			node.getMetadata().put(ContentAPIParams.editorState.name(), null);
-			node.setInRelations(null);
-			node.setOutRelations(null);
-			return updateNode(node);
-		} else {
-			return response;
-		}
+		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
+		Map<String, Object> parameterMap = new HashMap<String, Object>();
+		parameterMap.put(ContentAPIParams.file.name(), uploadedFile);
+		parameterMap.put(ContentAPIParams.node.name(), node);
+		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
+		
+//		Response response = uploadContent(node, uploadedFile, folder);
+//		if (checkError(response))
+//			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+//					"Content not found with node id: " + node.getIdentifier());
+//		response = extract(node);
+//		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
+//			node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
+//			node.getMetadata().put(ContentAPIParams.editorState.name(), null);
+//			node.setInRelations(null);
+//			node.setOutRelations(null);
+//			return updateNode(node);
+//		} else {
+//			return response;
+//		}
 	}
 
 }

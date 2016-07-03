@@ -1,14 +1,17 @@
 package com.ilimi.taxonomy.content.concrete.processor;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.tika.Tika;
 
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.taxonomy.content.common.AssetsMimeTypeMap;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
@@ -16,6 +19,7 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
+import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
 public class AssetsValidatorProcessor extends AbstractProcessor {
 
@@ -60,38 +64,54 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 
 	private boolean validateAsset(Media media) {
 		boolean isValid = false;
-		if (null != media) {
-			File file = new File(getAssetPath(media.getType(), media.getSrc()));
-			if (file.exists()) {
-				if (!isValidAssetMimeType(file))
-					throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(), 
-							ContentErrorMessageConstants.INVALID_ASSET_MIMETYPE + " | [Asset " + file.getName() + " has Invalid Mime-Type.]");
-				if (!isValidAssetSize(file))
-					throw new ClientException(ContentErrorCodeConstants.FILE_SIZE_EXCEEDS_LIMIT.name(), 
-							ContentErrorMessageConstants.ASSET_FILE_SIZE_LIMIT_EXCEEDS + " | [Asset " + file.getName() + " is Bigger in Size.]");
-				isValid = true;
-				LOGGER.info("Asset Id {0} is Valid.", media.getId());
+		try {
+			if (null != media) {
+				File file = new File(getAssetPath(media.getType(), media.getSrc()));
+				if (file.exists()) {
+					if (!isValidAssetMimeType(file))
+						throw new ClientException(ContentErrorCodeConstants.INVALID_MIME_TYPE.name(), 
+								ContentErrorMessageConstants.INVALID_ASSET_MIMETYPE + " | [Asset " + file.getName() + " has Invalid Mime-Type.]");
+					if (!isValidAssetSize(file))
+						throw new ClientException(ContentErrorCodeConstants.FILE_SIZE_EXCEEDS_LIMIT.name(), 
+								ContentErrorMessageConstants.ASSET_FILE_SIZE_LIMIT_EXCEEDS + " | [Asset " + file.getName() + " is Bigger in Size.]");
+					isValid = true;
+					LOGGER.info("Asset Id {0} is Valid.", media.getId());
+				}
 			}
+		} catch(IOException e) {
+			throw new ServerException(ContentErrorCodeConstants.ASSET_FILE_READ.name(), 
+					ContentErrorMessageConstants.ASSET_FILE_READ_ERROR, e);
 		}
 		return isValid;
 	}
 
-	private boolean isValidAssetMimeType(File file) {
+	private boolean isValidAssetMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
 			LOGGER.info("Validating Asset File {0} for Mime-Type.", file.getName());
-
+			Tika tika = new Tika();
+			String mimeType = tika.detect(file);
+			isValidMimeType = AssetsMimeTypeMap.isAllowedMimeType(mimeType);
 		}
 		return isValidMimeType;
 	}
 
 	private boolean isValidAssetSize(File file) {
-		boolean isValidMimeType = false;
+		boolean isValidSize = false;
 		if (file.exists()) {
 			LOGGER.info("Validating Asset File {0} for Size.", file.getName());
-
+			if (file.length() < getAssetFileSizeLimit())
+				isValidSize = true;
 		}
-		return isValidMimeType;
+		return isValidSize;
+	}
+	
+	private double getAssetFileSizeLimit() {
+		double size = 20971520;			// In Bytes, Default is 20MB
+		String limit = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.MAX_ASSET_FILE_SIZE_LIMIT.name());
+		if (!StringUtils.isBlank(limit))
+			size = Double.parseDouble(limit);
+		return size;
 	}
 
 	private String getAssetPath(String type, String src) {

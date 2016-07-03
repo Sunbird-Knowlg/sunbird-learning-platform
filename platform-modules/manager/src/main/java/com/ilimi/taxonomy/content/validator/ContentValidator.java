@@ -12,6 +12,7 @@ import org.apache.logging.log4j.Logger;
 import org.apache.tika.Tika;
 
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.taxonomy.content.common.AssetsMimeTypeMap;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -20,6 +21,8 @@ import com.ilimi.taxonomy.content.util.PropertiesUtil;
 public class ContentValidator {
 	
 	private static Logger LOGGER = LogManager.getLogger(ContentValidator.class.getName());
+	
+	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 	
 	public boolean isValidContentPackage(File file) {
 		boolean isValidContentPackage = false;
@@ -36,7 +39,7 @@ public class ContentValidator {
 				isValidContentPackage = true;
 			}
 		} catch(IOException e) {
-			throw new ClientException(ContentErrorMessageConstants.CONTENT_PACKAGE_FILE_OPERATION_ERROR, "Something went wrong while processing the Package file.");
+			throw new ServerException(ContentErrorMessageConstants.CONTENT_PACKAGE_FILE_OPERATION_ERROR, "Something went wrong while processing the Package file.");
 		} catch(Exception e) {
 			throw new ClientException(ContentErrorMessageConstants.CONTENT_PACKAGE_VALIDATOR_ERROR, "Something went wrong while validating the Package file.");
 		}
@@ -49,7 +52,7 @@ public class ContentValidator {
 			LOGGER.info("Validating File For MimeType: " + file.getName());
 			Tika tika = new Tika();
 			String mimeType = tika.detect(file);
-			isValidMimeType = AssetsMimeTypeMap.isAllowedMimeType(mimeType);
+			isValidMimeType = StringUtils.equalsIgnoreCase(DEF_CONTENT_PACKAGE_MIME_TYPE, mimeType);
 		}
 		return isValidMimeType;
 	}

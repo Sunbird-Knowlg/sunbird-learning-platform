@@ -50,6 +50,8 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 
+import scala.sys.process.ProcessBuilderImpl.IStreamBuilder;
+
 public class BaseMimeTypeManager extends BaseManager {
 
     @Autowired
@@ -556,6 +558,13 @@ public class BaseMimeTypeManager extends BaseManager {
     	if (null == n)
     		return 0.0;
     	return n.doubleValue();
+    }
+    
+    protected String getBasePath(String contentId) {
+    	String path = "";
+    	if (!StringUtils.isBlank(contentId))
+    		path = tempFileLocation + File.separator + System.currentTimeMillis() + ContentAPIParams._temp.name() + File.separator + contentId;
+    	return path;
     }
 
     /*******************************************************************************
