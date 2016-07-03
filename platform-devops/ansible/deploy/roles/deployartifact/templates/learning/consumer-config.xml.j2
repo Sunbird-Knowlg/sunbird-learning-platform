@@ -5,19 +5,17 @@
 		ekstepPlatformApiUserId="ilimi">
 	</ConsumerInit>
 	<ConsumerGroups>
-		<ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
+		<ConsumerGroup id="composite-search-group-new" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">
 			<Consumers>
-				<Consumer partitions="0,1,2,3,4,5" />
-				<Consumer partitions="6,7,8,9,10" />
+				<Consumer partitions="0,1,2,3,4,5,6,7,8,9,10" />
 			</Consumers>
 		</ConsumerGroup>
-		<ConsumerGroup id="Audit-History-group" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMeassageProcessor">
+		<ConsumerGroup id="audit-history-group-new" messageProcessor="org.ekstep.searchindex.processor.AuditHistoryMeassageProcessor">
 			<Consumers>
-				<Consumer partitions="0,1,2,3,4,5" />
-				<Consumer partitions="6,7,8,9,10" />
+				<Consumer partitions="0,1,2,3,4,5,6,7,8,9,10" />
 			</Consumers>
 		</ConsumerGroup>
-		<ConsumerGroup id="word-count-group" messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
+		<ConsumerGroup id="word-count-group-new" messageProcessor="org.ekstep.searchindex.processor.WordCountMessageProcessor">
 			<Consumers>
 				<Consumer partitions="8" />
 			</Consumers>

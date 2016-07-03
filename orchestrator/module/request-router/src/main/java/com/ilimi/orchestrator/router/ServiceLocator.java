@@ -27,9 +27,11 @@ public class ServiceLocator {
 		if (StringUtils.equalsIgnoreCase(RequestRouters.LANGUAGE_REQUEST_ROUTER.name(), actorPath.getRouter()))
 			return LanguageRequestRouterPool.getRequestRouter();
 		List<String> graphIds = Configuration.graphIds;
-		if (StringUtils.isNotBlank(graphId) && !graphIds.contains(graphId))
-			throw new ServerException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(),
-					graphId + " not supported by this service");
+		if (null != graphIds && !graphIds.isEmpty()) {
+			if (StringUtils.isNotBlank(graphId) && !graphIds.contains(graphId))
+				throw new ServerException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(),
+						graphId + " not supported by this service");
+		}
 		return RequestRouterPool.getRequestRouter();
 	}
 }

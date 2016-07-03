@@ -14,11 +14,14 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
+import com.ilimi.common.logger.LogHelper;
+
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class CompositeSearchMessageProcessor implements IMessageProcessor {
 
+	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchMessageProcessor.class.getName());
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 	private ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
@@ -51,6 +54,8 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				Map<String, String> relationMap = ObjectDefinitionCache.getRelationDefinition(objectType, graphId);
 				// objectType = WordUtils.capitalize(objectType.toLowerCase());
 				String operationType = (String) message.get("operationType");
+				LOGGER.info("Processing composite search message: Object Type: " + objectType + " | Identifier: " 
+						+ uniqueId + " | Graph: " + graphId + " | Operation: " + operationType);
 				switch (operationType) {
 				case CompositeSearchConstants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
@@ -65,6 +70,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_DELETE: {
+					LOGGER.info("Composite search index deleted: Identifier: " + uniqueId);
 					elasticSearchUtil.deleteDocument(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 							CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 					break;
@@ -83,6 +89,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 	}
 
 	private void addOrUpdateIndex(String uniqueId, String jsonIndexDocument) throws Exception {
+		LOGGER.info("Composite search index updated: Identifier: " + uniqueId);
 		elasticSearchUtil.addDocumentWithId(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 				CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId, jsonIndexDocument);
 	}

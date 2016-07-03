@@ -144,10 +144,9 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return properties;
 	}
 	
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		boolean objTypeFilter = false;
 		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) { 
 			for (Entry<String, Object> entry: filters.entrySet()) {
@@ -203,25 +202,27 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 					}
 				}
 				else{
-					Map<String, Object> property = new HashMap<String, Object>();
-					property.put(CompositeSearchParams.values.name(), entry.getValue());
-					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-					properties.add(property);
+					boolean emptyVal = false;
+					if (null == filterObject) {
+						emptyVal = true;
+					} else if (filterObject instanceof List) {
+						if (((List) filterObject).size() <= 0)
+							emptyVal = true;
+					} else if (filterObject instanceof Object[]) {
+						if (((Object[]) filterObject).length <= 0)
+							emptyVal = true;
+					}
+					if (!emptyVal) {
+						Map<String, Object> property = new HashMap<String, Object>();
+						property.put(CompositeSearchParams.values.name(), entry.getValue());
+						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+						properties.add(property);
+					}
 				}
-				if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey()))
-				    objTypeFilter = true;
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
 				    statusFilter = true;
 			}
-		}
-		if (!objTypeFilter) {
-		    Map<String, Object> property = new HashMap<String, Object>();
-		    property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-            property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.objectType.name());
-            String[] objectTypes = new String[]{"Domain", "Dimension", "Concept", "Content", "Word", "Method", "Misconception", "AssessmentItem"};
-            property.put(CompositeSearchParams.values.name(), Arrays.asList(objectTypes));
-            properties.add(property);
 		}
 		if (!statusFilter) {
 		    Map<String, Object> property = new HashMap<String, Object>();

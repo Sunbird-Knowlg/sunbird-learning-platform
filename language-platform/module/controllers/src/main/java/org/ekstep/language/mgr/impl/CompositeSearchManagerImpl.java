@@ -1,10 +1,10 @@
-package com.ilimi.taxonomy.mgr.impl;
+package org.ekstep.language.mgr.impl;
 
+import org.ekstep.language.mgr.ICompositeSearchManager;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.CompositeIndexSyncManager;
-import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Component
 public class CompositeSearchManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {

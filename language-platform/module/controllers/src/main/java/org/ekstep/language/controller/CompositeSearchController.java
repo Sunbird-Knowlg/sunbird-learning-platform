@@ -1,9 +1,10 @@
-package com.ilimi.taxonomy.controller;
+package org.ekstep.language.controller;
 
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.language.mgr.ICompositeSearchManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
-import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Controller
 @RequestMapping("v2/composite-search")
