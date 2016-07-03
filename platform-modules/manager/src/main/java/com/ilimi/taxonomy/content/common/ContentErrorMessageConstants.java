@@ -68,6 +68,10 @@ public class ContentErrorMessageConstants {
 	
 	public static final String ASSET_UPLOAD_ERROR = "Error! While Uploading the Assets.";
 	
+	public static final String INVALID_ASSET_MIMETYPE = "Error! Invalid Asset Mime-Type.";
+	
+	public static final String ASSET_FILE_SIZE_LIMIT_EXCEEDS = "Error! File Size Exceeded the Limit.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

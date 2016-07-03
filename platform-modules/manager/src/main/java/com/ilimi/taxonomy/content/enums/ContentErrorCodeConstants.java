@@ -14,8 +14,10 @@ public enum ContentErrorCodeConstants {
 	UPLOAD_ERROR(7, "Error while uploading a file."),
 	MISSING_ASSETS(8, "Missing Assets."),
 	PROCESSOR_ERROR(9, "Error in Processor."),
-	CONTROLLER_FILE_READ(10, "Error while reading controller file.."),
-	ASSET_UPLOAD_ERROR(10, "Error while reading controller file..");
+	CONTROLLER_FILE_READ(10, "Error while reading controller file."),
+	ASSET_UPLOAD_ERROR(11, "Error while reading controller file."),
+	INVALID_MIME_TYPE(12, "Invalid Mime-Type."),
+	FILE_SIZE_EXCEEDS_LIMIT(13, "File Size Exceeded the Limit.");
 
 	private final int code;
 	private final String description;
