@@ -20,9 +20,9 @@ import com.ilimi.common.dto.Response;
 
 @Controller
 @RequestMapping("v2/composite-search")
-public class CompositeSearchController extends BaseController {
+public class LanguageDataSyncController extends BaseController {
 
-	private static Logger LOGGER = LogManager.getLogger(CompositeSearchController.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(LanguageDataSyncController.class.getName());
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;

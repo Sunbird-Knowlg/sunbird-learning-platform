@@ -20,9 +20,9 @@ import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Controller
 @RequestMapping("v2/composite-search")
-public class CompositeSearchController extends BaseController {
+public class LearningDataSyncController extends BaseController {
 
-	private static Logger LOGGER = LogManager.getLogger(CompositeSearchController.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(LearningDataSyncController.class.getName());
 	
 	@Autowired
 	private ICompositeSearchManager compositeSearchManager;
