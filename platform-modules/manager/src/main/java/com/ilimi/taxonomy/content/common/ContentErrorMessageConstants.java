@@ -80,6 +80,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String MISSING_CONTROLLER_FILES_ERROR = "Error! Missing Controller file.";
 	
+	public static final String APP_ICON_DOWNLOAD_ERROR = "Error! While downloading App Icon.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}
