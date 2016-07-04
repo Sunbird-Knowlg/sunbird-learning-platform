@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.CompositeIndexSyncManager;
-import com.ilimi.taxonomy.mgr.ICompositeSearchSyncManager;
+import com.ilimi.taxonomy.mgr.ICompositeSearchManager;
 
 @Component
 public class CompositeSearchManagerImpl extends CompositeIndexSyncManager implements ICompositeSearchManager {

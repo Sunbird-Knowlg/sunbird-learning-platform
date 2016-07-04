@@ -2,7 +2,7 @@ package com.ilimi.taxonomy.mgr;
 
 import com.ilimi.common.dto.Response;
 
-public interface ICompositeSearchSyncManager {
+public interface ICompositeSearchManager {
 
 	Response sync(String graphId, String objectType, Integer start, Integer total);
 	
