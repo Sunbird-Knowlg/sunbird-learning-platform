@@ -22,7 +22,9 @@ public enum ContentErrorCodeConstants {
 	DUPLICATE_ASSET_ID(14, "Duplicate Asset Id used in manifest."),
 	INVALID_CONTROLLER(15, "Invalid Controller Element."),
 	DUPLICATE_CONTROLLER_ID(16, "Duplicate Controller Id used in ECML body."),
-	MISSING_CONTROLLER_FILE(17, "Missing Controller File.");
+	MISSING_CONTROLLER_FILE(17, "Missing Controller File."),
+	DOWNLOAD_ERROR(18, "Error while downloading a file."),
+	SEARCH_ERROR(19, "Error while searching.");
 
 	private final int code;
 	private final String description;
