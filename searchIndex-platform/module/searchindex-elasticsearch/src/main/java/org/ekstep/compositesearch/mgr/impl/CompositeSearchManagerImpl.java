@@ -245,14 +245,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				    statusFilter = true;
 			}
 		}
-		if (!objTypeFilter && !traversal) {
-		    Map<String, Object> property = new HashMap<String, Object>();
-		    property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-            property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.objectType.name());
-            String[] objectTypes = new String[]{"Domain", "Dimension", "Concept", "Content", "Word", "Method", "Misconception", "AssessmentItem"};
-            property.put(CompositeSearchParams.values.name(), Arrays.asList(objectTypes));
-            properties.add(property);
-		}
+		
 		if (!statusFilter && !traversal) {
 		    Map<String, Object> property = new HashMap<String, Object>();
             property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
