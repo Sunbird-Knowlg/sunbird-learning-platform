@@ -1,5 +1,22 @@
 package org.ekstep.searchindex.elasticsearch;
 
+import java.io.IOException;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.codehaus.jackson.JsonGenerationException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
+import org.ekstep.searchindex.transformer.IESResultTransformer;
+import org.ekstep.searchindex.util.PropertiesUtil;
+
+import com.google.gson.internal.LinkedTreeMap;
+
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
 import io.searchbox.client.JestResult;
@@ -19,27 +36,8 @@ import io.searchbox.indices.DeleteIndex;
 import io.searchbox.indices.IndicesExists;
 import io.searchbox.indices.mapping.PutMapping;
 import io.searchbox.indices.settings.GetSettings;
-
-import java.io.IOException;
-import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
-
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
-import org.ekstep.searchindex.transformer.AggregationsResultTransformer;
-import org.ekstep.searchindex.transformer.IESResultTransformer;
-import org.ekstep.searchindex.util.PropertiesUtil;
-
-import com.google.gson.internal.LinkedTreeMap;
 
 public class ElasticSearchUtil {
 
@@ -262,6 +260,23 @@ public class ElasticSearchUtil {
 		List<Object> documents = new ArrayList<Object>();
 		for (Hit hit : hits) {
 			documents.add(hit.source);
+		}
+		return documents;
+	}
+	
+	@SuppressWarnings("rawtypes")
+	public List<Map> getDocumentsFromSearchResultWithScore(SearchResult result) {
+		List<Hit<Map, Void>> hits = result.getHits(Map.class);
+		return getDocumentsFromHitsWithScore(hits);
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public List<Map> getDocumentsFromHitsWithScore(List<Hit<Map, Void>> hits) {
+		List<Map> documents = new ArrayList<Map>();
+		for (Hit hit : hits) {
+			Map<String, Object> hitDocument = (Map)hit.source;
+			hitDocument.put("score", hit.score);
+			documents.add(hitDocument);
 		}
 		return documents;
 	}

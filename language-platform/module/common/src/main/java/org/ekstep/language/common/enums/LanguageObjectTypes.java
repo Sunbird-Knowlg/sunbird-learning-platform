@@ -2,5 +2,5 @@ package org.ekstep.language.common.enums;
 
 public enum LanguageObjectTypes {
 
-    Word, Synset, WordComplexity;
+    Word, Synset, WordComplexity, Phonetic_Boundary;
 }

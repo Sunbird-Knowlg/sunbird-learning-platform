@@ -39,6 +39,22 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	@Override
+	public Map<String, Object> searchForTraversal(Request request) {
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			SearchDTO searchDTO = getSearchDTO(request);
+			searchDTO.addAdditionalProperty("weightages", (Map<String, Double>) request.get("weightages"));
+			searchDTO.addAdditionalProperty("graphId", (String) request.get("graphId"));
+			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
+			return lstResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	@Override
     public Response metrics(Request request) {
         SearchProcessor processor = new SearchProcessor();
@@ -61,6 +77,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
+			Boolean traversal = (Boolean) request.get("traversal");
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
@@ -71,12 +88,16 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
-			properties.addAll(getSearchFilterProperties(filters));
+			properties.addAll(getSearchFilterProperties(filters, traversal));
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
+			
+			if(traversal != null){
+				searchObj.setTraversalSearch(traversal);
+			}
 		} catch(ClassCastException e) {
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
 					"Invalid Input.");
@@ -145,7 +166,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters) throws Exception {
+	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal) throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		boolean statusFilter = false;
 		if (null != filters && !filters.isEmpty()) { 
@@ -213,18 +234,19 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 							emptyVal = true;
 					}
 					if (!emptyVal) {
-						Map<String, Object> property = new HashMap<String, Object>();
-						property.put(CompositeSearchParams.values.name(), entry.getValue());
-						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-						properties.add(property);
-					}
+					Map<String, Object> property = new HashMap<String, Object>();
+					property.put(CompositeSearchParams.values.name(), entry.getValue());
+					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+					properties.add(property);
+				}
 				}
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
 				    statusFilter = true;
 			}
 		}
-		if (!statusFilter) {
+		
+		if (!statusFilter && !traversal) {
 		    Map<String, Object> property = new HashMap<String, Object>();
             property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
             property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
