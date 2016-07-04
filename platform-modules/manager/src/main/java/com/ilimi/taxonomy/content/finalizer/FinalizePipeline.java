@@ -1,15 +1,31 @@
 package com.ilimi.taxonomy.content.finalizer;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.util.HttpDownloadUtility;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.ilimi.common.dto.NodeDTO;
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
+import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
+import com.ilimi.graph.dac.model.Filter;
+import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.SearchConditions;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
@@ -17,8 +33,14 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 import com.ilimi.taxonomy.content.util.ECRFToJSONConvertor;
 import com.ilimi.taxonomy.content.util.ECRFToXMLConvertor;
+import com.ilimi.taxonomy.dto.ContentSearchCriteria;
+import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
+import com.ilimi.taxonomy.util.ContentBundle;
 
 public class FinalizePipeline extends BasePipeline{
+	
+	@Autowired
+    private ContentBundle contentBundle;
 	
 	private static Logger LOGGER = LogManager.getLogger(FinalizePipeline.class.getName());
 	
@@ -47,7 +69,7 @@ public class FinalizePipeline extends BasePipeline{
 		if (null != parameterMap && !StringUtils.isBlank(operation)) {
 			switch (operation) {
 			case "upload":
-			case "UPLOAD":
+			case "UPLOAD": {
 				File file = (File) parameterMap.get(ContentWorkflowPipelineParams.file.name());
 				Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 				String ecmlType = (String) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -79,6 +101,46 @@ public class FinalizePipeline extends BasePipeline{
 				
 				// Update Node
 		        response = updateContentNode(node, urlArray[IDX_S3_URL]);
+			}
+				break;
+				
+			case "publish":
+			case "PUBLISH": {
+				Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+				if (null == node) 
+					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
+							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+				
+				// Download App Icon
+				downloadAppIcon(node);
+				
+				// Create ECAR Bundle
+				List<Node> nodes = new ArrayList<Node>();
+		        nodes.add(node);
+		        List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+		        List<String> childrenIds = new ArrayList<String>();
+		        getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
+		        String bundleFileName = Slug.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
+						+ System.currentTimeMillis() + "_" + node.getIdentifier() + ".ecar";
+		        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+		        double version = 1.0;
+		        if (null != node 
+		        		&& null != node.getMetadata() 
+		        		&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) 
+		        	version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name())) + 1;
+				
+				// Populate Fields and Update Node
+		        node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
+		        node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
+		        node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), urlArray[IDX_S3_URL]);
+		        node.getMetadata().put(ContentWorkflowPipelineParams.status.name(), ContentWorkflowPipelineParams.Live.name());
+		        node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
+		        node.getMetadata().put(ContentWorkflowPipelineParams.size.name(), getS3FileSize(urlArray[IDX_S3_KEY]));
+		        Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+		        newNode.setGraphId(node.getGraphId());
+		        newNode.setMetadata(node.getMetadata());
+		        response = updateContentNode(newNode, urlArray[IDX_S3_URL]);
+			}
 				break;
 
 			default:
@@ -86,6 +148,27 @@ public class FinalizePipeline extends BasePipeline{
 			}
 		}
 		return response;
+	}
+	
+	private void downloadAppIcon(Node node) {
+		try {
+			if (null != node) {
+				String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
+				if (!StringUtils.isBlank(appIcon)) {
+					LOGGER.info("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
+					File appIconFile = HttpDownloadUtility.downloadFile(appIcon, basePath);
+					if (null != appIconFile && appIconFile.exists() && appIconFile.isFile()) {
+						String parentFolderName = appIconFile.getParent();
+						File logoFileName = new File(parentFolderName + File.separator + "logo.png");
+						appIconFile.renameTo(logoFileName);
+					}
+				}
+			}
+		} catch(Exception e) {
+			throw new ServerException(ContentErrorCodeConstants.DOWNLOAD_ERROR.name(), 
+					ContentErrorMessageConstants.APP_ICON_DOWNLOAD_ERROR 
+					+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]", e);
+		}
 	}
 	
 	private String getECMLString(Plugin ecrf, String ecmlType) {
@@ -103,6 +186,103 @@ public class FinalizePipeline extends BasePipeline{
 		return ecml;
 	}
 	
-	
+	private void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
+            List<String> childrenIds) {
+        Map<String, Node> nodeMap = new HashMap<String, Node>();
+        if (null != nodes && !nodes.isEmpty()) {
+            for (Node node : nodes) {
+                getContentRecursive(graphId, node, nodeMap, childrenIds, ctnts);
+            }
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private void getContentRecursive(String graphId, Node node, Map<String, Node> nodeMap, List<String> childrenIds,
+            List<Map<String, Object>> ctnts) {
+        if (!nodeMap.containsKey(node.getIdentifier())) {
+            nodeMap.put(node.getIdentifier(), node);
+            Map<String, Object> metadata = new HashMap<String, Object>();
+            if (null == node.getMetadata())
+                node.setMetadata(new HashMap<String, Object>());
+            String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+            if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) {
+                metadata.putAll(node.getMetadata());
+                metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());
+                metadata.put(ContentWorkflowPipelineParams.objectType.name(), node.getObjectType());
+                metadata.put(ContentWorkflowPipelineParams.subject.name(), node.getGraphId());
+                metadata.remove(ContentWorkflowPipelineParams.body.name());
+                metadata.remove(ContentWorkflowPipelineParams.editorState.name());
+                if (null != node.getTags() && !node.getTags().isEmpty())
+                    metadata.put(ContentWorkflowPipelineParams.tags.name(), node.getTags());
+                List<String> searchIds = new ArrayList<String>();
+                if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+                    List<NodeDTO> children = new ArrayList<NodeDTO>();
+                    for (Relation rel : node.getOutRelations()) {
+                        if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
+                                rel.getRelationType())
+                                && StringUtils.equalsIgnoreCase(node.getObjectType(), rel.getEndNodeObjectType())) {
+                            childrenIds.add(rel.getEndNodeId());
+                            if (!nodeMap.containsKey(rel.getEndNodeId())) {
+                                searchIds.add(rel.getEndNodeId());
+                            }
+                            children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType(),
+                                    rel.getRelationType(), rel.getMetadata()));
+                        }
+                    }
+                    if (!children.isEmpty()) {
+                        metadata.put(ContentWorkflowPipelineParams.children.name(), children);
+                    }
+                }
+                ctnts.add(metadata);
+                if (!searchIds.isEmpty()) {
+                    Response searchRes = searchNodes(graphId, searchIds);
+                    if (checkError(searchRes)) {
+                        throw new ServerException(ContentErrorCodeConstants.SEARCH_ERROR.name(),
+                                getErrorMessage(searchRes));
+                    } else {
+                        List<Object> list = (List<Object>) searchRes.get(ContentWorkflowPipelineParams.contents.name());
+                        if (null != list && !list.isEmpty()) {
+                            for (Object obj : list) {
+                                List<Node> nodeList = (List<Node>) obj;
+                                for (Node child : nodeList) {
+                                    getContentRecursive(graphId, child, nodeMap, childrenIds, ctnts);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private Response searchNodes(String taxonomyId, List<String> contentIds) {
+        ContentSearchCriteria criteria = new ContentSearchCriteria();
+        List<Filter> filters = new ArrayList<Filter>();
+        Filter filter = new Filter(ContentWorkflowPipelineParams.identifier.name(), 
+        		SearchConditions.OP_IN, contentIds);
+        filters.add(filter);
+        MetadataCriterion metadata = MetadataCriterion.create(filters);
+        metadata.addFilter(filter);
+        criteria.setMetadata(metadata);
+        List<Request> requests = new ArrayList<Request>();
+        if (StringUtils.isNotBlank(taxonomyId)) {
+            Request req = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, 
+            		ContentWorkflowPipelineParams.searchNodes.name(),
+                    GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+            req.put(GraphDACParams.get_tags.name(), true);
+            requests.add(req);
+        } else {
+            for (String tId : TaxonomyManagerImpl.taxonomyIds) {
+                Request req = getRequest(tId, GraphEngineManagers.SEARCH_MANAGER, 
+                		ContentWorkflowPipelineParams.searchNodes.name(),
+                        GraphDACParams.search_criteria.name(), criteria.getSearchCriteria());
+                req.put(GraphDACParams.get_tags.name(), true);
+                requests.add(req);
+            }
+        }
+        Response response = getResponse(requests, LOGGER, GraphDACParams.node_list.name(),
+                ContentWorkflowPipelineParams.contents.name());
+        return response;
+    }
 
 }
