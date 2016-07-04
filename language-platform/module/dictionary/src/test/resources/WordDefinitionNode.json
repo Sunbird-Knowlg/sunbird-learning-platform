@@ -43,6 +43,32 @@
           "renderingHints": "{ 'order': 3 }"
         },
         {
+          "propertyName": "morphology",
+          "title": "Morphologically modified word",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "false",
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "propertyName": "exampleSentences",
+          "title": "Example Sentences",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 4 }"
+        },
+        {
           "propertyName": "hasConnotative",
           "title": "Has Connotative (non-literal) Meaning",
           "description": "",
@@ -54,6 +80,45 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'order': 4 }"
+        },
+        {
+          "propertyName": "synsetCount",
+          "title": "Number of meanings",
+          "description": "",
+          "category": "general",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "hasSynonyms",
+          "title": "Has Synonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
+        },
+        {
+          "propertyName": "hasAntonyms",
+          "title": "Has Antonyms",
+          "description": "",
+          "category": "general",
+          "dataType": "Boolean",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 5 }"
         },
         {
           "propertyName": "isLoanWord",
@@ -69,6 +134,19 @@
           "renderingHints": "{ 'order': 5 }"
         },
         {
+          "propertyName": "word_complexity",
+          "title": "Word Complexity",
+          "description": "",
+          "category": "lexile",
+          "dataType": "Number",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 6 }"
+        },
+        {
           "propertyName": "orthographic_complexity",
           "title": "Orthographic Complexity",
           "description": "",
@@ -79,7 +157,7 @@
           "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 6 }"
+          "renderingHints": "{ 'order': 6 }"
         },
         {
           "propertyName": "phonologic_complexity",
@@ -92,7 +170,20 @@
           "indexed": true,
           "displayProperty": "Readonly",
           "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'textarea',  'order': 7 }"
+          "renderingHints": "{ 'order': 7 }"
+        },
+        {
+          "propertyName": "syllables",
+          "title": "Syllables",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
         },
         {
           "propertyName": "sources",
@@ -106,6 +197,21 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'text', 'order': 8 }"
+        },
+        {
+          "propertyName": "thresholdLevel",
+          "title": "Threshold Level",
+          "description": "",
+          "category": "grammar",
+          "dataType": "Select",
+          "range": [
+            "1", "2", "3", "4", "5", "6", "7", "8", "9", "10"
+          ],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 9 }"
         },
         {
           "propertyName": "grade",
@@ -299,6 +405,19 @@
           "renderingHints": "{ 'inputType': '',  'order': 22 }"
         },
         {
+          "propertyName": "wordImages",
+          "title": "Images",
+          "description": "",
+          "category": "sampleData",
+          "dataType": "List",
+          "range": [],
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': '',  'order': 22 }"
+        },
+        {
           "propertyName": "pronunciations",
           "title": "Pronunciations",
           "description": "",
@@ -329,7 +448,7 @@
           "title": "Last Updated By",
           "description": "",
           "category": "audit",
-          "dataType": "List",
+          "dataType": "Text",
           "range": [],
           "required": false,
           "indexed": false,
@@ -499,6 +618,30 @@
           "renderingHints": "{ 'inputType': 'select', 'order': 37 }"
         },
         {
+          "propertyName": "wordLists",
+          "title": "WordLists",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+          "propertyName": "wordListIds",
+          "title": "WordList Ids",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
           "propertyName": "genders",
           "title": "Genders",
           "description": "",
@@ -509,6 +652,29 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 38 }"
+        },
+        {
+            "propertyName": "category",
+            "title": "Category",
+            "description": "Category",
+            "category": "general",
+            "dataType": "Select",
+            "range":
+            [
+                "Person",
+                "Place",
+                "Thing",
+                "Quality",
+                "Numeral/Time",
+                "Concept",
+                "Action/Event",
+                "Grammatical Word"
+            ],
+            "required": false,
+			"indexed": true,
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{'inputType': 'select', 'order': 3}"
         },
         {
           "propertyName": "person",
@@ -533,18 +699,6 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 40 }"
-        },
-        {
-          "propertyName": "theme",
-          "title": "Theme",
-          "description": "",
-          "category": "general",
-          "dataType": "Text",
-          "required": false,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'inputType': 'select', 'order': 41 }"
         }
       ],
       "inRelations": [
@@ -619,8 +773,8 @@
             "Word"
           ],
           "renderingHints": "{ 'order': 26 }"
-        },
-        {
+        }, 
+		{
           "relationName": "startsWithAkshara",
           "title": "startsWithAkshara",
           "description": "",
