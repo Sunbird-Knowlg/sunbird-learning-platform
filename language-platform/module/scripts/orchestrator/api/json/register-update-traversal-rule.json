@@ -1,0 +1,23 @@
+{
+    "name": "updateTraversalRule",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"rule_id",
+    	"index": 1,
+    	"routingParam": false
+    },{
+        "name": "rule",
+        "index": 2,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/language/traversals/*/*",
+        "pathParams": ["language_id", "rule_id"]
+    },
+    "body": ""
+}

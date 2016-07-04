@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.csv.CSVPrinter;
-import org.ekstep.config.resourceBundle.*;
 import org.json.simple.JSONObject;
 
 public class ContentDefinitionCsvTest {

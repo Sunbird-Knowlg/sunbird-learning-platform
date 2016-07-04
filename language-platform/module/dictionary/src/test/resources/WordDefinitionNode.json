@@ -711,6 +711,16 @@
             "Synset"
           ],
           "renderingHints": "{ 'order': 26 }"
+        },
+         {
+          "relationName": "hasRhymingSound",
+          "title": "hasRhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Phonetic_Boundary"
+          ],
+          "renderingHints": ""
         }
       ],
       "outRelations": [
@@ -763,6 +773,36 @@
             "Word"
           ],
           "renderingHints": "{ 'order': 26 }"
+        }, 
+		{
+          "relationName": "startsWithAkshara",
+          "title": "startsWithAkshara",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Phonetic_Boundary"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "endsWithAkshara",
+          "title": "endsWithAkshara",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Phonetic_Boundary"
+          ],
+          "renderingHints": ""
+        },
+        {
+          "relationName": "hasRhymingSound",
+          "title": "hasRhymingSound",
+          "description": "",
+          "required": false,
+          "objectTypes": [
+            "Phonetic_Boundary"
+          ],
+          "renderingHints": ""
         }
       ],
       "systemTags": [

@@ -22,12 +22,19 @@ public class SearchProcessor {
 
 	private ElasticSearchUtil elasticSearchUtil = new ElasticSearchUtil();
 
-	@SuppressWarnings({ "unchecked" })
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Map<String, Object> processSearch(SearchDTO searchDTO, boolean includeResults) throws Exception {
 		List<Map<String, Object>> groupByFinalList = new ArrayList<Map<String, Object>>();
 		Map<String, Object> response = new HashMap<String, Object>();
+		
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
+		
+		if (searchDTO.isTraversalSearch()) {
+			List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+			response.put("results", results);
+			return response;
+		}
 		if (includeResults) {
 		    List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
 	        response.put("results", results);
@@ -199,8 +206,188 @@ public class SearchProcessor {
 				searchDTO.setSortBy(sortBy);
 			}
 		}
-		String query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		String query;
+		if(searchDTO.isTraversalSearch()){
+			Map<String, Double> weightages = (Map<String, Double>) searchDTO.getAdditionalProperty("weightages");
+			String graphId = (String) searchDTO.getAdditionalProperty("graphId");
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), weightages, graphId);
+		}
+		else
+		{
+			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
+		}
 		return query;
+	}
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, String graphId) throws Exception {
+		
+		JSONBuilder builder = new JSONStringer();
+		builder.object();
+		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
+		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
+		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
+
+		/*if ((mustConditions != null && !mustConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {*/
+			builder.key("query").object()
+				.key("function_score")
+					.object()
+						.key("query")
+							.object()
+								.key("bool").object()
+									.key("must").array()
+										.object()
+											.key("match").object()
+												.key("objectType.raw").value("Word")
+											.endObject()
+										.endObject()
+										.object()
+											.key("match").object()
+												.key("graph_id.raw").value(graphId)
+											.endObject()
+										.endObject()
+									.endArray()
+								.endObject()
+							.endObject()
+						.key("functions").array();
+		//}
+
+		if (mustConditions != null && !mustConditions.isEmpty()) {
+			for (Map textCondition : mustConditions) {
+				builder.object().key("filter").object();
+				String conditionOperation = (String) textCondition.get("operation");
+				Double weight = weightages.get("default_weightage");
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = (String) textCondition.get("operand");
+					builder.key("bool").object();
+					builder.key(operand).array();
+					List<Map> subConditions = (List<Map>) textCondition.get("subConditions");
+					if (null != subConditions && !subConditions.isEmpty()) {
+					    for (Map subCondition : subConditions) {
+	                        builder.object();
+	                        String queryOperation = (String) subCondition.get("operation");
+	                        String fieldName = (String) subCondition.get("fieldName");
+	                        Object value = subCondition.get("value");
+	                        getConditionsQuery(queryOperation, fieldName, value, builder);
+	                        builder.endObject();
+	                        if(weightages.containsKey(fieldName)){
+	                        	weight = weightages.get(fieldName);
+	                        }
+	                    }
+					} 
+					builder.endArray();
+					builder.endObject();
+				} else {
+					String queryOperation = (String) textCondition.get("operation");
+					String fieldName = (String) textCondition.get("fieldName");
+					Object value = (Object) textCondition.get("value");
+					getConditionsQuery(queryOperation, fieldName, value, builder);
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
+				}
+				builder.endObject().key("weight").value(weight).endObject();
+			}
+		}
+
+		if (arithmeticConditions != null && !arithmeticConditions.isEmpty()) {
+			for (Map arithmeticCondition : arithmeticConditions) {
+				builder.object().key("filter").object().key("script").object().key("script");
+				String conditionOperation = (String) arithmeticCondition.get("operation");
+				String conditionScript = "";
+				Double weight = weightages.get("default_weightage");
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = "||";
+					StringBuffer finalScript = new StringBuffer();
+					finalScript.append("(");
+					List<Map> subConditions = (List<Map>) arithmeticCondition.get("subConditions");
+					List<String> scripts = new ArrayList<String>();
+					for (Map subCondition : subConditions) {
+						StringBuffer script = new StringBuffer();
+						String queryOperation = (String) subCondition.get("operation");
+						String fieldName = (String) subCondition.get("fieldName");
+						Object value = (Object) subCondition.get("value");
+						script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+								.append(" ").append(value);
+						scripts.add(script.toString());
+						if(weightages.containsKey(fieldName)){
+                        	weight = weightages.get(fieldName);
+                        }
+					}
+					String tempScript = "";
+					for (String script : scripts) {
+						tempScript = tempScript + operand + script;
+					}
+					tempScript = tempScript.substring(2);
+					finalScript.append(tempScript).append(")");
+					conditionScript = finalScript.toString();
+				} else {
+					StringBuffer script = new StringBuffer();
+					String queryOperation = (String) arithmeticCondition.get("operation");
+					String fieldName = (String) arithmeticCondition.get("fieldName");
+					Object value = (Object) arithmeticCondition.get("value");
+					script.append("doc['").append(fieldName).append("']").append(".value ").append(queryOperation)
+							.append(" ").append(value);
+					conditionScript = script.toString();
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
+				}
+				builder.value(conditionScript).endObject().endObject().key("weight").value(weight).endObject();
+			}
+		}
+
+		if (notConditions != null && !notConditions.isEmpty()) {
+			String allOperation = "must_not";
+			for (Map notCondition : notConditions) {
+				
+				builder.object().key("filter").object().key("bool").object().key(allOperation).object();
+				Double weight = weightages.get("default_weightage");
+				String conditionOperation = (String) notCondition.get("operation");
+				if (conditionOperation.equalsIgnoreCase("bool")) {
+					String operand = (String) notCondition.get("operand");
+					builder.key("bool").object();
+					builder.key(operand).array();
+					List<Map> subConditions = (List<Map>) notCondition.get("subConditions");
+					for (Map subCondition : subConditions) {
+						builder.object();
+						String queryOperation = (String) subCondition.get("operation");
+						String fieldName = (String) subCondition.get("fieldName");
+						Object value = subCondition.get("value");
+						getConditionsQuery(queryOperation, fieldName, value, builder);
+						builder.endObject();
+						if(weightages.containsKey(fieldName)){
+	                    	weight = weightages.get(fieldName);
+	                    }
+					}
+					builder.endArray();
+					builder.endObject();
+					
+				} else {
+					String queryOperation = (String) notCondition.get("operation");
+					String fieldName = (String) notCondition.get("fieldName");
+					Object value = notCondition.get("value");
+					getConditionsQuery(queryOperation, fieldName, value, builder);
+					if(weightages.containsKey(fieldName)){
+                    	weight = weightages.get(fieldName);
+                    }
+				}
+				builder.endObject().endObject().endObject().key("weight").value(weight).endObject();
+			}
+		}
+/*		"score_mode": "sum",
+	      "boost_mode": "multiply"*/
+		/*if ((mustConditions != null && !mustConditions.isEmpty())
+				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
+				|| (notConditions != null && !notConditions.isEmpty())) {*/
+			builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
+		//}
+
+		builder.endObject();
+		return builder.toString();
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })

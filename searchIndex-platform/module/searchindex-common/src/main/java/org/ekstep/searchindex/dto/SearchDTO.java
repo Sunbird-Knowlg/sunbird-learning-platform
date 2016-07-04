@@ -1,5 +1,6 @@
 package org.ekstep.searchindex.dto;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,8 @@ public class SearchDTO {
 	private Map<String, String> sortBy;
 	private String operation;
 	private int limit;
+	boolean traversalSearch = false;
+	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	
 	public SearchDTO() {
 		super();
@@ -53,5 +56,24 @@ public class SearchDTO {
 	}
 	public void setSortBy(Map<String, String> sortBy) {
 		this.sortBy = sortBy;
+	}
+	public boolean isTraversalSearch() {
+		return traversalSearch;
+	}
+	public void setTraversalSearch(boolean traversalSearch) {
+		this.traversalSearch = traversalSearch;
+	}
+	public Map<String, Object> getAdditionalProperties() {
+		return additionalProperties;
+	}
+	public void setAdditionalProperties(Map<String, Object> additionalProperties) {
+		this.additionalProperties = additionalProperties;
+	}
+	
+	public Object getAdditionalProperty(String key) {
+		return additionalProperties.get(key);
+	}
+	public void addAdditionalProperty(String key, Object value) {
+		this.additionalProperties.put(key, value);
 	}
 }

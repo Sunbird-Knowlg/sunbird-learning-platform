@@ -3,6 +3,7 @@ package org.ekstep.language.measures.entity;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Comparator;
+import java.util.Map;
 
 public class WordComplexity implements Serializable {
 
@@ -16,8 +17,17 @@ public class WordComplexity implements Serializable {
     private Integer[] phonicVec;
     private Double orthoComplexity;
     private Double phonicComplexity;
+    private Map<String, String> unicodeTypeMap;
 
-    public String getWord() {
+    public Map<String, String> getUnicodeTypeMap() {
+		return unicodeTypeMap;
+	}
+
+	public void setUnicodeTypeMap(Map<String, String> unicodeTypeMap) {
+		this.unicodeTypeMap = unicodeTypeMap;
+	}
+
+	public String getWord() {
         return word;
     }
 

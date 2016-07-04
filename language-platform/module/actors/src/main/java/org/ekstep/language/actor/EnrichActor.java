@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,6 +20,7 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
+import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
@@ -26,9 +28,12 @@ import org.ekstep.language.util.WordnetUtil;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
+import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
@@ -38,8 +43,9 @@ public class EnrichActor extends LanguageBaseActor {
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
 	private ControllerUtil controllerUtil = new ControllerUtil();
 	private final int BATCH_SIZE = 10000;
+	
 	private WordUtil wordUtil = new WordUtil();
-
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -107,6 +113,8 @@ public class EnrichActor extends LanguageBaseActor {
 	                updateFrequencyCount(languageId, nodeList);
 	                updatePosList(languageId, nodeList);
 	                updateWordComplexity(languageId, nodeList);
+
+	                //updateWordChainRelations();
 	                batch_node_ids = new ArrayList<String>();
 	                long diff = System.currentTimeMillis() - startTime;
 	                System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
@@ -318,12 +326,17 @@ public class EnrichActor extends LanguageBaseActor {
 								System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
 							}
 						}
+						try {
+							wordUtil.updateWordChainRelations(languageId, node, wc);
+						} catch (Exception e) {
+							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+						}
 					}
 				}
 			}
 		}
 	}
-
+	
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 	}
