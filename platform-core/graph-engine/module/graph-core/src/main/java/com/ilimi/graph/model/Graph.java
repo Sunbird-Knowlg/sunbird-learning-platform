@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -506,42 +507,48 @@ public class Graph extends AbstractDomainObject {
                                                         tag.createTag(tagRequest);
                                                     }
                                                 }
+                                                CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(byteInputStream);
+                                                OutputStream outputStream = msgHandler.getOutputStream(importMsgMap);
+                                                Map<String, Object> outputMap = new HashMap<String, Object>();
+                                                outputMap.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+                                                outputMap.put(GraphEngineParams.task_id.name(), taskId);
+                                                manager.OK(outputMap, getParent());
 
                                                 // Validate Graph.
-                                                Future<Map<String, List<String>>> validationMap = validateGraph(
-                                                        request);
-                                                validationMap.onComplete(new OnComplete<Map<String, List<String>>>() {
-                                                    @Override
-                                                    public void onComplete(Throwable throwable,
-                                                            Map<String, List<String>> validateMsgMap) throws Throwable {
-                                                        if (throwable != null) {
-                                                            manager.ERROR(throwable, getParent());
-                                                        } else {
-                                                            for (String rowIdentifier : importMsgMap.keySet()) {
-                                                                if (validateMsgMap.containsKey(rowIdentifier)) {
-                                                                    List<String> msgs = new ArrayList<String>(
-                                                                            importMsgMap.get(rowIdentifier));
-                                                                    msgs.addAll(validateMsgMap.get(rowIdentifier));
-                                                                    validateMsgMap.put(rowIdentifier, msgs);
-                                                                } else {
-                                                                    List<String> msgs = new ArrayList<String>(
-                                                                            importMsgMap.get(rowIdentifier));
-                                                                    validateMsgMap.put(rowIdentifier, msgs);
-                                                                }
-                                                            }
-                                                            CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
-                                                                    byteInputStream);
-                                                            OutputStream outputStream = msgHandler
-                                                                    .getOutputStream(validateMsgMap);
-                                                            
-                                                            Map<String, Object> outputMap = new HashMap<String, Object>();
-                                                            outputMap.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
-                                                            outputMap.put(GraphEngineParams.task_id.name(), taskId);
-                                                            manager.OK(outputMap, getParent());
-                                                        }
-                                                    }
-
-                                                }, ec);
+//                                                Future<Map<String, List<String>>> validationMap = validateGraph(
+//                                                        request);
+//                                                validationMap.onComplete(new OnComplete<Map<String, List<String>>>() {
+//                                                    @Override
+//                                                    public void onComplete(Throwable throwable,
+//                                                            Map<String, List<String>> validateMsgMap) throws Throwable {
+//                                                        if (throwable != null) {
+//                                                            manager.ERROR(throwable, getParent());
+//                                                        } else {
+//                                                            for (String rowIdentifier : importMsgMap.keySet()) {
+//                                                                if (validateMsgMap.containsKey(rowIdentifier)) {
+//                                                                    List<String> msgs = new ArrayList<String>(
+//                                                                            importMsgMap.get(rowIdentifier));
+//                                                                    msgs.addAll(validateMsgMap.get(rowIdentifier));
+//                                                                    validateMsgMap.put(rowIdentifier, msgs);
+//                                                                } else {
+//                                                                    List<String> msgs = new ArrayList<String>(
+//                                                                            importMsgMap.get(rowIdentifier));
+//                                                                    validateMsgMap.put(rowIdentifier, msgs);
+//                                                                }
+//                                                            }
+//                                                            CSVImportMessageHandler msgHandler = new CSVImportMessageHandler(
+//                                                                    byteInputStream);
+//                                                            OutputStream outputStream = msgHandler
+//                                                                    .getOutputStream(validateMsgMap);
+//                                                            
+//                                                            Map<String, Object> outputMap = new HashMap<String, Object>();
+//                                                            outputMap.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+//                                                            outputMap.put(GraphEngineParams.task_id.name(), taskId);
+//                                                            manager.OK(outputMap, getParent());
+//                                                        }
+//                                                    }
+//
+//                                                }, ec);
                                             }
                                         }
                                     }
