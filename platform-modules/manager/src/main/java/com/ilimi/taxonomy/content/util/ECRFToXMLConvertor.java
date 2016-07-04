@@ -121,7 +121,7 @@ public class ECRFToXMLConvertor {
 	private StringBuilder getCData(String cDataText) {
 		StringBuilder xml = new StringBuilder();
 		if (!StringUtils.isBlank(cDataText))
-			xml.append("![CDATA[" + cDataText + "]]");
+			xml.append("<![CDATA[" + cDataText + "]]>");
 		return xml;
 	}
 	
@@ -205,7 +205,7 @@ public class ECRFToXMLConvertor {
 	}
 	
 	public static String addQuote(String str) {
-		return DOUBLE_QUOTE + str + DOUBLE_QUOTE;
+		return DOUBLE_QUOTE + StringEscapeUtils.escapeXml11(str) + DOUBLE_QUOTE;
 	}
 
 }

@@ -10,4 +10,8 @@ public interface IImportManager {
     Response importData(String languageId, InputStream synsetStream, InputStream wordStream);
     
     Response importJSON(String languageId, InputStream synsetsStreamInZIP);
+    
+    Response importCSV(String languageId, InputStream file);
+    
+    Response updateDefinition(String languageId, String json);
 }

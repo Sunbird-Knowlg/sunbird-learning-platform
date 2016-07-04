@@ -14,6 +14,7 @@ import java.util.concurrent.Future;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 
 import com.ilimi.common.exception.ClientException;
@@ -85,7 +86,7 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		                    String[] uploadedFileUrl;
 		                    if (uploadFile.exists()) {
 			                	uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME, 
-			                		ContentConfigurationConstants.FOLDER_NAME, uploadFile);
+			                		ContentConfigurationConstants.FOLDER_NAME + "/" + Slug.makeSlug(contentId, true), uploadFile);
 			                	if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 			                        uploadMap.put(media.getId(), uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
 		                    }

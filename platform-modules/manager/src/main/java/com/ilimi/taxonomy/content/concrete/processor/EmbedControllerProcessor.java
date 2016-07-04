@@ -70,7 +70,7 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 												basePath + File.separator + ContentWorkflowPipelineParams.data.name()
 														+ File.separator + id + ".json");
 									if (null != file && file.exists()) {
-										LOGGER.info("Reading Controller File: " + file.getName());
+										LOGGER.info("Reading Controller File: " + file.getPath());
 										controller.setcData(FileUtils.readFileToString(file));
 									}
 								}

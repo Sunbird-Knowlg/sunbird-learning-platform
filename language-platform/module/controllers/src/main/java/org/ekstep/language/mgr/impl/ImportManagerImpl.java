@@ -48,11 +48,15 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.graph.common.enums.GraphEngineParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.graph.enums.ImportType;
+import com.ilimi.graph.importer.InputStreamValue;
+import com.ilimi.graph.importer.OutputStreamValue;
 
 @Component
 public class ImportManagerImpl extends BaseLanguageManager implements IImportManager {
@@ -782,5 +786,43 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
         }
         return lstLemma;
     }
+    
+    @Override
+	public Response importCSV(String languageId, InputStream stream) {
+		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+        if (null == stream)
+            throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
+		LOGGER.info("Import language CSV : " + stream);
+		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
+		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(stream));
+		Response createRes = getResponse(request, LOGGER);
+		if (checkError(createRes)) {
+			return createRes;
+		} else {
+			Response response = copyResponse(createRes);
+			OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.output_stream.name());
+			if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
+				ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
+				String csv = new String(bos.toByteArray());
+				response.put(LanguageParams.response.name(), csv);
+			}
+			return response;
+		}
+	}
+    
+    @Override
+	public Response updateDefinition(String languageId, String json) {
+    	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+            throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(json))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
+					"Definition nodes JSON is empty");
+		LOGGER.info("Update Definition : " + languageId);
+		Request request = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
+		request.put(GraphEngineParams.input_stream.name(), json);
+		return getResponse(request, LOGGER);
+	}
 
 }

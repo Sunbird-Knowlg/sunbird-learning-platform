@@ -37,9 +37,13 @@ public class ContentValidator {
 				
 				isValidContentPackage = true;
 			}
+		} catch(ClientException ce) {
+			throw ce;
 		} catch(IOException e) {
+			e.printStackTrace();
 			throw new ServerException(ContentErrorMessageConstants.CONTENT_PACKAGE_FILE_OPERATION_ERROR, "Something went wrong while processing the Package file.");
 		} catch(Exception e) {
+			e.printStackTrace();
 			throw new ClientException(ContentErrorMessageConstants.CONTENT_PACKAGE_VALIDATOR_ERROR, "Something went wrong while validating the Package file.");
 		}
 		return isValidContentPackage;

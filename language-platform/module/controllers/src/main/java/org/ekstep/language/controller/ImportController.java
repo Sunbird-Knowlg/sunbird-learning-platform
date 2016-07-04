@@ -197,6 +197,41 @@ public class ImportController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/{id:.+}/importCSV", method = RequestMethod.POST)
+    @ResponseBody
+	public ResponseEntity<Response> importCSV(@PathVariable(value = "id") String id,
+            @RequestParam("file") MultipartFile file, HttpServletResponse resp) {
+        String apiId = "language.importCSV";
+        LOGGER.info("Create | Id: " + id + " | File: " + file);
+        try {
+            InputStream stream = null;
+            if (null != file)
+                stream = file.getInputStream();
+            Response response = importManager.importCSV(id, stream);
+            LOGGER.info("Create | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Create | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+	
+	@RequestMapping(value = "/{id:.+}/importDefinition", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> importDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
+        String apiId = "definition.import";
+        LOGGER.info("Import Definition | Id: " + id );
+        try {
+            Response response = importManager.updateDefinition(id, json);
+            LOGGER.info("Import Definition | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -210,47 +245,6 @@ public class ImportController extends BaseLanguageController {
 		makeAsyncRequest(request, LOGGER);
 	}
 
-	/*@SuppressWarnings("unchecked")
-	private List<Node> getNodesList(ArrayList<String> node_ids, String languageId) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map.put(LanguageParams.node_ids.name(), node_ids);
-		Request getDataNodesRequest = new Request();
-		getDataNodesRequest.setRequest(map);
-		getDataNodesRequest.setManagerName(GraphEngineManagers.SEARCH_MANAGER);
-		getDataNodesRequest.setOperation("getDataNodes");
-		getDataNodesRequest.getContext().put(GraphHeaderParams.graph_id.name(), languageId);
-		Response response = getNonLanguageResponse(getDataNodesRequest, LOGGER);
-		if(checkError(response)){
-			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), response.getParams().getErrmsg());
-		}
-		List<Node> nodeList = (List<Node>) response.get("node_list");
-		return nodeList;
-	}
-
-	private void updateFrequencyCount(List<Node> nodeList, String languageId) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map = new HashMap<String, Object>();
-		map.put(LanguageParams.node_list.name(), nodeList);
-		Request updateLexileMeasuresRequest = new Request();
-		updateLexileMeasuresRequest.setRequest(map);
-		updateLexileMeasuresRequest.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
-		updateLexileMeasuresRequest.setOperation(LanguageOperations.updateFrequencyCount.name());
-		updateLexileMeasuresRequest.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(updateLexileMeasuresRequest, LOGGER);
-	}
-
-	private void updateLexileMeasures(List<Node> nodeList, String languageId) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		map = new HashMap<String, Object>();
-		map.put(LanguageParams.node_list.name(), nodeList);
-		Request updateLexileMeasuresRequest = new Request();
-		updateLexileMeasuresRequest.setRequest(map);
-		updateLexileMeasuresRequest.setManagerName(LanguageActorNames.ENRICH_ACTOR.name());
-		updateLexileMeasuresRequest.setOperation(LanguageOperations.updateLexileMeasures.name());
-		updateLexileMeasuresRequest.getContext().put(LanguageParams.language_id.name(), languageId);
-		makeAsyncRequest(updateLexileMeasuresRequest, LOGGER);
-	}
-*/
 	private void addWordIndex(ArrayList<Map<String, String>> wordInfoList, String languageId) {
 			Map<String, Object> map = new HashMap<String, Object>();
 	        map.put(LanguageParams.words.name(), wordInfoList);
