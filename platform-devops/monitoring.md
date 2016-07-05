@@ -24,7 +24,7 @@ logstash
 
 **1) Tomcat**
 
-```
+```sh
 # Check if the process is running
 ps -ef | grep tomcat | grep -v grep
 
@@ -35,7 +35,7 @@ sudo service tomcat stop
 sudo service tomcat start
 ```
 
-**2)elasticsearch **
+**2) Elasticsearch**
 
 ```sh 
 # Check if the process is running
@@ -79,7 +79,7 @@ cd $REDIS_HOME/src/redis-server &
 
 
 
-### logstash ###
+### Logstash ###
 
 **1) logstash-graph-events.conf**
 
@@ -97,7 +97,7 @@ check == 0
 $LOGSTASH_HOME/bin/logstash -f $LOGSTASH_HOME/logstash-2.3.3/logstash-graph-events.conf -v &
 ```
 
-**2)langusge-graph-events.conf **
+**2) Language-graph-events.conf**
 
 ```sh 
 # Check if the process is running
