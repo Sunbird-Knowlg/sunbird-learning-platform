@@ -1,0 +1,19 @@
+- name: create folder data
+  become_method: sudo
+  become: yes
+  file: path={{ item }} state=directory mode=0755
+  with_items:
+     - /data
+     - /data/graphDB
+     - /data/logs
+     - /data/contentBundle
+     - /data/properties
+     - /data/properties/language
+     - /data/properties/learning
+     - /data/properties/search
+
+- name: Change ownership of data directory
+  become_method: sudo
+  become: yes
+  file: path=/data owner=ec2-user group=ec2-user state=directory recurse=yes
+

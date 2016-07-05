@@ -1,0 +1,33 @@
+---
+# tasks file for redis
+
+- name: install softwares build-essential
+  become: yes
+  yum: name="@Development tools" state=present  
+
+- name: download redis zipfile
+  become_user: ec2-user
+  become: yes
+  get_url: url=http://download.redis.io/releases/redis-stable.tar.gz dest=/home/ec2-user/redis-stable.tar.gz timeout=50 force=no owner=ec2-user
+
+- name: unzip 
+  unarchive: src=/home/ec2-user/redis-stable.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ redis_home }}
+
+
+- name: Change ownership of redis installation
+  file: path={{ redis_home }} owner=ec2-user group=ec2-user state=directory recurse=yes
+
+- name: Go to the folder and run make
+  command: chdir={{ redis_home }} make 
+
+- name: Check if redis is running
+  shell: ps -ef | grep redis | grep -v grep
+  register: redis_process
+  changed_when: false
+  ignore_errors: true
+
+- name: start redis
+  become_user: ec2-user
+  shell: nohup {{ redis_home }}/src/redis-server &
+  async: 60
+  poll: 60

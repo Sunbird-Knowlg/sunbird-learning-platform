@@ -1,0 +1,37 @@
+---
+- name: Add Elasticsearch GPG key.
+  rpm_key: key=https://packages.elastic.co/GPG-KEY-elasticsearch state=present
+
+- name: Add Elasticsearch repository.
+  copy: src=elasticsearch.repo dest=/etc/yum.repos.d/elasticsearch.repo mode=0644
+
+- name: Install Elasticsearch.
+  yum: pkg=elasticsearch state=installed
+  notify: stop elasticsearch
+
+- name: copy  
+  template: src=elasticsearch.yml dest=/etc/elasticsearch/elasticsearch.yml
+
+- name: Give permissions
+  file: path={{ item }} owner=ec2-user group=ec2-user mode=755 recurse=yes state=directory
+  with_items:
+     - /usr/share/elasticsearch/plugins
+     - /usr/share/elasticsearch
+
+- stat: path={{ item.name }} 
+  register: {{ item.registers }}
+  with_items:
+    - { name: '/usr/share/elasticsearch/plugins/head', registers: 'check_head' }
+    - { name: '/usr/share/elasticsearch/plugins/analysis-icu', registers: 'check_icu' }
+    - { name: '/usr/share/elasticsearch/plugins/delete-by-query', registers: 'check_delete' }
+    - { name: '/usr/share/elasticsearch/plugins/mapper-murmur3', registers: 'check_mapper' }
+
+- name: Install plugins
+  command:  /usr/share/elasticsearch/bin/plugin  install {{ item.plugin }}
+  when: {{ item.registers }}.stat.exists == False
+  with_items:
+    - { name: 'mobz/elasticsearch-head', registers: 'check_head' }
+    - { name: 'analysis-icu', registers: 'check_icu' }
+    - { name: 'delete-by-query', registers: 'check_delete' }
+    - { name: 'mapper-murmur3', registers: 'check_mapper' }
+  notify: start elasticsearch 
