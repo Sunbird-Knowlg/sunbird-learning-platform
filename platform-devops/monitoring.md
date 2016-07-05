@@ -86,7 +86,7 @@ kill pid
 
 # Command to start the process
 check == 0
-$LOGSTASH_HOME/bin/logstash -f $LOGSTASH_HOME/logstash-2.3.3/logstash-graph-events.conf -v &
+$LOGSTASH_HOME/bin/logstash -f $LOGSTASH_HOME/logstash-graph-events.conf -v &
 ```
 
 **2) Language-graph-events.conf**
@@ -100,5 +100,5 @@ check == 1
 kill pid
 
 # Command to start the process
-$LOGSTASH_HOME/bin/logstash -f $LOGSTASH_HOME/logstash-2.3.3/language-graph-events.conf -v &
+$LOGSTASH_HOME/bin/logstash -f $LOGSTASH_HOME/language-graph-events.conf -v &
 ```
