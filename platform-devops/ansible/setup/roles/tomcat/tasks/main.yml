@@ -49,13 +49,4 @@
 - name: Change ownership of Tomcat installation
   file: path=/home/ec2-user/apache-tomcat-8.0.35 owner=ec2-user group=ec2-user state=directory mode=755 recurse=yes
 
-#- name: Tomcat Home
-#  become_user: lpdeploy
-#  become: yes
-#  lineinfile: dest=.bashrc  line='TOMCAT_HOME=/home/ec2-user/apache-tomcat-8.0.35' owner=lpdeploy state=present insertafter=EOF create=yes
-
-#- name: CATALINA Home
-#  become_user: lpdeploy
-#  become: yes
-#  lineinfile: dest=.bashrc  line='CATALINA_HOME=/home/ubuntu/apache-tomcat-8.0.35/webapps' owner=lpdeploy state=present insertafter=EOF create=yes
 

@@ -2,7 +2,6 @@
   become: yes
   roles:
         - aws-login
-        #- java
         - tomcat
         - elasticsearch
         - redis
