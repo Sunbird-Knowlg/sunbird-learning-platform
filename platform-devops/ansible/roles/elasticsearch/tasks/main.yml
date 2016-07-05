@@ -27,7 +27,7 @@
     - { name: '/usr/share/elasticsearch/plugins/mapper-murmur3', registers: 'check_mapper' }
 
 - name: Install plugins
-  command:  /usr/share/elasticsearch/bin/plugin  install {{ item.plugin }}
+  command:  /usr/share/elasticsearch/bin/plugin  install {{ item.name }}
   when: {{ item.registers }}.stat.exists == False
   with_items:
     - { name: 'mobz/elasticsearch-head', registers: 'check_head' }

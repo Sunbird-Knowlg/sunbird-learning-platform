@@ -1,5 +1,3 @@
-
-
 - name: Download
   become_user: ec2-user
   become: yes
@@ -12,26 +10,18 @@
   become: yes
   file: path={{ ffmpeg_home }} owner=ec2-user group=ec2-user mode=755 state=directory recurse=yes  
 
-- name: move file ffmpeg
+- name: move files
   become: yes
-  command: cp {{ ffmpeg_home }}/ffmpeg /usr/local/bin
+  command: cp {{ ffmpeg_home }}/{{ item }} /usr/local/bin
+  with_items:
+     - ffmpeg
+     - ffprobe
+     - ffserver
 
-- name: move file ffprobe
+- name: move files
   become: yes
-  command: cp {{ ffmpeg_home }}/ffprobe /usr/local/bin/
-
-- name: move file ffserver
-  become: yes
-  command: cp {{ ffmpeg_home }}/ffserver /usr/local/bin/
-
-- name: move file ffmpeg
-  become: yes
-  file: path=/usr/local/bin/ffmpeg owner=ec2-user group=ec2-user mode=0755
-
-- name: move file ffprobe
-  become: yes
-  file: path=/usr/local/bin/ffprobe owner=ec2-user group=ec2-user mode=0755
-
-- name: move file ffserver
-  become: yes
-  file: path=/usr/local/bin/ffserver owner=ec2-user group=ec2-user mode=0755
+  file: path=/usr/local/bin/{{ item }} owner=ec2-user group=ec2-user mode=0755
+  with_items:
+     - ffmpeg
+     - ffprobe
+     - ffserver

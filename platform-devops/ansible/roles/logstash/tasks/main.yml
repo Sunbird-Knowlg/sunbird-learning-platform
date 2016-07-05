@@ -6,7 +6,7 @@
 - name: unzip 
   unarchive: src=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates=/home/ec2-user/logstash-2.3.3
 
-- name: add several users
+- name: add logstash configuration files
   template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
     - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }

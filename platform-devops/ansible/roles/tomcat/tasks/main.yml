@@ -19,7 +19,7 @@
 - name: create localhost
   file: path=/home/ec2-user/apache-tomcat-8.0.35/conf/Catalina/localhost state=directory mode=755 
 
-- name: add several users
+- name: add templates
   template: src={{ item.name }} dest={{ item.destination }}
   with_items:
     - { name: 'server.xml', destination: '/usr/share/tomcat/conf/' }
