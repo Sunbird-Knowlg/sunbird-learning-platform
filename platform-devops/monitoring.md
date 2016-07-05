@@ -13,14 +13,6 @@
 1. LP-Prod - 52.77.241.169
 
 ## Services running on all 3 above instances ##
-tomcat
-elasticsearch
-mongod
-redis
-logstash 
-  1)logstash-graph-events.conf
-  2)language-graph-events.conf
-
 
 **1) Tomcat**
 
