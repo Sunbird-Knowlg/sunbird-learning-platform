@@ -12,11 +12,11 @@
 
 - name: move files
   become: yes
-  command: cp {{ ffmpeg_home }}/{{ item }} /usr/local/bin
+  command: cp /home/ec2-user/ffmpeg-3.1.1-64bit-static/{{ item }} /usr/local/bin
   with_items:
-     - ffmpeg
-     - ffprobe
-     - ffserver
+             - ffmpeg
+             - ffprobe
+             - ffserver
 
 - name: move files
   become: yes

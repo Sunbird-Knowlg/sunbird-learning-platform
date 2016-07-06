@@ -18,20 +18,37 @@
      - /usr/share/elasticsearch/plugins
      - /usr/share/elasticsearch
 
-- stat: path={{ item.name }} 
-  register: {{ item.registers }}
-  with_items:
-    - { name: '/usr/share/elasticsearch/plugins/head', registers: 'check_head' }
-    - { name: '/usr/share/elasticsearch/plugins/analysis-icu', registers: 'check_icu' }
-    - { name: '/usr/share/elasticsearch/plugins/delete-by-query', registers: 'check_delete' }
-    - { name: '/usr/share/elasticsearch/plugins/mapper-murmur3', registers: 'check_mapper' }
+- stat: path=/usr/share/elasticsearch/plugins/head
+  register: check_head
 
-- name: Install plugins
-  command:  /usr/share/elasticsearch/bin/plugin  install {{ item.name }}
-  when: {{ item.registers }}.stat.exists == False
-  with_items:
-    - { name: 'mobz/elasticsearch-head', registers: 'check_head' }
-    - { name: 'analysis-icu', registers: 'check_icu' }
-    - { name: 'delete-by-query', registers: 'check_delete' }
-    - { name: 'mapper-murmur3', registers: 'check_mapper' }
+
+- stat: path=/usr/share/elasticsearch/plugins/analysis-icu
+  register: check_icu
+
+
+- stat: path=/usr/share/elasticsearch/plugins/delete-by-query
+  register: check_delete
+
+- stat: path=/usr/share/elasticsearch/plugins/mapper-murmur3
+  register: check_mapper
+  
+- name: Install plugin elasticsearch-head
+  command: /usr/share/elasticsearch/bin/plugin install mobz/elasticsearch-head
+   #elasticsearch_plugin: state=present name="mobz/elasticsearch-head"
+  when: check_head.stat.exists == False
+
+- name:  Install plugin  analysis-icu
+  command: /usr/share/elasticsearch/bin/plugin install analysis-icu
+  #elasticsearch_plugin: state=present name="analysis-icu"
+  when: check_icu.stat.exists == False
+
+- name:  Install plugin delete-by-query
+  command: /usr/share/elasticsearch/bin/plugin install delete-by-query
+  #elasticsearch_plugin: state=present name="delete-by-query"
+  when: check_delete.stat.exists == False
+
+- name:  Install plugin  mapper-murmur3
+  command: /usr/share/elasticsearch/bin/plugin install mapper-murmur3
+  #elasticsearch_plugin: state=present name="mapper-murmur3"
+  when: check_mapper.stat.exists == False
   notify: start elasticsearch 
