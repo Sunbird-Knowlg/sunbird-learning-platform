@@ -13,6 +13,6 @@ public interface ICompositeSearchManager {
 	
 	Response count(Request request);
 
-	Map<String, Object> searchForTraversal(Request request);
+	Map<String, Object> weightedSearch(Request request);
 
 }

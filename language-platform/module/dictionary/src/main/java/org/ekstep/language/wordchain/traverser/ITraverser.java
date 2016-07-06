@@ -5,11 +5,13 @@ import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
-public interface ITraverserInterface {
+public interface ITraverser {
 	
 	public void setEvaluator(Evaluator evaluator);
 
 	public TraversalDescription getTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
+	
+	public TraversalDescription getTraversalDescription();
 
 	public Traverser traverse(Node startNode);
 

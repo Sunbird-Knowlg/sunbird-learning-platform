@@ -4,10 +4,13 @@ public interface IWordChainConstants {
 
 	public final String ATTRIB_TRAVERSAL_ID = "traversalId";
 	public final String ATTRIB_TRAVERSAL = "traversal";
-	public final String ATTRIB_MAX_CHAIN_LENGTH = "max_chain_length";
-	public final String ATTRIB_MIN_CHAIN_LENGTH = "min_chain_length";
-	public final String ATTRIB_CHAIN_WORDS_SIZE = "word_chain_words_size";
-	public final String ATTRIB_START_WORDS_SIZE = "start_words_size";
+	public final String ATTRIB_MAX_CHAIN_LENGTH = "maxChainLength";
+	public final String ATTRIB_MIN_CHAIN_LENGTH = "minChainLength";
+	public final String ATTRIB_CHAIN_WORDS_SIZE = "wordChainWordsSize";
+	public final String ATTRIB_START_WORDS_SIZE = "startWordsSize";
+	public final String ATTRIB_RULE_OBJECT_TYPE = "ruleObjectType";
+	public final String ATTRIB_RULE_OBJECT_STATUS = "ruleObjectStatus";
+	public final String ATTRIB_TRAVERSER_CLASS = "traverserClass";
 	public final String ATTRIB_WEIGHTAGES = "weightages";
 	public final String ATTRIB_DEFAULT_WEIGHTAGE = "default_weightage";
 	public final String ATTRIB_PHONETIC_BOUNDARY_TYPE = "type";
@@ -18,6 +21,5 @@ public interface IWordChainConstants {
 	public final String ATTRIB_WORD_CHAIN_SCORE = "score";
 	public final String ATTRIB_WORD_CHAIN_RELATION = "relation";
 	public final String ATTRIB_RULE_TYPE = "type";
-
-	
+	public final String ATTRIB_TRAVERSAL_PROPERTIES = "traversalProperties";
 }

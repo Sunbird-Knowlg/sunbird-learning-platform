@@ -208,9 +208,8 @@ public class SearchProcessor {
 		}
 		String query;
 		if(searchDTO.isTraversalSearch()){
-			Map<String, Double> weightages = (Map<String, Double>) searchDTO.getAdditionalProperty("weightages");
-			String graphId = (String) searchDTO.getAdditionalProperty("graphId");
-			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), weightages, graphId);
+			Map<String, Object> traversalProperties = (Map<String, Object>) searchDTO.getAdditionalProperty("traversalProperties");
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), traversalProperties);
 		}
 		else
 		{
@@ -221,39 +220,58 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages, String graphId) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String,  Object> traversalProperties) throws Exception {
 		
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
+		Map<String,  Double> weightages = (Map<String, Double>) traversalProperties.get("weightages");
 
-		/*if ((mustConditions != null && !mustConditions.isEmpty())
-				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {*/
 			builder.key("query").object()
 				.key("function_score")
 					.object()
 						.key("query")
 							.object()
 								.key("bool").object()
-									.key("must").array()
-										.object()
-											.key("match").object()
-												.key("objectType.raw").value("Word")
-											.endObject()
-										.endObject()
-										.object()
-											.key("match").object()
-												.key("graph_id.raw").value(graphId)
-											.endObject()
-										.endObject()
-									.endArray()
+									.key("must").array();
+										
+			for(Map.Entry<String, Object> entry: traversalProperties.entrySet()){
+				if(!entry.getKey().equalsIgnoreCase("weightages")){
+					String field = entry.getKey();
+					
+					if( entry.getValue() instanceof List){
+						builder.object()
+							.key("bool").object()
+								.key("should").array();
+						List<String> values = (List<String>) entry.getValue();
+						for(String value: values){
+							builder.object()
+								.key("match").object()
+									.key(field + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value)
 								.endObject()
+							.endObject();
+						}
+								builder.endArray()
+								.endObject()
+							.endObject();
+					}
+					else {
+						String value = (String) entry.getValue();
+						builder.object()
+							.key("match").object()
+								.key(field + CompositeSearchConstants.RAW_FIELD_EXTENSION).value(value)
 							.endObject()
-						.key("functions").array();
-		//}
+						.endObject();
+					}
+				}
+			}
+										
+						builder.endArray()
+					.endObject()
+				.endObject()
+			.key("functions").array();
 
 		if (mustConditions != null && !mustConditions.isEmpty()) {
 			for (Map textCondition : mustConditions) {

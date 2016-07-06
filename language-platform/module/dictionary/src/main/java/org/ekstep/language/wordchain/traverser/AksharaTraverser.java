@@ -23,4 +23,5 @@ public class AksharaTraverser extends AbstractTraverser {
 				.evaluator(Evaluators.fromDepth(minTraversalDepth));
 		return traversalDescription;
 	}
+
 }

@@ -7,7 +7,7 @@ import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
 
-public abstract class AbstractTraverser implements ITraverserInterface {
+public abstract class AbstractTraverser implements ITraverser {
 
 	protected TraversalDescription traversalDescription;
 
@@ -36,4 +36,8 @@ public abstract class AbstractTraverser implements ITraverserInterface {
 		return traversalDescription;
 	}
 
+	@Override
+	public TraversalDescription getTraversalDescription() {
+		return this.traversalDescription;
+	}
 }
