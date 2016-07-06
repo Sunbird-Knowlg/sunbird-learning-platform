@@ -66,8 +66,8 @@ async.waterfall([
     	importItems(callback);
     },
     function(arg1, callback) {
-    	//printAssessmentItems(callback);
-    	createAssessmentItems(callback);
+    	printAssessmentItems(callback);
+    	//createAssessmentItems(callback);
     }
 ], function (err, result) {
     if (err) {
@@ -139,18 +139,11 @@ function importItems(callback) {
 			}
 
 			// Default fields
-			item['type'] = questionType;
-			item['domain'] = taxonomyId;
-			item['lastUpdatedBy'] = "csv-import";
-			item['used_for'] = "worksheet";
 			item['owner'] = "Feroz";
 			item['portalOwner'] = "128";
-			item['language'] =  [language];
+			item['language'] =  [item['language']];
 			item['name'] = item['title']; // name is same as title
 			item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
-			item['num_answers'] = 1;
-			item['max_score'] = 1;
-			item['partial_scoring'] = false;
 
 			// De-dup and Shuffle options before loading
 			if (questionType == 'mcq') {
@@ -335,6 +328,10 @@ function getItemRecord(row, startCol, mapping, item) {
 		} else {
 			if (data['col-def']) {
 				var val = getColumnValue(row, startCol, data['col-def']);
+				if (null != val)
+					item[x] = val;
+			} else if (data['literal']) {
+				var val = data['literal'];
 				if (null != val)
 					item[x] = val;
 			} else if (_.isObject(data)) {
