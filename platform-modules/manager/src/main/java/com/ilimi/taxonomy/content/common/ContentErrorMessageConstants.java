@@ -82,6 +82,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String APP_ICON_DOWNLOAD_ERROR = "Error! While downloading App Icon.";
 	
+	public static final String ASSET_CONCURRENT_DOWNLOAD_ERROR = "Error! While downloading assets concurrently.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

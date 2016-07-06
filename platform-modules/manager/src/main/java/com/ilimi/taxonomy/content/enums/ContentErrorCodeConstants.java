@@ -24,7 +24,8 @@ public enum ContentErrorCodeConstants {
 	DUPLICATE_CONTROLLER_ID(16, "Duplicate Controller Id used in ECML body."),
 	MISSING_CONTROLLER_FILE(17, "Missing Controller File."),
 	DOWNLOAD_ERROR(18, "Error while downloading a file."),
-	SEARCH_ERROR(19, "Error while searching.");
+	SEARCH_ERROR(19, "Error while searching."),
+	PROCESSOR_CONC_OP_ERROR(20, "Error in concurrent operation.");
 
 	private final int code;
 	private final String description;
