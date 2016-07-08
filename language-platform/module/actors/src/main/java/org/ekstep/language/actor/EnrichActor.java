@@ -24,6 +24,7 @@ import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
+import org.ekstep.language.wordchian.PhoneticBoundaryUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
@@ -45,6 +46,7 @@ public class EnrichActor extends LanguageBaseActor {
 	private final int BATCH_SIZE = 10000;
 	
 	private WordUtil wordUtil = new WordUtil();
+	private PhoneticBoundaryUtil phoneticBoundaryUtil = new PhoneticBoundaryUtil();
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -327,7 +329,7 @@ public class EnrichActor extends LanguageBaseActor {
 							}
 						}
 						try {
-							wordUtil.updateWordChainRelations(languageId, node, wc);
+							phoneticBoundaryUtil.updateWordChainRelations(languageId, node, wc);
 						} catch (Exception e) {
 							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
 						}
