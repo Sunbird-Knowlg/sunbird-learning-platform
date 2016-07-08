@@ -74,11 +74,11 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 		List<Node> nodes = searchNodes(sc, graphDb);
 
-		for (Node node : nodes) {
+		/*for (Node node : nodes) {
 			getTraversalPath(graphDb, node);
-		}
+		}*/
 		
-		//getTraversalPath(graphDb, nodes);
+		getTraversalPath(graphDb, nodes);
 
 		
 		long endTime = System.currentTimeMillis();
@@ -197,7 +197,8 @@ public class WordChainsTraversalsTest extends BaseManager {
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
 				.relationships(Rels.startsWithAkshara, Direction.INCOMING)
 				.relationships(Rels.endsWithAkshara, Direction.OUTGOING)
-				.uniqueness(Uniqueness.NODE_GLOBAL)
+				//.uniqueness(Uniqueness.NODE_GLOBAL)
+				.uniqueness(Uniqueness.NODE_PATH)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				//.evaluator(Evaluators.excludeStartPosition())
 				.evaluator(Evaluators.fromDepth(3))

@@ -47,8 +47,8 @@ public class WordChainManager extends BaseLanguageManager
 	public Response getWordChain(int wordChainsLimit, List<Map> words, Node ruleNode, String graphId) throws Exception {
 		Map<String, Object> ruleNodeMetadata = ruleNode.getMetadata();
 
-		int maxDepth = getIntValue(ruleNodeMetadata.get(ATTRIB_MAX_CHAIN_LENGTH));
-		maxDepth = maxDepth + (maxDepth - 1);
+		int maxdefinedDepth = getIntValue(ruleNodeMetadata.get(ATTRIB_MAX_CHAIN_LENGTH));
+		int maxDepth = maxdefinedDepth + (maxdefinedDepth - 1);
 		
 		
 		int minDepth = getIntValue(ruleNodeMetadata.get(ATTRIB_MIN_CHAIN_LENGTH));
@@ -78,45 +78,20 @@ public class WordChainManager extends BaseLanguageManager
 			wordIdMap.put(id, word);
 		}
 
-		WordIdEvaluator wordIdEvaluator = new WordIdEvaluator(ids);
-		ITraverser wordTraverser = TraverserFactory.getTraverser(traverserClass);
-		wordTraverser.createTraversalDescription(maxDepth, minDepth, graphId);
-		wordTraverser.setEvaluator(wordIdEvaluator);
 
 		List<Map<String, Object>> wordChains = new ArrayList<Map<String, Object>>();
 		List<Map> wordChainWords = new ArrayList<Map>();
 		
-		/*List<Request> requests = new ArrayList<Request>();
-		 * for (Map topWord : topWords) {
-			String identifier = (String) topWord.get(LanguageParams.identifier.name());
-			com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId,
-					identifier);
-			searchTraverser.setTraversalDescription(wordTraverser.getTraversalDescription());
-			Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverse");
-			request.put(GraphDACParams.traversal_description.name(), searchTraverser);
-			requests.add(request);
-		}
-
-		Response traverseResponse = getResponse(requests, LOGGER, GraphDACParams.sub_graph.name(),
-				LanguageParams.sub_graphs.name());
-
-		if (checkError(traverseResponse)) {
-			return traverseResponse;
-		}
-
-		List<SubGraph> subGraphs = (List<SubGraph>) traverseResponse.get(LanguageParams.sub_graphs.name());
-
-		for (SubGraph subGraph : subGraphs) {
-			List<Path> paths = subGraph.getPaths();
-			for (Path finalPath : paths) {
-				Map wordChain = processPath(finalPath, wordScore, wordIdMap, relation);
-				if (wordChain != null) {
-					wordChains.add(wordChain);
-				}
-			}
-		}*/
+		
+		//Individual traversal
 		
 		for (Map topWord : topWords) {
+			
+			WordIdEvaluator wordIdEvaluator = new WordIdEvaluator(ids);
+			ITraverser wordTraverser = TraverserFactory.getTraverser(traverserClass);
+			wordTraverser.createTraversalDescription(maxDepth, minDepth, graphId);
+			wordTraverser.setEvaluator(wordIdEvaluator);
+			
 			String identifier = (String) topWord.get(LanguageParams.identifier.name());
 			com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId,
 					identifier);
@@ -140,8 +115,37 @@ public class WordChainManager extends BaseLanguageManager
 				}
 			}
 		}
-
 		
+		//All nodes traversal
+		
+		/*List<String> topWordIds = new ArrayList<String>();
+		if (ids.size() > startWordsLength) {
+			topWordIds = ids.subList(0, startWordsLength);
+		} else {
+			topWordIds = ids;
+		}
+
+		com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId,
+				topWordIds);
+		searchTraverser.setTraversalDescription(wordTraverser.getTraversalDescription());
+		Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverse");
+		request.put(GraphDACParams.traversal_description.name(), searchTraverser);
+		
+		Response traverseResponse = getResponse(request, LOGGER);
+
+		if (checkError(traverseResponse)) {
+			return traverseResponse;
+		}
+
+		SubGraph subGraph = (SubGraph) traverseResponse.get(GraphDACParams.sub_graph.name());
+
+		List<Path> paths = subGraph.getPaths();
+		for (Path finalPath : paths) {
+			Map wordChain = processPath(finalPath, wordScore, wordIdMap, relation);
+			if (wordChain != null) {
+				wordChains.add(wordChain);
+			}
+		}*/
 
 		Collections.sort(wordChains, wordChainsComparator);
 
@@ -183,6 +187,8 @@ public class WordChainManager extends BaseLanguageManager
 			String relation) throws Exception {
 		List<String> wordChain = new ArrayList<String>();
 		Double totalScore = 0.0;
+		Double averageScore = 0.0;
+		int chainLength = 0;
 		Map<String, Object> wordChainRecord = new HashMap<String, Object>();
 		String title = "";
 		for (Node node : path.getNodes()) {
@@ -201,6 +207,7 @@ public class WordChainManager extends BaseLanguageManager
 						score = 0.0;
 					}
 					totalScore = totalScore + score;
+					chainLength++;
 				}
 			} else if (objectType.equalsIgnoreCase(LanguageObjectTypes.Phonetic_Boundary.name())) {
 				if (nodeMetadata.containsKey(ATTRIB_PHONETIC_BOUNDARY_TYPE)) {
@@ -217,9 +224,12 @@ public class WordChainManager extends BaseLanguageManager
 		if (wordChain.size() == 1) {
 			return null;
 		}
+		
+		averageScore = totalScore/chainLength;
+		
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_TITLE, title);
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_LIST, wordChain);
-		wordChainRecord.put(ATTRIB_WORD_CHAIN_SCORE, totalScore);
+		wordChainRecord.put(ATTRIB_WORD_CHAIN_SCORE, averageScore);
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_RELATION, relation);
 		return wordChainRecord;
 	}

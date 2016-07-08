@@ -396,13 +396,8 @@ public class SearchProcessor {
 				builder.endObject().endObject().endObject().key("weight").value(weight).endObject();
 			}
 		}
-/*		"score_mode": "sum",
-	      "boost_mode": "multiply"*/
-		/*if ((mustConditions != null && !mustConditions.isEmpty())
-				|| (arithmeticConditions != null && !arithmeticConditions.isEmpty())
-				|| (notConditions != null && !notConditions.isEmpty())) {*/
-			builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
-		//}
+
+		builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
 
 		builder.endObject();
 		return builder.toString();

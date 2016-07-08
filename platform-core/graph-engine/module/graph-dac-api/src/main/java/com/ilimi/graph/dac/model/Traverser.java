@@ -27,7 +27,7 @@ public class Traverser implements Serializable {
     private String graphId;
     private GraphDatabaseService graphDb;;
 
-    private Node startNode;
+    private List<Node> startNodes = new ArrayList<Node>();
     private int traversal = BREADTH_FIRST_TRAVERSAL;
     private List<RelationTraversal> relations = new ArrayList<RelationTraversal>();
     private int toDepth;
@@ -46,7 +46,16 @@ public class Traverser implements Serializable {
         this.graphId = graphId;
         this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
-        this.startNode = node;
+        this.startNodes.add(node);
+    }
+	
+	public Traverser(String graphId, List<String> startNodeIds) {
+        this.graphId = graphId;
+        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+        for(String startNodeId: startNodeIds){
+        	Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
+        	this.startNodes.add(node);
+        }
     }
 	
     public Traverser traversal(int traversal) {
@@ -132,7 +141,7 @@ public class Traverser implements Serializable {
 
     public SubGraph traverse() {
         SubGraph subGraph = new SubGraph();
-        ResourceIterator<Path> pathsIterator = getTraversalDescription().traverse(startNode).iterator();
+        ResourceIterator<Path> pathsIterator = getTraversalDescription().traverse(startNodes).iterator();
         if (null != pathsIterator) {
         	List<Path> finalPaths = removeSubPaths(pathsIterator);
             for(Path traversedPath: finalPaths) {
@@ -194,8 +203,8 @@ public class Traverser implements Serializable {
         Graph subGraph = new Graph();
         TraversalDescription td = getTraversalDescription();
         if (null != td) {
-            ResourceIterable<Node> nodes = td.traverse(startNode).nodes();
-            ResourceIterable<Relationship> relations = td.traverse(startNode).relationships();
+            ResourceIterable<Node> nodes = td.traverse(startNodes).nodes();
+            ResourceIterable<Relationship> relations = td.traverse(startNodes).relationships();
             if (null != nodes) {
                 List<com.ilimi.graph.dac.model.Node> nodeList = new ArrayList<com.ilimi.graph.dac.model.Node>();
                 for (Node dbNode : nodes) {

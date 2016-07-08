@@ -127,6 +127,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
         	Response wordChainResponse = wordChainsManager.getWordChain(wordChainsLimit, words, ruleNode, languageId);
             return getResponseEntity(wordChainResponse, apiId, null);
         } catch (Exception e) {
+        	e.printStackTrace();
             LOGGER.error("Error: " + apiId, e);
             return getExceptionResponseEntity(e, apiId, null);
         }
