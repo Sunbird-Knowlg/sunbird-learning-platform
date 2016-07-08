@@ -109,5 +109,8 @@
   fail: msg="Response Failing for the config-service/service"
   when: "config_process.stdout >= '1'"
 
+- name: run definition_script
+  script: definition_script.sh
+
 
 
