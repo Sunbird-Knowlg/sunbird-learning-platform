@@ -78,6 +78,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
 			Boolean traversal = (Boolean) request.get("traversal");
+			if (null == traversal)
+				traversal = false;
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
@@ -234,12 +236,12 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 							emptyVal = true;
 					}
 					if (!emptyVal) {
-					Map<String, Object> property = new HashMap<String, Object>();
-					property.put(CompositeSearchParams.values.name(), entry.getValue());
-					property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-					properties.add(property);
-				}
+						Map<String, Object> property = new HashMap<String, Object>();
+						property.put(CompositeSearchParams.values.name(), entry.getValue());
+						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
+						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+						properties.add(property);
+					}
 				}
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
 				    statusFilter = true;

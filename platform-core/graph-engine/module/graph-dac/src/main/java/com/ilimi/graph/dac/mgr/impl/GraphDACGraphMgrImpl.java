@@ -17,7 +17,6 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
@@ -597,21 +596,14 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 Map<String, List<String>> messages = new HashMap<String, List<String>>();
                 GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
                 tx = graphDb.beginTx();
-
-                GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
-                Map<String, Node> existingNodes = getExistingNodes(graphOps.getAllNodes());
-                Map<String, Map<String, List<Relationship>>> existingRelations = getExistingRelations(
-                        graphOps.getAllRelationships());
-
+                Map<String, Node> existingNodes = new HashMap<String, Node>();
+                Map<String, Map<String, List<Relationship>>> existingRelations = new HashMap<String, Map<String, List<Relationship>>>();
                 List<com.ilimi.graph.dac.model.Node> importedNodes = new ArrayList<com.ilimi.graph.dac.model.Node>(
                         input.getDataNodes());
-
-                int nodesCount = createNodes(request, graphDb, existingNodes, importedNodes);
+                int nodesCount = createNodes(request, graphDb, existingNodes, existingRelations, importedNodes);
                 int relationsCount = createRelations(request, graphDb, existingRelations, existingNodes, importedNodes,
                         messages);
-
                 upsertRootNode(graphDb, graphId, existingNodes, nodesCount, relationsCount);
-
                 tx.success();
                 tx.close();
                 if(taskId != null){
@@ -649,18 +641,8 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 		}
 	}
 
-	private Map<String, Node> getExistingNodes(Iterable<Node> dbNodes) {
-        Map<String, Node> existingNodes = new HashMap<String, Node>();
-        if (null != dbNodes && null != dbNodes.iterator()) {
-            for (Node dbNode : dbNodes) {
-                existingNodes.put(dbNode.getProperty(SystemProperties.IL_UNIQUE_ID.name()).toString(), dbNode);
-            }
-        }
-        return existingNodes;
-    }
-
-    private Map<String, Map<String, List<Relationship>>> getExistingRelations(Iterable<Relationship> dbRelations) {
-        Map<String, Map<String, List<Relationship>>> existingRelations = new HashMap<String, Map<String, List<Relationship>>>();
+    private Map<String, Map<String, List<Relationship>>> getExistingRelations(Iterable<Relationship> dbRelations, 
+    			Map<String, Map<String, List<Relationship>>> existingRelations) {
         if (null != dbRelations && null != dbRelations.iterator()) {
             for (Relationship relationship : dbRelations) {
                 String startNodeId = (String) relationship.getStartNode()
@@ -689,6 +671,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     }
 
     private int createNodes(Request request, GraphDatabaseService graphDb, Map<String, Node> existingNodes,
+    		Map<String, Map<String, List<Relationship>>> existingRelations,
             List<com.ilimi.graph.dac.model.Node> nodes) {
         int nodesCount = 0;
         String date = DateUtils.formatCurrentDate();
@@ -701,9 +684,13 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 if (existingNodes.containsKey(node.getIdentifier())) {
                     neo4jNode = existingNodes.get(node.getIdentifier());
                 } else {
-                    neo4jNode = graphDb.createNode(NODE_LABEL);
-                    neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
-                    nodesCount++;
+                	neo4jNode = graphDb.findNode(NODE_LABEL, SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+                	if (null == neo4jNode) {
+                		neo4jNode = graphDb.createNode(NODE_LABEL);
+                        neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+                        nodesCount++;
+                	}
+                	existingNodes.put(node.getIdentifier(), neo4jNode);
                 }
                 neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
                 neo4jNode.setProperty("identifier", node.getIdentifier());
@@ -722,6 +709,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                 }
                 neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
                 existingNodes.put(node.getIdentifier(), neo4jNode);
+                getExistingRelations(neo4jNode.getRelationships(), existingRelations);
             }
         }
         return nodesCount;
@@ -860,19 +848,23 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
     private void upsertRootNode(GraphDatabaseService graphDb, String graphId, Map<String, Node> existingNodes,
             Integer nodesCount, Integer relationsCount) {
         String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
+        Node rootNode = null;
         if (existingNodes.get(rootNodeUniqueId) == null) {
-            Node rootNode = graphDb.createNode(NODE_LABEL);
-            rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
-            rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
-            rootNode.setProperty("nodesCount", nodesCount);
-            rootNode.setProperty("relationsCount", relationsCount);
+        	rootNode = graphDb.findNode(NODE_LABEL, SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
+        	if (null == rootNode) {
+        		rootNode = graphDb.createNode(NODE_LABEL);
+        		rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
+        		rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());
+        		rootNode.setProperty("nodesCount", 0);
+                rootNode.setProperty("relationsCount", 0);
+        	}
         } else {
-            Node rootNode = existingNodes.get(rootNodeUniqueId);
-            int totalNodes = (Integer) rootNode.getProperty("nodesCount") + nodesCount;
-            rootNode.setProperty("nodesCount", totalNodes);
-            int totalRelations = (Integer) rootNode.getProperty("relationsCount") + relationsCount;
-            rootNode.setProperty("relationsCount", totalRelations);
+            rootNode = existingNodes.get(rootNodeUniqueId);
         }
+        int totalNodes = (Integer) rootNode.getProperty("nodesCount") + nodesCount;
+        rootNode.setProperty("nodesCount", totalNodes);
+        int totalRelations = (Integer) rootNode.getProperty("relationsCount") + relationsCount;
+        rootNode.setProperty("relationsCount", totalRelations);
     }
 
 }

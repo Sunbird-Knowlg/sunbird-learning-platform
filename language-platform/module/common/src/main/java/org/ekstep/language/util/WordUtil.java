@@ -35,9 +35,9 @@ import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.neo4j.cypher.internal.compiler.v1_9.symbols.RelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -64,6 +64,7 @@ import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
+import com.ilimi.graph.dac.util.RelationType;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -1923,8 +1924,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
 	}
-	
-	
+		
 	public void updateWordChainRelations(String languageId, Node node, WordComplexity wc) throws Exception {
 		String status = (String) node.getMetadata().get(LanguageParams.status.name());
 		if(status == null)
@@ -1937,28 +1937,33 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			}
 		}else{
 			List<Relation> outRelation = node.getOutRelations();
-			Iterator<Relation> rItr =outRelation.iterator();
-			while(rItr.hasNext()){
-				Relation rel = rItr.next();
-				if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
-						rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
-						rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
-					rItr.remove();
+			if(outRelation != null ){
+				Iterator<Relation> rItr =outRelation.iterator();
+				while(rItr.hasNext()){
+					Relation rel = rItr.next();
+					if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
+							rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
+							rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
+						rItr.remove();
+					}
 				}
+				node.setOutRelations(outRelation);				
 			}
-			node.setOutRelations(outRelation);
 			
 			List<Relation> inRelation = node.getInRelations();
-			Iterator<Relation> irItr =inRelation.iterator();
-			while(irItr.hasNext()){
-				Relation rel = irItr.next();
-				if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
-						rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
-						rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
-					irItr.remove();
+			if(inRelation != null){
+				Iterator<Relation> irItr =inRelation.iterator();
+				while(irItr.hasNext()){
+					Relation rel = irItr.next();
+					if(rel.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.relationName()) ||
+							rel.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.relationName()) ||
+							rel.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
+						irItr.remove();
+					}
 				}
+				node.setInRelations(inRelation);				
 			}
-			node.setInRelations(inRelation);
+
 			
 			Response wordResponse = updateWord(node, languageId, node.getIdentifier());
 			if (checkError(wordResponse)) {
@@ -1970,15 +1975,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	
 	private void updateWordChainRelationEnglishLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
 		String lemma = (String) node.getMetadata().get(LanguageParams.lemma.name());
-		
+		List<Relation> newRelations = new ArrayList<Relation>();
 		//startWithBoundary
 		String text = "" + lemma.charAt(0);
-		addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+		newRelations.addAll(addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 		//endstWithBoundary
-		if(lemma.length()>1){
-			text = "" + lemma.charAt(lemma.length()-1);
-			addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());			
-		}
+		text = "" + lemma.charAt(lemma.length()-1);
+		newRelations.addAll(addPhoneticBoundary(languageId, text, node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));			
 		
 		//RythmingSound
 		String arpabets = getArpabets(lemma);
@@ -1987,19 +1990,18 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			int arpabetLength = arpabetArr.length;
 			if(arpabetLength > 1){
 				String rhymingText = (arpabetLength > 3) ? (arpabetArr[arpabetLength-2] + " " + arpabetArr[arpabetLength -1]) : (arpabetArr[arpabetLength -1]); 
-				addPhoneticBoundary(languageId, rhymingText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name());				
+				newRelations.addAll(addPhoneticBoundary(languageId, rhymingText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name()));				
 			}
 		}
 
-		Node updatedNode = getDataNode(languageId, node.getIdentifier());
-		node.setOutRelations(updatedNode.getOutRelations());
-		node.setInRelations(updatedNode.getInRelations());
+		updateWordWithNewRelation(languageId, node, newRelations);
 	}
 	
 	private void updateWordChainRelationIndianLanguage(String languageId, Node node, WordComplexity wc) throws Exception{
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
+		List<Relation> newRelations = new ArrayList<Relation>();
 		
 		String firstSyllable = syllables[0];
 		String[] firstSyllableUnicodes = parseUnicodes(firstSyllable);
@@ -2007,7 +2009,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 		//startWithBoundary
 		if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE) || unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
-			addPhoneticBoundary(languageId, getTextValue(firstCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(firstCharUnicode), node.getIdentifier(), RelationTypes.STARTS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 		}
 		
 		
@@ -2023,20 +2025,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		//endstWithBoundary
 		if(isDefualtVowel(lastCharUnicode, unicodeTypeMap)){
 			if(StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-				addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+				newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 			}
 			
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-			addPhoneticBoundary(languageId, getTextValue(lastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(lastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 			
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){ 
 			//get vowel associated with this vowel_sign
 			String vowelUnicode = getVowelUnicode(languageId, lastCharUnicode);
-			addPhoneticBoundary(languageId, getTextValue(vowelUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
-			addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(vowelUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
+			newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 			
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-			addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name());
+			newRelations.addAll(addPhoneticBoundary(languageId, getTextValue(secondLastCharUnicode), node.getIdentifier(), RelationTypes.ENDS_WITH_AKSHARA.relationName(), LanguageParams.AksharaBoundary.name()));
 			
 		}
 		
@@ -2053,13 +2055,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 			rhymingSoundText += lastSyllable;
-			addPhoneticBoundary(languageId, rhymingSoundText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name());
+			newRelations.addAll(addPhoneticBoundary(languageId, rhymingSoundText, node.getIdentifier(), RelationTypes.RYMING_SOUNDS.relationName(), LanguageParams.RhymingSound.name()));
 			
 		}
 		
-		Node updatedNode = getDataNode(languageId, node.getIdentifier());
-		node.setOutRelations(updatedNode.getOutRelations());
-		node.setInRelations(updatedNode.getInRelations());
+		updateWordWithNewRelation(languageId, node, newRelations);
 	}
 	
 	private boolean isDefualtVowel(String unicode, Map<String, String> unicodeTypeMap){
@@ -2132,9 +2132,10 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 	
-	public void addPhoneticBoundary(String languageId, String text, String wordId, String relationType, String boundaryType) throws Exception{
+	public List<Relation> addPhoneticBoundary(String languageId, String text, String wordId, String relationType, String boundaryType) throws Exception{
 		
 		String phoneticBoundaryId = getPhoneticBoundaryIdentifierFromGraph(languageId, text);
+		List<Relation> relations = new ArrayList<Relation>();
 		if(phoneticBoundaryId == null){
 			DefinitionDTO pohneticBoundaryDef = DefinitionDTOCache.getDefinitionDTO(LanguageObjectTypes.Phonetic_Boundary.name(), languageId);
 			Map<String, Object> obj = new HashMap<>();
@@ -2143,10 +2144,12 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Response response = createPhoneticBoundary(languageId, obj, pohneticBoundaryDef);
 			phoneticBoundaryId = (String) response.get(GraphDACParams.node_id.name());
 		}
-		addWordPhoneticBoundaryRelation(wordId, relationType, languageId, phoneticBoundaryId);
+
+		relations.add(createRelation(wordId, LanguageObjectTypes.Word.name(), relationType, phoneticBoundaryId, LanguageObjectTypes.Phonetic_Boundary.name()));
 		if(relationType.equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.relationName())){
-			addWordPhoneticBoundaryRelation(phoneticBoundaryId, relationType, languageId, wordId);
+			relations.add(createRelation(phoneticBoundaryId, LanguageObjectTypes.Phonetic_Boundary.name(), relationType, wordId, LanguageObjectTypes.Word.name()));
 		}
+		return relations;
 	}
 	
 	private Response createPhoneticBoundary(String languageId, Map<String, Object> obj, DefinitionDTO pohneticBoundaryDef)
@@ -2162,16 +2165,58 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					getErrorMessage(res));
 		return res;
 	}
+		
+	private Relation createRelation(String startNodeId, String startNodeType, String relationType, String endNodeId, String endNodeType){
+        Relation newRelation = new Relation();
+        newRelation.setStartNodeId(startNodeId);
+        newRelation.setStartNodeObjectType(startNodeType);
+        newRelation.setEndNodeId(endNodeId);
+        newRelation.setEndNodeObjectType(endNodeType);
+        newRelation.setRelationType(relationType);
+		return newRelation;
+	}
 	
-	private void addWordPhoneticBoundaryRelation(String wordId, String relationType, String languageId, String phoneticBoundaryId) {
-		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
-		request.put(GraphDACParams.start_node_id.name(), wordId);
-		request.put(GraphDACParams.relation_type.name(), relationType);
-		request.put(GraphDACParams.end_node_id.name(), phoneticBoundaryId);
-		Response response = getResponse(request, LOGGER);
-		if (checkError(response))
-			throw new ServerException(LanguageErrorCodes.ERROR_ADD_PHONETIC_BOUNTARY.name(),
-					getErrorMessage(response));
-
+	private void updateWordWithNewRelation(String languageId, Node wordNode, List<Relation> newRelations){
+		List<Relation> inRelation = wordNode.getInRelations();
+		List<Relation> outRelation = wordNode.getOutRelations();
+		
+		List<Relation> newOutRelation = new ArrayList<Relation>();
+		List<Relation> newInRelation = new ArrayList<Relation>();
+		for(Relation rel: newRelations){
+			if(rel.getStartNodeId().equalsIgnoreCase(wordNode.getIdentifier())){
+				newOutRelation.add(rel);
+			}else{
+				newInRelation.add(rel);
+			}
+		}
+		
+		if(inRelation == null){
+			wordNode.setInRelations(newInRelation);
+		}else{
+			for(Iterator<Relation> iRel = inRelation.iterator(); iRel.hasNext();) {
+			       Relation relation = iRel.next();
+			       if(!relation.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.name())){
+			    	   newInRelation.add(relation);
+			       }
+			 }
+			wordNode.setInRelations(newInRelation);
+		}
+		
+		if(outRelation == null){
+			wordNode.setOutRelations(newOutRelation);
+		}else{
+			for(Iterator<Relation> iRel = outRelation.iterator(); iRel.hasNext();) {
+			       Relation relation = iRel.next();
+			       if(!relation.getRelationType().equalsIgnoreCase(RelationTypes.RYMING_SOUNDS.name())&&
+			    		   !relation.getRelationType().equalsIgnoreCase(RelationTypes.STARTS_WITH_AKSHARA.name())&&
+			    		   !relation.getRelationType().equalsIgnoreCase(RelationTypes.ENDS_WITH_AKSHARA.name())){
+			    	   newOutRelation.add(relation);
+			       }
+			 }
+			wordNode.setOutRelations(newOutRelation);
+		}
+		
+		updateWord(wordNode, languageId, wordNode.getIdentifier());
 	}
 }
+
