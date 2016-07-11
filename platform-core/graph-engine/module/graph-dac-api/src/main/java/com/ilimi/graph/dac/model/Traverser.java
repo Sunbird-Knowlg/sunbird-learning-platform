@@ -41,6 +41,11 @@ public class Traverser implements Serializable {
     public void setTraversalDescription(TraversalDescription traversalDescription) {
 		this.traversalDescription = traversalDescription;
 	}
+    
+    public TraversalDescription getBaseTraversalDescription(){
+    	TraversalDescription baseTraversalDescription = graphDb.traversalDescription().depthFirst();
+    	return baseTraversalDescription;
+    }
 
 	public Traverser(String graphId, String startNodeId) {
         this.graphId = graphId;
@@ -148,6 +153,10 @@ public class Traverser implements Serializable {
                 com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, traversedPath);
                 subGraph.addPath(path);
             }
+        	/*while(pathsIterator.hasNext()){
+        		 com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, pathsIterator.next());
+                 subGraph.addPath(path);
+        	}*/
             pathsIterator.close();
         }
         return subGraph;

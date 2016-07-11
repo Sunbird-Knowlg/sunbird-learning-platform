@@ -9,12 +9,12 @@ public interface ITraverser {
 	
 	public void setEvaluator(Evaluator evaluator);
 
-	public TraversalDescription getTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
+	public TraversalDescription enhanceTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
 	
 	public TraversalDescription getTraversalDescription();
 
 	public Traverser traverse(Node startNode);
 
-	public TraversalDescription createTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId);
+	public void setTraversalDescription(TraversalDescription traversalDescription);
 
 }

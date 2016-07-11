@@ -1,5 +1,7 @@
 package org.ekstep.language.mgr.impl;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -82,19 +84,21 @@ public class WordChainManager extends BaseLanguageManager
 		List<Map<String, Object>> wordChains = new ArrayList<Map<String, Object>>();
 		List<Map> wordChainWords = new ArrayList<Map>();
 		
+		WordIdEvaluator wordIdEvaluator = new WordIdEvaluator(ids);
+		ITraverser wordTraverser = TraverserFactory.getTraverser(traverserClass);
+		
 		
 		//Individual traversal
 		
 		for (Map topWord : topWords) {
 			
-			WordIdEvaluator wordIdEvaluator = new WordIdEvaluator(ids);
-			ITraverser wordTraverser = TraverserFactory.getTraverser(traverserClass);
-			wordTraverser.createTraversalDescription(maxDepth, minDepth, graphId);
-			wordTraverser.setEvaluator(wordIdEvaluator);
-			
 			String identifier = (String) topWord.get(LanguageParams.identifier.name());
 			com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId,
 					identifier);
+			wordTraverser.setTraversalDescription(searchTraverser.getBaseTraversalDescription());
+			wordTraverser.enhanceTraversalDescription(maxDepth, minDepth, graphId);
+			wordTraverser.setEvaluator(wordIdEvaluator);
+			
 			searchTraverser.setTraversalDescription(wordTraverser.getTraversalDescription());
 			Request request = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "traverse");
 			request.put(GraphDACParams.traversal_description.name(), searchTraverser);
@@ -226,6 +230,9 @@ public class WordChainManager extends BaseLanguageManager
 		}
 		
 		averageScore = totalScore/chainLength;
+		BigDecimal tmp = new BigDecimal(averageScore);
+		tmp = tmp.setScale(2, RoundingMode.HALF_UP);
+		averageScore = tmp.doubleValue();
 		
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_TITLE, title);
 		wordChainRecord.put(ATTRIB_WORD_CHAIN_LIST, wordChain);
