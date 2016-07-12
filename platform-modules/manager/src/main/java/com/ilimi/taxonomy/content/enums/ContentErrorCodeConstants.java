@@ -25,7 +25,12 @@ public enum ContentErrorCodeConstants {
 	MISSING_CONTROLLER_FILE(17, "Missing Controller File."),
 	DOWNLOAD_ERROR(18, "Error while downloading a file."),
 	SEARCH_ERROR(19, "Error while searching."),
-	PROCESSOR_CONC_OP_ERROR(20, "Error in concurrent operation.");
+	PROCESSOR_CONC_OP_ERROR(20, "Error in concurrent operation."),
+	INVALID_BODY(21, "Invalid Content Body."),
+	EMPTY_BODY(22, "Empty Content Body."),
+	EMPTY_ECML(23, "Invalid or Empty ECML String."),
+	INVALID_ECML_TYPE(24, "Invalid ECML Type."),
+	ECML_FILE_WRITE(25, "Error while writing ECML File.");
 
 	private final int code;
 	private final String description;

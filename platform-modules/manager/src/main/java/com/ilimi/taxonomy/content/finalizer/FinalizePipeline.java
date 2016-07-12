@@ -1,16 +1,19 @@
 package com.ilimi.taxonomy.content.finalizer;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
+import org.ekstep.common.util.ZipUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -26,6 +29,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
@@ -107,9 +111,47 @@ public class FinalizePipeline extends BasePipeline{
 			case "publish":
 			case "PUBLISH": {
 				Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
+				Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
+				String ecmlType = (String) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
+				boolean isCompressionApplied = (boolean) parameterMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 				if (null == node) 
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
 							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
+				if (null == ecrf)
+					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
+							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null ECRF Object.]");
+				if (StringUtils.isBlank(ecmlType))
+					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(), 
+							ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid ECML Type.]");
+				
+				// Get Content String
+				String ecml = getECMLString(ecrf, ecmlType);
+				
+				// Create 'artifactUrl' Package
+				if (BooleanUtils.isTrue(isCompressionApplied)) {
+					// Write ECML File
+					writeECMLFile(ecml, ecmlType);
+					
+					// Create 'ZIP' Package
+					String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_"
+							+ contentId 
+							+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR 
+							+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
+					createZipPackage(zipFileName);
+					
+					// Upload Package
+					File packageFile = new File(zipFileName);
+					if (packageFile.exists()) {
+						// Upload to S3
+						String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
+						
+						// Set 'artifactUrl' For Node
+						node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), urlArray[IDX_S3_URL]);
+						
+						// Delete the Package From File System
+						packageFile.delete();
+					}
+				}
 				
 				// Download App Icon
 				downloadAppIcon(node);
@@ -148,6 +190,31 @@ public class FinalizePipeline extends BasePipeline{
 			}
 		}
 		return response;
+	}
+	
+	private void createZipPackage(String zipFileName) {
+		ZipUtility appZip = new ZipUtility(basePath, zipFileName);
+		appZip.generateFileList(new File(basePath));
+		appZip.zipIt(zipFileName);
+	}
+	
+	private void writeECMLFile(String ecml, String ecmlType) {
+		try {
+			if (StringUtils.isBlank(ecml))
+				throw new ClientException(ContentErrorCodeConstants.EMPTY_ECML.name(), 
+						ContentErrorMessageConstants.EMPTY_ECML_STRING + " | [Unable to write Empty ECML File.]");
+			if (StringUtils.isBlank(ecmlType))
+				throw new ClientException(ContentErrorCodeConstants.INVALID_ECML_TYPE.name(), 
+						ContentErrorMessageConstants.INVALID_ECML_TYPE + " | [System is in a fix between (XML & JSON) ECML Type.]");
+			
+			File file = new File(basePath + File.separator 
+					+ ContentConfigurationConstants.DEFAULT_ECML_FILE_NAME 
+					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ecmlType);
+			FileUtils.writeStringToFile(file, ecml);
+		} catch(IOException e) {
+			throw new ServerException(ContentErrorCodeConstants.ECML_FILE_WRITE.name(), 
+					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]");
+		}
 	}
 	
 	private void downloadAppIcon(Node node) {

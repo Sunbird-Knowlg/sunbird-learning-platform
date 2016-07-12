@@ -2,18 +2,24 @@ package com.ilimi.taxonomy.content.initializer;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.common.slugs.Slug;
-import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.UnzipUtility;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -101,40 +107,29 @@ public class InitializePipeline extends BasePipeline {
 				if (null == node)
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 							ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
-				String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 				
-				// Check if "compress" operation is needed
-				if (!isCompressRequired(node)) {
-					
-					// Get ECRF Object
-					Plugin ecrf = getECRFObject();
+				boolean isCompressRequired = isCompressRequired(node);
+				
+				// Get ECRF Object
+				Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
 
+				if (isCompressRequired) {
 					// Get Pipeline Object
 					AbstractProcessor pipeline = PipelineRequestorClient
 							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
-
+	
 					// Start Pipeline Operation
 					ecrf = pipeline.execute(ecrf);
-				} else {
-					
-					// Make 'artifact' as an ECAR
-					if (!StringUtils.isBlank(artifactUrl)) {
-						File artifactFile = HttpDownloadUtility.downloadFile(artifactUrl, basePath);
-						if (null != artifactFile && artifactFile.exists() && artifactFile.isFile()) {
-							File ecar = new File(artifactFile.getParent() + File.separator
-									+ Slug.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true) + "_"
-									+ System.currentTimeMillis() + "_" + node.getIdentifier() + "."
-									+ FilenameUtils.getExtension(artifactFile.getPath()));
-							artifactFile.renameTo(ecar);
-							node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), ecar);
-						}
-					}
 				}
 				
 				// Call Finalyzer
 				FinalizePipeline finalize = new FinalizePipeline(operation, contentId);
 				Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 				finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
+				finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
+				finalizeParamMap.put(ContentWorkflowPipelineParams.ecmlType.name(), 
+						getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
+				finalizeParamMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
 				response = finalize.finalyze(operation, finalizeParamMap);
 			}
 				break;
@@ -171,6 +166,24 @@ public class InitializePipeline extends BasePipeline {
 		}
 		return plugin;
 	}
+	
+	private Plugin getECRFObject(String contentBody) {
+		Plugin plugin = new Plugin();
+		if (StringUtils.isBlank(contentBody))
+			throw new ClientException(ContentErrorCodeConstants.EMPTY_BODY.name(), 
+					ContentErrorMessageConstants.EMPTY_CONTENT_BODY);
+		LOGGER.info("Content Body: " + contentBody);
+		String ecml = contentBody;
+		String ecmlType = getECMLType(ecml);
+		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.xml.name())) {
+			XMLContentParser parser = new XMLContentParser();
+			plugin = parser.parseContent(ecml);
+		} else if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.json.name())) {
+			JSONContentParser parser = new JSONContentParser();
+			plugin = parser.parseContent(ecml);
+		}
+		return plugin;
+	}
 
 	private String getECMLType() {
 		String type = "";
@@ -181,7 +194,7 @@ public class InitializePipeline extends BasePipeline {
 		LOGGER.info("ECML Type: " + type);
 		return type;
 	}
-
+	
 	private void extractContentPackage(File file) {
 		try {
 			UnzipUtility util = new UnzipUtility();
@@ -190,6 +203,49 @@ public class InitializePipeline extends BasePipeline {
 			throw new ServerException(ContentErrorCodeConstants.ZIP_EXTRACTION.name(),
 					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR + " | [ZIP Extraction Failed.]");
 		}
+	}
+	
+	private String getECMLType(String contentBody) {
+		String type = "";
+		if (!StringUtils.isBlank(contentBody)) {
+			if (isValidJSON(contentBody))
+				type = ContentWorkflowPipelineParams.json.name();
+			else if (isValidXML(contentBody))
+				type = ContentWorkflowPipelineParams.xml.name();
+			else
+				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(), 
+						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
+			LOGGER.info("ECML Type: " + type);
+		}
+		return type;
+	}
+	
+	private boolean isValidXML(String contentBody) {
+		boolean isValid = true;
+		if (!StringUtils.isBlank(contentBody)) {
+			try {
+				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+				dBuilder.parse(new InputSource(new StringReader(contentBody)));
+			} catch(ParserConfigurationException | SAXException | IOException e) {
+				isValid = false;
+			}
+		}
+		return isValid;
+	}
+	
+	private boolean isValidJSON(String contentBody) {
+		boolean isValid = true;
+		if (!StringUtils.isBlank(contentBody)) {
+			try {
+				ObjectMapper objectMapper = new ObjectMapper();
+				objectMapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
+				objectMapper.readTree(contentBody);
+			} catch (IOException e) {
+				isValid = false;
+			}
+		}
+		return isValid;
 	}
 
 	public String getFileString() {
