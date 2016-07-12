@@ -20,6 +20,7 @@ import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.IWordnetConstants;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
+import org.ekstep.language.wordchian.PhoneticBoundaryUtil;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
@@ -38,7 +39,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
 
     private ControllerUtil controllerUtil = new ControllerUtil();
     private WordUtil wordUtil = new WordUtil();
-
+	private PhoneticBoundaryUtil phoneticBoundaryUtil = new PhoneticBoundaryUtil();
     private static Logger LOGGER = LogManager.getLogger(IBatchManager.class.getName());
 
     private static final int BATCH = 1000;
@@ -104,7 +105,7 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                             node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
                             
     						try {
-    							wordUtil.updateWordChainRelations(languageId, node, wc);
+    							phoneticBoundaryUtil.updateWordChainRelations(languageId, node, wc);
     						} catch (Exception e) {
     							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
     						}

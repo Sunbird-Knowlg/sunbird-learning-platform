@@ -699,6 +699,18 @@
           "displayProperty": "Editable",
           "defaultValue": "",
           "renderingHints": "{ 'inputType': 'select', 'order': 40 }"
+        },
+        {
+          "propertyName": "theme",
+          "title": "Theme",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "required": false,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 41 }"
         }
       ],
       "inRelations": [
