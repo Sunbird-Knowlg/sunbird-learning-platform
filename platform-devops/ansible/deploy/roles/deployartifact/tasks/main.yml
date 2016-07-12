@@ -8,6 +8,9 @@
 - name: copy the database.properties
   template: src=language/database.properties.j2 dest=/data/properties/language/database.properties
 
+- name: copy the elasticsearch.properties
+  template: src=language/elasticsearch.properties.j2 dest=/data/properties/language/elasticsearch.properties
+
 - name: copy the graph.properties
   template: src=language/graph.properties.j2 dest=/data/properties/language/graph.properties
 
