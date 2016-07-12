@@ -777,6 +777,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		try {
 			response = mimeTypeManager.publish(node);
 			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}

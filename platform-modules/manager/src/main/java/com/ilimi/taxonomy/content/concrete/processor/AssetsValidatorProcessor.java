@@ -115,6 +115,7 @@ public class AssetsValidatorProcessor extends AbstractProcessor {
 			try {
 				size = Double.parseDouble(limit);
 			} catch(Exception e) {
+				LOGGER.error("Error While Getting the Asset File Size Limit.", e);
 			}
 		}
 		return size;

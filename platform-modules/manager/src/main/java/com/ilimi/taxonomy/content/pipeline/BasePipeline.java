@@ -38,18 +38,24 @@ public class BasePipeline extends BaseManager {
     private static final String DEF_AWS_FOLDER_NAME = "content";
     
 	protected Response updateContentNode(Node node, String url) {
-        Response updateRes = updateNode(node);
-        if (StringUtils.isNotBlank(url))
-            updateRes.put(ContentWorkflowPipelineParams.content_url.name(), url);
-        return updateRes;
+		Response response = new Response();
+		if (null != node) {
+			response = updateNode(node);
+	        if (StringUtils.isNotBlank(url))
+	        	response.put(ContentWorkflowPipelineParams.content_url.name(), url);
+		}
+        return response;
     }
 
     protected Response updateNode(Node node) {
-        Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-        updateReq.put(GraphDACParams.node.name(), node);
-        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-        Response updateRes = getResponse(updateReq, LOGGER);
-        return updateRes;
+    	Response response = new Response();
+    	if (null != node) {
+	        Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+	        updateReq.put(GraphDACParams.node.name(), node);
+	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+	        response = getResponse(updateReq, LOGGER);
+    	}
+        return response;
     }
     
     protected boolean isValidBasePath(String path) {

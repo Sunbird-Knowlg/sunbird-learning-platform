@@ -90,7 +90,7 @@ public class InitializePipeline extends BasePipeline {
 					ecrf = pipeline.execute(ecrf);
 
 					// Call Finalyzer
-					FinalizePipeline finalize = new FinalizePipeline(operation, contentId);
+					FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 					Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 					finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
 					finalizeParamMap.put(ContentWorkflowPipelineParams.file.name(), file);
@@ -123,7 +123,7 @@ public class InitializePipeline extends BasePipeline {
 				}
 				
 				// Call Finalyzer
-				FinalizePipeline finalize = new FinalizePipeline(operation, contentId);
+				FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 				Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 				finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
 				finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
@@ -144,7 +144,8 @@ public class InitializePipeline extends BasePipeline {
 	
 	private boolean isCompressRequired(Node node) {
 		boolean required = true;
-		if (null != node) {
+		if (null != node && null != node.getMetadata()) {
+			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
 			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
 			if (StringUtils.isNotBlank(artifactUrl) && StringUtils.isBlank(contentBody))
