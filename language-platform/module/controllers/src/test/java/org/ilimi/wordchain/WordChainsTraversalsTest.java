@@ -33,6 +33,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
+import com.ilimi.graph.dac.model.RelationCriterion.DIRECTION;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -41,10 +42,9 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 	private final String attrib_lemma = "lemma";
 	private final String OBJECT_TYPE_WORD = "Word";
-	private final String OBJECT_TYPE_PB = "PB";
 	private final String attrib_alphabet = "alphabet";
-	private static String graphId = "en";
-	private int TRAVERSAL_DEPTH = 8;
+	private static String graphId = "wcpnew";
+	private int TRAVERSAL_DEPTH = 9;
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
 
 	@Test
@@ -74,9 +74,13 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 		List<Node> nodes = searchNodes(sc, graphDb);
 
-		for (Node node : nodes) {
+		/*for (Node node : nodes) {
 			getTraversalPath(graphDb, node);
-		}
+		}*/
+		
+		getTraversalPath(graphDb, nodes);
+
+		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time taken for Sample 1: " + (endTime - startTime) / 1000 + "s");
 	}
@@ -116,6 +120,11 @@ public class WordChainsTraversalsTest extends BaseManager {
 		}
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time taken for Sample 2: " + (endTime - startTime) / 1000 + "s");
+	}
+
+	private void getTraversalPath(GraphDatabaseService graphDb2, Node node) {
+		getTraversalPath(graphDb2, Arrays.asList(new Node[]{node}));
+		
 	}
 
 	// @Test
@@ -184,20 +193,20 @@ public class WordChainsTraversalsTest extends BaseManager {
 		return null;
 	}
 
-	private Traverser getTraverser(final Node person, GraphDatabaseService graphDb) {
+	private Traverser getTraverser(final List<Node> nodes, GraphDatabaseService graphDb) {
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.relationships(Rels.hasRhymingSound)
-				//.relationships(Rels.startsWith, Direction.OUTGOING)
-				//.uniqueness(Uniqueness.NONE)
-				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL);
-				// .uniqueness( Uniqueness.RELATIONSHIP_PATH )
-				//.uniqueness( Uniqueness.RELATIONSHIP_PATH);
+				.relationships(Rels.startsWithAkshara, Direction.INCOMING)
+				.relationships(Rels.endsWithAkshara, Direction.OUTGOING)
+				//.uniqueness(Uniqueness.NODE_GLOBAL)
+				.uniqueness(Uniqueness.NODE_PATH)
+				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				//.evaluator(Evaluators.excludeStartPosition())
-				//.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
-		return td.traverse(person);
+				.evaluator(Evaluators.fromDepth(3))
+				.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
+		return td.traverse(nodes);
 	}
 
-	public void getTraversalPath(GraphDatabaseService graphDb, Node node) {
+	public void getTraversalPath(GraphDatabaseService graphDb, List<Node> nodes) {
 		Transaction tx = null;
 		try {
 			tx = graphDb.beginTx();
@@ -205,10 +214,10 @@ public class WordChainsTraversalsTest extends BaseManager {
 			Path previousPath = null;
 			int previousPathLength = 0;
 
-			Traverser pathsTraverser = getTraverser(node, graphDb);
+			Traverser pathsTraverser = getTraverser(nodes, graphDb);
 
 			for (Path traversedPath : pathsTraverser) {
-				//render(traversedPath);
+				render(traversedPath);
 				if (traversedPath.length() > previousPathLength) {
 					previousPath = traversedPath;
 					previousPathLength = traversedPath.length();
@@ -233,7 +242,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 			//System.out.println("Final paths:**************************************");
 			for (Path finalPath : finalPaths) {
-				render(finalPath);
+				//render(finalPath);
 			}
 		} catch (Exception e) {
 			if (null != tx)

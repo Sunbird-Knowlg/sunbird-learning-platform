@@ -95,7 +95,7 @@ public class WordChainsRelationsTest {
 			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, pbNode.getId()));
 			pbNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "DATA_NODE");
 			pbNode.setProperty("lemma", endsWith);
-			pbNode.setProperty("type", "RhymingSound");
+			pbNode.setProperty("type", "AksharaBoundary");
 			pbNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), pbObjType);
 			tx.success();
 			return pbNode;
@@ -159,7 +159,7 @@ public class WordChainsRelationsTest {
 			tx = graphDb.beginTx();
 			List<Node> nodesResult = new ArrayList<Node>();
 			Result result = graphDb
-					.execute("Match (n:NODE) where n." + propertyName + " =~ '" + propertyValue + ".*' return n");
+					.execute("Match (n:NODE) where n." + propertyName + " =~ '" + propertyValue + ".*' and n.IL_FUNC_OBJECT_TYPE = 'Word' return n");
 			if (null != result) {
 				while (result.hasNext()) {
 					Map<String, Object> map = result.next();

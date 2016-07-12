@@ -9,6 +9,6 @@ import com.ilimi.graph.dac.model.Node;
 public interface IWordChainsManager {
 
 	@SuppressWarnings("rawtypes")
-	public Response getWordChain(String traversalId, int wordChainsLimit, List<Map> words, Node ruleNode, String graphId) throws Exception;
+	public Response getWordChain(int wordChainsLimit, List<Map> words, Node ruleNode, String graphId) throws Exception;
 
 }

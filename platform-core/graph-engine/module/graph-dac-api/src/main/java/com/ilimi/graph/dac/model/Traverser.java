@@ -10,6 +10,7 @@ import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.ResourceIterator;
+import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 
@@ -26,7 +27,7 @@ public class Traverser implements Serializable {
     private String graphId;
     private GraphDatabaseService graphDb;;
 
-    private Node startNode;
+    private List<Node> startNodes = new ArrayList<Node>();
     private int traversal = BREADTH_FIRST_TRAVERSAL;
     private List<RelationTraversal> relations = new ArrayList<RelationTraversal>();
     private int toDepth;
@@ -34,14 +35,34 @@ public class Traverser implements Serializable {
 
     private List<Node> endNodes = new ArrayList<Node>();
     private List<String> endRelations = new ArrayList<String>();
+    
+    private TraversalDescription traversalDescription;
 
-    public Traverser(String graphId, String startNodeId) {
+    public void setTraversalDescription(TraversalDescription traversalDescription) {
+		this.traversalDescription = traversalDescription;
+	}
+    
+    public TraversalDescription getBaseTraversalDescription(){
+    	TraversalDescription baseTraversalDescription = graphDb.traversalDescription().depthFirst();
+    	return baseTraversalDescription;
+    }
+
+	public Traverser(String graphId, String startNodeId) {
         this.graphId = graphId;
         this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
-        this.startNode = node;
+        this.startNodes.add(node);
     }
-
+	
+	public Traverser(String graphId, List<String> startNodeIds) {
+        this.graphId = graphId;
+        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+        for(String startNodeId: startNodeIds){
+        	Node node = Neo4jGraphUtil.getNodeByUniqueId(graphDb, startNodeId);
+        	this.startNodes.add(node);
+        }
+    }
+	
     public Traverser traversal(int traversal) {
         if (traversal == BREADTH_FIRST_TRAVERSAL || traversal == DEPTH_FIRST_TRAVERSAL)
             this.traversal = traversal;
@@ -77,7 +98,14 @@ public class Traverser implements Serializable {
         return this;
     }
 
+    
+    
     public TraversalDescription getTraversalDescription() {
+    	
+    	if(this.traversalDescription != null){
+    		return this.traversalDescription;
+    	}
+    	
         TraversalDescription td = graphDb.traversalDescription();
         if (this.traversal == DEPTH_FIRST_TRAVERSAL)
             td = td.depthFirst();
@@ -118,23 +146,74 @@ public class Traverser implements Serializable {
 
     public SubGraph traverse() {
         SubGraph subGraph = new SubGraph();
-        ResourceIterator<Path> iterator = getTraversalDescription().traverse(startNode).iterator();
-        if (null != iterator) {
-            while (iterator.hasNext()) {
-                com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, iterator.next());
+        ResourceIterator<Path> pathsIterator = getTraversalDescription().traverse(startNodes).iterator();
+        if (null != pathsIterator) {
+        	List<Path> finalPaths = removeSubPaths(pathsIterator);
+            for(Path traversedPath: finalPaths) {
+                com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, traversedPath);
                 subGraph.addPath(path);
             }
-            iterator.close();
+        	/*while(pathsIterator.hasNext()){
+        		 com.ilimi.graph.dac.model.Path path = new com.ilimi.graph.dac.model.Path(graphId, pathsIterator.next());
+                 subGraph.addPath(path);
+        	}*/
+            pathsIterator.close();
         }
         return subGraph;
     }
 
+    public List<Path> removeSubPaths(ResourceIterator<Path> pathsIterator) {
+		Transaction tx = null;
+		List<Path> finalPaths = new ArrayList<Path>();
+		try {
+			tx = graphDb.beginTx();
+			Path previousPath = null;
+			int previousPathLength = 0;
+
+			 while (pathsIterator.hasNext()) {
+				Path traversedPath = pathsIterator.next();
+				if (traversedPath.length() > previousPathLength) {
+					previousPath = traversedPath;
+					previousPathLength = traversedPath.length();
+				} else if (traversedPath.length() == previousPathLength) {
+					if (previousPath != null) {
+						finalPaths.add(previousPath);
+					}
+					previousPath = traversedPath;
+					previousPathLength = traversedPath.length();
+				} else {
+					if (previousPath != null) {
+						finalPaths.add(previousPath);
+						previousPath = null;
+					}
+				}
+			}
+
+			if (previousPath != null) {
+				finalPaths.add(previousPath);
+				previousPath = null;
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			if (null != tx) {
+				tx.failure();
+			}
+		} finally {
+			if (null != tx) {
+				tx.close();
+			}
+		}
+		return finalPaths;
+	}
+    
+    
     public Graph getSubGraph() {
         Graph subGraph = new Graph();
         TraversalDescription td = getTraversalDescription();
         if (null != td) {
-            ResourceIterable<Node> nodes = td.traverse(startNode).nodes();
-            ResourceIterable<Relationship> relations = td.traverse(startNode).relationships();
+            ResourceIterable<Node> nodes = td.traverse(startNodes).nodes();
+            ResourceIterable<Relationship> relations = td.traverse(startNodes).relationships();
             if (null != nodes) {
                 List<com.ilimi.graph.dac.model.Node> nodeList = new ArrayList<com.ilimi.graph.dac.model.Node>();
                 for (Node dbNode : nodes) {
