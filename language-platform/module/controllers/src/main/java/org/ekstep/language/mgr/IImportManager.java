@@ -14,4 +14,6 @@ public interface IImportManager {
     Response importCSV(String languageId, InputStream file);
     
     Response updateDefinition(String languageId, String json);
+    
+    Response findAllDefinitions(String id);
 }

@@ -12,7 +12,7 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 public class ConsonantTraverser extends AbstractTraverser {
 
 	@Override
-	public TraversalDescription getTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId) {
+	public TraversalDescription enhanceTraversalDescription(int maxTraversalDepth, int minTraversalDepth, String graphId) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
 		traversalDescription = graphDb.traversalDescription().depthFirst()
 				.relationships(WordChainRelations.endsWithConsonant, Direction.OUTGOING)

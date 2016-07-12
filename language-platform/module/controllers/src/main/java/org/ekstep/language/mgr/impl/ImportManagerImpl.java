@@ -824,5 +824,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		request.put(GraphEngineParams.input_stream.name(), json);
 		return getResponse(request, LOGGER);
 	}
+    
+    @Override
+    public Response findAllDefinitions(String id) {
+		if (StringUtils.isBlank(id))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		LOGGER.info("Get All Definitions : " + id);
+		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
+		return getResponse(request, LOGGER);
+	}
 
 }
