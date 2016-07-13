@@ -80,6 +80,20 @@ public class ContentErrorMessageConstants {
 	
 	public static final String MISSING_CONTROLLER_FILES_ERROR = "Error! Missing Controller file.";
 	
+	public static final String APP_ICON_DOWNLOAD_ERROR = "Error! While downloading App Icon.";
+	
+	public static final String ASSET_CONCURRENT_DOWNLOAD_ERROR = "Error! While downloading assets concurrently.";
+	
+	public static final String INVALID_CONTENT_BODY = "Error! Invalid Content Body.";
+	
+	public static final String EMPTY_CONTENT_BODY = "Error! Content Body is either 'null' or Empty.";
+	
+	public static final String EMPTY_ECML_STRING = "Error! Empty ECML String.";
+	
+	public static final String INVALID_ECML_TYPE = "Error! Invalid ECML Type.";
+	
+	public static final String ECML_FILE_WRITE_ERROR = "Error! While writing ECML File.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

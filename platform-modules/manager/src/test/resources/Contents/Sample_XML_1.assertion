@@ -1,0 +1,189 @@
+{
+  "manifest_count": 1,
+  "media_count": 70,
+  "media_with_children_count": 22,
+  "media_with_children_list": [
+    "",
+    ""
+  ],
+  "media_audiosprite_map": {
+    "": ""
+  },
+  "controllers_count": 2,
+  "controllers_having_cdata_count": 0,
+  "controller_cdata_map": {
+    "": ""
+  },
+  "high_level_plugin_count": 28,
+  "plugin_details": [
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event_count": 0,
+      "II": {}
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    },
+    {
+      "id": "baseStage",
+      "atribute_count": 5,
+      "children_plugin_count": 26,
+      "event": 0
+    }
+  ]
+}

@@ -22,6 +22,12 @@ public class ZipUtility {
 	public ZipUtility() {
 		fileList = new ArrayList<String>();
 	}
+	
+	public ZipUtility(String sourcePath, String zipFileName) {
+		fileList = new ArrayList<String>();
+		this.sourceFolder = sourcePath;
+		this.outPutZipFile = zipFileName;
+	}
 
 	public ZipUtility(List<String> fileList, String outPutZipFile, String sourceFolder) {
 		super();

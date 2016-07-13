@@ -167,4 +167,10 @@ public class FileUtils {
         
         return FileType.Other;
     }
+    
+    public static String getThumbnailFileName(File input) {
+        String outputFileName = input.getName().replaceAll("\\.", "\\.thumb\\.");
+        String outputFolder = input.getParent();
+        return outputFolder + "/" + outputFileName;
+    }
 }

@@ -778,13 +778,22 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                                     setRelationMetadata(neo4jRel, relMap.get(endNodeId));
                                     relationsCount++;
                                 } else {
-                                    List<String> rowMsgs = messages.get(uniqueId);
-                                    if (rowMsgs == null) {
-                                        rowMsgs = new ArrayList<String>();
-                                        messages.put(uniqueId, rowMsgs);
-                                    }
-                                    rowMsgs.add(
-                                            "Node with id: " + endNodeId + " not found to create relation:" + relType);
+                                	otherNode = graphDb.findNode(NODE_LABEL, SystemProperties.IL_UNIQUE_ID.name(), endNodeId);
+                                	if (null == otherNode) {
+                                		List<String> rowMsgs = messages.get(uniqueId);
+                                        if (rowMsgs == null) {
+                                            rowMsgs = new ArrayList<String>();
+                                            messages.put(uniqueId, rowMsgs);
+                                        }
+                                        rowMsgs.add(
+                                                "Node with id: " + endNodeId + " not found to create relation:" + relType);
+                                	} else {
+                                		existingNodes.put(endNodeId, otherNode);
+                                		RelationType relation = new RelationType(relType);
+                                        Relationship neo4jRel = neo4jNode.createRelationshipTo(otherNode, relation);
+                                        setRelationMetadata(neo4jRel, relMap.get(endNodeId));
+                                        relationsCount++;
+                                	}
                                 }
 
                             }
@@ -798,13 +807,13 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
                     for (String relType : nodeRelMap.keySet()) {
                         if (!relationMap.containsKey(relType)) {
                             relationsCount += createNewRelations(neo4jNode, nodeRelMap, relType, nodeRelation, uniqueId,
-                                    existingNodes, messages);
+                                    existingNodes, messages, graphDb);
                         }
                     }
                 } else {
                     for (String relType : nodeRelMap.keySet()) {
                         relationsCount += createNewRelations(neo4jNode, nodeRelMap, relType, nodeRelation, uniqueId,
-                                existingNodes, messages);
+                                existingNodes, messages, graphDb);
                     }
                 }
             }
@@ -814,19 +823,28 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 
     private int createNewRelations(Node neo4jNode, Map<String, List<String>> nodeRelMap, String relType,
             Map<String, Map<String, Relation>> nodeRelation, String uniqueId, Map<String, Node> existingNodes,
-            Map<String, List<String>> messages) {
+            Map<String, List<String>> messages, GraphDatabaseService graphDb) {
         int relationsCount = 0;
         List<String> relEndNodeIds = nodeRelMap.get(relType);
         Map<String, Relation> relMap = nodeRelation.get(relType);
         for (String endNodeId : relEndNodeIds) {
             Node otherNode = existingNodes.get(endNodeId);
             if (null == otherNode) {
-                List<String> rowMsgs = messages.get(uniqueId);
-                if (rowMsgs == null) {
-                    rowMsgs = new ArrayList<String>();
-                    messages.put(uniqueId, rowMsgs);
-                }
-                rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
+            	otherNode = graphDb.findNode(NODE_LABEL, SystemProperties.IL_UNIQUE_ID.name(), endNodeId);
+            	if (null == otherNode) {
+            		List<String> rowMsgs = messages.get(uniqueId);
+                    if (rowMsgs == null) {
+                        rowMsgs = new ArrayList<String>();
+                        messages.put(uniqueId, rowMsgs);
+                    }
+                    rowMsgs.add("Node with id: " + endNodeId + " not found to create relation:" + relType);
+            	} else {
+            		existingNodes.put(endNodeId, otherNode);
+            		RelationType relation = new RelationType(relType);
+                    Relationship neo4jRel = neo4jNode.createRelationshipTo(otherNode, relation);
+                    setRelationMetadata(neo4jRel, relMap.get(endNodeId));
+                    relationsCount++;
+            	}
             } else {
                 RelationType relation = new RelationType(relType);
                 Relationship neo4jRel = neo4jNode.createRelationshipTo(otherNode, relation);

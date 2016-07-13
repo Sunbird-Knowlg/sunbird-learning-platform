@@ -16,7 +16,11 @@ public class ContentConfigurationConstants {
 	
 	public static final String FILENAME_EXTENSION_SEPERATOR = ".";
 	
+	public static final String DEFAULT_ZIP_EXTENSION = "zip";
+	
 	public static final String DEFAULT_CONTENT_OWNER = "EkStep";
+	
+	public static final String DEFAULT_ECML_FILE_NAME = "index";
 	
 	public static final String DEFAULT_CONTENT_BODY = "<content></content>";
 	

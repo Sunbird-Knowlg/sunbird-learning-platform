@@ -67,8 +67,9 @@ public class MissingAssetValidatorProcessor extends AbstractProcessor {
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");
-					else if (!new File(basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
-							+ File.separator + media.getSrc()).exists())
+					else if (!isWidgetTypeAsset(media.getType()) 
+							&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
+									+ File.separator + media.getSrc()).exists())
 						throw new ClientException(ContentErrorCodeConstants.MISSING_ASSETS.name(),
 								ContentErrorMessageConstants.MISSING_ASSETS_ERROR + " | [Asset Id '" + media.getId()
 										+ "' is missing.]");

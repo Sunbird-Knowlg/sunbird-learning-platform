@@ -232,6 +232,21 @@ public class ImportController extends BaseLanguageController {
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+	
+	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
+        String apiId = "definition.list";
+        LOGGER.info("Find All Definitions | Id: " + id);
+        try {
+            Response response = importManager.findAllDefinitions(id);
+            LOGGER.info("Find All Definitions | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find All Definitions | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
