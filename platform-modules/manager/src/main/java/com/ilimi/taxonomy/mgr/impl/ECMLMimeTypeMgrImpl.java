@@ -30,12 +30,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import scala.concurrent.Await;
-import scala.concurrent.Future;
-import akka.actor.ActorRef;
-import akka.dispatch.Futures;
-import akka.pattern.Patterns;
-
 import com.ilimi.assessment.enums.QuestionnaireType;
 import com.ilimi.assessment.mgr.IAssessmentManager;
 import com.ilimi.common.dto.Request;
@@ -43,7 +37,6 @@ import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ResourceNotFoundException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
@@ -61,6 +54,12 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.CustomParser;
+
+import akka.actor.ActorRef;
+import akka.dispatch.Futures;
+import akka.pattern.Patterns;
+import scala.concurrent.Await;
+import scala.concurrent.Future;
 
 @Component
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
@@ -708,17 +707,8 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
 		Map<String, Object> parameterMap = new HashMap<String, Object>();
 		parameterMap.put(ContentAPIParams.node.name(), node);
+		parameterMap.put(ContentAPIParams.ecmlType.name(), true);
 		return pipeline.init(ContentAPIParams.publish.name(), parameterMap);
-		
-//		Response response = new Response();
-//		String artifactUrl = (String) node.getMetadata().get(ContentAPIParams.artifactUrl.name());
-//		String body = (String) node.getMetadata().get(ContentAPIParams.body.name());
-//		if (StringUtils.isNotBlank(artifactUrl) && StringUtils.isBlank(body)) {
-//			response = rePublish(node);
-//		} else {
-//			response = compress(node);
-//		}
-//		return response;
 	}
 
 	@Override

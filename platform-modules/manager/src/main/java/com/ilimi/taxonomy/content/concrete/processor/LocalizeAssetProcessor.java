@@ -124,6 +124,7 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 								downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
 							createDirectoryIfNeeded(downloadPath);
 							File downloadedFile = HttpDownloadUtility.downloadFile(media.getSrc(), downloadPath);
+							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile);
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
 							else

@@ -107,21 +107,18 @@ public class InitializePipeline extends BasePipeline {
 				if (null == node)
 					throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 							ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
-				
-				boolean isCompressRequired = isCompressRequired(node);
-				
+				Boolean ecmlContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
+				ecmlContent = (null == ecmlContent) ? false : ecmlContent;
+				boolean isCompressRequired = isCompressRequired(node) && ecmlContent;
 				// Get ECRF Object
 				Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
-
 				if (isCompressRequired) {
 					// Get Pipeline Object
 					AbstractProcessor pipeline = PipelineRequestorClient
 							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
-	
 					// Start Pipeline Operation
 					ecrf = pipeline.execute(ecrf);
 				}
-				
 				// Call Finalyzer
 				FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 				Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
@@ -143,13 +140,12 @@ public class InitializePipeline extends BasePipeline {
 	}
 	
 	private boolean isCompressRequired(Node node) {
-		boolean required = true;
+		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
 			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
-			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
-			if (StringUtils.isNotBlank(artifactUrl) && StringUtils.isBlank(contentBody))
-				required = false;
+			if (StringUtils.isNotBlank(contentBody))
+				required = true;
 		}
 		return required;
 	}
@@ -158,7 +154,7 @@ public class InitializePipeline extends BasePipeline {
 		Plugin plugin = new Plugin();
 		String ecml = getFileString();
 		String ecmlType = getECMLType();
-		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.xml.name())) {
+		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
 			XMLContentParser parser = new XMLContentParser();
 			plugin = parser.parseContent(ecml);
 		} else if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.json.name())) {
@@ -170,13 +166,9 @@ public class InitializePipeline extends BasePipeline {
 	
 	private Plugin getECRFObject(String contentBody) {
 		Plugin plugin = new Plugin();
-		if (StringUtils.isBlank(contentBody))
-			throw new ClientException(ContentErrorCodeConstants.EMPTY_BODY.name(), 
-					ContentErrorMessageConstants.EMPTY_CONTENT_BODY);
-		LOGGER.info("Content Body: " + contentBody);
 		String ecml = contentBody;
-		String ecmlType = getECMLType(ecml);
-		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.xml.name())) {
+		String ecmlType = getECMLType(contentBody);
+		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
 			XMLContentParser parser = new XMLContentParser();
 			plugin = parser.parseContent(ecml);
 		} else if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.json.name())) {
@@ -191,7 +183,7 @@ public class InitializePipeline extends BasePipeline {
 		if (new File(basePath + File.separator + JSON_ECML_FILE_NAME).exists())
 			type = ContentWorkflowPipelineParams.json.name();
 		else if (new File(basePath + File.separator + XML_ECML_FILE_NAME).exists())
-			type = ContentWorkflowPipelineParams.xml.name();
+			type = ContentWorkflowPipelineParams.ecml.name();
 		LOGGER.info("ECML Type: " + type);
 		return type;
 	}
@@ -212,7 +204,7 @@ public class InitializePipeline extends BasePipeline {
 			if (isValidJSON(contentBody))
 				type = ContentWorkflowPipelineParams.json.name();
 			else if (isValidXML(contentBody))
-				type = ContentWorkflowPipelineParams.xml.name();
+				type = ContentWorkflowPipelineParams.ecml.name();
 			else
 				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(), 
 						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
