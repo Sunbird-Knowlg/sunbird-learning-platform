@@ -94,6 +94,9 @@ public class ContentBundle {
             }
             Object artifactUrl = content.get("artifactUrl");
             content.put("downloadUrl", artifactUrl);
+            Object posterImage = content.get("posterImage");
+            if (null != posterImage && StringUtils.isNotBlank(posterImage.toString()))
+            	content.put("appIcon", posterImage);
         }
         String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
         List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);

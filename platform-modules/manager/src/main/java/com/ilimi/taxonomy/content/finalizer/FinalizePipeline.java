@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.optimizr.ThumbnailGenerator;
 import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.common.util.ZipUtility;
@@ -165,7 +168,7 @@ public class FinalizePipeline extends BasePipeline {
 			}
 		}
 		// Download App Icon
-		//downloadAppIcon(node);
+		createThumbnail(node);
 
 		// Create ECAR Bundle
 		List<Node> nodes = new ArrayList<Node>();
@@ -240,7 +243,7 @@ public class FinalizePipeline extends BasePipeline {
 		}
 	}
 
-	private void downloadAppIcon(Node node) {
+	private void createThumbnail(Node node) {
 		try {
 			if (null != node) {
 				String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
@@ -248,9 +251,32 @@ public class FinalizePipeline extends BasePipeline {
 					LOGGER.info("Content Id: " + node.getIdentifier() + " | App Icon: " + appIcon);
 					File appIconFile = HttpDownloadUtility.downloadFile(appIcon, basePath);
 					if (null != appIconFile && appIconFile.exists() && appIconFile.isFile()) {
-						String parentFolderName = appIconFile.getParent();
-						File logoFileName = new File(parentFolderName + File.separator + "logo.png");
-						appIconFile.renameTo(logoFileName);
+						boolean generated = ThumbnailGenerator.generate(appIconFile);
+						if (generated) {
+							String thumbnail = appIconFile.getParent() + File.separator 
+									+ FilenameUtils.getBaseName(appIconFile.getPath()) + ".thumb." 
+									+ FilenameUtils.getExtension(appIconFile.getPath());
+							File thumbFile = new File(thumbnail);
+							if (thumbFile.exists()) {
+								LOGGER.info("Thumbnail created for Content Id: " + node.getIdentifier());
+								String[] urlArray = uploadToAWS(thumbFile, getUploadFolderName());
+								if (null != urlArray && urlArray.length >= 2) {
+									String thumbUrl = urlArray[IDX_S3_URL];
+									node.getMetadata().put(ContentWorkflowPipelineParams.appIcon.name(), thumbUrl);
+									node.getMetadata().put(ContentWorkflowPipelineParams.posterImage.name(), appIcon);
+								}
+								try {
+									thumbFile.delete();
+									LOGGER.info("Deleted local Thumbnail file");
+								} catch (Exception e) {
+								}
+							}
+						}
+						try {
+							appIconFile.delete();
+							LOGGER.info("Deleted local AppIcon file");
+						} catch (Exception e) {
+						}
 					}
 				}
 			}
