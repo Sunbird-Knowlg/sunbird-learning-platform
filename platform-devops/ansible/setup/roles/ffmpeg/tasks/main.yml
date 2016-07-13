@@ -4,7 +4,7 @@
   become_user: ec2-user
   become: yes
   get_url: url=http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz dest=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz timeout=1000 force=no owner=ec2-user
- 
+
 - name: unzip 
   become_user: ec2-user
   become: yes
