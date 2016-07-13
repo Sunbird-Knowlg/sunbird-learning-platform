@@ -54,7 +54,6 @@ import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.mgr.ConvertGraphNode;
-import com.ilimi.graph.common.JSONUtils;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
@@ -343,9 +342,18 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                             } else {
                                 rowMap.put("identifier", node.getIdentifier());
                                 rowMap.put("lemma", word);
+                                Map<String, Object> metadata = node.getMetadata();
+                                rowMap.put("grade", metadata.get("grade"));
+                                rowMap.put("status", metadata.get("status"));
+                                rowMap.put("pronunciations", metadata.get("pronunciations"));
+                                rowMap.put("hasConnotative", metadata.get("hasConnotative"));
+                                rowMap.put("isPhrase", metadata.get("isPhrase"));
+                                rowMap.put("isLoanWord", metadata.get("isLoanWord"));
+                                rowMap.put("orthographic_complexity", metadata.get("orthographic_complexity"));
+                                rowMap.put("phonologic_complexity", metadata.get("phonologic_complexity"));
                                 if (null != node.getTags() && !node.getTags().isEmpty())
                                     rowMap.put("tags", node.getTags());
-                                getSynsets(node, rowMap, nodes);
+                                getSynsets(languageId, node, rowMap, nodes);
                             }
                         }
                     }
@@ -358,7 +366,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
         }
     }
     
-    private void getSynsets(Node node, Map<String, Object> rowMap, List<Map<String, Object>> nodes) {
+    private void getSynsets(String languageId, Node node, Map<String, Object> rowMap, List<Map<String, Object>> nodes) {
         List<Relation> inRels = node.getInRelations();
         boolean first = true;
         if (null != inRels && !inRels.isEmpty()) {
@@ -375,20 +383,37 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
                             map.put("gloss", metadata.get("gloss"));
                         if (null != metadata.get("pos"))
                             map.put("pos", metadata.get("pos"));
+                        map.put("exampleSentences", metadata.get("exampleSentences"));
+                        map.put("pictures", metadata.get("pictures"));
                         if (first) {
                             first = false;
                             if (null != node.getMetadata().get("variants"))
                                 map.put("variants", node.getMetadata().get("variants"));
                         }
-                        if (null != metadata.get("translations")) {
-                            String translations = (String) metadata.get("translations");
-                            Object obj = JSONUtils.convertJSONString(translations);
-                            if (null != obj)
-                                map.put("translations", obj);
-                            else
-                                map.put("translations", translations);
-                        }
                     }
+                    try {
+						Node synset = getDataNode(languageId, synsetId, "Synset");
+						if (null != synset && null != synset.getOutRelations() && !synset.getOutRelations().isEmpty()) {
+							Map<String, List<String>> rels = new HashMap<String, List<String>>(); 
+							for (Relation rel : synset.getOutRelations()) {
+								if (StringUtils.equalsIgnoreCase("Word", rel.getEndNodeObjectType())) {
+									String type = rel.getRelationType();
+									Map<String, Object> word = rel.getEndNodeMetadata();
+									String lemma = (String) word.get("lemma");
+									List<String> words = rels.get(type);
+									if (null == words) {
+										words = new ArrayList<String>();
+										rels.put(type, words);
+									}
+									if (StringUtils.isNotBlank(lemma) && !words.contains(lemma))
+										words.add(lemma);
+								}
+							}
+							map.putAll(rels);
+						}
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
                     nodes.add(map);
                 }
             }
