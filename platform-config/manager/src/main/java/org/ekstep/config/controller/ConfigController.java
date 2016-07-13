@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.springframework.http.ResponseEntity;
@@ -24,37 +25,25 @@ import com.ilimi.common.exception.ResponseCode;
 
 @Controller
 @RequestMapping("v2/config")
-@SuppressWarnings("unused")
 public class ConfigController extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
-	private static final String bucketName = "ekstep-public";
-	private static final String folderName = "src/main/resources";
-	private static final String baseUrl = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/";
-	private static final Map<String, String> languageMap = new HashMap<String, String>();
-
-	static {
-		languageMap.put("en", "English");
-		languageMap.put("ka", "kannada");
-		languageMap.put("hi", "hindi");
-		languageMap.put("ta", "tamil");
-		languageMap.put("te", "telugu");
-	}
+	private static final String bucketName = "ekstep-config";
+	private static final String folderName = "resources";
+	private static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getResourceBundles() {
 		String apiId = "ekstep.config.resourebundles.list";
-		String langMap = "";
-		String langId = "";
 		try {
 			Response response = new Response();
 			Map<String, Object> resourcebundles = new HashMap<String, Object>();
 			Map<String, String> urlMap = getUrlFromS3();
 			for (Entry<String, String> entry : urlMap.entrySet()) {
-				langMap = HttpDownloadUtility.readFromUrl(entry.getValue());
-				langId = entry.getKey();
+				String langMap = HttpDownloadUtility.readFromUrl(entry.getValue());
+				String langId = entry.getKey();
 				try {
-					if (langMap.isEmpty())
+					if (StringUtils.isBlank(langMap))
 						continue;
 					Map<String, Object> map = mapper.readValue(langMap, new TypeReference<Map<String, Object>>() {
 					});
@@ -84,11 +73,9 @@ public class ConfigController extends BaseController {
 
 		try {
 			Response response = new Response();
-			String data = "";
-			Map<String, String> urlList = new HashMap<String, String>();
-			if (languageMap.containsKey(languageId)) {
-				data = HttpDownloadUtility
-						.readFromUrl(baseUrl + folderName + "/resourceBundle/" + languageId + ".json");
+			String data = HttpDownloadUtility
+					.readFromUrl(baseUrl + folderName + "/" + languageId + ".json");
+			if (StringUtils.isNotBlank(data)) {
 				ResponseParams params = new ResponseParams();
 				params.setErr("0");
 				params.setStatus(StatusType.successful.name());
@@ -126,7 +113,7 @@ public class ConfigController extends BaseController {
 		String ordinals = "";
 		Response response = new Response();
 		try {
-			ordinals = HttpDownloadUtility.readFromUrl(baseUrl + folderName + "/ordinals.json");
+			ordinals = HttpDownloadUtility.readFromUrl(baseUrl + "ordinals.json");
 			ResponseParams params = new ResponseParams();
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
@@ -146,14 +133,15 @@ public class ConfigController extends BaseController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-
+	
 	private Map<String, String> getUrlFromS3() {
 		Map<String, String> urlList = new HashMap<String, String>();
 		String apiUrl = "";
-		List<String> res = AWSUploader.getObjectList("ekstep-public", folderName + "/resourceBundle");
+		List<String> res = AWSUploader.getObjectList(bucketName, folderName);
 		for (String data : res) {
 			apiUrl = baseUrl + data;
-			urlList.put(data.substring(34, 36), apiUrl);
+			if (data.length() > 12)
+				urlList.put(data.substring(10, 12), apiUrl);
 		}
 		return urlList;
 	}

@@ -67,8 +67,9 @@ public class AWSUploader {
     	   listing = s3.listNextBatchOfObjects (listing);
     	   summaries.addAll (listing.getObjectSummaries());
     	}
-    	for(S3ObjectSummary data : summaries)
+    	for(S3ObjectSummary data : summaries) {
     		fileList.add(data.getKey());
+    	}
 		return fileList;
     }
 }
