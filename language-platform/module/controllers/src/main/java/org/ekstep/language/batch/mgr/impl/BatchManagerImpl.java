@@ -90,7 +90,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     node.getMetadata().put(ATTRIB_PICTURES, pictures);
                     node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
                     node.getMetadata().put(ATTRIB_SYNSET_COUNT, synsetCount);
-                    node.getMetadata().put(ATTRIB_STATUS, "Draft");
                     WordnetUtil.updatePOS(node);
                     if (null != featureMap && !featureMap.isEmpty()) {
                     	String lemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
@@ -162,7 +161,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     }
                     node.getMetadata().put(ATTRIB_PICTURES, pictures);
                     node.getMetadata().put(ATTRIB_WORD_IMAGES, wordImages);
-                    node.getMetadata().put(ATTRIB_STATUS, "Draft");
                     Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                     updateReq.put(GraphDACParams.node.name(), node);
                     updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
@@ -308,7 +306,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                     }
                     if (null == isPhrase && StringUtils.isNotBlank(lemma) && lemma.trim().contains(" "))
                         wordMetadata.put(ATTRIB_IS_PHRASE, true);
-                    wordMetadata.put(ATTRIB_STATUS, "Draft");
                     wordNode.setMetadata(wordMetadata);
                     Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                             "updateDataNode");
@@ -340,7 +337,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
             if (null != nodes && !nodes.isEmpty()) {
                 for (Node node : nodes) {
                     WordnetUtil.updatePOS(node);
-                    node.getMetadata().put(ATTRIB_STATUS, "Draft");
                     Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
                     updateReq.put(GraphDACParams.node.name(), node);
                     updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
@@ -416,7 +412,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 node.getMetadata().put("unicodeNotation", wc.getUnicode());
                                 node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
                                 node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
-                                node.getMetadata().put(ATTRIB_STATUS, "Draft");
                                 Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                         "updateDataNode");
                                 updateReq.put(GraphDACParams.node.name(), node);
@@ -500,7 +495,6 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
                                 update = true;
                             }
                             if (update) {
-                                node.getMetadata().put(ATTRIB_STATUS, "Draft");
                                 Request updateReq = getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
                                         "updateDataNode");
                                 updateReq.put(GraphDACParams.node.name(), node);
