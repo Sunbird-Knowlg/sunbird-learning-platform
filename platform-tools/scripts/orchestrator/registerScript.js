@@ -8,7 +8,7 @@ var client = new Client();
 //var host = "http://52.77.241.169:8080/taxonomy-service";
 var host = "http://localhost:9090/learning-service";
 // PROD
-//var host = "http://52.77.241.169:8080/learning-service";
+//var host = "http://54.169.71.31:8080/learning-service";
 // DEV
 //var host = "http://54.254.225.115:8080/learning-service";
 // QA

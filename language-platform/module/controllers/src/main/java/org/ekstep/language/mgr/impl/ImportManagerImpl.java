@@ -789,7 +789,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     
     @Override
 	public Response importCSV(String languageId, InputStream stream) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (null == stream)
             throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
@@ -814,7 +814,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     
     @Override
 	public Response updateDefinition(String languageId, String json) {
-    	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+    	if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(json))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
