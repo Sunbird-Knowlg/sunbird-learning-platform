@@ -1,0 +1,273 @@
+KEY,DESCRIPTION,en,ka,hi,te,ta
+name,Name of the content,Name
+code,Unique code for the content,Code
+os,Supported Operating Systems,OS
+minOsVersion,E.g. 4.4,Min Supported OS Version
+minGenieVersion,E.g. 5.0,Min Supported Genie Version
+minSupportedVersion,Minimum Supported Version of this content,Min Supported Version
+filter,"E.g.: {""tags"": [""Delhi Curriculum""]}",Filter Criteria (JSON)
+visibility,Visibility (set as 'Parent' to hide this from any other list view),Visibility
+posterImage,,Poster Image
+mimeType,,Mime Type
+mediaType,,Media Type
+appIcon,,Icon
+grayScaleAppIcon,,GrayScale App Icon
+thumbnail,,Thumbnail
+format,,Format
+duration,,Duration
+size,,Download File Size (in bytes)
+idealScreenSize,,Ideal Screen Size
+idealScreenDensity,,Ideal Screen Density (dots per inch)
+releaseNotes,,Release Notes
+pkgVersion,Version number of the package file,Package Version
+resources,,Resources
+downloadUrl,URL to download the content,Download Url
+artifactUrl,URL to download the content,Artifact Url
+objects,,Objects Used in the Content
+developer,Content Developer,Developer
+source,Source of the content (e.g. MangoSense),Source
+publisher,Publisher of the content (e.g. Pratham Books),Publisher
+owner,Content Owner,Owner
+portalOwner,Portal Owner,Portal Owner
+attributions,Attributions/Credits,Owner
+collaborators,Collaborators,Collaborators
+voiceCredits,Voice Credits,Voice Credits
+soundCredits,Audio and background scores by,Audio/Sound Credits
+imageCredits,Images created by,Image Credits
+copyright,,Copyright
+license,,License
+language,,Language
+words,Dictionary words in this content,Dictionary Words
+text,Text of the story,Story Text
+forkable,Forkable,Forkable
+translatable,Translatable,Translatable
+ageGroup,Suggested Age Group,Age Group
+gradeLevel,,Grade Level
+interactivityLevel,,Interactivity Level
+curriculum,,Curriculum
+contentType,,Content Type
+templateType,,Template Type
+genre,,Genre
+theme,,Theme
+rating,,User Rating
+rating_a,,Analytical Rating
+quality,,Quality
+popularity,,Popularity
+downloads,,No of downloads
+launchUrl,URL to launch the game,Launch Url
+osId,Operating System specific Id,Operating System Id
+activity_class,,Activity Class Name
+scaffolding,,Scaffolding
+feedback,,Feedback
+feedbackType,,Feedback
+teachingMode,,Teaching Mode
+skills,,Skills Required
+keywords,,Keywords
+domain,,Domain
+status,,Status
+optStatus,,Optimization Status
+description,,Description
+body,,Body
+editorState,,Editor State
+data,,Data
+loadingMessage,Loading Message,Loading Message
+checksum,Checksum value of the story package file,Checksum
+learningObjective,,Learning Objective
+createdBy,,Created By
+createdOn,,Created On
+lastUpdatedBy,,Last Updated By
+lastUpdatedOn,,Last Updated On
+lastSubmittedBy,,Submitted for Review By
+lastSubmittedOn,,Submitted for Review On
+lastPublishedBy,,Published By
+lastPublishedOn,,Published On
+version,,Version
+versionDate,,Version Date
+versionCreatedBy,,Version Created By
+All,,All
+Android,,Android
+iOS,,iOS
+Windows,,Windows
+Default,,Default
+Parent,,Parent
+application/vnd.ekstep.ecml-archive,,application/vnd.ekstep.ecml-archive
+application/vnd.ekstep.html-archive,,application/vnd.ekstep.html-archive
+application/vnd.android.package-archive,,application/vnd.android.package-archive
+application/vnd.ekstep.content-archive,,application/vnd.ekstep.content-archive
+application/vnd.ekstep.content-collection,,application/vnd.ekstep.content-collection
+application/octet-stream,,application/octet-stream
+image/jpeg,,image/jpeg
+image/jpg,,image/jpg
+image/png,,image/png
+image/tiff,,image/tiff
+image/bmp,,image/bmp
+image/gif,,image/gif
+image/svg+xml,,image/svg+xml
+video/avi,,video/avi
+video/mpeg,,video/mpeg
+video/quicktime,,video/quicktime
+video/3gpp,,video/3gpp
+video/mp4,,video/mp4
+video/ogg,,video/ogg
+video/webm,,video/webm
+audio/mp3,,audio/mp3
+audio/mp4,,audio/mp4
+audio/mpeg,,audio/mpeg
+audio/ogg,,audio/ogg
+audio/webm,,audio/webm
+audio/x-wav,,audio/x-wav
+content,,content
+collection,,collection
+image,,image
+video,,video
+audio,,audio
+voice,,voice
+ecml,,ecml
+document,,document
+pdf,,pdf
+other,,other
+small,,small
+normal,,normal
+large,,large
+xlarge,,xlarge
+ldpi,,ldpi
+mdpi,,mdpi
+hdpi,,hdpi
+xhdpi,,xhdpi
+xxhdpi,,xxhdpi
+xxxhdpi,,xxxhdpi
+Speaker,,Speaker
+Touch,,Touch
+Microphone,,Microphone
+GPS,,GPS
+Motion Sensor,,Motion Sensor
+Compass,,Compass
+Against DRM license,,Against DRM license
+Creative Commons Attribution (CC BY),,Creative Commons Attribution (CC BY)
+Creative Commons Attribution-ShareAlike (CC BY-SA),,Creative Commons Attribution-ShareAlike (CC BY-SA)
+Creative Commons Zero (CC0),,Creative Commons Zero (CC0)
+Free Art License,,Free Art License
+Open Audio License,,Open Audio License
+Open Game License,,Open Game License
+Other,,Other
+English,,English
+Hindi,,Hindi
+Assamese,,Assamese
+Bengali,,Bengali
+Gujarati,,Gujarati
+Kannada,,Kannada
+Malayalam,,Malayalam
+Marathi,,Marathi
+Nepali,,Nepali
+Oriya,,Oriya
+Punjabi,,Punjabi
+Tamil,,Tamil
+Telugu,,Telugu
+Urdu,,Urdu
+"<5",,<5
+5-6,,5-6
+6-7,,6-7
+7-8,,7-8
+8-10,,8-10
+">10",,>10
+Kindergarten,,Kindergarten
+Grade 1,,Grade 1
+Grade 2,,Grade 2
+Grade 3,,Grade 3
+Grade 4,,Grade 4
+Grade 5,,Grade 5
+High,,High
+Medium,,Medium
+Low,,Low
+NCERT,,NCERT
+CBSE,,CBSE
+ICSE,,ICSE
+State Curriculum,,State Curriculum
+Story,,Story
+Worksheet,,Worksheet
+Game,,Game
+Simulation,,Simulation
+Puzzle,,Puzzle
+Diagnostic,,Diagnostic
+Collection,,Collection
+Asset,,Asset
+Template,,Template
+story,,story
+worksheet,,worksheet
+mcq,,mcq
+ftb,,ftb
+mtf,,mtf
+recognition,,recognition
+activity,,activity
+widget,,widget
+Picture Books,,Picture Books
+Chapter Books,,Chapter Books
+Flash Cards,,Flash Cards
+Serial Books,,Serial Books
+Alphabet Books,,Alphabet Books
+Folktales,,Folktales
+Fiction,,Fiction
+Non-Fiction,,Non-Fiction
+Poems/Rhymes,,Poems/Rhymes
+Plays,,Plays
+Comics,,Comics
+Words,,Words
+History,,History
+Adventure,,Adventure
+Mystery,,Mystery
+Science,,Science
+Nature,,Nature
+Art,,Art
+Music,,Music
+Funny,,Funny
+Family,,Family
+Life Skills,,Life Skills
+Scary,,Scary
+School Stories,,School Stories
+Holidays,,Holidays
+Hobby,,Hobby
+Geography,,Geography
+Rural,,Rural
+Urban,,Urban
+Tutorial,,Tutorial
+Help,,Help
+Practice,,Practice
+Right/Wrong,,Right/Wrong
+Reflection,,Reflection
+Guidance,,Guidance
+Learn from Mistakes,,Learn from Mistakes
+Adaptive Feedback,,Adaptive Feedback
+Interrupts,,Interrupts
+Rich Feedback,,Rich Feedback
+Audio,,Audio
+Visual,,Visual
+Textual,,Textual
+Tactile,,Tactile
+Abstract,,Abstract
+Concrete,,Concrete
+Pictorial,,Pictorial
+Listening,,Listening
+Speaking,,Speaking
+Reading,,Reading
+Writing,,Writing
+Gestures,,Gestures
+Draw,,Draw
+numeracy,,numeracy
+literacy,,literacy
+Draft,,Draft
+Review,,Review
+Redraft,,Redraft
+Flagged,,Flagged
+Live,,Live
+Retired,,Retired
+Mock,,Mock
+Pending,,Pending
+Processing,,Processing
+Error,,Error
+Complete,,Complete
+collections,Which all collections is this content part of
+concepts,Micro-concepts associated with this content
+item_sets,Assessment items associated with this content
+methods,Teaching methods used in this content
+screenshots,Screenshots and other media for this content
+children,Child content items (in sorted order) in case of collections like Textbooks
