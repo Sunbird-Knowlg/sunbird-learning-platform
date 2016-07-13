@@ -1,11 +1,14 @@
 package com.ilimi.taxonomy.content.pipeline;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -19,6 +22,7 @@ import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
@@ -28,22 +32,30 @@ public class BasePipeline extends BaseManager {
 	
 	private static Logger LOGGER = LogManager.getLogger(BasePipeline.class.getName());
 	
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
+	
 	private static final String DEF_AWS_BUCKET_NAME = "ekstep-public";
     private static final String DEF_AWS_FOLDER_NAME = "content";
     
 	protected Response updateContentNode(Node node, String url) {
-        Response updateRes = updateNode(node);
-        if (StringUtils.isNotBlank(url))
-            updateRes.put(ContentWorkflowPipelineParams.content_url.name(), url);
-        return updateRes;
+		Response response = new Response();
+		if (null != node) {
+			response = updateNode(node);
+	        if (StringUtils.isNotBlank(url))
+	        	response.put(ContentWorkflowPipelineParams.content_url.name(), url);
+		}
+        return response;
     }
 
     protected Response updateNode(Node node) {
-        Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-        updateReq.put(GraphDACParams.node.name(), node);
-        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-        Response updateRes = getResponse(updateReq, LOGGER);
-        return updateRes;
+    	Response response = new Response();
+    	if (null != node) {
+	        Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+	        updateReq.put(GraphDACParams.node.name(), node);
+	        updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+	        response = getResponse(updateReq, LOGGER);
+    	}
+        return response;
     }
     
     protected boolean isValidBasePath(String path) {
@@ -94,7 +106,7 @@ public class BasePipeline extends BaseManager {
 		return folderName;
 	}
 	
-	public String[] uploadToAWS(File uploadedFile, String folder) {
+	protected String[] uploadToAWS(File uploadedFile, String folder) {
         String[] urlArray = new String[] {};
         try {
             if (StringUtils.isBlank(folder))
@@ -105,6 +117,48 @@ public class BasePipeline extends BaseManager {
             		ContentErrorMessageConstants.FILE_UPLOAD_ERROR, e);
         }
         return urlArray;
+    }
+	
+	protected Number getNumericValue(Object obj) {
+    	try {
+    		return (Number) obj;
+    	} catch(Exception e) {
+    		return 0;
+    	}
+    }
+	    
+	protected Double getDoubleValue(Object obj) {
+    	Number n = getNumericValue(obj);
+    	if (null == n)
+    		return 0.0;
+    	return n.doubleValue();
+    }
+	
+	protected Double getS3FileSize(String key) {
+        Double bytes = null;
+        if (StringUtils.isNotBlank(key)) {
+            try {
+                return AWSUploader.getObjectSize(ContentConfigurationConstants.BUCKET_NAME, key);
+            } catch (IOException e) {
+                LOGGER.error("Error! While getting the file size from AWS", e);
+            }
+        }
+        return bytes;
+    }
+	
+	protected static String formatCurrentDate() {
+        return format(new Date());
+    }
+    
+	protected static String format(Date date) {
+        if (null != date) {
+            try {
+                return sdf.format(date);
+            } catch (Exception e) {
+            	LOGGER.error("Error! While Converting the Date Format.", e);
+            }
+        }
+        return null;
     }
 
 }
