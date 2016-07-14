@@ -28,7 +28,7 @@
   command: chdir={{ redis_home }} make
 
 - name: Check if redis is running
-  shell: ps -ef | grep redis | grep -v grep
+  shell: ps -ef | grep redis | grep -v grep | wc -l
   register: redis_process
   changed_when: false
   ignore_errors: true
@@ -38,3 +38,4 @@
   shell: nohup {{ redis_home }}/src/redis-server &
   async: 60
   poll: 60
+  when: "redis_process.stdout == '0'"
