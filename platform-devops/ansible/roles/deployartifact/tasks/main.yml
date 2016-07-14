@@ -44,28 +44,28 @@
   template: src=search/elasticsearch.properties.j2 dest=/data/properties/search/elasticsearch.properties
 #------------------------------------------------------------------------------------
 - name: copy the artifacts files 
-  copy: src=learning-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
+  copy: src=learning-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
 
 - name: copy the artifacts files
-  copy: src=search-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
+  copy: src=search-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
 
 - name: copy the artifacts files
-  copy: src=language-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
+  copy: src=language-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
 
 - name: copy the artifacts file config-service.war
-  copy: src=config-service.war dest=/home/ec2-user/apache-tomcat-8.0.35/webapps
+  copy: src=config-service.war dest=/home/ec2-user/apache-tomcat-8.0.36/webapps
 #------------------------------------------------------------------------------------
 - name: remove learning-service
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/learning-service state=absent
+  file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/learning-service state=absent
 
 - name: remove search-service
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/search-service state=absent
+  file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/search-service state=absent
 
 - name: remove language-service
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/language-service state=absent
+  file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/language-service state=absent
 
 - name: remove config-service
-  file: name=/home/ec2-user/apache-tomcat-8.0.35/webapps/config-service state=absent
+  file: name=/home/ec2-user/apache-tomcat-8.0.36/webapps/config-service state=absent
 
 
 - name: start tomcat
