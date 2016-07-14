@@ -144,7 +144,8 @@ public class InitializePipeline extends BasePipeline {
 		if (null != node && null != node.getMetadata()) {
 			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
-			if (StringUtils.isNotBlank(contentBody))
+			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+			if (StringUtils.isBlank(artifactUrl) && StringUtils.isNotBlank(contentBody))
 				required = true;
 		}
 		return required;

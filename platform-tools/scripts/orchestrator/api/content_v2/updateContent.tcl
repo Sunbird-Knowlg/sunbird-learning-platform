@@ -86,6 +86,11 @@ if {$object_null == 1} {
 			if {$get_node_response_error} {
 				return $get_node_response;
 			} else {
+				set body [$content get "body"]
+				set bodyEmpty [proc_isEmpty $body]
+				if {!$bodyEmpty} {
+					$content put "artifactUrl" [java::null]
+				}
 				set graph_node [get_resp_value $get_node_response "node"]
 				set metadata [java::prop $graph_node "metadata"]
 				set domain_val [$metadata get "domain"]

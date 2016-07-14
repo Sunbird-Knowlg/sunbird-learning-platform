@@ -144,7 +144,6 @@ public class FinalizePipeline extends BasePipeline {
 							+ " | [Invalid or null ECRF Object.]");
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
-		String artifactUrl = null;
 		if (BooleanUtils.isTrue(isCompressionApplied)) {
 			// Get Content String
 			String ecml = getECMLString(ecrf, ecmlType);
@@ -158,11 +157,6 @@ public class FinalizePipeline extends BasePipeline {
 			// Upload Package
 			File packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
-				// Upload to S3
-				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
-				if (null != urlArray && urlArray.length >= 2)
-					artifactUrl = urlArray[IDX_S3_URL];
-
 				// Set artifact file For Node
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), packageFile);
 			}
@@ -196,8 +190,6 @@ public class FinalizePipeline extends BasePipeline {
 				packageFile.delete();
 			LOGGER.info("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
-			if (StringUtils.isNotBlank(artifactUrl))
-				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 		
 		// Populate Fields and Update Node
