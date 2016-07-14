@@ -14,11 +14,11 @@ import org.json.JSONObject;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.common.ElementMap;
-import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Event;
 import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
+import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
@@ -335,20 +335,14 @@ public class JSONContentParser {
 	private String getCData(JSONObject object, String elementName) {
 		String cData = "";
 		if (null != object && !StringUtils.isBlank(elementName)){
-			Map<String, Object> map = ConversionUtil.toMap(object);
-			Object obj = map.get(elementName);
-			if (null != obj)
-				cData = obj.toString(); 
+			if (object.has(elementName)) {
+				Object c = object.get(elementName);
+				if (null != c)
+					cData = c.toString();
+			}
 		}
 		return cData;
 	}
-	
-//	private List<Map<String, String>> getChildrenData(JSONObject object, String elementName) {
-//		List<Map<String, String>> childrenMaps = new ArrayList<Map<String, String>>();
-//		if (null != object && !StringUtils.isBlank(elementName))
-//			childrenMaps = toMap(object, elementName, false);
-//		return childrenMaps;
-//	}
 	
 	private Map<String, String> getMapFromJsonObj(JSONObject object) {
 		Map<String, String> map = new HashMap<String, String>();
