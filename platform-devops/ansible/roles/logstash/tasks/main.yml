@@ -4,16 +4,16 @@
   get_url: url=https://download.elastic.co/logstash/logstash/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz  timeout=1000 force=no owner=ec2-user 
 
 - name: unzip 
-  unarchive: src=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates=/home/ec2-user/logstash-2.3.3
+  unarchive: src=/home/ec2-user/logstash-all-plugins-2.3.3.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ logstash_home }}
 
 - name: add logstash configuration files
   template: src={{ item.name }}  dest={{ item.destination }}
   with_items:
-    - { name: 'logstash-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/logstash-graph-events.conf' }
-    - { name: 'language-graph-events.j2', destination: '/home/ec2-user/logstash-2.3.3/language-graph-events.conf' }
+    - { name: 'logstash-graph-events.j2', destination: '{{ logstash_home }}/logstash-graph-events.conf' }
+    - { name: 'language-graph-events.j2', destination: '{{ logstash_home }}/language-graph-events.conf' }
 
 - name: set permissions
-  file: path=/home/ec2-user/logstash-2.3.3 owner=ec2-user group=ec2-user mode=0755 recurse=yes 
+  file: path={{ logstash_home }} owner=ec2-user group=ec2-user mode=0755 recurse=yes 
 
 - name: Check if logstash graph events is running
   become_user: ec2-user
@@ -29,7 +29,7 @@
 - name: Run logstash
   become_user: ec2-user
   become: yes
-  shell: /home/ec2-user/logstash-2.3.3/bin/logstash -f /home/ec2-user/logstash-2.3.3/logstash-graph-events.conf -v &
+  shell: {{ logstash_home }}/bin/logstash -f {{ logstash_home }}/logstash-graph-events.conf -v &
   async: 60
   poll: 30
   when: "logstash_process.stdout == '0'"
@@ -38,7 +38,7 @@
 - name: Run logstash language
   become_user: ec2-user
   become: yes
-  shell: chdir=/home/ec2-user/logstash-2.3.3  bin/logstash -f /home/ec2-user/logstash-2.3.3/language-graph-events.conf -v &
+  shell: chdir={{ logstash_home }}  bin/logstash -f {{ logstash_home }}/language-graph-events.conf -v &
   async: 60
   poll: 30
   when: "language_process.stdout == '0'"

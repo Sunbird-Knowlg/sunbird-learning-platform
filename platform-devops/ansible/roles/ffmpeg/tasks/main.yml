@@ -4,7 +4,7 @@
   get_url: url=http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz dest=/home/ec2-user timeout=1000 force=no owner=ec2-user
 
 - name: unzip 
-  unarchive: src=/home/ec2-user/ffmpeg*  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates=ffmpeg-home
+  unarchive: src=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ ffmpeg_home }}
 
 - name: Change ownership of ffmpeg installation
   become: yes
@@ -12,7 +12,7 @@
 
 - name: move files
   become: yes
-  command: cp /home/ec2-user/ffmpeg-2.8/{{ item }} /usr/local/bin
+  command: cp {{ ffmpeg_home }}/{{ item }} /usr/local/bin
   with_items:
              - ffmpeg
              - ffprobe

@@ -1,27 +1,4 @@
 [all]
 54.179.153.127 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
-[all:vars]
-service_url = 54.179.153.127:8080
-zookeeper_url = 172.31.1.92:2181
-graph_event_topic_id = new-qa.learning.graph.events
-platform_api_url = http://localhost:8080/learning-service
-mysql_db_url = lp-sandbox-db.cm8jepwsnit8.ap-southeast-1.rds.amazonaws.com:3306
-mysql_db_schema = lpqadb
-mysql_db_username = lpsandboxdb
-mysql_db_password = lp5andb0x
-mysql_db_schema = lpqadb
-search_index_host = localhost
-search_index_port = 9200
-environment_id = 20000000
-language_index_host = localhost
-language_index_port = 9200
-mongo_host = 127.0.0.1
-mongo_port = 27017
-
-tomcat_init_mem = -Xms512m
-tomcat_max_mem = -Xmx2048m
-tomcat_perm_size = -XX:MaxPermSize=256M
-graphevent_kafka_url = "172.31.1.92:9092"
-graphevent_kafka_topic_id = "new-qa.learning.graph.events"
 

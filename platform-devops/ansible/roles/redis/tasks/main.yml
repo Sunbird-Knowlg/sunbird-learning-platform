@@ -22,7 +22,6 @@
 
 - name: redis conf
   lineinfile: dest={{ redis_home }}/redis.conf insertafter='# Note that you must specify a directory here, not a file name.' line='dir /home/ec2-user/redis-stable/' state=present
-                #regexp='^dir./'
 
 - name: Go to the folder and run make
   command: chdir={{ redis_home }} make
