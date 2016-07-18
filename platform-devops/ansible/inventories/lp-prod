@@ -1,8 +1,8 @@
 [all]
-52.77.241.169 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+54.169.71.31 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
 [all:vars]
-service_url = 52.77.241.169:8080
+service_url = 54.169.71.31:8080
 zookeeper_url = 10.10.1.207:2181
 graph_event_topic_id = production.learning.graph.events
 platform_api_url = http://localhost:8080/learning-service

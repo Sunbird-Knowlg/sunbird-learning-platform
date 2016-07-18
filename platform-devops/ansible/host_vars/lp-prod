@@ -1,4 +1,4 @@
-service_url = 52.77.241.169:8080
+service_url = 54.169.71.31:8080
 zookeeper_url = 10.10.1.207:2181
 graph_event_topic_id = production.learning.graph.events
 platform_api_url = http://localhost:8080/learning-service
@@ -20,4 +20,3 @@ tomcat_max_mem = -Xmx4096m
 tomcat_perm_size = -XX:MaxPermSize=256M
 graphevent_kafka_url = "10.10.1.207:9092"
 graphevent_kafka_topic_id = "production.learning.graph.events"
-
