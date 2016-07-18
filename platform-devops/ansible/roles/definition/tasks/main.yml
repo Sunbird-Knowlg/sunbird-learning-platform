@@ -1,0 +1,5 @@
+---
+# tasks file for definition
+- name: run definition_script
+  script: definition_script.sh
+
