@@ -139,8 +139,8 @@ public class XMLContentParser {
 		return media;
 	}
 	
-	private Map<String, String> getAttributeMap(Node node) {
-		Map<String, String> attributes = new HashMap<String, String>();
+	private Map<String, Object> getAttributeMap(Node node) {
+		Map<String, Object> attributes = new HashMap<String, Object>();
 		if (null != node && node.hasAttributes()) {
 			NamedNodeMap attribute = node.getAttributes();
 			for (int i = 0; i < attribute.getLength(); i++) {
@@ -288,15 +288,16 @@ public class XMLContentParser {
 	private String getAttributValueByName(Node node, String attribute) {
 		String value = "";
 		if (null != node && !StringUtils.isBlank(attribute)) {
-			String val = getAttributeMap(node).get(attribute);
+			Object obj = getAttributeMap(node).get(attribute);
+			String val = (null == obj ? null : obj.toString());
 			if (!StringUtils.isBlank(val))
 				value = val;
 		}
 		return value;
 	}
 	
-	private Map<String, String> getDataMap(Node node) {
-		Map<String, String> map = new HashMap<String, String>();
+	private Map<String, Object> getDataMap(Node node) {
+		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != node) {
 			map = getAttributeMap(node);
 			map.put(ContentWorkflowPipelineParams.cwp_element_name.name(), node.getNodeName());

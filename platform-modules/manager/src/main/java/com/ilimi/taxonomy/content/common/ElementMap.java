@@ -28,6 +28,9 @@ public class ElementMap {
 		nonPluginElements.put(ContentWorkflowPipelineParams.controller.name(), ContentWorkflowPipelineParams.controller.name());
 		nonPluginElements.put(ContentWorkflowPipelineParams.media.name(), ContentWorkflowPipelineParams.media.name());
 		nonPluginElements.put(ContentWorkflowPipelineParams.events.name(), ContentWorkflowPipelineParams.events.name());
+		nonPluginElements.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
+		nonPluginElements.put(ContentWorkflowPipelineParams.__cdata.name(), ContentWorkflowPipelineParams.__cdata.name());
+		nonPluginElements.put(ContentWorkflowPipelineParams.__text.name(), ContentWorkflowPipelineParams.__text.name());
 
 		eventElements.put(ContentWorkflowPipelineParams.event.name(), ContentWorkflowPipelineParams.event.name());
 		

@@ -5,7 +5,7 @@ import java.util.Map;
 public abstract class ECRFObject {
 	
 	private String id = null;
-	private Map<String, String> data = null;
+	private Map<String, Object> data = null;
 	private String innerText = null;
 	private String cData = null;
 	
@@ -15,10 +15,10 @@ public abstract class ECRFObject {
 	public void setId(String id) {
 		this.id = id;
 	}
-	public Map<String, String> getData() {
+	public Map<String, Object> getData() {
 		return data;
 	}
-	public void setData(Map<String, String> data) {
+	public void setData(Map<String, Object> data) {
 		this.data = data;
 	}
 	public String getInnerText() {

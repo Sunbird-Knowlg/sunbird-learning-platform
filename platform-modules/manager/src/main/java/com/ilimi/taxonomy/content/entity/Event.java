@@ -1,7 +1,6 @@
 package com.ilimi.taxonomy.content.entity;
 
 import java.util.List;
-import java.util.Map;
 
 public class Event extends ECRFObject {
 	

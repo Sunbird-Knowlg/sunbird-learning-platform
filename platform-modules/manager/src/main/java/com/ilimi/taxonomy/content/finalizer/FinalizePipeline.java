@@ -113,7 +113,7 @@ public class FinalizePipeline extends BasePipeline {
 					ContentErrorMessageConstants.INVALID_CWP_FINALIZE_PARAM + " | [Invalid or null Node.]");
 
 		// Get Content String
-		String ecml = getECMLString(ecrf, ecmlType);
+		String ecml = getECMLString(ecrf, ContentWorkflowPipelineParams.ecml.name());
 
 		// Upload Package
 		String[] urlArray = uploadToAWS(file, getUploadFolderName());
@@ -132,7 +132,8 @@ public class FinalizePipeline extends BasePipeline {
 	private Response finalisePublish(Response response, Map<String, Object> parameterMap) {
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
-		String ecmlType = (String) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
+		// Output only ECML format
+		String ecmlType = ContentWorkflowPipelineParams.ecml.name();
 		boolean isCompressionApplied = (boolean) parameterMap
 				.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 		if (null == node)
@@ -144,6 +145,7 @@ public class FinalizePipeline extends BasePipeline {
 							+ " | [Invalid or null ECRF Object.]");
 		LOGGER.info("Compression Applied ? " + isCompressionApplied);
 		// Create 'artifactUrl' Package
+		String artifactUrl = null;
 		if (BooleanUtils.isTrue(isCompressionApplied)) {
 			// Get Content String
 			String ecml = getECMLString(ecrf, ecmlType);
@@ -157,12 +159,25 @@ public class FinalizePipeline extends BasePipeline {
 			// Upload Package
 			File packageFile = new File(zipFileName);
 			if (packageFile.exists()) {
+				// Upload to S3
+				String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
+				if (null != urlArray && urlArray.length >= 2)
+					artifactUrl = urlArray[IDX_S3_URL];
+				
 				// Set artifact file For Node
 				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), packageFile);
 			}
 		}
-		// Download App Icon
+		// Download App Icon and create thumbnail
 		createThumbnail(node);
+		
+		// Set Package Version
+		double version = 1.0;
+		if (null != node && null != node.getMetadata()
+				&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
+			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
+					+ 1;
+		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
 
 		// Create ECAR Bundle
 		List<Node> nodes = new ArrayList<Node>();
@@ -176,11 +191,6 @@ public class FinalizePipeline extends BasePipeline {
 				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
 		String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
-		double version = 1.0;
-		if (null != node && null != node.getMetadata()
-				&& null != node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
-			version = getDoubleValue(node.getMetadata().get(ContentWorkflowPipelineParams.pkgVersion.name()))
-					+ 1;
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
@@ -190,10 +200,12 @@ public class FinalizePipeline extends BasePipeline {
 				packageFile.delete();
 			LOGGER.info("Deleting Local Artifact Package File: " + packageFile.getAbsolutePath());
 			node.getMetadata().remove(ContentWorkflowPipelineParams.artifactUrl.name());
+			
+			if (StringUtils.isNotBlank(artifactUrl))
+				node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 		}
 		
 		// Populate Fields and Update Node
-		node.getMetadata().put(ContentWorkflowPipelineParams.pkgVersion.name(), version);
 		node.getMetadata().put(ContentWorkflowPipelineParams.s3Key.name(), urlArray[IDX_S3_KEY]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.downloadUrl.name(), urlArray[IDX_S3_URL]);
 		node.getMetadata().put(ContentWorkflowPipelineParams.lastPublishedOn.name(), formatCurrentDate());
