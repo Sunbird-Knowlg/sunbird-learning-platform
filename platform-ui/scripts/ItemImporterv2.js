@@ -50,9 +50,13 @@ console.log();
 
 var client = new Client();
 
-var API_ENDPOINT_PROD = "http://lp-sandbox.ekstep.org:8080/taxonomy-service/";
-var API_ENDPOINT_SBX = "https://api.ekstep.org/learning-api/";
-var API_ENDPOINT = (options.env == 'prod' ? API_ENDPOINT_PROD : API_ENDPOINT_SBX);
+var API_ENDPOINT_PROD = "http://api.ekstep.in/learning-api/";
+var API_ENDPOINT_QA = "https://qa.ekstep.in/api/learning/";
+var API_ENDPOINT_DEV = "http://dev.ekstep.in/api/learning/";
+
+var API_ENDPOINT = (options.env == 'prod' ? API_ENDPOINT_PROD : API_ENDPOINT_DEV);
+var API_ENDPOINT = (options.env == 'qa' ? API_ENDPOINT_QA : API_ENDPOINT_DEV);
+
 var CREATE_ITEM_URL = "/v1/assessmentitem/${id}";
 
 var inputFilePath = options.file;
@@ -268,12 +272,13 @@ function processItemRecord(row, item, index) {
 	}
 
 	// Validate if the data is correct
-	if (validateQuestion(item)) {
+	var resp = validateQuestion(item);
+	if (resp == 'OK') {
 		items.push({'index': index, 'row': row, 'metadata': item, 'conceptIds': item.conceptIds});
 	}
 	else {
 		invalidCount++;
-		cli.error("Invalid question data [Row: " + index + ", Code: " + item['code'] + "].");
+		cli.error("Invalid question data [Row: " + index + ", Code: " + item['code'] + "] - " + resp);
 	}
 }
 
@@ -283,19 +288,23 @@ function processItemRecord(row, item, index) {
 function validateQuestion(item) {
 
 	if (item['type'] == 'mcq') {
-		if (item.options.length < 2) return false;
+		if (item.options.length < 2) return 'Too few options';
 	}
 	else if (item['type'] == 'mtf') {
-		if (item.lhs_options.length < 2) return false;
-		if (item.rhs_options.length < 2) return false;
+		if (item.lhs_options.length < 2) return 'Too few options';
+		if (item.rhs_options.length < 2) return 'Too few options';
 	}
 
-	if (!item.code) return false;
-	if (!item.title) return false;
-	if (!item.template) return false;
-	if (!item.template_id) return false;
+	if (!item.code) return 'Missing code';
+	if (!item.title) return 'Missing title';
+	if (!item.template) return 'Missing template name';
+	if (!item.template_id) return 'Missing template id';
 
-	return true;
+	var media = item.media;
+	media = _.reject(media, function(m) {return m.asset_id == null});
+	item.media = media;
+
+	return 'OK';
 }
 
 /**
@@ -304,10 +313,11 @@ function validateQuestion(item) {
 function processOptions(options, shuffle) {
 	_.each(options, function(option, index) {
 		if (typeof option.value.text != 'undefined') option.value.asset = option.value.text;
-		else if (typeof option.value.image == 'undefined') option.value.asset = option.value.image;
+		else if (typeof option.value.image != 'undefined') option.value.asset = option.value.image;
     });
 
     options = _.uniq(options, false, function(p){ return p.value.asset;});
+    options = _.reject(options, function(p) {return p.value.asset == null}); // reject all blank options
     if (shuffle) options = _.shuffle(options);
     return options;
 }

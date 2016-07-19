@@ -28,6 +28,39 @@
 		"qlevel": {"col-def": {"column" : 10}},
 		"keywords": {"col-def": {"column" : 11, "type": "list"}},
 
+		"media": [
+			{
+	        	"id": {"col-def": {"column" : 4, "type": "string"}},
+	        	"type": {"literal": "image"},
+	        	"asset_id": {"col-def": {"column" : 4, "type": "string"}}
+	    	},
+	    	{
+	        	"id": {"col-def": {"column" : 5, "type": "string"}},
+	        	"type": {"literal": "audio"},
+	        	"asset_id": {"col-def": {"column" : 5, "type": "string"}}
+	    	},
+	    	{
+	        	"id": {"col-def": {"column" : 13, "type": "string"}},
+	        	"type": {"literal": "image"},
+	        	"asset_id": {"col-def": {"column" : 13, "type": "string"}}
+	    	},
+	    	{
+	        	"id": {"col-def": {"column" : 16, "type": "string"}},
+	        	"type": {"literal": "image"},
+	        	"asset_id": {"col-def": {"column" : 16, "type": "string"}}
+	    	},
+	    	{
+	        	"id": {"col-def": {"column" : 19, "type": "string"}},
+	        	"type": {"literal": "image"},
+	        	"asset_id": {"col-def": {"column" : 19, "type": "string"}}
+	    	},
+	    	{
+	        	"id": {"col-def": {"column" : 22, "type": "string"}},
+	        	"type": {"literal": "image"},
+	        	"asset_id": {"col-def": {"column" : 22, "type": "string"}}
+	    	}
+	    ],
+
 		"options": [
 			{
 				"value" : {
