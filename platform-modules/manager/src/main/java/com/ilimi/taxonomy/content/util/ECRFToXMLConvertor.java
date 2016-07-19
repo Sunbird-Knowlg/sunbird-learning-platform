@@ -106,7 +106,6 @@ public class ECRFToXMLConvertor {
 	private StringBuilder getPluginXml(Plugin plugin) {
 		StringBuilder xml = new StringBuilder();
 		if (null != plugin) {
-			System.out.println(plugin.getId() + " :getPluginXML: " + plugin.getData() + " -- " + plugin.getEvents());
 			xml.append(getElementXml(plugin.getData()));
 			xml.append(getInnerText(plugin.getInnerText()));
 			xml.append(getCData(plugin.getcData()));
@@ -115,8 +114,6 @@ public class ECRFToXMLConvertor {
 			xml.append(getContentControllersXml(plugin.getControllers()));
 			xml.append(getEventsXml(plugin.getEvents()));
 			xml.append(getECRFComponentEndTag(plugin));
-			System.out.println("----------------------------------------");
-			System.out.println();
 		}
 		return xml;
 	}
