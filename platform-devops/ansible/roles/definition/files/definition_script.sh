@@ -4,7 +4,7 @@
 #DESCRIPTION:Script for lp-definition-update.
 #DATE:25-05-16
 #****************************************************
-cd docs/domain_model_v2/definitions                    #move inside th folder
+cd /home/jenkins/workspace/LP_Definition_Update/docs/domain_model_v2/definitions                    #move inside th folder
 
 #*****************************************************
 #Find all files required & copy the content of the file to a variable .user variable in the curl command to definition-update
