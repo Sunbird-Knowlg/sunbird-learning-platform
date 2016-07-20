@@ -11,5 +11,5 @@ cd /home/jenkins/workspace/LP_Definition_Update/docs/domain_model_v2/definitions
 for file in *                        
 do
    variable=`cat $file`
-   `curl -i -X POST -H "Content-Type: application/json" -H "user-id: ansible_user" -d '$variable' http://{{ service_url }}/learning-service/taxonomy/domain/definition`
+   `curl -i -X POST -H "Content-Type: application/json" -H "user-id: ansible_user" -d '$variable' http://54.254.225.115:8080/learning-service/taxonomy/domain/definition`
 done
