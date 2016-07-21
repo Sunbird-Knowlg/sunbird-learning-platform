@@ -177,10 +177,21 @@
             "dataType": "Select",
             "range":
             [
-                "en",
-                "ka",
-                "hi",
-                "te"
+                "English",
+	            "Hindi",
+	            "Assamese",
+	            "Bengali",
+	            "Gujarati",
+	            "Kannada",
+	            "Malayalam",
+	            "Marathi",
+	            "Nepali",
+	            "Oriya",
+	            "Punjabi",
+	            "Tamil",
+	            "Telugu",
+	            "Urdu",
+	            "Other"
             ],
             "required": true,
 			"indexed": true,
@@ -196,7 +207,8 @@
             "dataType": "Select",
             "range":
             [
-                "Learning"
+                "Practice",
+                "Assessment"
             ],
             "required": false,
 			"indexed": true,
