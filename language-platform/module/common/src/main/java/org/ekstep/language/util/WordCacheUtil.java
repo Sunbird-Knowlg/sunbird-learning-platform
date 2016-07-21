@@ -72,7 +72,7 @@ public class WordCacheUtil {
         jedisPool = new JedisPool(config, host, port);
     }
 
-    private Jedis getRedisConncetion() {
+    public Jedis getRedisConncetion() {
         try {
             Jedis jedis = jedisPool.getResource();
             if(index > 0) jedis.select(index);
