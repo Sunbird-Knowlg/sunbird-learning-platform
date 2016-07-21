@@ -1,11 +1,10 @@
 package org.ekstep.manager;
 
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
+import com.ilimi.common.dto.Response;
 
 public interface IHealthCheckManager {
 
-	public List<Map<String, Object>> getAllServiceHealth() throws Exception;
+	public Response getAllServiceHealth() throws Exception;
 	
+	public Response registerGraph(String graphId);
 }

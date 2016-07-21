@@ -11,17 +11,22 @@ import java.util.concurrent.FutureTask;
 
 import org.ekstep.manager.IHealthCheckManager;
 import org.ekstep.utils.HealthCheckUtil;
+import org.springframework.stereotype.Component;
 
+import com.ilimi.common.dto.Response;
+import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.common.mgr.Configuration;
 
-public class HealthCheckManager implements IHealthCheckManager {
+@Component
+public class HealthCheckManager extends BaseManager implements IHealthCheckManager {
 
 	private static final int MAX_THREAD_NUM = 10;
 	
 	@Override
-	public List<Map<String, Object>> getAllServiceHealth() throws InterruptedException, ExecutionException {
+	public Response getAllServiceHealth() throws InterruptedException, ExecutionException {
 		
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
+		boolean overallHealthy = true;
 		ExecutorService executor = Executors.newFixedThreadPool(MAX_THREAD_NUM);
         List<FutureTask<Map<String, Object>>> taskList = new ArrayList<FutureTask<Map<String, Object>>>();
         FutureTask<Map<String, Object>> futureTask_graphs;
@@ -57,13 +62,26 @@ public class HealthCheckManager implements IHealthCheckManager {
         taskList.add(futureTask_Mongo);
         executor.execute(futureTask_Mongo);
 
-        for (int j = 0; j < MAX_THREAD_NUM; j++) {
+        for (int j = 0; j < taskList.size(); j++) {
             FutureTask<Map<String, Object>> futureTask = taskList.get(j);
-            checks.add(futureTask.get());
+            Map<String, Object> check = futureTask.get();
+            if((boolean)check.get("healthy") == false){
+            	overallHealthy = false;
+            }
+            checks.add(check);
         }
         executor.shutdown();
 
-		return null;
+        Response response = OK("checks", checks);
+        response.put("healthy", overallHealthy);
+
+		return response;
+	}
+
+	@Override
+	public Response registerGraph(String graphId) {
+		Configuration.registerNewGraph(graphId);
+		return OK();
 	}
 
 }
