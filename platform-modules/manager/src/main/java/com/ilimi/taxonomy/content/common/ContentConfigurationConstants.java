@@ -4,6 +4,10 @@ public class ContentConfigurationConstants {
 	
 	public static final String CONTENT_BASE_PATH = "/data/contentBundle/";
 	
+	public static final String CONTENT_BUNDLE_BASE_PATH = "/data/contentBundle/";
+	
+	public static final String CONTENT_BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
+	
 	public static final String BUCKET_NAME = "ekstep-public";
 	
 	public static final String FOLDER_NAME = "content";

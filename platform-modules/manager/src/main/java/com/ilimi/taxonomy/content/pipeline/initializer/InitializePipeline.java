@@ -2,24 +2,14 @@ package com.ilimi.taxonomy.content.pipeline.initializer;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.common.util.UnzipUtility;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
@@ -138,18 +128,6 @@ public class InitializePipeline extends BasePipeline {
 		}
 		return response;
 	}
-	
-	private boolean isCompressRequired(Node node) {
-		boolean required = false;
-		if (null != node && null != node.getMetadata()) {
-			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
-			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
-			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
-			if (StringUtils.isBlank(artifactUrl) && StringUtils.isNotBlank(contentBody))
-				required = true;
-		}
-		return required;
-	}
 
 	private Plugin getECRFObject() {
 		Plugin plugin = new Plugin();
@@ -165,20 +143,6 @@ public class InitializePipeline extends BasePipeline {
 		return plugin;
 	}
 	
-	private Plugin getECRFObject(String contentBody) {
-		Plugin plugin = new Plugin();
-		String ecml = contentBody;
-		String ecmlType = getECMLType(contentBody);
-		if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
-			XMLContentParser parser = new XMLContentParser();
-			plugin = parser.parseContent(ecml);
-		} else if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.json.name())) {
-			JSONContentParser parser = new JSONContentParser();
-			plugin = parser.parseContent(ecml);
-		}
-		return plugin;
-	}
-
 	private String getECMLType() {
 		String type = "";
 		if (new File(basePath + File.separator + JSON_ECML_FILE_NAME).exists())
@@ -199,49 +163,6 @@ public class InitializePipeline extends BasePipeline {
 		}
 	}
 	
-	private String getECMLType(String contentBody) {
-		String type = "";
-		if (!StringUtils.isBlank(contentBody)) {
-			if (isValidJSON(contentBody))
-				type = ContentWorkflowPipelineParams.json.name();
-			else if (isValidXML(contentBody))
-				type = ContentWorkflowPipelineParams.ecml.name();
-			else
-				throw new ClientException(ContentErrorCodeConstants.INVALID_BODY.name(), 
-						ContentErrorMessageConstants.INVALID_CONTENT_BODY);
-			LOGGER.info("ECML Type: " + type);
-		}
-		return type;
-	}
-	
-	private boolean isValidXML(String contentBody) {
-		boolean isValid = true;
-		if (!StringUtils.isBlank(contentBody)) {
-			try {
-				DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-				DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-				dBuilder.parse(new InputSource(new StringReader(contentBody)));
-			} catch(ParserConfigurationException | SAXException | IOException e) {
-				isValid = false;
-			}
-		}
-		return isValid;
-	}
-	
-	private boolean isValidJSON(String contentBody) {
-		boolean isValid = true;
-		if (!StringUtils.isBlank(contentBody)) {
-			try {
-				ObjectMapper objectMapper = new ObjectMapper();
-				objectMapper.enable(DeserializationFeature.FAIL_ON_READING_DUP_TREE_KEY);
-				objectMapper.readTree(contentBody);
-			} catch (IOException e) {
-				isValid = false;
-			}
-		}
-		return isValid;
-	}
-
 	public String getFileString() {
 		String fileString = "";
 		File jsonECMLFile = new File(basePath + File.separator + JSON_ECML_FILE_NAME);

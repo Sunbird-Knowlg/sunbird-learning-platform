@@ -37,8 +37,6 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
-import com.ilimi.taxonomy.content.util.ECRFToJSONConvertor;
-import com.ilimi.taxonomy.content.util.ECRFToXMLConvertor;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 import com.ilimi.taxonomy.util.ContentBundle;
@@ -73,12 +71,12 @@ public class FinalizePipeline extends BasePipeline {
 			switch (operation) {
 				case "upload":
 				case "UPLOAD": {
-						response = finalizeUpload(response, parameterMap);
+						response = finalizeUpload(parameterMap);
 					}
 					break;
 				case "publish":
 				case "PUBLISH": {
-						response = finalizePublish(response, parameterMap);
+						response = finalizePublish(parameterMap);
 					}
 					break;
 				default:
@@ -93,7 +91,8 @@ public class FinalizePipeline extends BasePipeline {
 		return response;
 	}
 	
-	private Response finalizeUpload(Response response, Map<String, Object> parameterMap) {
+	private Response finalizeUpload(Map<String, Object> parameterMap) {
+		Response response = new Response();
 		File file = (File) parameterMap.get(ContentWorkflowPipelineParams.file.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 		String ecmlType = (String) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
@@ -129,7 +128,8 @@ public class FinalizePipeline extends BasePipeline {
 		return response;
 	}
 	
-	private Response finalizePublish(Response response, Map<String, Object> parameterMap) {
+	private Response finalizePublish(Map<String, Object> parameterMap) {
+		Response response = new Response();
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 		// Output only ECML format
@@ -290,21 +290,6 @@ public class FinalizePipeline extends BasePipeline {
 							+ " | [Unable to Download App Icon for Content Id: '" + node.getIdentifier() + "' ]",
 					e);
 		}
-	}
-
-	private String getECMLString(Plugin ecrf, String ecmlType) {
-		String ecml = "";
-		if (null != ecrf) {
-			LOGGER.info("Converting ECML From ECRF Object.");
-			if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.ecml.name())) {
-				ECRFToXMLConvertor convertor = new ECRFToXMLConvertor();
-				ecml = convertor.getContentXmlString(ecrf);
-			} else if (StringUtils.equalsIgnoreCase(ecmlType, ContentWorkflowPipelineParams.json.name())) {
-				ECRFToJSONConvertor convertor = new ECRFToJSONConvertor();
-				ecml = convertor.getContentJsonString(ecrf);
-			}
-		}
-		return ecml;
 	}
 
 	private void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,

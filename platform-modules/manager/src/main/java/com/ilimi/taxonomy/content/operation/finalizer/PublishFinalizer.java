@@ -1,5 +1,5 @@
 package com.ilimi.taxonomy.content.operation.finalizer;
 
-public class PublishFinalizer {
+public class PublishFinalizer extends BaseFinalizer {
 
 }

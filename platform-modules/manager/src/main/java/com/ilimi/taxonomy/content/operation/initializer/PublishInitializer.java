@@ -1,5 +1,5 @@
 package com.ilimi.taxonomy.content.operation.initializer;
 
-public class PublishInitializer {
+public class PublishInitializer extends BaseInitializer {
 
 }
