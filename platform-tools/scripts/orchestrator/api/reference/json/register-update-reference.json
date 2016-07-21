@@ -1,0 +1,19 @@
+{
+    "name": "updateReference",
+    "parameters": [{
+        "name": "reference",
+        "index": 1,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    },{
+    	"name":"reference_id",
+    	"index": 2,
+    	"routingParam": false
+    }],
+    "requestPath": {
+        "type": "PATCH",
+        "url": "/v2/reference/*",
+        "pathParams": ["reference_id"]
+    },
+    "body": ""
+}

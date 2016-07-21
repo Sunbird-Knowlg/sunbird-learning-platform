@@ -1,0 +1,9 @@
+{
+    "name": "getAllReferences",
+    "parameters": [],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/reference"
+    },
+    "body": ""
+}
