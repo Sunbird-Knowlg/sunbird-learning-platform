@@ -1,0 +1,15 @@
+{
+    "name": "getReference",
+    "parameters": [{
+    	"name":"reference_id",
+    	"index": 1,
+    	"routingParam": false,
+		"datatype":"java.lang.String"
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/reference/*",
+        "pathParams": ["reference_id"]
+    },
+    "body": ""
+}

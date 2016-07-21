@@ -1,0 +1,18 @@
+{
+    "name": "getAllObjects",
+    "parameters": [{
+    	"name":"graph_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"object_type",
+    	"index": 1,
+    	"routingParam": true
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/object/*/*",
+        "pathParams": ["graph_id", "object_type"]
+    },
+    "body": ""
+}
