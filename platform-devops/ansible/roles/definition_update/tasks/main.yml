@@ -1,4 +1,4 @@
 ---
 # tasks file for definition
 - name: run definition_script
-  shell: sh definition_script.sh
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/roles/definition_update/files/definition_script.sh
