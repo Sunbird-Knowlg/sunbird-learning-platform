@@ -1588,8 +1588,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
 			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
 			Map<String, Object> metaData = EnglishvarnaNode.getMetadata();
-			String ipaSymbol = (String) metaData.get(GraphDACParams.ipaSymbol.name());
-			Property ipaSymbolProp = new Property(GraphDACParams.ipaSymbol.name(), ipaSymbol);
+			String ipaSymbol = (String) metaData.get(GraphDACParams.isoSymbol.name());
+			Property ipaSymbolProp = new Property(GraphDACParams.isoSymbol.name(), ipaSymbol);
 			String type = (String) metaData.get(GraphDACParams.type.name());
 
 			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, ipaSymbolProp);
@@ -1649,7 +1649,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
 			Node varnaNode = getVarnaNodeByProperty(languageId, arpabetProp);
 			Map<String, Object> metaData = varnaNode.getMetadata();
-			String iso = (String) metaData.get(GraphDACParams.ipaSymbol.name());
+			String iso = (String) metaData.get(GraphDACParams.isoSymbol.name());
 			String type = (String) metaData.get(GraphDACParams.type.name());
 			syllables += iso;
 			if (type.equalsIgnoreCase("Vowel")) {
