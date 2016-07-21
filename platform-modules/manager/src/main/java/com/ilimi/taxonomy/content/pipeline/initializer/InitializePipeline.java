@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.content.initializer;
+package com.ilimi.taxonomy.content.pipeline.initializer;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,8 +29,8 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
-import com.ilimi.taxonomy.content.finalizer.FinalizePipeline;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
+import com.ilimi.taxonomy.content.pipeline.finalizer.FinalizePipeline;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 import com.ilimi.taxonomy.content.util.JSONContentParser;
 import com.ilimi.taxonomy.content.util.XMLContentParser;

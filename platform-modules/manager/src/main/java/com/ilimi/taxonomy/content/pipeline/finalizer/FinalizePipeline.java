@@ -1,4 +1,4 @@
-package com.ilimi.taxonomy.content.finalizer;
+package com.ilimi.taxonomy.content.pipeline.finalizer;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,7 +78,7 @@ public class FinalizePipeline extends BasePipeline {
 					break;
 				case "publish":
 				case "PUBLISH": {
-						response = finalisePublish(response, parameterMap);
+						response = finalizePublish(response, parameterMap);
 					}
 					break;
 				default:
@@ -129,7 +129,7 @@ public class FinalizePipeline extends BasePipeline {
 		return response;
 	}
 	
-	private Response finalisePublish(Response response, Map<String, Object> parameterMap) {
+	private Response finalizePublish(Response response, Map<String, Object> parameterMap) {
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 		// Output only ECML format
