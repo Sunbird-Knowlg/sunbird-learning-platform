@@ -1,0 +1,21 @@
+---
+# tasks file for language_update
+- name: run env
+  shell: sh language_script.sh en
+  tags:
+       - en
+
+- name: run env
+  shell: sh language_script.sh hi
+  tags:
+       - hi
+
+- name: run env
+  shell: sh language_script.sh ka
+  tags:
+       - ka
+
+- name: run env
+  shell: sh language_script.sh te
+  tags:
+       - te
