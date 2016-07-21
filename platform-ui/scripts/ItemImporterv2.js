@@ -10,6 +10,7 @@ node ItemImporter.js --help
 -e  environment (prod, qa, dev, sandbox)
 -f  items csv
 -m  mappings json
+-a  assets csv
 
 Successful record identifiers are written to itemImport/success.json file
 Errors are written to itemImport/output.json file
@@ -35,6 +36,7 @@ var options = cli.parse({
     env:      ['e', 'Environment', 'string', 'prod'],
     file:     ['f', 'Items csv file to process', 'file'],
     mapping:  ['m', 'Mapping json file', 'file', 'itemImport/mcq_mapping_v2.json'],
+    assets:   ['a', 'Assets csv', 'file'],
 });
 
 if ((!options.file) || (!options.env) || (!options.user)) {
@@ -61,6 +63,7 @@ var CREATE_ITEM_URL = "/v1/assessmentitem/${id}";
 
 var inputFilePath = options.file;
 var mappingFile = options.mapping;
+var assetsFile = options.assets;
 
 var mapping =  {};
 var mappingJson = {};
@@ -69,6 +72,7 @@ var startCol = {};
 var items = [];
 var resultMap = {};
 var errorMap = {};
+var assetsMap = {};
 var invalidCount = 0;
 var calls = 0;
 
@@ -79,26 +83,11 @@ var default_qlevel = 'MEDIUM';
  * Steps of execution
  */
 async.waterfall([
-	function(callback) {
-		cli.info("Reading mapping file");
-    	readMappings(callback);
-    },
-    function(arg1, callback) {
-    	cli.info("Reading items csv");
-    	importItems(callback);
-    },
-    function(arg1, callback) {
-    	if (options.dryrun) {
-    		console.log('----------------------------------------------------------------');
-    		cli.info("Dry Run - Printing results");
-    		printAssessmentItems(callback);
-    	}
-    	else {
-    		cli.info("Loading " + items.length + " items");
-    		createAssessmentItems(callback);
-    		callback(null, "ok")
-    	}
-    }
+	readMappings,
+	loadAssets,
+	importItems,
+	printAssessmentItems,
+	createAssessmentItems
 ], function (err, result) {
     if (err) {
 		cli.error('Error: ' + err);
@@ -113,6 +102,7 @@ async.waterfall([
  * Step 1 - Reads the mappings from mapping JSON file
  */
 function readMappings(callback) {
+	cli.info("Reading mapping file");
 	mapping = fs.readFileSync(mappingFile);
 	mappingJson = JSON.parse(mapping);
 
@@ -123,9 +113,46 @@ function readMappings(callback) {
 }
 
 /**
- * Step 2 - Parse the CSV to build item data for loading
+ * Step 2 - Reads the assets from csv file
  */
-function importItems(callback) {
+function loadAssets(arg1, callback) {
+	cli.info("Reading assets file");
+	csv()
+	.from.stream(fs.createReadStream(assetsFile))
+	.on('record', function(row, index) {
+		if (index > 0) {
+			var code = row[0];
+			var assetid = row[1];
+			var type = row[2];
+			var src = row[3];
+
+			if (!isEmpty(assetid)) {
+				if (!isEmpty(code)) {
+					var data = {};
+					data.code = code.trim();
+					data.assetid = assetid.trim();
+					data.src = src.trim();
+					data.type = type.trim();
+
+					assetsMap[code.trim()] = data;
+				}
+			}
+		}
+	})
+	.on('end', function(count){
+		callback(null, 'ok');
+	})
+	.on('error', function(error){
+		console.log('Assets csv error', error);
+		callback('concept csv error: ' + error);
+	});
+}
+
+/**
+ * Step 3 - Parse the CSV to build item data for loading
+ */
+function importItems(arg1, callback) {
+	cli.info("Reading items csv");
 	csv()
 	.from.stream(fs.createReadStream(inputFilePath))
 	.on('record', function(row, index) {
@@ -135,7 +162,7 @@ function importItems(callback) {
 			processItemRecord(row, item, index);
 		}
 	})
-	.on('end', function(count){
+	.on('end', function(count) {
 		var countBefore = items.length;
 		items = _.uniq(items, false, function(p){ return p.metadata.identifier;});
 		var countAfter = items.length;
@@ -151,54 +178,57 @@ function importItems(callback) {
 }
 
 /**
- * Step 3 - DRY RUN - Prints item data to console
+ * Step 4 - DRY RUN - Prints item data to console
  */
-function printAssessmentItems(callback) {
-	if (items.length > 0) {
-		var asyncFns = [];
-		items.forEach(function(item) {
-			var metadata = JSON.stringify(item.metadata);
-			console.log(metadata);
-		});
-	}
-}
+function printAssessmentItems(arg1, callback) {
+	if (options.dryrun) {
+		console.log('----------------------------------------------------------------');
 
-/**
- * Step 3 - Actual - Makes the API calls to load the item data
- */
-function createAssessmentItems(callback) {
-	if (items.length > 0) {
-		var asyncFns = [];
-
-
+		cli.info("Dry Run - Printing results");
 		console.log();
 
-		items.forEach(function(item) {
-			var metadata = item.metadata;
-			asyncFns.push(getMWAPICallfunction(item));
-		});
-		if (asyncFns.length > 0) {
-			async.parallelLimit(asyncFns,10,
-				function (err, result) {
-					if (err) {
-						callback(err);
-			    	} else {
-			    		callback(null, 'ok');
-			    	}
-			    	finished(result);
+		if (items.length > 0) {
+			var asyncFns = [];
+			items.forEach(function(item) {
+				var metadata = JSON.stringify(item.metadata);
+				console.log(metadata);
+				console.log();
 			});
-		} else {
-			callback(null, 'ok');
 		}
-	} else {
-		callback(null, 'ok');
 	}
+	callback(null, 'ok');
 }
 
 /**
- * Step 4 - Final summary - after all items are loaded, prints the summary
+ * Step 5 - Actual - Makes the API calls to load the item data
  */
-function finished(result) {
+function createAssessmentItems(arg1, callback) {
+	if (!options.dryrun) {
+		cli.info("Loading " + items.length + " items");
+		if (items.length > 0) {
+			var asyncFns = [];
+			console.log();
+
+			items.forEach(function(item) {
+				var metadata = item.metadata;
+				asyncFns.push(getMWAPICallfunction(item));
+			});
+
+			if (asyncFns.length > 0) {
+				async.parallelLimit(asyncFns,10,function() {
+					finished();
+				});
+			}
+		}
+	}
+
+	callback(null, 'ok');
+}
+
+/**
+ * Step 6 - Final summary - after all items are loaded, prints the summary
+ */
+function finished(arg1, result) {
 	console.log();
 
 	var successCount = 0;
@@ -229,7 +259,7 @@ function finished(result) {
 
 	console.log();
 	console.log('----------------------------------------------------------------');
-	if ((successCount > 0) && (errorCount == 0)) cli.ok('Completed! All items loaded successfully');
+	if (errorCount == 0) cli.ok('Completed! All items loaded/parsed successfully');
 	else cli.error('Completed! There were errors. See the logs above for error descriotions');
 	console.log('----------------------------------------------------------------');
 	console.log();
@@ -246,6 +276,7 @@ function processItemRecord(row, item, index) {
 	// Default fields
 	item['rownum'] = index;
 	item['portalOwner'] = options.user;
+	//item['owner'] = options.user;
 	item['language'] =  [item['language']];
 	item['name'] = item['title']; // name is same as title
 	item['gradeLevel'] =  [item['gradeLevel']]; // value of grade level is an array
@@ -300,11 +331,35 @@ function validateQuestion(item) {
 	if (!item.template) return 'Missing template name';
 	if (!item.template_id) return 'Missing template id';
 
-	var media = item.media;
-	media = _.reject(media, function(m) {return m.asset_id == null});
-	item.media = media;
+	if (!processAssets(item)) return 'Missing assets';
 
 	return 'OK';
+}
+
+/**
+ * Prepares the assets before loading the item
+ */
+function processAssets(item) {
+	var media = item.media;
+	var success = true;
+
+	// Set the src from assets map
+	_.each(media, function(m, index) {
+		if (m.id) {
+			var mobj = assetsMap[m.id];
+			if (typeof mobj != 'undefined') {
+				m.src = mobj.src;
+				m.asset_id = mobj.assetid;
+			} else {
+				success = false;
+			}
+		}
+    });
+
+	// src is a must have
+    media = _.reject(media, function(m) {return m.src == null});
+	item.media = media;
+	return success;
 }
 
 /**
