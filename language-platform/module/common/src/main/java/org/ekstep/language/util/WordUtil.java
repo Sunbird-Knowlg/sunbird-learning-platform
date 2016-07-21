@@ -1588,11 +1588,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
 			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
 			Map<String, Object> metaData = EnglishvarnaNode.getMetadata();
-			String ipaSymbol = (String) metaData.get(GraphDACParams.isoSymbol.name());
-			Property ipaSymbolProp = new Property(GraphDACParams.isoSymbol.name(), ipaSymbol);
+			String isoSymbol = (String) metaData.get(GraphDACParams.isoSymbol.name());
+			Property isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), isoSymbol);
 			String type = (String) metaData.get(GraphDACParams.type.name());
 
-			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, ipaSymbolProp);
+			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
 			if (LanguageVarnaNode != null) {
 				String unicode = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
 				String langageVarnaType = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
