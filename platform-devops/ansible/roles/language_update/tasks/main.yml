@@ -1,21 +1,21 @@
 ---
 # tasks file for language_update
 - name: run env
-  shell: sh language_script.sh en
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script/language_script.sh en
   tags:
        - en
 
 - name: run env
-  shell: sh language_script.sh hi
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script/language_script.sh hi
   tags:
        - hi
 
 - name: run env
-  shell: sh language_script.sh ka
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script/language_script.sh ka
   tags:
        - ka
 
 - name: run env
-  shell: sh language_script.sh te
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script/language_script.sh te
   tags:
        - te
