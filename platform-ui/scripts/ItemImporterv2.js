@@ -36,7 +36,7 @@ var options = cli.parse({
     env:      ['e', 'Environment', 'string', 'prod'],
     file:     ['f', 'Items csv file to process', 'file'],
     mapping:  ['m', 'Mapping json file', 'file', 'itemImport/mcq_mapping_v2.json'],
-    assets:   ['a', 'Assets csv', 'file'],
+    assets:   ['a', 'Assets csv', 'string'],
 });
 
 if ((!options.file) || (!options.env) || (!options.user)) {
@@ -46,7 +46,7 @@ if ((!options.file) || (!options.env) || (!options.user)) {
 
 console.log();
 console.log('----------------------------------------------------------------');
-console.log("             Item Importer v2.0               ");
+console.log("             Item Importer v2.1                                 ");
 console.log('----------------------------------------------------------------');
 console.log();
 
@@ -117,35 +117,41 @@ function readMappings(callback) {
  */
 function loadAssets(arg1, callback) {
 	cli.info("Reading assets file");
-	csv()
-	.from.stream(fs.createReadStream(assetsFile))
-	.on('record', function(row, index) {
-		if (index > 0) {
-			var code = row[0];
-			var assetid = row[1];
-			var type = row[2];
-			var src = row[3];
 
-			if (!isEmpty(assetid)) {
-				if (!isEmpty(code)) {
-					var data = {};
-					data.code = code.trim();
-					data.assetid = assetid.trim();
-					data.src = src.trim();
-					data.type = type.trim();
+	if (assetsFile) {
+		csv()
+		.from.stream(fs.createReadStream(assetsFile))
+		.on('record', function(row, index) {
+			if (index > 0) {
+				var code = row[0];
+				var assetid = row[1];
+				var type = row[2];
+				var src = row[3];
 
-					assetsMap[code.trim()] = data;
+				if (!isEmpty(assetid)) {
+					if (!isEmpty(code)) {
+						var data = {};
+						data.code = code.trim();
+						data.assetid = assetid.trim();
+						data.src = src.trim();
+						data.type = type.trim();
+
+						assetsMap[code.trim()] = data;
+					}
 				}
 			}
-		}
-	})
-	.on('end', function(count){
+		})
+		.on('end', function(count){
+			callback(null, 'ok');
+		})
+		.on('error', function(error){
+			console.log('Assets csv error', error);
+			callback('concept csv error: ' + error);
+		});
+	}
+	else {
 		callback(null, 'ok');
-	})
-	.on('error', function(error){
-		console.log('Assets csv error', error);
-		callback('concept csv error: ' + error);
-	});
+	}
 }
 
 /**
@@ -289,8 +295,7 @@ function processItemRecord(row, item, index) {
 	}
 
 	if (item['type'] == 'ftb') {
-		// TODO: Below code added to handle the no of answer issue since in CSV the 'num_answers' is not equals to no. of answers
-		item['num_answers'] = getNumberOfKeys(item['answer']);
+		processAnswers(item);
 	}
 	else if (item['type'] == 'mcq') {
 		// De-dup and Shuffle options before loading
@@ -322,9 +327,13 @@ function validateQuestion(item) {
 		if (item.options.length < 2) return 'Too few options';
 	}
 	else if (item['type'] == 'mtf') {
-		if (item.lhs_options.length < 2) return 'Too few options';
+		if (item.lhs_options.length < 1) return 'Too few options';
 		if (item.rhs_options.length < 2) return 'Too few options';
 	}
+	else if (item['type'] == 'ftb') {
+		if (item.num_answers < 1) return 'Too few answers';
+	}
+	else return 'Invalid item type'
 
 	if (!item.code) return 'Missing code';
 	if (!item.title) return 'Missing title';
@@ -369,12 +378,37 @@ function processOptions(options, shuffle) {
 	_.each(options, function(option, index) {
 		if (typeof option.value.text != 'undefined') option.value.asset = option.value.text;
 		else if (typeof option.value.image != 'undefined') option.value.asset = option.value.image;
+		option.value.index = index;
     });
 
     options = _.uniq(options, false, function(p){ return p.value.asset;});
     options = _.reject(options, function(p) {return p.value.asset == null}); // reject all blank options
     if (shuffle) options = _.shuffle(options);
+
+    // TODO - Validate that MCQ has at-least one correct answer
+    // TODO - Validate that MTF has all answers within LHS indices (no invalid index)
     return options;
+}
+
+/**
+ * Processes the FTB answers and removes any answers that are null (CSV may have more blanks)
+ */
+function processAnswers(item) {
+    var count = 0;
+    var answer = {};
+
+    console.log(item.answers);
+
+    _.each(item.answers, function(ans, index) {
+		if (typeof ans != 'undefined') {
+			answer['ans' + (index + 1)] = ans.trim();
+			count++;
+		}
+    });
+
+    item['num_answers'] = count;
+    item['answer'] = answer;
+    delete item.answers;
 }
 
 // ################################################################################################
