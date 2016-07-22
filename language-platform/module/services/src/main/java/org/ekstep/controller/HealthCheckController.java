@@ -1,9 +1,5 @@
 package org.ekstep.controller;
 
-import java.util.List;
-import java.util.Map;
-
-import org.ekstep.manager.IHealthCheckManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -17,13 +13,14 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
+import com.ilimi.common.mgr.HealthCheckManager;
 
 @Controller
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
 	
 	@Autowired
-	IHealthCheckManager healthCheckManager;
+	HealthCheckManager healthCheckManager;
 	
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
