@@ -1,6 +1,5 @@
 package com.ilimi.taxonomy.content.operation.initializer;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +25,8 @@ public class BundleInitializer extends BaseInitializer {
 	
 	protected String basePath;
 	protected String contentId;
+	
+	private static final String ECML_MIME_TYPE = "application/vnd.ekstep.ecml-archive";
 
 	public BundleInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -44,7 +45,6 @@ public class BundleInitializer extends BaseInitializer {
 		LOGGER.info("Fetching the Parameters From BundleInitializer.");
 		List<Node> nodes = (List<Node>) parameterMap.get(ContentWorkflowPipelineParams.nodes.name());
 		List<Map<String, Object>> contents = (List<Map<String, Object>>) parameterMap.get(ContentWorkflowPipelineParams.Contents.name());
-		Boolean ecmlContent = (Boolean) parameterMap.get(ContentWorkflowPipelineParams.ecmlType.name());
 		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
 		
@@ -52,13 +52,16 @@ public class BundleInitializer extends BaseInitializer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_OP_INIT_PARAM + " | [Invalid or null Node List.]");
 		
-		ecmlContent = (null == ecmlContent) ? false : ecmlContent;
-		
 		LOGGER.info("Total Content To Bundle: " + nodes.size());
 		
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for(Node node: nodes) {
 			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			
+			Boolean ecmlContent = StringUtils.equalsIgnoreCase(ECML_MIME_TYPE, (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
+			ecmlContent = (null == ecmlContent) ? false : ecmlContent;
+			
+			LOGGER.info("Is ECML Mime-Type? " + ecmlContent);
 			
 			LOGGER.info("Processing Content Id: " + node.getIdentifier());
 			
@@ -83,14 +86,14 @@ public class BundleInitializer extends BaseInitializer {
 			}
 			nodeMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
 			nodeMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
-			nodeMap.put(ContentWorkflowPipelineParams.basePath.name(), new File(basePath));
+			nodeMap.put(ContentWorkflowPipelineParams.basePath.name(), basePath);
 			nodeMap.put(ContentWorkflowPipelineParams.node.name(), node);
 			nodeMap.put(ContentWorkflowPipelineParams.ecmlType.name(), 
 					getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
 			bundleMap.put(contentId, nodeMap);
 		}
 		
-		// Call Finalyzer
+		// Call Finalizer
 		FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 		Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleMap.name(), bundleMap);

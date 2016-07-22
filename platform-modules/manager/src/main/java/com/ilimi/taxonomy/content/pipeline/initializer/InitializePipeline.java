@@ -19,6 +19,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.operation.initializer.BundleInitializer;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 import com.ilimi.taxonomy.content.pipeline.finalizer.FinalizePipeline;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
@@ -118,6 +119,13 @@ public class InitializePipeline extends BasePipeline {
 						getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
 				finalizeParamMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
 				response = finalize.finalyze(operation, finalizeParamMap);
+			}
+				break;
+				
+			case "bundle":
+			case "BUNDLE": {
+				BundleInitializer bundleInitializer = new BundleInitializer(basePath, contentId);  
+				response = bundleInitializer.initialize(parameterMap);
 			}
 				break;
 

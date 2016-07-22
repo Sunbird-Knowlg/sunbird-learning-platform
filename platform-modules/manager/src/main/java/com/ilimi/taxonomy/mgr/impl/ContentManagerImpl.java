@@ -47,19 +47,19 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
+import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.ContentBundle;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
-	@Autowired
-	private ContentBundle contentBundle;
+//	@Autowired
+//	private ContentBundle contentBundle;
 
 	@Autowired
 	private ContentMimeTypeFactory contentFactory;
@@ -82,7 +82,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	private static final String bucketName = "ekstep-public";
 	private static final String folderName = "content";
-	private static final String ecarFolderName = "ecar_files";
+//	private static final String ecarFolderName = "ecar_files";
 	private static final String tempFileLocation = "/data/contentBundle/";
 
 	protected static final String URL_FIELD = "URL";
@@ -386,11 +386,19 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 						"One or more of the input content identifier are not found");
 			}
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
-			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
-			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"
-					+ ecarFolderName + "/" + fileName;
-			String returnKey = ContentAPIParams.bundle.name();
-			listRes.put(returnKey, url);
+			// by-Pass to CWP
+			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
+			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
+			parameterMap.put(ContentAPIParams.Contents.name(), ctnts);
+			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			listRes.put(ContentAPIParams.bundle.name(), pipeline.init(ContentAPIParams.bundle.name(), parameterMap));
+//			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
+//			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"
+//					+ ecarFolderName + "/" + fileName;
+//			String returnKey = ContentAPIParams.bundle.name();
+//			listRes.put(returnKey, url);
 			return listRes;
 		}
 	}

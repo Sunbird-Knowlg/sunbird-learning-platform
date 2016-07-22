@@ -36,6 +36,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.operation.finalizer.BundleFinalizer;
 import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
@@ -74,11 +75,20 @@ public class FinalizePipeline extends BasePipeline {
 						response = finalizeUpload(parameterMap);
 					}
 					break;
+					
 				case "publish":
 				case "PUBLISH": {
 						response = finalizePublish(parameterMap);
 					}
 					break;
+					
+				case "bundle":
+				case "BUNDLE": {
+						BundleFinalizer bundleFinalizer = new BundleFinalizer(basePath, contentId);
+						response = bundleFinalizer.finalize(parameterMap);
+					}
+					break;
+					
 				default:
 					break;
 			}

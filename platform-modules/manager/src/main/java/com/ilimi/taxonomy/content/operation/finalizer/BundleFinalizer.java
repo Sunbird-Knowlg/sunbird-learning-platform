@@ -45,9 +45,9 @@ public class BundleFinalizer extends BaseFinalizer {
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		Map<String, Object> bundleMap = (Map<String, Object>) parameterMap.get(ContentWorkflowPipelineParams.bundleMap.name());
-		List<Map<String, Object>> contents = (List<Map<String, Object>>) bundleMap.get(ContentWorkflowPipelineParams.Contents.name());
-		String bundleFileName = (String) bundleMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
-		String manifestVersion = (String) bundleMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
+		List<Map<String, Object>> contents = (List<Map<String, Object>>) parameterMap.get(ContentWorkflowPipelineParams.Contents.name());
+		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
+		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
 		
 		if (StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -75,8 +75,8 @@ public class BundleFinalizer extends BaseFinalizer {
 			Plugin ecrf = (Plugin) nodeMap.get(ContentWorkflowPipelineParams.ecrf.name());
 			Node node = (Node) nodeMap.get(ContentWorkflowPipelineParams.node.name());
 			boolean isCompressionApplied = (boolean) nodeMap.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
-			File path = (File) nodeMap.get(ContentWorkflowPipelineParams.basePath.name());
-			String ecmlType = (String) nodeMap.get(ContentWorkflowPipelineParams.ecml.name());
+			String path = (String) nodeMap.get(ContentWorkflowPipelineParams.basePath.name());
+			String ecmlType = (String) nodeMap.get(ContentWorkflowPipelineParams.ecmlType.name());
 			
 			if (null == ecrf)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -85,7 +85,7 @@ public class BundleFinalizer extends BaseFinalizer {
 			if (null == node)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Invalid or null Node.]");
-			if (null == path || path.exists())
+			if (null == path || !isValidBasePath(path))
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Path does not Exist.]");
 			if (StringUtils.isBlank(ecmlType))
@@ -93,7 +93,7 @@ public class BundleFinalizer extends BaseFinalizer {
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Invalid ECML Type.]");
 			
 			// Setting Attribute Value
-			this.basePath = path.getAbsolutePath();
+			this.basePath = path;
 			this.contentId = node.getIdentifier();
 			LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 			
@@ -124,7 +124,7 @@ public class BundleFinalizer extends BaseFinalizer {
 		}
 		
 		// Create Manifest JSON File
-		File manifestFile = new File(basePath + File.separator + ContentWorkflowPipelineParams.manifest.name() + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
+		File manifestFile = new File(basePath + File.separator + ContentWorkflowPipelineParams.manifest.name() + File.separator +  ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
 		createManifestFile(manifestFile, manifestVersion, contents);
 		zipPackages.add(manifestFile);
 		
