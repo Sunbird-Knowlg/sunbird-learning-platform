@@ -75,7 +75,7 @@ public class XMLContentParser {
 	
 	private Plugin processContentDocument(Element root) {
 		Plugin plugin = new Plugin();
-		if (null != root && root.hasChildNodes()) {
+		if (null != root) {
 			plugin.setId(getId(root));
 			plugin.setData(getDataMap(root));
 			plugin.setcData(getCData(root));
