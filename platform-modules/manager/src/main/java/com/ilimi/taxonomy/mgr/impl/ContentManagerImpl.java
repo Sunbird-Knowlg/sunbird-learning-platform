@@ -359,8 +359,8 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			return response;
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
-			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-			List<String> childrenIds = new ArrayList<String>();
+//			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
+//			List<String> childrenIds = new ArrayList<String>();
 			List<Node> nodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
 				for (Object obj : list) {
@@ -370,40 +370,51 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				}
 			}
 			// Tune Each node for bundling as per mimetype
-			int i = 0;
-			for (Node node : nodes) {
-				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-				if (StringUtils.isBlank(mimeType)) {
-					mimeType = "assets";
-				}
-				nodes.set(i, contentFactory.getImplForService(mimeType).tuneInputForBundling(node));
-				i++;
-			}
+//			int i = 0;
+//			for (Node node : nodes) {
+//				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
+//				if (StringUtils.isBlank(mimeType)) {
+//					mimeType = "assets";
+//				}
+//				nodes.set(i, contentFactory.getImplForService(mimeType).tuneInputForBundling(node));
+//				i++;
+//			}
 			
-			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-			if (ctnts.size() < contentIds.size()) {
-				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-						"One or more of the input content identifier are not found");
-			}
+//			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
+//			if (ctnts.size() < contentIds.size()) {
+//				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
+//						"One or more of the input content identifier are not found");
+//			}
+			
+			// Marking Content Visibility as Parent
+//			for (Map<String, Object> content : ctnts) {
+//	            String identifier = (String) content.get("identifier");
+//	            if (childrenIds.contains(identifier))
+//	                content.put(ContentAPIParams.visibility.name(), ContentAPIParams.Parent.name());
+//			}
+			
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
 			// by-Pass to CWP
 			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
 			Map<String, Object> parameterMap = new HashMap<String, Object>();
 			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
-			parameterMap.put(ContentAPIParams.Contents.name(), ctnts);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
+			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
 			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			
 			listRes.put(ContentAPIParams.bundle.name(), pipeline.init(ContentAPIParams.bundle.name(), parameterMap));
+			
 //			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
 //			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"
 //					+ ecarFolderName + "/" + fileName;
 //			String returnKey = ContentAPIParams.bundle.name();
 //			listRes.put(returnKey, url);
+			
 			return listRes;
 		}
 	}
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "unused" })
 	private void getContentBundleData(String taxonomyId, List<Node> nodes,
 			List<Map<String, Object>> ctnts, List<String> childrenIds) {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();

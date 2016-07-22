@@ -115,16 +115,16 @@ public class InitializePipeline extends BasePipeline {
 				Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 				finalizeParamMap.put(ContentWorkflowPipelineParams.node.name(), node);
 				finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
-				finalizeParamMap.put(ContentWorkflowPipelineParams.ecmlType.name(), 
+				finalizeParamMap.put(ContentWorkflowPipelineParams.ecmlType.name(),
 						getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
 				finalizeParamMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
 				response = finalize.finalyze(operation, finalizeParamMap);
 			}
 				break;
-				
+
 			case "bundle":
 			case "BUNDLE": {
-				BundleInitializer bundleInitializer = new BundleInitializer(basePath, contentId);  
+				BundleInitializer bundleInitializer = new BundleInitializer(basePath, contentId);
 				response = bundleInitializer.initialize(parameterMap);
 			}
 				break;
@@ -150,7 +150,7 @@ public class InitializePipeline extends BasePipeline {
 		}
 		return plugin;
 	}
-	
+
 	private String getECMLType() {
 		String type = "";
 		if (new File(basePath + File.separator + JSON_ECML_FILE_NAME).exists())
@@ -160,7 +160,7 @@ public class InitializePipeline extends BasePipeline {
 		LOGGER.info("ECML Type: " + type);
 		return type;
 	}
-	
+
 	private void extractContentPackage(File file) {
 		try {
 			UnzipUtility util = new UnzipUtility();
@@ -170,7 +170,7 @@ public class InitializePipeline extends BasePipeline {
 					ContentErrorMessageConstants.ZIP_EXTRACTION_ERROR + " | [ZIP Extraction Failed.]");
 		}
 	}
-	
+
 	public String getFileString() {
 		String fileString = "";
 		File jsonECMLFile = new File(basePath + File.separator + JSON_ECML_FILE_NAME);

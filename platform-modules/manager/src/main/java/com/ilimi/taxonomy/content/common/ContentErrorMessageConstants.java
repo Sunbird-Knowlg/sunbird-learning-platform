@@ -106,6 +106,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String BUNDLE_FILE_WRITE_ERROR = "Error! While writing Bundle File.";
 	
+	public static final String MISSING_BUNDLE_CONTENT = "Error! Missing One or More Content for Bundling.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}
