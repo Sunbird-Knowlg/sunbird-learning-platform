@@ -73,8 +73,10 @@ public class ElasticSearchUtil {
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
 				.connTimeout(CONNECTION_TIMEOUT).build());
+		System.out.println("hostname:" + hostName + "port:" + port);
 		client = factory.getObject();
 	}
+
 
 	public void initialize() {
 		hostName = PropertiesUtil.getProperty("elastic-search-host");

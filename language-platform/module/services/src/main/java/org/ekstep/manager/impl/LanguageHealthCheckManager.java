@@ -42,6 +42,14 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 		        executor.execute(futureTask_graphs);
 			}
 		}
+        FutureTask<Map<String, Object>> futureTask_MySql = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
+		@Override
+		public Map<String, Object> call() {
+            return HealthCheckUtil.checkMySql();
+        }
+        });
+        taskList.add(futureTask_MySql);
+        executor.execute(futureTask_MySql);
 
 		FutureTask<Map<String, Object>> futureTask_Redis = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
             @Override

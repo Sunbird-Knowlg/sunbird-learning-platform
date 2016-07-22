@@ -34,12 +34,7 @@ public class HealthCheckController extends BaseController {
 		boolean index = false;
 		try {
 			index = es.isIndexExists("compositesearch");
-		} catch (IOException e2) {
-			e2.printStackTrace();
-		}
-		try {
 			if (index == true) {
-
 				response.put("name", name);
 				response.put("healthy", true);
 				params.setErr("0");
@@ -51,10 +46,8 @@ public class HealthCheckController extends BaseController {
 				esCheck.put("name", "ElasticSearch");
 				esCheck.put("healthy", true);
 				checks.add(esCheck);
-				response.put("checks", checks);
-				return getResponseEntity(response, apiId, null);
+				response.put("checks", checks);	
 			}
-			return getResponseEntity(response, apiId, null);
 			} catch (Exception e) {
 				ResponseParams resStatus = new ResponseParams();
 				resStatus.setErrmsg(e.getMessage());
@@ -64,6 +57,7 @@ public class HealthCheckController extends BaseController {
 				response.put("healthy", false);
 				return getResponseEntity(response, apiId, null);
 			}
+		return getResponseEntity(response, apiId, null);
 		}
 		
 	}
