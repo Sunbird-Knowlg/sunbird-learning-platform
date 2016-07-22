@@ -126,11 +126,25 @@ public class BundleFinalizer extends BaseFinalizer {
 				createZipPackage(basePath, zipFileName);
 				zipPackages.add(new File(zipFileName));
 
-				// Upload 'ZIP' Package to S3
-
-				// Set the 'artiofactUrl'
-
+				// Upload Package
+				File packageFile = new File(zipFileName);
+				if (packageFile.exists()) {
+					// Upload to S3
+					String[] urlArray = uploadToAWS(packageFile, getUploadFolderName());
+					if (null != urlArray && urlArray.length >= 2) {
+						String artifactUrl = urlArray[IDX_S3_URL];
+						
+						// Set artifact file For Node
+						if (StringUtils.isBlank(artifactUrl))
+							node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
+					}
+				}
+				
 				// Update Content Node
+				Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
+				newNode.setGraphId(node.getGraphId());
+				newNode.setMetadata(node.getMetadata());
+				response = updateNode(newNode);
 			} else {
 				// Download From 'artifactUrl'
 				String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
