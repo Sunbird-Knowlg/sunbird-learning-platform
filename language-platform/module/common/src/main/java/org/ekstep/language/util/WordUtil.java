@@ -1625,6 +1625,56 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return getTextFromUnicode(unicodes);
 	}
 
+	public String getPhoneticSpellingByLanguage2(String languageId, String word) {
+
+		String arpabets = getArpabets(word);
+		if (StringUtils.isEmpty(arpabets))
+			return "";
+
+		String arpabetArr[] = arpabets.split("\\s");
+		int itr = 0;
+		List<String> unicodes = new ArrayList<String>();
+		int arpabetsCount = arpabetArr.length;
+		for (String arpabet : arpabetArr) {
+			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
+			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
+			Map<String, Object> metaData = EnglishvarnaNode.getMetadata();
+			String isoSymbol = (String) metaData.get(GraphDACParams.isoSymbol.name());
+			Property isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), isoSymbol);
+			String type = (String) metaData.get(GraphDACParams.type.name());
+
+			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
+			if (LanguageVarnaNode != null) {
+				String unicode = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+				String langageVarnaType = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
+				if (type.equalsIgnoreCase("Vowel") && itr != 0 && langageVarnaType.equalsIgnoreCase("Vowel")) {
+					// get vowelSign unicode
+					Relation associatedTo = (Relation) LanguageVarnaNode.getInRelations().get(0);
+					if (associatedTo != null) {
+						Map<String, Object> vowelSignMetaData = associatedTo.getStartNodeMetadata();
+						unicode = (String) vowelSignMetaData.get(GraphDACParams.unicode.name());
+					}
+				}
+				unicodes.add(unicode);
+
+				if (arpabetsCount == itr + 1) {
+					// check last character is consonant
+					if (!langageVarnaType.equalsIgnoreCase("Vowel")) {
+						// Get virama and append to the unicode list
+						Property viramaProperty = new Property(GraphDACParams.type.name(), "Virama");
+						Node viramaVarnaNode = getVarnaNodeByProperty(languageId, viramaProperty);
+						if (viramaVarnaNode != null) {
+							unicode = (String) viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+							unicodes.add(unicode);
+						}
+					}
+				}
+			}
+			itr++;
+		}
+
+		return getTextFromUnicode(unicodes);
+	}
 	private String getTextFromUnicode(List<String> unicodes) {
 
 		String text = "";
