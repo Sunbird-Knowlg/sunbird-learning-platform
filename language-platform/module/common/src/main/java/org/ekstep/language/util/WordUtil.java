@@ -1610,14 +1610,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		boolean start_of_syllable = true;
 		for (String arpabet : arpabetArr) {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
-			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
-			String isoSymbol = (String) EnglishvarnaNode.getMetadata().get(GraphDACParams.isoSymbol.name());
+			Node enVarnaNode = getVarnaNodeByProperty("en", arpabetProp);
+			String isoSymbol = (String) enVarnaNode.getMetadata().get(GraphDACParams.isoSymbol.name());
 			//String type = (String) EnglishvarnaNode.getMetadata().get(GraphDACParams.type.name());
 			Property isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), isoSymbol);
 			List<Node> varnas = new ArrayList<Node>();
-			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
-			if(LanguageVarnaNode == null){
-				String altIsoSymbol = (String) EnglishvarnaNode.getMetadata().get(GraphDACParams.altIsoSymbol.name());
+			Node languageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
+			if(languageVarnaNode == null){
+				String altIsoSymbol = (String) enVarnaNode.getMetadata().get(GraphDACParams.altIsoSymbol.name());
 				if(altIsoSymbol.contains("+")){
 					String isoSymbols[] = altIsoSymbol.split("\\+");
 					for(String iso : isoSymbols){
@@ -1629,7 +1629,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					varnas.add(getVarnaNodeByProperty(languageId, isoSymbolProp));
 				}	
 			} else{
-				varnas.add(LanguageVarnaNode);
+				varnas.add(languageVarnaNode);
 			}
 			
 			for(Node varna : varnas){
