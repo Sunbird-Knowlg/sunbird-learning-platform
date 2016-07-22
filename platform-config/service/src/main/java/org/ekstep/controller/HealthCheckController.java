@@ -19,7 +19,7 @@ public class HealthCheckController extends BaseController {
 	private static final String folderName = "resources";
 	private static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
 
-	@RequestMapping(value = "/config", method = RequestMethod.GET)
+	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		Response response = new Response();
