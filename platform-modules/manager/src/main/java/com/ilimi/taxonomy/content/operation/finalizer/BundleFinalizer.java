@@ -144,7 +144,7 @@ public class BundleFinalizer extends BaseFinalizer {
 				Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 				newNode.setGraphId(node.getGraphId());
 				newNode.setMetadata(node.getMetadata());
-				response = updateNode(newNode);
+				updateNode(newNode);
 			} else {
 				// Download From 'artifactUrl'
 				String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
