@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
@@ -18,6 +20,7 @@ import com.ilimi.util.LearningHealthCheckUtil;
 @Component
 public class LearningHealthCheckManager extends HealthCheckManager {
 
+	private static Logger LOGGER = LogManager.getLogger(LearningHealthCheckManager.class.getName());
 	private static final int MAX_THREAD_NUM = 10;
 	
 	@Override
@@ -33,7 +36,7 @@ public class LearningHealthCheckManager extends HealthCheckManager {
 				futureTask_graphs = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
 		            @Override
 		            public Map<String, Object> call() {
-		                return LearningHealthCheckUtil.checkNeo4jGraph(id);
+		                return checkGraphHealth(id, LOGGER);
 		            }
 		        });
 		        taskList.add(futureTask_graphs);

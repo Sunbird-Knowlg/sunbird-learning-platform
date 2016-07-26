@@ -9,6 +9,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.FutureTask;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.util.LanguageHealthCheckUtil;
 import org.springframework.stereotype.Component;
 
@@ -19,6 +22,7 @@ import com.ilimi.graph.common.mgr.Configuration;
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
 
+    private static Logger LOGGER = LogManager.getLogger(LanguageHealthCheckManager.class.getName());
 	private static final int MAX_THREAD_NUM = 10;
 	
 	@Override
@@ -35,7 +39,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 				futureTask_graphs = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
 		            @Override
 		            public Map<String, Object> call() {
-		                return LanguageHealthCheckUtil.checkNeo4jGraph(id);
+		                return checkGraphHealth(id, LOGGER);
 		            }
 		        });
 		        taskList.add(futureTask_graphs);

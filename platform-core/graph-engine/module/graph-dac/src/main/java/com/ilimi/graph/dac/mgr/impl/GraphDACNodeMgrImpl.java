@@ -25,6 +25,7 @@ import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.common.mgr.BaseGraphManager;
 import com.ilimi.graph.dac.enums.AuditProperties;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.mgr.IGraphDACNodeMgr;
@@ -385,5 +386,40 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             }
         }
     }
+    
+	public void upsertRootNode(Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        
+        if (null == graphId || StringUtils.isBlank(graphId))
+            throw new ClientException(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
+        else{
+            Transaction tx = null;
+            try {
+                GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
+                Node rootNode = null;
+
+    			String rootNodeUniqueId = Identifier.getIdentifier(graphId, SystemNodeTypes.ROOT_NODE.name());
+    			try{
+        			rootNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, rootNodeUniqueId);
+    			} catch (ResourceNotFoundException e) {
+                    tx = graphDb.beginTx();
+        			rootNode = graphDb.createNode(NODE_LABEL);
+        			rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
+        			rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());    				
+        			rootNode.setProperty(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
+                    tx.success();
+                }    			
+//    			rootNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+    			OK(getSender());
+            } catch (Exception e) {
+                if (null != tx)
+                    tx.failure();
+                ERROR(e, getSender());
+            } finally {
+                if (null != tx)
+                    tx.close();
+            }
+        }
+	}
 
 }
