@@ -1,7 +1,7 @@
 ---
 # tasks file for language_update
 - name: copy template
-  template: src=language_script.j2 dest=/home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script.sh
+  template: src=language_script.j2 dest=/home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/language_script.sh
 
 - name: run env
   shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/language_script.sh en
