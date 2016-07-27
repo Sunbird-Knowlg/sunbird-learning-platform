@@ -4,6 +4,7 @@
 [local]
 localhost ansible_connection=local
 
+
 [local:vars]
 service_url = dev.ekstep.in/api
 
@@ -24,7 +25,6 @@ language_index_host = localhost
 language_index_port = 9200
 mongo_host = 127.0.0.1
 mongo_port = 27017
-
 tomcat_init_mem = -Xms512m
 tomcat_max_mem = -Xmx2048m
 tomcat_perm_size = -XX:MaxPermSize=256M

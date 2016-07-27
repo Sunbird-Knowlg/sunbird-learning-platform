@@ -1,5 +1,4 @@
-- hosts: all
-  become: yes
+- hosts: local
   roles:
         - language_update
 
