@@ -9,7 +9,7 @@
 
 - name: permissions print
   become: yes
-  file: src=roles/definition_update/files/definition_script.sh mode=755
+  file: path=roles/definition_update/files/definition_script.sh mode=755
 
 - name: copy definition_script
   become: yes
