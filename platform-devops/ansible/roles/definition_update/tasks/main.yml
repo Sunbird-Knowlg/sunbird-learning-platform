@@ -7,9 +7,5 @@
 - name: print 
   debug: msg="{{ check.stdout }}"
 
-- name: copy definition_script
-  become: yes
-  template: src=definition_script.j2 dest=/home/ec2-user/definition_script.sh
-
 - name: run script
-  script: /home/ec2-user/definition_script.sh
+  shell: roles/definiton_update/files/definition_script.sh

@@ -1,6 +1,12 @@
 [all]
 54.179.153.127 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
 
+[local]
+localhost ansible_connection=local
+
+[local:vars]
+service_url = qa.ekstep.in/api
+
 
 [all:vars]
 service_url = qa.ekstep.in/api
