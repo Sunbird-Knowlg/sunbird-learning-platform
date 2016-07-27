@@ -7,5 +7,8 @@
 - name: print 
   debug: msg="{{ check.stdout }}"
 
+- name: permission
+  file: path=/home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script.sh mode=777 owner=jenkins group=jenkins
+
 - name: run script
-  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/roles/definiton_update/files/definition_script.sh
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/scripts/definition_script.sh
