@@ -7,10 +7,6 @@
 - name: print 
   debug: msg="{{ check.stdout }}"
 
-- name: permissions print
-  become: yes
-  file: path=roles/definition_update/files/definition_script.sh mode=755
-
 - name: copy definition_script
   become: yes
   template: src=definition_script.j2 dest=/home/ec2-user/definition_script.sh
