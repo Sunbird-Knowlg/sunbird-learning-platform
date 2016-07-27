@@ -35,6 +35,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
 @Component
@@ -97,6 +98,10 @@ public class ContentBundle {
             Object posterImage = content.get("posterImage");
             if (null != posterImage && StringUtils.isNotBlank(posterImage.toString()))
             	content.put("appIcon", posterImage);
+            Object objectType = content.get("objectType");
+            if(null!= objectType && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), objectType.toString())){
+            	content.put("visibility", null);
+            }
         }
         String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
         List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);

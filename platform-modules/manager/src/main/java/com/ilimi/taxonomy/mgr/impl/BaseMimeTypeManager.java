@@ -43,6 +43,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
@@ -54,7 +55,7 @@ public class BaseMimeTypeManager extends BaseManager {
 
     @Autowired
     private ContentBundle contentBundle;
-
+    
     private static final String tempFileLocation = "/data/contentBundle/";
     private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
 
@@ -321,7 +322,7 @@ public class BaseMimeTypeManager extends BaseManager {
         } catch (Exception e) {
             throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
         } finally {
-            deleteTemp(tempFolder);
+        	deleteTemp(tempFolder);
         }
         return response;
     }
@@ -424,6 +425,7 @@ public class BaseMimeTypeManager extends BaseManager {
                 List<String> searchIds = new ArrayList<String>();
                 if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
                     List<NodeDTO> children = new ArrayList<NodeDTO>();
+                    List<NodeDTO> preRequisites = new ArrayList<NodeDTO>();
                     for (Relation rel : node.getOutRelations()) {
                         if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
                                 rel.getRelationType())
@@ -434,11 +436,25 @@ public class BaseMimeTypeManager extends BaseManager {
                             }
                             children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel.getEndNodeObjectType(),
                                     rel.getRelationType(), rel.getMetadata()));
-                        }
+                        }else if (StringUtils.equalsIgnoreCase(
+								RelationTypes.PRE_REQUISITE.relationName(),
+								rel.getRelationType()) && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), rel.getEndNodeObjectType())) 
+						{
+							childrenIds.add(rel.getEndNodeId());
+							if (!nodeMap.containsKey(rel.getEndNodeId())) {
+                                searchIds.add(rel.getEndNodeId());
+                            }
+							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel
+									.getEndNodeObjectType(), rel.getRelationType(), rel
+									.getMetadata()));
+						}
                     }
                     if (!children.isEmpty()) {
                         metadata.put("children", children);
                     }
+                    if (!preRequisites.isEmpty()) {
+						metadata.put(ContentWorkflowPipelineParams.pre_requisites.name(), preRequisites);
+					}
                 }
                 ctnts.add(metadata);
                 if (!searchIds.isEmpty()) {

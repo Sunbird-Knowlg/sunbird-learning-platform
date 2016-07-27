@@ -47,6 +47,7 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
@@ -415,6 +416,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					metadata.put("tags", node.getTags());
 				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();
+					List<NodeDTO> preRequisites = new ArrayList<NodeDTO>();
 					for (Relation rel : node.getOutRelations()) {
 						if (StringUtils.equalsIgnoreCase(
 								RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
@@ -425,10 +427,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel
 									.getEndNodeObjectType(), rel.getRelationType(), rel
 									.getMetadata()));
+						}else if (StringUtils.equalsIgnoreCase(
+								RelationTypes.PRE_REQUISITE.relationName(),
+								rel.getRelationType()) && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), rel.getEndNodeObjectType())) 
+						{
+							childrenIds.add(rel.getEndNodeId());
+							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel
+									.getEndNodeObjectType(), rel.getRelationType(), rel
+									.getMetadata()));
 						}
 					}
 					if (!children.isEmpty()) {
 						metadata.put("children", children);
+					}
+					if (!preRequisites.isEmpty()) {
+						metadata.put(ContentWorkflowPipelineParams.pre_requisites.name(), preRequisites);
 					}
 				}
 				ctnts.add(metadata);
