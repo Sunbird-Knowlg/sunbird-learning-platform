@@ -12,4 +12,4 @@
   template: src=definition_script.j2 dest=/home/ec2-user/definition_script.sh
 
 - name: run script
-  shell: sh /home/ec2-user/definition_script.sh
+  script: /home/ec2-user/definition_script.sh
