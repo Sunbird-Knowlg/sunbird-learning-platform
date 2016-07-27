@@ -3,7 +3,7 @@
 
 
 [all:vars]
-service_url = 54.179.153.127:8080
+service_url = qa.ekstep.in/api
 zookeeper_url = 172.31.1.92:2181
 graph_event_topic_id = new-qa.learning.graph.events
 platform_api_url = http://localhost:8080/learning-service
