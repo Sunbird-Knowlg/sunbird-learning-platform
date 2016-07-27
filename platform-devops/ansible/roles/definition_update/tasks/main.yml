@@ -7,5 +7,8 @@
 - name: print 
   debug: msg="{{ check.stdout }}"
 
+- name: copy template
+  template: src=definition_script.j2 dest=/home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/roles/definiton_update/files/definition_script.sh
+
 - name: run script
-  shell: roles/definiton_update/files/definition_script.sh
+  shell: sh roles/definiton_update/files/definition_script.sh
