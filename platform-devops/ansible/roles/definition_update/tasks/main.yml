@@ -1,6 +1,14 @@
 ---
 # tasks file for definition
-- name: run definition_script
-  debug: pwd
+- name: print to stdout
+  command: pwd
+  register: check
+
+- name: print 
+  debug: msg="{{ check.stdout }}"
+
+- name: print
+  file: src=roles/definition_update/files/definition_script.sh mode=755
+
 - name: run definition_script
   shell: sh roles/definition_update/files/definition_script.sh
