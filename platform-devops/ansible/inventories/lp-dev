@@ -6,10 +6,10 @@ localhost ansible_connection=local
 
 
 [local:vars]
-service_url = dev.ekstep.in/api
+service_url = 172.31.31.183:8080
 
 [all:vars]
-service_url = dev.ekstep.in/api
+service_url = 172.31.31.183:8080
 zookeeper_url = 172.31.1.92:2181
 graph_event_topic_id = sandbox.learning.graph.events
 platform_api_url = http://localhost:8080/learning-service
