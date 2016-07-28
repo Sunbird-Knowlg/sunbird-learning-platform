@@ -23,8 +23,6 @@ import com.ilimi.common.exception.ResponseCode;
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
      private static final String COMPOSITE_SEARCH_INDEX = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-     Response response = new Response();
-     ResponseParams params = new ResponseParams();
      ElasticSearchUtil es = new ElasticSearchUtil();
      
     @RequestMapping(value = "", method = RequestMethod.GET)
@@ -33,22 +31,25 @@ public class HealthCheckController extends BaseController {
 		String name = "search-service";
 		String apiId = name + ".health";
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
-		boolean index = false;
+	    Response response = new Response();
+
+	    boolean index = false;
 		try {
 			index = es.isIndexExists(COMPOSITE_SEARCH_INDEX);
 			if (index == true) {
-				 checks.add(getResponseData(true, "",""));
+				 checks.add(getResponseData(response , true, "",""));
 			} else{
-				 checks.add(getResponseData(false, "404", "Elastic Search index is not avaialable"));
+				 checks.add(getResponseData(response, false, "404", "Elastic Search index is not avaialable"));
 			}		
 		} catch (Exception e) {
-				checks.add(getResponseData(false, "503", e.getMessage()));		
+				checks.add(getResponseData(response ,false, "503", e.getMessage()));		
 		}
 		response.put("checks", checks);
 		return getResponseEntity(response, apiId, null);	
 	}
     
-	public Map<String, Object> getResponseData(boolean b, String error, String errorMsg){
+	public Map<String, Object> getResponseData(Response response, boolean b, String error, String errorMsg){
+	    ResponseParams params = new ResponseParams();
 		String err = error;
 		Map<String, Object> esCheck = new HashMap<String, Object>();
 		esCheck.put("name", "ElasticSearch");
@@ -66,7 +67,8 @@ public class HealthCheckController extends BaseController {
 			response.setParams(params);
 			response.put("healthy", false);
 			esCheck.put("healthy", false);
-			esCheck.put("err", err);		
+			esCheck.put("err", err);
+			esCheck.put("errmsg", errorMsg);
 		}
 		return esCheck;
 	}
