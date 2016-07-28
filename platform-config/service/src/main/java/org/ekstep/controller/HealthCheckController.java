@@ -23,60 +23,61 @@ import com.ilimi.common.exception.ResponseCode;
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
 
-	@RequestMapping(value = "/", method = RequestMethod.GET)
+	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		Response response = new Response();
 		String ordinals = "";
-		String apiId  = "";
+		String apiId = "";
 		String resourcebundle = "";
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
 		try {
-			resourcebundle = HttpDownloadUtility.readFromUrl(ConfigController.baseUrl + ConfigController.folderName + "/en.json");
+			resourcebundle = HttpDownloadUtility
+					.readFromUrl(ConfigController.baseUrl + ConfigController.folderName + "/en.json");
 			ordinals = HttpDownloadUtility.readFromUrl(ConfigController.baseUrl + "ordinals.json");
 			String name = "config-service";
 			apiId = name + ".health";
 			response.put("name", name);
-			
-			if (!ordinals.isEmpty()){
-				checks.add(getResponseData("Ordinals", true,"",""));
-			}else{
-				checks.add(getResponseData("Ordinals", false, "404", "ordinals is not available"));
+
+			if (!ordinals.isEmpty()) {
+				checks.add(getResponseData(response, "Ordinals", true, "", ""));
+			} else {
+				checks.add(getResponseData(response, "Ordinals", false, "404", "ordinals is not available"));
 			}
-			if(!resourcebundle.isEmpty()){
-				checks.add(getResponseData("Resourcebundle", true,"",""));
+			if (!resourcebundle.isEmpty()) {
+				checks.add(getResponseData(response, "Resourcebundle", true, "", ""));
+			} else {
+				checks.add(
+						getResponseData(response, "Resourcebundle", false, "404", "resourcebundle is not available"));
 			}
-			else{
-				checks.add(getResponseData("Resourcebundle", false, "404", "resourcebundle is not available"));
-			}
-			
+
 		} catch (Exception e) {
-			checks.add(getResponseData("Resourcebundle" , false, "503", e.getMessage()));		
+			checks.add(getResponseData(response, "Resourcebundle", false, "503", e.getMessage()));
 		}
 		response.put("checks", checks);
-		return getResponseEntity(response, apiId, null);	
+		return getResponseEntity(response, apiId, null);
 	}
-	
-	public Map<String, Object> getResponseData(String name, boolean b, String err, String errorMsg){
+
+	public Map<String, Object> getResponseData(Response response, String name, boolean res, String err, String errorMsg) {
 		ResponseParams params = new ResponseParams();
-		Response response = new Response();
 		Map<String, Object> csCheck = new HashMap<String, Object>();
 		csCheck.put("name", name);
-		if(b == true && err.isEmpty()){
+		if (res == true && err.isEmpty()) {
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("healthy", true);
 			csCheck.put("healthy", true);
-		}else{
+		} else {
 			params.setStatus(StatusType.failed.name());
 			params.setErrmsg(errorMsg);
 			response.setResponseCode(ResponseCode.SERVER_ERROR);
 			response.setParams(params);
 			response.put("healthy", false);
 			csCheck.put("healthy", false);
-			csCheck.put("err", err);	
+			csCheck.put("err", err);
+			csCheck.put("errmsg", errorMsg);
 		}
 		return csCheck;
 	}

@@ -22,45 +22,44 @@ import com.ilimi.common.exception.ResponseCode;
 @Controller
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
-     private static final String COMPOSITE_SEARCH_INDEX = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
-     ElasticSearchUtil es = new ElasticSearchUtil();
-     
-    @RequestMapping(value = "", method = RequestMethod.GET)
+	ElasticSearchUtil es = new ElasticSearchUtil();
+
+	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		String name = "search-service";
 		String apiId = name + ".health";
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
-	    Response response = new Response();
+		Response response = new Response();
 
-	    boolean index = false;
+		boolean index = false;
 		try {
-			index = es.isIndexExists(COMPOSITE_SEARCH_INDEX);
+			index = es.isIndexExists(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX);
 			if (index == true) {
-				 checks.add(getResponseData(response , true, "",""));
-			} else{
-				 checks.add(getResponseData(response, false, "404", "Elastic Search index is not avaialable"));
-			}		
+				checks.add(getResponseData(response, true, "", ""));
+			} else {
+				checks.add(getResponseData(response, false, "404", "Elastic Search index is not avaialable"));
+			}
 		} catch (Exception e) {
-				checks.add(getResponseData(response ,false, "503", e.getMessage()));		
+			checks.add(getResponseData(response, false, "503", e.getMessage()));
 		}
 		response.put("checks", checks);
-		return getResponseEntity(response, apiId, null);	
+		return getResponseEntity(response, apiId, null);
 	}
-    
-	public Map<String, Object> getResponseData(Response response, boolean b, String error, String errorMsg){
-	    ResponseParams params = new ResponseParams();
+
+	public Map<String, Object> getResponseData(Response response, boolean res, String error, String errorMsg) {
+		ResponseParams params = new ResponseParams();
 		String err = error;
 		Map<String, Object> esCheck = new HashMap<String, Object>();
 		esCheck.put("name", "ElasticSearch");
-		if(b == true && err.isEmpty()){
+		if (res == true && err.isEmpty()) {
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
 			params.setErrmsg("Operation successful");
 			response.setParams(params);
 			response.put("healthy", true);
 			esCheck.put("healthy", true);
-		}else{
+		} else {
 			params.setStatus(StatusType.failed.name());
 			params.setErrmsg(errorMsg);
 			response.setResponseCode(ResponseCode.SERVER_ERROR);
@@ -72,5 +71,5 @@ public class HealthCheckController extends BaseController {
 		}
 		return esCheck;
 	}
-		
+
 }
