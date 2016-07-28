@@ -230,29 +230,34 @@ public class BasePipeline extends BaseManager {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
-
+	
 	protected void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
 			List<String> childrenIds) {
+		getContentBundleData(graphId, nodes, ctnts, childrenIds, true);
+	}
+
+	protected void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
+			List<String> childrenIds, boolean onlyLive) {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		if (null != nodes && !nodes.isEmpty()) {
 			LOGGER.info("Starting Data Collection For Bundling...");
 			for (Node node : nodes) {
 				LOGGER.info("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
-				getContentRecursive(graphId, node, nodeMap, childrenIds, ctnts);
+				getContentRecursive(graphId, node, nodeMap, childrenIds, ctnts, onlyLive);
 			}
 		}
 	}
 
 	@SuppressWarnings("unchecked")
 	protected void getContentRecursive(String graphId, Node node, Map<String, Node> nodeMap, List<String> childrenIds,
-			List<Map<String, Object>> ctnts) {
+			List<Map<String, Object>> ctnts, boolean onlyLive) {
 		if (!nodeMap.containsKey(node.getIdentifier())) {
 			nodeMap.put(node.getIdentifier(), node);
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			if (null == node.getMetadata())
 				node.setMetadata(new HashMap<String, Object>());
-			String status = (String) node.getMetadata().get("status");
-			if (StringUtils.equalsIgnoreCase("Live", status)) {
+			String status = (String) node.getMetadata().get(ContentWorkflowPipelineParams.status.name());
+			if ((onlyLive && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status)) || !onlyLive) {
 				metadata.putAll(node.getMetadata());
 				metadata.put(ContentWorkflowPipelineParams.identifier.name(), node.getIdentifier());
 				metadata.put(ContentWorkflowPipelineParams.objectType.name(), node.getObjectType());
@@ -292,7 +297,7 @@ public class BasePipeline extends BaseManager {
 							for (Object obj : list) {
 								List<Node> nodeList = (List<Node>) obj;
 								for (Node child : nodeList) {
-									getContentRecursive(graphId, child, nodeMap, childrenIds, ctnts);
+									getContentRecursive(graphId, child, nodeMap, childrenIds, ctnts, onlyLive);
 								}
 							}
 						}

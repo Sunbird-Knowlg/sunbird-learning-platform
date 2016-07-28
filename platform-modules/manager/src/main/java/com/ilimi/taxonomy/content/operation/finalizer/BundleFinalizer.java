@@ -98,10 +98,7 @@ public class BundleFinalizer extends BaseFinalizer {
 			if (null == path || !isValidBasePath(path))
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Path does not Exist.]");
-			if (StringUtils.isBlank(ecmlType))
-				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
-						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Invalid ECML Type.]");
-
+			
 			// Setting Attribute Value
 			this.basePath = path;
 			this.contentId = node.getIdentifier();

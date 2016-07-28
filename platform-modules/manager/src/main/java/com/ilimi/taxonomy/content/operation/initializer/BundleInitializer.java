@@ -72,7 +72,7 @@ public class BundleInitializer extends BaseInitializer {
 		// also)
 		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
 		List<String> childrenIds = new ArrayList<String>();
-		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds);
+		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
 		// Validate the availability of all the Requested Contents
 		if (contents.size() < contentIdList.size())
