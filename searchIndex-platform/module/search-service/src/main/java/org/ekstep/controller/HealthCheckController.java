@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.ekstep.searchindex.elasticsearch.ElasticSearchUtil;
+import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -21,60 +22,53 @@ import com.ilimi.common.exception.ResponseCode;
 @Controller
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
-
-	@RequestMapping(value = "", method = RequestMethod.GET)
+     private static final String COMPOSITE_SEARCH_INDEX = CompositeSearchConstants.COMPOSITE_SEARCH_INDEX;
+     Response response = new Response();
+     ResponseParams params = new ResponseParams();
+     ElasticSearchUtil es = new ElasticSearchUtil();
+     
+    @RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		String name = "search-service";
 		String apiId = name + ".health";
-		ElasticSearchUtil es = new ElasticSearchUtil();
-		Response response = new Response();
-		ResponseParams params = new ResponseParams();
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
-		Map<String, Object> esCheck = new HashMap<String, Object>();
-		esCheck.put("name", "ElasticSearch");
 		boolean index = false;
 		try {
-			index = es.isIndexExists("compositesearch");
-
-			response.put("name", name);
-			
+			index = es.isIndexExists(COMPOSITE_SEARCH_INDEX);
 			if (index == true) {
-				params.setErr("0");
-				params.setStatus(StatusType.successful.name());
-				params.setErrmsg("Operation successful");
-				response.setParams(params);
-				response.put("healthy", true);
-				esCheck.put("healthy", true);
+				 checks.add(getResponseData(true, "",""));
 			} else{
-				params.setErrmsg("Elastic Search index is not set");
-				params.setStatus(StatusType.failed.name());
-				response.setResponseCode(ResponseCode.SERVER_ERROR);
-				response.setParams(params);
-				response.put("healthy", false);
-				esCheck.put("healthy", false);
-	    		esCheck.put("err", ""); // error code, if any
-	    		esCheck.put("errmsg", "Elastic Search index is not set"); // default English error message 
-
-			}
-			checks.add(esCheck);
-			response.put("checks", checks);
+				 checks.add(getResponseData(false, "404", "Elastic Search index is not avaialable"));
+			}		
 		} catch (Exception e) {
-				ResponseParams resStatus = new ResponseParams();
-				resStatus.setErrmsg("SERVER_ERROR");
-				resStatus.setStatus(StatusType.failed.name());
-				response.setResponseCode(ResponseCode.SERVER_ERROR);
-				response.setParams(resStatus);
-				response.put("healthy", false);
-				esCheck.put("healthy", false);
-	    		esCheck.put("err", "503"); // error code, if any
-	    		esCheck.put("errmsg", e.getMessage()); // default English error message 
-
-				checks.add(esCheck);
-				response.put("checks", checks);
-				return getResponseEntity(response, apiId, null);
+				checks.add(getResponseData(false, "503", e.getMessage()));		
 		}
-		return getResponseEntity(response, apiId, null);
+		response.put("checks", checks);
+		return getResponseEntity(response, apiId, null);	
+	}
+    
+	public Map<String, Object> getResponseData(boolean b, String error, String errorMsg){
+		String err = error;
+		Map<String, Object> esCheck = new HashMap<String, Object>();
+		esCheck.put("name", "ElasticSearch");
+		if(b == true && err.isEmpty()){
+			params.setErr("0");
+			params.setStatus(StatusType.successful.name());
+			params.setErrmsg("Operation successful");
+			response.setParams(params);
+			response.put("healthy", true);
+			esCheck.put("healthy", true);
+		}else{
+			params.setStatus(StatusType.failed.name());
+			params.setErrmsg(errorMsg);
+			response.setResponseCode(ResponseCode.SERVER_ERROR);
+			response.setParams(params);
+			response.put("healthy", false);
+			esCheck.put("healthy", false);
+			esCheck.put("err", err);		
+		}
+		return esCheck;
 	}
 		
 }
