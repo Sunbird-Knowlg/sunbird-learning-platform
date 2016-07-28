@@ -7,9 +7,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.graph.cache.factory.JedisFactory;
 import com.ilimi.graph.common.mgr.Configuration;
-import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
+
+import redis.clients.jedis.Jedis;
 public abstract class HealthCheckManager extends BaseManager{
 
 	public abstract Response getAllServiceHealth() throws Exception;
@@ -42,4 +44,20 @@ public abstract class HealthCheckManager extends BaseManager{
 		
 		return check;
 	}
+	
+	protected static Map<String, Object> checkRedisHealth(){
+		Map<String, Object> check = new HashMap<String, Object>();
+		check.put("name", "redis cache");
+        try {
+        	Jedis jedis = JedisFactory.getRedisConncetion();
+            jedis.close();
+    		check.put("healthy", true);
+        } catch (Exception e) {
+    		check.put("healthy", false);
+    		check.put("err", "503"); // error code, if any
+            check.put("errmsg", e.getMessage()); // default English error message 
+        }
+		return check;
+	}
+
 }

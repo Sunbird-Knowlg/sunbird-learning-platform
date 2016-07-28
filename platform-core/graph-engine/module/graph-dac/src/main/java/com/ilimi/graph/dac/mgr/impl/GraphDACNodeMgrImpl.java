@@ -407,9 +407,10 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         			rootNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), rootNodeUniqueId);
         			rootNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), SystemNodeTypes.ROOT_NODE.name());    				
         			rootNode.setProperty(AuditProperties.createdOn.name(), DateUtils.formatCurrentDate());
+            		rootNode.setProperty("nodesCount", 0);
+                    rootNode.setProperty("relationsCount", 0);
                     tx.success();
                 }    			
-//    			rootNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
     			OK(getSender());
             } catch (Exception e) {
                 if (null != tx)

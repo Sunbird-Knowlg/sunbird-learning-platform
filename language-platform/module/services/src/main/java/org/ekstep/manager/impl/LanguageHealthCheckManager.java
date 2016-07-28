@@ -1,6 +1,7 @@
 package org.ekstep.manager.impl;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
@@ -11,13 +12,13 @@ import java.util.concurrent.FutureTask;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.language.mgr.IDictionaryManager;
-import org.ekstep.util.LanguageHealthCheckUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.mgr.HealthCheckManager;
 import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.orchestrator.dac.service.IOrchestratorDataService;
 
 @Component
 public class LanguageHealthCheckManager extends HealthCheckManager {
@@ -25,6 +26,9 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
     private static Logger LOGGER = LogManager.getLogger(LanguageHealthCheckManager.class.getName());
 	private static final int MAX_THREAD_NUM = 10;
 	
+    @Autowired
+    private IOrchestratorDataService orchestratorService;
+
 	@Override
 	public Response getAllServiceHealth() throws InterruptedException, ExecutionException {
 		
@@ -50,7 +54,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 		FutureTask<Map<String, Object>> futureTask_Redis = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
             @Override
             public Map<String, Object> call() {
-                return LanguageHealthCheckUtil.checkRedis();
+                return checkRedisHealth();
             }
         });
         taskList.add(futureTask_Redis);
@@ -59,7 +63,7 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
         FutureTask<Map<String, Object>> futureTask_Mongo = new FutureTask<Map<String, Object>>(new Callable<Map<String, Object>>() {
             @Override
             public Map<String, Object> call() {
-                return LanguageHealthCheckUtil.checkMongoDB();
+                return checkMongoDBHealth();
             }
         });
         taskList.add(futureTask_Mongo);
@@ -81,4 +85,23 @@ public class LanguageHealthCheckManager extends HealthCheckManager {
 		return response;
 	}
 
+	private Map<String, Object> checkMongoDBHealth(){
+		Map<String, Object> check = new HashMap<String, Object>();
+		check.put("name", "MongoDB");
+
+		try{
+			boolean status = orchestratorService.isCollectionExist();
+			check.put("healthy", status);
+			if(!status){
+	    		check.put("err", "404"); // error code, if any
+	            check.put("errmsg", " MongoDB collection is not available"); // default English error message 				
+			}			
+		}catch(Throwable e){
+			check.put("healthy", false);
+    		check.put("err", "503"); // error code, if any
+            check.put("errmsg", " MongoDB is not available"); // default English error message 				
+		}
+		
+		return check;
+	}
 }
