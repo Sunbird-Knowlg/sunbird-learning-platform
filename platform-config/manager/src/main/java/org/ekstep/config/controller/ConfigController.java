@@ -28,8 +28,8 @@ import com.ilimi.common.exception.ResponseCode;
 public class ConfigController extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static final String bucketName = "ekstep-config";
-	private static final String folderName = "resources";
-	private static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
+	public static final String folderName = "resources";
+	public static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody

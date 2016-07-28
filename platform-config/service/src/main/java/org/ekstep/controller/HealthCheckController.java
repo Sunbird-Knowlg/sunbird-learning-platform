@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.ilimi.common.controller.BaseController;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
@@ -19,11 +21,9 @@ import com.ilimi.common.exception.ResponseCode;
 
 @Controller
 @RequestMapping("health")
-public class HealthCheckController extends ConfigController {
-	private static final String folderName = ConfigController.folderName;
-	private static final String baseUrl = ConfigController.baseUrl;
+public class HealthCheckController extends BaseController {
 
-	@RequestMapping(value = "/config", method = RequestMethod.GET)
+	@RequestMapping(value = "/", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		Response response = new Response();
@@ -32,36 +32,36 @@ public class HealthCheckController extends ConfigController {
 		String resourcebundle = "";
 		List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
 		try {
-			resourcebundle = HttpDownloadUtility.readFromUrl(baseUrl + folderName + "/en.json");
-			ordinals = HttpDownloadUtility.readFromUrl(baseUrl + "ordinals.json");
+			resourcebundle = HttpDownloadUtility.readFromUrl(ConfigController.baseUrl + ConfigController.folderName + "/en.json");
+			ordinals = HttpDownloadUtility.readFromUrl(ConfigController.baseUrl + "ordinals.json");
 			String name = "config-service";
 			apiId = name + ".health";
 			response.put("name", name);
 			
 			if (!ordinals.isEmpty()){
-				checks.add(getResponseData(true,"",""));
+				checks.add(getResponseData("Ordinals", true,"",""));
 			}else{
-				checks.add(getResponseData(false, "404", "ordinals is not available"));
+				checks.add(getResponseData("Ordinals", false, "404", "ordinals is not available"));
 			}
 			if(!resourcebundle.isEmpty()){
-				checks.add(getResponseData(true,"",""));
+				checks.add(getResponseData("Resourcebundle", true,"",""));
 			}
 			else{
-				checks.add(getResponseData(false, "404", "resourcebundle is not available"));
+				checks.add(getResponseData("Resourcebundle", false, "404", "resourcebundle is not available"));
 			}
-			return getResponseEntity(response, apiId, null);
 			
 		} catch (Exception e) {
-			checks.add(getResponseData(false, "503", e.getMessage()));		
+			checks.add(getResponseData("Resourcebundle" , false, "503", e.getMessage()));		
 		}
 		response.put("checks", checks);
 		return getResponseEntity(response, apiId, null);	
 	}
 	
-	public Map<String, Object> getResponseData(boolean b, String err, String errorMsg){
+	public Map<String, Object> getResponseData(String name, boolean b, String err, String errorMsg){
 		ResponseParams params = new ResponseParams();
 		Response response = new Response();
 		Map<String, Object> csCheck = new HashMap<String, Object>();
+		csCheck.put("name", name);
 		if(b == true && err.isEmpty()){
 			params.setErr("0");
 			params.setStatus(StatusType.successful.name());
