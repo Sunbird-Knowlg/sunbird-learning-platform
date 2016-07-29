@@ -10,6 +10,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -183,6 +184,12 @@ public class BasePipeline extends BaseManager {
 			}
 		}
 		return null;
+	}
+	
+	protected static String getDateAfter(int days) {
+		Calendar c = Calendar.getInstance();
+		c.add(Calendar.DATE, days);
+		return sdf.format(c.getTime());
 	}
 
 	protected boolean isValidXML(String contentBody) {

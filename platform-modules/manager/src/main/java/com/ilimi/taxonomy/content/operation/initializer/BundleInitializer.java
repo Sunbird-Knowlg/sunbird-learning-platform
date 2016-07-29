@@ -1,5 +1,6 @@
 package com.ilimi.taxonomy.content.operation.initializer;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -8,6 +9,8 @@ import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
+import org.ekstep.common.util.HttpDownloadUtility;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -78,6 +81,13 @@ public class BundleInitializer extends BaseInitializer {
 		if (contents.size() < contentIdList.size())
 			throw new ResourceNotFoundException(ContentErrorCodeConstants.MISSING_CONTENT.name(),
 					ContentErrorMessageConstants.MISSING_BUNDLE_CONTENT);
+		
+		// Preparing the List of URL Fields
+		List<String> urlFields = new ArrayList<String>();
+        urlFields.add(ContentWorkflowPipelineParams.appIcon.name());
+        urlFields.add(ContentWorkflowPipelineParams.grayScaleAppIcon.name());
+        urlFields.add(ContentWorkflowPipelineParams.posterImage.name());
+        urlFields.add(ContentWorkflowPipelineParams.artifactUrl.name());
 
 		// Marking Content Visibility as Parent
 		for (Map<String, Object> content : contents) {
@@ -85,6 +95,17 @@ public class BundleInitializer extends BaseInitializer {
 			if (childrenIds.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
+			for (Map.Entry<String, Object> entry : content.entrySet()) {
+                if (urlFields.contains(entry.getKey()) && HttpDownloadUtility.isValidUrl(entry.getKey())) {
+                	String file = entry.getValue().toString()
+                            .substring(entry.getValue().toString().lastIndexOf('/') + 1);
+                    if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
+                        entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
+                    } else {
+                        entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
+                    }
+                }
+			}
 		}
 
 		LOGGER.info("Total Content To Bundle: " + nodes.size());

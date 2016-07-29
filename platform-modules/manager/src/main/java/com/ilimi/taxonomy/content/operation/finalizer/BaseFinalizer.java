@@ -139,7 +139,7 @@ public class BaseFinalizer extends BasePipeline {
 
 			String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"" + manifestVersion + "\", \"ts\": \""
 					+ getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID()
-					+ "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
+					+ "\"}, \"archive\": { \"count\": " + contents.size() + ", \"expires\": \"" + getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS) + "\", \"ttl\": 24, \"items\": ";
 
 			LOGGER.info("Content Items in Manifest JSON: " + contents.size());
 

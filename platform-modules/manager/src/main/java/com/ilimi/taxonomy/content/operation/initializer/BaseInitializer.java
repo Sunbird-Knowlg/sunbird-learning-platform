@@ -15,21 +15,25 @@ import com.ilimi.taxonomy.content.util.JSONContentParser;
 import com.ilimi.taxonomy.content.util.XMLContentParser;
 
 public class BaseInitializer extends BasePipeline {
-	
+
 	private static Logger LOGGER = LogManager.getLogger(BaseInitializer.class.getName());
-	
+
 	protected boolean isCompressRequired(Node node) {
 		boolean required = false;
 		if (null != node && null != node.getMetadata()) {
 			LOGGER.info("Compression Required Check For Content Id: " + node.getIdentifier());
 			String contentBody = (String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name());
 			String artifactUrl = (String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());
+			if (StringUtils.isBlank(artifactUrl) && StringUtils.isBlank(contentBody))
+				throw new ClientException(ContentErrorCodeConstants.OPERATION_DENIED.name(),
+						ContentErrorMessageConstants.UNABLE_TO_PUBLISH_OR_BUNDLE_CONTENT
+								+ " | [Either Content 'body' or 'artifactUrl' is needed for the operation.]");
 			if (StringUtils.isBlank(artifactUrl) && StringUtils.isNotBlank(contentBody))
 				required = true;
 		}
 		return required;
 	}
-	
+
 	protected Plugin getECRFObject(String contentBody) {
 		Plugin plugin = new Plugin();
 		String ecml = contentBody;

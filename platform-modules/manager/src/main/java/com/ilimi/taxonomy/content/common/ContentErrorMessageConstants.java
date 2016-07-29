@@ -108,6 +108,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String MISSING_BUNDLE_CONTENT = "Error! Missing One or More Content for Bundling.";
 	
+	public static final String UNABLE_TO_PUBLISH_OR_BUNDLE_CONTENT = "Error! Content cannot be Bundled or Published.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

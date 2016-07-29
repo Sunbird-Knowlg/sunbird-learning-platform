@@ -36,9 +36,13 @@ public class ContentConfigurationConstants {
 	
 	public static final String DEFAULT_ASSESSMENT_ITEM_SET_CODE_PREFIX = "org.ekstep.assessment.item.set.";
 	
+	public static final String DEFAULT_ECAR_EXTENSION = "ecar";
+	
 	public static final int AWS_UPLOAD_RESULT_URL_INDEX = 1;
 	
 	public static final int DEFAULT_CONTENT_PACKAGE_VERSION = 1;
+	
+	public static final int DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS = 7;
 	
 	private ContentConfigurationConstants(){
 	  throw new AssertionError();
