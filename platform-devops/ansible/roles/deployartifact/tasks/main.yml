@@ -1,6 +1,15 @@
 ---
 #tasks file for deployartifact
 
+- name: pwd
+  become: yes
+  command: pwd
+  ignore_errors: yes
+
+
+- name: stop tomcat
+  service: name=tomcat state=stopped
+  
 - name: Change ownership of Tomcat installation
   become: yes
   file: path=/usr/share/tomcat/ owner=ec2-user group=ec2-user recurse=yes
@@ -14,8 +23,7 @@
   file: path=/data owner=ec2-user group=ec2-user recurse=yes mode=0755
 
 
-- name: stop tomcat
-  service: name=tomcat state=stopped
+
 
 
 
