@@ -1,4 +1,4 @@
-- hosts: dev
+- hosts: env
   roles:
         - deployartifact
 
