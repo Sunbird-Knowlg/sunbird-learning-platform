@@ -3,26 +3,31 @@
 - name: copy template
   template: src=language_script.j2 dest=/home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh
 
-- name: run env
-  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh en
-  tags:
-       - en
-       - all
+#- name: run env
+#  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh en
+#  tags:
+#       - en
+#       - all
 
-- name: run env
-  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh hi
-  tags:
-       - hi
-       - all
+#- name: run env
+#  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh hi
+#  tags:
+#       - hi
+#       - all
 
-- name: run env
-  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh ka
-  tags:
-       - ka
-       - all
+#- name: run env
+#  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh ka
+#  tags:
+#       - ka
+#       - all
 
-- name: run env
-  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh te
+#- name: run env
+#  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh te
+#  tags:
+#       - te
+#       - all
+- name: Run env
+  shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh {{ item.value.langauge }}
+  with_dict: "{{ jobs }}"
   tags:
-       - te
-       - all
+    - {{ item.key }}
