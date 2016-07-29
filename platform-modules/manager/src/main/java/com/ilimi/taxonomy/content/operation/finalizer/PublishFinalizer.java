@@ -42,7 +42,6 @@ public class PublishFinalizer extends BaseFinalizer {
 	}
 	
 	public Response finalize(Map<String, Object> parameterMap) {
-		Response response = new Response();
 		Node node = (Node) parameterMap.get(ContentWorkflowPipelineParams.node.name());
 		Plugin ecrf = (Plugin) parameterMap.get(ContentWorkflowPipelineParams.ecrf.name());
 		// Output only ECML format
@@ -126,8 +125,7 @@ public class PublishFinalizer extends BaseFinalizer {
 		Node newNode = new Node(node.getIdentifier(), node.getNodeType(), node.getObjectType());
 		newNode.setGraphId(node.getGraphId());
 		newNode.setMetadata(node.getMetadata());
-		response = updateContentNode(newNode, urlArray[IDX_S3_URL]);
-		return response;
+		return updateContentNode(newNode, urlArray[IDX_S3_URL]);
 	}
 	
 }

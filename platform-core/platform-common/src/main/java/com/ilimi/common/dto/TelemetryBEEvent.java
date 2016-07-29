@@ -48,11 +48,12 @@ public class TelemetryBEEvent {
 		this.pdata.put("ver", ver);
 		this.pdata.put("uid", uid);
 	}
-	public void setEdata(String cid, Object status, Object size, Object pkgVersion, Object concepts, Object flags) {
+	public void setEdata(String cid, Object status, Object prevState, Object size, Object pkgVersion, Object concepts, Object flags) {
 		this.edata = new HashMap<String, Object>();
 		Map<String, Object> eks = new HashMap<String, Object>();
 		eks.put("cid", cid);
-		eks.put("status", status);
+		eks.put("state", status);
+		eks.put("prevstate", prevState);
 		eks.put("size", size);
 		eks.put("pkgVersion", pkgVersion);
 		eks.put("concepts", concepts);

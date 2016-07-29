@@ -649,9 +649,11 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		if (StringUtils.isBlank(mimeType)) {
 			mimeType = "assets";
 		}
+		String prevState = (String) node.getMetadata().get(ContentAPIParams.status.name());
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
+			node.getMetadata().put("prevState", prevState);
 			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
 		} catch (ClientException e) {
 			throw e;

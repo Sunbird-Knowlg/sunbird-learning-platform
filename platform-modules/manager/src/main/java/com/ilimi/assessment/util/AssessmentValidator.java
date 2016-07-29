@@ -126,10 +126,10 @@ public class AssessmentValidator extends BaseManager {
         return errorMessages;
     }
     
-    @SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void validateResponses(Object object, List<String> errorMessages) {
     	try {
-    		List<Map<String, Object>> responses = mapper.convertValue(object, List.class);
+    		List<Map<String, Object>> responses = (List) object;
     		if (null != responses && !responses.isEmpty()) {
     			for (Map<String, Object> response : responses) {
     				if (!isNotBlank(response, "values")) {
@@ -141,7 +141,7 @@ public class AssessmentValidator extends BaseManager {
     					break;
     				}
     				Object objValues = response.get("values");
-    				Map<String, Object> values = mapper.convertValue(objValues, Map.class);
+    				Map<String, Object> values = (Map) objValues;
     				if (null == values || values.isEmpty()) {
     					errorMessages.add("response must have atleast one value");
     					break;
@@ -307,6 +307,7 @@ public class AssessmentValidator extends BaseManager {
                     }
                     index += 1;
                 }
+                metadata.put(lhsOptions, values);
             } catch (Exception e) {
                 errorMessages.add("invalid assessment item property: " + lhsOptions + ".");
             }
@@ -329,6 +330,7 @@ public class AssessmentValidator extends BaseManager {
                         break;
                     index += 1;
                 }
+                metadata.put(rhsOptions, values);
             } catch (Exception e) {
                 e.printStackTrace();
                 errorMessages.add("invalid assessment item property: " + rhsOptions + ".");
@@ -349,9 +351,7 @@ public class AssessmentValidator extends BaseManager {
                 valid = false;
             }
             if (!isNotBlank(valueMap, "resvalue")) {
-            	if (isNotBlank(valueMap, "asset"))
-            		valueMap.put("resvalue", valueMap.get("asset"));
-            	else if (isNotBlank(valueMap, "text"))
+            	if (isNotBlank(valueMap, "text"))
             		valueMap.put("resvalue", valueMap.get("text"));
             	else
             		valueMap.put("resvalue", index);
@@ -412,6 +412,7 @@ public class AssessmentValidator extends BaseManager {
                     if (answerCount != numAnswers)
                         errorMessages.add("num_answers is not equals to no. of correct options");
                 }
+                metadata.put(propertyName, values);
             } catch (Exception e) {
                 e.printStackTrace();
                 errorMessages.add("invalid assessment item property: " + propertyName + ".");
