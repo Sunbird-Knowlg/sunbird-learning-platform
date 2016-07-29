@@ -2,16 +2,12 @@
 # tasks file for aws-login
 
 - name: create .aws
-  become_user: ec2-user
-  become: yes
   file: path={{ item.path }} state={{ item.state }}
   with_items:
      - { path: '.aws', state: 'directory' }
      - { path: 'credentials', state: 'touch' }
 
 - name: update .aws/credentials
-  become_user: ec2-user
-  become: yes
   lineinfile: dest=.aws/credentials line='[default]'  state=present insertafter=EOF create=yes
 
 - name: update .aws/credentials
