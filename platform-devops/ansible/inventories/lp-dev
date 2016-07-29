@@ -8,16 +8,7 @@ localhost ansible_connection=local
 
 [local:vars]
 service_url = 172.31.31.183:8080
-jobs:
-  en: 
-    language: en
-  hi:
-    language: hi
-  te:
-    language: te
-  ka:
-     language: ka
-  
+
 
 [all:vars]
 service_url = 172.31.31.183:8080
