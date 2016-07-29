@@ -2,7 +2,6 @@
 #tasks file for deployartifact
 
 - name: stop tomcat
-  become: yes
   service: name=tomcat state=stopped
 
 - name: Change ownership of Tomcat installation
