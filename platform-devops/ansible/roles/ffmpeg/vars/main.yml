@@ -1,0 +1,3 @@
+---
+# vars file for ffmpeg
+ffmpeg_home: /home/ec2-user/ffmpeg-home
