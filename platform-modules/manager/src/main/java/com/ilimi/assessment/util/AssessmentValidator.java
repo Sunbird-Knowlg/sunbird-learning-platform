@@ -141,7 +141,7 @@ public class AssessmentValidator extends BaseManager {
     					break;
     				}
     				Object objValues = response.get("values");
-    				Map<String, Object> values = mapper.readValue(objValues.toString(), Map.class);
+    				Map<String, Object> values = mapper.convertValue(objValues, Map.class);
     				if (null == values || values.isEmpty()) {
     					errorMessages.add("response must have atleast one value");
     					break;
