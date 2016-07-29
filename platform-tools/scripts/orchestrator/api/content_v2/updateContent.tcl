@@ -119,13 +119,14 @@ if {$object_null == 1} {
 					if {$updateToReviewState == 1 && $isReviewState != 1} {
 						$content put "lastSubmittedOn" [java::call DateUtils format [java::new Date]]
 					}
-					if {$input_status_str != $status_val_str} {
+					if {![$input_status_str equals $status_val_str]} {
 						set log_event 1
 					}
 				}
 				set domain_obj [convert_to_graph_node $content $def_node]
 				set create_response [updateDataNode $graph_id $content_id $domain_obj]
 				if {$log_event == 1} {
+					$metadata putAll $content
 					$metadata put "prevState" $status_val_str
 					set log_response [log_content_lifecycle_event $content_id $metadata]
 				}

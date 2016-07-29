@@ -126,10 +126,10 @@ public class AssessmentValidator extends BaseManager {
         return errorMessages;
     }
     
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "unchecked" })
 	private void validateResponses(Object object, List<String> errorMessages) {
     	try {
-    		List<Map<String, Object>> responses = (List) object;
+    		List<Map<String, Object>> responses = mapper.readValue(object.toString(), List.class);
     		if (null != responses && !responses.isEmpty()) {
     			for (Map<String, Object> response : responses) {
     				if (!isNotBlank(response, "values")) {
@@ -141,7 +141,7 @@ public class AssessmentValidator extends BaseManager {
     					break;
     				}
     				Object objValues = response.get("values");
-    				Map<String, Object> values = (Map) objValues;
+    				Map<String, Object> values = mapper.readValue(objValues.toString(), Map.class);
     				if (null == values || values.isEmpty()) {
     					errorMessages.add("response must have atleast one value");
     					break;

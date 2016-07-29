@@ -1,7 +1,6 @@
 package com.ilimi.common.dto;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class TelemetryBEEvent {
