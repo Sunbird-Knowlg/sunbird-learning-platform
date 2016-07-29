@@ -2,9 +2,13 @@
 #tasks file for deployartifact
 
 - name: pwd
-  become_method: ec2-user
   become: yes
   command: pwd
+  ignore_errors: yes
+
+- name: stop tomcat
+  become: yes
+  service: name=tomcat state=stopped
 
 - name: Change ownership of Tomcat installation
   become: yes
@@ -17,12 +21,6 @@
 - name: Change ownership of /data
   become: yes
   file: path=/data owner=ec2-user group=ec2-user recurse=yes mode=0755
-
-
-
-- name: stop tomcat
-  service: name=tomcat state=stopped
-
 
 - name: copy the database.properties
   template: src=language/database.properties.j2 dest=/data/properties/language/database.properties
