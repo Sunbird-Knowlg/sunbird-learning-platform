@@ -2,13 +2,14 @@
 #tasks file for deployartifact
 
 - name: pwd
+  become_method: sudo
   become: yes
   command: pwd
   ignore_errors: yes
 
 
 
-  
+
 - name: Change ownership of Tomcat installation
   become: yes
   file: path=/usr/share/tomcat/ owner=ec2-user group=ec2-user recurse=yes
