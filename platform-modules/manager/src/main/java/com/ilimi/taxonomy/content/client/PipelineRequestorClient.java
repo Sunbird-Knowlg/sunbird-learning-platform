@@ -24,7 +24,7 @@ public class PipelineRequestorClient {
 		switch (operation) {
 		case "compress":
 			contentPipeline.registerProcessor(localizeAssetProcessor);
-			contentPipeline.registerProcessor(embedControllerProcessor);
+			//contentPipeline.registerProcessor(embedControllerProcessor);
 			contentPipeline.registerProcessor(missingAssetValidatorProcessor);
 			break;
 			

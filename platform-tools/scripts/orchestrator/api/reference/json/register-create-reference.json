@@ -1,0 +1,14 @@
+{
+    "name": "createReference",
+    "parameters": [{
+        "name": "reference",
+        "index": 1,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v2/reference"
+    },
+    "body": ""
+}

@@ -28,6 +28,7 @@ import com.ilimi.common.dto.Request;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.Identifier;
+import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
@@ -80,6 +81,11 @@ public class Neo4jGraphFactory {
         ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.USER_ID.name(), userId);
         ExecutionContext.getCurrent().getGlobalContext().put(HeaderParam.REQUEST_ID.name(), requestId);
         if (StringUtils.isNotBlank(graphId)) {
+        	List<String> graphIds = Configuration.graphIds;
+        	if (null != graphIds && !graphIds.isEmpty() && !graphIds.contains(graphId)) {
+    			throw new ServerException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(),
+    				graphId + " not supported by this service");
+    		}
             GraphDatabaseService graphDb = graphDbMap.get(graphId);
             if (null == graphDb || !graphDb.isAvailable(0)) {
                 if (null != graphDb) {

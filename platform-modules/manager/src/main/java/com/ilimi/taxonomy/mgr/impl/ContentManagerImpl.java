@@ -15,16 +15,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.optimizr.Optimizr;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.AWSUploader;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.RequestParams;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
-import com.ilimi.common.dto.TelemetryBEEvent;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResourceNotFoundException;
@@ -33,7 +32,6 @@ import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.common.util.LogTelemetryEventUtil;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
@@ -48,19 +46,20 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
+import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
-import com.ilimi.taxonomy.util.ContentBundle;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
-	@Autowired
-	private ContentBundle contentBundle;
+//	@Autowired
+//	private ContentBundle contentBundle;
 
 	@Autowired
 	private ContentMimeTypeFactory contentFactory;
@@ -83,7 +82,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	private static final String bucketName = "ekstep-public";
 	private static final String folderName = "content";
-	private static final String ecarFolderName = "ecar_files";
+//	private static final String ecarFolderName = "ecar_files";
 	private static final String tempFileLocation = "/data/contentBundle/";
 
 	protected static final String URL_FIELD = "URL";
@@ -352,16 +351,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 	@Override
 	public Response bundle(Request request, String taxonomyId, String version) {
 		String bundleFileName = (String) request.get("file_name");
-		bundleFileName = bundleFileName.replaceAll("\\s+", "_");
 		List<String> contentIds = (List<String>) request.get("content_identifiers");
+		if (contentIds.size() > 1 && StringUtils.isBlank(bundleFileName))
+            throw new ClientException(ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name(), "ECAR file name should not be blank");
 		Response response = searchNodes(taxonomyId, contentIds);
 		Response listRes = copyResponse(response);
 		if (checkError(response)) {
 			return response;
 		} else {
 			List<Object> list = (List<Object>) response.get(ContentAPIParams.contents.name());
-			List<Map<String, Object>> ctnts = new ArrayList<Map<String, Object>>();
-			List<String> childrenIds = new ArrayList<String>();
 			List<Node> nodes = new ArrayList<Node>();
 			if (null != list && !list.isEmpty()) {
 				for (Object obj : list) {
@@ -369,106 +367,20 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 					if (null != nodelist && !nodelist.isEmpty())
 						nodes.addAll(nodelist);
 				}
+				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
+					bundleFileName = (String) nodes.get(0).getMetadata().get(ContentWorkflowPipelineParams.name.name());
 			}
-			// Tune Each node for bundling as per mimetype
-			int i = 0;
-			for (Node node : nodes) {
-				String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-				if (StringUtils.isBlank(mimeType)) {
-					mimeType = "assets";
-				}
-				nodes.set(i, contentFactory.getImplForService(mimeType).tuneInputForBundling(node));
-				i++;
-			}
-			
-			getContentBundleData(taxonomyId, nodes, ctnts, childrenIds);
-			if (ctnts.size() < contentIds.size()) {
-				throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-						"One or more of the input content identifier are not found");
-			}
+			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + "_" + System.currentTimeMillis() + ".ecar";
-			contentBundle.asyncCreateContentBundle(ctnts, childrenIds, fileName, version);
-			String url = "https://" + bucketName + ".s3-ap-southeast-1.amazonaws.com/"
-					+ ecarFolderName + "/" + fileName;
-			String returnKey = ContentAPIParams.bundle.name();
-			listRes.put(returnKey, url);
+			// by-Pass to CWP
+			InitializePipeline pipeline = new InitializePipeline(tempFileLocation, "node");
+			Map<String, Object> parameterMap = new HashMap<String, Object>();
+			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
+			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
+			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			listRes.put(ContentAPIParams.bundle.name(), pipeline.init(ContentAPIParams.bundle.name(), parameterMap));
 			return listRes;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	private void getContentBundleData(String taxonomyId, List<Node> nodes,
-			List<Map<String, Object>> ctnts, List<String> childrenIds) {
-		Map<String, Node> nodeMap = new HashMap<String, Node>();
-		if (null != nodes && !nodes.isEmpty()) {
-			for (Node node : nodes) {
-				nodeMap.put(node.getIdentifier(), node);
-				Map<String, Object> metadata = new HashMap<String, Object>();
-				if (null == node.getMetadata())
-					node.setMetadata(new HashMap<String, Object>());
-				metadata.putAll(node.getMetadata());
-				metadata.put("identifier", node.getIdentifier());
-				metadata.put("objectType", node.getObjectType());
-				metadata.put("subject", node.getGraphId());
-				metadata.remove("body");
-				metadata.remove("editorState");
-				if (null != node.getTags() && !node.getTags().isEmpty())
-					metadata.put("tags", node.getTags());
-				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
-					List<NodeDTO> children = new ArrayList<NodeDTO>();
-					for (Relation rel : node.getOutRelations()) {
-						if (StringUtils.equalsIgnoreCase(
-								RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
-								rel.getRelationType())
-								&& StringUtils.equalsIgnoreCase(node.getObjectType(),
-										rel.getEndNodeObjectType())) {
-							childrenIds.add(rel.getEndNodeId());
-							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), rel
-									.getEndNodeObjectType(), rel.getRelationType(), rel
-									.getMetadata()));
-						}
-					}
-					if (!children.isEmpty()) {
-						metadata.put("children", children);
-					}
-				}
-				ctnts.add(metadata);
-			}
-			List<String> searchIds = new ArrayList<String>();
-			for (String nodeId : childrenIds) {
-				if (!nodeMap.containsKey(nodeId)) {
-					searchIds.add(nodeId);
-				}
-			}
-			if (!searchIds.isEmpty()) {
-				Response searchRes = searchNodes(taxonomyId, searchIds);
-				if (checkError(searchRes)) {
-					throw new ServerException(ContentErrorCodes.ERR_CONTENT_SEARCH_ERROR.name(),
-							getErrorMessage(searchRes));
-				} else {
-					List<Object> list = (List<Object>) searchRes.get(ContentAPIParams.contents
-							.name());
-					if (null != list && !list.isEmpty()) {
-						for (Object obj : list) {
-							List<Node> nodeList = (List<Node>) obj;
-							for (Node node : nodeList) {
-								nodeMap.put(node.getIdentifier(), node);
-								Map<String, Object> metadata = new HashMap<String, Object>();
-								if (null == node.getMetadata())
-									node.setMetadata(new HashMap<String, Object>());
-								metadata.putAll(node.getMetadata());
-								metadata.put("identifier", node.getIdentifier());
-								metadata.put("objectType", node.getObjectType());
-								metadata.put("subject", node.getGraphId());
-								metadata.remove("body");
-								if (null != node.getTags() && !node.getTags().isEmpty())
-									metadata.put("tags", node.getTags());
-								ctnts.add(metadata);
-							}
-						}
-					}
-				}
-			}
 		}
 	}
 
@@ -777,6 +689,10 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		try {
 			response = mimeTypeManager.publish(node);
 			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+		} catch (ClientException e) {
+			throw e;
+		} catch (ServerException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}

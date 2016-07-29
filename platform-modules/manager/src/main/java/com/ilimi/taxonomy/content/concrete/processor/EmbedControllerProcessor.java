@@ -54,10 +54,10 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 					for (Controller controller : controllers) {
 						if (StringUtils.isBlank(controller.getcData())) {
 							LOGGER.info("There is No Existing In-Line Controller.");
-							Map<String, String> data = controller.getData();
+							Map<String, Object> data = controller.getData();
 							if (null != data) {
-								String id = data.get(ContentWorkflowPipelineParams.id.name());
-								String type = data.get(ContentWorkflowPipelineParams.type.name());
+								String id = (String) data.get(ContentWorkflowPipelineParams.id.name());
+								String type = (String) data.get(ContentWorkflowPipelineParams.type.name());
 								LOGGER.info("Controller Id: " + id + " | type: " + type);
 								if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(type)) {
 									File file = null;

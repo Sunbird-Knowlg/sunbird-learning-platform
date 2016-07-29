@@ -9,7 +9,7 @@ var _ = require('underscore'),
 
 var client = new Client();
 
-var API_ENDPOINT = "https://api.ekstep.org/learning-api";
+var API_ENDPOINT = "https://api.ekstep.in/learning";
 //var API_ENDPOINT = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
 
 var GET_CONTENT_URL = "/v2/content/${id}?fields=body";
@@ -24,13 +24,7 @@ async.waterfall([
         getContentBody(callback);
     },
     function(arg1, callback) {
-    	arg1 = arg1.split('}"}').join('}}');
-    	arg1 = arg1.split(':"{').join(':{');
-    	arg1 = arg1.split(':"[{').join(':[{');
-    	arg1 = arg1.split('}]"').join('}]');
-    	arg1 = arg1.split('\\\"').join('"');
-        arg1 = arg1.split(',"]"').join('');
-    	arg1 = arg1.split('"id":"recorder",').join('"id":"recorder", "z-index":200,');
+        arg1 = arg1.split('"id":"recorder",').join('"id":"recorder", "z-index":200,');
     	contentBody = arg1;
     	callback(null, 'ok');
     },

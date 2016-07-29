@@ -67,7 +67,7 @@ public class ContentBundle {
         urlFields.add("appIcon");
         urlFields.add("grayScaleAppIcon");
         urlFields.add("posterImage");
-        Map<Object, String> downloadUrls = new HashMap<Object, String>();
+        Map<Object, List<String>> downloadUrls = new HashMap<Object, List<String>>();
         for (Map<String, Object> content : contents) {
             String identifier = (String) content.get("identifier");
             if (children.contains(identifier))
@@ -76,14 +76,12 @@ public class ContentBundle {
             for (Map.Entry<String, Object> entry : content.entrySet()) {
                 if (urlFields.contains(entry.getKey())) {
                     Object val = entry.getValue();
-                    System.out.println(entry.getKey() + " -- " + val);
                     if (val instanceof File) {
                         File file = (File) val;
-                        System.out.println("file size: " + file.length());
-                        downloadUrls.put(val, identifier.trim());
+                        addDownloadUrl(downloadUrls, val, identifier);
                         entry.setValue(identifier.trim() + File.separator + file.getName());
                     } else if (HttpDownloadUtility.isValidUrl(val)) {
-                        downloadUrls.put(val, identifier.trim());
+                        addDownloadUrl(downloadUrls, val, identifier);
                         String file = entry.getValue().toString()
                                 .substring(entry.getValue().toString().lastIndexOf('/') + 1);
                         if (file.endsWith(".ecar")) {
@@ -96,8 +94,12 @@ public class ContentBundle {
             }
             Object artifactUrl = content.get("artifactUrl");
             content.put("downloadUrl", artifactUrl);
+            Object posterImage = content.get("posterImage");
+            if (null != posterImage && StringUtils.isNotBlank(posterImage.toString()))
+            	content.put("appIcon", posterImage);
         }
-        List<File> downloadedFiles = getContentBundle(downloadUrls);
+        String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
+        List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);
         try {
             if (StringUtils.isBlank(version))
                 version = "1.0";
@@ -105,7 +107,7 @@ public class ContentBundle {
                     + getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID()
                     + "\"}, \"archive\": { \"count\": " + contents.size() + ", \"ttl\": 24, \"items\": ";
             String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
-            File manifestFile = createManifestFile(manifestJSON);
+            File manifestFile = createManifestFile(manifestJSON, bundlePath);
             if (null != manifestFile) {
                 downloadedFiles.add(manifestFile);
             }
@@ -116,10 +118,11 @@ public class ContentBundle {
                     stream.close();
                     File contentBundle = new File(bundleFileName);
                     String[] url = AWSUploader.uploadFile(bucketName, ecarFolderName, contentBundle);
-                    System.out.println("AWS Upload is complete.... on URL : " + url.toString());
+                    System.out.println("AWS Upload is complete.... on URL : " + url);
                     downloadedFiles.add(contentBundle);
                     return url;
                 } catch (Throwable e) {
+                	e.printStackTrace();
                     throw e;
                 } finally {
                     HttpDownloadUtility.DeleteFiles(downloadedFiles);
@@ -131,67 +134,79 @@ public class ContentBundle {
             throw new ServerException(ContentErrorCodes.ERR_ECAR_BUNDLE_FAILED.name(), e.getMessage());
         }
     }
+    
+    private void addDownloadUrl(Map<Object, List<String>> downloadUrls, Object val, String identifier) {
+    	List<String> ids = downloadUrls.get(val);
+    	if (null == ids) {
+    		ids = new ArrayList<String>();
+    		downloadUrls.put(val, ids);
+    	}
+    	ids.add(identifier.trim());
+    }
 
-    private List<File> getContentBundle(final Map<Object, String> downloadUrls) {
+    private List<File> getContentBundle(final Map<Object, List<String>> downloadUrls, final String bundlePath) {
         List<File> files = new ArrayList<File>();
         try {
             ExecutorService pool = Executors.newFixedThreadPool(10);
-            List<Callable<File>> tasks = new ArrayList<Callable<File>>(downloadUrls.size());
+            List<Callable<List<File>>> tasks = new ArrayList<Callable<List<File>>>(downloadUrls.size());
             for (final Object val : downloadUrls.keySet()) {
-                tasks.add(new Callable<File>() {
-                    public File call() throws Exception {
-                        String id = downloadUrls.get(val);
-                        String destPath = BUNDLE_PATH + File.separator + id;
-                        createDirectoryIfNeeded(destPath);
-                        if (val instanceof File) {
-                            File file = (File) val;
-                            File newFile = new File(destPath + File.separator + file.getName());
-                            file.renameTo(newFile);
-                            System.out.println("File copied to " + newFile.getAbsolutePath());
-                            System.out.println("file size: " + newFile.length());
-                            return newFile;
-                        } else {
-                            String url = val.toString();
-                            System.out.println("Downloading file: " + url);
-                            if (url.endsWith(".ecar")) {
-                                File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
-                                UnzipUtility unzipper = new UnzipUtility();
-                                unzipper.unzip(ecarFile.getPath(), destPath + "_ecar");
-                                File ecarFolder = new File(destPath + "_ecar" + File.separator + id);
-                                File[] fileList = ecarFolder.listFiles();
-                                File zipFile = null;
-                                if (null != fileList && fileList.length > 0) {
-                                    for (File f : fileList) {
-                                        if (f.getName().endsWith(".zip")) {
-                                            zipFile = f;
+                tasks.add(new Callable<List<File>>() {
+                    public List<File> call() throws Exception {
+                    	List<String> ids = downloadUrls.get(val);
+                    	List<File> files = new ArrayList<File>();
+                    	for (String id : ids) {
+                    		String destPath = bundlePath + File.separator + id;
+                            createDirectoryIfNeeded(destPath);
+                            if (val instanceof File) {
+                                File file = (File) val;
+                                File newFile = new File(destPath + File.separator + file.getName());
+                                FileUtils.copyFile(file, newFile);
+                                files.add(newFile);
+                            } else {
+                                String url = val.toString();
+                                if (url.endsWith(".ecar")) {
+                                    File ecarFile = HttpDownloadUtility.downloadFile(url, destPath + "_ecar");
+                                    UnzipUtility unzipper = new UnzipUtility();
+                                    unzipper.unzip(ecarFile.getPath(), destPath + "_ecar");
+                                    File ecarFolder = new File(destPath + "_ecar" + File.separator + id);
+                                    File[] fileList = ecarFolder.listFiles();
+                                    File zipFile = null;
+                                    if (null != fileList && fileList.length > 0) {
+                                        for (File f : fileList) {
+                                            if (f.getName().endsWith(".zip")) {
+                                                zipFile = f;
+                                            }
                                         }
                                     }
-                                }
-                                if (null != zipFile) {
-                                    String newFileName = id + ".zip";
-                                    File contentDir = new File(destPath);
-                                    if (!contentDir.exists())
-                                        contentDir.mkdirs();
-                                    zipFile.renameTo(new File(contentDir + File.separator + newFileName));
-                                    File ecarTemp = new File(destPath + "_ecar");
-                                    FileUtils.deleteDirectory(ecarTemp);
-                                    File newFile = new File(contentDir + File.separator + newFileName);
-                                    return newFile;
+                                    if (null != zipFile) {
+                                        String newFileName = id + ".zip";
+                                        File contentDir = new File(destPath);
+                                        if (!contentDir.exists())
+                                            contentDir.mkdirs();
+                                        zipFile.renameTo(new File(contentDir + File.separator + newFileName));
+                                        File ecarTemp = new File(destPath + "_ecar");
+                                        FileUtils.deleteDirectory(ecarTemp);
+                                        File newFile = new File(contentDir + File.separator + newFileName);
+                                        files.add(newFile);
+                                    } else {
+                                        // do nothing
+                                    }
                                 } else {
-                                    return null;
+                                	File newFile = HttpDownloadUtility.downloadFile(url, destPath);
+                                	if (null != newFile)
+                                		files.add(newFile);
                                 }
-                            } else {
-                                return HttpDownloadUtility.downloadFile(url, destPath);
                             }
-                        }
+                    	}
+                    	return files;
                     }
                 });
             }
-            List<Future<File>> results = pool.invokeAll(tasks);
-            for (Future<File> ff : results) {
-                File f = ff.get();
-                if (null != f)
-                    files.add(f);
+            List<Future<List<File>>> results = pool.invokeAll(tasks);
+            for (Future<List<File>> ff : results) {
+            	List<File> f = ff.get();
+                if (null != f && !f.isEmpty())
+                    files.addAll(f);
             }
             pool.shutdown();
         } catch (InterruptedException | ExecutionException e) {
@@ -199,7 +214,7 @@ public class ContentBundle {
         }
         return files;
     }
-
+    
     private byte[] createECAR(List<File> files) throws IOException {
         // creating byteArray stream, make it bufforable and passing this buffor
         // to ZipOutputStream
@@ -208,22 +223,24 @@ public class ContentBundle {
         ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
         // packing files
         for (File file : files) {
-            String fileName = null;
-            if (file.getName().toLowerCase().endsWith("manifest.json")) {
-                fileName = file.getName();
-            } else {
-                fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1) + File.separator
-                        + file.getName();
-            }
-            // new zip entry and copying inputstream with file to
-            // zipOutputStream, after all closing streams
-            zipOutputStream.putNextEntry(new ZipEntry(fileName));
-            FileInputStream fileInputStream = new FileInputStream(file);
+        	if (null != file) {
+        		String fileName = null;
+                if (file.getName().toLowerCase().endsWith("manifest.json")) {
+                    fileName = file.getName();
+                } else {
+                    fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1) + File.separator
+                            + file.getName();
+                }
+                // new zip entry and copying inputstream with file to
+                // zipOutputStream, after all closing streams
+                zipOutputStream.putNextEntry(new ZipEntry(fileName));
+                FileInputStream fileInputStream = new FileInputStream(file);
 
-            IOUtils.copy(fileInputStream, zipOutputStream);
+                IOUtils.copy(fileInputStream, zipOutputStream);
 
-            fileInputStream.close();
-            zipOutputStream.closeEntry();
+                fileInputStream.close();
+                zipOutputStream.closeEntry();
+        	}
         }
 
         if (zipOutputStream != null) {
@@ -236,12 +253,12 @@ public class ContentBundle {
         return byteArrayOutputStream.toByteArray();
     }
 
-    private File createManifestFile(String manifestContent) {
+    private File createManifestFile(String manifestContent, String bundlePath) {
         BufferedWriter writer = null;
         try {
-            writer = new BufferedWriter(new FileWriter(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME));
+            writer = new BufferedWriter(new FileWriter(bundlePath + File.separator + BUNDLE_MANIFEST_FILE_NAME));
             writer.write(manifestContent);
-            return new File(BUNDLE_PATH + File.separator + BUNDLE_MANIFEST_FILE_NAME);
+            return new File(bundlePath + File.separator + BUNDLE_MANIFEST_FILE_NAME);
         } catch (IOException ioe) {
             return null;
         } finally {

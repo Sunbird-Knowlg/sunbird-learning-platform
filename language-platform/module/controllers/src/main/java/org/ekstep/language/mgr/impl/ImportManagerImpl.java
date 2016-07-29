@@ -789,7 +789,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     
     @Override
 	public Response importCSV(String languageId, InputStream stream) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (null == stream)
             throw new ClientException(LanguageErrorCodes.ERR_EMPTY_INPUT_STREAM.name(), "Input Zip object is emtpy");
@@ -814,7 +814,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
     
     @Override
 	public Response updateDefinition(String languageId, String json) {
-    	if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+    	if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(json))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(),
@@ -822,6 +822,15 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		LOGGER.info("Update Definition : " + languageId);
 		Request request = getRequest(languageId, GraphEngineManagers.NODE_MANAGER, "importDefinitions");
 		request.put(GraphEngineParams.input_stream.name(), json);
+		return getResponse(request, LOGGER);
+	}
+    
+    @Override
+    public Response findAllDefinitions(String id) {
+		if (StringUtils.isBlank(id))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		LOGGER.info("Get All Definitions : " + id);
+		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getAllDefinitions");
 		return getResponse(request, LOGGER);
 	}
 

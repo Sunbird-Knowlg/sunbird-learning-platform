@@ -1,5 +1,6 @@
 package org.ekstep.language.controller;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -59,20 +60,28 @@ public class WordChainsController extends BaseLanguageController implements IWor
         	Request request = getRequest(map);
         	String traversalId = (String)request.get(ATTRIB_TRAVERSAL_ID);
         	if(traversalId == null){
-        		throw new Exception("Traversal Id is manadatory");
+        		LOGGER.info("Proceeding with normal search");
+        		Response response = compositeSearchManager.search(request);
+    			return getResponseEntity(response, apiId, null);
         	}
+        	
         	request.put(ATTRIB_TRAVERSAL, true);
         	int wordChainsLimit = (int)request.get("limit");
-        	request.put("limit", 500);
+        	
         	Node ruleNode = wordUtil.getDataNode(languageId, traversalId);
         	if(ruleNode == null){
         		throw new Exception("No Rule found for rule id: "+ traversalId);
         	}
         	
+        	int searchResultsLimit = getIntValue(ruleNode.getMetadata().get(ATTRIB_CHAIN_WORDS_SIZE));
+        	request.put("limit", searchResultsLimit);
         	
         	String weightagesJson = (String) ruleNode.getMetadata().get(ATTRIB_WEIGHTAGES);
-        	Map<String, Object> weightagesRequestMap = objectMapper.readValue(weightagesJson, new TypeReference<Map<String, Object>>() {});
+        	if(weightagesJson == null || weightagesJson.isEmpty()){
+        		throw new Exception("No weightages found for rule id: "+ traversalId);
+        	}
         	
+        	Map<String, Object> weightagesRequestMap = objectMapper.readValue(weightagesJson, new TypeReference<Map<String, Object>>() {});
         	Map<String, Double> weightagesMap =  new HashMap<String, Double>();
         	
         	for(Map.Entry<String, Object> entry: weightagesRequestMap.entrySet()){
@@ -89,16 +98,50 @@ public class WordChainsController extends BaseLanguageController implements IWor
         		}
         	}
         	weightagesMap.put(ATTRIB_DEFAULT_WEIGHTAGE, 1.0);
-        	request.put("weightages", weightagesMap);
-        	request.put("graphId", languageId);
-        	Map<String, Object> response = compositeSearchManager.searchForTraversal(request);
+        	
+        	
+        	String objectType = (String) ruleNode.getMetadata().get(ATTRIB_RULE_OBJECT_TYPE);
+        	Object objectStatus;
+        	
+        	String[] ruleObjectStatus = (String[]) ruleNode.getMetadata().get(ATTRIB_RULE_OBJECT_STATUS);
+        	if(ruleObjectStatus.length > 1){
+        		objectStatus = Arrays.asList(ruleObjectStatus);
+        	}
+        	else if(ruleObjectStatus.length > 0){
+        		objectStatus = ruleObjectStatus[0];
+        	}
+        	else{
+        		objectStatus = "Live";
+        	}
+        	
+        	Map<String, Object> traversalProperties = new HashMap<String, Object>();
+        	traversalProperties.put("weightages", weightagesMap);
+        	traversalProperties.put("graph_id", languageId);
+        	traversalProperties.put("objectType", objectType);
+        	traversalProperties.put("status", objectStatus);
+
+        	request.put(ATTRIB_TRAVERSAL_PROPERTIES, traversalProperties);
+        	
+        	Map<String, Object> response = compositeSearchManager.weightedSearch(request);
         	List<Map> words = (List<Map>) response.get("results");
-        	Response wordChainResponse = wordChainsManager.getWordChain(traversalId, wordChainsLimit, words, ruleNode, languageId);
+        	Response wordChainResponse = wordChainsManager.getWordChain(wordChainsLimit, words, ruleNode, languageId);
             return getResponseEntity(wordChainResponse, apiId, null);
         } catch (Exception e) {
+        	e.printStackTrace();
             LOGGER.error("Error: " + apiId, e);
             return getExceptionResponseEntity(e, apiId, null);
         }
     }
+    
+    private int getIntValue(Object object) {
+		int value;
+		if(object instanceof Double){
+			value = ((Double)object).intValue();
+		}
+		else{
+			value = (int) object;
+		}
+		return value;
+	}
     
 }

@@ -11,6 +11,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -66,6 +67,13 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		return plugin;
 	}
 	
+	private String getFolderPath(String src) {
+		if (StringUtils.isNotBlank(src)) {
+			return FilenameUtils.getPathNoEndSeparator(src);
+		}
+		return null;
+	}
+	
 	private Map<String, String> uploadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != medias && StringUtils.isNotBlank(basePath)){
@@ -85,8 +93,11 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		                    		ContentWorkflowPipelineParams.assets.name() + File.separator + media.getSrc());
 		                    String[] uploadedFileUrl;
 		                    if (uploadFile.exists()) {
-			                	uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME, 
-			                		ContentConfigurationConstants.FOLDER_NAME + "/" + Slug.makeSlug(contentId, true), uploadFile);
+		                    	String folderName = ContentConfigurationConstants.FOLDER_NAME + "/" + Slug.makeSlug(contentId, true);
+		                    	String path = getFolderPath(media.getSrc());
+		                    	if (StringUtils.isNotBlank(path))
+		                    		folderName = folderName + "/" + path;
+			                	uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME, folderName, uploadFile);
 			                	if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
 			                        uploadMap.put(media.getId(), uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
 		                    }

@@ -2,6 +2,8 @@ package org.ekstep.common.optimizr;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.logging.log4j.LogManager;
@@ -90,6 +92,26 @@ public class Optimizr {
         delete(tempDir);
     }
 	
+    public File optimizeFile(File file) throws Exception{
+        List<Processor> processors = new ArrayList<Processor>(); 
+        processors.add(new MonoChannelProcessor());
+        processors.add(new ResizeImagemagickProcessor());
+
+        File output = null;
+        FileType type = FileUtils.getFileType(file);
+        
+        for (Processor proc : processors) {    
+            if (proc.isApplicable(type)) {
+                try {
+                    output = proc.process(file);
+            	} catch (Exception ex) {
+
+                }
+        	}
+        }
+        
+       return output; 	
+    }
     
     public void delete(File file) throws IOException {
         if (file.isDirectory()) {

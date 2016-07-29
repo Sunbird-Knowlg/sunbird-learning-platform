@@ -3,6 +3,8 @@ package org.ekstep.common.util;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +16,9 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.DeleteObjectRequest;
+import com.amazonaws.services.s3.model.ObjectListing;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.services.s3.model.S3ObjectSummary;
 
 /**
  * arguments 
@@ -52,5 +56,20 @@ public class AWSUploader {
             throws IOException {
     	AmazonS3 s3 = new AmazonS3Client();
         return s3.getObjectMetadata(bucket, key).getContentLength();
+    }
+    
+    public static List<String> getObjectList(String bucketName, String prefix){
+    	 AmazonS3 s3 = new AmazonS3Client();
+    	ObjectListing listing = s3.listObjects( bucketName, prefix );
+    	List<S3ObjectSummary> summaries = listing.getObjectSummaries();
+    	List<String> fileList = new ArrayList<String>();	
+    	while (listing.isTruncated()) {
+    	   listing = s3.listNextBatchOfObjects (listing);
+    	   summaries.addAll (listing.getObjectSummaries());
+    	}
+    	for(S3ObjectSummary data : summaries) {
+    		fileList.add(data.getKey());
+    	}
+		return fileList;
     }
 }

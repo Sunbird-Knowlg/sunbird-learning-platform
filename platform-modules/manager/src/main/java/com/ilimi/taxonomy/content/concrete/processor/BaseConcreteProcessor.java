@@ -47,11 +47,12 @@ public class BaseConcreteProcessor extends BaseManager {
 		Map<String, String> srcMap = new HashMap<String, String>();
 		if (null != medias) {
 			for (Media media: medias) {
-				Map<String, String> data = media.getData();
+				Map<String, Object> data = media.getData();
 				if (null != data && data.containsKey(ContentWorkflowPipelineParams.assetId.name())) {
-					if (StringUtils.isBlank(data.get(ContentWorkflowPipelineParams.assetId.name()))) {
-						String src = data.get(ContentWorkflowPipelineParams.src.name());
-						String type = data.get(ContentWorkflowPipelineParams.type.name());
+					Object obj = data.get(ContentWorkflowPipelineParams.assetId.name());
+					if (null == obj || StringUtils.isBlank(obj.toString())) {
+						String src = String.valueOf(data.get(ContentWorkflowPipelineParams.src.name()));
+						String type = String.valueOf(data.get(ContentWorkflowPipelineParams.type.name()));
 						if (!StringUtils.isBlank(src) &&
 								!StringUtils.isBlank(type))
 							srcMap.put(src, type);
@@ -99,9 +100,10 @@ public class BaseConcreteProcessor extends BaseManager {
 		if (null != controllers && !StringUtils.isBlank(type) && !StringUtils.isBlank(basePath)) {
 			for (Controller controller: controllers) {
 				if (null != controller.getData()) {
-					if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), 
-							controller.getData().get(ContentWorkflowPipelineParams.type.name()))) {
-						String controllerId = controller.getData().get(ContentWorkflowPipelineParams.id.name());
+					Object objType = controller.getData().get(ContentWorkflowPipelineParams.type.name());
+					String ctrlType = ((null == objType) ? "" : objType.toString());
+					if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), ctrlType)) {
+						String controllerId = String.valueOf(controller.getData().get(ContentWorkflowPipelineParams.id.name()));
 						if (!StringUtils.isBlank(controllerId))
 							controllerFileList.add(new File(basePath + File.separator + 
 									ContentWorkflowPipelineParams.items.name() + File.separator + controllerId + 

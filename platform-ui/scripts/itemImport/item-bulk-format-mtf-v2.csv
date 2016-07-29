@@ -1,0 +1,12 @@
+Code,Concepts,Title,Question,Question Image,Question Audio,Image Count,Domain,Language,Grade Level,Difficulty Level,Keywords,LHS Option 1 Text,LHS Option 1 Image,LHS Option 2 Text,LHS Option 2 Image,LHS Option 3 Text,LHS Option 3 Image,LHS Option 4 Text,LHS Option 4 Image,RHS Option 1 Text,RHS Option 1 Image,RHS Option 1 Answer,RHS Option 2 Text,RHS Option 2 Image,RHS Option 2 Answer,RHS Option 3 Text,RHS Option 3 Image,RHS Option 3 Answer,RHS Option 4 Text,RHS Option 4 Image,RHS Option 4 Answer,Template Name,Template ID,Param 1,Param 2
+Unique code for the question,Concepts related to this question. (Comma separated if more than one),Title for the assessment item,Question Body,Image used in the question body (if any),Audio asset used in the question body (if any),"For numeracy questions, repeat the body image how many times?",Literacy or Numeracy,"Language for the item (Hindi, English, Kannada, Telugu)",Grade level,"How difficult is the question? 
+(EASY, MEDIUM, DIFFICULT, RARE)",Search keywords for this question,"LHS Options
+Text - Text of the option
+Image - Image to use in option",,,,,,,,"RHS Options
+Text - Text of the option
+Image - Image to use in option
+Answer - index of the LHS option to map to",,,,,,,,,,,,Name of the template to use with this question,ID of the template to use with this question,Parameter 1 for templates to use,Parameter 2 for templates to use
+mtf.test.1,,Match and answer,Match LHS to RHS,,,,Numeracy,,Grade 1,EASY,"addition, add, sum",L1,,L2,,L3,,L4,,R1,,1,R2,,2,R3,,3,R4,,4,org.ekstep.mcq.t.ta,domain_3490,7,1
+mtf.test.2,,Match and answer,Match LHS to RHS,,,,Numeracy,,Grade 1,EASY,"addition, add, sum",L1,,L2,,L3,,L4,,R1,,1,R2,,2,R3,,3,R4,,7,org.ekstep.mcq.t.ta,domain_3490,7,1
+mtf.test.3,,Match and answer,Match LHS to RHS,,,,Numeracy,,Grade 1,EASY,"addition, add, sum",L1,,L1,,L1,,,,R1,,1,R2,,2,R3,,3,R4,,4,org.ekstep.mcq.t.ta,domain_3490,7,1
+mtf.test.4,,Match and answer,Match LHS to RHS,,,,Numeracy,,Grade 1,EASY,"addition, add, sum",L1,,L2,,L3,,,,R1,,1,R2,,2,R3,,3,R4,,4,org.ekstep.mcq.t.ta,domain_3490,7,1

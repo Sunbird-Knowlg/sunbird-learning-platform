@@ -60,7 +60,7 @@ public class MissingControllerValidatorProcessor extends AbstractProcessor {
 					else
 						controllerIds.add(controller.getId());
 					if (StringUtils.isBlank(controller.getcData())) {
-						String type = controller.getData().get(ContentWorkflowPipelineParams.type.name());
+						String type = (String) controller.getData().get(ContentWorkflowPipelineParams.type.name());
 						if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.data.name(), type)
 								&& !new File(basePath + File.separator + ContentWorkflowPipelineParams.data.name()
 										+ File.separator + controller.getId() + ".json").exists())

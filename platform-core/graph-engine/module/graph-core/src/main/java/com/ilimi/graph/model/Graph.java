@@ -5,7 +5,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -808,7 +807,7 @@ public class Graph extends AbstractDomainObject {
     }
 
     @SuppressWarnings("unchecked")
-    public void getDefinitionNodes(Request req) {
+    public void getDefinitionNodes(final Request req) {
         try {
             ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
             Request request = new Request(req);
@@ -826,11 +825,13 @@ public class Graph extends AbstractDomainObject {
                         Response res = (Response) arg1;
                         List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
                         if (null != nodes && !nodes.isEmpty()) {
+                        	ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
                             List<DefinitionDTO> definitions = new ArrayList<DefinitionDTO>();
                             for (Node node : nodes) {
                                 DefinitionNode defNode = new DefinitionNode(manager, node);
                                 DefinitionDTO definition = defNode.getValueObject();
                                 DefinitionCache.cacheDefinitionNode(graphId, definition);
+                                defNode.loadToCache(cacheRouter, req);
                                 definitions.add(definition);
                             }
                             manager.OK(GraphDACParams.definition_nodes.name(), definitions, getParent());

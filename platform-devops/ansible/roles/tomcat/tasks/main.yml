@@ -1,9 +1,9 @@
 ---
 - name: Download Tomcat
-  get_url: url=http://mirror.fibergrid.in/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user/apache-tomcat-8.0..tar.gz timeout=1000 force=no owner=ec2-user
+  get_url: url=http://mirror.fibergrid.in/apache/tomcat/tomcat-8/v8.0.36/bin/apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user/ timeout=1000 force=no owner=ec2-user
 
 - name: Extract archive
-  unarchive: src={{ tomcat_home }}.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ tomcat_home }}
+  unarchive: src=apache-tomcat-8.0.36.tar.gz dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ tomcat_home }}
 
 
 - name: Symlink install directory

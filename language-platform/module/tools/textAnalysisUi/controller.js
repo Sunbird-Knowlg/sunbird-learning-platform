@@ -79,7 +79,7 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
             } 
             else
             {
-                $scope.url = "http://lp-sandbox.ekstep.org:8080/taxonomy-service/v1/language/tools/textAnalysis";
+                $scope.url = "http://api.ekstep.in/language/v1/language/tools/textAnalysis";
                 $scope.apiUrl = {
                         "request": {
                             "language_id": $scope.lang.id,

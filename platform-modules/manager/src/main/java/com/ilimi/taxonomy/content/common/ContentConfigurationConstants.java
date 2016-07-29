@@ -4,6 +4,10 @@ public class ContentConfigurationConstants {
 	
 	public static final String CONTENT_BASE_PATH = "/data/contentBundle/";
 	
+	public static final String CONTENT_BUNDLE_BASE_PATH = "/data/contentBundle/";
+	
+	public static final String CONTENT_BUNDLE_MANIFEST_FILE_NAME = "manifest.json";
+	
 	public static final String BUCKET_NAME = "ekstep-public";
 	
 	public static final String FOLDER_NAME = "content";
@@ -16,7 +20,13 @@ public class ContentConfigurationConstants {
 	
 	public static final String FILENAME_EXTENSION_SEPERATOR = ".";
 	
+	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.0";
+	
+	public static final String DEFAULT_ZIP_EXTENSION = "zip";
+	
 	public static final String DEFAULT_CONTENT_OWNER = "EkStep";
+	
+	public static final String DEFAULT_ECML_FILE_NAME = "index";
 	
 	public static final String DEFAULT_CONTENT_BODY = "<content></content>";
 	

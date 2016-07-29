@@ -166,11 +166,11 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-	private StringBuilder getElementXml(Map<String, String> data) {
+	private StringBuilder getElementXml(Map<String, Object> data) {
 		StringBuilder xml = new StringBuilder();
 		if (null != data) {
 			xml.append(START_TAG_OPENING + data.get(ContentWorkflowPipelineParams.cwp_element_name.name()));
-			for (Entry<String, String> entry: data.entrySet()) {
+			for (Entry<String, Object> entry: data.entrySet()) {
 				if (!ElementMap.isSystemGenerateAttribute(entry.getKey())) {
 					xml.append(BLANK_SPACE + entry.getKey() + ATTRIBUTE_KEY_VALUE_SAPERATOR + addQuote(entry.getValue()));
 				}
@@ -190,7 +190,8 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-	private StringBuilder getEndTag(String elementName) {
+	private StringBuilder getEndTag(Object obj) {
+		String elementName = ((null == obj) ? null : obj.toString());
 		StringBuilder xml = new StringBuilder();
 		if (!StringUtils.isBlank(elementName))
 			xml.append(END_TAG_OPENING + elementName + TAG_CLOSING);
@@ -204,7 +205,8 @@ public class ECRFToXMLConvertor {
 		return xml;
 	}
 	
-	public static String addQuote(String str) {
+	public static String addQuote(Object obj) {
+		String str = (null == obj) ? "" : obj.toString();
 		return DOUBLE_QUOTE + StringEscapeUtils.escapeXml11(str) + DOUBLE_QUOTE;
 	}
 

@@ -50,8 +50,6 @@ import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
 import com.ilimi.taxonomy.util.CustomParser;
 
-import scala.sys.process.ProcessBuilderImpl.IStreamBuilder;
-
 public class BaseMimeTypeManager extends BaseManager {
 
     @Autowired
