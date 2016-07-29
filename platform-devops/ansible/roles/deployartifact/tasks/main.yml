@@ -6,9 +6,11 @@
   service: name=tomcat state=stopped
 
 - name: Change ownership of Tomcat installation
+  become: yes
   file: path=/usr/share/tomcat/ owner=ec2-user group=ec2-user state=directory recurse=yes
 
 - name: Change ownership of Tomcat installation
+  become: yes
   file: path=/home/ec2-user/apache-tomcat-8.0.36 owner=ec2-user group=ec2-user state=directory recurse=yes
 
 
