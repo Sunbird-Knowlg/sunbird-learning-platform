@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
@@ -76,12 +77,14 @@ public class AssessmentValidator extends BaseManager {
         if (AssessmentItemType.isValidAssessmentType(itemType)) {
             Map<String, Object> metadata = item.getMetadata();
             Integer numAnswers = null;
-            if (null != metadata.get("num_answers"))
+            if (isNotBlank(metadata, "num_answers"))
                 numAnswers = (int) metadata.get("num_answers");
-            if (null != metadata.get("hints"))
+            if (isNotBlank(metadata, "hints"))
                 checkJsonList(metadata, errorMessages, "hints",
                         new String[] { "order", "anchor", "content_type", "content", "start", "timing", "on_next" },
                         null);
+            if (isNotBlank(metadata, "responses"))
+            	validateResponses(metadata.get("responses"), errorMessages);
             switch (AssessmentItemType.getAssessmentType(itemType)) {
             case mcq:
                 checkJsonList(metadata, errorMessages, "options",
@@ -121,6 +124,34 @@ public class AssessmentValidator extends BaseManager {
             errorMessages.add("invalid assessment type: " + itemType);
         }
         return errorMessages;
+    }
+    
+    @SuppressWarnings("unchecked")
+	private void validateResponses(Object object, List<String> errorMessages) {
+    	try {
+    		List<Map<String, Object>> responses = mapper.convertValue(object, List.class);
+    		if (null != responses && !responses.isEmpty()) {
+    			for (Map<String, Object> response : responses) {
+    				if (!isNotBlank(response, "values")) {
+    					errorMessages.add("response must contain values");
+    					break;
+    				}
+    				if (!isNotBlank(response, "score") && !isNotBlank(response, "mmc")) {
+    					errorMessages.add("response must have either a score or missing micro-concepts (mmc)");
+    					break;
+    				}
+    				Object objValues = response.get("values");
+    				Map<String, Object> values = mapper.convertValue(objValues, Map.class);
+    				if (null == values || values.isEmpty()) {
+    					errorMessages.add("response must have atleast one value");
+    					break;
+    				}
+    			}
+    		}
+    	} catch (Exception e) {
+    		LOGGER.error("invalid responses definition.", e);
+    		errorMessages.add("invalid responses definition");
+    	}
     }
 
     @SuppressWarnings("rawtypes")
@@ -247,7 +278,6 @@ public class AssessmentValidator extends BaseManager {
     @SuppressWarnings("unchecked")
     private int checkMtfJson(Map<String, Object> metadata, List<String> errorMessages) {
         List<Object> option1 = new ArrayList<Object>();
-        List<Object> option2 = new ArrayList<Object>();
         String lhsOptions = "lhs_options";
         String[] lhsKeys = new String[]{"value", "index"};
         String rhsOptions = "rhs_options";
@@ -257,6 +287,7 @@ public class AssessmentValidator extends BaseManager {
         } else {
             try {
                 List<Map<String, Object>> values = mapper.readValue((String) metadata.get(lhsOptions), List.class);
+                int index = 0;
                 for (Map<String, Object> value : values) {
                     for (String key : lhsKeys) {
                         if (!value.containsKey(key)) {
@@ -265,7 +296,7 @@ public class AssessmentValidator extends BaseManager {
                             break;
                         }
                     }
-                    if (!checkOptionValue(value, errorMessages))
+                    if (!checkOptionValue(index, value, errorMessages))
                         break;
                     if (value.containsKey("index")) {
                         if (option1.contains(value.get("index"))) {
@@ -274,6 +305,7 @@ public class AssessmentValidator extends BaseManager {
                         }
                         option1.add(value.get("index"));
                     }
+                    index += 1;
                 }
             } catch (Exception e) {
                 errorMessages.add("invalid assessment item property: " + lhsOptions + ".");
@@ -284,6 +316,7 @@ public class AssessmentValidator extends BaseManager {
         } else {
             try {
                 List<Map<String, Object>> values = mapper.readValue((String) metadata.get(rhsOptions), List.class);
+                int index = 0;
                 for (Map<String, Object> value : values) {
                     for (String key : rhsKeys) {
                         if (!value.containsKey(key)) {
@@ -292,16 +325,9 @@ public class AssessmentValidator extends BaseManager {
                             break;
                         }
                     }
-                    if (!checkOptionValue(value, errorMessages))
+                    if (!checkOptionValue(index, value, errorMessages))
                         break;
-                    if (value.containsKey("answer")) {
-//                    	Code Commented to allow multiple answer on RHS i.e. MMTF
-//                        if (option2.contains(value.get("answer"))) {
-//                            errorMessages.add("answer should be unique.");
-//                            return 0;
-//                        }
-                        option2.add(value.get("answer"));
-                    }
+                    index += 1;
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -312,23 +338,35 @@ public class AssessmentValidator extends BaseManager {
     }
     
     @SuppressWarnings("unchecked")
-    private boolean checkOptionValue(Map<String, Object> value, List<String> errorMessages) {
+    private boolean checkOptionValue(int index, Map<String, Object> value, List<String> errorMessages) {
         boolean valid = true;
         if (null != value.get("value")) {
             Map<String, Object> valueMap = (Map<String, Object>) value.get("value");
             Object type = valueMap.get("type");
-            Object asset = valueMap.get("asset");
             if (null == type) {
                 errorMessages.add(
                         "invalid option. Option 'type' cannot be null");
                 valid = false;
             }
-            if (null == asset) {
-                asset = value.get("answer");
-                valueMap.put("asset", asset);
+            if (!isNotBlank(valueMap, "resvalue")) {
+            	if (isNotBlank(valueMap, "asset"))
+            		valueMap.put("resvalue", valueMap.get("asset"));
+            	else if (isNotBlank(valueMap, "text"))
+            		valueMap.put("resvalue", valueMap.get("text"));
+            	else
+            		valueMap.put("resvalue", index);
             }
+            valueMap.put("resindex", index);
         }
         return valid;
+    }
+    
+    private boolean isNotBlank(Map<String, Object> map, String key) {
+    	if (null != map && StringUtils.isNotBlank(key) && map.containsKey(key)) {
+    		if (null != map.get(key) && StringUtils.isNotBlank(map.get(key).toString()))
+    			return true;
+    	}
+    	return false;
     }
 
     @SuppressWarnings("unchecked")
@@ -343,6 +381,7 @@ public class AssessmentValidator extends BaseManager {
             try {
                 List<Map<String, Object>> values = mapper.readValue((String) metadata.get(propertyName), List.class);
                 Integer answerCount = 0;
+                int index = 0;
                 for (Map<String, Object> value : values) {
                     for (String key : keys) {
                         if (!value.containsKey(key)) {
@@ -361,8 +400,9 @@ public class AssessmentValidator extends BaseManager {
                             if (answer.booleanValue())
                                 answerCount += 1;
                         }
-                        if (!checkOptionValue(value, errorMessages))
+                        if (!checkOptionValue(index, value, errorMessages))
                             break;
+                        index += 1;
                     }
                 }
                 if (AssessmentItemType.mcq.name().equals(itemType)) {
