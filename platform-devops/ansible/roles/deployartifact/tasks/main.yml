@@ -7,8 +7,7 @@
   ignore_errors: yes
 
 
-- name: stop tomcat
-  service: name=tomcat state=stopped
+
   
 - name: Change ownership of Tomcat installation
   become: yes
@@ -24,7 +23,8 @@
 
 
 
-
+- name: stop tomcat
+  service: name=tomcat state=stopped
 
 
 - name: copy the database.properties
