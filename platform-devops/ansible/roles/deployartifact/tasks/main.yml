@@ -94,37 +94,37 @@
 - name: wait for tomcat to start
   wait_for: port=8080
 
-- name: check language-service/service
-  shell: curl 'http://{{ service_url }}/language-service/service' | grep '"healthy":false' | wc -l
+- name: check language-service health
+  shell: curl 'http://{{ service_url }}/language-service/health' | grep '"healthy":false' | wc -l
   register: language_process
 
-- name: check search-service/service
-  shell: curl 'http://{{ service_url }}/search-service/service' | grep '"healthy":false' | wc -l
+- name: check search-service health
+  shell: curl 'http://{{ service_url }}/search-service/health' | grep '"healthy":false' | wc -l
   register: search_process
 
-- name: check learning-service/service
-  shell: curl 'http://{{ service_url }}/learning-service/service' | grep '"healthy":false' | wc -l
+- name: check learning-service health
+  shell: curl 'http://{{ service_url }}/learning-service/health' | grep '"healthy":false' | wc -l
   register: learning_process
 
-- name: check config-service/service
-  shell: curl 'http://{{ service_url }}/config-service/service' | grep '"healthy":false' | wc -l
+- name: check config-service health
+  shell: curl 'http://{{ service_url }}/config-service/health' | grep '"healthy":false' | wc -l
   register: config_process
 
 
-- name: failing language-service/service
-  fail: msg="Response Failing for the  language-service/service"
+- name: failed language-service health check
+  fail: msg="Health check failed for language-service"
   when: "language_process.stdout >='1'"
 
-- name: failing search-service/service
-  fail: msg="Response Failing for the search-service/service"
+- name: failed search-service health check
+  fail: msg="Health check failed for search-service"
   when: "search_process.stdout >= '1'"
 
-- name: failing learning-service/service
-  fail: msg="Response Failing for the learning-service/service"
+- name: failed learning-service health check
+  fail: msg="Health check failed for learning-service"
   when: "learning_process.stdout >= '1'"
 
-- name: failing config-service/service
-  fail: msg="Response Failing for the config-service/service"
+- name: failed config-service health check
+  fail: msg="Health check failed for config-service"
   when: "config_process.stdout >= '1'"
 
 
