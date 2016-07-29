@@ -350,7 +350,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 				if (nodes.size() == 1 && StringUtils.isBlank(bundleFileName))
 					bundleFileName = (String) nodes.get(0).getMetadata().get(ContentAPIParams.name.name()) + "_"
 							+ System.currentTimeMillis() + "_"
-							+ (String) nodes.get(0).getMetadata().get(ContentAPIParams.identifier.name());
+							+ (String) nodes.get(0).getIdentifier();
 			}
 			bundleFileName = Slug.makeSlug(bundleFileName, true);
 			String fileName = bundleFileName + ".ecar";

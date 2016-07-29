@@ -103,11 +103,17 @@ public class BundleFinalizer extends BaseFinalizer {
 			this.basePath = path;
 			this.contentId = node.getIdentifier();
 			LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
-
 			LOGGER.info("Is Compression Applied ? " + isCompressionApplied);
 
-			// Download App Icon and create thumbnail
-			createThumbnail(basePath, node);
+			// Download 'appIcon'
+			String appIcon = (String) node.getMetadata().get(ContentWorkflowPipelineParams.appIcon.name());
+			if (HttpDownloadUtility.isValidUrl(appIcon))
+				zipPackages.add(HttpDownloadUtility.downloadFile(appIcon, basePath));
+			
+			// Download 'posterImage'
+			String posterImage = (String) node.getMetadata().get(ContentWorkflowPipelineParams.posterImage.name());
+			if (HttpDownloadUtility.isValidUrl(posterImage))
+				zipPackages.add(HttpDownloadUtility.downloadFile(posterImage, basePath));
 
 			if (BooleanUtils.isTrue(isCompressionApplied)) {
 				// Get Content String

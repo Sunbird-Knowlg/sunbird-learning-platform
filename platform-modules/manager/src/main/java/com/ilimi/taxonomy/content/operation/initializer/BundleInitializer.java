@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -96,9 +97,8 @@ public class BundleInitializer extends BaseInitializer {
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
 			for (Map.Entry<String, Object> entry : content.entrySet()) {
-                if (urlFields.contains(entry.getKey()) && HttpDownloadUtility.isValidUrl(entry.getKey())) {
-                	String file = entry.getValue().toString()
-                            .substring(entry.getValue().toString().lastIndexOf('/') + 1);
+                if (urlFields.contains(entry.getKey()) && null != entry.getValue() && HttpDownloadUtility.isValidUrl(entry.getValue())) {
+                	String file = FilenameUtils.getName(entry.getValue().toString());
                     if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
                         entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
                     } else {
