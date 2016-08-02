@@ -30,7 +30,7 @@ public class SearchProcessor {
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 		
-		if (searchDTO.isTraversalSearch()) {
+		if (searchDTO.isFuzzySearch()) {
 			List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
 			response.put("results", results);
 			return response;
@@ -207,9 +207,9 @@ public class SearchProcessor {
 			}
 		}
 		String query;
-		if(searchDTO.isTraversalSearch()){
-			Map<String, Object> traversalProperties = (Map<String, Object>) searchDTO.getAdditionalProperty("traversalProperties");
-			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), traversalProperties);
+		if(searchDTO.isFuzzySearch()){
+			Map<String, Object> baseConditions = (Map<String, Object>) searchDTO.getAdditionalProperty("baseConditions");
+			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy(), baseConditions);
 		}
 		else
 		{
@@ -220,14 +220,14 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String,  Object> traversalProperties) throws Exception {
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String,  Object> baseConditions) throws Exception {
 		
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-		Map<String,  Double> weightages = (Map<String, Double>) traversalProperties.get("weightages");
+		Map<String,  Double> weightages = (Map<String, Double>) baseConditions.get("weightages");
 
 			builder.key("query").object()
 				.key("function_score")
@@ -237,7 +237,7 @@ public class SearchProcessor {
 								.key("bool").object()
 									.key("must").array();
 										
-			for(Map.Entry<String, Object> entry: traversalProperties.entrySet()){
+			for(Map.Entry<String, Object> entry: baseConditions.entrySet()){
 				if(!entry.getKey().equalsIgnoreCase("weightages")){
 					String field = entry.getKey();
 					

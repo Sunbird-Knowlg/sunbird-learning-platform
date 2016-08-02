@@ -41,25 +41,11 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	
 	@SuppressWarnings("unchecked")
 	@Override
-	public Map<String, Object> weightedSearch(Request request) {
-		SearchProcessor processor = new SearchProcessor();
-		try {
-			SearchDTO searchDTO = getSearchDTO(request);
-			searchDTO.addAdditionalProperty("traversalProperties", (Map<String, Object>) request.get("traversalProperties"));
-			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
-			return lstResult;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> languageSearch(Request request) {
 		SearchProcessor processor = new SearchProcessor();
 		try {
 			SearchDTO searchDTO = getSearchDTO(request);
-			searchDTO.addAdditionalProperty("traversalProperties", (Map<String, Object>) request.get("traversalProperties"));
+			searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request.get("baseConditions"));
 			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
 			return lstResult;
 		} catch (Exception e) {
@@ -90,9 +76,12 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			if (null != req.get(CompositeSearchParams.limit.name())) {
 				limit = (int) req.get(CompositeSearchParams.limit.name());
 			}
-			Boolean traversal = (Boolean) request.get("traversal");
-			if (null == traversal)
-				traversal = false;
+			Boolean fuzzySearch = (Boolean) request.get("fuzzy");
+			if (null == fuzzySearch)
+				fuzzySearch = false;
+			Boolean wordChainsRequest = (Boolean) request.get("traversal");
+			if (null == wordChainsRequest)
+				wordChainsRequest = false;
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
@@ -103,15 +92,15 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));
 			properties.addAll(getAdditionalFilterProperties(notExists, CompositeSearchParams.not_exists.name()));
 			properties.addAll(getSearchQueryProperties(queryString, fields));
-			properties.addAll(getSearchFilterProperties(filters, traversal));
+			properties.addAll(getSearchFilterProperties(filters, wordChainsRequest));
 			searchObj.setSortBy(sortBy);
 			searchObj.setFacets(facets);
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
 			
-			if(traversal != null){
-				searchObj.setTraversalSearch(traversal);
+			if(fuzzySearch != null){
+				searchObj.setFuzzySearch(fuzzySearch);
 			}
 		} catch(ClassCastException e) {
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
@@ -272,7 +261,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	}
 	
 	@SuppressWarnings("unchecked")
-	private Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
+	@Override
+	public Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Response response = new Response();
 		ResponseParams params = new ResponseParams();
 		params.setStatus("Success");

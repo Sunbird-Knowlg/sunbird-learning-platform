@@ -13,6 +13,8 @@ public interface ICompositeSearchManager {
 	
 	Response count(Request request);
 
-	Map<String, Object> weightedSearch(Request request);
+	Map<String, Object> languageSearch(Request request);
+
+	Response getCompositeSearchResponse(Map<String, Object> searchResponse);
 
 }

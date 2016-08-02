@@ -23,5 +23,6 @@ public interface IWordChainConstants {
 	public final String ATTRIB_WORD_CHAIN_RELATION = "relation";
 	public final String ATTRIB_RULE_TYPE = "type";
 	public final String ATTRIB_TRAVERSAL_PROPERTIES = "traversalProperties";
+	public final String ATTRIB_WEIGHTAGE_BASE_CONDITIONS = "baseConditions";
 	public final String ATTRIB_FUZZY = "fuzzy";
 }
