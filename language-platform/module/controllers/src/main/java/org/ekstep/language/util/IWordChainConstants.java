@@ -3,6 +3,7 @@ package org.ekstep.language.util;
 public interface IWordChainConstants {
 
 	public final String ATTRIB_TRAVERSAL_ID = "traversalId";
+	public final String ATTRIB_LANGUAGE_ID = "languageId";
 	public final String ATTRIB_TRAVERSAL = "traversal";
 	public final String ATTRIB_MAX_CHAIN_LENGTH = "maxChainLength";
 	public final String ATTRIB_MIN_CHAIN_LENGTH = "minChainLength";
@@ -22,4 +23,5 @@ public interface IWordChainConstants {
 	public final String ATTRIB_WORD_CHAIN_RELATION = "relation";
 	public final String ATTRIB_RULE_TYPE = "type";
 	public final String ATTRIB_TRAVERSAL_PROPERTIES = "traversalProperties";
+	public final String ATTRIB_FUZZY = "fuzzy";
 }

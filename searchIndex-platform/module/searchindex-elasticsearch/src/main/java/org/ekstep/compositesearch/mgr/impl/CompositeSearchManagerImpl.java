@@ -54,6 +54,20 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 	}
 	
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> languageSearch(Request request) {
+		SearchProcessor processor = new SearchProcessor();
+		try {
+			SearchDTO searchDTO = getSearchDTO(request);
+			searchDTO.addAdditionalProperty("traversalProperties", (Map<String, Object>) request.get("traversalProperties"));
+			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
+			return lstResult;
+		} catch (Exception e) {
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
 	@Override
     public Response metrics(Request request) {
         SearchProcessor processor = new SearchProcessor();

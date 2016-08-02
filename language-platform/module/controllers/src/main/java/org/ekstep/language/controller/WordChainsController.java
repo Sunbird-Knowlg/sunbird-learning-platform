@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
+import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.IWordChainConstants;
 import org.ekstep.language.util.WordUtil;
@@ -28,6 +29,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 @Controller
 @RequestMapping("v2/language")
@@ -49,16 +51,60 @@ public class WordChainsController extends BaseLanguageController implements IWor
     
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
-	@RequestMapping(value = "/search/{languageId}", method = RequestMethod.POST)
+	@RequestMapping(value = "/search", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> search(@RequestBody Map<String, Object> map, 
-    		@RequestHeader(value = "user-id") String userId, @PathVariable(value = "languageId") String languageId,
+    		@RequestHeader(value = "user-id") String userId,
             HttpServletResponse resp) {
         String apiId = "composite-search.search";
         LOGGER.info(apiId + " | Request : " + map);
         try {
         	Request request = getRequest(map);
+        	
+        	List<String> languageIds = (List<String>)request.get(ATTRIB_LANGUAGE_ID);
+        	if(languageIds == null || languageIds.isEmpty()){
+        		throw new Exception("At least One Language Id is manadatory");
+        	}
+        	String languageId = languageIds.get(0);
+        	
         	String traversalId = (String)request.get(ATTRIB_TRAVERSAL_ID);
+        	
+        	Boolean isFuzzySearch = (Boolean)request.get(ATTRIB_FUZZY);
+        	if(isFuzzySearch == null){
+        		isFuzzySearch = false;
+        	}
+        	
+        	Map<String, Double> weightagesMap =  new HashMap<String, Double>();
+        	if(isFuzzySearch){
+	        	DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(LanguageObjectTypes.Word.name(), languageId);
+	        	if(wordDefinition == null){
+	        		throw new Exception("No Definition found for" + LanguageObjectTypes.Word.name() + " for the language: "+  languageId);
+	        	}
+	        	
+	        	String weightagesJson = (String) wordDefinition.getMetadata().get(ATTRIB_WEIGHTAGES);
+	        	if(weightagesJson == null || weightagesJson.isEmpty()){
+	        		throw new Exception("No weightages found for rule id: "+ traversalId);
+	        	}
+	        	
+	        	Map<String, Object> weightagesRequestMap = objectMapper.readValue(weightagesJson, new TypeReference<Map<String, Object>>() {});
+	        	
+	        	
+	        	for(Map.Entry<String, Object> entry: weightagesRequestMap.entrySet()){
+	        		Double weightage = Double.parseDouble(entry.getKey());
+	        		if(entry.getValue() instanceof List){
+	        			List<String> fields = (List<String>) entry.getValue();
+	        			for(String field: fields){
+	        				weightagesMap.put(field, weightage);
+	        			}
+	        		}
+	        		else {
+	        			String field = (String) entry.getValue();
+	        			weightagesMap.put(field, weightage);
+	        		}
+	        	}
+	        	weightagesMap.put(ATTRIB_DEFAULT_WEIGHTAGE, 1.0);
+        	}
+        	
         	if(traversalId == null){
         		LOGGER.info("Proceeding with normal search");
         		Response response = compositeSearchManager.search(request);
@@ -76,28 +122,6 @@ public class WordChainsController extends BaseLanguageController implements IWor
         	int searchResultsLimit = getIntValue(ruleNode.getMetadata().get(ATTRIB_CHAIN_WORDS_SIZE));
         	request.put("limit", searchResultsLimit);
         	
-        	String weightagesJson = (String) ruleNode.getMetadata().get(ATTRIB_WEIGHTAGES);
-        	if(weightagesJson == null || weightagesJson.isEmpty()){
-        		throw new Exception("No weightages found for rule id: "+ traversalId);
-        	}
-        	
-        	Map<String, Object> weightagesRequestMap = objectMapper.readValue(weightagesJson, new TypeReference<Map<String, Object>>() {});
-        	Map<String, Double> weightagesMap =  new HashMap<String, Double>();
-        	
-        	for(Map.Entry<String, Object> entry: weightagesRequestMap.entrySet()){
-        		Double weightage = Double.parseDouble(entry.getKey());
-        		if(entry.getValue() instanceof List){
-        			List<String> fields = (List<String>) entry.getValue();
-        			for(String field: fields){
-        				weightagesMap.put(field, weightage);
-        			}
-        		}
-        		else {
-        			String field = (String) entry.getValue();
-        			weightagesMap.put(field, weightage);
-        		}
-        	}
-        	weightagesMap.put(ATTRIB_DEFAULT_WEIGHTAGE, 1.0);
         	
         	
         	String objectType = (String) ruleNode.getMetadata().get(ATTRIB_RULE_OBJECT_TYPE);

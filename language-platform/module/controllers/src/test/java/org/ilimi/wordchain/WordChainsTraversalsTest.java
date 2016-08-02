@@ -46,8 +46,9 @@ public class WordChainsTraversalsTest extends BaseManager {
 	private static String graphId = "wcpnew";
 	private int TRAVERSAL_DEPTH = 9;
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
+	List<String> lemmaList = new ArrayList<String>();
 
-	@Test
+	//@Test
 	public void traverse() throws Exception {
 
 		System.out.println("Sample 1: ");
@@ -85,7 +86,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 		System.out.println("Total time taken for Sample 1: " + (endTime - startTime) / 1000 + "s");
 	}
 
-	// @Test
+	@Test
 	public void traverseSample2() throws Exception {
 
 		System.out.println("Sample 2: ");
@@ -99,14 +100,14 @@ public class WordChainsTraversalsTest extends BaseManager {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(OBJECT_TYPE_WORD);
-		sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+		//sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
 
 		List<Filter> filters = new ArrayList<Filter>();
 
-		filters.add(new Filter("category", SearchConditions.OP_IN,
+		/*filters.add(new Filter("category", SearchConditions.OP_IN,
 				Arrays.asList(new String[] { "Place", "Person", "Quality" })));
 		filters.add(
-				new Filter("pos", SearchConditions.OP_IN, Arrays.asList(new String[] { "noun", "verb", "adjective" })));
+				new Filter("pos", SearchConditions.OP_IN, Arrays.asList(new String[] { "noun", "verb", "adjective" })));*/
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
@@ -195,17 +196,37 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 	private Traverser getTraverser(final List<Node> nodes, GraphDatabaseService graphDb) {
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.relationships(Rels.startsWithAkshara, Direction.INCOMING)
-				.relationships(Rels.endsWithAkshara, Direction.OUTGOING)
-				//.uniqueness(Uniqueness.NODE_GLOBAL)
-				.uniqueness(Uniqueness.NODE_PATH)
+				.relationships(Rels.hasMember)
+				.relationships(Rels.startsWithAkshara, Direction.OUTGOING)
+				.uniqueness(Uniqueness.NODE_GLOBAL)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				//.evaluator(Evaluators.excludeStartPosition())
 				.evaluator(Evaluators.fromDepth(3))
 				.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
+				/*.evaluator(new Evaluator() {
+					@Override
+					public Evaluation evaluate(Path path) {
+						Node endnode = path.endNode();
+						if(endnode.hasProperty(attrib_lemma)){
+							String endLemma = (String) endnode.getProperty(attrib_lemma);
+							if(lemmaList.contains(endLemma)){
+								return Evaluation.EXCLUDE_AND_CONTINUE;
+							}
+							lemmaList.add(endLemma);
+							Iterator<Node> nodesIterator= path.nodes().iterator();
+							while(nodesIterator.hasNext()){
+								Node node = nodesIterator.next();
+								if(node.equals(endnode)){
+									return Evaluation.EXCLUDE_AND_CONTINUE;
+								}
+							}
+						}
+						return Evaluation.INCLUDE_AND_CONTINUE;
+					}
+				});*/
 		return td.traverse(nodes);
 	}
-
+	
 	public void getTraversalPath(GraphDatabaseService graphDb, List<Node> nodes) {
 		Transaction tx = null;
 		try {
@@ -217,7 +238,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 			Traverser pathsTraverser = getTraverser(nodes, graphDb);
 
 			for (Path traversedPath : pathsTraverser) {
-				render(traversedPath);
+				//render(traversedPath);
 				if (traversedPath.length() > previousPathLength) {
 					previousPath = traversedPath;
 					previousPathLength = traversedPath.length();
@@ -242,7 +263,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 			//System.out.println("Final paths:**************************************");
 			for (Path finalPath : finalPaths) {
-				//render(finalPath);
+				render(finalPath);
 			}
 		} catch (Exception e) {
 			if (null != tx)
