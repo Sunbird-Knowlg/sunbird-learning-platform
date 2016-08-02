@@ -83,6 +83,10 @@ public class BundleInitializer extends BaseInitializer {
 			throw new ResourceNotFoundException(ContentErrorCodeConstants.MISSING_CONTENT.name(),
 					ContentErrorMessageConstants.MISSING_BUNDLE_CONTENT);
 		
+		// Get Content Bundle Expiry Date
+		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);
+		LOGGER.info("Bundle Will Expire On: " + expiresOn);
+		
 		// Preparing the List of URL Fields
 		List<String> urlFields = new ArrayList<String>();
         urlFields.add(ContentWorkflowPipelineParams.appIcon.name());
@@ -93,6 +97,7 @@ public class BundleInitializer extends BaseInitializer {
 		// Marking Content Visibility as Parent
 		for (Map<String, Object> content : contents) {
 			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
+			content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 			if (childrenIds.contains(identifier))
 				content.put(ContentWorkflowPipelineParams.visibility.name(),
 						ContentWorkflowPipelineParams.Parent.name());
@@ -157,6 +162,7 @@ public class BundleInitializer extends BaseInitializer {
 		finalizeParamMap.put(ContentWorkflowPipelineParams.Contents.name(), contents);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleFileName.name(), bundleFileName);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.manifestVersion.name(), manifestVersion);
+		finalizeParamMap.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 		response = finalize.finalyze(ContentWorkflowPipelineParams.bundle.name(), finalizeParamMap);
 		return response;
 	}
