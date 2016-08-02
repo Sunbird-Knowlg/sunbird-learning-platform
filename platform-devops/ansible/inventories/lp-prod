@@ -1,0 +1,34 @@
+[env]
+10.10.1.53 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+
+[local]
+localhost ansible_connection=local
+
+[local:vars]
+service_url = 10.10.1.53:8080
+
+
+[env:vars]
+service_url = 10.10.1.53:8080
+zookeeper_url = 10.10.1.207:2181
+graph_event_topic_id = production.learning.graph.events
+platform_api_url = http://localhost:8080/learning-service
+mysql_db_url = lp-prod-db.cm8jepwsnit8.ap-southeast-1.rds.amazonaws.com:3306
+mysql_db_schema = lpproddb
+mysql_db_username = ekstep
+mysql_db_password = 4vUkhpZa9UXz2HnC
+mysql_db_schema = lpproddb
+search_index_host = localhost
+search_index_port = 9200
+environment_id = 30000000
+language_index_host = localhost
+language_index_port = 9200
+mongo_host = 127.0.0.1
+mongo_port = 27017
+
+tomcat_init_mem = -Xms1024m
+tomcat_max_mem = -Xmx4096m
+tomcat_perm_size = -XX:MaxPermSize=256M
+graphevent_kafka_url = "10.10.1.207:9092"
+graphevent_kafka_topic_id = "production.learning.graph.events"
+

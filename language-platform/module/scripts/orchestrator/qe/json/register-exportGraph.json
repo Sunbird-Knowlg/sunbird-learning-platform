@@ -1,0 +1,19 @@
+{
+    "name": "exportLanguageGraph",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    },{
+    	"name":"search_criteria",
+    	"index": 1,
+		"datatype": "com.ilimi.graph.dac.model.SearchCriteria",
+    	"routingParam": false
+    }],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v1/*/export",
+        "pathParams": ["language_id"]
+    },
+    "body": ""
+}

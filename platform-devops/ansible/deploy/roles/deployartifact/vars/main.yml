@@ -1,3 +1,0 @@
----
-# vars file for deployartifact
-EC2_TOMCAT_HOME: /opt/apache-tomcat-8.0.35

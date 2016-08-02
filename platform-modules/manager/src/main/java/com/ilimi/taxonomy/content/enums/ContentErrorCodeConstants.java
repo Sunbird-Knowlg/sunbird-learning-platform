@@ -30,7 +30,11 @@ public enum ContentErrorCodeConstants {
 	EMPTY_BODY(22, "Empty Content Body."),
 	EMPTY_ECML(23, "Invalid or Empty ECML String."),
 	INVALID_ECML_TYPE(24, "Invalid ECML Type."),
-	ECML_FILE_WRITE(25, "Error while writing ECML File.");
+	ECML_FILE_WRITE(25, "Error while writing ECML File."),
+	MANIFEST_FILE_WRITE(26, "Error while writing Manifest File."),
+	BUNDLE_FILE_WRITE(27, "Error while writing Bundle File."),
+	MISSING_CONTENT(28, "Missing one or more Content for Bundling."),
+	OPERATION_DENIED(29, "The Content Operation cannot be Performed.");
 
 	private final int code;
 	private final String description;

@@ -202,8 +202,6 @@ public abstract class BaseController {
             if (null == contentIdentifiers || contentIdentifiers.isEmpty())
                 throw new MiddlewareException(errorCode,
                         "Atleast one content identifier should be provided to create ECAR file");
-            if (StringUtils.isBlank(fileName))
-                throw new MiddlewareException(errorCode, "ECAR file name should not be blank");
             request.put("content_identifiers", contentIdentifiers);
             request.put("file_name", fileName);
         } else if (null != map && map.isEmpty()) {

@@ -1,0 +1,12 @@
+- hosts: env
+  become: yes
+  roles:
+        - aws-login
+        - tomcat
+        - elasticsearch
+        - redis
+        - ffmpeg
+        - mongodb
+        - imagemagick
+        - createpath
+        - logstash

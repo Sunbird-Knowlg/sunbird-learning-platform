@@ -1,4 +1,0 @@
----
-# vars file for logstash
-ip: localhost
-port: 9092
