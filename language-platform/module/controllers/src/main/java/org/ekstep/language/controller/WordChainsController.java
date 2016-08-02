@@ -13,14 +13,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
-import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.IWordChainConstants;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -80,12 +78,16 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				isFuzzySearch =  true;
 			}
 			
+			List<String> languageIds = (List<String>) request.get(ATTRIB_LANGUAGE_ID);
+			if (languageIds != null && !languageIds.isEmpty()) {
+				graphId = languageIds.get(0);
+			}
+			
+			
 			if (wordChainsQuery) {
-				List<String> languageIds = (List<String>) request.get(ATTRIB_LANGUAGE_ID);
 				if (languageIds == null || languageIds.isEmpty()) {
 					throw new Exception("At least One Language Id is manadatory");
 				}
-				graphId = languageIds.get(0);
 				
 				request.put(ATTRIB_TRAVERSAL, wordChainsQuery);
 				wordChainsLimit = (int) request.get("limit");
@@ -125,6 +127,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 										objectType = (String) entry.getValue();
 									}
 								}
+								break;
 							}
 						}
 					}
@@ -132,9 +135,6 @@ public class WordChainsController extends BaseLanguageController implements IWor
 
 				if (objectType != null) {
 					DefinitionDTO wordDefinition = wordUtil.getDefinitionDTO(objectType, graphId);
-					if (wordDefinition == null) {
-						throw new Exception("No Definition found for" + objectType + " for the graph: " + graphId);
-					}
 
 					String weightagesJson = (String) wordDefinition.getMetadata().get(ATTRIB_WEIGHTAGES);
 					if (weightagesJson != null && !weightagesJson.isEmpty()) {
