@@ -48,8 +48,8 @@ public class ElasticSearchUtil {
 	public int defaultResultLimit = 10000;
 	private int BATCH_SIZE = 1000;
 	private int CONNECTION_TIMEOUT = 30;
-	private long MAX_IDLE_CONNECTION_TIME_LIMIT = 5;		// In Seconds
-	private int MAX_TOTAL_CONNECTION_LIMIT = 300;
+	private long MAX_IDLE_CONNECTION_TIME_LIMIT = 10;		// In Seconds
+	private int MAX_TOTAL_CONNECTION_LIMIT = 500;
 	public int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 
