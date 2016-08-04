@@ -145,7 +145,6 @@ public class BaseFinalizer extends BasePipeline {
 
 			// Convert to JSON String
 			String manifestJSON = header + mapper.writeValueAsString(contents) + "}}";
-			LOGGER.info("Manifest JSON: " + manifestJSON);
 
 			FileUtils.writeStringToFile(manifestFileName, manifestJSON);
 			LOGGER.info("Manifest JSON Written");

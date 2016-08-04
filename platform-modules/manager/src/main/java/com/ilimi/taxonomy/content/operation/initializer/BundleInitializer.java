@@ -111,6 +111,7 @@ public class BundleInitializer extends BaseInitializer {
                     }
                 }
 			}
+			content.put(ContentWorkflowPipelineParams.downloadUrl.name(), content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 		}
 
 		LOGGER.info("Total Content To Bundle: " + nodes.size());
