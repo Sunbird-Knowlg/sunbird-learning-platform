@@ -38,9 +38,6 @@ import com.ilimi.graph.model.node.DefinitionDTO;
 public class WordChainsController extends BaseLanguageController implements IWordChainConstants {
 
 	@Autowired
-	private ICompositeSearchManager compositeSearchManager;
-
-	@Autowired
 	private IWordChainsManager wordChainsManager;
 
 	@Autowired
@@ -163,7 +160,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				request.put(ATTRIB_WEIGHTAGE_BASE_CONDITIONS, baseConditions);
 			}
 			
-			Map<String, Object> response = compositeSearchManager.languageSearch(request);
+			Map<String, Object> response = wordUtil.getlanguageSearchResult(request);
 			if (!wordChainsQuery) {
 				return getResponseEntity(compositeSearchManager.getCompositeSearchResponse(response), apiId, null);
 			}
