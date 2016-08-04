@@ -1940,5 +1940,16 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		
 		return result;
 	}
+	
+	public Response getSearchResponse(Map<String, Object> searchResult){
+		Request request = getRequest(null, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GET_COMPOSITE_SITE_RESPONSE.name());
+		request.put("searchResult", searchResult);
+		Response getRes = getResponse(request, LOGGER);
+		if (checkError(getRes)) {
+			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
+		}
+		
+		return getRes;
+	}
 }
 

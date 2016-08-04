@@ -58,7 +58,7 @@ public class SearchManager extends SearchBaseActor {
 	            OK(getCompositeSearchResponse(lstResult),parent);			
 				
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SITE_RESPONSE.name(), operation)) {
-				Map<String,Object> lstResult = (Map<String, Object>) request.get("");
+				Map<String,Object> lstResult = (Map<String, Object>) request.get("searchResult");
 				OK(getCompositeSearchResponse(lstResult), parent);
 
 			} else {

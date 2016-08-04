@@ -160,12 +160,12 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				request.put(ATTRIB_WEIGHTAGE_BASE_CONDITIONS, baseConditions);
 			}
 			
-			Map<String, Object> response = wordUtil.getlanguageSearchResult(request);
+			Map<String, Object> searchResult = wordUtil.getlanguageSearchResult(request);
 			if (!wordChainsQuery) {
-				return getResponseEntity(compositeSearchManager.getCompositeSearchResponse(response), apiId, null);
+				return getResponseEntity(wordUtil.getSearchResponse(searchResult), apiId, null);
 			}
 
-			List<Map> words = (List<Map>) response.get("results");
+			List<Map> words = (List<Map>) searchResult.get("results");
 			Response wordChainResponse = wordChainsManager.getWordChain(wordChainsLimit, words, ruleNode, graphId);
 			return getResponseEntity(wordChainResponse, apiId, null);
 		} catch (Exception e) {
