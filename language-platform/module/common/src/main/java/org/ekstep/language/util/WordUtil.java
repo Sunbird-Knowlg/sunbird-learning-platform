@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,13 +31,9 @@ import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
-import org.ekstep.search.router.SearchActorPool;
-import org.neo4j.cypher.internal.compiler.v1_9.symbols.RelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.stereotype.Component;
@@ -67,7 +62,6 @@ import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
-import com.ilimi.graph.dac.util.RelationType;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -1926,30 +1920,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		word.getMetadata().remove(LanguageParams.morphology.name());
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
-	}
-	
-	public Map<String, Object> getlanguageSearchResult(Request request){
-		Map<String, Object> result = null;
-		request = setContext(request, null, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.LANGUAGE_SEARCH.name());
-		Response getRes = getResponse(request, LOGGER);
-		if (!checkError(getRes)) {
-			result = (Map<String, Object>) getRes.get("result");
-		}else{
-			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
-		}
-		
-		return result;
-	}
-	
-	public Response getSearchResponse(Map<String, Object> searchResult){
-		Request request = getRequest(null, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GET_COMPOSITE_SITE_RESPONSE.name());
-		request.put("searchResult", searchResult);
-		Response getRes = getResponse(request, LOGGER);
-		if (checkError(getRes)) {
-			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
-		}
-		
-		return getRes;
 	}
 }
 

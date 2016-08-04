@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.search.router.SearchRequestRouterPool;
 
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.router.RequestRouterPool;
@@ -24,6 +25,8 @@ public class ServiceLocator {
 	}
 
 	public static ActorRef getActorRef(ActorPath actorPath, String graphId) {
+		if (StringUtils.equalsIgnoreCase(RequestRouters.SEARCH_REQUEST_ROUTER.name(), actorPath.getRouter()))
+			return SearchRequestRouterPool.getRequestRouter();
 		if (StringUtils.equalsIgnoreCase(RequestRouters.LANGUAGE_REQUEST_ROUTER.name(), actorPath.getRouter()))
 			return LanguageRequestRouterPool.getRequestRouter();
 		List<String> graphIds = Configuration.graphIds;

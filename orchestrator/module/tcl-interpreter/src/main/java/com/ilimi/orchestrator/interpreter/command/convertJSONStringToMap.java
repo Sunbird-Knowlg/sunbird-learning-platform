@@ -1,10 +1,7 @@
 package com.ilimi.orchestrator.interpreter.command;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.codehaus.jackson.JsonParseException;
-import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 

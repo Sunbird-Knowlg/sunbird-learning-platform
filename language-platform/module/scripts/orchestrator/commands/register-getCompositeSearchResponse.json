@@ -1,0 +1,17 @@
+{
+  "name": "getCompositeSearchResponse",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "searchResult",
+      "datatype": "java.util.Map",
+      "index": 0,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "org.ekstep.search.actor.SearchManager",
+    "operation": "GET_COMPOSITE_SEARCH_RESPONSE",
+    "router": "SEARCH_REQUEST_ROUTER"
+  }
+}

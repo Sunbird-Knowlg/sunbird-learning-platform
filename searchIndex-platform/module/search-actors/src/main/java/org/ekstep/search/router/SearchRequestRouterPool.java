@@ -2,6 +2,8 @@ package org.ekstep.search.router;
 
 
 
+import java.util.concurrent.TimeUnit;
+
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 
 import com.ilimi.common.exception.ServerException;
@@ -12,14 +14,18 @@ import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
 import akka.actor.Props;
 import akka.routing.SmallestMailboxPool;
+import akka.util.Timeout;
+import scala.concurrent.duration.Duration;
 
 public class SearchRequestRouterPool {
     
 	private static ActorSystem system;
     private static ActorRef actor;
     private static int count = 5;
-    private static final String DEFAULT_SYSTEM_NAME = "ActorSystem";
+    private static final String DEFAULT_SYSTEM_NAME = "SearchActorSystem";
 
+    public static long REQ_TIMEOUT = 30000;
+    public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
     
     public static void init() {
     	Config config = ConfigFactory.load();
