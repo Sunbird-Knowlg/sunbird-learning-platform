@@ -64,7 +64,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			Node ruleNode = null;
 			Map<String, Double> weightagesMap = new HashMap<String, Double>();
 			Map<String, Object> baseConditions = new HashMap<String, Object>();
-			
+
 			Request request = getRequest(map);
 			Boolean isFuzzySearch = (Boolean) request.get(ATTRIB_FUZZY);
 			if (isFuzzySearch == null) {
@@ -74,20 +74,19 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			boolean wordChainsQuery = false;
 			if (traversalId != null) {
 				wordChainsQuery = true;
-				isFuzzySearch =  true;
+				isFuzzySearch = true;
 			}
-			
+
 			List<String> languageIds = (List<String>) request.get(ATTRIB_LANGUAGE_ID);
 			if (languageIds != null && !languageIds.isEmpty()) {
 				graphId = languageIds.get(0);
 			}
-			
-			
+
 			if (wordChainsQuery) {
 				if (languageIds == null || languageIds.isEmpty()) {
 					throw new Exception("At least One Language Id is manadatory");
 				}
-				
+
 				request.put(ATTRIB_TRAVERSAL, wordChainsQuery);
 				wordChainsLimit = (int) request.get("limit");
 
@@ -97,7 +96,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				}
 
 				objectType = (String) ruleNode.getMetadata().get(ATTRIB_RULE_OBJECT_TYPE);
-				
+
 				Object objectStatus;
 				String[] ruleObjectStatus = (String[]) ruleNode.getMetadata().get(ATTRIB_RULE_OBJECT_STATUS);
 				if (ruleObjectStatus.length > 1) {
@@ -114,19 +113,16 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			}
 
 			if (isFuzzySearch) {
-				if(objectType == null){
-					Map<String, Object> filters = (Map<String, Object>) request.get(CompositeSearchParams.filters.name());
-					if (null != filters && !filters.isEmpty()) {
-						for (Entry<String, Object> entry : filters.entrySet()) {
-							if (StringUtils.equals(GraphDACParams.objectType.name(), entry.getKey())) {
-								if (null != entry.getValue()) {
-									if (entry.getValue() instanceof List) {
-										objectType = ((List<String>) entry.getValue()).get(0);
-									} else if (entry.getValue() instanceof String) {
-										objectType = (String) entry.getValue();
-									}
-								}
-								break;
+				if (objectType == null) {
+					Map<String, Object> filters = (Map<String, Object>) request
+							.get(CompositeSearchParams.filters.name());
+					if (null != filters) {
+						Object objectTypeValue = filters.get(GraphDACParams.objectType.name());
+						if (null != objectTypeValue) {
+							if (objectTypeValue instanceof List) {
+								objectType = ((List<String>) objectTypeValue).get(0);
+							} else if (objectTypeValue instanceof String) {
+								objectType = (String) objectTypeValue;
 							}
 						}
 					}
@@ -161,7 +157,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				baseConditions.put("objectType", objectType);
 				request.put(ATTRIB_WEIGHTAGE_BASE_CONDITIONS, baseConditions);
 			}
-			
+
 			Map<String, Object> searchResult = compositeSearchManager.languageSearch(request);
 			if (!wordChainsQuery) {
 				return getResponseEntity(compositeSearchManager.getSearchResponse(searchResult), apiId, null);
@@ -175,6 +171,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			LOGGER.error("Error: " + apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
+
 	}
 
 	private int getIntValue(Object object) {
