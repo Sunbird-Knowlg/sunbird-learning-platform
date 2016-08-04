@@ -133,7 +133,7 @@ public class BundleInitializer extends BaseInitializer {
 			LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 
 			// Check if Compression Required
-			boolean isCompressRequired = isCompressRequired(node) && ecmlContent;
+			boolean isCompressRequired = ecmlContent && isCompressRequired(node);
 
 			// Get ECRF Object
 			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
