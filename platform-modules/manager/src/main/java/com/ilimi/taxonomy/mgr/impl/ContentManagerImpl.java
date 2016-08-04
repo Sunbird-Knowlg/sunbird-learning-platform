@@ -53,6 +53,7 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import com.ilimi.taxonomy.util.Content2VecUtil;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
@@ -653,8 +654,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
-			node.getMetadata().put("prevState", prevState);
-			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+			String contentType = (String) node.getMetadata().get("contentType");
+			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
+				node.getMetadata().put("prevState", prevState);
+				String event = LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+				Content2VecUtil.invokeContent2Vec(contentId, event);
+			}
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {
