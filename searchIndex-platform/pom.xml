@@ -23,6 +23,7 @@
 		<module>module/searchindex-common</module>
 		<module>module/composite-search-api</module>
 		<module>module/search-service</module>
+		<module>module/search-actors</module>
 	</modules>
 
 	<dependencies>

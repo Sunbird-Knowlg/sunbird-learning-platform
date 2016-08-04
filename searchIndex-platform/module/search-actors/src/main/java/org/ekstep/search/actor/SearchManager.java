@@ -1,4 +1,4 @@
-package org.ekstep.compositesearch.mgr.impl;
+package org.ekstep.search.actor;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,64 +8,71 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
-import org.ekstep.compositesearch.mgr.BaseCompositeSearchManager;
-import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
+import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
-import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
-import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 
-@Component
-public class CompositeSearchManagerImpl extends BaseCompositeSearchManager implements ICompositeSearchManager {
-	
+import akka.actor.ActorRef;
+
+public class SearchManager extends SearchBaseActor {
+
+	private static Logger LOGGER = LogManager.getLogger(SearchManager.class.getName());
+
 	@Override
-	public Response search(Request request) {
+	protected void invokeMethod(Request request, ActorRef parent) {
+		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
+		
 		try {
-			Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
-			return getCompositeSearchResponse(lstResult);
+			if (StringUtils.equalsIgnoreCase(SearchOperations.SEARCH.name(), operation)) {
+				Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
+				OK(getCompositeSearchResponse(lstResult), parent);
+
+			}else if (StringUtils.equalsIgnoreCase(SearchOperations.LANGUAGE_SEARCH.name(), operation)) {
+				SearchDTO searchDTO = getSearchDTO(request);
+				searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request.get("baseConditions"));
+				Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
+				OK("result", lstResult, parent);
+
+			}else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
+				Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
+				if (null != countResult.get("count")){
+					Double count =(Double) countResult.get("count");
+					OK("count", count, parent);
+				}else{
+					ERROR("","count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);
+				}
+				
+			}else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
+				Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), false);
+	            OK(getCompositeSearchResponse(lstResult),parent);			
+				
+			}else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SITE_RESPONSE.name(), operation)) {
+				Map<String,Object> lstResult = (Map<String, Object>) request.get("searchResult");
+				OK(getCompositeSearchResponse(lstResult), parent);
+
+			} else {
+				LOGGER.info("Unsupported operation: " + operation);
+				throw new ClientException(CompositeSearchErrorCodes.ERR_INVALID_OPERATION.name(),
+						"Unsupported operation: " + operation);
+			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+		    System.out.println("Error: " + e.getMessage());
+		    LOGGER.error("Error in SearchManager actor", e);
+			handleException(e, getSender());
 		}
 	}
-	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Map<String, Object> languageSearch(Request request) {
-		SearchProcessor processor = new SearchProcessor();
-		try {
-			SearchDTO searchDTO = getSearchDTO(request);
-			searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request.get("baseConditions"));
-			Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
-			return lstResult;
-		} catch (Exception e) {
-			e.printStackTrace();
-			return null;
-		}
-	}
-	
-	@Override
-    public Response metrics(Request request) {
-        SearchProcessor processor = new SearchProcessor();
-        try {
-            Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), false);
-            return getCompositeSearchResponse(lstResult);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
-        }
-    }
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private SearchDTO getSearchDTO(Request request) throws Exception {
 		SearchDTO searchObj = new SearchDTO();
@@ -109,19 +116,6 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return searchObj;
 	}
 	
-	@SuppressWarnings("unchecked")
-	private List<String> getList(Object param){
-		List<String> paramList;
-		try{
-			paramList = (List<String>) param;
-		}
-		catch(Exception e){
-			String str = (String) param;
-			paramList = Arrays.asList(str);
-		}
-		return paramList;
-	}
-	
 	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		if(fieldList != null){
@@ -146,7 +140,19 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		}
 		return properties;
 	}
-
+	
+	private List<String> getList(Object param){
+		List<String> paramList;
+		try{
+			paramList = (List<String>) param;
+		}
+		catch(Exception e){
+			String str = (String) param;
+			paramList = Arrays.asList(str);
+		}
+		return paramList;
+	}
+	
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		if(queryString != null && !queryString.isEmpty()){
@@ -260,15 +266,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		return properties;
 	}
 	
-	@SuppressWarnings("unchecked")
-	@Override
-	public Response getCompositeSearchResponse(Map<String, Object> searchResponse) {
-		Response response = new Response();
-		ResponseParams params = new ResponseParams();
-		params.setStatus("Success");
-		response.setParams(params);
-		response.setResponseCode(ResponseCode.OK);
-
+	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
+		Map<String, Object> respResult = new HashMap<String, Object>();
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
 			if (entry.getKey().equalsIgnoreCase("results")) {
 				List<Object> lstResult = (List<Object>) entry.getValue();
@@ -285,7 +284,7 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 									if (null == list) {
 										list = new ArrayList<Map<String, Object>>();
 										result.put(key, list);
-										response.put(key, list);
+										respResult.put(key, list);
 									}
 									list.add(map);
 								}
@@ -294,23 +293,10 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 					}
 				}
 			} else {
-				response.put(entry.getKey(), entry.getValue());
+				respResult.put(entry.getKey(), entry.getValue());
 			}
 		}
-		return response;
-	}
-	
-    private Response getCompositeSearchCountResponse(Map<String, Object> countResponse) {
-		Response response = new Response();
-		ResponseParams params = new ResponseParams();
-		params.setStatus("Success");
-		response.setParams(params);
-		response.setResponseCode(ResponseCode.OK);
-		
-		if (null != countResponse.get("count")){
-			response.put("count", (Double) countResponse.get("count"));
-		}
-		return response;
+		return respResult;
 	}
 	
 	private String getResultParamKey(String objectType) {
@@ -340,17 +326,4 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 	    }
 	    return null;
 	}
-	
-	@Override
-	public Response count(Request request) {
-		SearchProcessor processor = new SearchProcessor();
-		try {
-			Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
-			return getCompositeSearchCountResponse(countResult);
-		} catch (Exception e) {
-			e.printStackTrace();
-			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
-		}
-	}
-
 }
