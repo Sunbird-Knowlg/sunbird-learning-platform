@@ -1,0 +1,4 @@
+- hosts: local
+  roles:
+        - domain_model_update
+
