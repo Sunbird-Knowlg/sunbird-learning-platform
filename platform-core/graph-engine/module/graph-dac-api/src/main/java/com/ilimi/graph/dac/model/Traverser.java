@@ -54,6 +54,11 @@ public class Traverser implements Serializable {
         this.startNodes.add(node);
     }
 	
+	public Traverser(String graphId) {
+        this.graphId = graphId;
+        this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
+    }
+	
 	public Traverser(String graphId, List<String> startNodeIds) {
         this.graphId = graphId;
         this.graphDb = Neo4jGraphFactory.getGraphDb(graphId);
