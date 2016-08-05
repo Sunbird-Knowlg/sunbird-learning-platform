@@ -16,6 +16,9 @@ import tcl.pkg.java.ReflectObject;
 
 public class SortMaps extends BaseSystemCommand implements ICommand, Command {
 
+	private final String ASC_ORDER="ASC";
+	private final String DESC_ORDER="DESC";
+	
 	@Override
 	public String getCommandName() {
 		return "sort_maps";
@@ -23,21 +26,29 @@ public class SortMaps extends BaseSystemCommand implements ICommand, Command {
 
 	@Override
 	public void cmdProc(Interp interp, TclObject[] argv) throws TclException {
-        if (argv.length == 3) {
+        if (argv.length == 4) {
             TclObject tclObject1 = argv[1];
             TclObject tclObject2 = argv[2];
-            if (null == tclObject1 || null == tclObject2) {
+            TclObject tclObject3 = argv[3];
+            if (null == tclObject1 || null == tclObject2 || null == tclObject3) {
                 throw new TclException(interp, "Null arguments to " + getCommandName());
             } else {
                 Object obj1 = ReflectObject.get(interp, tclObject1);
                 List<Map<String, Object>> maps = (List<Map<String, Object>>) obj1;
                 final String sortField = tclObject2.toString();
+                final String sortOrder = tclObject3.toString();
+                if (!sortOrder.equalsIgnoreCase(ASC_ORDER) && !sortOrder.equalsIgnoreCase(DESC_ORDER)){
+                	throw new TclException(interp, "sortOrder should be either asc/ASC or desc/DESC ");
+                }
                 Collections.sort(maps, new Comparator<Map<String, Object>>() {
             		@Override
             		public int compare(Map<String, Object> map1, Map<String, Object> map2) {
             			    Comparable c1= (Comparable) map1.get(sortField);
             			    Comparable c2= (Comparable) map2.get(sortField);
-            				return c1.compareTo(c2);
+            				if(sortOrder.equalsIgnoreCase(ASC_ORDER))
+            					return c1.compareTo(c2);
+            				else
+            					return c2.compareTo(c1);
             		}
             	});
                 

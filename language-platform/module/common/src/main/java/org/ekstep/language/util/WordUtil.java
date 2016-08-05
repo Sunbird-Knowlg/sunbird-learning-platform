@@ -1921,29 +1921,5 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
 	}
-	
-	public Map<String, Object> getlanguageSearchResult(Request request){
-		Map<String, Object> result = null;
-		request = setContext(request, null, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.LANGUAGE_SEARCH.name());
-		Response getRes = getResponse(request, LOGGER);
-		if (!checkError(getRes)) {
-			result = (Map<String, Object>) getRes.get("result");
-		}else{
-			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
-		}
-		
-		return result;
-	}
-	
-	public Response getSearchResponse(Map<String, Object> searchResult){
-		Request request = getRequest(null, SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GET_COMPOSITE_SITE_RESPONSE.name());
-		request.put("searchResult", searchResult);
-		Response getRes = getResponse(request, LOGGER);
-		if (checkError(getRes)) {
-			throw new ServerException(LanguageErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
-		}
-		
-		return getRes;
-	}
 }
 

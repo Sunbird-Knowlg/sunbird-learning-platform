@@ -13,6 +13,7 @@ import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.language.mgr.IWordChainsManager;
 import org.ekstep.language.util.IWordChainConstants;
 import org.ekstep.language.util.WordUtil;
+import org.ekstep.search.mgr.CompositeSearchManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -36,6 +37,8 @@ public class WordChainsController extends BaseLanguageController implements IWor
 
 	@Autowired
 	private IWordChainsManager wordChainsManager;
+
+	private CompositeSearchManager compositeSearchManager = new CompositeSearchManager();
 
 	@Autowired
 	private WordUtil wordUtil;
@@ -153,9 +156,9 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				request.put(ATTRIB_WEIGHTAGE_BASE_CONDITIONS, baseConditions);
 			}
 
-			Map<String, Object> searchResult = wordUtil.getlanguageSearchResult(request);
+			Map<String, Object> searchResult = compositeSearchManager.languageSearch(request);
 			if (!wordChainsQuery) {
-				return getResponseEntity(wordUtil.getSearchResponse(searchResult), apiId, null);
+				return getResponseEntity(compositeSearchManager.getSearchResponse(searchResult), apiId, null);
 			}
 
 			List<Map> words = (List<Map>) searchResult.get("results");

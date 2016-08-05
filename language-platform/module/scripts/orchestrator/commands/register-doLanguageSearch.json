@@ -1,0 +1,27 @@
+{
+  "name": "doLanguageSearch",
+  "type": "COMMAND",
+  "parameters": [
+    {
+      "name": "request",
+      "datatype": "java.util.Map",
+      "index": 0,
+      "routingParam": false
+    },
+    {
+      "name": "fuzzy",
+      "index": 1,
+      "routingParam": false
+    },
+    {
+      "name": "traversal",
+      "index": 2,
+      "routingParam": false
+    }
+  ],
+  "actorPath": {
+    "manager": "org.ekstep.search.actor.SearchManager",
+    "operation": "LANGUAGE_SEARCH",
+    "router": "SEARCH_REQUEST_ROUTER"
+  }
+}

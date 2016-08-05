@@ -41,6 +41,12 @@
 		<load-on-startup>1</load-on-startup>
 	</servlet>
 
+	<servlet>
+		<servlet-name>init-servlet</servlet-name>
+		<servlet-class>org.ekstep.servlet.InitServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
+	</servlet>
+
 	<servlet-mapping>
 		<servlet-name>search-service</servlet-name>
 		<url-pattern>/</url-pattern>
