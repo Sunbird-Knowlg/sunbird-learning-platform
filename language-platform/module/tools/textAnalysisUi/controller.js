@@ -76,10 +76,10 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
                 $scope.data = Input;
                 var sampleData = $scope.data;
                 return resolve(sampleData);
-            } 
+            }
             else
             {
-                $scope.url = "http://api.ekstep.in/language/v1/language/tools/textAnalysis";
+                $scope.url = "https://api.ekstep.in/language/v1/language/tools/textAnalysis";
                 $scope.apiUrl = {
                         "request": {
                             "language_id": $scope.lang.id,
@@ -124,7 +124,7 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
             map = {};
             _.each(inputArray, function(k, i) {
                 var wordVal = inputArray[i];
-                wordVal = wordVal.replace(new RegExp('।|,|\\||\\.|;|\\?|!|\\*|।', 'g'), ''); 
+                wordVal = wordVal.replace(new RegExp('।|,|\\||\\.|;|\\?|!|\\*|।', 'g'), '');
                 var wordObj = wordMap[wordVal];
                 var tLevel = 10;
                 var complexity = 0;
