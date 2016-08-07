@@ -19,7 +19,7 @@ import tcl.lang.TclNumArgsException;
 import tcl.lang.TclObject;
 import tcl.pkg.java.ReflectObject;
 
-public class GetTraversalDescription implements ICommand, Command {
+public class GetTraverser implements ICommand, Command {
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -46,16 +46,22 @@ public class GetTraversalDescription implements ICommand, Command {
 				tclObject = argv[5];
 				obj = ReflectObject.get(interp, tclObject);
 				int maxLength = (int) obj;
+				
+				tclObject = argv[6];
+				obj = ReflectObject.get(interp, tclObject);
+				String startNodeId = (String) obj;
 
-				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId);
+				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId, startNodeId);
 				TraversalDescription traversalDescription = searchTraverser.getBaseTraversalDescription();
 				
 				addRelations(traversalDescription, relationMap);
 				addUniquenessCriteria(traversalDescription, uniquenessList);
 				traversalDescription = traversalDescription.evaluator(Evaluators.fromDepth(minLength))
 						.evaluator(Evaluators.toDepth(maxLength));
+				
+				searchTraverser.setTraversalDescription(traversalDescription);
 
-				TclObject tclResp = ReflectObject.newInstance(interp, traversalDescription.getClass(), traversalDescription);
+				TclObject tclResp = ReflectObject.newInstance(interp, searchTraverser.getClass(), searchTraverser);
 				interp.setResult(tclResp);
 			} catch (Exception e) {
 				throw new TclException(interp, "Unable to read response: " + e.getMessage());
@@ -109,6 +115,6 @@ public class GetTraversalDescription implements ICommand, Command {
 
 	@Override
 	public String getCommandName() {
-		return "get_traversal_description";
+		return "get_traverser";
 	}
 }
