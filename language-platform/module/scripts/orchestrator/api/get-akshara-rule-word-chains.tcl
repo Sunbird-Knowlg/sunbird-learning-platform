@@ -35,7 +35,7 @@ proc processPath {finalPath wordScore relation} {
 		return [java::null]
 	}
 	
-	set $averageScore [$totalScore/$chainLength]
+	set averageScore [$totalScore/$chainLength]
 	$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
 	$wordChainRecord put "score" $averageScore
@@ -84,9 +84,9 @@ set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
 
 if {$wordChainsSize > $wordChainsLimit} {
-	set $finalWordChains = [$sortedWordChains sublist 0 $wordChainsLimit]
+	set $finalWordChains [$sortedWordChains sublist 0 $wordChainsLimit]
 } else {
-	set $finalWordChains = $sortedWordChains
+	set $finalWordChains $sortedWordChains
 }
 
 return $finalWordChains
