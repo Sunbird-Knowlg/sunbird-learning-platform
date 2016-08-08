@@ -1,0 +1,69 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "WordSet",
+      "properties": [
+        {
+          "required": true,
+          "dataType": "Text",
+          "propertyName": "text",
+          "title": "text",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": true,
+          "dataType": "Select",
+          "propertyName": "type",
+          "title": "Type",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "Akshara",
+            "RhymingSound"
+          ],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'select', 'order': 2 }",
+          "indexed": true,
+          "draft": false
+        }
+      ],
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "hasMember",
+          "objectTypes": [
+            "Word"
+          ],
+          "title": "words",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 3 }"
+        },
+        {
+          "relationName": "associatedTo",
+          "objectTypes": [
+            "WordSet"
+          ],
+          "title": "startsWithAkshara",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 4 }"
+        }
+      ],
+      "systemTags": [
+      ],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}
