@@ -14,7 +14,6 @@ set wordsSize [$words size]
 
 if {$wordsSize > $startWordsSize} {
 	set topWords [$words subList 0 $startWordsSize]
-	return "More"
 } else {
 	set topWords [$words subList 0 $startWordsSize]
 }
