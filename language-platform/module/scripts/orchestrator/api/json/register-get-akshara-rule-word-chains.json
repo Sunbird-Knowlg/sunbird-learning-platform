@@ -2,38 +2,42 @@
     "name": "getAksharaRuleWordChains",
     "parameters": [
 	{
-        "name": "topWords",
+        "name": "graphId",
         "index": 0,
-		"datatype": "java.lang.ArrayList",
+		"datatype": "java.lang.String",
+        "routingParam": false
+    },
+	{
+        "name": "topWords",
+        "index": 1,
+		"datatype": "java.util.ArrayList",
         "routingParam": false
     },
 	{
         "name": "ids",
-        "index": 1,
+        "index": 2,
         "datatype": "java.util.ArrayList",
         "routingParam": false
     },
 	{
-        "name": "maxDepth",
-        "index": 2,
-		"datatype": "java.lang.Integer",
+        "name": "maxDefinedDepth",
+        "index": 3,
         "routingParam": false
     },	
 	{
-        "name": "minDepth",
-        "index": 3,
-		"datatype": "java.lang.Integer",
+        "name": "minDefinedDepth",
+        "index": 4,
         "routingParam": false
     },
 	{
         "name": "wordScore",
-        "index": 4,
+        "index": 5,
 		"datatype": "java.util.HashMap",
         "routingParam": false
     },
 	{
         "name": "wordChainsLimit",
-        "index": 5,
+        "index": 6,
         "datatype": "java.lang.Integer",
         "routingParam": false
     }

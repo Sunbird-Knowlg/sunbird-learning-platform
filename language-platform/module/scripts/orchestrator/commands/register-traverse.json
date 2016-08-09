@@ -8,8 +8,8 @@
       "routingParam": true
     },
     {
-      "name": "searchTraverser",
-      "datatype": "com.ilimi.graph.dac.model.Traverser ",
+      "name": "traversal_description",
+      "datatype": "com.ilimi.graph.dac.model.Traverser",
       "index": 1,
       "routingParam": false
     }

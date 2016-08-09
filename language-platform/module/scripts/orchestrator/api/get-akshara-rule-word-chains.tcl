@@ -26,8 +26,8 @@ proc processPath {finalPath wordScore relation} {
 			}
 			$wordChain add $nodeIdentifier
 			set score [$wordScore get $nodeIdentifier]
-			set $totalScore [$totalScore+$score]
-			set $chainLength [$chainLength+1]
+			set totalScore [$totalScore+$score]
+			set chainLength [$chainLength+1]
 		}		
 	}
 	set wordChainSize [$wordChain size]
@@ -44,11 +44,10 @@ proc processPath {finalPath wordScore relation} {
 }
 
 set ruleType "Akshara Rule"
-set wordsSize [$words size]
 set wordChains [java::new ArrayList]
 
-set maxDepth [3 * ($maxDefinedDepth - 1)]
-set minDepth [3 * ($minDefinedDepth - 1)]
+set maxDepth [expr {3 * ($maxDefinedDepth-1)}]
+set minDepth [expr {3 * ($minDefinedDepth-1)}]
 
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
@@ -77,13 +76,12 @@ $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness
 $traversalRequest put "minLength" $minDepth
 $traversalRequest put "maxLength" $maxDepth
-$traversalRequest put "maxLength" $maxDepth
 
 java::for {Map topWord} $topWords {
 	set topWordId [$topWord get "identifier"]
 	$traversalRequest put "startNodeId" $topWordId
 	set traverser [get_traverser $graphId $traversalRequest]
-	set resp_traverse [traverse $traverser]
+	set resp_traverse [traverse $graphId $traverser]
 	set check_error [check_response_error $resp_traverse]
 	if {$check_error} {
 		return $resp_traverse;
@@ -100,7 +98,7 @@ java::for {Map topWord} $topWords {
 	}
 }
 
-set sortedWordChains [sortMap $wordChains "score" "desc"]
+set sortedWordChains [sort_maps $wordChains "score" "desc"]
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
 

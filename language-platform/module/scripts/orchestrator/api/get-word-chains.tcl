@@ -10,13 +10,12 @@ set startWordsSize [$ruleObject get "startWordsSize"]
 set ruleType [$ruleObject get "type"]
 set ruleScript [$ruleObject get "ruleScript"]
 
-set topWords [java::new ArrayList]
 set wordsSize [$words size]
 
 if {$wordsSize > $startWordsSize} {
-	set $topWords = [$words sublist 0 $startWordsSize]
+	set topWords [$words sublist 0 $startWordsSize]
 } else {
-	set $topWords = $words
+	set topWords $words
 }
 
 set ids [java::new ArrayList]
@@ -31,17 +30,18 @@ java::for {Map word} $words {
 	$wordIdMap put $id $word
 }
 
-set wordChains [$ruleScript $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
-
+set ruleScriptString [$ruleScript toString]
+set wordChains [$ruleScriptString $graphId $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
+return $wordChains
 set sortedWordChains [sortMap $wordChains "score" "desc"]
 
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
 
 if {$wordChainsSize > $wordChainsLimit} {
-	set $finalWordChains = [$sortedWordChains sublist 0 $wordChainsLimit]
+	set finalWordChains [$sortedWordChains sublist 0 $wordChainsLimit]
 } else {
-	set $finalWordChains = $sortedWordChains
+	set finalWordChains $sortedWordChains
 }
 
 set finalWordIds [java::new HashSet]

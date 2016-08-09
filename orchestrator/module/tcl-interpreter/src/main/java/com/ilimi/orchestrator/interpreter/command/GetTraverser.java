@@ -45,8 +45,21 @@ public class GetTraverser implements ICommand, Command {
 				
 				List<String> uniquenessList = (List<String>) request.get("uniqueness");
 
-				int minLength = (int) request.get("minLength");
-				int maxLength = (int) request.get("maxLength");
+				int minLength;
+				int maxLength;
+				try{
+					minLength = Integer.parseInt((String)request.get("minLength"));
+				} catch (NumberFormatException e){
+					Double temp = Double.parseDouble((String)request.get("minLength"));
+					minLength = temp.intValue();
+				}
+				
+				try{
+					maxLength = Integer.parseInt((String)request.get("maxLength"));
+				} catch (NumberFormatException e){
+					Double temp = Double.parseDouble((String)request.get("maxLength"));
+					maxLength = temp.intValue();
+				}
 				
 				String startNodeId = (String) request.get("startNodeId");
 				
@@ -64,10 +77,7 @@ public class GetTraverser implements ICommand, Command {
 					if(directionsList == null){
 						throw new Exception("Directions field is mandatory for path expander");
 					}
-					Integer nodeCount = (Integer) pathExpander.get("nodeCount");
-					if(nodeCount == null){
-						throw new Exception("Node count is required for path expander");
-					}
+					Integer nodeCount = Integer.parseInt((String)pathExpander.get("nodeCount"));
 					
 					RelationshipType[] types = new RelationshipType[relationTypes.size()];
 					Direction[] directions = new Direction[directionsList.size()];
@@ -86,9 +96,9 @@ public class GetTraverser implements ICommand, Command {
 				
 				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId, startNodeId);
 				TraversalDescription traversalDescription = searchTraverser.getBaseTraversalDescription();
-				addRelations(traversalDescription, relationMap);
-				addUniquenessCriteria(traversalDescription, uniquenessList);
-				addExpander(traversalDescription, orderedPathExpander);
+				traversalDescription = addRelations(traversalDescription, relationMap);
+				traversalDescription = addUniquenessCriteria(traversalDescription, uniquenessList);
+				traversalDescription = addExpander(traversalDescription, orderedPathExpander);
 				traversalDescription = traversalDescription.evaluator(Evaluators.fromDepth(minLength))
 						.evaluator(Evaluators.toDepth(maxLength));
 				
@@ -104,26 +114,28 @@ public class GetTraverser implements ICommand, Command {
 		}
 	}
 
-	private void addExpander(TraversalDescription traversalDescription, ArrayExpander orderedPathExpander) {
+	private TraversalDescription addExpander(TraversalDescription traversalDescription, ArrayExpander orderedPathExpander) {
 		if(orderedPathExpander != null){
 			traversalDescription = traversalDescription.expand(orderedPathExpander);
 		}
+		return traversalDescription;
 	}
 
-	private void addUniquenessCriteria(TraversalDescription traversalDescription, List<String> uniquenessList) {
+	private TraversalDescription addUniquenessCriteria(TraversalDescription traversalDescription, List<String> uniquenessList) {
 		if(uniquenessList.isEmpty()){
 			traversalDescription = traversalDescription.uniqueness(Uniqueness.NONE);
 		}
 		for(String uniqueness: uniquenessList){
 			traversalDescription = traversalDescription.uniqueness(getUniqueness(uniqueness));
 		}
+		return traversalDescription;
 	}
 
 	private Uniqueness getUniqueness(String uniqueness) {
 		return Uniqueness.valueOf(uniqueness);
 	}
 
-	private void addRelations(TraversalDescription traversalDescription, Map<String, String> relationMap) throws Exception {
+	private TraversalDescription addRelations(TraversalDescription traversalDescription, Map<String, String> relationMap) throws Exception {
 		if(relationMap != null){
 			for(Map.Entry<String, String> entry: relationMap.entrySet()){
 				String relationName = entry.getKey();
@@ -131,6 +143,7 @@ public class GetTraverser implements ICommand, Command {
 				traversalDescription = traversalDescription.relationships(getRelations(relationName), getDirection(direction));
 			}
 		}
+		return traversalDescription;
 	}
 	
 	private RelationshipType getRelations(String relation) throws Exception {

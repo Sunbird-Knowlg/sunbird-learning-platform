@@ -27,6 +27,10 @@ set isTraversalIdNull [java::isnull $traversals]
 if {$isTraversalIdNull == 0} {
 	set fuzzySearch "true"
 	set wordChainsQuery "true"
+	set traversalsSize [$traversals size]
+	if {$traversalsSize > 0} {
+		set traversalId [$traversals get 0]
+	}
 }
 
 set isLimitNull [java::isnull $limit]
@@ -53,7 +57,7 @@ $request_map put "limit" $limit
 $request_map put "fuzzy" $fuzzy
 
 if {$wordChainsQuery == "true"} {
-	if {isLanguageIdNull == 1 || $languageIdSize == 0} {
+	if {$isLanguageIdNull == 1 || $languageIdSize == 0} {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
 		$result_map put "message" "At least one language Id is mandatory"
@@ -62,25 +66,24 @@ if {$wordChainsQuery == "true"} {
 		return $response_list
 	}
 	
-	$request_map put "traversal" $wordChainsQuery
+	$request_map put "traversal" [java::new Boolean "true"]
 	
-	set get_rule_response [getDataNode $graph_id $traversalId]
+	set get_rule_response [getDataNode $graphId $traversalId]
 	set get_rule_response_error [check_response_error $get_rule_response]
 	if {$get_rule_response_error} {
 		return $get_rule_response
 	}
 	
 	set ruleNode [get_resp_value $get_rule_response "node"]
-	
-	set rule_def_node [getDefinition $graph_id $traversalRuleDefinition]
+		
+	set rule_def_node [getDefinition $graphId $traversalRuleDefinition]
 	set def_node [get_resp_value $rule_def_node "definition_node"]
 
-	set ruleObject [convert_graph_node $ruleNode $rule_def_node]
-	
+	set ruleObject [convert_graph_node $ruleNode $def_node]
 	set ruleMetadata [$ruleNode getMetadata]
 	
-	set $objectType [$ruleMetadata get "ruleObjectType"]
-	set $searchResultsLimit [$ruleMetadata get "wordChainWordsSize"]
+	set objectType [$ruleObject get "ruleObjectType"]
+	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
 	
 	$request_map put "limit" $searchResultsLimit
 }
@@ -114,6 +117,6 @@ if {$wordChainsQuery == "false"} {
 	return $compositeSearchResponse
 }
 
-set words [$searchResult "results"]
+set words [$searchResult get "results"]
 set wordChainResponse [getWordChains $graphId $ruleObject $words $wordChainsLimit]
 return $wordChainResponse
