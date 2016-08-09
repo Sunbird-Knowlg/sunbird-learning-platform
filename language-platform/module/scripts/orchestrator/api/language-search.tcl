@@ -9,8 +9,8 @@ set wordChains_limit 0
 set ruleNode [java::null]
 set weightagesMap [java::new HashMap]
 set baseConditions [java::new HashMap]
-set fuzzySearch false
-set wordChainsQuery false
+set fuzzySearch "false"
+set wordChainsQuery "false"
 set languageIdSize 0
 set request_map [java::new HashMap]
 set wordChainsLimit 10
@@ -19,39 +19,40 @@ set traversalRuleDefinition "TraversalRule"
 
 set isFuzzyNull [java::isnull $fuzzy]
 if {$isFuzzyNull == 0} {
-	set $fuzzySearch $fuzzy
+	set fuzzyString [$fuzzy toString]
+	set fuzzySearch $fuzzyString
 }
 
 set isTraversalIdNull [java::isnull $traversals]
 if {$isTraversalIdNull == 0} {
-	set $fuzzySearch true
-	set $wordChainsQuery true
+	set fuzzySearch "true"
+	set wordChainsQuery "true"
 }
 
 set isLimitNull [java::isnull $limit]
 if {$isLimitNull == 0} {
-	set $wordChainsLimit $limit
+	set wordChainsLimit $limit
 }
 
 set isLanguageIdNull [java::isnull $languageId]
 if {$isLanguageIdNull == 0} {
-	set $languageIdSize [$languageId size]
+	set languageIdSize [$languageId size]
 	if {$languageIdSize > 0} {
 		set language [$languageId get 0]
-		set $graphId $language
+		set graphId $language
 	}
 }
 
-$requestMap put "filters" $filters
-$requestMap put "query" $query
-$requestMap put "exists" $exists
-$requestMap put "not_exists" $not_exists
-$requestMap put "sort_by" $sort_by
-$requestMap put "facets" $facets
-$requestMap put "limit" $limit
-$requestMap put "fuzzy" $fuzzy
+$request_map put "filters" $filters
+$request_map put "query" $query
+$request_map put "exists" $exists
+$request_map put "not_exists" $not_exists
+$request_map put "sort_by" $sort_by
+$request_map put "facets" $facets
+$request_map put "limit" $limit
+$request_map put "fuzzy" $fuzzy
 
-if {$wordChainsQuery == true} {
+if {$wordChainsQuery == "true"} {
 	if {isLanguageIdNull == 1 || $languageIdSize == 0} {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
@@ -84,34 +85,32 @@ if {$wordChainsQuery == true} {
 	$request_map put "limit" $searchResultsLimit
 }
 
-if {$fuzzySearch == true} {
+if {$fuzzySearch == "true"} {
 	set isObjectTypeNull [java::isnull $objectType]
 	if {$isObjectTypeNull == 1} {
-		set $objectType [$filters get "objectType"]
+		set objectType [$filters get "objectType"]
 	}
 	
 	set $isObjectTypeNull [java::isnull $objectType]
 	if {$isObjectTypeNull == 0} {
-		set $objectType [$filters get "objectType"]
+		set objectType [$filters get "objectType"]
 	}
 	
-	set respDefNode [getDefinition $graph_id $objectType]
+	set respDefNode [getDefinition $graphId $objectType]
 	set defNode [get_resp_value $respDefNode "definition_node"]
 	
 	set definitionMetadata [$defNode getMetadata]
-	set weightagesString [java::new String]
-	set $weightagesString [$definitionMetadata get "weightages"]
-	set $weightagesMap [get_weightages_map $weightagesString]
-	$weightagesMap put "default_weightage" 1.0
+	set weightagesString [$definitionMetadata get "weightages"]
+	set weightagesMap [get_weightages_map $weightagesString]
 	$baseConditions put "weightages" $weightagesMap
 	$baseConditions put "graph_id" $graphId
 	$baseConditions put "objectType" $objectType
-	$requestMap put "baseConditions" $baseConditions
+	$request_map put "baseConditions" $baseConditions
 }
 
-set searchResult [get_language_search_result $requestMap]
-if {$wordChainsQuery == false} {
-	set compositeSearchResponse [get_composite_search_response $searchResult]
+set searchResult [doLanguageSearch $request_map]
+if {$wordChainsQuery == "false"} {
+	set compositeSearchResponse [getCompositeSearchResponse $searchResult]
 	return $compositeSearchResponse
 }
 

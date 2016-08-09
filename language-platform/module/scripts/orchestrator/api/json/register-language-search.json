@@ -16,7 +16,7 @@
 	{
         "name": "query",
         "index": 2,
-		"datatype": "java.lang.String"
+		"datatype": "java.lang.String",
         "routingParam": false
     },	
 	{

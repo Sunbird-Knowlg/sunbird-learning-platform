@@ -15,7 +15,7 @@
 	{
         "name": "words",
         "index": 2,
-		"datatype": "java.lang.ArrayList"
+		"datatype": "java.lang.ArrayList",
         "routingParam": false
     },	
 	{

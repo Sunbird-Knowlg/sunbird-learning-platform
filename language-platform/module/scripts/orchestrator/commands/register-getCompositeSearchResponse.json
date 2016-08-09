@@ -10,7 +10,7 @@
     }
   ],
   "actorPath": {
-    "manager": "org.ekstep.search.actor.SearchManager",
+    "manager": "SEARCH_MANAGER",
     "operation": "GET_COMPOSITE_SEARCH_RESPONSE",
     "router": "SEARCH_REQUEST_ROUTER"
   }

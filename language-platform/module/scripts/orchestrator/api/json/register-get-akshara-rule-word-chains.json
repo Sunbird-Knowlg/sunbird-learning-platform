@@ -16,19 +16,19 @@
 	{
         "name": "maxDepth",
         "index": 2,
-		"datatype": "java.lang.Integer"
+		"datatype": "java.lang.Integer",
         "routingParam": false
     },	
 	{
         "name": "minDepth",
         "index": 3,
-		"datatype": "java.lang.Integer"
+		"datatype": "java.lang.Integer",
         "routingParam": false
     },
 	{
         "name": "wordScore",
         "index": 4,
-		"datatype": "java.util.HashMap"
+		"datatype": "java.util.HashMap",
         "routingParam": false
     },
 	{

@@ -18,6 +18,7 @@ import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
 
 import com.ilimi.common.dto.Request;
+import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -28,6 +29,7 @@ public class SearchManager extends SearchBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(SearchManager.class.getName());
 
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 		String operation = request.getOperation();
@@ -39,10 +41,14 @@ public class SearchManager extends SearchBaseActor {
 				OK(getCompositeSearchResponse(lstResult), parent);
 
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.LANGUAGE_SEARCH.name(), operation)) {
-				SearchDTO searchDTO = getSearchDTO(request);
-				searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request.get("baseConditions"));
-				Map<String,Object> lstResult = processor.processSearch(searchDTO, true);
-				OK("result", lstResult, parent);
+				Map<String, Object> requestParam = (Map<String, Object>) request.get("request");
+				Request request2 =  new Request();
+				request2.setRequest(requestParam);
+				SearchDTO searchDTO = getSearchDTO(request2);
+				searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request2.get("baseConditions"));
+				Map<String,Object> response = processor.processSearch(searchDTO, true);
+				List<Map> results = (List<Map>) response.get("results");
+				OK("results", results, parent);
 
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
@@ -58,8 +64,8 @@ public class SearchManager extends SearchBaseActor {
 	            OK(getCompositeSearchResponse(lstResult),parent);			
 				
 			}else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name(), operation)) {
-				Map<String,Object> lstResult = (Map<String, Object>) request.get("searchResult");
-				OK(getCompositeSearchResponse(lstResult), parent);
+				Response response = (Response) request.get("searchResult");
+				OK(getCompositeSearchResponse(response.getResult()), parent);
 
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
@@ -67,7 +73,7 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-		    System.out.println("Error: " + e.getMessage());
+		    e.printStackTrace();
 		    LOGGER.error("Error in SearchManager actor", e);
 			handleException(e, getSender());
 		}
