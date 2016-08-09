@@ -685,8 +685,7 @@ public class Graph extends AbstractDomainObject {
                         if (null != nodes && !nodes.isEmpty()) {
                             List<Node> nodeList = new ArrayList<Node>();
                             for (Node node : nodes) {
-                                if (null != node && StringUtils.isNotBlank(node.getNodeType()) && StringUtils
-                                        .equalsIgnoreCase(SystemNodeTypes.DATA_NODE.name(), node.getNodeType())) {
+                                if (null != node && StringUtils.isNotBlank(node.getNodeType())) {
                                     nodeList.add(node);
                                 }
                             }

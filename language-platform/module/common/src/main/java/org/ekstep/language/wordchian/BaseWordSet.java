@@ -31,6 +31,7 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 	private Logger LOGGER;
 	private static final String STARTS_WITH = "startsWith";
 	private static final String ENDS_WITH = "endsWith";
+	private static final String RHYMING_SOUND = "rhymingSound";
 	
 	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, Logger LOGGER){
 		this.LOGGER = LOGGER;
@@ -77,15 +78,15 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 
 		if(startAksharaRelCreate){
 			if(akshara.equalsIgnoreCase(STARTS_WITH))
-				createRelation(languageId, aksharaSetId, connectingAksharaSetId, RelationTypes.STARTS_WITH_AKSHARA.relationName());
-			else
 				createRelation(languageId, connectingAksharaSetId, aksharaSetId, RelationTypes.STARTS_WITH_AKSHARA.relationName());
+			else
+				createRelation(languageId, aksharaSetId, connectingAksharaSetId, RelationTypes.STARTS_WITH_AKSHARA.relationName());
 		}
 	}
 	
 	@Override
 	public void addRhymingSound() {
-		String rhymingSoundText = getRymingSoundText();
+		String rhymingSoundText = RHYMING_SOUND + "_" + getRymingSoundText();
 
 		if(StringUtils.isNotBlank(rhymingSoundText)){
 			String setId = getWordSet(languageId, rhymingSoundText);
