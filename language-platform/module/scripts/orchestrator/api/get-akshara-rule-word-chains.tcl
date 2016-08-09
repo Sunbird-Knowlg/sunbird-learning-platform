@@ -120,16 +120,15 @@ java::for {Map topWord} $topWords {
 	}
 }
 
-return $wordChains
+#return $wordChains
 
-set sortedWordChains [sort_maps $wordChains "score" "desc"]
+set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
-
 if {$wordChainsSize > $wordChainsLimit} {
-	set $finalWordChains [$sortedWordChains sublist 0 $wordChainsLimit]
+	set finalWordChains [$sortedWordChains subList 0 $wordChainsLimit]
 } else {
-	set $finalWordChains $sortedWordChains
+	set finalWordChains [$sortedWordChains subList 0 $wordChainsLimit]
 }
 
 return $finalWordChains

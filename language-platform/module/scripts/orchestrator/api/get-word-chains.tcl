@@ -32,22 +32,14 @@ java::for {Map word} $words {
 }
 
 set ruleScriptString [$ruleScript toString]
-set wordChains [$ruleScriptString $graphId $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
-return $wordChains
-set sortedWordChains [sortMap $wordChains "score" "desc"]
+set wordChainsResponse [$ruleScriptString $graphId $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
 
-set finalWordChains [java::new ArrayList]
-set wordChainsSize [$sortedWordChains size]
-
-if {$wordChainsSize > $wordChainsLimit} {
-	set finalWordChains [$sortedWordChains sublist 0 $wordChainsLimit]
-} else {
-	set finalWordChains $sortedWordChains
-}
+set finalWordChains [$wordChainsResponse get "result"]
 
 set finalWordIds [java::new HashSet]
 java::for {Map wordChain} $finalWordChains {
-	set wordIds [$wordChain get "list"]
+	set wordIdsObject [$wordChain get "list"]
+	set wordIds [java::cast ArrayList $wordIdsObject]
 	$finalWordIds addAll $wordIds
 }
 
