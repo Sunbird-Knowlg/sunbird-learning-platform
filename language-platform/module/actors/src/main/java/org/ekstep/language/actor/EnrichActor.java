@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,21 +19,17 @@ import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageOperations;
 import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.util.ControllerUtil;
 import org.ekstep.language.util.WordUtil;
 import org.ekstep.language.util.WordnetUtil;
-import org.ekstep.language.wordchian.PhoneticBoundaryUtil;
+import org.ekstep.language.wordchian.WordChainUtil;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
-import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.common.enums.GraphHeaderParams;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
@@ -46,7 +41,7 @@ public class EnrichActor extends LanguageBaseActor {
 	private final int BATCH_SIZE = 10000;
 	
 	private WordUtil wordUtil = new WordUtil();
-	private PhoneticBoundaryUtil phoneticBoundaryUtil = new PhoneticBoundaryUtil();
+	private WordChainUtil wordChainUtil = new WordChainUtil();
 	
 	@SuppressWarnings("unchecked")
 	@Override
@@ -329,7 +324,7 @@ public class EnrichActor extends LanguageBaseActor {
 							}
 						}
 						try {
-							phoneticBoundaryUtil.updateWordChainRelations(languageId, node, wc);
+							wordChainUtil.updateWordSet(languageId, node, wc);
 						} catch (Exception e) {
 							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
 						}
