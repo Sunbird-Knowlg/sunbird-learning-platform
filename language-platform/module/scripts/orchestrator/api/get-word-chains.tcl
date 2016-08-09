@@ -31,7 +31,7 @@ java::for {Map word} $words {
 	$wordIdMap put $id $word
 }
 
-set wordChains [$ruleScript $topWords $ids $wordChainsLimit $maxDefinedDepth $minDefinedDepth $wordScore]
+set wordChains [$ruleScript $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
 
 set sortedWordChains [sortMap $wordChains "score" "desc"]
 

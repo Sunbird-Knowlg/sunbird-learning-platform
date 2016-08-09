@@ -41,3 +41,19 @@ node registerCommand.js commands/register-getLanguageGraphId.json update
 node registerCommand.js commands/register-addMembers.json update
 
 node registerCommand.js commands/register-removeMembers.json update
+
+node registerCommand.js commands/register-convertJSONStringToMap.json update
+
+node registerCommand.js commands/register-sortMaps.json update
+
+node registerCommand.js commands/register-doSearch.json update
+
+node registerCommand.js commands/register-doLanguageSearch.json update
+
+node registerCommand.js commands/register-getCompositeSearchResponse.json update
+
+node registerCommand.js commands/register-get-weightages-map.json update
+
+node registerCommand.js commands/register-traverse.json update
+
+node registerCommand.js commands/register-get-traverser.json update

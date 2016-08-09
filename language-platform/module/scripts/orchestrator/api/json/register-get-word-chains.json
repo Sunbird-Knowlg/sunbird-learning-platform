@@ -1,0 +1,33 @@
+{
+    "name": "getWordChains",
+    "parameters": [
+	{
+        "name": "graphId",
+        "index": 0,
+        "routingParam": false
+    },
+	{
+        "name": "ruleObject",
+        "index": 1,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
+    },
+	{
+        "name": "words",
+        "index": 2,
+		"datatype": "java.lang.ArrayList"
+        "routingParam": false
+    },	
+	{
+        "name": "wordChainsLimit",
+        "index": 3,
+        "datatype": "java.lang.Integer",
+        "routingParam": false
+    }
+	],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/language/wordChains"
+    },
+    "body": ""
+}

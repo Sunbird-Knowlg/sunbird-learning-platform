@@ -27,3 +27,9 @@ node registerScript.js api/update-traversal-rule.tcl api/json/register-update-tr
 node registerScript.js api/get-traversal-rule.tcl api/json/register-get-traversal-rule.json register
 
 node registerScript.js api/get-traversal-rules.tcl api/json/register-get-traversal-rules.json register
+
+node registerScript.js api/get-word-chains.tcl api/json/register-get-word-chains.json register
+
+node registerScript.js api/language-search.tcl api/json/register-language-search.json register
+
+node registerScript.js api/get-akshara-rule-word-chains.tcl api/json/register-get-akshara-rule-word-chains.json register

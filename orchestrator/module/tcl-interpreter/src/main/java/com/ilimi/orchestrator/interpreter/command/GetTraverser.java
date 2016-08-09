@@ -1,8 +1,10 @@
 package com.ilimi.orchestrator.interpreter.command;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.ekstep.language.wordchain.ArrayExpander;
 import org.ekstep.language.wordchain.WordChainRelations;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
@@ -32,30 +34,61 @@ public class GetTraverser implements ICommand, Command {
 
 				tclObject = argv[2];
 				obj = ReflectObject.get(interp, tclObject);
-				Map<String, String> relationMap = (Map<String, String>) obj;
+				Map<String, Object> request = (Map<String, Object>) obj;
+				
+				Map<String, String> relationMap = (Map<String, String>) request.get("relations");
+				Map<String, Object> pathExpander = (Map<String, Object>) request.get("pathExpander");
+				
+				if(pathExpander == null && relationMap == null){
+					throw new Exception("Either path expander or relations map is mandatory");
+				}
+				
+				List<String> uniquenessList = (List<String>) request.get("uniqueness");
 
-				tclObject = argv[3];
-				obj = ReflectObject.get(interp, tclObject);
-				List<String> uniquenessList = (List<String>) obj;
+				int minLength = (int) request.get("minLength");
+				int maxLength = (int) request.get("maxLength");
 				
-				tclObject = argv[4];
-				obj = ReflectObject.get(interp, tclObject);
-				int minLength = (int) obj;
+				String startNodeId = (String) request.get("startNodeId");
 				
-				
-				tclObject = argv[5];
-				obj = ReflectObject.get(interp, tclObject);
-				int maxLength = (int) obj;
-				
-				tclObject = argv[6];
-				obj = ReflectObject.get(interp, tclObject);
-				String startNodeId = (String) obj;
+				if(startNodeId == null || startNodeId.isEmpty()){
+					throw new Exception("Start node is mandatory");
+				}
 
+				ArrayExpander orderedPathExpander = null;
+				if(pathExpander != null){
+					ArrayList<String> relationTypes = (ArrayList<String>) pathExpander.get("relationTypes");
+					if(relationTypes == null){
+						throw new Exception("RelationTypes is mandatory for path expander");
+					}
+					ArrayList<String> directionsList = (ArrayList<String>) pathExpander.get("directions");
+					if(directionsList == null){
+						throw new Exception("Directions field is mandatory for path expander");
+					}
+					Integer nodeCount = (Integer) pathExpander.get("nodeCount");
+					if(nodeCount == null){
+						throw new Exception("Node count is required for path expander");
+					}
+					
+					RelationshipType[] types = new RelationshipType[relationTypes.size()];
+					Direction[] directions = new Direction[directionsList.size()];
+					int count=0;
+					for(String relationType: relationTypes){
+						types[count] = getRelations(relationType);
+						count++;
+					}
+					count=0;
+					for(String direction: directionsList){
+						directions[count] = getDirection(direction);
+						count++;
+					}
+					orderedPathExpander = new ArrayExpander(directions, types, nodeCount);
+				}
+				
 				com.ilimi.graph.dac.model.Traverser searchTraverser = new com.ilimi.graph.dac.model.Traverser(graphId, startNodeId);
 				TraversalDescription traversalDescription = searchTraverser.getBaseTraversalDescription();
-				
 				addRelations(traversalDescription, relationMap);
 				addUniquenessCriteria(traversalDescription, uniquenessList);
+				addExpander(traversalDescription, orderedPathExpander);
 				traversalDescription = traversalDescription.evaluator(Evaluators.fromDepth(minLength))
 						.evaluator(Evaluators.toDepth(maxLength));
 				
@@ -64,10 +97,16 @@ public class GetTraverser implements ICommand, Command {
 				TclObject tclResp = ReflectObject.newInstance(interp, searchTraverser.getClass(), searchTraverser);
 				interp.setResult(tclResp);
 			} catch (Exception e) {
-				throw new TclException(interp, "Unable to read response: " + e.getMessage());
+				throw new TclException(interp, "Error: " + e.getMessage());
 			}
 		} else {
 			throw new TclNumArgsException(interp, 1, argv, "Invalid arguments to get_traversal_description command");
+		}
+	}
+
+	private void addExpander(TraversalDescription traversalDescription, ArrayExpander orderedPathExpander) {
+		if(orderedPathExpander != null){
+			traversalDescription = traversalDescription.expand(orderedPathExpander);
 		}
 	}
 
@@ -85,10 +124,12 @@ public class GetTraverser implements ICommand, Command {
 	}
 
 	private void addRelations(TraversalDescription traversalDescription, Map<String, String> relationMap) throws Exception {
-		for(Map.Entry<String, String> entry: relationMap.entrySet()){
-			String relationName = entry.getKey();
-			String direction =  entry.getValue();
-			traversalDescription = traversalDescription.relationships(getRelations(relationName), getDirection(direction));
+		if(relationMap != null){
+			for(Map.Entry<String, String> entry: relationMap.entrySet()){
+				String relationName = entry.getKey();
+				String direction =  entry.getValue();
+				traversalDescription = traversalDescription.relationships(getRelations(relationName), getDirection(direction));
+			}
 		}
 	}
 	

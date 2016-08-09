@@ -57,3 +57,9 @@ node registerCommand.js commands/register-doSearch.json register
 node registerCommand.js commands/register-doLanguageSearch.json register
 
 node registerCommand.js commands/register-getCompositeSearchResponse.json register
+
+node registerCommand.js commands/register-get-weightages-map.json register
+
+node registerCommand.js commands/register-traverse.json register
+
+node registerCommand.js commands/register-get-traverser.json register

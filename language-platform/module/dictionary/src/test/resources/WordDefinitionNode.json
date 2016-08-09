@@ -837,7 +837,9 @@
       ],
       "metadata": {
         "ttl": 24,
-        "limit": 50
+        "limit": 50,
+        "weightages":"{\"10\": [\"category\", \"pos\"],\"15\": [\"theme\"],\"1\": [\"not_exists\"],\"5\": [\"exists\"],\"20\":\"lemma\",\"1\":\"default_weightage\"}",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }"
       }
     }
   ]

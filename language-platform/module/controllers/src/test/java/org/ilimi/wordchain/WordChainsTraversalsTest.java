@@ -201,17 +201,14 @@ public class WordChainsTraversalsTest extends BaseManager {
 	}
 
 	private Traverser getTraverser(final List<Node> nodes, GraphDatabaseService graphDb) {
-		RelationshipType[][] orderedRelTypes = {{ Rels.hasMember},{ Rels.startsWithAkshara},{ Rels.hasMember }};
-				Direction[] directions = {Direction.INCOMING,
-				Direction.OUTGOING, Direction.OUTGOING} ;
-		
+		RelationshipType[] orderedRelTypes = { Rels.hasMember ,  Rels.startsWithAkshara ,  Rels.hasMember };
+		Direction[] directions = { Direction.INCOMING, Direction.OUTGOING, Direction.OUTGOING };
+
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.expand(new ArrayExpander(directions,orderedRelTypes))
-				.uniqueness(Uniqueness.NODE_GLOBAL)
+				.expand(new ArrayExpander(directions, orderedRelTypes)).uniqueness(Uniqueness.NODE_GLOBAL)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
-				//.evaluator(Evaluators.excludeStartPosition())
-				.evaluator(Evaluators.fromDepth(6))
-				.evaluator(Evaluators.toDepth(9));
+				// .evaluator(Evaluators.excludeStartPosition())
+				.evaluator(Evaluators.fromDepth(6)).evaluator(Evaluators.toDepth(9));
 		return td.traverse(nodes);
 	}
 

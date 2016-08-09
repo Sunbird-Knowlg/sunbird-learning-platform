@@ -47,20 +47,42 @@ set ruleType "Akshara Rule"
 set wordsSize [$words size]
 set wordChains [java::new ArrayList]
 
-set maxDepth [$maxDefinedDepth + ($maxDefinedDepth - 1)]
-set minDepth [$minDefinedDepth + ($minDefinedDepth - 1)]
+set maxDepth [3 * ($maxDefinedDepth - 1)]
+set minDepth [3 * ($minDefinedDepth - 1)]
 
-set $traversalRelations [java::new HashMap]
-$traversalRelations put "hasMember" "BOTH"
-$traversalRelations put "startsWithAkshara" "OUTGOING"
+set relationTypes [java::new ArrayList]
+$relationTypes add "hasMember"
+$relationTypes add "startsWithAkshara"
+$relationTypes add "hasMember"
 
-set $traversalUniqueness [java::new ArrayList]
+set directions [java::new ArrayList]
+$directions add "INCOMING"
+$directions add "OUTGOING"
+$directions add "OUTGOING"
+
+set nodeCount 3
+
+set pathExpander [java::new HashMap]
+$pathExpander put "relationTypes" $relationTypes
+$pathExpander put "directions" $directions
+$pathExpander put "nodeCount" $nodeCount
+
+set traversalUniqueness [java::new ArrayList]
 $traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
 
+
+set traversalRequest [java::new HashMap]
+$traversalRequest put "pathExpander" $pathExpander
+$traversalRequest put "uniqueness" $traversalUniqueness
+$traversalRequest put "minLength" $minDepth
+$traversalRequest put "maxLength" $maxDepth
+$traversalRequest put "maxLength" $maxDepth
+
 java::for {Map topWord} $topWords {
 	set topWordId [$topWord get "identifier"]
-	set traverser [get_traverser $graphId $traversalRelations $traversalUniqueness $minDepth $maxDepth $topWordId]
+	$traversalRequest put "startNodeId" $topWordId
+	set traverser [get_traverser $graphId $traversalRequest]
 	set resp_traverse [traverse $traverser]
 	set check_error [check_response_error $resp_traverse]
 	if {$check_error} {
@@ -79,7 +101,6 @@ java::for {Map topWord} $topWords {
 }
 
 set sortedWordChains [sortMap $wordChains "score" "desc"]
-
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
 

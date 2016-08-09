@@ -1,0 +1,46 @@
+{
+    "name": "getAksharaRuleWordChains",
+    "parameters": [
+	{
+        "name": "topWords",
+        "index": 0,
+		"datatype": "java.lang.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "ids",
+        "index": 1,
+        "datatype": "java.util.ArrayList",
+        "routingParam": false
+    },
+	{
+        "name": "maxDepth",
+        "index": 2,
+		"datatype": "java.lang.Integer"
+        "routingParam": false
+    },	
+	{
+        "name": "minDepth",
+        "index": 3,
+		"datatype": "java.lang.Integer"
+        "routingParam": false
+    },
+	{
+        "name": "wordScore",
+        "index": 4,
+		"datatype": "java.util.HashMap"
+        "routingParam": false
+    },
+	{
+        "name": "wordChainsLimit",
+        "index": 5,
+        "datatype": "java.lang.Integer",
+        "routingParam": false
+    }
+	],
+    "requestPath": {
+        "type": "POST",
+        "url": "/v3/language/wordChains/aksharaRule"
+    },
+    "body": ""
+}

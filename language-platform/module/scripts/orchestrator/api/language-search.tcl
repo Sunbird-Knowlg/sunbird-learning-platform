@@ -22,7 +22,7 @@ if {$isFuzzyNull == 0} {
 	set $fuzzySearch $fuzzy
 }
 
-set isTraversalIdNull [java::isnull $traversalId]
+set isTraversalIdNull [java::isnull $traversals]
 if {$isTraversalIdNull == 0} {
 	set $fuzzySearch true
 	set $wordChainsQuery true
@@ -49,6 +49,7 @@ $requestMap put "not_exists" $not_exists
 $requestMap put "sort_by" $sort_by
 $requestMap put "facets" $facets
 $requestMap put "limit" $limit
+$requestMap put "fuzzy" $fuzzy
 
 if {$wordChainsQuery == true} {
 	if {isLanguageIdNull == 1 || $languageIdSize == 0} {
@@ -115,5 +116,5 @@ if {$wordChainsQuery == false} {
 }
 
 set words [$searchResult "results"]
-set wordChainResponse [get_word_chain $wordChainsLimit $words $ruleObject $graphId]
+set wordChainResponse [getWordChains $graphId $ruleObject $words $wordChainsLimit]
 return $wordChainResponse
