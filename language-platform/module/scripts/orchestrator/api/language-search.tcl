@@ -94,10 +94,16 @@ if {$fuzzySearch == "true"} {
 		set objectType [$filters get "objectType"]
 	}
 	
-	set $isObjectTypeNull [java::isnull $objectType]
-	if {$isObjectTypeNull == 0} {
-		set objectType [$filters get "objectType"]
+	set isObjectTypeNull [java::isnull $objectType]
+	if {$isObjectTypeNull == 1} {
+		set result_map [java::new HashMap]
+		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
+		$result_map put "message" "Object type filter is mandatory"
+		$result_map put "responseCode" [java::new Integer 400]
+		set response_list [create_error_response $result_map]
+		return $response_list
 	}
+	
 	
 	set respDefNode [getDefinition $graphId $objectType]
 	set defNode [get_resp_value $respDefNode "definition_node"]
