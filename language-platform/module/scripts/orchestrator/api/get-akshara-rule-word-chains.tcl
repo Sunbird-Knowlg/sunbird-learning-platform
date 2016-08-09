@@ -5,37 +5,56 @@ java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 
+
+
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
-	set totalScore 0.0
+	set totalScore 0
 	set averageScore 0.0
 	set chainLength 0
 	set wordChainRecord [java::new HashMap]
 	set title ""
-	set pathNodes [path getNodes]
+	set pathNodes [$finalPath getNodes]
+	set wordObjectType "Word"
 	java::for {Node node} $pathNodes {
 		set nodeMetadata [$node getMetadata]
 		set nodeObjectType [$node getObjectType]
-		set objectTypeEqualsWord [$nodeObjectType equalsIgnoreCase "Word"]
-		set objectTypeEqualsPB [$nodeObjectType equalsIgnoreCase "Phonetic_Boundary"]
-		if {objectTypeEqualsWord == true} {
+		
+		set pb "No"
+		set objectTypeEqualsWordString "false"
+		if {$nodeObjectType == "Word"} {
+			set objectTypeEqualsWordString "true"
+		} else {
+			set pb "Yes"
+		}
+		
+		
+		#set objectTypeEqualsWord [$nodeObjectType equalsIgnoreCase $wordObjectType]
+		#set objectTypeEqualsPB [$nodeObjectType equalsIgnoreCase "Phonetic_Boundary"]
+		#set objectTypeEqualsWordString [$objectTypeEqualsWord toString]
+		
+		if {$objectTypeEqualsWordString == "true"} {
 			set nodeIdentifier [$node getIdentifier]
 			set wordChainContains [$wordChain contains $nodeIdentifier]
-			if {wordChainContains == true} {
+			if {$wordChainContains == 1} {
 				return;
 			}
 			$wordChain add $nodeIdentifier
 			set score [$wordScore get $nodeIdentifier]
-			set totalScore [$totalScore+$score]
-			set chainLength [$chainLength+1]
+			set scoreString [$score toString]
+			set totalScore [expr $totalScore + $scoreString]
+			set chainLength [expr $chainLength + 1]
+			
 		}		
 	}
+	
 	set wordChainSize [$wordChain size]
 	if {$wordChainSize == 0} {
+		puts "Zero"
 		return [java::null]
 	}
 	
-	set averageScore [$totalScore/$chainLength]
+	set averageScore [expr $totalScore/$chainLength]
 	$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
 	$wordChainRecord put "score" $averageScore
@@ -91,12 +110,17 @@ java::for {Map topWord} $topWords {
 	set paths [$subGraph getPaths]
 	java::for {Path finalPath} $paths {
 		set wordChain [processPath $finalPath $wordScore $ruleType]
-		set isWordChainNull [java::isnull $wordChain]
-		if {$isWordChainNull == 0} {
-			$wordChains add $wordChain
-		}
+		if {$wordChain != ""} { 
+			set isWordChainNull [java::isnull $wordChain]
+			puts $isWordChainNull
+			if {$isWordChainNull == 0} {
+				$wordChains add $wordChain
+			}
+		} 
 	}
 }
+
+return $wordChains
 
 set sortedWordChains [sort_maps $wordChains "score" "desc"]
 set finalWordChains [java::new ArrayList]

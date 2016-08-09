@@ -13,9 +13,10 @@ set ruleScript [$ruleObject get "ruleScript"]
 set wordsSize [$words size]
 
 if {$wordsSize > $startWordsSize} {
-	set topWords [$words sublist 0 $startWordsSize]
+	set topWords [$words subList 0 $startWordsSize]
+	return "More"
 } else {
-	set topWords $words
+	set topWords [$words subList 0 $startWordsSize]
 }
 
 set ids [java::new ArrayList]
