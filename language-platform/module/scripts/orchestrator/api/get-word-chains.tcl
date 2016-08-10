@@ -12,10 +12,12 @@ set ruleScript [$ruleObject get "ruleScript"]
 
 set wordsSize [$words size]
 
-if {$wordsSize > $startWordsSize} {
+set startWordsSizeString [$startWordsSize toString]
+
+if {$wordsSize > $startWordsSizeString} {
 	set topWords [$words subList 0 $startWordsSize]
 } else {
-	set topWords [$words subList 0 $startWordsSize]
+	set topWords $words
 }
 
 set topWordsList [java::cast List $topWords]
