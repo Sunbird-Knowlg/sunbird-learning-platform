@@ -361,7 +361,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
-			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.1");
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 			return listRes;
 		}
