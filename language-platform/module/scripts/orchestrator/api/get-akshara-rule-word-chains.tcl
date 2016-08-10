@@ -4,8 +4,7 @@ java::import -package java.util HashMap Map
 java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
-
-
+java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
 
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
@@ -89,12 +88,17 @@ set traversalUniqueness [java::new ArrayList]
 $traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
 
+set wordIdEval [java::new WordIdEvaluator $ids]
+
+set evaluators [java::new ArrayList]
+$evaluators add $wordIdEval
 
 set traversalRequest [java::new HashMap]
 $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness
 $traversalRequest put "minLength" $minDepth
 $traversalRequest put "maxLength" $maxDepth
+$traversalRequest put "evaluators" $evaluators
 
 java::for {Map topWord} $topWords {
 	set topWordId [$topWord get "identifier"]

@@ -18,9 +18,12 @@ if {$wordsSize > $startWordsSize} {
 	set topWords [$words subList 0 $startWordsSize]
 }
 
+set topWordsList [java::cast List $topWords]
+
 set ids [java::new ArrayList]
 set wordScore [java::new HashMap]
 set wordIdMap [java::new HashMap]
+
 
 java::for {Map word} $words {
 	set id [$word get "identifier"]
@@ -31,7 +34,7 @@ java::for {Map word} $words {
 }
 
 set ruleScriptString [$ruleScript toString]
-set wordChainsResponse [$ruleScriptString $graphId $topWords $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
+set wordChainsResponse [$ruleScriptString $graphId $topWordsList $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
 
 set finalWordChains [$wordChainsResponse get "result"]
 

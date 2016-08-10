@@ -8,6 +8,7 @@ import org.ekstep.language.wordchain.ArrayExpander;
 import org.ekstep.language.wordchain.WordChainRelations;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.RelationshipType;
+import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Uniqueness;
@@ -44,6 +45,7 @@ public class GetTraverser implements ICommand, Command {
 				}
 				
 				List<String> uniquenessList = (List<String>) request.get("uniqueness");
+				List<Evaluator> evaluators = (List<Evaluator>) request.get("evaluators");
 
 				int minLength;
 				int maxLength;
@@ -98,6 +100,7 @@ public class GetTraverser implements ICommand, Command {
 				TraversalDescription traversalDescription = searchTraverser.getBaseTraversalDescription();
 				traversalDescription = addRelations(traversalDescription, relationMap);
 				traversalDescription = addUniquenessCriteria(traversalDescription, uniquenessList);
+				traversalDescription = addEvaluators(traversalDescription, evaluators);
 				traversalDescription = addExpander(traversalDescription, orderedPathExpander);
 				traversalDescription = traversalDescription.evaluator(Evaluators.fromDepth(minLength))
 						.evaluator(Evaluators.toDepth(maxLength));
@@ -112,6 +115,15 @@ public class GetTraverser implements ICommand, Command {
 		} else {
 			throw new TclNumArgsException(interp, 1, argv, "Invalid arguments to get_traversal_description command");
 		}
+	}
+
+	private TraversalDescription addEvaluators(TraversalDescription traversalDescription, List<Evaluator> evaluators) {
+		if(evaluators != null){
+			for(Evaluator eval: evaluators){
+				traversalDescription = traversalDescription.evaluator(eval);
+			}
+		}
+		return traversalDescription;
 	}
 
 	private TraversalDescription addExpander(TraversalDescription traversalDescription, ArrayExpander orderedPathExpander) {
