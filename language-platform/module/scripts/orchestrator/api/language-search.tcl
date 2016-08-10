@@ -38,6 +38,9 @@ if {$isLimitNull == 0} {
 	set wordChainsLimit $limit
 }
 
+set languageIdObj [$filters get "language_id"]
+set languageId [java::cast ArrayList $languageIdObj]
+
 set isLanguageIdNull [java::isnull $languageId]
 if {$isLanguageIdNull == 0} {
 	set languageIdSize [$languageId size]
@@ -45,9 +48,11 @@ if {$isLanguageIdNull == 0} {
 		set language [$languageId get 0]
 		set graphId $language
 	}
+	$filters remove "language_id"
+	$filters put "graph_id" $languageIdObj
 }
 
-$request_map put "filters" $filters
+
 $request_map put "query" $query
 $request_map put "exists" $exists
 $request_map put "not_exists" $not_exists
@@ -57,6 +62,7 @@ $request_map put "limit" $limit
 $request_map put "fuzzy" $fuzzy
 
 if {$wordChainsQuery == "true"} {
+	$filters remove "graph_id"
 	if {$isLanguageIdNull == 1 || $languageIdSize == 0} {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
@@ -86,6 +92,8 @@ if {$wordChainsQuery == "true"} {
 	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
 	
 	$request_map put "limit" $searchResultsLimit
+	set fuzzyObj [java::new Boolean "true"]
+	$request_map put "fuzzy" $fuzzyObj
 }
 
 if {$fuzzySearch == "true"} {
@@ -106,16 +114,34 @@ if {$fuzzySearch == "true"} {
 	
 	
 	set respDefNode [getDefinition $graphId $objectType]
+	set respDefNodeError [check_response_error $respDefNode]
+	if {$respDefNodeError} {
+		return $respDefNode
+	}
+	
 	set defNode [get_resp_value $respDefNode "definition_node"]
 	
 	set definitionMetadata [$defNode getMetadata]
 	set weightagesString [$definitionMetadata get "weightages"]
+	
+	set isWeighatgesStringNull [java::isnull $weightagesString]
+	if {$isWeighatgesStringNull == 1} {
+		set result_map [java::new HashMap]
+		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
+		$result_map put "message" "Weighatges metadata is not found for the object type"
+		$result_map put "responseCode" [java::new Integer 400]
+		set response_list [create_error_response $result_map]
+		return $response_list
+	}
+	
 	set weightagesMap [get_weightages_map $weightagesString]
 	$baseConditions put "weightages" $weightagesMap
 	$baseConditions put "graph_id" $graphId
 	$baseConditions put "objectType" $objectType
 	$request_map put "baseConditions" $baseConditions
 }
+
+$request_map put "filters" $filters
 
 set searchResult [doLanguageSearch $request_map]
 if {$wordChainsQuery == "false"} {

@@ -6,6 +6,7 @@ java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
 
+
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
 	set totalScore 0
@@ -116,7 +117,6 @@ java::for {Map topWord} $topWords {
 		set wordChain [processPath $finalPath $wordScore $ruleType]
 		if {$wordChain != ""} { 
 			set isWordChainNull [java::isnull $wordChain]
-			puts $isWordChainNull
 			if {$isWordChainNull == 0} {
 				$wordChains add $wordChain
 			}
@@ -124,7 +124,6 @@ java::for {Map topWord} $topWords {
 	}
 }
 
-#return $wordChains
 
 set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]

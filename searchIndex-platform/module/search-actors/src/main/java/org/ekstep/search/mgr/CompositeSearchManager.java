@@ -1,5 +1,6 @@
 package org.ekstep.search.mgr;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -46,20 +47,13 @@ public class CompositeSearchManager extends BaseSearchManager {
 		return getRes;
 	}
 	
-	public Map<String, Object> languageSearch(Request request){
-		Map<String, Object> result = null;
+	public Response languageSearch(Request request){
 		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.LANGUAGE_SEARCH.name());
 		Response getRes = getSearchResponse(request, LOGGER);
-		if (!checkError(getRes)) {
-			result = (Map<String, Object>) getRes.get("result");
-		}else{
-			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
-		}
-		
-		return result;
+		return getRes;
 	}
 	
-	public Response getSearchResponse(Map<String, Object> searchResult){
+	public Response getSearchResponse(Response searchResult){
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name());
 		request.put("searchResult", searchResult);
 		Response getRes = getSearchResponse(request, LOGGER);

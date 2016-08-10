@@ -8,56 +8,50 @@
         "routingParam": false
     },
 	{
-        "name": "languageId",
-        "index": 1,
-        "datatype": "java.util.ArrayList",
-        "routingParam": false
-    },
-	{
         "name": "query",
-        "index": 2,
+        "index": 1,
 		"datatype": "java.lang.String",
         "routingParam": false
     },	
 	{
         "name": "filters",
-        "index": 3,
+        "index": 2,
         "datatype": "java.util.HashMap",
         "routingParam": false
     },
 	{
         "name": "exists",
-        "index": 4,
+        "index": 3,
         "datatype": "java.util.ArrayList",
         "routingParam": false
     },
 	{
         "name": "not_exists",
-        "index": 5,
+        "index": 4,
         "datatype": "java.util.ArrayList",
         "routingParam": false
     },
 	{
         "name": "sort_by",
-        "index": 6,
+        "index": 5,
         "datatype": "java.util.HashMap",
         "routingParam": false
     },
 	{
         "name": "facets",
-        "index": 7,
+        "index": 6,
         "datatype": "java.util.ArrayList",
         "routingParam": false
     },
 	{
         "name": "fuzzy",
-        "index": 8,
+        "index": 7,
         "datatype": "java.lang.Boolean",
         "routingParam": false
     },
 	{
         "name": "limit",
-        "index": 9,
+        "index": 8,
         "datatype": "java.lang.Integer",
         "routingParam": false
     }

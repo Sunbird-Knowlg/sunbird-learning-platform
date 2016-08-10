@@ -1,5 +1,6 @@
 package org.ekstep.language.controller;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -68,16 +69,25 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			if (isFuzzySearch == null) {
 				isFuzzySearch = false;
 			}
-			String traversalId = (String) request.get(ATTRIB_TRAVERSAL_ID);
+			List<String> traversalIds = (List<String>) request.get(ATTRIB_TRAVERSAL_ID);
+			String traversalId = null;
+			if(traversalIds != null && !traversalIds.isEmpty()){
+				traversalId = traversalIds.get(0);
+			}
 			boolean wordChainsQuery = false;
 			if (traversalId != null) {
 				wordChainsQuery = true;
 				isFuzzySearch = true;
 			}
 
-			List<String> languageIds = (List<String>) request.get(ATTRIB_LANGUAGE_ID);
+			Map<String, Object> filters = (Map<String, Object>) request
+					.get(CompositeSearchParams.filters.name());
+			
+			List<String> languageIds = (List<String>) filters.get(ATTRIB_LANGUAGE_ID);
 			if (languageIds != null && !languageIds.isEmpty()) {
 				graphId = languageIds.get(0);
+				filters.remove(ATTRIB_LANGUAGE_ID);
+				filters.put("graph_id", languageIds);
 			}
 
 			if (wordChainsQuery) {
@@ -112,8 +122,6 @@ public class WordChainsController extends BaseLanguageController implements IWor
 
 			if (isFuzzySearch) {
 				if (objectType == null) {
-					Map<String, Object> filters = (Map<String, Object>) request
-							.get(CompositeSearchParams.filters.name());
 					if (null != filters) {
 						Object objectTypeValue = filters.get(GraphDACParams.objectType.name());
 						if (null != objectTypeValue) {
@@ -124,6 +132,10 @@ public class WordChainsController extends BaseLanguageController implements IWor
 							}
 						}
 					}
+				}
+				
+				if (objectType == null) {
+					throw new Exception("Object type is mandatory for fuzzy search");
 				}
 
 				if (objectType != null) {
@@ -156,12 +168,19 @@ public class WordChainsController extends BaseLanguageController implements IWor
 				request.put(ATTRIB_WEIGHTAGE_BASE_CONDITIONS, baseConditions);
 			}
 
-			Map<String, Object> searchResult = compositeSearchManager.languageSearch(request);
+			request.put("filters", filters);
+			Request searchRequest = new Request();
+			searchRequest.put("request", request.getRequest());
+			
+			Response searchResponse = compositeSearchManager.languageSearch(searchRequest);
+			if(checkError(searchResponse)){
+				return getResponseEntity(searchResponse, apiId, null);
+			}
 			if (!wordChainsQuery) {
-				return getResponseEntity(compositeSearchManager.getSearchResponse(searchResult), apiId, null);
+				return getResponseEntity(compositeSearchManager.getSearchResponse(searchResponse), apiId, null);
 			}
 
-			List<Map> words = (List<Map>) searchResult.get("results");
+			List<Map> words = (List<Map>) searchResponse.get("results");
 			Response wordChainResponse = wordChainsManager.getWordChain(wordChainsLimit, words, ruleNode, graphId);
 			return getResponseEntity(wordChainResponse, apiId, null);
 		} catch (Exception e) {
