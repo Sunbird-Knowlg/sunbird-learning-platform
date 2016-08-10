@@ -1,5 +1,6 @@
 package org.ekstep.language.wordchian;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -63,8 +64,12 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 		String connectingAksharaSetId = getWordSet(languageId, connectingAksharaText);
 		boolean startAksharaRelCreate = false;
 
-		if(StringUtils.isBlank(aksharaSetId) || StringUtils.isBlank(connectingAksharaSetId))
+//		if(StringUtils.isBlank(aksharaSetId) || StringUtils.isBlank(connectingAksharaSetId))
+//			startAksharaRelCreate = true;
+
+		if(StringUtils.isBlank(aksharaSetId) && StringUtils.isNotBlank(connectingAksharaSetId)){
 			startAksharaRelCreate = true;
+		}
 		
 		if(StringUtils.isBlank(aksharaSetId)){
 			aksharaSetId = createWordSetCollection(languageId, wordNode.getIdentifier(), aksharaText, LanguageParams.Akshara.name());
@@ -72,9 +77,9 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 			addMemberToSet(languageId, aksharaSetId, wordNode.getIdentifier());
 		}
 		
-		if(StringUtils.isBlank(connectingAksharaSetId)){
-			connectingAksharaSetId = createWordSet(languageId, connectingAksharaText, LanguageParams.Akshara.name());
-		}
+//		if(StringUtils.isBlank(connectingAksharaSetId)){
+//			connectingAksharaSetId = createWordSetCollection(languageId, null, connectingAksharaText, LanguageParams.Akshara.name());
+//		}
 
 		if(startAksharaRelCreate){
 			if(akshara.equalsIgnoreCase(STARTS_WITH))
@@ -135,7 +140,12 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 		wordSet.setMetadata(metadata);
 		wordSet.setObjectType(LanguageObjectTypes.WordSet.name());
 
-        List<String> members = Arrays.asList(wordId);
+		List<String> members = null;
+		if(StringUtils.isNotBlank(wordId))
+			members = Arrays.asList(wordId);
+		else
+			members = new ArrayList<String>();
+			
         setReq.put(GraphDACParams.members.name(), members);
         setReq.put(GraphDACParams.node.name(), wordSet);
         setReq.put(GraphDACParams.object_type.name(), LanguageObjectTypes.WordSet.name());
