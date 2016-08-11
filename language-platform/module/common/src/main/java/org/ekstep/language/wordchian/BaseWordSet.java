@@ -144,7 +144,8 @@ public abstract class BaseWordSet extends BaseManager implements IWordSet{
 		if(StringUtils.isNotBlank(wordId))
 			members = Arrays.asList(wordId);
 		else
-			members = new ArrayList<String>();
+			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
+					"WordId cannot be empty");
 			
         setReq.put(GraphDACParams.members.name(), members);
         setReq.put(GraphDACParams.node.name(), wordSet);
