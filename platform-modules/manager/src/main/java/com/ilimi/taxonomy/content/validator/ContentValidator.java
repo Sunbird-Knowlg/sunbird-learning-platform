@@ -151,21 +151,21 @@ public class ContentValidator {
 		boolean isValid = false;
 		if (null != node) {
 			String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
-			if (StringUtils.isNoneBlank(mimeType)) {
+			if (StringUtils.isNotBlank(mimeType)) {
 				LOGGER.info("Checking Required Fields For: " + mimeType);
 				switch (mimeType) {
 				case "application/vnd.ekstep.ecml-archive":
 					// Either 'body' or 'artifactUrl' is needed
 					if (StringUtils
-							.isNoneBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()))
-							|| StringUtils.isNoneBlank(
+							.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()))
+							|| StringUtils.isNotBlank(
 									(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())))
 						isValid = true;
 					break;
 
 				case "application/vnd.ekstep.html-archive":
 					// 'artifactUrl is needed'
-					if (StringUtils.isNoneBlank(
+					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
 					break;
