@@ -4,30 +4,21 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.util.WordCacheUtil;
 
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 
-public class EnglishLanguageWordSet extends BaseWordSet {
-
-
-	private WordCacheUtil wordCacheUtil;
-    private static Logger LOGGER = LogManager.getLogger(EnglishLanguageWordSet.class.getName());
+public class EnglishWordUtil {
+	private Node wordNode;
 	
-	public EnglishLanguageWordSet(String languageId, Node wordNode, WordComplexity wc){
-		super(languageId, wordNode, wc, LOGGER);
-		wordCacheUtil = new WordCacheUtil();		
+	public EnglishWordUtil(Node wordNode){
+		this.wordNode = wordNode;
 	}
 	
-	protected String getRymingSoundText(){
+	public String getRhymingSoundText(){
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
-		String arpabets = wordCacheUtil.getArpabets(lemma);
+		String arpabets = WordCacheUtil.getArpabets(lemma);
 		if (!StringUtils.isEmpty(arpabets)){
 			String arpabetArr[] = arpabets.split("\\s");
 			int arpabetLength = arpabetArr.length;
@@ -39,18 +30,15 @@ public class EnglishLanguageWordSet extends BaseWordSet {
 		return null;
 	}
 
-	@Override
-	protected String getStartsWithAksharaText() {
+	public String getStartsWithAksharaText() {
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String text = "" + lemma.charAt(0);
 		return text;
 	}
 
-	@Override
-	protected List<String> getEndsWithAksharaText() {
+	public List<String> getEndsWithAksharaText() {
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String text = "" + lemma.charAt(lemma.length()-1);
 		return Arrays.asList(text);
 	}
-
 }

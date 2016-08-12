@@ -12,23 +12,27 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 
 import com.ilimi.common.dto.Property;
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
-public class IndianLanguageWordSet extends BaseWordSet {
+public class IndicWordUtil extends BaseManager{
 
-	private static Logger LOGGER = LogManager.getLogger(IndianLanguageWordSet.class.getName());
+	private static Logger LOGGER =  LogManager.getLogger(IndicWordUtil.class.getName());
+	private String languageId ;
+	private WordComplexity wc;
 	
-	public IndianLanguageWordSet(String languageId, Node wordNode, WordComplexity wc){
-		super(languageId, wordNode, wc, LOGGER);
+	public IndicWordUtil(String languageId, WordComplexity wc){
+		this.languageId = languageId;
+		this.wc = wc;
 	}
-
-
-	@Override
-	protected String getStartsWithAksharaText() {
+	
+	public String getStartsWithAksharaText() {
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
@@ -45,8 +49,7 @@ public class IndianLanguageWordSet extends BaseWordSet {
 	}
 
 
-	@Override
-	protected List<String> getEndsWithAksharaText() {
+	public List<String> getEndsWithAksharaText() {
 		
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
@@ -85,14 +88,11 @@ public class IndianLanguageWordSet extends BaseWordSet {
 		return result;
 	}
 
-	@Override
-	protected String getRymingSoundText() {
+	public String getRymingSoundText() {
 
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
-		String syllables[] = StringUtils.split(unicodeNotation);
-		List<Relation> relations = new ArrayList<Relation>();
-		
+		String syllables[] = StringUtils.split(unicodeNotation);		
 		String lastSyllable = syllables[syllables.length-1];			
 		
 		if(syllables.length>1){
@@ -164,6 +164,17 @@ public class IndianLanguageWordSet extends BaseWordSet {
 			 throw new ServerException(LanguageErrorCodes.ERROR_PHONETIC_BOUNTARY_LOOKUP.name(),
 					getErrorMessage(varnaRes));
 		
+	}
+	
+	protected Response getDataNodeByProperty(String languageId, Property property){
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+		request.put(GraphDACParams.metadata.name(), property);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			return findRes;
+		}
+		return null;
 	}
 
 }

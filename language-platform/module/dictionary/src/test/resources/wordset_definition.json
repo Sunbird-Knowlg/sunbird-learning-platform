@@ -6,8 +6,8 @@
         {
           "required": true,
           "dataType": "Text",
-          "propertyName": "text",
-          "title": "text",
+          "propertyName": "lemma",
+          "title": "lemma",
           "description": "",
           "category": "general",
           "displayProperty": "Editable",
@@ -26,7 +26,8 @@
           "category": "general",
           "displayProperty": "Editable",
           "range": [
-            "Akshara",
+            "PrefixBoundary",
+            "SuffixBoundary",
             "RhymingSound"
           ],
           "defaultValue": "",
@@ -48,11 +49,11 @@
           "renderingHints": "{ 'order': 3 }"
         },
         {
-          "relationName": "associatedTo",
+          "relationName": "follows",
           "objectTypes": [
             "WordSet"
           ],
-          "title": "startsWithAkshara",
+          "title": "follows",
           "description": "",
           "required": false,
           "renderingHints": "{ 'order': 4 }"

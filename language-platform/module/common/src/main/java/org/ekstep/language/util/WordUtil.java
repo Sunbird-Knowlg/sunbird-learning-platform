@@ -77,8 +77,6 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 	
-	private WordCacheUtil wordCacheUtil = new WordCacheUtil();
-
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap)
 			throws JsonParseException, JsonMappingException, IOException {
@@ -1556,24 +1554,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
-	public void loadEnglishWordsArpabetsMap(InputStream wordsArpabetsStream) {
-
-		wordCacheUtil.loadWordArpabetCollection(wordsArpabetsStream);
-	}
-
-	public String getArpabets(String word) {
-
-		return wordCacheUtil.getArpabets(word);
-	}
-
-	public Set<String> getSimilarSoundWords(String word) {
-
-		return wordCacheUtil.getSimilarSoundWords(word);
-	}
-
 	public String getPhoneticSpellingByLanguage(String languageId, String word) {
 
-		String arpabets = getArpabets(word);
+		String arpabets = WordCacheUtil.getArpabets(word);
 		if (StringUtils.isEmpty(arpabets))
 			return "";
 
@@ -1636,7 +1619,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	public List<String> buildSyllables(String languageId, String word) {
 		String syllables = "";
 
-		String arpabets = getArpabets(word);
+		String arpabets = WordCacheUtil.getArpabets(word);
 		if (StringUtils.isEmpty(arpabets))
 			return ListUtils.EMPTY_LIST;
 

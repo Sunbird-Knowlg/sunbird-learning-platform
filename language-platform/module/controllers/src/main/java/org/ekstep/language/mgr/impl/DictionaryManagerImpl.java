@@ -37,6 +37,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.mgr.IDictionaryManager;
 import org.ekstep.language.router.LanguageRequestRouterPool;
 import org.ekstep.language.util.IWordnetConstants;
+import org.ekstep.language.util.WordCacheUtil;
 import org.ekstep.language.util.WordUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -2682,7 +2683,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
 	@Override
 	public Response loadEnglishWordsArpabetsMap(InputStream in){
-		wordUtil.loadEnglishWordsArpabetsMap(in);
+		WordCacheUtil.loadWordArpabetCollection(in);
 		Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setStatus(StatusType.successful.name());
@@ -2730,7 +2731,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@Override
 	public Response getArpabets(String languageID, String word){
 
-		String arpabets=wordUtil.getArpabets(word);
+		String arpabets=WordCacheUtil.getArpabets(word);
 		Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setStatus(StatusType.successful.name());
@@ -2756,7 +2757,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
 	@Override
 	public Response getSimilarSoundWords(String languageId, String word){
-		Set<String> similarSoundWords=wordUtil.getSimilarSoundWords(word);
+		Set<String> similarSoundWords=WordCacheUtil.getSimilarSoundWords(word);
 		Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setStatus(StatusType.successful.name());
