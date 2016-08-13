@@ -4,39 +4,10 @@ java::import -package java.util HashMap Map
 java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
 
-set maxDefinedDepth [$ruleObject get "maxChainLength"]
-set minDefinedDepth [$ruleObject get "minChainLength"]
-set startWordsSize [$ruleObject get "startWordsSize"]
-set ruleType [$ruleObject get "type"]
 set ruleScript [$ruleObject get "ruleScript"]
 
-set wordsSize [$words size]
-
-set startWordsSizeString [$startWordsSize toString]
-
-if {$wordsSize > $startWordsSizeString} {
-	set topWords [$words subList 0 $startWordsSize]
-} else {
-	set topWords $words
-}
-
-set topWordsList [java::cast List $topWords]
-
-set ids [java::new ArrayList]
-set wordScore [java::new HashMap]
-set wordIdMap [java::new HashMap]
-
-
-java::for {Map word} $words {
-	set id [$word get "identifier"]
-	$ids add $id
-	set score [$word get "score"]
-	$wordScore put $id $score
-	$wordIdMap put $id $word
-}
-
 set ruleScriptString [$ruleScript toString]
-set wordChainsResponse [$ruleScriptString $graphId $topWordsList $ids $maxDefinedDepth $minDefinedDepth $wordScore $wordChainsLimit]
+set wordChainsResponse [$ruleScriptString $graphId $ruleObject $searchResult $wordChainsLimit]
 
 set finalWordChains [$wordChainsResponse get "result"]
 
@@ -48,6 +19,13 @@ java::for {Map wordChain} $finalWordChains {
 }
 
 set wordChainWords [java::new ArrayList]
+set wordIdMap [java::new HashMap]
+
+
+java::for {Map word} $searchResult {
+	set id [$word get "identifier"]
+	$wordIdMap put $id $word
+}
 
 java::for {String wordId} $finalWordIds {
 	set wordFromMap [$wordIdMap get $wordId]

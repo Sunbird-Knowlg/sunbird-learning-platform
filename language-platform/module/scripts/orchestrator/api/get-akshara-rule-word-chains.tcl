@@ -6,7 +6,6 @@ java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
 
-
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
 	set totalScore 0
@@ -50,7 +49,6 @@ proc processPath {finalPath wordScore relation} {
 	
 	set wordChainSize [$wordChain size]
 	if {$wordChainSize == 0} {
-		puts "Zero"
 		return [java::null]
 	}
 	
@@ -61,6 +59,42 @@ proc processPath {finalPath wordScore relation} {
 	$wordChainRecord put "relation" $relation
 	return $wordChainRecord
 }
+
+set maxDefinedDepthObj [$ruleObject get "maxChainLength"]
+set maxDefinedDepth [$maxDefinedDepthObj toString]
+
+set minDefinedDepthObj [$ruleObject get "minChainLength"]
+set minDefinedDepth [$minDefinedDepthObj toString]
+
+set startWordsSize [$ruleObject get "startWordsSize"]
+set ruleType [$ruleObject get "type"]
+set ruleScript [$ruleObject get "ruleScript"]
+
+set wordsSize [$searchResult size]
+
+set startWordsSizeString [$startWordsSize toString]
+
+if {$wordsSize > $startWordsSizeString} {
+	set topWords [$searchResult subList 0 $startWordsSize]
+} else {
+	set topWords $searchResult
+}
+
+set topWordsList [java::cast List $topWords]
+
+set ids [java::new ArrayList]
+set wordScore [java::new HashMap]
+set wordIdMap [java::new HashMap]
+
+
+java::for {Map word} $searchResult {
+	set id [$word get "identifier"]
+	$ids add $id
+	set score [$word get "score"]
+	$wordScore put $id $score
+	$wordIdMap put $id $word
+}
+
 
 set ruleType "Akshara Rule"
 set wordChains [java::new ArrayList]
@@ -86,7 +120,7 @@ $pathExpander put "directions" $directions
 $pathExpander put "nodeCount" $nodeCount
 
 set traversalUniqueness [java::new ArrayList]
-$traversalUniqueness add "NODE_GLOBAL"
+#$traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
 
 set wordIdEval [java::new WordIdEvaluator $ids]
@@ -100,11 +134,12 @@ $traversalRequest put "uniqueness" $traversalUniqueness
 $traversalRequest put "minLength" $minDepth
 $traversalRequest put "maxLength" $maxDepth
 $traversalRequest put "evaluators" $evaluators
+set traverser [get_traverser $graphId $traversalRequest]
 
 java::for {Map topWord} $topWords {
-	set topWordId [$topWord get "identifier"]
-	$traversalRequest put "startNodeId" $topWordId
-	set traverser [get_traverser $graphId $traversalRequest]
+	set topWordIdObject [$topWord get "identifier"]
+	set topWordId [$topWordIdObject toString]
+	$traverser setStartNode $topWordId
 	set resp_traverse [traverse $graphId $traverser]
 	set check_error [check_response_error $resp_traverse]
 	if {$check_error} {

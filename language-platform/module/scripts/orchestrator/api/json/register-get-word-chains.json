@@ -13,7 +13,7 @@
         "routingParam": false
     },
 	{
-        "name": "words",
+        "name": "searchResult",
         "index": 2,
 		"datatype": "java.util.ArrayList",
         "routingParam": false

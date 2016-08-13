@@ -65,10 +65,6 @@ public class GetTraverser implements ICommand, Command {
 				
 				String startNodeId = (String) request.get("startNodeId");
 				
-				if(startNodeId == null || startNodeId.isEmpty()){
-					throw new Exception("Start node is mandatory");
-				}
-
 				ArrayExpander orderedPathExpander = null;
 				if(pathExpander != null){
 					ArrayList<String> relationTypes = (ArrayList<String>) pathExpander.get("relationTypes");
