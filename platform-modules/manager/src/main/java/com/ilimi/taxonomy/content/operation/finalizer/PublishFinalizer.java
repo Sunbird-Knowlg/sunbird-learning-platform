@@ -102,7 +102,7 @@ public class PublishFinalizer extends BaseFinalizer {
 				.makeSlug((String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name()), true)
 				+ "_" + System.currentTimeMillis() + "_" + node.getIdentifier() + ".ecar";
 		ContentBundle contentBundle = new ContentBundle();
-		String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+		String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION);
 
 		// Delete local compressed artifactFile
 		Object artifact = node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name());

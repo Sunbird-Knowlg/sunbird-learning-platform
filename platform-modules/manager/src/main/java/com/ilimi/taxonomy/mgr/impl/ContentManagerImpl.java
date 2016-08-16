@@ -46,6 +46,7 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
+import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
@@ -361,7 +362,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
-			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION);
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 			return listRes;
 		}

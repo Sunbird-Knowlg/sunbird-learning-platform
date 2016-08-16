@@ -32,5 +32,5 @@ tomcat_max_mem = -Xmx2048m
 tomcat_perm_size = -XX:MaxPermSize=256M
 graphevent_kafka_url = "172.31.1.92:9092"
 graphevent_kafka_topic_id = "sandbox.learning.graph.events"
-content_to_vec_url = http://172.31.27.233:9000/content-to-vec
+content_to_vec_url = http://172.31.25.29:9000/content-to-vec
 

@@ -111,6 +111,9 @@ public class BundleInitializer extends BaseInitializer {
                     }
                 }
 			}
+			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
+			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
+				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(), content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
 		}
 
