@@ -29,41 +29,38 @@ public class SearchManager extends SearchBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(SearchManager.class.getName());
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
-		
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.SEARCH.name(), operation)) {
-				Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), true);
+				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), true);
 				OK(getCompositeSearchResponse(lstResult), parent);
-
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.LANGUAGE_SEARCH.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.LANGUAGE_SEARCH.name(), operation)) {
 				Map<String, Object> requestParam = (Map<String, Object>) request.get("request");
-				Request request2 =  new Request();
+				Request request2 = new Request();
 				request2.setRequest(requestParam);
 				SearchDTO searchDTO = getSearchDTO(request2);
 				searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request2.get("baseConditions"));
-				Map<String,Object> response = processor.processSearch(searchDTO, true);
+				Map<String, Object> response = processor.processSearch(searchDTO, true);
 				List<Map> results = (List<Map>) response.get("results");
 				OK("results", results, parent);
-
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
-				Map<String,Object> countResult = processor.processCount(getSearchDTO(request));
-				if (null != countResult.get("count")){
-					Double count =(Double) countResult.get("count");
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
+				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
+				if (null != countResult.get("count")) {
+					Double count = (Double) countResult.get("count");
 					OK("count", count, parent);
-				}else{
-					ERROR("","count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);
+				} else {
+					ERROR("", "count is empty or null", ResponseCode.SERVER_ERROR, "", null, parent);
 				}
-				
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
-				Map<String,Object> lstResult = processor.processSearch(getSearchDTO(request), false);
-	            OK(getCompositeSearchResponse(lstResult),parent);			
-				
-			}else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name(), operation)) {
+
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.METRICS.name(), operation)) {
+				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), false);
+				OK(getCompositeSearchResponse(lstResult), parent);
+
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name(), operation)) {
 				Response response = (Response) request.get("searchResult");
 				OK(getCompositeSearchResponse(response.getResult()), parent);
 
@@ -73,9 +70,12 @@ public class SearchManager extends SearchBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-		    e.printStackTrace();
-		    LOGGER.error("Error in SearchManager actor", e);
+			e.printStackTrace();
+			LOGGER.error("Error in SearchManager actor", e);
 			handleException(e, getSender());
+		} finally {
+			if (null != processor)
+				processor.destroy();
 		}
 	}
 
@@ -111,20 +111,20 @@ public class SearchManager extends SearchBaseActor {
 			searchObj.setProperties(properties);
 			searchObj.setLimit(limit);
 			searchObj.setOperation(CompositeSearchConstants.SEARCH_OPERATION_AND);
-			
-			if(fuzzySearch != null){
+
+			if (fuzzySearch != null) {
 				searchObj.setFuzzySearch(fuzzySearch);
 			}
-		} catch(ClassCastException e) {
+		} catch (ClassCastException e) {
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_INVALID_PARAMS.name(),
 					"Invalid Input.");
 		}
 		return searchObj;
 	}
-	
+
 	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		if(fieldList != null){
+		if (fieldList != null) {
 			for (String field : fieldList) {
 				String searchOperation = "";
 				switch (operation) {
@@ -146,22 +146,21 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return properties;
 	}
-	
-	private List<String> getList(Object param){
+
+	private List<String> getList(Object param) {
 		List<String> paramList;
-		try{
+		try {
 			paramList = (List<String>) param;
-		}
-		catch(Exception e){
+		} catch (Exception e) {
 			String str = (String) param;
 			paramList = Arrays.asList(str);
 		}
 		return paramList;
 	}
-	
+
 	private List<Map<String, Object>> getSearchQueryProperties(String queryString, List<String> fields) {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
-		if(queryString != null && !queryString.isEmpty()){
+		if (queryString != null && !queryString.isEmpty()) {
 			if (null == fields || fields.size() <= 0) {
 				Map<String, Object> property = new HashMap<String, Object>();
 				property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
@@ -169,9 +168,10 @@ public class SearchManager extends SearchBaseActor {
 				property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
 				properties.add(property);
 			} else {
-				for (String field: fields) {
+				for (String field : fields) {
 					Map<String, Object> property = new HashMap<String, Object>();
-					property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+					property.put(CompositeSearchParams.operation.name(),
+							CompositeSearchConstants.SEARCH_OPERATION_LIKE);
 					property.put(CompositeSearchParams.propertyName.name(), field);
 					property.put(CompositeSearchParams.values.name(), Arrays.asList(queryString));
 					properties.add(property);
@@ -180,44 +180,49 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return properties;
 	}
-	
+
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal) throws Exception {
+	private List<Map<String, Object>> getSearchFilterProperties(Map<String, Object> filters, Boolean traversal)
+			throws Exception {
 		List<Map<String, Object>> properties = new ArrayList<Map<String, Object>>();
 		boolean statusFilter = false;
-		if (null != filters && !filters.isEmpty()) { 
-			for (Entry<String, Object> entry: filters.entrySet()) {
+		if (null != filters && !filters.isEmpty()) {
+			for (Entry<String, Object> entry : filters.entrySet()) {
 				Object filterObject = entry.getValue();
-				if(filterObject instanceof Map){
+				if (filterObject instanceof Map) {
 					Map<String, Object> filterMap = (Map<String, Object>) filterObject;
-					if(!filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN) && !filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX)){
-						for(Map.Entry<String, Object> filterEntry: filterMap.entrySet()){
+					if (!filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN)
+							&& !filterMap.containsKey(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX)) {
+						for (Map.Entry<String, Object> filterEntry : filterMap.entrySet()) {
 							Map<String, Object> property = new HashMap<String, Object>();
 							property.put(CompositeSearchParams.values.name(), filterEntry.getValue());
 							property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-							switch(filterEntry.getKey()){
-								case "startsWith":{
-									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
-									break;
-								}
-								case "endsWith":{
-									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
-									break;
-								}
-								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
-								case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
-								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
-								case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN:{
-									property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
-									break;
-								}
-								case "value":{
-									property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_LIKE);
-									break;
-								}
-								default:{
-									throw new Exception("Unsupported operation");
-								}
+							switch (filterEntry.getKey()) {
+							case "startsWith": {
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_STARTS_WITH);
+								break;
+							}
+							case "endsWith": {
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_ENDS_WITH);
+								break;
+							}
+							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN:
+							case CompositeSearchConstants.SEARCH_OPERATION_GREATER_THAN_EQUALS:
+							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN_EQUALS:
+							case CompositeSearchConstants.SEARCH_OPERATION_LESS_THAN: {
+								property.put(CompositeSearchParams.operation.name(), filterEntry.getKey());
+								break;
+							}
+							case "value": {
+								property.put(CompositeSearchParams.operation.name(),
+										CompositeSearchConstants.SEARCH_OPERATION_LIKE);
+								break;
+							}
+							default: {
+								throw new Exception("Unsupported operation");
+							}
 							}
 							properties.add(property);
 						}
@@ -225,20 +230,20 @@ public class SearchManager extends SearchBaseActor {
 						Map<String, Object> property = new HashMap<String, Object>();
 						Map<String, Object> rangeMap = new HashMap<String, Object>();
 						Object minFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MIN);
-						if(minFilterValue != null){
+						if (minFilterValue != null) {
 							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_GTE, minFilterValue);
 						}
 						Object maxFilterValue = filterMap.get(CompositeSearchConstants.SEARCH_OPERATION_RANGE_MAX);
-						if(maxFilterValue != null){
+						if (maxFilterValue != null) {
 							rangeMap.put(CompositeSearchConstants.SEARCH_OPERATION_RANGE_LTE, maxFilterValue);
-						}	
+						}
 						property.put(CompositeSearchParams.values.name(), rangeMap);
 						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_RANGE);
+						property.put(CompositeSearchParams.operation.name(),
+								CompositeSearchConstants.SEARCH_OPERATION_RANGE);
 						properties.add(property);
 					}
-				}
-				else{
+				} else {
 					boolean emptyVal = false;
 					if (null == filterObject) {
 						emptyVal = true;
@@ -253,25 +258,26 @@ public class SearchManager extends SearchBaseActor {
 						Map<String, Object> property = new HashMap<String, Object>();
 						property.put(CompositeSearchParams.values.name(), entry.getValue());
 						property.put(CompositeSearchParams.propertyName.name(), entry.getKey());
-						property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+						property.put(CompositeSearchParams.operation.name(),
+								CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
 						properties.add(property);
 					}
 				}
 				if (StringUtils.equals(GraphDACParams.status.name(), entry.getKey()))
-				    statusFilter = true;
+					statusFilter = true;
 			}
 		}
-		
+
 		if (!statusFilter && !traversal) {
-		    Map<String, Object> property = new HashMap<String, Object>();
-            property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
-            property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
-            property.put(CompositeSearchParams.values.name(), Arrays.asList(new String[]{"Live"}));
-            properties.add(property);
+			Map<String, Object> property = new HashMap<String, Object>();
+			property.put(CompositeSearchParams.operation.name(), CompositeSearchConstants.SEARCH_OPERATION_EQUAL);
+			property.put(CompositeSearchParams.propertyName.name(), GraphDACParams.status.name());
+			property.put(CompositeSearchParams.values.name(), Arrays.asList(new String[] { "Live" }));
+			properties.add(property);
 		}
 		return properties;
 	}
-	
+
 	private Map<String, Object> getCompositeSearchResponse(Map<String, Object> searchResponse) {
 		Map<String, Object> respResult = new HashMap<String, Object>();
 		for (Map.Entry<String, Object> entry : searchResponse.entrySet()) {
@@ -304,32 +310,32 @@ public class SearchManager extends SearchBaseActor {
 		}
 		return respResult;
 	}
-	
+
 	private String getResultParamKey(String objectType) {
-	    if (StringUtils.isNotBlank(objectType)) {
-	        if (StringUtils.equalsIgnoreCase("Domain", objectType))
-	            return "domains";
-	        else if (StringUtils.equalsIgnoreCase("Dimension", objectType))
-                return "dimensions";
-	        else if (StringUtils.equalsIgnoreCase("Concept", objectType))
-                return "concepts";
-	        else if (StringUtils.equalsIgnoreCase("Method", objectType))
-                return "methods";
-	        else if (StringUtils.equalsIgnoreCase("Misconception", objectType))
-                return "misconceptions";
-	        else if (StringUtils.equalsIgnoreCase("Content", objectType))
-                return "content";
-	        else if (StringUtils.equalsIgnoreCase("AssessmentItem", objectType))
-                return "items";
-	        else if (StringUtils.equalsIgnoreCase("ItemSet", objectType))
-                return "itemsets";
-	        else if (StringUtils.equalsIgnoreCase("Word", objectType))
-                return "words";
-	        else if (StringUtils.equalsIgnoreCase("Synset", objectType))
-                return "synsets";
-	        else
-	            return "other";
-	    }
-	    return null;
+		if (StringUtils.isNotBlank(objectType)) {
+			if (StringUtils.equalsIgnoreCase("Domain", objectType))
+				return "domains";
+			else if (StringUtils.equalsIgnoreCase("Dimension", objectType))
+				return "dimensions";
+			else if (StringUtils.equalsIgnoreCase("Concept", objectType))
+				return "concepts";
+			else if (StringUtils.equalsIgnoreCase("Method", objectType))
+				return "methods";
+			else if (StringUtils.equalsIgnoreCase("Misconception", objectType))
+				return "misconceptions";
+			else if (StringUtils.equalsIgnoreCase("Content", objectType))
+				return "content";
+			else if (StringUtils.equalsIgnoreCase("AssessmentItem", objectType))
+				return "items";
+			else if (StringUtils.equalsIgnoreCase("ItemSet", objectType))
+				return "itemsets";
+			else if (StringUtils.equalsIgnoreCase("Word", objectType))
+				return "words";
+			else if (StringUtils.equalsIgnoreCase("Synset", objectType))
+				return "synsets";
+			else
+				return objectType;
+		}
+		return null;
 	}
 }

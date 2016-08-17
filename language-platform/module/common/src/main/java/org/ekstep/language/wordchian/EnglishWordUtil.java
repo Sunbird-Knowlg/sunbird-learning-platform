@@ -16,7 +16,7 @@ public class EnglishWordUtil {
 		this.wordNode = wordNode;
 	}
 	
-	public String getRhymingSoundText(){
+	public String getRhymingSound(){
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String arpabets = WordCacheUtil.getArpabets(lemma);
 		if (!StringUtils.isEmpty(arpabets)){
@@ -30,13 +30,13 @@ public class EnglishWordUtil {
 		return null;
 	}
 
-	public String getStartsWithAksharaText() {
+	public String getFirstAkshara() {
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String text = "" + lemma.charAt(0);
 		return text;
 	}
 
-	public List<String> getEndsWithAksharaText() {
+	public List<String> getLastAkshara() {
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String text = "" + lemma.charAt(lemma.length()-1);
 		return Arrays.asList(text);

@@ -25,7 +25,7 @@ if {$isFuzzyNull == 0} {
 
 set isTraversalIdNull [java::isnull $traversals]
 if {$isTraversalIdNull == 0} {
-	set fuzzySearch "true"
+	# set fuzzySearch "true"
 	set wordChainsQuery "true"
 	set traversalsSize [$traversals size]
 	if {$traversalsSize > 0} {
