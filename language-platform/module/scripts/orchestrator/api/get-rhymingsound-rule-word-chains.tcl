@@ -130,7 +130,7 @@ java::for {Map word} $searchResult {
 set listSize [$validWordIds size]
 set wordChainCollection [java::new ArrayList]
 
-while { ($topWordCount > $count) && ($listSize > $count) } {
+while { ([$topWordCount toString] > $count) && ($listSize > $count) } {
 		set id [$validWordIds get $count]
 		set word [$wordIdMap get $id]
 		set wordNode [java::cast Node $word]
