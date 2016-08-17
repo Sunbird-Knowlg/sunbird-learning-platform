@@ -21,9 +21,9 @@ public class RhymingSoundSet extends BaseWordSet {
 
 	private void init(){
 		if(languageId.equalsIgnoreCase("en")){
-			rhymingSound = new EnglishWordUtil(wordNode).getRhymingSoundText();
+			rhymingSound = new EnglishWordUtil(wordNode).getRhymingSound();
 		}else{
-			rhymingSound = new IndicWordUtil(languageId, wc).getRymingSoundText();
+			rhymingSound = new IndicWordUtil(languageId, wc).getRymingSound();
 		}
 	}
 	

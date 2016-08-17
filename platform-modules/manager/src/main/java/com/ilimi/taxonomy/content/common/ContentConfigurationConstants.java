@@ -20,7 +20,7 @@ public class ContentConfigurationConstants {
 	
 	public static final String FILENAME_EXTENSION_SEPERATOR = ".";
 	
-	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.0";
+	public static final String DEFAULT_CONTENT_MANIFEST_VERSION = "1.1";
 	
 	public static final String DEFAULT_ZIP_EXTENSION = "zip";
 	

@@ -32,7 +32,7 @@ public class IndicWordUtil extends BaseManager{
 		this.wc = wc;
 	}
 	
-	public String getStartsWithAksharaText() {
+	public String getFirstAkshara() {
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
@@ -49,7 +49,7 @@ public class IndicWordUtil extends BaseManager{
 	}
 
 
-	public List<String> getEndsWithAksharaText() {
+	public List<String> getLastAkshara() {
 		
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
@@ -88,7 +88,7 @@ public class IndicWordUtil extends BaseManager{
 		return result;
 	}
 
-	public String getRymingSoundText() {
+	public String getRymingSound() {
 
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
@@ -141,6 +141,7 @@ public class IndicWordUtil extends BaseManager{
 	}
 	
 	//Get Vowel Unicode associated with given VowelSign unicode
+	@SuppressWarnings("unchecked")
 	public String getVowelUnicode(String languageId, String vowelSignUnicode){
 		Property vowelSignProp = new Property(GraphDACParams.unicode.name(), vowelSignUnicode);
 		Response varnaRes = getDataNodeByProperty(languageId, vowelSignProp);

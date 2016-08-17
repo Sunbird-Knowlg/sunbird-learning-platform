@@ -46,6 +46,7 @@ import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.taxonomy.content.ContentMimeTypeFactory;
+import com.ilimi.taxonomy.content.common.ContentConfigurationConstants;
 import com.ilimi.taxonomy.content.pipeline.initializer.InitializePipeline;
 import com.ilimi.taxonomy.dto.ContentDTO;
 import com.ilimi.taxonomy.dto.ContentSearchCriteria;
@@ -53,6 +54,7 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
+import com.ilimi.taxonomy.util.Content2VecUtil;
 
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
@@ -360,7 +362,7 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			parameterMap.put(ContentAPIParams.nodes.name(), nodes);
 			parameterMap.put(ContentAPIParams.bundleFileName.name(), fileName);
 			parameterMap.put(ContentAPIParams.contentIdList.name(), contentIds);
-			parameterMap.put(ContentAPIParams.manifestVersion.name(), "1.0");
+			parameterMap.put(ContentAPIParams.manifestVersion.name(), ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION);
 			listRes.getResult().putAll(pipeline.init(ContentAPIParams.bundle.name(), parameterMap).getResult());
 			return listRes;
 		}
@@ -653,8 +655,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
 		try {
 			response = mimeTypeManager.publish(node);
-			node.getMetadata().put("prevState", prevState);
-			LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+			String contentType = (String) node.getMetadata().get("contentType");
+			if (!checkError(response) && !StringUtils.equalsIgnoreCase("Asset", contentType)) {
+				node.getMetadata().put("prevState", prevState);
+				String event = LogTelemetryEventUtil.logContentLifecycleEvent(contentId, node.getMetadata());
+				Content2VecUtil.invokeContent2Vec(contentId, event);
+			}
 		} catch (ClientException e) {
 			throw e;
 		} catch (ServerException e) {

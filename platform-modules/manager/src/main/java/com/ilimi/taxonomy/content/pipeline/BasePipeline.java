@@ -248,15 +248,17 @@ public class BasePipeline extends BaseManager {
 		Map<String, Node> nodeMap = new HashMap<String, Node>();
 		if (null != nodes && !nodes.isEmpty()) {
 			LOGGER.info("Starting Data Collection For Bundling...");
+			List<Node> childrenNodes = new ArrayList<Node>();
 			for (Node node : nodes) {
 				LOGGER.info("Collecting Hierarchical Bundling Data For Content Id: " + node.getIdentifier());
-				getContentRecursive(graphId, node, nodeMap, childrenIds, ctnts, onlyLive);
+				getContentRecursive(graphId, childrenNodes, node, nodeMap, childrenIds, ctnts, onlyLive);
 			}
+			nodes.addAll(childrenNodes);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	protected void getContentRecursive(String graphId, Node node, Map<String, Node> nodeMap, List<String> childrenIds,
+	protected void getContentRecursive(String graphId, List<Node> childrenNodes, Node node, Map<String, Node> nodeMap, List<String> childrenIds,
 			List<Map<String, Object>> ctnts, boolean onlyLive) {
 		if (!nodeMap.containsKey(node.getIdentifier())) {
 			nodeMap.put(node.getIdentifier(), node);
@@ -304,7 +306,8 @@ public class BasePipeline extends BaseManager {
 							for (Object obj : list) {
 								List<Node> nodeList = (List<Node>) obj;
 								for (Node child : nodeList) {
-									getContentRecursive(graphId, child, nodeMap, childrenIds, ctnts, onlyLive);
+									childrenNodes.add(child);
+									getContentRecursive(graphId, childrenNodes, child, nodeMap, childrenIds, ctnts, onlyLive);
 								}
 							}
 						}

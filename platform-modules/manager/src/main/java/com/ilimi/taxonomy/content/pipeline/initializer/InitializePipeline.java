@@ -50,7 +50,7 @@ public class InitializePipeline extends BasePipeline {
 			case "publish":
 			case "PUBLISH": {
 				PublishInitializer publishInitializer = new PublishInitializer(basePath, contentId);
-				publishInitializer.initialize(parameterMap);
+				response = publishInitializer.initialize(parameterMap);
 			}
 				break;
 

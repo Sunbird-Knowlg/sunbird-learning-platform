@@ -110,6 +110,12 @@ public class ContentErrorMessageConstants {
 	
 	public static final String UNABLE_TO_PUBLISH_OR_BUNDLE_CONTENT = "Error! Content cannot be Bundled or Published.";
 	
+	public static final String CONTENT_NODE_VALIDATION_ERROR = "Error! While validating the Content Object.";
+	
+	public static final String INVALID_CONTENT_METADATA = "Error! Content Object Metadata is either 'null' or Invalid.";
+	
+	public static final String MISSING_REQUIRED_FIELDS = "Error! Missing One or More Required Fields in Content Object.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

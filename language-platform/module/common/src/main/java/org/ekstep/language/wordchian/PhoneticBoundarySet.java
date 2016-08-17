@@ -28,12 +28,12 @@ public class PhoneticBoundarySet extends BaseWordSet {
 	private void init(){
 		if(languageId.equalsIgnoreCase("en")){
 			EnglishWordUtil util = new EnglishWordUtil(wordNode); 
-			startsWithAkshara = util.getStartsWithAksharaText();
-			endsWithAkshara = util.getEndsWithAksharaText();
+			startsWithAkshara = util.getFirstAkshara();
+			endsWithAkshara = util.getLastAkshara();
 		}else{
 			IndicWordUtil util = new IndicWordUtil(languageId, wc);
-			startsWithAkshara = util.getStartsWithAksharaText();
-			endsWithAkshara = util.getEndsWithAksharaText();
+			startsWithAkshara = util.getFirstAkshara();
+			endsWithAkshara = util.getLastAkshara();
 		}
 	}
 	
