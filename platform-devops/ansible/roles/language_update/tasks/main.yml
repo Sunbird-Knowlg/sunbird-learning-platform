@@ -26,8 +26,3 @@
   tags:
        - te
        - all
-#- name: Run env
-# shell: sh /home/jenkins/workspace/LP_Definition_Update/platform-devops/ansible/language_script.sh {{ item.value.langauge }}
-# with_dict: "{{ jobs }}"
-# tags:
-#   - {{ item.key }}

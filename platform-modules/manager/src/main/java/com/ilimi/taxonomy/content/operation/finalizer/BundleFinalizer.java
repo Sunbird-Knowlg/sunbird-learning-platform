@@ -50,6 +50,7 @@ public class BundleFinalizer extends BaseFinalizer {
 				.get(ContentWorkflowPipelineParams.Contents.name());
 		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
+		String expiresOn = (String) parameterMap.get(ContentWorkflowPipelineParams.expires.name());
 
 		if (null == bundleMap || bundleMap.isEmpty())
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -65,6 +66,10 @@ public class BundleFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
 							+ " | [Invalid Content Manifest Version.]");
+		if (StringUtils.isBlank(expiresOn))
+			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
+					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
+							+ " | [Invalid Bundle Expiry Date.]");
 
 		List<File> zipPackages = new ArrayList<File>();
 
@@ -159,7 +164,7 @@ public class BundleFinalizer extends BaseFinalizer {
 		// Create Manifest JSON File
 		File manifestFile = new File(basePath + File.separator + ContentWorkflowPipelineParams.manifest.name()
 				+ File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
-		createManifestFile(manifestFile, manifestVersion, contents);
+		createManifestFile(manifestFile, manifestVersion, expiresOn ,contents);
 		zipPackages.add(manifestFile);
 
 		// Create ECAR File

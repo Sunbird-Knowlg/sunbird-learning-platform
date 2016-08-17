@@ -39,6 +39,9 @@
 - name: copy the mongo.properties
   template: src=learning/mongo.properties.j2 dest=/data/properties/learning/mongo.properties
 
+- name: copy the content.properties
+  template: src=learning/content.properties.j2 dest=/data/properties/learning/content.properties
+
 
 #------------------------------------------------------------------------------------
 - name: copy the elasticsearch.properties

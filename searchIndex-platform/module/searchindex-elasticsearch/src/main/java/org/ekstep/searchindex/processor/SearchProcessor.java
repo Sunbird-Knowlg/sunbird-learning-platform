@@ -59,6 +59,10 @@ public class SearchProcessor {
 		return response;
 	}
 	
+	public void destroy() {
+		elasticSearchUtil.finalize();
+	}
+	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String processSearchQuery(SearchDTO searchDTO, List<Map<String, Object>> groupByFinalList, boolean sort) throws Exception{

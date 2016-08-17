@@ -28,8 +28,9 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
 
         if (ShowLabel) {
             var headerFields = [];
-            var str = '';
-            _.map(data.text_complexity.texts.text1, function(value, key) {
+            headerFields.push('word');
+            var str = 'word,';
+            _.map(data.text_complexity.wordMeasures, function(value, key) {
                 _.map(value, function(value1, key1) {
                     if (headerFields.indexOf(key1) == -1) {
                         headerFields.push(key1);
@@ -39,19 +40,24 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
             });
             CSV += str + '\r\n';
         }
-        _.map(data.text_complexity.texts.text1, function(value, key) {
+        _.map(data.text_complexity.wordMeasures, function(value, key) {
             var rowData = '';
             var skip = false;
             for (var i = 0; i < headerFields.length; i++) {
-                var val = value[headerFields[i]];
-                if (val) {
-                    if (headerFields[i] == 'word') {
-                        if (val.trim() == '"' || val.trim() == ',') {
-                            skip = true;
-                        } else {
-                            val = val.split('"').join('');
-                        }
+                var val;
+                if (headerFields[i] == 'word') {
+                    val = key;
+                    if (val.trim() == '"' || val.trim() == ',') {
+                        skip = true;
+                    } else {
+                        val = val.split('"').join('');
                     }
+                } else {
+                    val = value[headerFields[i]];
+                    if (val === 0)
+                        val = '0';
+                }
+                if (val) {
                     rowData = rowData + val + ',';
                 } else {
                     rowData = rowData + ',';
@@ -92,13 +98,11 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
             {
                 var inputData = $scope.inputData.split('\u2028').join('');
                 inputData = inputData.split('\u2029').join('');
-                $scope.url = "https://api.ekstep.in/language/v1/language/tools/textAnalysis";
+                $scope.url = "https://api.ekstep.in/language/v1/language/tools/complexityMeasures/text";
                 $scope.apiUrl = {
                         "request": {
                             "language_id": $scope.lang.id,
-                            "texts": {
-                                "text1": inputData
-                            }
+                            "text": inputData
                         }
                 }
                 var config = {
@@ -123,8 +127,7 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
         $scope.processedData = '';
         $scope.showSubmitBtn = false;
         var processedData = '';
-        var mockData = false;
-        $scope.apiRequest(mockData).then(function(resp) {
+        $scope.apiRequest(false).then(function(resp) {
             if (!resp || resp == null || !resp.text_complexity) {
                 $scope.$apply(function() {
                     $scope.showSubmitBtn = true;
@@ -137,7 +140,7 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
                 var inputArray = str.split(" ");
                 var cutOffComplexity = 50;
 
-                var wordMap = $scope.data.text_complexity.texts.text1;
+                var wordMap = $scope.data.text_complexity.wordMeasures;
                 console.log("wordMap", wordMap);
 
                 map = {};
@@ -145,24 +148,15 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
                     var wordVal = inputArray[i];
                     wordVal = wordVal.replace(new RegExp('।|,|\\||\\.|;|\\?|!|\\*|।', 'g'), '');
                     var wordObj = wordMap[wordVal];
-                    var tLevel = 10;
                     var complexity = 0;
                     if (wordObj) {
-                        complexity = wordObj['total_complexity'];
+                        complexity = wordObj['orthographic_complexity'] + wordObj['phonologic_complexity'];
                         if (!complexity) {
                             complexity = 0;
                         }
-                        tLevel = wordObj['thresholdLevel'];
-                        if (!tLevel) {
-                            tLevel = 10;
-                        }
                     }
                     if (complexity < cutOffComplexity) {
-                        if (tLevel == 1) {
-                            processedData = processedData + ' <span class="simpleWord">' + inputArray[i] + ' </span>';
-                        } else {
-                            processedData = processedData + inputArray[i] + ' ';
-                        }
+                        processedData = processedData + inputArray[i] + ' ';
                     } else {
                         processedData = processedData + ' <span class="complexWord">' + inputArray[i] + ' </span>';
                     }

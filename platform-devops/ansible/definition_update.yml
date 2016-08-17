@@ -1,4 +1,0 @@
-- hosts: local
-  roles:
-        - definition_update
-
