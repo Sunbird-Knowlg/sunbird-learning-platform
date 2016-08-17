@@ -4,6 +4,8 @@ package org.ekstep.platform.domain;
 
 /// hi this is test to check smartgit sync.
 import static com.jayway.restassured.RestAssured.baseURI;
+import static com.jayway.restassured.RestAssured.given;
+import static com.jayway.restassured.http.ContentType.JSON;
 import static com.jayway.restassured.RestAssured.basePath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
@@ -31,9 +33,9 @@ public class BaseTest
 	public void setURI()
 	{
 		//TO-DO: This will be read from config file, soon.
-		baseURI = "http://localhost:8080/taxonomy-service";
+		//baseURI = "http://localhost:8080/taxonomy-service";
 		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		//baseURI ="http://localhost:9090/ekstep-service"; 
+		baseURI ="http://qa.ekstep.in/api/learning"; 
 		basePath = "v2/";
 	}
 	/**
@@ -169,6 +171,20 @@ public class BaseTest
 		int randomInt = random.nextInt((max - min) + 1) + min;
 		return randomInt;
 		
+	}
+	
+	public void contentCleanUp(String jsonContentClean){
+		setURI();
+		given().
+		spec(getRequestSpec(contentType, validuserId)).
+		body(jsonContentClean).
+	with().
+		contentType(JSON).
+	when().
+		post("v1/exec/content_qe_deleteContentBySearchStringInField").
+	then().
+		log().all().
+		spec(get200ResponseSpec());	
 	}
 	
 }
