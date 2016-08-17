@@ -1,0 +1,5 @@
+{
+    "name": "execute_commands_concurrently",
+    "type": "COMMAND",
+    "cmdClass": "com.ilimi.orchestrator.interpreter.command.ExecuteConcurrentCommands"
+}

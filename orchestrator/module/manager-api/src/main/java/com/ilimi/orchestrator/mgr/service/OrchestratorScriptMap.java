@@ -11,9 +11,11 @@ import com.ilimi.orchestrator.dac.model.OrchestratorScript;
 public class OrchestratorScriptMap {
 
     public static Map<String, Map<String, OrchestratorScript>> scriptMap = new HashMap<String, Map<String, OrchestratorScript>>();
+    public static Map<String, OrchestratorScript> scriptNameMap = new HashMap<String, OrchestratorScript>();
 
     public static void loadScripts(List<OrchestratorScript> scripts, List<OrchestratorScript> commands) {
         scriptMap = new HashMap<String, Map<String, OrchestratorScript>>();
+        scriptNameMap = new HashMap<String, OrchestratorScript>();
         loadScriptMap(scripts);
         loadScriptMap(commands);
     }
@@ -29,7 +31,12 @@ public class OrchestratorScriptMap {
                     }
                     map.put(script.getRequestPath().getUrl(), script);
                 }
+                scriptNameMap.put(script.getName(), script);
             }
         }
+    }
+    
+    public static OrchestratorScript getScriptByName(String scriptName){
+    	return scriptNameMap.get(scriptName);
     }
 }

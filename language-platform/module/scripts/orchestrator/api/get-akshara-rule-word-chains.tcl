@@ -5,6 +5,7 @@ java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
+java::import -package com.ilimi.common.dto Response
 
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
@@ -104,7 +105,7 @@ set minDepth [expr {3 * ($minDefinedDepth-1)}]
 
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
-$relationTypes add "startsWithAkshara"
+$relationTypes add "follows"
 $relationTypes add "hasMember"
 
 set directions [java::new ArrayList]
@@ -136,17 +137,33 @@ $traversalRequest put "maxLength" $maxDepth
 $traversalRequest put "evaluators" $evaluators
 set traverser [get_traverser $graphId $traversalRequest]
 
+set commands [java::new ArrayList]
+
 java::for {Map topWord} $topWords {
 	set topWordIdObject [$topWord get "identifier"]
 	set topWordId [$topWordIdObject toString]
 	$traverser setStartNode $topWordId
-	set resp_traverse [traverse $graphId $traverser]
-	set check_error [check_response_error $resp_traverse]
-	if {$check_error} {
-		return $resp_traverse;
-	} 
 	
-	set subGraph [get_resp_value $resp_traverse "sub_graph"]
+	set commandMap [java::new HashMap]
+	$commandMap put "commandName" "traverse"
+	set commandParams [java::new HashMap]
+	$commandParams put "graph_id" $graphId
+	$commandParams put "traversal_description" $traverser
+	
+	$commandMap put "commandParams" $commandParams
+	$commands add $commandMap
+}
+
+set resp_traverse [execute_commands_concurrently $commands]
+
+set responses [get_resp_value $resp_traverse "responses"]
+java::for {Response response} $responses {
+	set check_error [check_response_error $response]
+	if {$check_error} {
+		return $response;
+	} 
+
+	set subGraph [get_resp_value $response "sub_graph"]
 	set paths [$subGraph getPaths]
 	java::for {Path finalPath} $paths {
 		set wordChain [processPath $finalPath $wordScore $ruleType]
@@ -158,7 +175,6 @@ java::for {Map topWord} $topWords {
 		} 
 	}
 }
-
 
 set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]
