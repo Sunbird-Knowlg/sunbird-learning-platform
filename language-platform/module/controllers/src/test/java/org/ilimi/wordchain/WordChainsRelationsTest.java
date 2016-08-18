@@ -30,6 +30,7 @@ public class WordChainsRelationsTest {
 	final String attrib_alphabet = "alphabet";
 	Map<String, List<Node>> startsWithMap = new HashMap<String, List<Node>>();
 	Map<String, Node> startsWithRelationNodeMap = new HashMap<String, Node>();
+	Map<String, Node> endsWithRelationNodeMap = new HashMap<String, Node>();
 	String graphId = "wcpnew";
 	final String pbObjType = "Phonetic_Boundary";
 
@@ -61,20 +62,63 @@ public class WordChainsRelationsTest {
 			}
 
 			if (lemma != null) {
-				String endsWith = StringUtils.right(lemma, 1);
-
-				Node startsWithRelationNode = startsWithRelationNodeMap.get(endsWith);
+				boolean createEndsWithRelation =  false;
+				String startsWith = StringUtils.left(lemma, 1);
+				Node startsWithRelationNode = startsWithRelationNodeMap.get(startsWith);
 				if (startsWithRelationNode == null) {
-					startsWithRelationNode = createSWRelationNode(endsWith, graphDb, graphId);
+					startsWithRelationNode = createRelationNode(startsWith, graphDb, graphId, "startsWith");
+					createEndsWithRelation = true;
+					if (startsWithRelationNode == null) {
+						throw new Exception("Unable to create PB node");
+					}
+					startsWithRelationNodeMap.put(startsWith, startsWithRelationNode);
+				}
+
+				addRelation(startsWithRelationNode, wordNode, Rels.hasMember.name(), graphDb);
+				
+				Node endsWithRelationNode = endsWithRelationNodeMap.get(startsWith);
+				if (endsWithRelationNode == null) {
+					endsWithRelationNode = createRelationNode(startsWith, graphDb, graphId, "endsWith");
+					createEndsWithRelation = true;
+					if (endsWithRelationNode == null) {
+						throw new Exception("Unable to create PB node");
+					}
+					endsWithRelationNodeMap.put(startsWith, endsWithRelationNode);
+				}
+
+				if(createEndsWithRelation){
+					addRelation(endsWithRelationNode, startsWithRelationNode, Rels.startsWithAkshara.name(), graphDb);
+				}
+				
+				createEndsWithRelation = false;
+				String endsWith = StringUtils.right(lemma, 1);
+				startsWithRelationNode = startsWithRelationNodeMap.get(endsWith);
+				if (startsWithRelationNode == null) {
+					startsWithRelationNode = createRelationNode(endsWith, graphDb, graphId, "startsWith");
+					createEndsWithRelation = true;
 					if (startsWithRelationNode == null) {
 						throw new Exception("Unable to create PB node");
 					}
 					startsWithRelationNodeMap.put(endsWith, startsWithRelationNode);
 				}
 
-				addRelation(wordNode, startsWithRelationNode, Rels.endsWithAkshara.name(), graphDb);
+				endsWithRelationNode = endsWithRelationNodeMap.get(endsWith);
+				if (endsWithRelationNode == null) {
+					endsWithRelationNode = createRelationNode(endsWith, graphDb, graphId, "endsWith");
+					createEndsWithRelation = true;
+					if (endsWithRelationNode == null) {
+						throw new Exception("Unable to create PB node");
+					}
+					endsWithRelationNodeMap.put(endsWith, endsWithRelationNode);
+				}
 
-				List<Node> nodesStartsWith = startsWithMap.get(endsWith);
+				addRelation(endsWithRelationNode, wordNode, Rels.hasMember.name(), graphDb);
+
+				if(createEndsWithRelation){
+					addRelation(endsWithRelationNode, startsWithRelationNode, Rels.startsWithAkshara.name(), graphDb);
+				}
+
+				/*List<Node> nodesStartsWith = startsWithMap.get(endsWith);
 				if (nodesStartsWith == null) {
 					nodesStartsWith = getNodeByPropertyStartsLike(attrib_lemma, endsWith, graphDb);
 					startsWithMap.put(endsWith, nodesStartsWith);
@@ -82,7 +126,7 @@ public class WordChainsRelationsTest {
 				for (Node startsWithNode : nodesStartsWith) {
 					// System.out.println(startsWithNode.getProperty(attrib_lemma));
 					addRelation(startsWithNode, startsWithRelationNode, Rels.startsWithAkshara.name(), graphDb);
-				}
+				}*/
 			}
 		}
 	}
@@ -109,6 +153,28 @@ public class WordChainsRelationsTest {
 		return null;
 	}
 
+	private Node createRelationNode(String character, GraphDatabaseService graphDb, String graphId, String setName) {
+		Transaction tx = null;
+		try {
+			tx = graphDb.beginTx();
+			Node pbNode = graphDb.createNode(NODE_LABEL);
+			pbNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), Identifier.getIdentifier(graphId, pbNode.getId()));
+			pbNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), "DATA_NODE");
+			pbNode.setProperty("setName", setName + character);
+			pbNode.setProperty("type", "AksharaBoundary");
+			pbNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), pbObjType);
+			tx.success();
+			return pbNode;
+		} catch (Exception e) {
+			if (null != tx)
+				tx.failure();
+		} finally {
+			if (null != tx)
+				tx.close();
+		}
+		return null;
+	}
+	
 	public static synchronized GraphDatabaseService getGraphDb(String graphId) {
 		GraphDatabaseService graphDb = new GraphDatabaseFactory()
 				.newEmbeddedDatabaseBuilder("/data/graphDB" + File.separator + graphId)

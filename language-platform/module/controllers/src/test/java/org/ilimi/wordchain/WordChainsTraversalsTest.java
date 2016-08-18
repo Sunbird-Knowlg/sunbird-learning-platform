@@ -16,6 +16,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.PropertyContainer;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
@@ -46,8 +47,9 @@ public class WordChainsTraversalsTest extends BaseManager {
 	private static String graphId = "wcpnew";
 	private int TRAVERSAL_DEPTH = 9;
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
+	List<String> lemmaList = new ArrayList<String>();
 
-	@Test
+	// @Test
 	public void traverse() throws Exception {
 
 		System.out.println("Sample 1: ");
@@ -59,13 +61,16 @@ public class WordChainsTraversalsTest extends BaseManager {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(OBJECT_TYPE_WORD);
-		//sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+		// sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(),
+		// Sort.SORT_ASC));
 
 		List<Filter> filters = new ArrayList<Filter>();
 
-		//filters.add(new Filter("theme", SearchConditions.OP_IN,
-				//Arrays.asList(new String[] { "Animals", "Birds", "Nature", "Insect/Fish", "Plants and Trees" })));
-		//filters.add(new Filter("category", SearchConditions.OP_EQUAL, "Thing"));
+		// filters.add(new Filter("theme", SearchConditions.OP_IN,
+		// Arrays.asList(new String[] { "Animals", "Birds", "Nature",
+		// "Insect/Fish", "Plants and Trees" })));
+		// filters.add(new Filter("category", SearchConditions.OP_EQUAL,
+		// "Thing"));
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
@@ -74,18 +79,17 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 		List<Node> nodes = searchNodes(sc, graphDb);
 
-		/*for (Node node : nodes) {
-			getTraversalPath(graphDb, node);
-		}*/
-		
+		/*
+		 * for (Node node : nodes) { getTraversalPath(graphDb, node); }
+		 */
+
 		getTraversalPath(graphDb, nodes);
 
-		
 		long endTime = System.currentTimeMillis();
 		System.out.println("Total time taken for Sample 1: " + (endTime - startTime) / 1000 + "s");
 	}
 
-	// @Test
+	@Test
 	public void traverseSample2() throws Exception {
 
 		System.out.println("Sample 2: ");
@@ -99,14 +103,17 @@ public class WordChainsTraversalsTest extends BaseManager {
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
 		sc.setObjectType(OBJECT_TYPE_WORD);
-		sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+		// sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(),
+		// Sort.SORT_ASC));
 
 		List<Filter> filters = new ArrayList<Filter>();
 
-		filters.add(new Filter("category", SearchConditions.OP_IN,
-				Arrays.asList(new String[] { "Place", "Person", "Quality" })));
-		filters.add(
-				new Filter("pos", SearchConditions.OP_IN, Arrays.asList(new String[] { "noun", "verb", "adjective" })));
+		/*
+		 * filters.add(new Filter("category", SearchConditions.OP_IN,
+		 * Arrays.asList(new String[] { "Place", "Person", "Quality" })));
+		 * filters.add( new Filter("pos", SearchConditions.OP_IN,
+		 * Arrays.asList(new String[] { "noun", "verb", "adjective" })));
+		 */
 
 		if (null != filters && !filters.isEmpty()) {
 			MetadataCriterion mc = MetadataCriterion.create(filters);
@@ -123,8 +130,8 @@ public class WordChainsTraversalsTest extends BaseManager {
 	}
 
 	private void getTraversalPath(GraphDatabaseService graphDb2, Node node) {
-		getTraversalPath(graphDb2, Arrays.asList(new Node[]{node}));
-		
+		getTraversalPath(graphDb2, Arrays.asList(new Node[] { node }));
+
 	}
 
 	// @Test
@@ -194,15 +201,14 @@ public class WordChainsTraversalsTest extends BaseManager {
 	}
 
 	private Traverser getTraverser(final List<Node> nodes, GraphDatabaseService graphDb) {
+		RelationshipType[] orderedRelTypes = { Rels.hasMember ,  Rels.startsWithAkshara ,  Rels.hasMember };
+		Direction[] directions = { Direction.INCOMING, Direction.OUTGOING, Direction.OUTGOING };
+
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.relationships(Rels.startsWithAkshara, Direction.INCOMING)
-				.relationships(Rels.endsWithAkshara, Direction.OUTGOING)
-				//.uniqueness(Uniqueness.NODE_GLOBAL)
-				.uniqueness(Uniqueness.NODE_PATH)
+				.expand(new ArrayExpander(directions, orderedRelTypes)).uniqueness(Uniqueness.NODE_GLOBAL)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
-				//.evaluator(Evaluators.excludeStartPosition())
-				.evaluator(Evaluators.fromDepth(3))
-				.evaluator(Evaluators.toDepth(TRAVERSAL_DEPTH));
+				// .evaluator(Evaluators.excludeStartPosition())
+				.evaluator(Evaluators.fromDepth(6)).evaluator(Evaluators.toDepth(9));
 		return td.traverse(nodes);
 	}
 
@@ -217,7 +223,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 			Traverser pathsTraverser = getTraverser(nodes, graphDb);
 
 			for (Path traversedPath : pathsTraverser) {
-				render(traversedPath);
+				// render(traversedPath);
 				if (traversedPath.length() > previousPathLength) {
 					previousPath = traversedPath;
 					previousPathLength = traversedPath.length();
@@ -240,9 +246,10 @@ public class WordChainsTraversalsTest extends BaseManager {
 				previousPath = null;
 			}
 
-			//System.out.println("Final paths:**************************************");
+			// System.out.println("Final
+			// paths:**************************************");
 			for (Path finalPath : finalPaths) {
-				//render(finalPath);
+				render(finalPath);
 			}
 		} catch (Exception e) {
 			if (null != tx)

@@ -113,7 +113,7 @@ public class WordChainManager extends BaseLanguageManager
 
 			List<Path> paths = subGraph.getPaths();
 			for (Path finalPath : paths) {
-				Map wordChain = processPath(finalPath, wordScore, wordIdMap, relation);
+				Map wordChain = processPath(finalPath, wordScore, relation);
 				if (wordChain != null) {
 					wordChains.add(wordChain);
 				}
@@ -186,8 +186,7 @@ public class WordChainManager extends BaseLanguageManager
 		return value;
 	}
 
-	@SuppressWarnings("rawtypes")
-	public Map<String, Object> processPath(Path path, Map<String, Double> wordScore, Map<String, Map> wordIdMap,
+	public Map<String, Object> processPath(Path path, Map<String, Double> wordScore,
 			String relation) throws Exception {
 		List<String> wordChain = new ArrayList<String>();
 		Double totalScore = 0.0;

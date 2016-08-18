@@ -12,7 +12,7 @@ public class SearchDTO {
 	private Map<String, String> sortBy;
 	private String operation;
 	private int limit;
-	boolean traversalSearch = false;
+	boolean fuzzySearch = false;
 	private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 	
 	public SearchDTO() {
@@ -57,11 +57,12 @@ public class SearchDTO {
 	public void setSortBy(Map<String, String> sortBy) {
 		this.sortBy = sortBy;
 	}
-	public boolean isTraversalSearch() {
-		return traversalSearch;
+	
+	public boolean isFuzzySearch() {
+		return fuzzySearch;
 	}
-	public void setTraversalSearch(boolean traversalSearch) {
-		this.traversalSearch = traversalSearch;
+	public void setFuzzySearch(boolean fuzzySearch) {
+		this.fuzzySearch = fuzzySearch;
 	}
 	public Map<String, Object> getAdditionalProperties() {
 		return additionalProperties;

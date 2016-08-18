@@ -1,0 +1,5 @@
+{
+    "name": "sort_maps",
+    "type": "COMMAND",
+    "cmdClass": "com.ilimi.orchestrator.interpreter.command.SortMaps"
+}

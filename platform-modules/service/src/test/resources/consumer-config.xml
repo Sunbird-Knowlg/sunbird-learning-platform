@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <ConsumerConfig>
-	<ConsumerInit serverURI="localhost:2181" topic="composite-search-new"
-		ekstepPlatformURI="http://localhost:9090/ekstep-service"
-		ekstepPlatformApiUserId="ilimi">
+	<ConsumerInit serverURI="localhost:2181" topic="composite-search-new">
 	</ConsumerInit>
 	<ConsumerGroups>
 		<ConsumerGroup id="composite-search-group" messageProcessor="org.ekstep.searchindex.processor.CompositeSearchMessageProcessor">

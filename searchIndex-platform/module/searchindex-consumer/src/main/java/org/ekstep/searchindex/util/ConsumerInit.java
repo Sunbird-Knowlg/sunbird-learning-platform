@@ -13,8 +13,4 @@ public class ConsumerInit{
 	public String serverURI;
 	@XmlAttribute  
 	public String topic;
-	@XmlAttribute  
-	public String ekstepPlatformURI;
-	@XmlAttribute  
-	public String ekstepPlatformApiUserId;
 }

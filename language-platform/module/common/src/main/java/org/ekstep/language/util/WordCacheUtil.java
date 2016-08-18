@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
@@ -28,7 +27,6 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
-@Component
 public class WordCacheUtil {
 
     private static JedisPool jedisPool;
@@ -42,11 +40,11 @@ public class WordCacheUtil {
     private static final String ARPABET="ARPABET";
     private static final String KEY_SEPARATOR = ":";
     
-    private String getWordKey(String word){
+    private static String getWordKey(String word){
     	return WORD + KEY_SEPARATOR + word;
     }
 
-    private String getArpabetKey(String arpabet){
+    private static String getArpabetKey(String arpabet){
     	return ARPABET + KEY_SEPARATOR + arpabet;
     }
     
@@ -72,7 +70,8 @@ public class WordCacheUtil {
         jedisPool = new JedisPool(config, host, port);
     }
 
-    public Jedis getRedisConncetion() {
+
+    public static Jedis getRedisConncetion() {
         try {
             Jedis jedis = jedisPool.getResource();
             if(index > 0) jedis.select(index);
@@ -83,7 +82,7 @@ public class WordCacheUtil {
 
     }
 
-    private void returnConnection(Jedis jedis) {
+    private static void returnConnection(Jedis jedis) {
         try {
             if (null != jedis)
                 jedisPool.returnResource(jedis);
@@ -92,7 +91,7 @@ public class WordCacheUtil {
         }
     }
 
-	public void loadWordArpabetCollection(InputStream wordsArpabetsStream){
+	public static void loadWordArpabetCollection(InputStream wordsArpabetsStream){
 		Map<String, String> wordArpabetCacheMap=parseInputStream(wordsArpabetsStream);
 		//Map<String, Set<String>> arpabetToWordSetMap=loadArpabetToWordSetMapping(wordArpabetCacheMap);
 		if(wordArpabetCacheMap.size()>0){
@@ -102,7 +101,7 @@ public class WordCacheUtil {
 
 	}
 	
-	private Map<String, String> parseInputStream(InputStream stream){
+	private static Map<String, String> parseInputStream(InputStream stream){
 		BufferedReader br = null;
 		String line = "";
 		String csvSplitBy = "  ";
@@ -144,7 +143,7 @@ public class WordCacheUtil {
         return wordArpabetCacheMap;
 	}
 	
-	private void loadRedisCache(Map<String, String> cacheMap){
+	private static void loadRedisCache(Map<String, String> cacheMap){
         Jedis jedis = getRedisConncetion();
         try {
 	        for(Entry<String,String> wordEntry:cacheMap.entrySet()){
@@ -168,25 +167,25 @@ public class WordCacheUtil {
         }
 	}
 
-	private String removeNumericChar(String wordInArbabets){
+	private static String removeNumericChar(String wordInArbabets){
 		return wordInArbabets.replaceAll("\\d", "");
 	}
 	
 	
-	private boolean hasSplitChar(String str){
+	private static boolean hasSplitChar(String str){
 		if(str.matches("([a-zA-Z]?[\\s-_&]?[a-zA-Z]?)+"))
 			return true;
 		return false;
 	}
 	
-	private String buildCompoundWord(String str){
+	private static String buildCompoundWord(String str){
 		str=str.replaceAll("(\\s)?&(\\s)?", "-");
 		str=str.replaceAll("_", "-");
 		str=str.replaceAll("\\s", "-");
 		return str;
 	}
 	
-	public String getArpabets(String word){
+	public static String getArpabets(String word){
 		Jedis jedis = getRedisConncetion();
 		word=word.toUpperCase();
 		String wordKey=getWordKey(word);
@@ -214,7 +213,7 @@ public class WordCacheUtil {
 		return arpabetsOfWord;
 	}
 	
-	public Set<String> getSimilarSoundWords(String word){
+	public static Set<String> getSimilarSoundWords(String word){
 		Jedis jedis = getRedisConncetion();
 		String Arpabets=getArpabets(word);
 		Set<String> similarSoundWords=null;
@@ -239,7 +238,7 @@ public class WordCacheUtil {
 		try{
 			InputStream is = new FileInputStream("/Users/karthik/Desktop/Word_PhoneticSpeling.txt");
 			WordCacheUtil wordCahceManager=new WordCacheUtil();
-			Map<String, String> wordArpabetCacheMap=wordCahceManager.parseInputStream(is);
+			Map<String, String> wordArpabetCacheMap= parseInputStream(is);
 			Set<String> arpabetsWordSet=new HashSet<String>(wordArpabetCacheMap.values());
 			Set<String> arpabetSetFromWords=wordCahceManager.findArpabets(arpabetsWordSet);
 			

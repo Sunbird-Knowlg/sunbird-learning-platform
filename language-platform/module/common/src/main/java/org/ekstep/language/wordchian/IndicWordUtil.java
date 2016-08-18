@@ -1,7 +1,6 @@
 package org.ekstep.language.wordchian;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,34 +8,31 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
-import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 import org.ekstep.language.measures.meta.SyllableMap;
 
 import com.ilimi.common.dto.Property;
+import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.engine.router.GraphEngineManagers;
 
-public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary implements IPhoneticBoundary {
+public class IndicWordUtil extends BaseManager{
 
+	private static Logger LOGGER =  LogManager.getLogger(IndicWordUtil.class.getName());
 	private String languageId ;
-	private Node wordNode;
 	private WordComplexity wc;
-	private static Logger LOGGER = LogManager.getLogger(IndianLanguagePhoneticBoundary.class.getName());
 	
-	public IndianLanguagePhoneticBoundary(String languageId, Node wordNode, WordComplexity wc){
+	public IndicWordUtil(String languageId, WordComplexity wc){
 		this.languageId = languageId;
-		this.wordNode = wordNode;
 		this.wc = wc;
 	}
 	
-	@Override
-	public Relation getStartsWithAksharaRelation() throws Exception {
-		
+	public String getFirstAkshara() {
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
@@ -47,20 +43,18 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 		
 		if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE) || unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
 			String text = getTextValue(firstCharUnicode);
-			Relation startsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.STARTS_WITH_AKSHARA.relationName());
-			return startsWithRelation;
+			return text;
 		}
-
 		return null;
 	}
 
-	@Override
-	public List<Relation> getEndsWithAksharaRelation() throws Exception {
+
+	public List<String> getLastAkshara() {
+		
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
-		List<Relation> relations = new ArrayList<Relation>();
-		Relation endsWithRelation;
+		List<String> result = new ArrayList<String>();
 		String lastSyllable = syllables[syllables.length-1];				
 		String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);			
 		String lastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-1];
@@ -73,40 +67,32 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 		if(isDefualtVowel(lastCharUnicode, unicodeTypeMap)){
 			if(StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
 				String text = getTextValue(secondLastCharUnicode);
-				endsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.ENDS_WITH_AKSHARA.relationName());
-				relations.add(endsWithRelation);
+				result.add(text);
 			}
 			
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
 			String text = getTextValue(secondLastCharUnicode);
-			endsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.ENDS_WITH_AKSHARA.relationName());			
-			relations.add(endsWithRelation);
+			result.add(text);
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){ 
 			//get vowel associated with this vowel_sign
 			String vowelUnicode = getVowelUnicode(languageId, lastCharUnicode);
 			String text = getTextValue(vowelUnicode);
-			endsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.ENDS_WITH_AKSHARA.relationName());			
-			relations.add(endsWithRelation);
-			
+			result.add(text);
 			text = getTextValue(secondLastCharUnicode);
-			endsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.ENDS_WITH_AKSHARA.relationName());			
-			relations.add(endsWithRelation);
+			result.add(text);
 			
 		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
 			String text = getTextValue(secondLastCharUnicode);
-			endsWithRelation = createPhoneticBoundaryRelation(text, LanguageParams.AksharaBoundary.name(), RelationTypes.ENDS_WITH_AKSHARA.relationName());			
-			relations.add(endsWithRelation);			
+			result.add(text);
 		}
-		return relations;
+		return result;
 	}
 
-	@Override
-	public List<Relation> getRhymingSoundRelation() throws Exception {
+	public String getRymingSound() {
+
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
-		String syllables[] = StringUtils.split(unicodeNotation);
-		List<Relation> relations = new ArrayList<Relation>();
-		
+		String syllables[] = StringUtils.split(unicodeNotation);		
 		String lastSyllable = syllables[syllables.length-1];			
 		
 		if(syllables.length>1){
@@ -121,20 +107,11 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 				}
 			}
 			rhymingSoundText += lastSyllable;
-			Relation rhymingSoundInRelation = createPhoneticBoundaryRelation(rhymingSoundText, LanguageParams.RhymingSound.name(), RelationTypes.RYMING_SOUNDS.relationName());			
-			relations.add(rhymingSoundInRelation);			
-	
-			Relation rhymingSoundOutRelation = new Relation(rhymingSoundInRelation.getEndNodeId(), rhymingSoundInRelation.getRelationType(), rhymingSoundInRelation.getStartNodeId());
-			rhymingSoundOutRelation.setStartNodeObjectType(rhymingSoundInRelation.getEndNodeObjectType());
-			rhymingSoundOutRelation.setEndNodeObjectType(rhymingSoundInRelation.getStartNodeObjectType());
-			relations.add(rhymingSoundOutRelation);
-
-			return relations;
+			return rhymingSoundText;
 		}
-		
 		return null;
 	}
-
+	
 	private String[] parseUnicodes(String syllable){
 		
 		String[] syllableUnicodes = syllable.split("\\\\");
@@ -151,18 +128,6 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 		return list.toArray(new String[list.size()]);
 	}
 	
-	private Relation createPhoneticBoundaryRelation(String pbText, String pbType, String relationShipType) throws Exception{
-		String phoneticBoundaryId = getPhoneticBoundary(languageId, pbText, LOGGER);
-		if(StringUtils.isEmpty(phoneticBoundaryId)){
-			Map<String, Object> obj = new HashMap<String, Object>();
-			obj.put(LanguageParams.text.name(), pbText);
-			obj.put(LanguageParams.type.name(), pbType);
-			Response response = createPhoneticBoundary(languageId, obj, LOGGER);
-			phoneticBoundaryId = (String) response.get(GraphDACParams.node_id.name());
-		}
-		return createRelation(wordNode.getIdentifier(), wordNode.getObjectType(), relationShipType, phoneticBoundaryId, pbType);	
-	}
-
 	private String getTextValue(String unicode){
 		int hexVal = Integer.parseInt(unicode, 16);
 		return ""+(char)hexVal;
@@ -176,9 +141,10 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 	}
 	
 	//Get Vowel Unicode associated with given VowelSign unicode
+	@SuppressWarnings("unchecked")
 	public String getVowelUnicode(String languageId, String vowelSignUnicode){
 		Property vowelSignProp = new Property(GraphDACParams.unicode.name(), vowelSignUnicode);
-		Response varnaRes = getDataNodeByProperty(languageId, vowelSignProp, LOGGER);
+		Response varnaRes = getDataNodeByProperty(languageId, vowelSignProp);
 		Node varnaNode = null;
 		if (!checkError(varnaRes)) {
 			List<Node> nodes = (List<Node>) varnaRes.get(GraphDACParams.node_list.name());
@@ -200,4 +166,16 @@ public class IndianLanguagePhoneticBoundary extends BasePhoneticBoundary impleme
 					getErrorMessage(varnaRes));
 		
 	}
+	
+	protected Response getDataNodeByProperty(String languageId, Property property){
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
+		request.put(GraphDACParams.metadata.name(), property);
+		request.put(GraphDACParams.get_tags.name(), true);
+		Response findRes = getResponse(request, LOGGER);
+		if (!checkError(findRes)) {
+			return findRes;
+		}
+		return null;
+	}
+
 }

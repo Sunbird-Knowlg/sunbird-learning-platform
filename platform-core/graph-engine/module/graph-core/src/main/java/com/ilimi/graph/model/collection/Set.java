@@ -736,7 +736,7 @@ public class Set extends AbstractCollection {
         request.setOperation("addSetMember");
         request.put(GraphDACParams.set_id.name(), setId);
         request.put(GraphDACParams.member_id.name(), memberId);
-        Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
+        cacheRouter.tell(request, manager.getSelf());
 
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request dacRequest = new Request(req);
@@ -745,7 +745,7 @@ public class Set extends AbstractCollection {
         dacRequest.put(GraphDACParams.start_node_id.name(), setId);
         dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
         dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-        dacRouter.tell(dacRequest, manager.getSelf());
+        Future<Object> response = Patterns.ask(dacRouter, dacRequest, timeout);
         
         return response;
     }

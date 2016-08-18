@@ -248,6 +248,21 @@ public class ImportController extends BaseLanguageController {
         }
     }
 
+    @RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
+    @ResponseBody
+    public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
+            @PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
+        String apiId = "definition.find";
+        LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+        try {
+            Response response = importManager.findDefinition(id, objectType);
+            LOGGER.info("Find Definitions | Response: " + response);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            LOGGER.error("Find Definitions | Exception: " + e.getMessage(), e);
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();

@@ -11,9 +11,9 @@ import org.codehaus.jackson.type.TypeReference;
 public class ObjectDefinitionCache {
 
 	private static Map<String, Map> definitionMap = new HashMap<String, Map>();
+	private static Map<String, Map> metadataMap = new HashMap<String, Map>();
 	private static Map<String, Map<String, String>> relationMap = new HashMap<String, Map<String, String>>();
 	private static ObjectMapper mapper = new ObjectMapper();
-	private static ConsumerUtil consumerUtil = new ConsumerUtil();
 
 	@SuppressWarnings({ "unchecked" })
 	public static Map<String, Object> getDefinitionNode(String objectType, String graphId) throws Exception {
@@ -34,6 +34,16 @@ public class ObjectDefinitionCache {
         return definition;
     }
 
+	@SuppressWarnings({ "unchecked" })
+	public static Map<String, Object> getMetaData(String objectType, String graphId) throws Exception {
+		Map<String, Object> metadata = metadataMap.get(objectType);
+		if (metadata == null) {
+			getDefinitionFromGraph(objectType, graphId);
+			metadata = metadataMap.get(objectType);
+		}
+		return metadata;
+	}
+	
     public static void setDefinitionNode(String objectType, Map<String, Object> definition) {
 		definitionMap.put(objectType, definition);
 	}
@@ -43,9 +53,9 @@ public class ObjectDefinitionCache {
     }
     
 	private static void getDefinitionFromGraph(String objectType, String graphId) throws Exception {
-		String url = consumerUtil.getConsumerConfig().consumerInit.ekstepPlatformURI + "/taxonomy/" + graphId + "/definition/"
+		String url = PropertiesUtil.getProperty("platform-api-url") + "/" + graphId + "/definition/"
 				+ objectType;
-		String result = consumerUtil.makeHTTPGetRequest(url);
+		String result = HTTPUtil.makeGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result,
 				new TypeReference<Map<String, Object>>() {
 				});
@@ -62,6 +72,9 @@ public class ObjectDefinitionCache {
         }
 		Map<String, Object> definition = retrieveProperties(definitionNode);
 		definitionMap.put(objectType, definition);
+
+		Map<String, Object> metadata = retrieveMetadata(definitionNode);
+		metadataMap.put(objectType, metadata);
 		
 		Map<String, String> relationDefinition = retrieveRelations(definitionNode, "IN", "inRelations");
 		relationDefinition.putAll(retrieveRelations(definitionNode, "OUT", "outRelations"));
@@ -79,6 +92,12 @@ public class ObjectDefinitionCache {
 			definition.put((String) propertyMap.get("propertyName"), propertyMap);
 		}
 		return definition;
+	}
+	
+	@SuppressWarnings({ "unchecked" })
+	private static Map<String, Object> retrieveMetadata(Map definitionNode) throws Exception {
+		Map<String, Object> metadata = (Map) definitionNode.get("metadata");
+		return metadata;
 	}
 	
 	@SuppressWarnings({ "unchecked" })

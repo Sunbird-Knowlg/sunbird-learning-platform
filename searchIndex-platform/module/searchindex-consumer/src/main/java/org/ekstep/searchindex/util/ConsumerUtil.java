@@ -108,49 +108,11 @@ public class ConsumerUtil {
 		util.readConsumerProperties();
 	}
 	
-	public String makeHTTPGetRequest(String url) throws Exception{
-	    System.out.println("URL is " + url);
-		HttpClient client = HttpClientBuilder.create().build();
-		HttpGet request = new HttpGet(url);
-		request.addHeader("user-id", consumerConfig.consumerInit.ekstepPlatformApiUserId);
-		request.addHeader("Content-Type", "application/json");
-		HttpResponse response = client.execute(request);
-		System.out.println("Status Code: " + response.getStatusLine().getStatusCode());
-		if (response.getStatusLine().getStatusCode() != 200) {
-			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
-					+ response.getStatusLine().getReasonPhrase());
-		}
-		BufferedReader rd = new BufferedReader(
-			new InputStreamReader(response.getEntity().getContent(),Charsets.UTF_8));
-
-		StringBuffer result = new StringBuffer();
-		String line = "";
-		while ((line = rd.readLine()) != null) {
-			result.append(line);
-		}
-		return result.toString();
-	}
-	
-	
-	public void makeHttpPostRequest(String url, String body) throws Exception{
-		HttpClient client = HttpClientBuilder.create().build();
-		HttpPost post = new HttpPost(url);
-		post.addHeader("user-id", consumerConfig.consumerInit.ekstepPlatformApiUserId);
-		post.addHeader("Content-Type", "application/json");
-		post.setEntity(new StringEntity(body));
-
-		HttpResponse response = client.execute(post);
-		if (response.getStatusLine().getStatusCode() != 200) {
-			throw new Exception("Ekstep service unavailable: " + response.getStatusLine().getStatusCode() + " : "
-					+ response.getStatusLine().getReasonPhrase());
-		}
-
-	}
 	
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public List<Map> getAllNodes(String objectType, String graphId) throws Exception {
-		String url = consumerConfig.consumerInit.ekstepPlatformURI +"/taxonomy/"+graphId+"/"+objectType;
-		String result = makeHTTPGetRequest(url);
+		String url = PropertiesUtil.getProperty("ekstepPlatformURI") +"/taxonomy/"+graphId+"/"+objectType;
+		String result = HTTPUtil.makeGetRequest(url);
 		Map<String, Object> responseObject = mapper.readValue(result, new TypeReference<Map<String, Object>>() {});
 		if(responseObject != null){
 			Map<String, Object> resultObject = (Map<String, Object>) responseObject.get("result");

@@ -185,8 +185,8 @@
             "draft": false
         },
          {
-          "propertyName": "traverserClass",
-          "title": "Traverser Class",
+          "propertyName": "ruleScript",
+          "title": "Rule Script",
           "description": "",
           "category": "general",
           "dataType": "Text",

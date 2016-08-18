@@ -68,5 +68,9 @@ public enum LanguageErrorCodes {
     
     ERROR_PHONETIC_BOUNTARY_LOOKUP,
     
+    ERROR_ADD_WORD_SET,
+    
+    ERROR_WORD_SET_LOOKUP,
+
     ERROR_VIRAMA_NOT_FOUND;
 }

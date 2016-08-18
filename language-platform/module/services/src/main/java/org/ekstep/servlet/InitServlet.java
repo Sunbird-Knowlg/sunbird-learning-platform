@@ -7,6 +7,9 @@ import javax.servlet.http.HttpServlet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.router.LanguageRequestRouterPool;
+import org.ekstep.search.router.SearchRequestRouterPool;
+
+import com.ilimi.common.router.RequestRouterPool;
 
 public class InitServlet extends HttpServlet {
 
@@ -20,5 +23,6 @@ private static final long serialVersionUID = 8162107839763607722L;
         // Initialising Request Router Pool
         LOGGER.info("Initialising Language Request Router Pool");
         LanguageRequestRouterPool.init();
+        SearchRequestRouterPool.init(RequestRouterPool.getActorSystem());
     }
 }

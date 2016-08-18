@@ -4,8 +4,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.ekstep.search.mgr.CompositeSearchManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,9 +22,8 @@ import com.ilimi.common.logger.LogHelper;
 public class CompositeSearchController extends BaseCompositeSearchController {
 
 	private static LogHelper LOGGER = LogHelper.getInstance(CompositeSearchController.class.getName());
-
-	@Autowired
-	private ICompositeSearchManager compositeSearchManager;
+	
+	private CompositeSearchManager compositeSearchManager = new CompositeSearchManager();
 
 	@RequestMapping(value = "", method = RequestMethod.POST)
 	@ResponseBody
@@ -35,7 +33,8 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 		LOGGER.info(apiId + " | Request : " + map);
 		try {
 			Request request = getRequest(map);
-			Response response = compositeSearchManager.search(request);
+			Response searchResponse = compositeSearchManager.search(request);
+			Response  response = compositeSearchManager.getSearchResponse(searchResponse);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("Error: " + apiId, e);

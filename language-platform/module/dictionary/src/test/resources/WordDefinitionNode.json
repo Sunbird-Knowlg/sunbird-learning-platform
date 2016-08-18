@@ -724,15 +724,15 @@
           ],
           "renderingHints": "{ 'order': 26 }"
         },
-         {
-          "relationName": "hasRhymingSound",
-          "title": "hasRhymingSound",
+        {
+          "relationName": "hasMember",
+          "objectTypes": [
+            "WordSet"
+          ],
+          "title": "words",
           "description": "",
           "required": false,
-          "objectTypes": [
-            "Phonetic_Boundary"
-          ],
-          "renderingHints": ""
+          "renderingHints": "{ 'order': 27 }"
         }
       ],
       "outRelations": [
@@ -785,36 +785,6 @@
             "Word"
           ],
           "renderingHints": "{ 'order': 26 }"
-        }, 
-		{
-          "relationName": "startsWithAkshara",
-          "title": "startsWithAkshara",
-          "description": "",
-          "required": false,
-          "objectTypes": [
-            "Phonetic_Boundary"
-          ],
-          "renderingHints": ""
-        },
-        {
-          "relationName": "endsWithAkshara",
-          "title": "endsWithAkshara",
-          "description": "",
-          "required": false,
-          "objectTypes": [
-            "Phonetic_Boundary"
-          ],
-          "renderingHints": ""
-        },
-        {
-          "relationName": "hasRhymingSound",
-          "title": "hasRhymingSound",
-          "description": "",
-          "required": false,
-          "objectTypes": [
-            "Phonetic_Boundary"
-          ],
-          "renderingHints": ""
         }
       ],
       "systemTags": [
@@ -837,7 +807,9 @@
       ],
       "metadata": {
         "ttl": 24,
-        "limit": 50
+        "limit": 50,
+        "weightages":"{\"10\": [\"category\", \"pos\"],\"15\": [\"theme\"],\"1\": [\"not_exists\"],\"5\": [\"exists\"],\"20\":\"lemma\",\"1\":\"default_weightage\"}",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }"
       }
     }
   ]

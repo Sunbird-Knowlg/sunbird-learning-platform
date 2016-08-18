@@ -4,7 +4,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import org.ekstep.compositesearch.mgr.ICompositeSearchManager;
+import org.ekstep.search.mgr.CompositeSearchManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -21,8 +21,8 @@ import com.ilimi.common.dto.Response;
 @RequestMapping("v2/metrics")
 public class MetricsController extends BaseCompositeSearchController {
 	
-	@Autowired
-	private ICompositeSearchManager compositeSearchManager;
+	
+	private CompositeSearchManager compositeSearchManager = new CompositeSearchManager();
 	
 	@RequestMapping(value = "", method = RequestMethod.POST)
     @ResponseBody

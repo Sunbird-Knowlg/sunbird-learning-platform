@@ -60,7 +60,7 @@ public class LanguageWordchainRelationTest {
 		deleteGraph();
 	}
 
-	@Test
+	/*@Test
 	public void getEnglishWordBoundaryRelationTest() throws Exception {
 		Node node = dictionaryManager.getDataNode(TEST_LANGUAGE1, wordIds.get(0) , "Word");
 		List<Relation> outRelation = node.getOutRelations();
@@ -114,7 +114,7 @@ public class LanguageWordchainRelationTest {
 			}
 		}
 		
-	}
+	}*/
 	
 	private static void createWord() throws JsonParseException,
 			JsonMappingException, IOException {

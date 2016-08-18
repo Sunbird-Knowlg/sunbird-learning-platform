@@ -1,0 +1,5 @@
+{
+    "name": "get_weightages_map",
+    "type": "COMMAND",
+    "cmdClass": "com.ilimi.orchestrator.interpreter.command.GetWeightagesMap"
+}
