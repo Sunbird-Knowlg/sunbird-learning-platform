@@ -37,6 +37,7 @@ public abstract class HealthCheckManager extends BaseManager{
 			}
 
 		}catch (Exception e) {
+			e.printStackTrace();
     		check.put("healthy", false);
     		check.put("err", ""); // error code, if any
             check.put("errmsg", e.getMessage()); // default English error message 
@@ -53,6 +54,7 @@ public abstract class HealthCheckManager extends BaseManager{
             jedis.close();
     		check.put("healthy", true);
         } catch (Exception e) {
+        	e.printStackTrace();
     		check.put("healthy", false);
     		check.put("err", "503"); // error code, if any
             check.put("errmsg", e.getMessage()); // default English error message 
