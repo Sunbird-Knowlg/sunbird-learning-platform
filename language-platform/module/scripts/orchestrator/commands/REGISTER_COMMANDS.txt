@@ -52,11 +52,9 @@ node registerCommand.js commands/register-convertJSONStringToMap.json register
 
 node registerCommand.js commands/register-sortMaps.json register
 
-node registerCommand.js commands/register-doSearch.json register
+node registerCommand.js commands/register-indexSearch.json register
 
-node registerCommand.js commands/register-doLanguageSearch.json register
-
-node registerCommand.js commands/register-getCompositeSearchResponse.json register
+node registerCommand.js commands/register-groupSearchResultByObjectType.json register
 
 node registerCommand.js commands/register-get-weightages-map.json register
 

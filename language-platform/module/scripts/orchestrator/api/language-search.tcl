@@ -78,39 +78,39 @@ if {$wordChainsQuery == "true"} {
 		set response_list [create_error_response $result_map]
 		return $response_list
 	}
-	
+
 	$request_map put "traversal" [java::new Boolean "true"]
-	
+
 	#get rule node for traversal
 	set get_rule_response [getDataNode $graphId $traversalId]
 	set get_rule_response_error [check_response_error $get_rule_response]
 	if {$get_rule_response_error} {
 		return $get_rule_response
 	}
-	
+
 	set ruleNode [get_resp_value $get_rule_response "node"]
-		
+
 	set rule_def_node [getDefinition $graphId $traversalRuleDefinition]
 	set def_node [get_resp_value $rule_def_node "definition_node"]
 
 	set ruleObject [convert_graph_node $ruleNode $def_node]
 	set ruleMetadata [$ruleNode getMetadata]
-	
+
 	#get objectType from rule node
 	set objectType [$ruleObject get "ruleObjectType"]
 	set isObjectTypeNull [java::isnull $objectType]
 	if {$isObjectTypeNull == 0} {
 		$filters put "objectType" $objectType
 	}
-	
+
 	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
-	
+
 	$request_map put "limit" $searchResultsLimit
 }
 
 # enhance request object for fuzzysearch
 if {$fuzzySearch == "true"} {
-	
+
 	#if object type is null, get from filters
 	set isObjectTypeNull [java::isnull $objectType]
 	if {$isObjectTypeNull == 1} {
@@ -121,14 +121,14 @@ if {$fuzzySearch == "true"} {
 			set objectType [$objectTypeList get 0]
 		}
 	}
-	
+
 	set isObjectTypeNull [java::isnull $objectType]
 	set weightagesMap [java::new HashMap]
-	
+
 	#create default weightages
 	set def_weightage [java::new Double 1.0]
 	$weightagesMap put "default_weightage" $def_weightage
-	
+
 	#get weightages map from  object definition
 	if {$isObjectTypeNull == 0} {
 		set respDefNode [getDefinition $graphId $objectType]
@@ -136,12 +136,12 @@ if {$fuzzySearch == "true"} {
 		if {$respDefNodeError} {
 			return $respDefNode
 		}
-		
+
 		set defNode [get_resp_value $respDefNode "definition_node"]
-		
+
 		set definitionMetadata [$defNode getMetadata]
 		set weightagesString [$definitionMetadata get "weightages"]
-		
+
 		set isWeighatgesStringNull [java::isnull $weightagesString]
 		if {$isWeighatgesStringNull == 1} {
 			set result_map [java::new HashMap]
@@ -151,10 +151,10 @@ if {$fuzzySearch == "true"} {
 			set response_list [create_error_response $result_map]
 			return $response_list
 		}
-		
+
 		set weightagesMap [get_weightages_map $weightagesString]
 	}
-	
+
 	$baseConditions put "weightages" $weightagesMap
 	$request_map put "baseConditions" $baseConditions
 }
@@ -167,7 +167,7 @@ set searchResult [indexSearch $traversals $query $filters $exists $not_exists $s
 
 #if its not a traversal search, group results by object type and return
 if {$wordChainsQuery == "false"} {
-	set compositeSearchResponse [getCompositeSearchResponse $searchResult]
+	set compositeSearchResponse [groupSearchResultByObjectType $searchResult]
 	return $compositeSearchResponse
 }
 
