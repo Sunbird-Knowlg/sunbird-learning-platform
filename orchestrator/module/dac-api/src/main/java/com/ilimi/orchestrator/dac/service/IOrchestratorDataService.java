@@ -22,4 +22,5 @@ public interface IOrchestratorDataService {
 	
 	List<OrchestratorScript> getScriptsByRequestPath(String url, String type);
 
+	boolean isCollectionExist();
 }

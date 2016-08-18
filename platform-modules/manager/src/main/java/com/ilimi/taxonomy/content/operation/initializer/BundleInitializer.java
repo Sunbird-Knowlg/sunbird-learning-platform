@@ -115,6 +115,9 @@ public class BundleInitializer extends BaseInitializer {
 			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
 				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
 			content.put(ContentWorkflowPipelineParams.downloadUrl.name(), content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
+			Object objectType = content.get("objectType");
+            if(null!= objectType && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), objectType.toString()))
+            	content.put("visibility", null);
 		}
 
 		LOGGER.info("Total Content To Bundle: " + nodes.size());

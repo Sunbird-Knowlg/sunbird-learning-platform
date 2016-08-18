@@ -171,7 +171,10 @@ public class ContentValidator {
 					break;
 
 				case "application/vnd.android.package-archive":
-					isValid = true;
+					// 'artifactUrl is needed'
+					if (StringUtils.isNotBlank(
+							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
+						isValid = true;
 					break;
 
 				case "application/vnd.ekstep.content-collection":

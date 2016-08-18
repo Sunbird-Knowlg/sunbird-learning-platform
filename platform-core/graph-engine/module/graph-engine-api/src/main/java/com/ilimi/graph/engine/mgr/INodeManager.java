@@ -98,4 +98,5 @@ public interface INodeManager {
 
     void exportNode(Request request);
 
+    void  upsertRootNode(Request request);
 }

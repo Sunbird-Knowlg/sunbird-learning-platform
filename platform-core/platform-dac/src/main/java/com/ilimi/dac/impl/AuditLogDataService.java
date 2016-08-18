@@ -6,6 +6,7 @@ import java.util.List;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -102,5 +103,4 @@ public class AuditLogDataService extends BaseDataAccessService implements IAudit
         List<Comment> comments = modelMapper.map(commentEntities, listType);
         return OK(CommonDACParams.comments.name(), comments);
     }
-
 }

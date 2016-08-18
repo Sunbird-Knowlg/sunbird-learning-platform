@@ -19,7 +19,6 @@ import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.stereotype.Component;
 
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.graph.cache.exception.GraphCacheErrorCodes;
@@ -71,7 +70,8 @@ public class WordCacheUtil {
         jedisPool = new JedisPool(config, host, port);
     }
 
-    private static Jedis getRedisConncetion() {
+
+    public static Jedis getRedisConncetion() {
         try {
             Jedis jedis = jedisPool.getResource();
             if(index > 0) jedis.select(index);
@@ -238,7 +238,7 @@ public class WordCacheUtil {
 		try{
 			InputStream is = new FileInputStream("/Users/karthik/Desktop/Word_PhoneticSpeling.txt");
 			WordCacheUtil wordCahceManager=new WordCacheUtil();
-			Map<String, String> wordArpabetCacheMap=wordCahceManager.parseInputStream(is);
+			Map<String, String> wordArpabetCacheMap= parseInputStream(is);
 			Set<String> arpabetsWordSet=new HashSet<String>(wordArpabetCacheMap.values());
 			Set<String> arpabetSetFromWords=wordCahceManager.findArpabets(arpabetsWordSet);
 			

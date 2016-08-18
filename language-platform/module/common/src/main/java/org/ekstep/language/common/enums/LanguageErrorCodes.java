@@ -70,5 +70,7 @@ public enum LanguageErrorCodes {
     
     ERROR_ADD_WORD_SET,
     
-    ERROR_WORD_SET_LOOKUP;
+    ERROR_WORD_SET_LOOKUP,
+
+    ERROR_VIRAMA_NOT_FOUND;
 }

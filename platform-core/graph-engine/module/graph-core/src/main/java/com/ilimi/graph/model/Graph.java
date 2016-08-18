@@ -1245,4 +1245,19 @@ public class Graph extends AbstractDomainObject {
             }
         }, manager.getContext().dispatcher());
     }
+    
+    public void upsertRootNode(Request req){
+        try {
+	    	ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+	        Request request = new Request(req);
+	        request.setManagerName(GraphDACManagers.DAC_NODE_MANAGER);
+	        request.setOperation("upsertRootNode");
+            request.copyRequestValueObjects(req.getRequest());
+	        Future<Object> response = Patterns.ask(dacRouter, request, timeout);
+	        manager.returnResponse(response, getParent());
+        }  catch (Exception e) {
+        	throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), e.getMessage(),
+                e);
+        }
+    }
 }
