@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
@@ -28,8 +29,8 @@ import com.ilimi.common.exception.ResponseCode;
 public class ConfigController extends BaseController {
 	private ObjectMapper mapper = new ObjectMapper();
 	private static final String bucketName = "ekstep-config";
-	private static final String folderName = "resources";
-	private static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
+	public static final String folderName = "resources";
+	public static final String baseUrl = "https://ekstep-config.s3-ap-southeast-1.amazonaws.com/";
 
 	@RequestMapping(value = "/resourcebundles", method = RequestMethod.GET)
 	@ResponseBody
@@ -139,9 +140,10 @@ public class ConfigController extends BaseController {
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(bucketName, folderName);
 		for (String data : res) {
-			apiUrl = baseUrl + data;
-			if (data.length() > 12)
-				urlList.put(data.substring(10, 12), apiUrl);
+			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
+				apiUrl = baseUrl + data;
+				urlList.put(FilenameUtils.getBaseName(data), apiUrl);
+			}
 		}
 		return urlList;
 	}

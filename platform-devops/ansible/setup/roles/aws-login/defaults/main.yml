@@ -1,4 +1,0 @@
----
-# defaults file for aws-login
-access: "{{ lookup('env', 'aws_access_key') }}"
-secret: "{{ lookup('env', 'aws_secret_key') }}"

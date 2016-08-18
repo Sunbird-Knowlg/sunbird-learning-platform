@@ -113,6 +113,12 @@ public class SlugTest extends TestCase {
         expected = "hello-wor-ld";
         slug = Slug.makeSlug(name);
         assertEquals("Multiple special chars not sluggified correctly", expected, slug);
+        
+        // Pipe character should also be removed
+        name = "Hello|World";
+        expected = "helloworld";
+        slug = Slug.makeSlug(name);
+        assertEquals("Pipe character not sluggified correctly", expected, slug);
     }
     
     public void testUrlChars() {

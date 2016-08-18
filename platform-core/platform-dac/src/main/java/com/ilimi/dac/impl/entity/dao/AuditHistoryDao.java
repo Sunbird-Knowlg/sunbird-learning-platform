@@ -10,5 +10,5 @@ public class AuditHistoryDao extends BaseHibernateDao<AuditHistoryEntity, Intege
 
     @Autowired
     private JdbcTemplate jdbcTemplate = null;
-
+    
 }

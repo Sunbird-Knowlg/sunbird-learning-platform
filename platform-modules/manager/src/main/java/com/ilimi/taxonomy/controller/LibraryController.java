@@ -26,9 +26,6 @@ public class LibraryController extends BaseController {
     private static LogHelper LOGGER = LogHelper.getInstance(LibraryController.class.getName());
 
     @Autowired
-    private ContentController contentController;
-
-    @Autowired
     private IContentManager contentManager;
 
     private String graphId = "domain";

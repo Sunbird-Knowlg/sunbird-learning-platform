@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,12 +29,9 @@ import org.ekstep.language.common.LanguageMap;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
 import org.ekstep.language.common.enums.LanguageParams;
-import org.ekstep.language.measures.entity.WordComplexity;
-import org.ekstep.language.measures.meta.SyllableMap;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
-import org.neo4j.cypher.internal.compiler.v1_9.symbols.RelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.springframework.stereotype.Component;
@@ -64,7 +60,6 @@ import com.ilimi.graph.dac.model.Sort;
 import com.ilimi.graph.dac.model.TagCriterion;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
-import com.ilimi.graph.dac.util.RelationType;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.MetadataDefinition;
@@ -1574,6 +1569,29 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return wordCacheUtil.getSimilarSoundWords(word);
 	}
 
+	private String getViramaUnicode(String languageId){
+		String unicode="";
+		Property viramaProperty = new Property(GraphDACParams.type.name(), "Virama");
+		Node viramaVarnaNode = getVarnaNodeByProperty(languageId, viramaProperty);
+		if (viramaVarnaNode != null) {
+			unicode = (String) viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
+		}
+		return unicode;
+	}
+	
+	private String getVowelSignUnicode(Node vowel){
+		String unicode = "";
+		List<Relation> inRelation = vowel.getInRelations();		
+		if (inRelation.size() >=1) {
+			Relation associatedTo = (Relation) vowel.getInRelations().get(0);
+			if(associatedTo != null){
+				Map<String, Object> vowelSignMetaData = associatedTo.getStartNodeMetadata();
+				unicode = (String) vowelSignMetaData.get(GraphDACParams.unicode.name());
+			}
+		}
+		return unicode;
+	}
+	
 	public String getPhoneticSpellingByLanguage(String languageId, String word) {
 
 		String arpabets = getArpabets(word);
@@ -1581,56 +1599,78 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			return "";
 
 		String arpabetArr[] = arpabets.split("\\s");
-		int itr = 0;
 		List<String> unicodes = new ArrayList<String>();
-		int arpabetsCount = arpabetArr.length;
+		String viramaUnicode = getViramaUnicode(languageId);
+		boolean start_of_syllable = true;
 		for (String arpabet : arpabetArr) {
 			Property arpabetProp = new Property(GraphDACParams.identifier.name(), arpabet);
-			Node EnglishvarnaNode = getVarnaNodeByProperty("en", arpabetProp);
-			Map<String, Object> metaData = EnglishvarnaNode.getMetadata();
-			String isoSymbol = (String) metaData.get(GraphDACParams.isoSymbol.name());
+			Node enVarnaNode = getVarnaNodeByProperty("en", arpabetProp);
+			String isoSymbol = (String) enVarnaNode.getMetadata().get(GraphDACParams.isoSymbol.name());
+			//String type = (String) EnglishvarnaNode.getMetadata().get(GraphDACParams.type.name());
 			Property isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), isoSymbol);
-			String type = (String) metaData.get(GraphDACParams.type.name());
-
-			Node LanguageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
-			if (LanguageVarnaNode != null) {
-				String unicode = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
-				String langageVarnaType = (String) LanguageVarnaNode.getMetadata().get(GraphDACParams.type.name());
-				if (type.equalsIgnoreCase("Vowel") && itr != 0 && langageVarnaType.equalsIgnoreCase("Vowel")) {
-					// get vowelSign unicode
-					Relation associatedTo = (Relation) LanguageVarnaNode.getInRelations().get(0);
-					if (associatedTo != null) {
-						Map<String, Object> vowelSignMetaData = associatedTo.getStartNodeMetadata();
-						unicode = (String) vowelSignMetaData.get(GraphDACParams.unicode.name());
+			List<Node> varnas = new ArrayList<Node>();
+			Node languageVarnaNode = getVarnaNodeByProperty(languageId, isoSymbolProp);
+			if(languageVarnaNode == null){
+				String altIsoSymbol = (String) enVarnaNode.getMetadata().get(GraphDACParams.altIsoSymbol.name());
+				if(altIsoSymbol.contains("+")){
+					String isoSymbols[] = altIsoSymbol.split("\\+");
+					for(String iso : isoSymbols){
+						isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), iso);
+						varnas.add(getVarnaNodeByProperty(languageId, isoSymbolProp));						
 					}
-				}
-				unicodes.add(unicode);
-
-				if (arpabetsCount == itr + 1) {
-					// check last character is consonant
-					if (!langageVarnaType.equalsIgnoreCase("Vowel")) {
-						// Get virama and append to the unicode list
-						Property viramaProperty = new Property(GraphDACParams.type.name(), "Virama");
-						Node viramaVarnaNode = getVarnaNodeByProperty(languageId, viramaProperty);
-						if (viramaVarnaNode != null) {
-							unicode = (String) viramaVarnaNode.getMetadata().get(GraphDACParams.unicode.name());
-							unicodes.add(unicode);
-						}
-					}
-				}
+				} else{
+					isoSymbolProp = new Property(GraphDACParams.isoSymbol.name(), altIsoSymbol);
+					varnas.add(getVarnaNodeByProperty(languageId, isoSymbolProp));
+				}	
+			} else{
+				varnas.add(languageVarnaNode);
 			}
-			itr++;
+			
+			for(Node varna : varnas){
+				if(varna == null)
+					continue;
+				String varnaType = (String) varna.getMetadata().get(GraphDACParams.type.name());
+				String varnaUnicode = (String) varna.getMetadata().get(GraphDACParams.unicode.name());
+				if(varnaType.equalsIgnoreCase("Consonant")){
+					if(start_of_syllable){
+						start_of_syllable = false;
+					}else{
+						if(StringUtils.isNotEmpty(viramaUnicode))
+							unicodes.add(viramaUnicode);
+						else
+							throw new ServerException(LanguageErrorCodes.ERROR_VIRAMA_NOT_FOUND.name(), "Virama is not found in "+languageId +" graph");
+					}
+					unicodes.add(varnaUnicode);
+				}else if(varnaType.equalsIgnoreCase("Vowel")){
+					if(start_of_syllable){
+						unicodes.add(varnaUnicode);
+					}else{
+						String vowelSignUnicode = getVowelSignUnicode(varna);
+						if(StringUtils.isNotEmpty(vowelSignUnicode)){
+							unicodes.add(vowelSignUnicode);
+						}
+						start_of_syllable = true;
+					}
+				}else{
+					unicodes.add(varnaUnicode);
+					start_of_syllable = true;
+				}
+
+			}
+			
 		}
 
 		return getTextFromUnicode(unicodes);
 	}
-
+	
 	private String getTextFromUnicode(List<String> unicodes) {
 
 		String text = "";
 		for (String unicode : unicodes) {
-			int hexVal = Integer.parseInt(unicode, 16);
-			text += (char) hexVal;
+			if(StringUtils.isNotEmpty(unicode)){
+				int hexVal = Integer.parseInt(unicode, 16);
+				text += (char) hexVal;				
+			}
 		}
 		return text;
 	}

@@ -5,11 +5,11 @@ var client = new Client();
 //var host = "http://lp-sandbox.ekstep.org:8080/taxonomy-service";
 var host = "http://localhost:9090/language-service";
 // PROD
-//var host = "http://54.169.71.31:8080/language-service";
+//var host = "https://api.ekstep.in/language";
 // DEV
-//var host = "http://54.254.225.115:8080/language-service";
+//var host = "https://dev.ekstep.in/api/language";
 // QA
-//var host = "http://54.179.153.127:8080/language-service";
+//var host = "https://qa.ekstep.in/api/language";
 
 console.log('');
 var scriptAsString = fs.readFileSync(process.argv[3]);

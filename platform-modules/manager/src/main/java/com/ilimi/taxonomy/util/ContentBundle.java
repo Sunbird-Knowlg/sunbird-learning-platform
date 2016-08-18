@@ -99,9 +99,8 @@ public class ContentBundle {
             if (null != posterImage && StringUtils.isNotBlank(posterImage.toString()))
             	content.put("appIcon", posterImage);
             Object objectType = content.get("objectType");
-            if(null!= objectType && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), objectType.toString())){
+            if(null!= objectType && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), objectType.toString()))
             	content.put("visibility", null);
-            }
         }
         String bundlePath = BUNDLE_PATH + File.separator + System.currentTimeMillis() + "_temp";
         List<File> downloadedFiles = getContentBundle(downloadUrls, bundlePath);

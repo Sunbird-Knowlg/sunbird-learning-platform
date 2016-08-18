@@ -194,6 +194,18 @@
             "draft": false
         }, {
             "required": false,
+            "dataType": "JSON",
+            "propertyName": "responses",
+            "title": "Responses",
+            "description": "",
+            "category": "general",
+            "displayProperty": "Editable",
+            "defaultValue": "",
+            "renderingHints": "{ 'inputType': 'textarea', 'order': 4 }",
+            "indexed": true,
+            "draft": false
+        }, {
+            "required": false,
             "dataType": "Number",
             "propertyName": "num_answers",
             "title": "Number of Answers",

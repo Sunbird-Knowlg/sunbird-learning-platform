@@ -1,10 +1,6 @@
 package com.ilimi.controller;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,34 +12,26 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.dto.ResponseParams;
 import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ResponseCode;
-import com.ilimi.graph.common.mgr.Configuration;
+import com.ilimi.common.mgr.HealthCheckManager;
 
 @Controller
 @RequestMapping("health")
 public class HealthCheckController extends BaseController {
-	
+
+	@Autowired
+	HealthCheckManager healthCheckManager;
+
 	@RequestMapping(value = "", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> search() {
 		String name = "learning-service";
 		String apiId = name + ".health";
-		Response response = new Response();
-		response.put("name", name);
+		Response response;
 		try {
-			response.put("healthy", true);
-			List<Map<String, Object>> checks = new ArrayList<Map<String, Object>>();
-			List<String> graphIds = Configuration.graphIds;
-			if (null != graphIds && graphIds.size() > 0) {
-				for (String id : graphIds) {
-					Map<String, Object> check = new HashMap<String, Object>();
-					check.put("name", id + " graph");
-					check.put("healthy", true);
-					checks.add(check);
-				}
-			}
-			response.put("checks", checks);
+			response = healthCheckManager.getAllServiceHealth();
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
+			response = new Response();
 			ResponseParams resStatus = new ResponseParams();
 	        resStatus.setErrmsg(e.getMessage());
 	        resStatus.setStatus(StatusType.failed.name());

@@ -48,7 +48,11 @@ public class ContentErrorMessageConstants {
 	
 	public static final String INVALID_CWP_INIT_PARAM = "Error! Invalid Initializer Parameter.";
 	
+	public static final String INVALID_CWP_OP_INIT_PARAM = "Error! Invalid Operation Initializer Parameter.";
+	
 	public static final String INVALID_CWP_FINALIZE_PARAM = "Error! Invalid Finalizer Parameter.";
+	
+	public static final String INVALID_CWP_OP_FINALIZE_PARAM = "Error! Invalid Operation Finalizer Parameter.";
 	
 	public static final String INVALID_CWP_CONST_PARAM = "Error! Invalid Constructor Parameter.";
 	
@@ -93,6 +97,24 @@ public class ContentErrorMessageConstants {
 	public static final String INVALID_ECML_TYPE = "Error! Invalid ECML Type.";
 	
 	public static final String ECML_FILE_WRITE_ERROR = "Error! While writing ECML File.";
+	
+	public static final String MANIFEST_FILE_WRITE_ERROR = "Error! While writing Manifest File.";
+	
+	public static final String NO_FILES_TO_BUNDLE = "Error! No Files to Create Bundle.";
+	
+	public static final String INVALID_BUNDLE_FILE_NAME = "Error! Invalid or 'null' Bundle File Name.";
+	
+	public static final String BUNDLE_FILE_WRITE_ERROR = "Error! While writing Bundle File.";
+	
+	public static final String MISSING_BUNDLE_CONTENT = "Error! Missing One or More Content for Bundling.";
+	
+	public static final String UNABLE_TO_PUBLISH_OR_BUNDLE_CONTENT = "Error! Content cannot be Bundled or Published.";
+	
+	public static final String CONTENT_NODE_VALIDATION_ERROR = "Error! While validating the Content Object.";
+	
+	public static final String INVALID_CONTENT_METADATA = "Error! Content Object Metadata is either 'null' or Invalid.";
+	
+	public static final String MISSING_REQUIRED_FIELDS = "Error! Missing One or More Required Fields in Content Object.";
 	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();

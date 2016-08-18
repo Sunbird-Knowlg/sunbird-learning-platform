@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 
 public class Slug {
 
-    private static final Pattern NONLATIN = Pattern.compile("[^\\w-|\\.]");
+    private static final Pattern NONLATIN = Pattern.compile("[^\\w-\\.]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DUPDASH = Pattern.compile("-+");
 

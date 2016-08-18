@@ -84,4 +84,9 @@ public class OrchestratorDataServiceImpl implements IOrchestratorDataService {
         Query query = new Query(c);
         return this.mongoOps.find(query, OrchestratorScript.class);
     }
+    
+    @Override
+    public boolean isCollectionExist(){
+    	return this.mongoOps.collectionExists("scripts");
+    }
 }

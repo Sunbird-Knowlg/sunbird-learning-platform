@@ -38,5 +38,9 @@ public class Configuration {
         } catch (Exception e) {
         }
     }
+    
+    public static void registerNewGraph(String graphId){
+    	graphIds.add(graphId);
+    }
 
 }
