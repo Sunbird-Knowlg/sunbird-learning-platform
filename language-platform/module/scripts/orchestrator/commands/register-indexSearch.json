@@ -55,12 +55,6 @@
         "index": 8,
         "datatype": "java.lang.Integer",
         "routingParam": false
-    },
-	{
-        "name": "weightagesMap",
-        "index": 9,
-        "datatype": "java.util.HashMap",
-        "routingParam": false
     }
  ],
   "actorPath": {

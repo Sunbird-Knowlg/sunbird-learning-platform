@@ -1,5 +1,6 @@
 package org.ekstep.search.actor;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,6 +11,10 @@ import java.util.Map.Entry;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.codehaus.jackson.JsonParseException;
+import org.codehaus.jackson.map.JsonMappingException;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jackson.type.TypeReference;
 import org.ekstep.compositesearch.enums.CompositeSearchErrorCodes;
 import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.compositesearch.enums.SearchOperations;
@@ -22,6 +27,8 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
+import com.ilimi.graph.model.cache.DefinitionCache;
+import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
 
@@ -37,7 +44,6 @@ public class SearchManager extends SearchBaseActor {
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
-				searchDTO.addAdditionalProperty("weightagesMap", request.get("weightagesMap"));
 				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
 				List<Map> results = (List<Map>) lstResult.get("results");
 				OK("results", results, parent);
@@ -92,6 +98,41 @@ public class SearchManager extends SearchBaseActor {
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
+			if(fuzzySearch){
+				Map<String, Double> weightagesMap = new HashMap<String, Double>();
+				weightagesMap.put("default_weightage", 1.0);
+				Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
+				String objectType = null;
+				if(objectTypeFromFilter != null){
+					if(objectTypeFromFilter instanceof List){
+						List objectTypeList = (List) objectTypeFromFilter;
+						objectType = (String) objectTypeList.get(0);
+					} else if (objectTypeFromFilter instanceof String){
+						objectType = (String) objectTypeFromFilter;
+					}
+				}
+				
+				Object graphIdFromFilter = filters.get(CompositeSearchParams.graph_id.name());
+				String graphId = null;
+				if(graphIdFromFilter != null){
+					if(graphIdFromFilter instanceof List){
+						List graphIdList = (List) graphIdFromFilter;
+						graphId = (String) graphIdList.get(0);
+					} else if (graphIdFromFilter instanceof String){
+						graphId = (String) graphIdFromFilter;
+					}
+				}
+				
+				if(objectType != null && graphId != null){
+					DefinitionDTO objDefinition = DefinitionCache.getDefinitionNode(graphId, objectType);
+					String weightagesString = (String) objDefinition.getMetadata().get("weightages");
+					if(weightagesString != null){
+						weightagesMap = getWeightagesMap(weightagesString);
+					}
+				}
+				searchObj.addAdditionalProperty("weightagesMap", weightagesMap);
+			}
+			
 			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
 			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
@@ -114,6 +155,31 @@ public class SearchManager extends SearchBaseActor {
 					"Invalid Input.");
 		}
 		return searchObj;
+	}
+
+	@SuppressWarnings("unchecked")
+	private Map<String, Double> getWeightagesMap(String weightagesString) throws JsonParseException, JsonMappingException, IOException {
+		Map<String, Double> weightagesMap = new HashMap<String, Double>();
+		ObjectMapper mapper = new ObjectMapper();
+		if (weightagesString != null && !weightagesString.isEmpty()) {
+			Map<String, Object> weightagesRequestMap = mapper.readValue(weightagesString,
+					new TypeReference<Map<String, Object>>() {
+					});
+
+			for (Map.Entry<String, Object> entry : weightagesRequestMap.entrySet()) {
+				Double weightage = Double.parseDouble(entry.getKey());
+				if (entry.getValue() instanceof List) {
+					List<String> fields = (List<String>) entry.getValue();
+					for (String field : fields) {
+						weightagesMap.put(field, weightage);
+					}
+				} else {
+					String field = (String) entry.getValue();
+					weightagesMap.put(field, weightage);
+				}
+			}
+		}
+		return weightagesMap;
 	}
 
 	private List<Map<String, Object>> getAdditionalFilterProperties(List<String> fieldList, String operation) {

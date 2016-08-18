@@ -106,64 +106,14 @@ if {$wordChainsQuery == "true"} {
 
 	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
 
-	$request_map put "limit" $searchResultsLimit
-}
-
-# enhance request object for fuzzysearch
-if {$fuzzySearch == "true"} {
-
-	#if object type is null, get from filters
-	set isObjectTypeNull [java::isnull $objectType]
-	if {$isObjectTypeNull == 1} {
-		set objectTypeList [$filters get "objectType"]
-		set isObjectTypeListNull [java::isnull $objectTypeList]
-		if {$isObjectTypeListNull == 0} {
-			set objectTypeList [java::cast ArrayList $objectTypeList]
-			set objectType [$objectTypeList get 0]
-		}
-	}
-
-	set isObjectTypeNull [java::isnull $objectType]
-
-	#create default weightages
-	set def_weightage [java::new Double 1.0]
-	$weightagesMap put "default_weightage" $def_weightage
-
-	#get weightages map from  object definition
-	if {$isObjectTypeNull == 0} {
-		set respDefNode [getDefinition $graphId $objectType]
-		set respDefNodeError [check_response_error $respDefNode]
-		if {$respDefNodeError} {
-			return $respDefNode
-		}
-
-		set defNode [get_resp_value $respDefNode "definition_node"]
-
-		set definitionMetadata [$defNode getMetadata]
-		set weightagesString [$definitionMetadata get "weightages"]
-
-		set isWeighatgesStringNull [java::isnull $weightagesString]
-		if {$isWeighatgesStringNull == 1} {
-			set result_map [java::new HashMap]
-			$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
-			$result_map put "message" "Weighatges metadata is not found for the object type"
-			$result_map put "responseCode" [java::new Integer 400]
-			set response_list [create_error_response $result_map]
-			return $response_list
-		}
-
-		set weightagesMap [get_weightages_map $weightagesString]
-	}
-
-	$baseConditions put "weightages" $weightagesMap
-	$request_map put "baseConditions" $baseConditions
+	set limit $searchResultsLimit
 }
 
 #add the updated filters back to the request
 $request_map put "filters" $filters
 
 #do the search on elasticsearch
-set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit $weightagesMap]
+set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
 
 #if its not a traversal search, group results by object type and return
 if {$wordChainsQuery == "false"} {
