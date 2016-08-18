@@ -235,6 +235,10 @@ public class SearchProcessor {
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
 		Map<String, Double> weightages = (Map<String, Double>) baseConditions.get("weightages");
+		if(weightages == null){
+			weightages =  new HashMap<String, Double>();
+			weightages.put("default_weightage", 1.0);
+		}
 
 		builder.key("query").object().key("function_score").object().key("query").object().key("bool").object()
 				.key("must").array();

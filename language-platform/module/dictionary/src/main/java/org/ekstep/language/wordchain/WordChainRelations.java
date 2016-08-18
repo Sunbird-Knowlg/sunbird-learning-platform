@@ -5,5 +5,5 @@ import org.neo4j.graphdb.RelationshipType;
 
 public enum WordChainRelations implements RelationshipType
 {
-    startsWithAkshara, endsWithAkshara, startsWithConsonant, endsWithConsonant, hasRhymingSound, startsWith, endsWith, hasMember
+    startsWithAkshara, endsWithAkshara, startsWithConsonant, endsWithConsonant, hasRhymingSound, startsWith, endsWith, hasMember, follows
 }

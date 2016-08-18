@@ -1,3 +1,8 @@
+#This script acts as the entry point for langugae search
+#Input: Query, Filters, exists, not_exits, facets, sort_by and limit
+#Output: Search results, if its not a word chain request; Word chains (words and relations) if its a word chain request
+
+
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
@@ -16,13 +21,14 @@ set request_map [java::new HashMap]
 set wordChainsLimit 10
 set traversalRuleDefinition "TraversalRule"
 
-
+# check if its a fuzzy search
 set isFuzzyNull [java::isnull $fuzzy]
 if {$isFuzzyNull == 0} {
 	set fuzzyString [$fuzzy toString]
 	set fuzzySearch $fuzzyString
 }
 
+# check if its a traversal based search
 set isTraversalIdNull [java::isnull $traversals]
 if {$isTraversalIdNull == 0} {
 	# set fuzzySearch "true"
@@ -41,6 +47,7 @@ if {$isLimitNull == 0} {
 set languageIdObj [$filters get "language_id"]
 set languageId [java::cast ArrayList $languageIdObj]
 
+# Set Graph Id from filter
 set isLanguageIdNull [java::isnull $languageId]
 if {$isLanguageIdNull == 0} {
 	set languageIdSize [$languageId size]
@@ -52,7 +59,7 @@ if {$isLanguageIdNull == 0} {
 	$filters put "graph_id" $languageIdObj
 }
 
-
+#copy request parameters for Search request
 $request_map put "query" $query
 $request_map put "exists" $exists
 $request_map put "not_exists" $not_exists
@@ -61,8 +68,8 @@ $request_map put "facets" $facets
 $request_map put "limit" $limit
 $request_map put "fuzzy" $fuzzy
 
+# enhance request object for traversal
 if {$wordChainsQuery == "true"} {
-	$filters remove "graph_id"
 	if {$isLanguageIdNull == 1 || $languageIdSize == 0} {
 		set result_map [java::new HashMap]
 		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
@@ -74,6 +81,7 @@ if {$wordChainsQuery == "true"} {
 	
 	$request_map put "traversal" [java::new Boolean "true"]
 	
+	#get rule node for traversal
 	set get_rule_response [getDataNode $graphId $traversalId]
 	set get_rule_response_error [check_response_error $get_rule_response]
 	if {$get_rule_response_error} {
@@ -88,67 +96,82 @@ if {$wordChainsQuery == "true"} {
 	set ruleObject [convert_graph_node $ruleNode $def_node]
 	set ruleMetadata [$ruleNode getMetadata]
 	
+	#get objectType from rule node
 	set objectType [$ruleObject get "ruleObjectType"]
+	set isObjectTypeNull [java::isnull $objectType]
+	if {$isObjectTypeNull == 0} {
+		$filters put "objectType" $objectType
+	}
+	
 	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
 	
 	$request_map put "limit" $searchResultsLimit
-	set fuzzyObj [java::new Boolean "true"]
-	$request_map put "fuzzy" $fuzzyObj
 }
 
+# enhance request object for fuzzysearch
 if {$fuzzySearch == "true"} {
+	
+	#if object type is null, get from filters
 	set isObjectTypeNull [java::isnull $objectType]
 	if {$isObjectTypeNull == 1} {
-		set objectType [$filters get "objectType"]
+		set objectTypeList [$filters get "objectType"]
+		set isObjectTypeListNull [java::isnull $objectTypeList]
+		if {$isObjectTypeListNull == 0} {
+			set objectTypeList [java::cast ArrayList $objectTypeList]
+			set objectType [$objectTypeList get 0]
+		}
 	}
 	
 	set isObjectTypeNull [java::isnull $objectType]
-	if {$isObjectTypeNull == 1} {
-		set result_map [java::new HashMap]
-		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
-		$result_map put "message" "Object type filter is mandatory"
-		$result_map put "responseCode" [java::new Integer 400]
-		set response_list [create_error_response $result_map]
-		return $response_list
+	set weightagesMap [java::new HashMap]
+	
+	#create default weightages
+	set def_weightage [java::new Double 1.0]
+	$weightagesMap put "default_weightage" $def_weightage
+	
+	#get weightages map from  object definition
+	if {$isObjectTypeNull == 0} {
+		set respDefNode [getDefinition $graphId $objectType]
+		set respDefNodeError [check_response_error $respDefNode]
+		if {$respDefNodeError} {
+			return $respDefNode
+		}
+		
+		set defNode [get_resp_value $respDefNode "definition_node"]
+		
+		set definitionMetadata [$defNode getMetadata]
+		set weightagesString [$definitionMetadata get "weightages"]
+		
+		set isWeighatgesStringNull [java::isnull $weightagesString]
+		if {$isWeighatgesStringNull == 1} {
+			set result_map [java::new HashMap]
+			$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
+			$result_map put "message" "Weighatges metadata is not found for the object type"
+			$result_map put "responseCode" [java::new Integer 400]
+			set response_list [create_error_response $result_map]
+			return $response_list
+		}
+		
+		set weightagesMap [get_weightages_map $weightagesString]
 	}
 	
-	
-	set respDefNode [getDefinition $graphId $objectType]
-	set respDefNodeError [check_response_error $respDefNode]
-	if {$respDefNodeError} {
-		return $respDefNode
-	}
-	
-	set defNode [get_resp_value $respDefNode "definition_node"]
-	
-	set definitionMetadata [$defNode getMetadata]
-	set weightagesString [$definitionMetadata get "weightages"]
-	
-	set isWeighatgesStringNull [java::isnull $weightagesString]
-	if {$isWeighatgesStringNull == 1} {
-		set result_map [java::new HashMap]
-		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
-		$result_map put "message" "Weighatges metadata is not found for the object type"
-		$result_map put "responseCode" [java::new Integer 400]
-		set response_list [create_error_response $result_map]
-		return $response_list
-	}
-	
-	set weightagesMap [get_weightages_map $weightagesString]
 	$baseConditions put "weightages" $weightagesMap
-	$baseConditions put "graph_id" $graphId
-	$baseConditions put "objectType" $objectType
 	$request_map put "baseConditions" $baseConditions
 }
 
+#add the updated filters back to the request
 $request_map put "filters" $filters
 
-set searchResult [doLanguageSearch $request_map]
+#do the search on elasticsearch
+set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+
+#if its not a traversal search, group results by object type and return
 if {$wordChainsQuery == "false"} {
 	set compositeSearchResponse [getCompositeSearchResponse $searchResult]
 	return $compositeSearchResponse
 }
 
+#if its a traversal search, retreive results and form word chains
 set words [$searchResult get "results"]
 set wordChainResponse [getWordChains $graphId $ruleObject $words $wordChainsLimit]
 return $wordChainResponse
