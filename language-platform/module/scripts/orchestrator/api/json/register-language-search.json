@@ -58,7 +58,7 @@
 	],
     "requestPath": {
         "type": "POST",
-        "url": "/v3/language/search"
+        "url": "/v2/language/search"
     },
     "body": ""
 }

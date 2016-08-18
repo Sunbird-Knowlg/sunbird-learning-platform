@@ -132,11 +132,13 @@ set wordChains [java::new ArrayList]
 set maxDepth [expr {3 * ($maxDefinedDepth-1)}]
 set minDepth [expr {3 * ($minDefinedDepth-1)}]
 
+#create a list of relations in the required traversal order
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
 $relationTypes add "follows"
 $relationTypes add "hasMember"
 
+#create a list of dierctions in the required traversal order
 set directions [java::new ArrayList]
 $directions add "INCOMING"
 $directions add "OUTGOING"

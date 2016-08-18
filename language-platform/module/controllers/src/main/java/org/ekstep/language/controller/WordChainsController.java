@@ -33,7 +33,7 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 @Controller
-@RequestMapping("v2/language")
+@RequestMapping("v2/deprecated/language")
 public class WordChainsController extends BaseLanguageController implements IWordChainConstants {
 
 	@Autowired
@@ -49,6 +49,7 @@ public class WordChainsController extends BaseLanguageController implements IWor
 
 	private static Logger LOGGER = LogManager.getLogger(WordChainsController.class.getName());
 
+	@Deprecated
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@RequestMapping(value = "/search", method = RequestMethod.POST)
 	@ResponseBody
@@ -172,7 +173,8 @@ public class WordChainsController extends BaseLanguageController implements IWor
 			Request searchRequest = new Request();
 			searchRequest.put("request", request.getRequest());
 			
-			Response searchResponse = compositeSearchManager.languageSearch(searchRequest);
+			//Response searchResponse = compositeSearchManager.in(searchRequest);
+			Response searchResponse = new Response();
 			if(checkError(searchResponse)){
 				return getResponseEntity(searchResponse, apiId, null);
 			}
