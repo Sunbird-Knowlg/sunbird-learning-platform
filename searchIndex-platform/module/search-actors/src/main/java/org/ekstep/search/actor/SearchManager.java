@@ -35,17 +35,9 @@ public class SearchManager extends SearchBaseActor {
 		String operation = request.getOperation();
 		SearchProcessor processor = new SearchProcessor();
 		try {
-			if (StringUtils.equalsIgnoreCase(SearchOperations.SEARCH.name(), operation)) {
+			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), true);
-				OK(getCompositeSearchResponse(lstResult), parent);
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.LANGUAGE_SEARCH.name(), operation)) {
-				Map<String, Object> requestParam = (Map<String, Object>) request.get("request");
-				Request request2 = new Request();
-				request2.setRequest(requestParam);
-				SearchDTO searchDTO = getSearchDTO(request2);
-				searchDTO.addAdditionalProperty("baseConditions", (Map<String, Object>) request2.get("baseConditions"));
-				Map<String, Object> response = processor.processSearch(searchDTO, true);
-				List<Map> results = (List<Map>) response.get("results");
+				List<Map> results = (List<Map>) lstResult.get("results");
 				OK("results", results, parent);
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
@@ -60,7 +52,7 @@ public class SearchManager extends SearchBaseActor {
 				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), false);
 				OK(getCompositeSearchResponse(lstResult), parent);
 
-			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name(), operation)) {
+			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
 				Response response = (Response) request.get("searchResult");
 				OK(getCompositeSearchResponse(response.getResult()), parent);
 

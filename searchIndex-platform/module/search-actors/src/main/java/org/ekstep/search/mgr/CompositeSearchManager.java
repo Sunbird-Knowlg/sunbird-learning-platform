@@ -15,7 +15,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	private static Logger LOGGER = LogManager.getLogger(CompositeSearchManager.class.getName());
 	
 	public Response search(Request request){
-		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.SEARCH.name());
+		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.INDEX_SEARCH.name());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
 			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));
@@ -44,14 +44,9 @@ public class CompositeSearchManager extends BaseSearchManager {
 		return getRes;
 	}
 	
-	public Response languageSearch(Request request){
-		request = setSearchContext(request, SearchActorNames.SEARCH_MANAGER.name() ,SearchOperations.LANGUAGE_SEARCH.name());
-		Response getRes = getSearchResponse(request, LOGGER);
-		return getRes;
-	}
 	
 	public Response getSearchResponse(Response searchResult){
-		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GET_COMPOSITE_SEARCH_RESPONSE.name());
+		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
 		request.put("searchResult", searchResult);
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {

@@ -1,17 +1,17 @@
 {
-  "name": "getCompositeSearchResponse",
+  "name": "groupSearchResultByObjectType",
   "type": "COMMAND",
   "parameters": [
     {
       "name": "searchResult",
-      "datatype": "java.util.Map",
+      "datatype": "com.ilimi.common.dto.Response",
       "index": 0,
       "routingParam": false
     }
   ],
   "actorPath": {
     "manager": "SEARCH_MANAGER",
-    "operation": "GET_COMPOSITE_SEARCH_RESPONSE",
+    "operation": "GROUP_SEARCH_RESULT_BY_OBJECTTYPE",
     "router": "SEARCH_REQUEST_ROUTER"
   }
 }
