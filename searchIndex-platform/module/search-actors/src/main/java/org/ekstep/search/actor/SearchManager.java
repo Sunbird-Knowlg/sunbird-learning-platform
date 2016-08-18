@@ -21,13 +21,13 @@ import org.ekstep.compositesearch.enums.SearchOperations;
 import org.ekstep.searchindex.dto.SearchDTO;
 import org.ekstep.searchindex.processor.SearchProcessor;
 import org.ekstep.searchindex.util.CompositeSearchConstants;
+import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.model.cache.DefinitionCache;
 import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
@@ -124,8 +124,9 @@ public class SearchManager extends SearchBaseActor {
 				}
 				
 				if(objectType != null && graphId != null){
-					DefinitionDTO objDefinition = DefinitionCache.getDefinitionNode(graphId, objectType);
-					String weightagesString = (String) objDefinition.getMetadata().get("weightages");
+					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
+					//DefinitionDTO objDefinition = DefinitionCache.getDefinitionNode(graphId, objectType);
+					String weightagesString = (String) objDefinition.get("weightages");
 					if(weightagesString != null){
 						weightagesMap = getWeightagesMap(weightagesString);
 					}

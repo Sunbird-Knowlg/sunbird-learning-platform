@@ -16,4 +16,6 @@ public interface IImportManager {
     Response updateDefinition(String languageId, String json);
     
     Response findAllDefinitions(String id);
+    
+    Response findDefinition(String id, String objectType);
 }

@@ -129,8 +129,12 @@ set wordIdMap [java::new HashMap]
 # loop through searchResult and prepare ValidWordIDS list, WordScore Map and WordIDMap
 java::for {Map word} $searchResult {
 	set id [$word get "identifier"]
-	set score [$word get "score"]
 	# add score against id in wordScore map
+	set score [$word get "score"]
+	set isScoreNull [java::isnull $score]
+	if {$isScoreNull == 1} {
+		set score 1.0
+	}
 	$wordScore put $id $score
 	# get WordNode based on its id
 	set nodeRespone [getDataNode $graphId $id]

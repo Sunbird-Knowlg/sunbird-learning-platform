@@ -46,6 +46,7 @@ import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
+import com.ilimi.common.enums.TaxonomyErrorCodes;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.common.enums.GraphEngineParams;
@@ -834,4 +835,15 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 		return getResponse(request, LOGGER);
 	}
 
+	@Override
+	public Response findDefinition(String id, String objectType) {
+		if (StringUtils.isBlank(id))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
+		if (StringUtils.isBlank(objectType))
+			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is empty");
+		LOGGER.info("Get Definition : " + id + " : Object Type : " + objectType);
+		Request request = getRequest(id, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinitionFromCache",
+				GraphDACParams.object_type.name(), objectType);
+		return getResponse(request, LOGGER);
+	}
 }
