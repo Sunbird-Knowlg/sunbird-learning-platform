@@ -278,6 +278,7 @@ public class BasePipeline extends BaseManager {
 				List<String> searchIds = new ArrayList<String>();
 				if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
 					List<NodeDTO> children = new ArrayList<NodeDTO>();
+					List<NodeDTO> preRequisites = new ArrayList<NodeDTO>();
 					for (Relation rel : node.getOutRelations()) {
 						if (StringUtils.equalsIgnoreCase(RelationTypes.SEQUENCE_MEMBERSHIP.relationName(),
 								rel.getRelationType())
@@ -288,11 +289,18 @@ public class BasePipeline extends BaseManager {
 							}
 							children.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(),
 									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
+						} else if (StringUtils.equalsIgnoreCase(RelationTypes.PRE_REQUISITE.relationName(), 
+								rel.getRelationType()) 
+								&& StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), rel.getEndNodeObjectType())) {
+							childrenIds.add(rel.getEndNodeId());
+							preRequisites.add(new NodeDTO(rel.getEndNodeId(), rel.getEndNodeName(), 
+									rel.getEndNodeObjectType(), rel.getRelationType(), rel.getMetadata()));
 						}
 					}
-					if (!children.isEmpty()) {
+					if (!children.isEmpty())
 						metadata.put(ContentWorkflowPipelineParams.children.name(), children);
-					}
+					if (!preRequisites.isEmpty())
+						metadata.put(ContentWorkflowPipelineParams.pre_requisites.name(), preRequisites);
 				}
 				ctnts.add(metadata);
 				if (!searchIds.isEmpty()) {

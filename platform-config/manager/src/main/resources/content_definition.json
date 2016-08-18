@@ -1371,7 +1371,17 @@
           "description": "Child content items (in sorted order) in case of collections like Textbooks",
           "required": false,
           "renderingHints": "{ 'order': 26 }"
-        }
+        },
+        {
+         "relationName": "pre-requisite",
+          "title": "pre_requisite",
+          "description": "Pre-requiste relation is created for content",
+          "required": false,
+         "objectTypes": [
+           "Library"
+         ],
+         "renderingHints": "{'order': 29}"
+       }
       ],
       "systemTags": [
         {
