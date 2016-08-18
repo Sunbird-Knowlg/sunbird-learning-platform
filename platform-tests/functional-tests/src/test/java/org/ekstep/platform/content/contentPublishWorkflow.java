@@ -114,7 +114,7 @@ public class contentPublishWorkflow extends BaseTest{
 		Assert.assertEquals(ecmlNode, identifier);
 	}
 
-	/*// Create and get valid HTML
+	// Create and get valid HTML
 	@Test
 	public void createValidHTMLContentExpectSuccess200(){
 		setURI();
@@ -1984,7 +1984,7 @@ public class contentPublishWorkflow extends BaseTest{
 		JsonPath jP2 = R2.jsonPath();
 		String body = jP2.get("result.content.body");
 		Assert.assertFalse((isValidJSON(body) || isValidXML(body)));
-	}*/
+	}
 	
 	// Private Members
 	private boolean isValidXML(String body) {
