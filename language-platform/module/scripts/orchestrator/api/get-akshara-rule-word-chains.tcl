@@ -75,6 +75,7 @@ proc processPath {finalPath wordScore relation} {
 		return [java::null]
 	}
 	
+	#form word chain structure
 	set averageScore [expr $totalScore/$chainLength]
 	$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
@@ -135,7 +136,7 @@ set minDepth [expr {3 * ($minDefinedDepth-1)}]
 #create a list of relations in the required traversal order
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
-$relationTypes add "startsWithAkshara"
+$relationTypes add "follows"
 $relationTypes add "hasMember"
 
 #create a list of dierctions in the required traversal order
@@ -174,6 +175,7 @@ set traverser [get_traverser $graphId $traversalRequest]
 
 set commands [java::new ArrayList]
 
+# for each top word, create a travers command and add to commands list
 java::for {Map topWord} $topWords {
 	set topWordIdObject [$topWord get "identifier"]
 	set topWordId [$topWordIdObject toString]
@@ -189,8 +191,10 @@ java::for {Map topWord} $topWords {
 	$commands add $commandMap
 }
 
+# execute all traversal commands concurrently
 set resp_traverse [execute_commands_concurrently $commands]
 
+#get paths from traversals
 set responses [get_resp_value $resp_traverse "responses"]
 java::for {Response response} $responses {
 	set check_error [check_response_error $response]
@@ -211,6 +215,7 @@ java::for {Response response} $responses {
 	}
 }
 
+#sort the chains in desc by score
 set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
