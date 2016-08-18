@@ -20,6 +20,7 @@ set languageIdSize 0
 set request_map [java::new HashMap]
 set wordChainsLimit 10
 set traversalRuleDefinition "TraversalRule"
+set weightagesMap [java::new HashMap]
 
 # check if its a fuzzy search
 set isFuzzyNull [java::isnull $fuzzy]
@@ -123,7 +124,6 @@ if {$fuzzySearch == "true"} {
 	}
 
 	set isObjectTypeNull [java::isnull $objectType]
-	set weightagesMap [java::new HashMap]
 
 	#create default weightages
 	set def_weightage [java::new Double 1.0]
@@ -163,7 +163,7 @@ if {$fuzzySearch == "true"} {
 $request_map put "filters" $filters
 
 #do the search on elasticsearch
-set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit $weightagesMap]
 
 #if its not a traversal search, group results by object type and return
 if {$wordChainsQuery == "false"} {

@@ -135,7 +135,7 @@ set minDepth [expr {3 * ($minDefinedDepth-1)}]
 #create a list of relations in the required traversal order
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
-$relationTypes add "follows"
+$relationTypes add "startsWithAkshara"
 $relationTypes add "hasMember"
 
 #create a list of dierctions in the required traversal order
@@ -146,20 +146,24 @@ $directions add "OUTGOING"
 
 set nodeCount 3
 
+#create path expander using relations and directions list
 set pathExpander [java::new HashMap]
 $pathExpander put "relationTypes" $relationTypes
 $pathExpander put "directions" $directions
 $pathExpander put "nodeCount" $nodeCount
 
+# Unique constraints for traversal
 set traversalUniqueness [java::new ArrayList]
 #$traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
 
+# WordIdEvaluator will evalaute that the words in the chain belong to the list of valid Ids
 set wordIdEval [java::new WordIdEvaluator $ids]
 
 set evaluators [java::new ArrayList]
 $evaluators add $wordIdEval
 
+#create traversal request
 set traversalRequest [java::new HashMap]
 $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness

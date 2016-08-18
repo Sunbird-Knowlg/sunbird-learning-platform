@@ -55,10 +55,16 @@
         "index": 8,
         "datatype": "java.lang.Integer",
         "routingParam": false
+    },
+	{
+        "name": "weightagesMap",
+        "index": 9,
+        "datatype": "java.util.HashMap",
+        "routingParam": false
     }
  ],
   "actorPath": {
-    "manager": "org.ekstep.search.actor.SearchManager",
+    "manager": "SEARCH_MANAGER",
     "operation": "INDEX_SEARCH",
     "router": "SEARCH_REQUEST_ROUTER"
   }

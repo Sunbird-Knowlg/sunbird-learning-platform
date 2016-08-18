@@ -214,10 +214,10 @@ public class SearchProcessor {
 		}
 		String query;
 		if (searchDTO.isFuzzySearch()) {
-			Map<String, Object> baseConditions = (Map<String, Object>) searchDTO
-					.getAdditionalProperty("baseConditions");
+			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO
+					.getAdditionalProperty("weightagesMap");
 			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
-					searchDTO.getSortBy(), baseConditions);
+					searchDTO.getSortBy(), weightagesMap);
 		} else {
 			query = makeElasticSearchQuery(conditionsMap, totalOperation, groupByFinalList, searchDTO.getSortBy());
 		}
@@ -226,7 +226,7 @@ public class SearchProcessor {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
-			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Object> baseConditions)
+			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages)
 			throws Exception {
 
 		JSONBuilder builder = new JSONStringer();
@@ -234,7 +234,8 @@ public class SearchProcessor {
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-		Map<String, Double> weightages = (Map<String, Double>) baseConditions.get("weightages");
+		Map<String, Object> baseConditions =  new HashMap<String, Object>(); 
+		
 		if(weightages == null){
 			weightages =  new HashMap<String, Double>();
 			weightages.put("default_weightage", 1.0);

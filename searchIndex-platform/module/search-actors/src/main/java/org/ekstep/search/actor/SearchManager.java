@@ -36,7 +36,9 @@ public class SearchManager extends SearchBaseActor {
 		SearchProcessor processor = new SearchProcessor();
 		try {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
-				Map<String, Object> lstResult = processor.processSearch(getSearchDTO(request), true);
+				SearchDTO searchDTO = getSearchDTO(request);
+				searchDTO.addAdditionalProperty("weightagesMap", request.get("weightagesMap"));
+				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
 				List<Map> results = (List<Map>) lstResult.get("results");
 				OK("results", results, parent);
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {

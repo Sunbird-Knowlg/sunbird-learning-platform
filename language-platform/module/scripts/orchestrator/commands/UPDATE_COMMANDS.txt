@@ -46,11 +46,9 @@ node registerCommand.js commands/register-convertJSONStringToMap.json update
 
 node registerCommand.js commands/register-sortMaps.json update
 
-node registerCommand.js commands/register-doSearch.json update
+node registerCommand.js commands/register-indexSearch.json update
 
-node registerCommand.js commands/register-doLanguageSearch.json update
-
-node registerCommand.js commands/register-getCompositeSearchResponse.json update
+node registerCommand.js commands/register-groupSearchResultByObjectType.json update
 
 node registerCommand.js commands/register-get-weightages-map.json update
 
