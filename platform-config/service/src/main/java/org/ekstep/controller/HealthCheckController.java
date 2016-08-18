@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.util.HttpDownloadUtility;
 import org.ekstep.config.controller.ConfigController;
 import org.springframework.http.ResponseEntity;
@@ -39,12 +40,12 @@ public class HealthCheckController extends BaseController {
 			apiId = name + ".health";
 			response.put("name", name);
 
-			if (!ordinals.isEmpty()) {
+			if (StringUtils.isNotBlank(ordinals)) {
 				checks.add(getResponseData(response, "Ordinals", true, "", ""));
 			} else {
 				checks.add(getResponseData(response, "Ordinals", false, "404", "ordinals is not available"));
 			}
-			if (!resourcebundle.isEmpty()) {
+			if (StringUtils.isNotBlank(resourcebundle)) {
 				checks.add(getResponseData(response, "Resourcebundle", true, "", ""));
 			} else {
 				checks.add(
