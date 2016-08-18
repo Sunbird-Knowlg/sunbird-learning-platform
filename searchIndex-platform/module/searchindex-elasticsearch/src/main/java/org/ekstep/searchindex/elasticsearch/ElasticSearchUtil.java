@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.codehaus.jackson.JsonGenerationException;
 import org.codehaus.jackson.map.JsonMappingException;
@@ -47,6 +48,8 @@ public class ElasticSearchUtil {
 	public int defaultResultLimit = 10000;
 	private int BATCH_SIZE = 1000;
 	private int CONNECTION_TIMEOUT = 30;
+	private long MAX_IDLE_CONNECTION_TIME_LIMIT = 10;		// In Seconds
+	private int MAX_TOTAL_CONNECTION_LIMIT = 500;
 	public int resultLimit = defaultResultLimit;
 	private ObjectMapper mapper = new ObjectMapper();
 
@@ -62,7 +65,8 @@ public class ElasticSearchUtil {
 		}
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
-				.connTimeout(CONNECTION_TIMEOUT).build());
+				.connTimeout(CONNECTION_TIMEOUT).maxConnectionIdleTime(MAX_IDLE_CONNECTION_TIME_LIMIT, TimeUnit.SECONDS)
+				.maxTotalConnection(MAX_TOTAL_CONNECTION_LIMIT).build());
 		client = factory.getObject();
 
 	}
@@ -73,8 +77,10 @@ public class ElasticSearchUtil {
 		JestClientFactory factory = new JestClientFactory();
 		factory.setHttpClientConfig(new HttpClientConfig.Builder(hostName + ":" + port).multiThreaded(true)
 				.connTimeout(CONNECTION_TIMEOUT).build());
+		System.out.println("hostname:" + hostName + "port:" + port);
 		client = factory.getObject();
 	}
+
 
 	public void initialize() {
 		hostName = PropertiesUtil.getProperty("elastic-search-host");
@@ -85,6 +91,11 @@ public class ElasticSearchUtil {
 		if (PropertiesUtil.getProperty("connection-timeout") != null) {
 			CONNECTION_TIMEOUT = Integer.parseInt(PropertiesUtil.getProperty("connection-timeout"));
 		}
+	}
+	
+	public void finalize() {
+		if (null != client)
+			client.shutdownClient();
 	}
 
 	public List<String> getQuerySearchFields() {
@@ -106,10 +117,10 @@ public class ElasticSearchUtil {
 		}
 		return querySearchFields;
 	}
-	
+
 	public String getTimeZone() {
 		String timeZoneProperty = PropertiesUtil.getProperty("time-zone");
-		if(timeZoneProperty == null){
+		if (timeZoneProperty == null) {
 			timeZoneProperty = "0000";
 		}
 		return timeZoneProperty;
@@ -124,25 +135,6 @@ public class ElasticSearchUtil {
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
-	}
-
-	public static void main(String args[]) throws IOException {
-		JSONBuilder settingBuilder = new JSONStringer();
-		settingBuilder.object().key("settings").object().key("analysis").object().key("filter").object()
-				.key("nfkc_normalizer").object().key("type").value("icu_normalizer").key("name").value("nfkc")
-				.endObject().endObject().key("analyzer").object().key("ind_normalizer").object().key("tokenizer")
-				.value("icu_tokenizer").key("filter").array().value("nfkc_normalizer").endArray().endObject()
-				.endObject().endObject().endObject().endObject();
-
-		JSONBuilder mappingBuilder = new JSONStringer();
-		mappingBuilder.object().key("test_type").object().key("properties").object().key("word").object().key("type")
-				.value("string").key("analyzer").value("ind_normalizer").endObject().key("rootWord").object()
-				.key("type").value("string").key("analyzer").value("ind_normalizer").endObject().key("date").object()
-				.key("type").value("date").key("format").value("dd-MMM-yyyy HH:mm:ss").endObject().endObject()
-				.endObject().endObject();
-
-		ElasticSearchUtil util = new ElasticSearchUtil(10000);
-		util.addIndex("test_index", "test_type", settingBuilder.toString(), mappingBuilder.toString());
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {
@@ -263,7 +255,7 @@ public class ElasticSearchUtil {
 		}
 		return documents;
 	}
-	
+
 	@SuppressWarnings("rawtypes")
 	public List<Map> getDocumentsFromSearchResultWithScore(SearchResult result) {
 		List<Hit<Map, Void>> hits = result.getHits(Map.class);
@@ -274,7 +266,7 @@ public class ElasticSearchUtil {
 	public List<Map> getDocumentsFromHitsWithScore(List<Hit<Map, Void>> hits) {
 		List<Map> documents = new ArrayList<Map>();
 		for (Hit hit : hits) {
-			Map<String, Object> hitDocument = (Map)hit.source;
+			Map<String, Object> hitDocument = (Map) hit.source;
 			hitDocument.put("score", hit.score);
 			documents.add(hitDocument);
 		}
@@ -456,7 +448,7 @@ public class ElasticSearchUtil {
 	@SuppressWarnings("unchecked")
 	public String buildJsonForQuery(Map<String, Object> matchCriterias, Map<String, Object> textFiltersMap,
 			List<Map<String, Object>> groupByList, boolean isDistinct)
-					throws JsonGenerationException, JsonMappingException, IOException {
+			throws JsonGenerationException, JsonMappingException, IOException {
 
 		JSONBuilder builder = new JSONStringer();
 		builder.object().key("query").object().key("filtered").object();

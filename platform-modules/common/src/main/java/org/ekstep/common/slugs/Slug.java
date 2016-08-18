@@ -17,14 +17,14 @@ import net.sf.junidecode.Junidecode;
 public class Slug {
 
     private static Logger LOGGER = LogManager.getLogger(Slug.class.getName());
-    private static final Pattern NONLATIN = Pattern.compile("[^\\w-|\\.]");
+    private static final Pattern NONLATIN = Pattern.compile("[^\\w-\\.]");
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]");
     private static final Pattern DUPDASH = Pattern.compile("-+");
-    
+
     public static void main(String[] args) {
         System.out.println(makeSlug("Cover+Image.png", true));
     }
-    
+
     public static File createSlugFile(File f) {
         try {
             String name = f.getName();
@@ -42,7 +42,7 @@ public class Slug {
         }
         return f;
     }
-    
+
     public static String makeSlug(String input) {
         // Default is slugging without transliteration
         return makeSlug(input, false);

@@ -1,0 +1,7 @@
+---
+# tasks file for definition
+- name: copy template
+  template: src=definition_script.j2 dest=/home/jenkins/workspace/LP_Domain_Model_Definition_Update/platform-devops/ansible/definition_script.sh
+
+- name: run script
+  shell: sh /home/jenkins/workspace/LP_Domain_Model_Definition_Update/platform-devops/ansible/definition_script.sh

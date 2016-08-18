@@ -59,7 +59,7 @@ public class AWSUploader {
     }
     
     public static List<String> getObjectList(String bucketName, String prefix){
-    	 AmazonS3 s3 = new AmazonS3Client();
+    	AmazonS3 s3 = new AmazonS3Client();
     	ObjectListing listing = s3.listObjects( bucketName, prefix );
     	List<S3ObjectSummary> summaries = listing.getObjectSummaries();
     	List<String> fileList = new ArrayList<String>();	
