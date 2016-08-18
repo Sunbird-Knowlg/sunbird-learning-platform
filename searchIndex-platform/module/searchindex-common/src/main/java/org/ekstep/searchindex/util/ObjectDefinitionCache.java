@@ -53,7 +53,7 @@ public class ObjectDefinitionCache {
     }
     
 	private static void getDefinitionFromGraph(String objectType, String graphId) throws Exception {
-		String url = PropertiesUtil.getProperty("DefinitionURL") + graphId + "/definition/"
+		String url = PropertiesUtil.getProperty("platform-api-url") + "/" + graphId + "/definition/"
 				+ objectType;
 		String result = HTTPUtil.makeGetRequest(url);
 		Map<String, Object> definitionObject = mapper.readValue(result,

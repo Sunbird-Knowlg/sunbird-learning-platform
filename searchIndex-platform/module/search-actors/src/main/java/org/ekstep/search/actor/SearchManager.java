@@ -28,7 +28,6 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
-import com.ilimi.graph.model.node.DefinitionDTO;
 
 import akka.actor.ActorRef;
 
@@ -106,7 +105,8 @@ public class SearchManager extends SearchBaseActor {
 				if(objectTypeFromFilter != null){
 					if(objectTypeFromFilter instanceof List){
 						List objectTypeList = (List) objectTypeFromFilter;
-						objectType = (String) objectTypeList.get(0);
+						if (objectTypeList.size() > 0)
+							objectType = (String) objectTypeList.get(0);
 					} else if (objectTypeFromFilter instanceof String){
 						objectType = (String) objectTypeFromFilter;
 					}
@@ -117,17 +117,18 @@ public class SearchManager extends SearchBaseActor {
 				if(graphIdFromFilter != null){
 					if(graphIdFromFilter instanceof List){
 						List graphIdList = (List) graphIdFromFilter;
-						graphId = (String) graphIdList.get(0);
+						if (graphIdList.size() > 0)
+							graphId = (String) graphIdList.get(0);
 					} else if (graphIdFromFilter instanceof String){
 						graphId = (String) graphIdFromFilter;
 					}
 				}
 				
-				if(objectType != null && graphId != null){
+				if(StringUtils.isNotBlank(objectType) && StringUtils.isNotBlank(graphId)){
 					Map<String, Object> objDefinition = ObjectDefinitionCache.getMetaData(objectType, graphId);
 					//DefinitionDTO objDefinition = DefinitionCache.getDefinitionNode(graphId, objectType);
 					String weightagesString = (String) objDefinition.get("weightages");
-					if(weightagesString != null){
+					if(StringUtils.isNotBlank(weightagesString)){
 						weightagesMap = getWeightagesMap(weightagesString);
 					}
 				}
