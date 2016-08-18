@@ -503,4 +503,21 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             }
         }
     }
+    
+    @Override
+    public void  upsertRootNode(Request request){
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        if (StringUtils.isBlank(graphId)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            try {
+                Graph graph = new Graph(this, graphId);
+                graph.upsertRootNode(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+
+    }
 }
