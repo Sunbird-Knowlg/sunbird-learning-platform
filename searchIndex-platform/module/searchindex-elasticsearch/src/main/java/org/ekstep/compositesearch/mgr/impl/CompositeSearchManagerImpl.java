@@ -36,6 +36,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+		} finally {
+			processor.destroy();
 		}
 	}
 	
@@ -51,6 +53,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
+		}  finally {
+			processor.destroy();
 		}
 	}
 	
@@ -63,7 +67,9 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
         } catch (Exception e) {
             e.printStackTrace();
             return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
-        }
+        } finally {
+			processor.destroy();
+		}
     }
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -346,6 +352,8 @@ public class CompositeSearchManagerImpl extends BaseCompositeSearchManager imple
 		} catch (Exception e) {
 			e.printStackTrace();
 			return ERROR(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_UNKNOWN_ERROR.name(), "Search Failed", ResponseCode.SERVER_ERROR);
+		} finally {
+			processor.destroy();
 		}
 	}
 

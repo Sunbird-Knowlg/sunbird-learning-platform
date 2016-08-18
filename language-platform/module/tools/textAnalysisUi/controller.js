@@ -20,6 +20,7 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
     };
     var CSV = '';
     $scope.saveToPc = function(data, ShowLabel) {
+        CSV = '';
         ShowLabel = true;
         data = $scope.data;
 
@@ -40,15 +41,25 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
         }
         _.map(data.text_complexity.texts.text1, function(value, key) {
             var rowData = '';
+            var skip = false;
             for (var i = 0; i < headerFields.length; i++) {
                 var val = value[headerFields[i]];
                 if (val) {
+                    if (headerFields[i] == 'word') {
+                        if (val.trim() == '"' || val.trim() == ',') {
+                            skip = true;
+                        } else {
+                            val = val.split('"').join('');
+                        }
+                    }
                     rowData = rowData + val + ',';
                 } else {
                     rowData = rowData + ',';
                 }
             }
-            CSV += rowData + '\r\n';
+            if (!skip) {
+                CSV += rowData + '\r\n';
+            }
         });
         if (CSV == '') {
             alert("Invalid data");
@@ -76,15 +87,17 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
                 $scope.data = Input;
                 var sampleData = $scope.data;
                 return resolve(sampleData);
-            } 
+            }
             else
             {
-                $scope.url = "http://api.ekstep.in/language/v1/language/tools/textAnalysis";
+                var inputData = $scope.inputData.split('\u2028').join('');
+                inputData = inputData.split('\u2029').join('');
+                $scope.url = "https://api.ekstep.in/language/v1/language/tools/textAnalysis";
                 $scope.apiUrl = {
                         "request": {
                             "language_id": $scope.lang.id,
                             "texts": {
-                                "text1": $scope.inputData
+                                "text1": inputData
                             }
                         }
                 }
@@ -112,47 +125,54 @@ app.controller('myCtrl', function($scope, $q, $http, $window, $sce) {
         var processedData = '';
         var mockData = false;
         $scope.apiRequest(mockData).then(function(resp) {
-            $scope.data = resp;
-            $scope.show = true;
-            var str = $scope.inputData;
-            var inputArray = str.split(" ");
-            var cutOffComplexity = 50;
+            if (!resp || resp == null || !resp.text_complexity) {
+                $scope.$apply(function() {
+                    $scope.showSubmitBtn = true;
+                });
+                alert('Failed to process the text. Please remove any special characters from the text and try again.');
+            } else {
+                $scope.data = resp;
+                $scope.show = true;
+                var str = $scope.inputData;
+                var inputArray = str.split(" ");
+                var cutOffComplexity = 50;
 
-            var wordMap = $scope.data.text_complexity.texts.text1;
-            console.log("wordMap", wordMap);
+                var wordMap = $scope.data.text_complexity.texts.text1;
+                console.log("wordMap", wordMap);
 
-            map = {};
-            _.each(inputArray, function(k, i) {
-                var wordVal = inputArray[i];
-                wordVal = wordVal.replace(new RegExp('।|,|\\||\\.|;|\\?|!|\\*|।', 'g'), ''); 
-                var wordObj = wordMap[wordVal];
-                var tLevel = 10;
-                var complexity = 0;
-                if (wordObj) {
-                    complexity = wordObj['total_complexity'];
-                    if (!complexity) {
-                        complexity = 0;
+                map = {};
+                _.each(inputArray, function(k, i) {
+                    var wordVal = inputArray[i];
+                    wordVal = wordVal.replace(new RegExp('।|,|\\||\\.|;|\\?|!|\\*|।', 'g'), '');
+                    var wordObj = wordMap[wordVal];
+                    var tLevel = 10;
+                    var complexity = 0;
+                    if (wordObj) {
+                        complexity = wordObj['total_complexity'];
+                        if (!complexity) {
+                            complexity = 0;
+                        }
+                        tLevel = wordObj['thresholdLevel'];
+                        if (!tLevel) {
+                            tLevel = 10;
+                        }
                     }
-                    tLevel = wordObj['thresholdLevel'];
-                    if (!tLevel) {
-                        tLevel = 10;
-                    }
-                }
-                if (complexity < cutOffComplexity) {
-                    if (tLevel == 1) {
-                        processedData = processedData + ' <span class="simpleWord">' + inputArray[i] + ' </span>';
+                    if (complexity < cutOffComplexity) {
+                        if (tLevel == 1) {
+                            processedData = processedData + ' <span class="simpleWord">' + inputArray[i] + ' </span>';
+                        } else {
+                            processedData = processedData + inputArray[i] + ' ';
+                        }
                     } else {
-                        processedData = processedData + inputArray[i] + ' ';
+                        processedData = processedData + ' <span class="complexWord">' + inputArray[i] + ' </span>';
                     }
-                } else {
-                    processedData = processedData + ' <span class="complexWord">' + inputArray[i] + ' </span>';
-                }
-            });
-            $scope.$apply(function() {
-                $scope.processedData = processedData;
-                $scope.showSubmitBtn = true;
-            });
-            console.log("processedData :", $scope.processedData);
+                });
+                $scope.$apply(function() {
+                    $scope.processedData = processedData;
+                    $scope.showSubmitBtn = true;
+                });
+                console.log("processedData :", $scope.processedData);
+            }
         });
     }
 });

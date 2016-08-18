@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
@@ -139,9 +140,10 @@ public class ConfigController extends BaseController {
 		String apiUrl = "";
 		List<String> res = AWSUploader.getObjectList(bucketName, folderName);
 		for (String data : res) {
-			apiUrl = baseUrl + data;
-			if (data.length() > 12)
-				urlList.put(data.substring(10, 12), apiUrl);
+			if (StringUtils.isNotBlank(FilenameUtils.getExtension(data))) {
+				apiUrl = baseUrl + data;
+				urlList.put(FilenameUtils.getBaseName(data), apiUrl);
+			}
 		}
 		return urlList;
 	}

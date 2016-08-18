@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html ng-app="app">
+<script src="js/jquery.min.js"></script>
+<script src="js/angular.min.js"></script>
+<script src="js/angular-ui-router.min.js"></script>
+<script src="js/underscore.js"></script>
+<script src="js/bootstrap.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/angular-sanitize.min.js"></script>
+<link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+<link rel="stylesheet" type="text/css" href="css/bootstrap.css">
+<script src="complexityController.js"></script>
+<style>
+.complexWord {
+    color: red;
+    font-weight: bold;
+}
+.simpleWord {
+    color: green;
+    font-weight: bold;
+}
+</style>
+
+<body ng-controller="myCtrl">
+    <div class="container">
+        <right>
+            <h2>Text Analysis  &nbsp; &nbsp;&nbsp;<select button type="button" class="btn btn-primary dropdown-toggle" ng-model="lang.id" ng-options="language.id as language.name for language in languages">
+            </select></h2></right>
+        <form role="form">
+            <textarea class="form-control" rows="10" id="comment" ng-model="inputData"></textarea>
+        </form>
+        </br>
+        <button type="button" class="btn btn-success" ng-click="getData()" ng-show="showSubmitBtn">Submit</button>
+        <span ng-hide="showSubmitBtn">Loading...</span>
+    </div>
+    <div class="container" ng-show="show">
+        <h2>Summary</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>total_orthographic_complexity</th>
+                    <th>total_phonologic_complexity</th>
+                    <th>avg_orthographic_complexity</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{data.text_complexity.totalOrthoComplexity}}</td>
+                    <td>{{data.text_complexity.totalPhonicComplexity}}</td>
+                    <td>{{data.text_complexity.meanOrthoComplexity}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <table class="table table-bordered" ng-show="show">
+            <thead>
+                <tr>
+                    <th>avg_phonologic_complexity</th>
+                    <th>word_count</th>
+                    <th>syllable_count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>{{data.text_complexity.meanPhonicComplexity}}</td>
+                    <td>{{data.text_complexity.wordCount}}</td>
+                    <td>{{data.text_complexity.syllableCount}}</td>
+            </tbody>
+        </table>
+        <h2>Output</h2>
+        <div id="processedOutputDiv" ng-bind-html="trustAsHtml(processedData)"></div>
+        </br>
+        <button type="button" class="btn btn-success" ng-click="saveToPc()">Download Report</button>
+    </div>
+</body>
+
+</html>

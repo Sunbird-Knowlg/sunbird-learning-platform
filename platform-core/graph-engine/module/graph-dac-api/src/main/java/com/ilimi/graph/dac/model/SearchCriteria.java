@@ -169,7 +169,7 @@ public class SearchCriteria implements Serializable {
         }
         if (!countQuery) {
             if (null == fields || fields.isEmpty()) {
-                sb.append("RETURN n ");
+                sb.append("RETURN DISTINCT n ");
             } else {
                 sb.append("RETURN ");
                 for (int i = 0; i < fields.size(); i++) {
