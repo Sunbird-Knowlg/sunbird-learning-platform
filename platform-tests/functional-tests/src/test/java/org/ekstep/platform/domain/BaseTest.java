@@ -35,9 +35,14 @@ public class BaseTest
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/taxonomy-service";
 		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		baseURI ="http://qa.ekstep.in/api/learning"; 
-		basePath = "v2/";
+		baseURI ="https://dev.ekstep.in/api/"; 
 	}
+	
+	public void cleanupURI() {
+		baseURI = "http://dev.ekstep.in/api/learning";
+		
+	}
+	
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder
 	 * 

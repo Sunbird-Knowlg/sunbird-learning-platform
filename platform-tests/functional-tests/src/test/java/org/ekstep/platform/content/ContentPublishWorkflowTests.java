@@ -11,7 +11,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.jar.JarException;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -36,20 +35,18 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.restassured.path.json.JsonPath;
 import com.jayway.restassured.response.Response;
-import com.sun.tools.internal.ws.processor.model.java.JavaException;
 
 import net.lingala.zip4j.core.ZipFile;
-import scala.language;
 
 
-public class contentPublishWorkflow extends BaseTest{
+public class ContentPublishWorkflowTests extends BaseTest{
 	
 	int rn = generateRandomInt(0, 9999999);
 	
 	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String jsonCreateContentCollection = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_Collection"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"pkgVersion\": 3,\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}, { \"identifier\": \"id2\"}]}}}";
 	String jsonUpdateContentValid = "{\"request\": {\"content\": {\"status\": \"Live\"}}}";
-	String jsonGetContentList = "{\"request\": { \"search\": {\"tags\":[\"QA_Content\"], \"sort\": \"contentType\",\"order\": \"asc\"}}}";
+	String jsonGetContentList = "{\"request\": { \"search\": {\"tags\":[\"LP_functionalTest\"], \"sort\": \"contentType\",\"order\": \"asc\"}}}";
 	String jsonCreateNestedCollection = "{\"request\": {\"content\": {\"identifier\": \"Test_QANested_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Collection\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.content-collection\",\"pkgVersion\": 3,\"owner\": \"EkStep\", \"children\": [{ \"identifier\": \"id1\"}]}}}";
 
 	String invalidContentId = "LP_FT"+rn+"";
@@ -57,15 +54,14 @@ public class contentPublishWorkflow extends BaseTest{
 	String malformedJSONBody = "{\"theme\":{\"manifes77\",\"type\":\"image\",\"srity.ekstep.in/assets/public/content/orcharrc\":\"ekstep.in/as\",\":\"htmun6.png\",\"type\":\"image\",\"src\":\"https://sandbox/public/content/PopupTint_1460636175572.png\",\"assetId\":\"domain_38606\"},\"https://sandbox-commt/goodjobBg_1460727428389.png\",ain_38939\"},{\"id\":\"retryBg\",\"c\":\"https:/public/contentg_1460727370746.png\",\"type\":\"image\",\"assetId\":\"domain_38938\"},{\"id\":\"//sandbox-community.ekstep.in/assets/636610607.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38624\"},{\"id\":\"goodjob_audio\",\"src\":\"https://sandbox-community.ekstep.i0636677521.mp3\",\"type\":\"sound\",\"assetId\":\"domain_38625\"},{\"id\":\"next\",\"src\":\"https://sandbox-community.ekstep.in/assets/public/content/btn_next_1461401649059.png\",\"type\":\"image\",\"assetId\":\"domain_40358\"},{\"id\":\"previous\",\"src\":\"https://sandbox-community.ekstep.in/assets/public/content/btn_back_1461401700215.png\",\"type\":\"image\",\"assetId\":\"domain_40359\"},{\"id\":\"submit\",\"src\":\"https://sandbox-community.ekstep.in/assets/public/content/icon_submit_1459243202199.png\",\"type\":\"image\",\"assetId\":\"domain_14524\"},{\"id\":\"home\",\"src\":\"https://sandbox-community.ekstep.in/aoad_1459243110661.png\",\"type\":\"image\",\"assetId\":\"domain_14522\"},{\"id\":\"icon_hkstep.in/assets/public/cont33.png\",\"type\":\"image\",\"assetId\":\"domain_799\"},{\"idy.ekstep.in/assets/public/content/backgrou98020.png\",\"type\":\"image\"}]},\"template\":[{\"text\":{\"model\":\"item.title\",\"x\":9,\"y\":7,\"w\":86,\"h\":{\"options\":{\"layout\":\"\":85,\"cols\":2,\"marginX\":10,\"marginY\":5,\"options\":\"options\"},\"multi_select\":false,\"model\":\"item\"},\"command\":\"stop\",\"asset_model\":\"item.hints[0].asset\",\"asset\":\"hint\"}],\"type\":\"click\"},\"asset\":\"speech_bubble\",\"x\":100},\"text\":[{\"x\":10,\"y\":20,\"w\":80,\"h\":\"Hint\"},{\"x\":1\":\"Georgia\",\"fontsize\":120,\"model\":\"item.hints[1].asset\"}],\"x\":9,\"y\",\"visible\":false},\"image\":{\"event\":{\"action\":[{\"\",\"asset_model\":\"item.hints[0].asset\"},{\"type\":\"command\",\"command\":\"toggleShow\",\"asset\":\"hint\"}],\"type\":35},\"id\":\"mcq_template_1\"},{\"image\":[{\"event\":{\"action\":{\"\"},\"type\":\"click\"},\"asset\":\"popupTint\",\"x\":-100,\"y\"},{\"asset\":\"retryBg\",\"x\":0,\"y\":0,\"w\":150,\"h\":150,\"visible\":true,\"id\":\"right\"}],\"shape\":[{\"event\":{\"action\":[{\"type\":\"command\",\"command\":\"\",\"command\":\"SHOWHTMLELEMENTS\",\"asset\":\"retry\"}],\"type\":\"click\"},\"type\":\"roundrect\",\",\"visible\":true,\"id\":\"retry\",\"hitArea\":true},{\"event\":{\"action\":{\"type\":\",\"asset\":\"theme\",\"param\":\"\":\"linear\",\"duration\":100},\"type\":\"click\"},\"type\":\"roundrect\",\"x\":110,\"y\":100,\"w\"::true}],\"id\":\"retry\"},{\"g\":{\"image\":[{\"asset\":\"popupTint\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"visible\":true,\"id\":\":9,\"visible\":true,\"editable\":true,\"model\":\"word.lemma\",\"weight\":\"normal\",\"font\":\"helvetica\",\"color\":\"rgb(0,0,0)\",\",\"w\":48.61111111111111,\"h\":5.826666666666666,\"visible\":true,\"editable\":true,\"__text\":\"stage1\",\"weight\":\"normal\",\"fontstyle\":\"\",\"fontsize\":53,\"lineHeight\":1.3,\"align\":\":[],\"hotspot\":[],\"embed\":[],\"div\":[],\"audio\":[{\"asset\":\"domain_539\"}],\"scribble\":[],\"htext\":[],\"g\":[],\"preload\":true},{\"id\":\"scene739d8151-82a6-40fb-b48d-c02c77d3e067\",\"x\":0,\"y\":0,\"w\":100,\"h\":100,\"param\":[{\"name\":\"previous\",\"value\":\":[]},\"image\":[{\"event\":{\"action\":{\"type\":\"command\",\"command\":\"\":\"previous\",\"effect\":\"fadein\",\"direction\":\"right\",\"ease\":\"linear\",\"duration\":100},\"type\":\"click\"},\"asset\":\"previous\",\"x\":2,\"y\":3,\"w\":5,\"h\":8.3,\"id\":\"previous\",\":37.77777777777778,\"y\":26.222222222222225,\"w\":48.61111111111111,\"h\":5.826666666666666,\"visible\":true,\"editable\":true,\"__text\":\"stage2\",\"\":\"#000000\",\"fontstyle\":\"\",\"fontsize\":53,\"lineHeight\":1.3,\"align\":\"left\",\"z-index\":0}],\"shape\":[],\"hotspot\":[],\"embed\":[],\"div\":[],\"audio\":[],\"scribble\":[],\"htext\":[],\"g\":[]}";
 	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_\"}}";
 	
-	static ClassLoader classLoader = contentPublishWorkflow.class.getClassLoader();
+	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
 	static URL url = classLoader.getResource("UploadFiles/DownloadedFiles");
 	static File downloadPath;
 	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
 	
 	@BeforeClass
 	public static void setup() throws URISyntaxException{
-		downloadPath = new File(url.toURI().getPath());
-		
+		downloadPath = new File(url.toURI().getPath());		
 	}	
 	
 	@AfterClass
@@ -77,6 +73,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create and get ECML Content
 	@Test
 	public void createValidEcmlContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -85,7 +82,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -102,7 +99,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+ecmlNode).
+			get("/learning/v2/content/"+ecmlNode).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -117,6 +114,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create and get valid HTML
 	@Test
 	public void createValidHTMLContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.html-archive");
@@ -128,7 +126,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -145,7 +143,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+htmlNode).
+			get("/learning/v2/content/"+htmlNode).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -160,6 +158,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create and get valid APK
 		@Test
 		public void createValidAPKContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.android.package-archive");
@@ -171,7 +170,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -188,7 +187,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+apkNode).
+			get("/learning/v2/content/"+apkNode).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -203,6 +202,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create and get new collection
 	@Test
 	public void createValidCollectionExpectSuccess200(){
+		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -219,7 +219,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -247,7 +247,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -264,7 +264,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+collectionNode).
+			get("/learning/v2/content/"+collectionNode).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -273,12 +273,7 @@ public class contentPublishWorkflow extends BaseTest{
 		
 		JsonPath jP2 = R2.jsonPath();
 		ArrayList<String> identifiers = jP2.get("result.content.children.identifier");
-		if(identifiers.contains(node1)&&identifiers.contains(node2)){
-			System.out.println("Collection creation successful");
-		}
-		else{
-			System.out.println("Content collection fails");
-		}		
+		Assert.assertTrue(identifiers.contains(node1)&&identifiers.contains(node2));		
 	}
 	
 	// Create collection with invalid content
@@ -286,6 +281,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create content
 	@Test
 	public void createInvalidCollectionExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -294,7 +290,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -312,7 +308,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -320,6 +316,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Update and get list
 	@Test
 	public void updateValidContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -328,9 +325,9 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
-			log().all().
+			//log().all().
 			extract().
 			response();	
 		
@@ -346,7 +343,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				patch("content/"+nodeId).
+				patch("/learning/v2/content/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -360,7 +357,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				post("content/list").
+				post("/learning/v2/content/list").
 			then().
 				extract().
 				response();
@@ -380,9 +377,9 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				patch("content/"+nodeId).
+				patch("/learning/v2/content/"+nodeId).
 			then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec());
 		
 		// Get content list and check for content
@@ -394,7 +391,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				post("content/list").
+				post("/learning/v2/content/list").
 			then().
 				extract().
 				response();
@@ -413,7 +410,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				patch("content/"+nodeId).
+				patch("/learning/v2/content/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -427,7 +424,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType("application/json").
 			when().
-				post("content/list").
+				post("/learning/v2/content/list").
 			then().
 				 //log().all().
 				spec(get200ResponseSpec()).
@@ -445,6 +442,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -453,7 +451,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -470,7 +468,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Verbs_test.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -482,7 +480,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -502,6 +500,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithExternaJSONItemDataCDataExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -510,7 +509,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -527,7 +526,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/ExternalJsonItemDataCdata.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -539,7 +538,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -559,6 +558,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithJSONItemDataExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -567,7 +567,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -584,7 +584,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Item_json.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -595,7 +595,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -615,6 +615,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithDataJSONExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -623,7 +624,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -640,7 +641,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Data_json_ecml.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -651,7 +652,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -671,6 +672,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithCustomPluginExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -679,7 +681,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 		extract().
 			response();
@@ -694,7 +696,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Custom_Plugin.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -705,7 +707,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -725,6 +727,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithAudioImageSpriteTweenAnimationExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -733,7 +736,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -750,7 +753,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/the_moon_and_the_cap.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -761,7 +764,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -781,6 +784,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadContentWithoutIndexExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -789,7 +793,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -804,7 +808,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_withoutindex.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -815,6 +819,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadContentWithInvalidEcmlExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -823,7 +828,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -838,7 +843,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_invalidEcml.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -849,6 +854,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadContentWithEmptyZipExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -857,7 +863,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -872,7 +878,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_empty.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -883,6 +889,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadContentAboveLimitExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -891,7 +898,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -906,7 +913,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/contentAbove50MB.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -917,6 +924,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentWithMissingAssetsExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -925,7 +933,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -940,7 +948,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_withoutAssets.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -950,6 +958,7 @@ public class contentPublishWorkflow extends BaseTest{
 		//Create content
 		@Test
 		public void uploadandPublishContentWithJSONEcmlExpectSuccess200(){
+			contentCleanUp();
 			setURI();
 			Response R =
 			given().
@@ -958,7 +967,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType(JSON).
 			when().
-				post("content").
+				post("/learning/v2/content").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -975,7 +984,7 @@ public class contentPublishWorkflow extends BaseTest{
 			spec(getRequestSpec(uploadContentType, validuserId)).
 			multiPart(new File(path+"/ecml_with_json.zip")).
 			when().
-				post("content/upload/"+nodeId).
+				post("/learning/v2/content/upload/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -986,7 +995,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/"+nodeId+"?fields=body").
+				get("/learning/v2/content/"+nodeId+"?fields=body").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1005,6 +1014,7 @@ public class contentPublishWorkflow extends BaseTest{
 		//Create content
 		@Test
 		public void uploadandPublishContentWithoutAssetsExpectSuccess200(){
+			contentCleanUp();
 			setURI();
 			Response R =
 			given().
@@ -1013,7 +1023,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType(JSON).
 			when().
-				post("content").
+				post("/learning/v2/content").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1030,7 +1040,7 @@ public class contentPublishWorkflow extends BaseTest{
 			spec(getRequestSpec(uploadContentType, validuserId)).
 			multiPart(new File(path+"/Ecml_without_asset.zip")).
 			when().
-				post("content/upload/"+nodeId).
+				post("/learning/v2/content/upload/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1041,7 +1051,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/"+nodeId+"?fields=body").
+				get("/learning/v2/content/"+nodeId+"?fields=body").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1062,6 +1072,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadContentInvalidFileExpect400(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -1070,7 +1081,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -1085,7 +1096,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/carpenter.png")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get400ResponseSpec());
@@ -1096,6 +1107,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void uploadandPublishContentMultipleExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -1104,7 +1116,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -1119,7 +1131,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_story.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1130,7 +1142,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Verbs_test.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1141,7 +1153,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			extract().
 			response();
@@ -1159,6 +1171,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void publishContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -1167,7 +1180,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1184,7 +1197,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_story.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1195,7 +1208,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1215,6 +1228,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void publishWorksheetExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("contentType", "Worksheet");
@@ -1225,7 +1239,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1242,7 +1256,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Akshara_worksheet.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1253,7 +1267,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1273,6 +1287,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void publishHTMLContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.ekstep.html-archive");
@@ -1284,7 +1299,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1301,7 +1316,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/Build-a-sentence.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1312,7 +1327,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1332,6 +1347,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void publishAPKContentExpectSuccess200(){
+		contentCleanUp();
 		setURI();
 		JSONObject js = new JSONObject(jsonCreateValidContent);
 		js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.android.package-archive");
@@ -1343,7 +1359,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1360,7 +1376,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_story.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1372,7 +1388,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1390,6 +1406,7 @@ public class contentPublishWorkflow extends BaseTest{
 	// Create, upload, publish and validate valid collection
 	@Test
 	public void publishValidCollectionExpectSuccess200(){
+		contentCleanUp();
 		String node1 = null;
 		String node2 = null;
 		int count = 1;
@@ -1406,7 +1423,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1425,7 +1442,7 @@ public class contentPublishWorkflow extends BaseTest{
 			spec(getRequestSpec(uploadContentType, validuserId)).
 			multiPart(new File(path+"/haircut_story.zip")).
 			when().
-				post("content/upload/"+node1).
+				post("/learning/v2/content/upload/"+node1).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1435,7 +1452,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/publish/"+node1).
+				get("/learning/v2/content/publish/"+node1).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1450,7 +1467,7 @@ public class contentPublishWorkflow extends BaseTest{
 			spec(getRequestSpec(uploadContentType, validuserId)).
 			multiPart(new File(path+"/the_moon_and_the_cap.zip")).
 			when().
-				post("content/upload/"+node2).
+				post("/learning/v2/content/upload/"+node2).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1460,7 +1477,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/publish/"+node2).
+				get("/learning/v2/content/publish/"+node2).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1477,7 +1494,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1492,7 +1509,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/publish/"+nodeId).
+			get("/learning/v2/content/publish/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1503,7 +1520,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId).
+			get("/learning/v2/content/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1516,17 +1533,13 @@ public class contentPublishWorkflow extends BaseTest{
 		String c_identifier = jp2.get("result.content.identifier");
 		//String downloadUrl = jp2.get("result.content.downloadUrl");
 		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
-		if (status.equals("Live")&&c_identifier.equals(nodeId)&&identifier1.contains(node1)&&identifier1.contains(node2)){
-			System.out.println("Publish collection success");
-		}
-		else{
-			System.out.println("Publish collection fails");
-		}
+		Assert.assertTrue(status.equals("Live")&&c_identifier.equals(nodeId)&&identifier1.contains(node1)&&identifier1.contains(node2));
 	}
 	
 	// Create, upload, publish and validate valid collection with contents created from authoring tool
 		@Test
 		public void publishValidCollectionWithATContentsExpectSuccess200(){
+			contentCleanUp();
 			String node1 = null;
 			String node2 = null;
 			int count = 1;
@@ -1543,7 +1556,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType(JSON).
 			when().
-				post("content").
+				post("/learning/v2/content").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1562,7 +1575,7 @@ public class contentPublishWorkflow extends BaseTest{
 				spec(getRequestSpec(uploadContentType, validuserId)).
 				multiPart(new File(path+"/haircut_story.zip")).
 				when().
-					post("content/upload/"+node1).
+					post("/learning/v2/content/upload/"+node1).
 				then().
 					//log().all().
 					spec(get200ResponseSpec());
@@ -1572,7 +1585,7 @@ public class contentPublishWorkflow extends BaseTest{
 				given().
 					spec(getRequestSpec(contentType, validuserId)).
 				when().
-					get("content/publish/"+node1).
+					get("/learning/v2/content/publish/"+node1).
 				then().
 					//log().all().
 					spec(get200ResponseSpec());
@@ -1587,7 +1600,7 @@ public class contentPublishWorkflow extends BaseTest{
 				spec(getRequestSpec(uploadContentType, validuserId)).
 				multiPart(new File(path+"/ExternalJsonItemDataCdata.zip")).
 				when().
-					post("content/upload/"+node2).
+					post("/learning/v2/content/upload/"+node2).
 				then().
 					//log().all().
 					spec(get200ResponseSpec());
@@ -1597,7 +1610,7 @@ public class contentPublishWorkflow extends BaseTest{
 				given().
 					spec(getRequestSpec(contentType, validuserId)).
 				when().
-					get("content/publish/"+node2).
+					get("/learning/v2/content/publish/"+node2).
 				then().
 					//log().all().
 					spec(get200ResponseSpec());
@@ -1614,7 +1627,7 @@ public class contentPublishWorkflow extends BaseTest{
 			with().
 				contentType(JSON).
 			when().
-				post("content").
+				post("/learning/v2/content").
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1629,7 +1642,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/publish/"+nodeId).
+				get("/learning/v2/content/publish/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec());
@@ -1640,7 +1653,7 @@ public class contentPublishWorkflow extends BaseTest{
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
 			when().
-				get("content/"+nodeId).
+				get("/learning/v2/content/"+nodeId).
 			then().
 				//log().all().
 				spec(get200ResponseSpec()).
@@ -1652,211 +1665,198 @@ public class contentPublishWorkflow extends BaseTest{
 			String status = jp2.get("result.content.status");
 			String c_identifier = jp2.get("result.content.identifier");
 			ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
-			if (status.equals("Live")&&c_identifier.equals(nodeId)&&identifier1.contains(node1)&&identifier1.contains(node2)){
-				System.out.println("Publish collection success");
-			}
-			else{
-				System.out.println("Publish collection fails");
-			}
+			Assert.assertTrue(status.equals("Live")&&c_identifier.equals(nodeId)&&identifier1.contains(node1)&&identifier1.contains(node2));
 		}
 	
-	// Create, upload and publish nested collection
-	@Test
-	public void publishNestedCollectionExpectSuccess200(){
-		String node1 = null;
-		String node2 = null;
-		int count = 1;
-		while(count<=2){
-		setURI();
-		int rn = generateRandomInt(900, 1999);
-		JSONObject js = new JSONObject(jsonCreateValidContent);
-		js.getJSONObject("request").getJSONObject("content").put("identifier", "Test_QAT_"+rn+"").put("name", "Test_QAT-"+rn+"");
-		String jsonCreateValidChild = js.toString();
-		Response R =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonCreateValidChild).
-		with().
-			contentType(JSON).
-		when().
-			post("content").
-		then().
-			//log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
-		// Extracting the JSON path
-		JsonPath jp = R.jsonPath();
-		String nodeId = jp.get("result.node_id");
-		if(count==1){
-			node1 = nodeId;
-			
-			// Upload Content
+		// Create, upload and publish nested collection
+		@Test
+		public void publishNestedCollectionExpectSuccess200(){
+			contentCleanUp();
+			String node1 = null;
+			String node2 = null;
+			int count = 1;
+			while(count<=2){
 			setURI();
-			given().
-			spec(getRequestSpec(uploadContentType, validuserId)).
-			multiPart(new File(path+"/haircut_story.zip")).
-			when().
-				post("content/upload/"+node1).
-			then().
-				//log().all().
-				spec(get200ResponseSpec());
-			
-			// Publish created content
-			setURI();
+			int rn = generateRandomInt(900, 1999);
+			JSONObject js = new JSONObject(jsonCreateValidContent);
+			js.getJSONObject("request").getJSONObject("content").put("identifier", "Test_QAT_"+rn+"").put("name", "Test_QAT-"+rn+"");
+			String jsonCreateValidChild = js.toString();
+			Response R =
 			given().
 				spec(getRequestSpec(contentType, validuserId)).
+				body(jsonCreateValidChild).
+			with().
+				contentType(JSON).
 			when().
-				get("content/publish/"+node1).
+				post("/learning/v2/content").
 			then().
 				//log().all().
-				spec(get200ResponseSpec());
+				spec(get200ResponseSpec()).
+			extract().
+				response();
 			
-		}
-		if(count==2){
-			node2 = nodeId;
-			
-			// Upload Content
-			setURI();
-			given().
-			spec(getRequestSpec(uploadContentType, validuserId)).
-			multiPart(new File(path+"/the_moon_and_the_cap.zip")).
-			when().
-				post("content/upload/"+node2).
-			then().
-				//log().all().
-				spec(get200ResponseSpec());
-			
-			// Publish created content
-			setURI();
-			given().
-				spec(getRequestSpec(contentType, validuserId)).
-			when().
-				get("content/publish/"+node2).
-			then().
-				//log().all().
-				spec(get200ResponseSpec());
+			// Extracting the JSON path
+			JsonPath jp = R.jsonPath();
+			String nodeId = jp.get("result.node_id");
+			if(count==1){
+				node1 = nodeId;
+				
+				// Upload Content
+				setURI();
+				given().
+				spec(getRequestSpec(uploadContentType, validuserId)).
+				multiPart(new File(path+"/haircut_story.zip")).
+				when().
+					post("/learning/v2/content/upload/"+node1).
+				then().
+					//log().all().
+					spec(get200ResponseSpec());
+				
+				// Publish created content
+				setURI();
+				given().
+					spec(getRequestSpec(contentType, validuserId)).
+				when().
+					get("/learning/v2/content/publish/"+node1).
+				then().
+					//log().all().
+					spec(get200ResponseSpec());
+				
 			}
-			count++;
+			if(count==2){
+				node2 = nodeId;
+				
+				// Upload Content
+				setURI();
+				given().
+				spec(getRequestSpec(uploadContentType, validuserId)).
+				multiPart(new File(path+"/the_moon_and_the_cap.zip")).
+				when().
+					post("/learning/v2/content/upload/"+node2).
+				then().
+					//log().all().
+					spec(get200ResponseSpec());
+				
+				// Publish created content
+				setURI();
+				given().
+					spec(getRequestSpec(contentType, validuserId)).
+				when().
+					get("/learning/v2/content/publish/"+node2).
+				then().
+					//log().all().
+					spec(get200ResponseSpec());
+				}
+				count++;
+			}
+			// Create collection
+			setURI();
+			jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
+			Response R1 =
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+				body(jsonCreateContentCollection).
+			with().
+				contentType(JSON).
+			when().
+				post("/learning/v2/content").
+			then().
+				//log().all().
+				spec(get200ResponseSpec()).
+			extract().
+				response();
+			
+			JsonPath jP1 = R1.jsonPath();
+			String nodeId1 = jP1.get("result.node_id");
+			
+			// Publish collection
+			setURI();
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+			when().
+				get("/learning/v2/content/publish/"+nodeId1).
+			then().
+				//log().all().
+				spec(get200ResponseSpec());
+			
+			// Get content and validate
+			setURI();
+			Response R2 =
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+			when().
+				get("/learning/v2/content/"+nodeId1).
+			then().
+				//log().all().
+				spec(get200ResponseSpec()).
+			extract().
+				response();
+			
+			// Validate the response
+			JsonPath jp2 = R2.jsonPath();
+			String status = jp2.get("result.content.status");
+			String c_identifier = jp2.get("result.content.identifier");
+			//String downloadUrl = jp2.get("result.content.downloadUrl");
+			ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
+			Assert.assertTrue(status.equals("Live")&&c_identifier.equals(nodeId1)&&identifier1.contains(node1)&&identifier1.contains(node2));
+					
+			// Create nested collection
+			setURI();
+			jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId1);
+			Response R3 =
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+				body(jsonCreateNestedCollection).
+			with().
+				contentType(JSON).
+			when().
+				post("/learning/v2/content").
+			then().
+				//log().all().
+				spec(get200ResponseSpec()).
+			extract().
+				response();
+			
+			JsonPath jP3 = R3.jsonPath();
+			String collectionId = jP3.get("result.node_id");
+			
+			// Publish collection
+			setURI();
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+			when().
+				get("/learning/v2/content/publish/"+collectionId).
+			then().
+				//log().all().
+				spec(get200ResponseSpec());
+			
+			// Get content and validate
+			setURI();
+			Response R4 =
+			given().
+				spec(getRequestSpec(contentType, validuserId)).
+			when().
+				get("/learning/v2/content/"+collectionId).
+			then().
+				//log().all().
+				spec(get200ResponseSpec()).
+			extract().
+				response();
+			
+			// Validate the response
+			JsonPath jp4 = R4.jsonPath();
+			String n_status = jp4.get("result.content.status");
+			String n_identifier = jp4.get("result.content.identifier");
+			ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
+			Assert.assertTrue (n_status.equals("Live")&&n_identifier.equals(collectionId)&&n_identifier1.contains(nodeId1));
 		}
-		// Create collection
-		setURI();
-		jsonCreateContentCollection = jsonCreateContentCollection.replace("id1", node1).replace("id2", node2);
-		Response R1 =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonCreateContentCollection).
-		with().
-			contentType(JSON).
-		when().
-			post("content").
-		then().
-			//log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
-		JsonPath jP1 = R1.jsonPath();
-		String nodeId1 = jP1.get("result.node_id");
-		
-		// Publish collection
-		setURI();
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-		when().
-			get("content/publish/"+nodeId1).
-		then().
-			//log().all().
-			spec(get200ResponseSpec());
-		
-		// Get content and validate
-		setURI();
-		Response R2 =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-		when().
-			get("content/"+nodeId1).
-		then().
-			//log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
-		// Validate the response
-		JsonPath jp2 = R2.jsonPath();
-		String status = jp2.get("result.content.status");
-		String c_identifier = jp2.get("result.content.identifier");
-		//String downloadUrl = jp2.get("result.content.downloadUrl");
-		ArrayList<String> identifier1 = jp2.get("result.content.children.identifier");
-		if (status.equals("Live")&&c_identifier.equals(nodeId1)&&identifier1.contains(node1)&&identifier1.contains(node2)){
-			System.out.println("Publish collection success");
-		}
-		else{
-			System.out.println("Publish collection fails");
-		}
-		
-		// Create nested collection
-		setURI();
-		jsonCreateNestedCollection = jsonCreateNestedCollection.replace("id1", nodeId1);
-		Response R3 =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonCreateNestedCollection).
-		with().
-			contentType(JSON).
-		when().
-			post("content").
-		then().
-			//log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
-		JsonPath jP3 = R3.jsonPath();
-		String collectionId = jP3.get("result.node_id");
-		
-		// Publish collection
-		setURI();
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-		when().
-			get("content/publish/"+collectionId).
-		then().
-			//log().all().
-			spec(get200ResponseSpec());
-		
-		// Get content and validate
-		setURI();
-		Response R4 =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-		when().
-			get("content/"+collectionId).
-		then().
-			//log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
-		// Validate the response
-		JsonPath jp4 = R4.jsonPath();
-		String n_status = jp4.get("result.content.status");
-		String n_identifier = jp4.get("result.content.identifier");
-		ArrayList<String> n_identifier1 = jp4.get("result.content.children.identifier");
-		if (n_status.equals("Live")&&n_identifier.equals(collectionId)&&n_identifier1.contains(nodeId1)){
-			System.out.println("Publish nested collection success");
-		}
-		else{
-			System.out.println("Publish nested collection fails");
-		}
-	}
 	
 	// Publish content with malformed XML body
 	
 	//Create content
 	@Test
 	public void publishMalformedJSONContentExpect4xx(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -1865,7 +1865,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			extract().
 			response();
@@ -1880,7 +1880,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_story.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1896,7 +1896,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType("application/json").
 		when().
-			patch("content/"+nodeId).
+			patch("/learning/v2/content/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1907,7 +1907,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			extract().
 			response();
@@ -1922,6 +1922,7 @@ public class contentPublishWorkflow extends BaseTest{
 	//Create content
 	@Test
 	public void publishMalformedXMLContentExpect4xx(){
+		contentCleanUp();
 		setURI();
 		Response R =
 		given().
@@ -1930,7 +1931,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType(JSON).
 		when().
-			post("content").
+			post("/learning/v2/content").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1947,7 +1948,7 @@ public class contentPublishWorkflow extends BaseTest{
 		spec(getRequestSpec(uploadContentType, validuserId)).
 		multiPart(new File(path+"/haircut_story.zip")).
 		when().
-			post("content/upload/"+nodeId).
+			post("/learning/v2/content/upload/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1963,7 +1964,7 @@ public class contentPublishWorkflow extends BaseTest{
 		with().
 			contentType("application/json").
 		when().
-			patch("content/"+nodeId).
+			patch("/learning/v2/content/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -1974,7 +1975,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId+"?fields=body").
+			get("/learning/v2/content/"+nodeId+"?fields=body").
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
@@ -1985,6 +1986,19 @@ public class contentPublishWorkflow extends BaseTest{
 		String body = jP2.get("result.content.body");
 		Assert.assertFalse((isValidJSON(body) || isValidXML(body)));
 	}
+	
+	// Content clean up
+	public void contentCleanUp(){
+		cleanupURI();
+		given().
+			spec(getRequestSpec(contentType, validuserId)).
+			body(jsonContentClean).
+		with().
+			contentType(JSON).
+		when().
+			post("/v1/exec/content_qe_deleteContentBySearchStringInField");
+	}
+	
 	
 	// Private Members
 	private boolean isValidXML(String body) {
@@ -2023,7 +2037,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/publish/"+nodeId).
+			get("/learning/v2/content/publish/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec());
@@ -2034,7 +2048,7 @@ public class contentPublishWorkflow extends BaseTest{
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
 		when().
-			get("content/"+nodeId).
+			get("/learning/v2/content/"+nodeId).
 		then().
 			//log().all().
 			spec(get200ResponseSpec()).
