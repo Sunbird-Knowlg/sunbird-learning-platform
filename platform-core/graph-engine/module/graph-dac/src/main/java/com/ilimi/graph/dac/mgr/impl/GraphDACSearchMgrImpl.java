@@ -19,7 +19,6 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.traversal.Evaluators;
-import org.neo4j.tooling.GlobalGraphOperations;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -328,8 +327,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         try {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
             tx = graphDb.beginTx();
-            GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
-            Iterable<org.neo4j.graphdb.Node> dbNodes = graphOps.getAllNodes();
+            Iterable<org.neo4j.graphdb.Node> dbNodes = graphDb.getAllNodes();
             List<Node> nodes = new ArrayList<Node>();
             if (null != dbNodes && null != dbNodes.iterator()) {
                 for (org.neo4j.graphdb.Node dbNode : dbNodes) {
@@ -355,8 +353,8 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         try {
             GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
             tx = graphDb.beginTx();
-            GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
-            Iterable<Relationship> dbRelations = graphOps.getAllRelationships();
+//            GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
+            Iterable<Relationship> dbRelations = graphDb.getAllRelationships();
             List<Relation> relations = new ArrayList<Relation>();
             if (null != dbRelations && null != dbRelations.iterator()) {
                 for (Relationship dbRel : dbRelations) {
