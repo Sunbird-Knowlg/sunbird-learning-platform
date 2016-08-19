@@ -47,7 +47,7 @@ public class CompositeSearchManager extends BaseSearchManager {
 	
 	public Response getSearchResponse(Response searchResult){
 		Request request = getSearchRequest(SearchActorNames.SEARCH_MANAGER.name(), SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name());
-		request.put("searchResult", searchResult);
+		request.put("searchResult", searchResult.getResult());
 		Response getRes = getSearchResponse(request, LOGGER);
 		if (checkError(getRes)) {
 			throw new ServerException(CompositeSearchErrorCodes.SYSTEM_ERROR.name(), getErrorMessage(getRes));

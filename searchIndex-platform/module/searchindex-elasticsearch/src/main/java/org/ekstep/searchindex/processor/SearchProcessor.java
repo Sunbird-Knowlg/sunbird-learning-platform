@@ -30,15 +30,16 @@ public class SearchProcessor {
 		String query = processSearchQuery(searchDTO, groupByFinalList, true);
 		SearchResult searchResult = elasticSearchUtil.search(CompositeSearchConstants.COMPOSITE_SEARCH_INDEX, query);
 
-		if (searchDTO.isFuzzySearch()) {
-			List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
-			response.put("results", results);
-			return response;
-		}
 		if (includeResults) {
-			List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
-			response.put("results", results);
+			if (searchDTO.isFuzzySearch()) {
+				List<Map> results = elasticSearchUtil.getDocumentsFromSearchResultWithScore(searchResult);
+				response.put("results", results);
+			} else {
+				List<Object> results = elasticSearchUtil.getDocumentsFromSearchResult(searchResult, Map.class);
+				response.put("results", results);
+			}
 		}
+
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) searchResult
 				.getValue("aggregations");
 		if (aggregations != null && !aggregations.isEmpty()) {
@@ -214,8 +215,7 @@ public class SearchProcessor {
 		}
 		String query;
 		if (searchDTO.isFuzzySearch()) {
-			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO
-					.getAdditionalProperty("weightagesMap");
+			Map<String, Double> weightagesMap = (Map<String, Double>) searchDTO.getAdditionalProperty("weightagesMap");
 			query = makeElasticSearchQueryWithFilteredSubsets(conditionsMap, totalOperation, groupByFinalList,
 					searchDTO.getSortBy(), weightagesMap);
 		} else {
@@ -227,17 +227,17 @@ public class SearchProcessor {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private String makeElasticSearchQueryWithFilteredSubsets(Map<String, List> conditionsMap, String totalOperation,
 			List<Map<String, Object>> groupByList, Map<String, String> sortBy, Map<String, Double> weightages)
-			throws Exception {
+					throws Exception {
 
 		JSONBuilder builder = new JSONStringer();
 		builder.object();
 		List<Map> mustConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST);
 		List<Map> arithmeticConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_ARITHMETIC);
 		List<Map> notConditions = conditionsMap.get(CompositeSearchConstants.CONDITION_SET_MUST_NOT);
-		Map<String, Object> baseConditions =  new HashMap<String, Object>(); 
-		
-		if(weightages == null){
-			weightages =  new HashMap<String, Double>();
+		Map<String, Object> baseConditions = new HashMap<String, Object>();
+
+		if (weightages == null) {
+			weightages = new HashMap<String, Double>();
 			weightages.put("default_weightage", 1.0);
 		}
 

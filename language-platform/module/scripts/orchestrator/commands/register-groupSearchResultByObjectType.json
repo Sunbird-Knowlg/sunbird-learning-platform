@@ -4,7 +4,7 @@
   "parameters": [
     {
       "name": "searchResult",
-      "datatype": "com.ilimi.common.dto.Response",
+      "datatype": "java.util.HashMap",
       "index": 0,
       "routingParam": false
     }

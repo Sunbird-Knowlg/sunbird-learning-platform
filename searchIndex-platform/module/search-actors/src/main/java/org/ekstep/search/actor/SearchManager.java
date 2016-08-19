@@ -44,8 +44,7 @@ public class SearchManager extends SearchBaseActor {
 			if (StringUtils.equalsIgnoreCase(SearchOperations.INDEX_SEARCH.name(), operation)) {
 				SearchDTO searchDTO = getSearchDTO(request);
 				Map<String, Object> lstResult = processor.processSearch(searchDTO, true);
-				List<Map> results = (List<Map>) lstResult.get("results");
-				OK("results", results, parent);
+				OK(lstResult, parent);
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.COUNT.name(), operation)) {
 				Map<String, Object> countResult = processor.processCount(getSearchDTO(request));
 				if (null != countResult.get("count")) {
@@ -60,8 +59,8 @@ public class SearchManager extends SearchBaseActor {
 				OK(getCompositeSearchResponse(lstResult), parent);
 
 			} else if (StringUtils.equalsIgnoreCase(SearchOperations.GROUP_SEARCH_RESULT_BY_OBJECTTYPE.name(), operation)) {
-				Response response = (Response) request.get("searchResult");
-				OK(getCompositeSearchResponse(response.getResult()), parent);
+				Map<String, Object> searchResponse = (Map<String, Object>) request.get("searchResult");
+				OK(getCompositeSearchResponse(searchResponse), parent);
 
 			} else {
 				LOGGER.info("Unsupported operation: " + operation);
@@ -97,7 +96,7 @@ public class SearchManager extends SearchBaseActor {
 			List<Map> properties = new ArrayList<Map>();
 			List<String> fields = (List<String>) req.get(CompositeSearchParams.fields.name());
 			Map<String, Object> filters = (Map<String, Object>) req.get(CompositeSearchParams.filters.name());
-			if(fuzzySearch){
+			if(fuzzySearch && filters != null){
 				Map<String, Double> weightagesMap = new HashMap<String, Double>();
 				weightagesMap.put("default_weightage", 1.0);
 				Object objectTypeFromFilter = filters.get(CompositeSearchParams.objectType.name());
@@ -135,8 +134,24 @@ public class SearchManager extends SearchBaseActor {
 				searchObj.addAdditionalProperty("weightagesMap", weightagesMap);
 			}
 			
-			List<String> exists = (List<String>) req.get(CompositeSearchParams.exists.name());
-			List<String> notExists = (List<String>) req.get(CompositeSearchParams.not_exists.name());
+			List<String> exists = null;
+			Object existsObject = req.get(CompositeSearchParams.exists.name());
+			if(existsObject instanceof List){
+				exists = (List<String>) existsObject; 
+			} else if (existsObject instanceof String){
+				exists =  new ArrayList<String>();
+				exists.add((String) existsObject);
+			}
+			
+			List<String> notExists = null;
+			Object notExistsObject = req.get(CompositeSearchParams.not_exists.name());
+			if(notExistsObject instanceof List){
+				notExists = (List<String>) notExistsObject; 
+			} else if (notExistsObject instanceof String){
+				notExists =  new ArrayList<String>();
+				notExists.add((String) notExistsObject);
+			}
+			
 			List<String> facets = getList(req.get(CompositeSearchParams.facets.name()));
 			Map<String, String> sortBy = (Map<String, String>) req.get(CompositeSearchParams.sort_by.name());
 			properties.addAll(getAdditionalFilterProperties(exists, CompositeSearchParams.exists.name()));

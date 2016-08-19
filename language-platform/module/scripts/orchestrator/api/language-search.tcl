@@ -45,6 +45,11 @@ if {$isLimitNull == 0} {
 	set wordChainsLimit $limit
 }
 
+set isFiltersNull [java::isnull $filters]
+if {$isFiltersNull == 1} {
+	set filters [java::new HashMap]
+}
+
 set languageIdObj [$filters get "language_id"]
 set languageId [java::cast ArrayList $languageIdObj]
 
@@ -113,15 +118,16 @@ if {$wordChainsQuery == "true"} {
 $request_map put "filters" $filters
 
 #do the search on elasticsearch
-set searchResult [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+set searchResponse [indexSearch $traversals $query $filters $exists $not_exists $sort_by $facets $fuzzy $limit]
+set searchResultsMap [$searchResponse getResult]
 
 #if its not a traversal search, group results by object type and return
 if {$wordChainsQuery == "false"} {
-	set compositeSearchResponse [groupSearchResultByObjectType $searchResult]
+	set compositeSearchResponse [groupSearchResultByObjectType $searchResultsMap]
 	return $compositeSearchResponse
 }
 
 #if its a traversal search, retreive results and form word chains
-set words [$searchResult get "results"]
+set words [$searchResultsMap get "results"]
 set wordChainResponse [getWordChains $graphId $ruleObject $words $wordChainsLimit]
 return $wordChainResponse
