@@ -1,3 +1,27 @@
+#This script does the following
+# 1. Create traversal description using relations
+# 2. Traverses the graph and returns paths
+# 3. Scores the paths
+# 4. Creates word chain response
+# 5. Sorts results based on score in desc order
+# 6. returns results
+#
+#Input:
+#1. Graph Id (language)
+#2. Rule Object (Map<String, Object>)
+#3. Search Result (List<Map<String, Object>>) (List of words)
+#4. Word Chains Limit
+#
+#Output
+# 1. Word Chains - List<Map<String, Object>>
+# ex: [
+#       {
+#			"title": "A T",
+#			"list": ["en_1", "en_2"],
+#			"score": 2.0,
+#			"relation": "Akshara"
+#		}
+#     ]
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
@@ -6,6 +30,8 @@ java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
 
+#given a path, word scores and relation, scores the word chain 
+#and forms the word chain data structure
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
 	set totalScore 0
@@ -52,6 +78,7 @@ proc processPath {finalPath wordScore relation} {
 		return [java::null]
 	}
 	
+	#form word chain structure
 	set averageScore [expr $totalScore/$chainLength]
 	$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
@@ -74,7 +101,7 @@ set ruleScript [$ruleObject get "ruleScript"]
 set wordsSize [$searchResult size]
 
 set startWordsSizeString [$startWordsSize toString]
-
+#get the top words
 if {$wordsSize > $startWordsSizeString} {
 	set topWords [$searchResult subList 0 $startWordsSize]
 } else {
@@ -87,7 +114,8 @@ set ids [java::new ArrayList]
 set wordScore [java::new HashMap]
 set wordIdMap [java::new HashMap]
 
-
+# form wordId to Word Object Map
+# form wordId to Score Map
 java::for {Map word} $searchResult {
 	set id [$word get "identifier"]
 	$ids add $id
@@ -103,14 +131,18 @@ java::for {Map word} $searchResult {
 set ruleType "Akshara Rule"
 set wordChains [java::new ArrayList]
 
+# the no of nodes after start node that forms a chain of two words is 3 for Phonetic boundary
+# increase the min and max length to include the internal nodes
 set maxDepth [expr {3 * ($maxDefinedDepth-1)}]
 set minDepth [expr {3 * ($minDefinedDepth-1)}]
 
+#create a list of relations in the required traversal order
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
 $relationTypes add "follows"
 $relationTypes add "hasMember"
 
+#create a list of dierctions in the required traversal order
 set directions [java::new ArrayList]
 $directions add "INCOMING"
 $directions add "OUTGOING"
@@ -118,11 +150,13 @@ $directions add "OUTGOING"
 
 set nodeCount 3
 
+#create path expander using relations and directions list
 set pathExpander [java::new HashMap]
 $pathExpander put "relationTypes" $relationTypes
 $pathExpander put "directions" $directions
 $pathExpander put "nodeCount" $nodeCount
 
+# Unique constraints for traversal
 set traversalUniqueness [java::new ArrayList]
 $traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
@@ -132,6 +166,7 @@ set wordIdEval [java::new WordIdEvaluator $ids]
 set evaluators [java::new ArrayList]
 $evaluators add $wordIdEval
 
+#create traversal request
 set traversalRequest [java::new HashMap]
 $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness
@@ -149,6 +184,8 @@ java::for {Map topWord} $topWords {
 	if {$check_error} {
 		return $resp_traverse;
 	} 
+	
+	#get paths from traversals
 	set subGraph [get_resp_value $resp_traverse "sub_graph"]
 	set paths [$subGraph getPaths]
 	java::for {Path finalPath} $paths {
@@ -162,6 +199,7 @@ java::for {Map topWord} $topWords {
 	}
 }
 
+#sort the chains in desc by score
 set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]
