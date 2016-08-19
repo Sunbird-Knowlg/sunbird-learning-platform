@@ -2,9 +2,8 @@ package com.ilimi.graph.dac.util;
 
 import org.apache.commons.lang3.StringUtils;
 import org.neo4j.graphdb.Direction;
-import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
@@ -16,7 +15,7 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphUtil {
 
-    public static final Label NODE_LABEL = DynamicLabel.label("NODE");
+    public static final Label NODE_LABEL = Label.label("NODE");
 
     public static Node getNodeByUniqueId(GraphDatabaseService graphDb, String nodeId) {
         Transaction tx = graphDb.beginTx();
