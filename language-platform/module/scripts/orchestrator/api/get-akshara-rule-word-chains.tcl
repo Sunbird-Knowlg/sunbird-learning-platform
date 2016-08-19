@@ -1,28 +1,3 @@
-#This script does the following
-# 1. Create traversal description using relations
-# 2. Traverses the graph and returns paths
-# 3. Scores the paths
-# 4. Creates word chain response
-# 5. Sorts results based on score in desc order
-# 6. returns results
-#
-#Input:
-#1. Graph Id (language)
-#2. Rule Object (Map<String, Object>)
-#3. Search Result (List<Map<String, Object>>) (List of words)
-#4. Word Chains Limit
-#
-#Output
-# 1. Word Chains - List<Map<String, Object>>
-# ex: [
-#       {
-#			"title": "A T",
-#			"list": ["en_1", "en_2"],
-#			"score": 2.0,
-#			"relation": "Akshara"
-#		}
-#     ]
-
 package require java
 java::import -package java.util ArrayList List
 java::import -package java.util HashMap Map
@@ -30,10 +5,7 @@ java::import -package java.util HashSet Set
 java::import -package com.ilimi.graph.dac.model Node
 java::import -package com.ilimi.graph.dac.model Path
 java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
-java::import -package com.ilimi.common.dto Response
 
-#given a path, word scores and relation, scores the word chain 
-#and forms the word chain data structure
 proc processPath {finalPath wordScore relation} {
 	set wordChain [java::new ArrayList]
 	set totalScore 0
@@ -55,6 +27,11 @@ proc processPath {finalPath wordScore relation} {
 			set pb "Yes"
 		}
 		
+		
+		#set objectTypeEqualsWord [$nodeObjectType equalsIgnoreCase $wordObjectType]
+		#set objectTypeEqualsPB [$nodeObjectType equalsIgnoreCase "Phonetic_Boundary"]
+		#set objectTypeEqualsWordString [$objectTypeEqualsWord toString]
+		
 		if {$objectTypeEqualsWordString == "true"} {
 			set nodeIdentifier [$node getIdentifier]
 			set wordChainContains [$wordChain contains $nodeIdentifier]
@@ -75,7 +52,6 @@ proc processPath {finalPath wordScore relation} {
 		return [java::null]
 	}
 	
-	#form word chain structure
 	set averageScore [expr $totalScore/$chainLength]
 	$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
@@ -83,6 +59,7 @@ proc processPath {finalPath wordScore relation} {
 	$wordChainRecord put "relation" $relation
 	return $wordChainRecord
 }
+
 
 set maxDefinedDepthObj [$ruleObject get "maxChainLength"]
 set maxDefinedDepth [$maxDefinedDepthObj toString]
@@ -98,7 +75,6 @@ set wordsSize [$searchResult size]
 
 set startWordsSizeString [$startWordsSize toString]
 
-#get the top words
 if {$wordsSize > $startWordsSizeString} {
 	set topWords [$searchResult subList 0 $startWordsSize]
 } else {
@@ -111,8 +87,7 @@ set ids [java::new ArrayList]
 set wordScore [java::new HashMap]
 set wordIdMap [java::new HashMap]
 
-# form wordId to Word Object Map
-# form wordId to Score Map
+
 java::for {Map word} $searchResult {
 	set id [$word get "identifier"]
 	$ids add $id
@@ -128,18 +103,14 @@ java::for {Map word} $searchResult {
 set ruleType "Akshara Rule"
 set wordChains [java::new ArrayList]
 
-# the no of nodes after start node that forms a chain of two words is 3 for Phonetic boundary
-# increase the min and max length to include the internal nodes
 set maxDepth [expr {3 * ($maxDefinedDepth-1)}]
 set minDepth [expr {3 * ($minDefinedDepth-1)}]
 
-#create a list of relations in the required traversal order
 set relationTypes [java::new ArrayList]
 $relationTypes add "hasMember"
 $relationTypes add "follows"
 $relationTypes add "hasMember"
 
-#create a list of dierctions in the required traversal order
 set directions [java::new ArrayList]
 $directions add "INCOMING"
 $directions add "OUTGOING"
@@ -147,62 +118,38 @@ $directions add "OUTGOING"
 
 set nodeCount 3
 
-#create path expander using relations and directions list
 set pathExpander [java::new HashMap]
 $pathExpander put "relationTypes" $relationTypes
 $pathExpander put "directions" $directions
 $pathExpander put "nodeCount" $nodeCount
 
-# Unique constraints for traversal
 set traversalUniqueness [java::new ArrayList]
-#$traversalUniqueness add "NODE_GLOBAL"
+$traversalUniqueness add "NODE_GLOBAL"
 $traversalUniqueness add "RELATIONSHIP_GLOBAL"
 
-# WordIdEvaluator will evalaute that the words in the chain belong to the list of valid Ids
 set wordIdEval [java::new WordIdEvaluator $ids]
 
 set evaluators [java::new ArrayList]
 $evaluators add $wordIdEval
 
-#create traversal request
 set traversalRequest [java::new HashMap]
 $traversalRequest put "pathExpander" $pathExpander
 $traversalRequest put "uniqueness" $traversalUniqueness
 $traversalRequest put "minLength" $minDepth
 $traversalRequest put "maxLength" $maxDepth
 $traversalRequest put "evaluators" $evaluators
-set traverser [get_traverser $graphId $traversalRequest]
 
-set commands [java::new ArrayList]
-
-# for each top word, create a travers command and add to commands list
 java::for {Map topWord} $topWords {
 	set topWordIdObject [$topWord get "identifier"]
 	set topWordId [$topWordIdObject toString]
-	$traverser setStartNode $topWordId
-	
-	set commandMap [java::new HashMap]
-	$commandMap put "commandName" "traverse"
-	set commandParams [java::new HashMap]
-	$commandParams put "graph_id" $graphId
-	$commandParams put "traversal_description" $traverser
-	
-	$commandMap put "commandParams" $commandParams
-	$commands add $commandMap
-}
-
-# execute all traversal commands concurrently
-set resp_traverse [execute_commands_concurrently $commands]
-
-#get paths from traversals
-set responses [get_resp_value $resp_traverse "responses"]
-java::for {Response response} $responses {
-	set check_error [check_response_error $response]
+	$traversalRequest put "startNodeId" $topWordId
+	set traverser [get_traverser $graphId $traversalRequest]
+	set resp_traverse [traversePaths $graphId $traverser]
+	set check_error [check_response_error $resp_traverse]
 	if {$check_error} {
-		return $response;
+		return $resp_traverse;
 	} 
-
-	set subGraph [get_resp_value $response "sub_graph"]
+	set subGraph [get_resp_value $resp_traverse "sub_graph"]
 	set paths [$subGraph getPaths]
 	java::for {Path finalPath} $paths {
 		set wordChain [processPath $finalPath $wordScore $ruleType]
@@ -215,7 +162,6 @@ java::for {Response response} $responses {
 	}
 }
 
-#sort the chains in desc by score
 set sortedWordChains [sort_maps $wordChains "score" "DESC"]
 set finalWordChains [java::new ArrayList]
 set wordChainsSize [$sortedWordChains size]

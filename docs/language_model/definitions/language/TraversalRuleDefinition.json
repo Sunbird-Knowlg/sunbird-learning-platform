@@ -61,7 +61,7 @@
           "renderingHints": "{ 'order': 4 }"
         },
         {
-          "propertyName": "max_chain_length",
+          "propertyName": "maxChainLength",
           "title": "Maximum word chain Length",
           "description": "",
           "category": "general",
@@ -70,11 +70,11 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": 20,
           "renderingHints": "{ 'order': 5 }"
         },
         {
-          "propertyName": "min_chain_length",
+          "propertyName": "minChainLength",
           "title": "Minimum word chain Length",
           "description": "",
           "category": "general",
@@ -83,11 +83,11 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": 5,
           "renderingHints": "{ 'order': 6 }"
         },
         {
-          "propertyName": "word_chain_words_size",
+          "propertyName": "wordChainWordsSize",
           "title": "Maximum number of words in word chains",
           "description": "",
           "category": "general",
@@ -96,11 +96,11 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": 1000,
           "renderingHints": "{ 'order': 7 }"
         },
         {
-          "propertyName": "start_words_size",
+          "propertyName": "startWordsSize",
           "title": "Maximum number of start words in word chains",
           "description": "",
           "category": "general",
@@ -109,7 +109,7 @@
           "required": true,
           "indexed": true,
           "displayProperty": "Editable",
-          "defaultValue": "",
+          "defaultValue": 30,
           "renderingHints": "{ 'order': 8 }"
         },
         {
@@ -179,10 +179,49 @@
             "description": "",
             "category": "general",
             "displayProperty": "Editable",
-            "defaultValue": "",
+            "defaultValue": "{\"10\": [\"category\", \"pos\"],\"15\": [\"theme\"],\"1\": [\"not_exists\"],\"5\": [\"exists\"],\"20\":\"lemma\",\"0\":\"default_weightage\"}",
             "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }",
             "indexed": true,
             "draft": false
+        },
+         {
+          "propertyName": "ruleScript",
+          "title": "Rule Script",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 14 }"
+        },
+         {
+          "propertyName": "ruleObjectType",
+          "title": "Rule Object Type",
+          "description": "",
+          "category": "general",
+          "dataType": "Text",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "Word",
+          "renderingHints": "{ 'order': 15 }"
+        },
+         {
+          "propertyName": "ruleObjectStatus",
+          "title": "Rule Object Status",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "range": [],
+          "required": true,
+          "indexed": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{ 'order': 16 }"
         }
       ],
       "inRelations": [
