@@ -145,31 +145,31 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void updatePropertyValue(String graphId, Node node, Property property, Request request) {
+	public void updatePropertyValue(String graphId, String nodeId, Property property, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void updatePropertyValues(String graphId, Node node, Map<String, Object> metadata, Request request) {
+	public void updatePropertyValues(String graphId, String nodeId, Map<String, Object> metadata, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removePropertyValue(String graphId, Node node, String key, Request request) {
+	public void removePropertyValue(String graphId, String nodeId, String key, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void removePropertyValues(String graphId, Node node, List<String> keys, Request request) {
+	public void removePropertyValues(String graphId, String nodeId, List<String> keys, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void deleteNode(String graphId, Node node, Request request) {
+	public void deleteNode(String graphId, String nodeId, Request request) {
 		// TODO Auto-generated method stub
 		
 	}

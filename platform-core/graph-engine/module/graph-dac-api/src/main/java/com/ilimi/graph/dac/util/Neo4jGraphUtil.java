@@ -15,7 +15,7 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 
 public class Neo4jGraphUtil {
 
-    public static final Label NODE_LABEL = Label.label("NODE");
+    public static final Label NODE_LABEL = com.ilimi.graph.dac.enums.Label.NODE;
 
     public static Node getNodeByUniqueId(GraphDatabaseService graphDb, String nodeId) {
         Transaction tx = graphDb.beginTx();
