@@ -1,97 +1,120 @@
 package org.ekstep.graph.service;
 
+import java.util.List;
+import java.util.Map;
+
+import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.Traverser;
+import com.ilimi.graph.importer.ImportData;
 
 /**
-* IGraphService is Contract between the Platform and Neo4J System
-*
-* @author  Mohammad Azharuddin
-* @version 1.0
-* @since   2016-08-17 
-*/
+ * IGraphService is Contract between the Platform and Neo4J System
+ *
+ * @author Mohammad Azharuddin
+ * @version 1.0
+ * @since 2016-08-17
+ */
 public interface IGraphDatabaseService {
-	
-	// Node Managements APIs
-	void upsertNode(Request request);
-    
-    void addNode(Request request);
-    
-    void updateNode(Request request);
 
-    void importNodes(Request request);
+	// Graph Management APIs
 
-    void updatePropertyValue(Request request);
+	public void createGraph(String graphId, Request request);
 
-    void updatePropertyValues(Request request);
+	public void createGraphUniqueContraint(String graphId, List<String> indexProperties, Request request);
 
-    void removePropertyValue(Request request);
+	public void createIndex(String graphId, List<String> indexProperties, Request request);
 
-    void removePropertyValues(Request request);
+	public void deleteGraph(String graphId, Request request);
 
-    void deleteNode(Request request);
-    
-    // Graph Managements APIs
-    void createGraph(Request request);
-    
-    void createUniqueConstraint(Request request);
-    
-    void createIndex(Request request);
+	public void createRelation(String graphId, String startNodeId, String endNodeId, String relationType,
+			Request request);
 
-    void deleteGraph(Request request);
+	public void updateRelation(String graphId, String startNodeId, String endNodeId, String relationType,
+			Request request);
 
-    void addRelation(Request request);
+	public void deleteRelation(String graphId, String startNodeId, String endNodeId, String relationType,
+			Request request);
 
-    void deleteRelation(Request request);
+	public void createIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
+			String relationType, Request request);
 
-    void updateRelation(Request request);
+	public void createOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
+			String relationType, Request request);
 
-    void removeRelationMetadata(Request request);
+	public void deleteIncomingRelations(String graphId, List<String> startNodeIds, String endNodeId,
+			String relationType, Request request);
 
-    void importGraph(Request request);
+	public void deleteOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
+			String relationType, Request request);
 
-    void createCollection(Request request);
+	public void removeRelationMetadataByKey(String graphId, String startNodeId, String endNodeId, String relationType,
+			String key, Request request);
 
-    void deleteCollection(Request request);
+	public void createCollection(String graphId, String collectionId, Node collection, String relationType,
+			List<String> members, String indexProperty, Request request);
 
-    void addOutgoingRelations(Request request);
+	public void deleteCollection(String graphId, String collectionId, Request request);
 
-    void addIncomingRelations(Request request);
-    
-    void deleteIncomingRelations(Request request);
-    
-    void deleteOutgoingRelations(Request request);
-    
-    // Search Handling APIs
-    void getNodeById(Request request);
+	public void importGraph(String graphId, String taskId, ImportData input, Map<String, List<String>> messages, Request request);
 
-    void getNodeByUniqueId(Request request);
+	// Node Management APIs
 
-    void getNodesByUniqueIds(Request request);
+	public void upsertNode(String graphId, Node node, Request request);
 
-    void getNodesByProperty(Request request);
+	public void addNode(String graphId, Node node, Request request);
 
-    void getNodeProperty(Request request);
+	public void updateNode(String graphId, Node node, Request request);
 
-    void getAllRelations(Request request);
+	public void importNodes(String graphId, List<Node> nodes, Request request);
 
-    void getAllNodes(Request request);
+	public void updatePropertyValue(String graphId, Node node, Property property, Request request);
 
-    void getRelation(Request request);
+	public void updatePropertyValues(String graphId, Node node, Map<String, Object> metadata, Request request);
 
-    void getRelationProperty(Request request);
+	public void removePropertyValue(String graphId, Node node, String key, Request request);
 
-    void checkCyclicLoop(Request request);
-    
-    void executeQuery(Request request);
+	public void removePropertyValues(String graphId, Node node, List<String> keys, Request request);
 
-    void searchNodes(Request request);
+	public void deleteNode(String graphId, Node node, Request request);
 
-    void getNodesCount(Request request);
+	// Search Management APIs
 
-    void traverse(Request request);
-    
-    void traverseSubGraph(Request request);
-    
-    void getSubGraph(Request request);
+	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Request request);
+
+	public void getNodeByUniqueId(String graphId, Long nodeId, Boolean getTags, Request request);
+
+	public void getNodesByProperty(String graphId, Property property, Boolean getTags, Request request);
+
+	public void getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request);
+
+	public void getNodeProperty(String graphId, String nodeId, String key, Request request);
+
+	public void getAllNodes(String graphId, Request request);
+
+	public void getAllRelations(String graphId, Request request);
+
+	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+			String key, Request request);
+
+	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request);
+
+	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request);
+
+	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, Request request);
+
+	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request);
+
+	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Request request);
+
+	public void traverse(String graphId, Traverser traverser, Request request);
+
+	public void traverseSubGraph(String graphId, Traverser traverser, Request request);
+
+	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request);
 
 }
