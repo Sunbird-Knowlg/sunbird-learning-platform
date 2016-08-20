@@ -13,6 +13,7 @@ import org.ekstep.graph.service.operation.Neo4JEmbeddedSearchOperations;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.importer.ImportData;
@@ -175,76 +176,76 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
+	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Node node, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getNodeByUniqueId(String graphId, Long nodeId, Boolean getTags, Request request) {
+	public void getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Node node, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
+	public void getNodesByProperty(String graphId, Property property, Boolean getTags, List<Node> nodeList, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
+	public void getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, List<Node> nodes, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getNodeProperty(String graphId, String nodeId, String key, Request request) {
+	public void getNodeProperty(String graphId, String nodeId, String key, Property property, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getAllNodes(String graphId, Request request) {
+	public void getAllNodes(String graphId, List<Node> nodes, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void getAllRelations(String graphId, Request request) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			String key, Request request) {
+	public void getAllRelations(String graphId, List<Relation> relations, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			Request request) {
+			String key, Property property, Request request) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+			Relation relation, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
 	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
-			Request request) {
+			Map<String, Object> vomap, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, Request request) {
+	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, List<Map<String, Object>> resultList, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
 
 	@Override
-	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
+	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request) {
 		// TODO Auto-generated method stub
 		
 	}

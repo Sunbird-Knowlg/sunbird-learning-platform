@@ -6,6 +6,7 @@ import java.util.Map;
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.importer.ImportData;
@@ -82,32 +83,32 @@ public interface IGraphDatabaseService {
 
 	// Search Management APIs
 
-	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Request request);
+	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Node node, Request request);
 
-	public void getNodeByUniqueId(String graphId, Long nodeId, Boolean getTags, Request request);
+	public void getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Node node, Request request);
 
-	public void getNodesByProperty(String graphId, Property property, Boolean getTags, Request request);
+	public void getNodesByProperty(String graphId, Property property, Boolean getTags, List<Node> nodeList, Request request);
 
-	public void getNodeByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request);
+	public void getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, List<Node> nodes, Request request);
 
-	public void getNodeProperty(String graphId, String nodeId, String key, Request request);
+	public void getNodeProperty(String graphId, String nodeId, String key, Property property, Request request);
 
-	public void getAllNodes(String graphId, Request request);
+	public void getAllNodes(String graphId, List<Node> nodes, Request request);
 
-	public void getAllRelations(String graphId, Request request);
-
-	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			String key, Request request);
+	public void getAllRelations(String graphId, List<Relation> relations, Request request);
 
 	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			Request request);
+			String key, Property property, Request request);
+
+	public void getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+			Relation relation, Request request);
 
 	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
-			Request request);
+			Map<String, Object> voMap, Request request);
 
-	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, Request request);
+	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, List<Map<String, Object>> resultList, Request request);
 
-	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request);
+	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request);
 
 	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Request request);
 
