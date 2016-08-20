@@ -10,6 +10,7 @@ import org.ekstep.language.measures.entity.WordComplexity;
 
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 
 public class PhoneticBoundarySet extends BaseWordSet {
 
@@ -20,8 +21,8 @@ public class PhoneticBoundarySet extends BaseWordSet {
 	private static final String ENDS_WITH = "endsWith";
 
 	
-	public PhoneticBoundarySet(String languageId, Node wordNode, WordComplexity wc) {
-		super(languageId, wordNode, wc, LOGGER);
+	public PhoneticBoundarySet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordChainRelatios) {
+		super(languageId, wordNode, wc, existingWordChainRelatios, LOGGER);
 		init();
 	}
 
@@ -38,9 +39,16 @@ public class PhoneticBoundarySet extends BaseWordSet {
 	}
 	
 	public void create(){
-		createPhoneticBoundarySet(startsWithAkshara, LanguageParams.PrefixBoundary.name());
-		for(String lemma : endsWithAkshara)
-			createPhoneticBoundarySet(lemma, LanguageParams.SuffixBoundary.name());
+
+		if(!isExist(LanguageParams.PrefixBoundary.name(), STARTS_WITH + "_" + startsWithAkshara))
+			createPhoneticBoundarySet(startsWithAkshara, LanguageParams.PrefixBoundary.name());
+		
+		if(!isExist(LanguageParams.SuffixBoundary.name(), endsWithAkshara)){
+			for(String lemma : endsWithAkshara){
+				createPhoneticBoundarySet(lemma, LanguageParams.SuffixBoundary.name());						
+			}			
+		}
+
 	}
 
 	private void createPhoneticBoundarySet(String lemma, String type){
@@ -53,13 +61,13 @@ public class PhoneticBoundarySet extends BaseWordSet {
 		if(type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name())){
 			actualLemma = STARTS_WITH + "_" + lemma;
 			connectingLemma = ENDS_WITH + "_" + lemma;
-			phoneticBoundarySetID = getWordSet(languageId, actualLemma, type);
-			connectingPBSetID = getWordSet(languageId, connectingLemma, LanguageParams.SuffixBoundary.name());
+			phoneticBoundarySetID = getWordSet(actualLemma, type);
+			connectingPBSetID = getWordSet(connectingLemma, LanguageParams.SuffixBoundary.name());
 		}else{
 			actualLemma = ENDS_WITH + "_" + lemma;
 			connectingLemma = STARTS_WITH + "_" + lemma;
-			phoneticBoundarySetID = getWordSet(languageId, actualLemma, type);
-			connectingPBSetID = getWordSet(languageId, connectingLemma, LanguageParams.PrefixBoundary.name());
+			phoneticBoundarySetID = getWordSet(actualLemma, type);
+			connectingPBSetID = getWordSet(connectingLemma, LanguageParams.PrefixBoundary.name());
 		}
 		
 		boolean followRelCreate = false;
@@ -69,16 +77,16 @@ public class PhoneticBoundarySet extends BaseWordSet {
 		}
 		
 		if(StringUtils.isBlank(phoneticBoundarySetID)){
-			phoneticBoundarySetID = createWordSetCollection(languageId, wordNode.getIdentifier(), actualLemma, type);
+			phoneticBoundarySetID = createWordSetCollection(actualLemma, type);
 		}else{
-			addMemberToSet(languageId, phoneticBoundarySetID, wordNode.getIdentifier());
+			addMemberToSet(phoneticBoundarySetID);
 		}
 
 		if(followRelCreate){
 			if(type.equalsIgnoreCase(LanguageParams.PrefixBoundary.name()))
-				createRelation(languageId, connectingPBSetID, phoneticBoundarySetID, RelationTypes.FOLLOWS.relationName());
+				createRelation(connectingPBSetID, phoneticBoundarySetID, RelationTypes.FOLLOWS.relationName());
 			else
-				createRelation(languageId, phoneticBoundarySetID, connectingPBSetID, RelationTypes.FOLLOWS.relationName());
+				createRelation(phoneticBoundarySetID, connectingPBSetID, RelationTypes.FOLLOWS.relationName());
 		}
 	}
 	

@@ -1,7 +1,9 @@
 package org.ekstep.language.wordchian;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
@@ -29,8 +31,9 @@ public class WordChainUtil {
 		if(status == null)
 			return;
 		if("Live".equalsIgnoreCase(status)){
-			new RhymingSoundSet(languageId, node, wc).create();
-			new PhoneticBoundarySet(languageId, node, wc).create();
+			List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
+			new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
+			new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();
 			Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
 			node.setInRelations(updatedNode.getInRelations());			
 		}else{
@@ -76,4 +79,20 @@ public class WordChainUtil {
         return null;
     }
 
+	protected List<Relation> getExistingWordSetRelations(Node word){
+		
+		List<Relation> wordSetRelations = new ArrayList<Relation>();
+		List<Relation> inRelation = word.getInRelations();
+		for(Relation rel : inRelation){
+			String relType = rel.getRelationType();
+			Map<String, Object> startNodeMetadata = rel.getStartNodeMetadata();
+			String startNodeObjType = (String) startNodeMetadata.get(SystemProperties.IL_FUNC_OBJECT_TYPE.name());
+			//String startNodeWordSetType = (String) startNodeMetadata.get(LanguageParams.type.name());
+			if(relType.equalsIgnoreCase(RelationTypes.SET_MEMBERSHIP.relationName()) &&
+					startNodeObjType.equalsIgnoreCase(LanguageObjectTypes.WordSet.name())){
+					wordSetRelations.add(rel);
+			}
+		}
+		return wordSetRelations;
+	}
 }

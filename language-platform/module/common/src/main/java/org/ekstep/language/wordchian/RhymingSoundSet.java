@@ -1,5 +1,7 @@
 package org.ekstep.language.wordchian;
 
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -7,6 +9,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.measures.entity.WordComplexity;
 
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 
 public class RhymingSoundSet extends BaseWordSet {
 
@@ -14,8 +17,8 @@ public class RhymingSoundSet extends BaseWordSet {
 	private String rhymingSound;
 	private static final String RHYMING_SOUND = "rhymingSound";
 	
-	public RhymingSoundSet(String languageId, Node wordNode, WordComplexity wc) {
-		super(languageId, wordNode, wc, LOGGER);
+	public RhymingSoundSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios) {
+		super(languageId, wordNode, wc, existingWordSetRelatios, LOGGER);
 		init();
 	}
 
@@ -28,19 +31,20 @@ public class RhymingSoundSet extends BaseWordSet {
 	}
 	
 	public void create(){
-		String rhymingSoundText = RHYMING_SOUND + "_" + rhymingSound;
+		String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 
-		if(StringUtils.isNotBlank(rhymingSoundText)){
-			createRhymingSoundSet(rhymingSoundText);
+		if(StringUtils.isNotBlank(rhymingSoundLemma)){
+			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
+				createRhymingSoundSet(rhymingSoundLemma);
 		}
 	}
 	
 	private void createRhymingSoundSet(String rhymingSound){
-		String setId = getWordSet(languageId, rhymingSound, LanguageParams.RhymingSound.name());
+		String setId = getWordSet(rhymingSound, LanguageParams.RhymingSound.name());
 		if(StringUtils.isBlank(setId)){
-			createWordSetCollection(languageId, wordNode.getIdentifier(), rhymingSound, LanguageParams.RhymingSound.name());
+			createWordSetCollection(rhymingSound, LanguageParams.RhymingSound.name());
 		}else{
-			addMemberToSet(languageId, setId,  wordNode.getIdentifier());
+			addMemberToSet(setId);
 		}
 	}
 
