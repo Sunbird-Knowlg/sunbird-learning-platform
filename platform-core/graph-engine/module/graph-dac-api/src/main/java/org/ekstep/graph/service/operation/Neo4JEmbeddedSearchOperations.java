@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -25,9 +26,12 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 import com.ilimi.graph.dac.enums.RelationTypes;
 import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.enums.SystemProperties;
+import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
+import com.ilimi.graph.dac.model.RelationTraversal;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 import com.ilimi.graph.dac.util.Neo4jGraphUtil;
@@ -142,7 +146,6 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 	public void getAllRelations(String graphId, List<Relation> relations, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
-//			GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
             Iterable<Relationship> dbRelations = graphDb.getAllRelationships();
             if (null != dbRelations && null != dbRelations.iterator()) {
                 for (Relationship dbRel : dbRelations) {
@@ -264,30 +267,55 @@ public class Neo4JEmbeddedSearchOperations extends BaseOperations {
 		}
 	}
 
-	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
+	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Long count, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			searchCriteria.setCountQuery(true);
+            Map<String, Object> params = searchCriteria.getParams();
+            String query = searchCriteria.getQuery();
+            Result result = graphDb.execute(query, params);
+            if (null != result && result.hasNext()) {
+                Map<String, Object> map = result.next();
+                if (null != map && !map.isEmpty()) {
+                    for (Entry<String, Object> entry : map.entrySet()) {
+                        Object obj = entry.getValue();
+                        try {
+                            count = Long.valueOf(obj.toString());
+                        } catch (Exception e) {
+                        }
+                    }
+                }
+                result.close();
+            }
 			tx.success();
 		}
 	}
 
-	public void traverse(String graphId, Traverser traverser, Request request) {
+	public void traverse(String graphId, Traverser traverser, SubGraph subGraph, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			subGraph = traverser.traverse();
 			tx.success();
 		}
 	}
 
-	public void traverseSubGraph(String graphId, Traverser traverser, Request request) {
+	public void traverseSubGraph(String graphId, Traverser traverser, Graph subGraph, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			subGraph = traverser.getSubGraph();
 			tx.success();
 		}
 	}
 
-	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request) {
+	public void getSubGraph(String graphId, String startNodeId, String relationType, Integer depth, Graph subGraph, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			Traverser traverser = new Traverser(graphId, startNodeId);
+            traverser.traverseRelation(new RelationTraversal(relationType, RelationTraversal.DIRECTION_OUT));
+            if (null != depth && depth.intValue() > 0) {
+                traverser.toDepth(depth);
+            }
+            subGraph = traverser.getSubGraph();
 			tx.success();
 		}
 	}

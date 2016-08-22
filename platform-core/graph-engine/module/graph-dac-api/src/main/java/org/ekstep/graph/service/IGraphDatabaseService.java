@@ -5,9 +5,11 @@ import java.util.Map;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
+import com.ilimi.graph.dac.model.Graph;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchCriteria;
+import com.ilimi.graph.dac.model.SubGraph;
 import com.ilimi.graph.dac.model.Traverser;
 import com.ilimi.graph.importer.ImportData;
 
@@ -110,12 +112,12 @@ public interface IGraphDatabaseService {
 
 	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request);
 
-	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Request request);
+	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Long count, Request request);
 
-	public void traverse(String graphId, Traverser traverser, Request request);
+	public void traverse(String graphId, Traverser traverser, SubGraph subGraph, Request request);
 
-	public void traverseSubGraph(String graphId, Traverser traverser, Request request);
+	public void traverseSubGraph(String graphId, Traverser traverser, Graph subGraph, Request request);
 
-	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request);
+	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Graph subGraph, Request request);
 
 }
