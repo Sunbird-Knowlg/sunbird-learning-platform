@@ -9,6 +9,8 @@ service_url = 172.31.22.4:8080
 
 
 [env:vars]
+neo4j_home = /home/ec2-user/neo4j-community-3.0.4
+user_home = /home/ec2-user
 service_url = 172.31.22.4:8080
 zookeeper_url = 172.31.1.92:2181
 graph_event_topic_id = new-qa.learning.graph.events

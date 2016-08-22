@@ -87,7 +87,7 @@
           "renderingHints": "{ 'order': 6 }"
         },
         {
-          "propertyName": "wordChainWordsSize",
+          "propertyName": "maxWords",
           "title": "Maximum number of words in word chains",
           "description": "",
           "category": "general",
@@ -172,19 +172,6 @@
             "renderingHints": "{'inputType': 'select', 'order': 12}"
         },
         {
-            "required": false,
-            "dataType": "JSON",
-            "propertyName": "weightages",
-            "title": "Weightages of fields",
-            "description": "",
-            "category": "general",
-            "displayProperty": "Editable",
-            "defaultValue": "{\"10\": [\"category\", \"pos\"],\"15\": [\"theme\"],\"1\": [\"not_exists\"],\"5\": [\"exists\"],\"20\":\"lemma\",\"0\":\"default_weightage\"}",
-            "renderingHints": "{ 'inputType': 'textarea', 'order': 13 }",
-            "indexed": true,
-            "draft": false
-        },
-         {
           "propertyName": "ruleScript",
           "title": "Rule Script",
           "description": "",
@@ -209,19 +196,6 @@
           "displayProperty": "Editable",
           "defaultValue": "Word",
           "renderingHints": "{ 'order': 15 }"
-        },
-         {
-          "propertyName": "ruleObjectStatus",
-          "title": "Rule Object Status",
-          "description": "",
-          "category": "general",
-          "dataType": "List",
-          "range": [],
-          "required": true,
-          "indexed": true,
-          "displayProperty": "Editable",
-          "defaultValue": "",
-          "renderingHints": "{ 'order': 16 }"
         }
       ],
       "inRelations": [

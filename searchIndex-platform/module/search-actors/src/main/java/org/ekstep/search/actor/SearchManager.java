@@ -24,7 +24,6 @@ import org.ekstep.searchindex.util.CompositeSearchConstants;
 import org.ekstep.searchindex.util.ObjectDefinitionCache;
 
 import com.ilimi.common.dto.Request;
-import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -35,7 +34,7 @@ public class SearchManager extends SearchBaseActor {
 
 	private static Logger LOGGER = LogManager.getLogger(SearchManager.class.getName());
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
+	@SuppressWarnings({ "unchecked" })
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 		String operation = request.getOperation();

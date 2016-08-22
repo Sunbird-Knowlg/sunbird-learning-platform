@@ -65,6 +65,15 @@ if {$isLanguageIdNull == 0} {
 	$filters put "graph_id" $languageIdObj
 }
 
+if {$isLanguageIdNull == 1 || $languageIdSize == 0} {
+		set result_map [java::new HashMap]
+		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
+		$result_map put "message" "At least one language Id is mandatory"
+		$result_map put "responseCode" [java::new Integer 400]
+		set response_list [create_error_response $result_map]
+		return $response_list
+}
+
 #copy request parameters for Search request
 $request_map put "query" $query
 $request_map put "exists" $exists
@@ -76,14 +85,6 @@ $request_map put "fuzzy" $fuzzy
 
 # enhance request object for traversal
 if {$wordChainsQuery == "true"} {
-	if {$isLanguageIdNull == 1 || $languageIdSize == 0} {
-		set result_map [java::new HashMap]
-		$result_map put "code" "ERR_CONTENT_INVALID_REQUEST"
-		$result_map put "message" "At least one language Id is mandatory"
-		$result_map put "responseCode" [java::new Integer 400]
-		set response_list [create_error_response $result_map]
-		return $response_list
-	}
 
 	$request_map put "traversal" [java::new Boolean "true"]
 
@@ -109,7 +110,7 @@ if {$wordChainsQuery == "true"} {
 		$filters put "objectType" $objectType
 	}
 
-	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
+	set searchResultsLimit [$ruleObject get "maxWords"]
 
 	set limit $searchResultsLimit
 }

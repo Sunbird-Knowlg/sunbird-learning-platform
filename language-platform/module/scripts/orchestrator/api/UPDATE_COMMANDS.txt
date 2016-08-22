@@ -33,3 +33,5 @@ node registerScript.js api/get-word-chains.tcl api/json/register-get-word-chains
 node registerScript.js api/language-search.tcl api/json/register-language-search.json update
 
 node registerScript.js api/get-akshara-rule-word-chains.tcl api/json/register-get-akshara-rule-word-chains.json update
+
+node registerScript.js api/get-rhymingsound-rule-word-chains.tcl api/json/get-rhymingsound-rule-word-chains.json update
