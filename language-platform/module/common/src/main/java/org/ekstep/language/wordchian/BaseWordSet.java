@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -22,6 +21,7 @@ import com.ilimi.graph.dac.enums.SystemNodeTypes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
+import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
@@ -32,16 +32,18 @@ public abstract class BaseWordSet extends BaseManager{
 	protected String languageId ;
 	protected Node wordNode;
 	protected WordComplexity wc;
+	protected List<Relation> existingWordSetRelatios;
 	private Logger LOGGER;
 	
-	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, Logger LOGGER){
+	public BaseWordSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios, Logger LOGGER){
 		this.LOGGER = LOGGER;
 		this.languageId = languageId;
 		this.wordNode = wordNode;
+		this.existingWordSetRelatios = existingWordSetRelatios;
 		this.wc = wc;
 	}
 	
-	protected String getWordSet(String languageId, String lemma, String type){
+	protected String getWordSet(String lemma, String type){
 		Node node = null;
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.SET.name());
@@ -68,7 +70,7 @@ public abstract class BaseWordSet extends BaseManager{
         }
 	}
 	
-	protected String createWordSetCollection(String languageId, String wordId, String setLemma, String setType){
+	protected String createWordSetCollection(String setLemma, String setType){
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "createSet");
         //setReq.put(GraphDACParams.criteria.name(), getItemSetCriteria(node));
         
@@ -80,12 +82,7 @@ public abstract class BaseWordSet extends BaseManager{
 		wordSet.setObjectType(LanguageObjectTypes.WordSet.name());
 
 		List<String> members = null;
-		if(StringUtils.isNotBlank(wordId))
-			members = Arrays.asList(wordId);
-		else
-			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
-					"WordId cannot be empty");
-			
+		members = Arrays.asList(wordNode.getIdentifier());
         setReq.put(GraphDACParams.members.name(), members);
         setReq.put(GraphDACParams.node.name(), wordSet);
         setReq.put(GraphDACParams.object_type.name(), LanguageObjectTypes.WordSet.name());
@@ -98,10 +95,10 @@ public abstract class BaseWordSet extends BaseManager{
 		return setId;
 	}
 	
-	protected void addMemberToSet(String languageId, String collectionId, String wordId){
+	protected void addMemberToSet(String collectionId){
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "addMember");
 
-        setReq.put(GraphDACParams.member_id.name(), wordId);
+        setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), collectionId);
         setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
         Response res = getResponse(setReq, LOGGER);
@@ -110,7 +107,7 @@ public abstract class BaseWordSet extends BaseManager{
 					getErrorMessage(res));
 	}
 
-	protected void createRelation(String languageId, String startNodeId, String endNodeId, String relationType){
+	protected void createRelation(String startNodeId, String endNodeId, String relationType){
         Request req = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "createRelation");
         req.put(GraphDACParams.start_node_id.name(), startNodeId);
         req.put(GraphDACParams.end_node_id.name(), endNodeId);
@@ -121,4 +118,82 @@ public abstract class BaseWordSet extends BaseManager{
 		}
 
 	}
+	
+	public Node getDataNode() {
+		String wordId = wordNode.getIdentifier();
+		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode");
+		request.put(GraphDACParams.node_id.name(), wordId);
+		request.put(GraphDACParams.get_tags.name(), true);
+
+		Response findRes = getResponse(request, LOGGER);
+		if (checkError(findRes))
+			return null;
+		else {
+			Node node = (Node) findRes.get(GraphDACParams.node.name());
+			if (null != node)
+				return node;
+		}
+		return null;
+	}
+		
+	protected boolean isExist(String type, String lemma){
+		
+		for(Relation relation : existingWordSetRelatios) {
+			if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name()))){
+				//same type of WordSet is already associated with
+				if(lemma.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.lemma.name()))){
+					//same lemma 
+					return true;
+				}else{
+					//different lemma - remove set membership
+					removeWordFromWordSet(relation.getStartNodeId());
+					return false;
+				}
+			}
+		}
+		return false;
+	}
+
+	protected boolean isExist(String type, List<String> newLemmas){
+		
+		if(existingWordSetRelatios.size() > 0){
+			List<String> existingLemmas = new ArrayList<String>();
+			Map<String, String> existingSetMap = new HashMap<String, String>();
+			for(Relation relation : existingWordSetRelatios) {
+				if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name()))){
+					String lemma = (String)relation.getStartNodeMetadata().get(LanguageParams.lemma.name());
+					lemma = lemma.substring(lemma.lastIndexOf("_")+1); //trimming of constant precedence like "ENDS_WITH_"
+					existingLemmas.add(lemma);
+					existingSetMap.put(lemma, relation.getStartNodeId());
+				}
+			}
+			
+			if(existingLemmas.containsAll(newLemmas))
+				return true;
+			
+			List<String> dupLemmas = new ArrayList<>(newLemmas);
+			//remove already existing lemma from newLemmas
+			newLemmas.removeAll(existingLemmas);
+			//remove newLemmas from existingLemmas so that remaining lemma will be the one which should be removed
+			existingLemmas.removeAll(dupLemmas);
+			for(String lemma : existingLemmas)
+				removeWordFromWordSet(existingSetMap.get(lemma));
+			return false;
+		}
+		return false;
+	}
+	
+	protected void removeWordFromWordSet(String setId){
+        Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
+
+        setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
+        setReq.put(GraphDACParams.collection_id.name(), setId);
+        setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
+        Response res = getResponse(setReq, LOGGER);
+		if (checkError(res))
+			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(),
+					getErrorMessage(res));
+	}
+	
+
 }
