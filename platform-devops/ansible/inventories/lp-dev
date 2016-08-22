@@ -1,5 +1,5 @@
 [env]
-172.31.31.183 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=~/.ssh/ekstep/keys/learning-platform
+172.31.31.183 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=$p/learning-platform.pem
 
 
 [local]
@@ -11,6 +11,7 @@ service_url = 172.31.31.183:8080
 
 
 [env:vars]
+neo4j_home = /home/ec2-user/neo4j-community-3.0.4
 service_url = 172.31.31.183:8080
 zookeeper_url = 172.31.1.92:2181
 graph_event_topic_id = sandbox.learning.graph.events
@@ -33,4 +34,5 @@ tomcat_perm_size = -XX:MaxPermSize=256M
 graphevent_kafka_url = "172.31.1.92:9092"
 graphevent_kafka_topic_id = "sandbox.learning.graph.events"
 content_to_vec_url = http://172.31.25.29:9000/content-to-vec
+
 
