@@ -391,6 +391,28 @@ public class SearchProcessor {
 		}
 
 		builder.endArray().key("score_mode").value("sum").key("boost_mode").value("replace").endObject().endObject();
+		
+		if (groupByList != null && !groupByList.isEmpty()) {
+			builder.key("aggs").object();
+			for (Map<String, Object> groupByMap : groupByList) {
+				String groupByParent = (String) groupByMap.get("groupByParent");
+				builder.key(groupByParent).object().key("terms").object().key("field")
+						.value(groupByParent + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
+						.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
+
+				List<String> groupByChildList = (List<String>) groupByMap.get("groupByChildList");
+				if (groupByChildList != null && !groupByChildList.isEmpty()) {
+					builder.key("aggs").object();
+					for (String childGroupBy : groupByChildList) {
+						builder.key(childGroupBy).object().key("terms").object().key("field")
+								.value(childGroupBy + CompositeSearchConstants.RAW_FIELD_EXTENSION).key("size")
+								.value(elasticSearchUtil.defaultResultLimit).endObject().endObject();
+					}
+					builder.endObject();
+				}
+			}
+			builder.endObject();
+		}
 
 		builder.endObject();
 		return builder.toString();

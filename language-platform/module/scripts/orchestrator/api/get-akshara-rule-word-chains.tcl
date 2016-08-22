@@ -32,7 +32,8 @@ java::import -package org.ekstep.language.wordchain.evaluators WordIdEvaluator
 
 #given a path, word scores and relation, scores the word chain 
 #and forms the word chain data structure
-proc processPath {finalPath wordScore relation} {
+
+proc processPath {finalPath wordScore relation wordChainSet} {
 	set wordChain [java::new ArrayList]
 	set totalScore 0
 	set averageScore 0.0
@@ -78,6 +79,14 @@ proc processPath {finalPath wordScore relation} {
 		return [java::null]
 	}
 	
+	set wordChainString [$wordChain toString]
+	set wordChainSetContains [$wordChainSet contains $wordChainString]
+	if {$wordChainSetContains == 1} {
+		return [java::null]
+	} else {
+		$wordChainSet add $wordChainString
+	}
+	
 	#form word chain structure
 	set averageScore [expr $totalScore/$chainLength]
 	$wordChainRecord put "title" $title
@@ -87,7 +96,7 @@ proc processPath {finalPath wordScore relation} {
 	return $wordChainRecord
 }
 
-
+set wordChainSet [java::new HashSet]
 set maxDefinedDepthObj [$ruleObject get "maxChainLength"]
 set maxDefinedDepth [$maxDefinedDepthObj toString]
 
@@ -177,25 +186,30 @@ $traversalRequest put "evaluators" $evaluators
 java::for {Map topWord} $topWords {
 	set topWordIdObject [$topWord get "identifier"]
 	set topWordId [$topWordIdObject toString]
-	$traversalRequest put "startNodeId" $topWordId
-	set traverser [get_traverser $graphId $traversalRequest]
-	set resp_traverse [traversePaths $graphId $traverser]
-	set check_error [check_response_error $resp_traverse]
-	if {$check_error} {
-		return $resp_traverse;
-	} 
 	
-	#get paths from traversals
-	set subGraph [get_resp_value $resp_traverse "sub_graph"]
-	set paths [$subGraph getPaths]
-	java::for {Path finalPath} $paths {
-		set wordChain [processPath $finalPath $wordScore $ruleType]
-		if {$wordChain != ""} { 
-			set isWordChainNull [java::isnull $wordChain]
-			if {$isWordChainNull == 0} {
-				$wordChains add $wordChain
-			}
+	set get_node_response [getDataNode $graphId $topWordId]
+	set get_node_response_error [check_response_error $get_node_response]
+	if {!$get_node_response_error} {
+		$traversalRequest put "startNodeId" $topWordId
+		set traverser [get_traverser $graphId $traversalRequest]
+		set resp_traverse [traversePaths $graphId $traverser]
+		set check_error [check_response_error $resp_traverse]
+		if {$check_error} {
+			return $resp_traverse;
 		} 
+		
+		#get paths from traversals
+		set subGraph [get_resp_value $resp_traverse "sub_graph"]
+		set paths [$subGraph getPaths]
+		java::for {Path finalPath} $paths {
+			set wordChain [processPath $finalPath $wordScore $ruleType $wordChainSet]
+			if {$wordChain != ""} { 
+				set isWordChainNull [java::isnull $wordChain]
+				if {$isWordChainNull == 0} {
+					$wordChains add $wordChain
+				}
+			} 
+		}
 	}
 }
 
