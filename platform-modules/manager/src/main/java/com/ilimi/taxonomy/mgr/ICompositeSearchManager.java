@@ -6,5 +6,5 @@ public interface ICompositeSearchManager {
 
 	Response sync(String graphId, String objectType, Integer start, Integer total);
 	
-	Response syncObject(String graphId, String identifier);
+	Response syncObject(String graphId, String[] identifiers);
 }

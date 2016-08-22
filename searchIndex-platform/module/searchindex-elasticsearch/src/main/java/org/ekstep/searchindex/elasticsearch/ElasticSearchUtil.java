@@ -136,7 +136,7 @@ public class ElasticSearchUtil {
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
-		LOGGER.info("Added " + documentId + " to index " + indexName + " | Document: " + document);
+		LOGGER.info("Added " + documentId + " to index " + indexName);
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {

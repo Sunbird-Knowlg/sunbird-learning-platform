@@ -45,15 +45,15 @@ public class LearningDataSyncController extends BaseController {
 		}
 	}
 	
-	@RequestMapping(value = "/sync/object/{graphId:.+}/{identifier:.+}", method = RequestMethod.POST)
+	@RequestMapping(value = "/sync/object/{graphId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> syncObject(@PathVariable(value = "graphId") String graphId,
-			@PathVariable(value = "identifier") String identifier,
+			@RequestParam(value = "identifiers", required = true) String[] identifiers,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "composite-search.sync-object";
-		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifier);
+		LOGGER.info(apiId + " | Graph : " + graphId + " | Identifier: " + identifiers);
 		try {
-			Response response = compositeSearchManager.syncObject(graphId, identifier);
+			Response response = compositeSearchManager.syncObject(graphId, identifiers);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			LOGGER.error("Error: " + apiId, e);
