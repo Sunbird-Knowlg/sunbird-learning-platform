@@ -50,7 +50,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		return response;
 	}
 	
-	protected Response syncObject(String graphId, String identifier) {
+	protected Response syncNode(String graphId, String identifier) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
@@ -62,6 +62,7 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		if (null != node) {
 			List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
 			lstMessages.add(getKafkaMessage(node));
+			LOGGER.info("Sync message : " + identifier + " | " + lstMessages);
 			return pushMessageToKafka(lstMessages);
 		} else {
 			throw new ResourceNotFoundException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),
