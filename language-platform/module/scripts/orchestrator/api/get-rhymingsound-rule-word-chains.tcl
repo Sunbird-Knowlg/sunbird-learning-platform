@@ -51,7 +51,7 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
         if {$chainLength >= $maxChainLength} {
             set averageScore [expr $totalScore/$chainLength]
 						set wordChainRecord [java::new HashMap]
-            $wordChainRecord put "title" $title
+            #$wordChainRecord put "title" $title
             $wordChainRecord put "list" $wordChain
             $wordChainRecord put "score" $averageScore
             $wordChainRecord put "relation" $ruleName
@@ -69,7 +69,7 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 		  # add wordchain into existing list(wordChains)
 			set averageScore [expr $totalScore/$chainLength]
 			set wordChainRecord [java::new HashMap]
-			$wordChainRecord put "title" $title
+			#$wordChainRecord put "title" $title
 			$wordChainRecord put "list" $wordChain
 			$wordChainRecord put "score" $averageScore
 			$wordChainRecord put "relation" $ruleName
@@ -109,7 +109,7 @@ set minChainLengthObj [$ruleObject get "minChainLength"]
 set minChainLength [$minChainLengthObj toString]
 
 set startWordsSize [$ruleObject get "startWordsSize"]
-set ruleName [$ruleObject get "name"]
+set ruleName [$ruleObject get "identifier"]
 
 set wordsSize [$searchResult size]
 set rhymingSound ""
