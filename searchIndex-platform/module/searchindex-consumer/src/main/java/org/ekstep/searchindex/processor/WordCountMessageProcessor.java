@@ -15,11 +15,14 @@ import org.ekstep.searchindex.util.ConsumerUtil;
 import org.ekstep.searchindex.util.HTTPUtil;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
+import com.ilimi.common.logger.LogHelper;
+
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
 public class WordCountMessageProcessor implements IMessageProcessor {
 
+	private static LogHelper LOGGER = LogHelper.getInstance(WordCountMessageProcessor.class.getName());
 	ConsumerUtil consumerUtil = new ConsumerUtil();
 	private ObjectMapper mapper = new ObjectMapper();
 	private Timer timer;
@@ -39,6 +42,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -70,7 +74,7 @@ public class WordCountMessageProcessor implements IMessageProcessor {
 			 Map<String, Integer> wordsCountObj = entry.getValue();
 			 Integer wordsCount = wordsCountObj.get("wordsCount");
 			 Integer liveWordsCount = wordsCountObj.get("liveWordsCount");
-			 String url = PropertiesUtil.getProperty("ekstepPlatformURI") +"/v1/language/dictionary/updateWordCount/"+languageId;
+			 String url = PropertiesUtil.getProperty("platform-api-url") +"/v1/language/dictionary/updateWordCount/"+languageId;
 			
 			 Map<String, Object> requestBodyMap = new HashMap<String, Object>();
 			 Map<String, Object> requestMap = new HashMap<String, Object>();
