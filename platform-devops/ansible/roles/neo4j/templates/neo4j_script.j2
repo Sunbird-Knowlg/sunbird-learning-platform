@@ -1,0 +1,21 @@
+
+#!/bin/sh
+#****************************************************
+#AUTHOR:MANOJ V V
+#DESCRIPTION:Script for lp-neo4j-update.
+#DATE:22-08-16
+#****************************************************
+cd /data/graphDB                 #move inside th folder
+
+#*****************************************************
+for file in *                        
+do
+	a=dbms.active_database=.*
+	b=dbms.active_database=$file
+	sed -i '' "s/$a/$b/" /home/ec2-user/neo4j-community-3.0.4/conf/neo4j.conf
+    `./home/ec2-user/neo4j-community-3.0.4/bin/neo4j-admin import --mode=database --database=$file --from=/data/graphDB/$file`
+done
+
+cp -r /home/ec2-user/neo4j-community-3.0.4/data/databases/*  /data/graphDB
+
+

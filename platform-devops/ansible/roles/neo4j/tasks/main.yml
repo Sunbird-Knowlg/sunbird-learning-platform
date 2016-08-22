@@ -1,0 +1,38 @@
+---
+- name: install neo4j
+  get_url: url=http://dist.neo4j.org/neo4j-community-3.0.4-unix.tar.gz dest=/home/ec2-user/neo4j-community-3.0.4-unix.tar.gz timeout=1000 force=no owner=ec2-user
+
+- name: Unarchive neo4j
+  unarchive: src=/home/ec2-user/neo4j-community-3.0.4-unix.tar.gz dest=/home/ec2-user copy=no   owner=ec2-user group=ec2-user creates=/home/ec2-user/neo4j-community-3.0.4
+
+- name: Backup
+  file: path=/home/ec2-user/backups mode=755 owner=ec2-user state=directory
+
+- name: Backup
+  copy: src=/data/graphDB dest=/home/ec2-user/backups/ backup=yes
+
+- name: Replace Working directory line
+  lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^#dbms.allow_format_migration=true' line='dbms.allow_format_migration=true' state=present
+
+#  command: "ls {{ directory }}"
+# register: dir_out
+# with_items: dir_out.stdout_lines
+
+- name: copy template
+  template: src=neo4j_script.j2 dest=/home/ec2-user/neo4j_script.sh
+
+- name: run script
+  shell: sh /home/ec2-user/neo4j_script.sh
+
+- name: Replace Working directory line
+  lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^dbms.allow_format_migration=true' line='#dbms.allow_format_migration=true' state=present
+
+
+
+
+
+
+
+
+
+
