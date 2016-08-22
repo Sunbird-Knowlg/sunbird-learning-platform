@@ -109,7 +109,7 @@ if {$wordChainsQuery == "true"} {
 		$filters put "objectType" $objectType
 	}
 
-	set searchResultsLimit [$ruleObject get "wordChainWordsSize"]
+	set searchResultsLimit [$ruleObject get "maxWords"]
 
 	set limit $searchResultsLimit
 }
