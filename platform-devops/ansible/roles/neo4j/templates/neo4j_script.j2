@@ -10,9 +10,9 @@ cd /data/graphDB                 #move inside th folder
 #*****************************************************
 for file in *                        
 do
-	a=dbms.active_database=.*
+	a="dbms.active_database=.*"
 	b="dbms.active_database=$file"
-	sed -i '' "s/$a/$b/" /home/ec2-user/neo4j-community-3.0.4/conf/neo4j.conf
+	`sed -i '' "s/$a/$b/" /home/ec2-user/neo4j-community-3.0.4/conf/neo4j.conf`
 	cd /home/ec2-user/neo4j-community-3.0.4/bin
     `./neo4j-admin import --mode=database --database=$file --from=/data/graphDB/$file`
 done
