@@ -89,7 +89,7 @@ proc processPath {finalPath wordScore relation wordChainSet} {
 	
 	#form word chain structure
 	set averageScore [expr $totalScore/$chainLength]
-	$wordChainRecord put "title" $title
+	#$wordChainRecord put "title" $title
 	$wordChainRecord put "list" $wordChain
 	$wordChainRecord put "score" $averageScore
 	$wordChainRecord put "relation" $relation
@@ -104,7 +104,7 @@ set minDefinedDepthObj [$ruleObject get "minChainLength"]
 set minDefinedDepth [$minDefinedDepthObj toString]
 
 set startWordsSize [$ruleObject get "startWordsSize"]
-set ruleType [$ruleObject get "type"]
+set ruleType [$ruleObject get "identifier"]
 set ruleScript [$ruleObject get "ruleScript"]
 
 set wordsSize [$searchResult size]
@@ -137,7 +137,6 @@ java::for {Map word} $searchResult {
 	$wordIdMap put $id $word
 }
 
-set ruleType "Akshara Rule"
 set wordChains [java::new ArrayList]
 
 # the no of nodes after start node that forms a chain of two words is 3 for Phonetic boundary
