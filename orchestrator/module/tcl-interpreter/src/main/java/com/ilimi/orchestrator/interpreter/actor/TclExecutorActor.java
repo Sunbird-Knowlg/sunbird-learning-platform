@@ -138,7 +138,6 @@ public class TclExecutorActor extends UntypedActor {
 		return false;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private Object execute(OrchestratorScript script, Map<String, Object> params) {
 		try {
 			if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), script.getType())) {
@@ -149,34 +148,8 @@ public class TclExecutorActor extends UntypedActor {
 						Object paramObj = params.get(name);
 						if (null != paramObj) {
 							if (StringUtils.isNotBlank(scriptParam.getDatatype())) {
-								Class cls = Class.forName(scriptParam.getDatatype());
-								try {
-									String objectStr = mapper.writeValueAsString(paramObj);
-									Object javaObj = mapper.readValue(objectStr, cls);
-									TclObject obj = ReflectObject.newInstance(interpreter, cls, javaObj);
-									interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
-								} catch (Exception e) {
-									if (isListClass(cls)) {
-										List list = new ArrayList();
-										list.add(paramObj);
-										TclObject obj = ReflectObject.newInstance(interpreter, list.getClass(), list);
-										interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
-									} else if (checkDataType(cls, InputStream.class.getName())) {
-										if (paramObj instanceof MultipartFile) {
-											MultipartFile mpf = (MultipartFile) paramObj;
-											InputStream is = mpf.getInputStream();
-											TclObject obj = ReflectObject.newInstance(interpreter, is.getClass(), is);
-											interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
-										} else {
-											TclObject obj = ReflectObject.newInstance(interpreter, Object.class,
-													paramObj);
-											interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
-										}
-									} else {
-										TclObject obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
-										interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
-									}
-								}
+								TclObject obj = getTclObject(scriptParam.getDatatype(), paramObj);
+								interpreter.setVar(name, obj, TCL.NAMESPACE_ONLY);
 							} else {
 								interpreter.setVar(name, paramObj.toString(), TCL.NAMESPACE_ONLY);
 							}
@@ -199,10 +172,14 @@ public class TclExecutorActor extends UntypedActor {
 				List<ScriptParams> scriptParams = script.getParameters();
 				for(ScriptParams scriptParam: scriptParams){
 					Object paramObj = params.get(scriptParam.getName());
-					TclObject tclObj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
-					tclParamsArray[scriptParam.getIndex()+1] = tclObj;
+					if (StringUtils.isNotBlank(scriptParam.getDatatype())) {
+						TclObject tclObj = getTclObject(scriptParam.getDatatype(), paramObj);
+						tclParamsArray[scriptParam.getIndex()+1] = tclObj;
+					} else {
+						TclObject tclObj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
+						tclParamsArray[scriptParam.getIndex()+1] = tclObj;
+					}
 				}
-				
 				cmd.cmdProc(interpreter,tclParamsArray);
 			}
 			TclObject tclObject = interpreter.getResult();
@@ -232,6 +209,34 @@ public class TclExecutorActor extends UntypedActor {
 		} catch (Exception e) {
 			throw new MiddlewareException(ExecutionErrorCodes.ERR_SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
+	}
+	
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	private TclObject getTclObject(String datatype, Object paramObj) throws Exception {
+		TclObject obj = null;
+		Class cls = Class.forName(datatype);
+		try {
+			String objectStr = mapper.writeValueAsString(paramObj);
+			Object javaObj = mapper.readValue(objectStr, cls);
+			obj = ReflectObject.newInstance(interpreter, cls, javaObj);
+		} catch (Exception e) {
+			if (isListClass(cls)) {
+				List list = new ArrayList();
+				list.add(paramObj);
+				obj = ReflectObject.newInstance(interpreter, list.getClass(), list);
+			} else if (checkDataType(cls, InputStream.class.getName())) {
+				if (paramObj instanceof MultipartFile) {
+					MultipartFile mpf = (MultipartFile) paramObj;
+					InputStream is = mpf.getInputStream();
+					obj = ReflectObject.newInstance(interpreter, is.getClass(), is);
+				} else {
+					obj = ReflectObject.newInstance(interpreter, Object.class,paramObj);
+				}
+			} else {
+				obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);				
+			}
+		}
+		return obj;
 	}
 
 	private Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
