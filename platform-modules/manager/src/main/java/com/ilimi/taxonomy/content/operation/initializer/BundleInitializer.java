@@ -1,17 +1,12 @@
 package com.ilimi.taxonomy.content.operation.initializer;
 
-import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.common.slugs.Slug;
-import org.ekstep.common.util.HttpDownloadUtility;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -69,53 +64,11 @@ public class BundleInitializer extends BaseInitializer {
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
 		LOGGER.info("Total Input Content Ids: " + contentIdList.size());
-
-		LOGGER.info("Populating the Recursive (Children) Contents.");
-
-		// Populate the Content Hierarchical Data (Include Children Content
-		// also)
-		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
-		List<String> childrenIds = new ArrayList<String>();
-		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
-
+		
 		// Validate the availability of all the Requested Contents
-		if (contents.size() < contentIdList.size())
+		if (nodes.size() < contentIdList.size())
 			throw new ResourceNotFoundException(ContentErrorCodeConstants.MISSING_CONTENT.name(),
 					ContentErrorMessageConstants.MISSING_BUNDLE_CONTENT);
-		
-		// Get Content Bundle Expiry Date
-		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);
-		LOGGER.info("Bundle Will Expire On: " + expiresOn);
-		
-		// Preparing the List of URL Fields
-		List<String> urlFields = new ArrayList<String>();
-        urlFields.add(ContentWorkflowPipelineParams.appIcon.name());
-        urlFields.add(ContentWorkflowPipelineParams.grayScaleAppIcon.name());
-        urlFields.add(ContentWorkflowPipelineParams.posterImage.name());
-        urlFields.add(ContentWorkflowPipelineParams.artifactUrl.name());
-
-		// Marking Content Visibility as Parent
-		for (Map<String, Object> content : contents) {
-			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
-			content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
-			if (childrenIds.contains(identifier))
-				content.put(ContentWorkflowPipelineParams.visibility.name(),
-						ContentWorkflowPipelineParams.Parent.name());
-			for (Map.Entry<String, Object> entry : content.entrySet()) {
-                if (urlFields.contains(entry.getKey()) && null != entry.getValue() && HttpDownloadUtility.isValidUrl(entry.getValue())) {
-                	String file = FilenameUtils.getName(entry.getValue().toString());
-                    if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
-                        entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-                    } else {
-                        entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
-                    }
-                }
-			}
-			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
-			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
-				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
-			content.put(ContentWorkflowPipelineParams.downloadUrl.name(), content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
-		}
 
 		LOGGER.info("Total Content To Bundle: " + nodes.size());
 
@@ -128,7 +81,6 @@ public class BundleInitializer extends BaseInitializer {
 			ecmlContent = (null == ecmlContent) ? false : ecmlContent;
 
 			LOGGER.info("Is ECML Mime-Type? " + ecmlContent);
-
 			LOGGER.info("Processing Content Id: " + node.getIdentifier());
 
 			// Setting Attribute Value
@@ -163,10 +115,8 @@ public class BundleInitializer extends BaseInitializer {
 		FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 		Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleMap.name(), bundleMap);
-		finalizeParamMap.put(ContentWorkflowPipelineParams.Contents.name(), contents);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleFileName.name(), bundleFileName);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.manifestVersion.name(), manifestVersion);
-		finalizeParamMap.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 		response = finalize.finalyze(ContentWorkflowPipelineParams.bundle.name(), finalizeParamMap);
 		return response;
 	}

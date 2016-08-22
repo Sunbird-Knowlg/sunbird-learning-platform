@@ -20,6 +20,7 @@ import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.util.ContentBundle;
 
 public class BundleFinalizer extends BaseFinalizer {
 
@@ -46,19 +47,11 @@ public class BundleFinalizer extends BaseFinalizer {
 		Response response = new Response();
 		Map<String, Object> bundleMap = (Map<String, Object>) parameterMap
 				.get(ContentWorkflowPipelineParams.bundleMap.name());
-		List<Map<String, Object>> contents = (List<Map<String, Object>>) parameterMap
-				.get(ContentWorkflowPipelineParams.Contents.name());
 		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
-		String expiresOn = (String) parameterMap.get(ContentWorkflowPipelineParams.expires.name());
-
 		if (null == bundleMap || bundleMap.isEmpty())
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Invalid or null Parameters.]");
-		if (null == contents || contents.isEmpty())
-			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
-					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
-							+ " | [Invalid or null Content List (Un-Populate Content Data).]");
 		if (StringUtils.isBlank(bundleFileName))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM + " | [Invalid Bundle File Name.]");
@@ -66,19 +59,13 @@ public class BundleFinalizer extends BaseFinalizer {
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
 							+ " | [Invalid Content Manifest Version.]");
-		if (StringUtils.isBlank(expiresOn))
-			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
-					ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
-							+ " | [Invalid Bundle Expiry Date.]");
-
+		
+		List<Node> nodes = new ArrayList<Node>();
 		List<File> zipPackages = new ArrayList<File>();
-
 		LOGGER.info("Fetching the Parameters From BundleFinalizer.");
 		for (Entry<String, Object> entry : bundleMap.entrySet()) {
 			LOGGER.info("Processing Content Id: " + entry.getKey());
-
 			Map<String, Object> nodeMap = (Map<String, Object>) entry.getValue();
-
 			if (null == nodeMap)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
@@ -143,7 +130,7 @@ public class BundleFinalizer extends BaseFinalizer {
 						String artifactUrl = urlArray[IDX_S3_URL];
 						
 						// Set artifact file For Node
-						if (StringUtils.isBlank(artifactUrl))
+						if (StringUtils.isNotBlank(artifactUrl))
 							node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
 					}
 				}
@@ -159,16 +146,31 @@ public class BundleFinalizer extends BaseFinalizer {
 				if (HttpDownloadUtility.isValidUrl(artifactUrl))
 					zipPackages.add(HttpDownloadUtility.downloadFile(artifactUrl, basePath));
 			}
+			nodes.add(node);
 		}
+		
+		// Populate the Content Hierarchical Data (Include Children Content also)
+		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
+		List<String> childrenIds = new ArrayList<String>();
+		LOGGER.info("Populating the Recursive (Children) Contents.");
+		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
+		
+		// Get Content Bundle Expiry Date
+		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);
+		LOGGER.info("Bundle Will Expire On: " + expiresOn);
+		
+		// Update Content data with relative paths
+		ContentBundle contentBundle = new ContentBundle();
+		contentBundle.createContentManifestData(contents, childrenIds, expiresOn);
 
 		// Create Manifest JSON File
 		File manifestFile = new File(basePath + File.separator + ContentWorkflowPipelineParams.manifest.name()
 				+ File.separator + ContentConfigurationConstants.CONTENT_BUNDLE_MANIFEST_FILE_NAME);
-		createManifestFile(manifestFile, manifestVersion, expiresOn ,contents);
+		contentBundle.createManifestFile(manifestFile, manifestVersion, expiresOn ,contents);
 		zipPackages.add(manifestFile);
 
 		// Create ECAR File
-		File file = createBundle(zipPackages, bundleFileName);
+		File file = contentBundle.createBundle(zipPackages, bundleFileName);
 
 		// Upload ECAR to S3
 		String[] urlArray = uploadToAWS(file, getUploadFolderName());
