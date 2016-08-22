@@ -103,10 +103,11 @@ public class IndicWordUtil extends BaseManager{
 			if(!isDefualtVowel(secondLastSyllablelastUnicode, unicodeTypeMap) && (unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) || unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE))){
 				String secondLastSyllableSecondlastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length-2];
 				if(unicodeTypeMap.get(secondLastSyllableSecondlastUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
-					rhymingSoundText = "\\"+secondLastSyllableSecondlastUnicode;
+					rhymingSoundText = secondLastSyllableSecondlastUnicode + " ";
 				}
 			}
 			rhymingSoundText += lastSyllable;
+			rhymingSoundText = rhymingSoundText.replace("\\", " ");
 			return rhymingSoundText;
 		}
 		return null;
