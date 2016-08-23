@@ -50,24 +50,28 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 		return response;
 	}
 	
-	protected Response syncNode(String graphId, String identifier) {
+	protected Response syncNode(String graphId, String[] identifiers) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_GRAPH_ID.name(),
 					"Graph Id is blank.");
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_BLANK_IDENTIFIER.name(),
 					"Identifier is blank.");
-		LOGGER.info("Composite index sync : " + graphId + " | Identifier: " + identifier);
-		Node node = getNode(graphId, identifier);
-		if (null != node) {
-			List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
-			lstMessages.add(getKafkaMessage(node));
-			LOGGER.info("Sync message : " + identifier + " | " + lstMessages);
-			return pushMessageToKafka(lstMessages);
-		} else {
-			throw new ResourceNotFoundException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),
-					"Object not found: " + identifier);
+		LOGGER.info("Composite index sync : " + graphId + " | Identifier: " + identifiers);
+		List<Map<String, Object>> lstMessages = new ArrayList<Map<String, Object>>();
+		if (null != identifiers && identifiers.length > 0) {
+			for (String identifier : identifiers) {
+				Node node = getNode(graphId, identifier);
+				if (null != node) {
+					lstMessages.add(getKafkaMessage(node));
+				} else {
+					throw new ResourceNotFoundException(CompositeSearchErrorCodes.ERR_COMPOSITE_SEARCH_SYNC_OBJECT_NOT_FOUND.name(),
+							"Object not found: " + identifier);
+				}
+			}
+			LOGGER.info("Sync messages count : " + lstMessages.size());
 		}
+		return pushMessageToKafka(lstMessages);
 	}
 	
 	private Response getDefinition(String graphId, String objectType) {

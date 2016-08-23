@@ -15,8 +15,8 @@
 #       {
 #			"list": ["en_1", "en_2"],
 #			"score": 2.0,
-#			"relation": "RhymingSound"
-#		    }
+#			"relation": "rhyming_boundary_rule"
+#		 }
 #    ]
 package require java
 java::import -package java.util ArrayList List
@@ -69,8 +69,6 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 						set totalScore [expr $totalScore + $scoreString]
 						# increment chainLength by 1
 						set chainLength [expr $chainLength + 1]
-						# remove the member from ValidWordIDS as to avoid processing them again in main function
-						set removed [$validWordIds remove $memberID]
 				}
 				# freeze wordChain and add it into list(wordChains) if its length crossed max_chain_length
         if {$chainLength >= $maxChainLength} {
@@ -82,6 +80,10 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 						$wordChainRecord put "relation" $ruleName
 						# add current wordChain into wordChains list
 						$wordChains add $wordChainRecord
+
+						# remove the member from ValidWordIDS as to avoid processing them again in main function
+						set removed [$validWordIds removeAll $wordChain]
+
 						# reset wordChain, length and score variables
 						set wordChain [java::new ArrayList]
 						set chainLength 0
@@ -100,6 +102,8 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 			$wordChainRecord put "score" $averageScore
 			$wordChainRecord put "relation" $ruleName
 			$wordChains add $wordChainRecord
+			# remove the member from ValidWordIDS as to avoid processing them again in main function
+			set removed [$validWordIds removeAll $wordChain]
 			return $wordChains
 		}
 }
@@ -159,6 +163,9 @@ set wordIdMap [java::new HashMap]
 # WordIDMap map contains key value pair as wordId and Word Object
 java::for {Map word} $searchResult {
 	set id [$word get "identifier"]
+	# add Id into validWordIds list
+	$validWordIds add $id
+
 	# add score against id in wordScore map
 	set score [$word get "score"]
 	set isScoreNull [java::isnull $score]
@@ -170,11 +177,11 @@ java::for {Map word} $searchResult {
 	set nodeRespone [getDataNode $graphId $id]
 	set check_error [check_response_error $nodeRespone]
 	if {$check_error} {
-		#skip
+		#remove wordId from validWordIds if word is not found
+		$validWordIds remove $id
 	} else {
 		set wordNode [get_resp_value $nodeRespone "node"]
-		# add Id into validWordIds list and add wordNode against id in wordIDMap
-		$validWordIds add $id
+		# add wordNode against id in wordIDMap
 		$wordIdMap put $id $wordNode
 	}
 }
@@ -191,15 +198,18 @@ set count 0
 while { ($topWordCount > $count) && ($listSize > $count) } {
 		# get id from master search result(ValidWordIds)
 		set id [$validWordIds get $count]
+
 		# get word Object from wordIdMap and cast it to Node type
 		set wordObj [$wordIdMap get $id]
 		set wordNode [java::cast Node $wordObj]
 		# call getRhymingSoundSet procedure to get rhymingSound setId
 		set rhymingSoundSetId [getRhymingSoundSet $wordNode]
+
 		# check rhymingSoundSetId is not null
 		set isRhymingSoundSetIdNull [java::isnull $rhymingSoundSetId]
 		# 0 is false and 1 is true in the above statement
 		if {$isRhymingSoundSetIdNull == 0} {
+
 			# get wordChains of rhymingSound
 			set wordChains [getRhymingsoundWordChains $rhymingSoundSetId $graphId $validWordIds $wordScore $minChainLength $maxChainLength $ruleName]
 			set hasWordChain [isNotEmpty $wordChains]

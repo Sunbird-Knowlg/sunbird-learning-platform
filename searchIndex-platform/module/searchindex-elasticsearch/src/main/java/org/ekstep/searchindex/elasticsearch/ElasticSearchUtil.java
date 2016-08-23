@@ -17,6 +17,7 @@ import org.ekstep.searchindex.transformer.IESResultTransformer;
 import org.ekstep.searchindex.util.PropertiesUtil;
 
 import com.google.gson.internal.LinkedTreeMap;
+import com.ilimi.common.logger.LogHelper;
 
 import io.searchbox.client.JestClient;
 import io.searchbox.client.JestClientFactory;
@@ -42,6 +43,7 @@ import net.sf.json.util.JSONStringer;
 
 public class ElasticSearchUtil {
 
+	private static LogHelper LOGGER = LogHelper.getInstance(ElasticSearchUtil.class.getName());
 	private JestClient client;
 	private String hostName;
 	private String port;
@@ -134,6 +136,7 @@ public class ElasticSearchUtil {
 			throws IOException {
 		Index index = new Index.Builder(document).index(indexName).type(documentType).id(documentId).build();
 		client.execute(index);
+		LOGGER.info("Added " + documentId + " to index " + indexName);
 	}
 
 	public void addIndex(String indexName, String documentType, String settings, String mappings) throws IOException {

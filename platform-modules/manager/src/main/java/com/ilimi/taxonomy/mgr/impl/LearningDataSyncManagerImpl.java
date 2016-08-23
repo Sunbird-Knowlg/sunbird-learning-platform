@@ -15,8 +15,8 @@ public class LearningDataSyncManagerImpl extends CompositeIndexSyncManager imple
 		}
 	
 	@Override
-	public Response syncObject(String graphId, String identifier) {
-		return syncNode(graphId, identifier);
+	public Response syncObject(String graphId, String[] identifiers) {
+		return syncNode(graphId, identifiers);
     }
 	
 	}

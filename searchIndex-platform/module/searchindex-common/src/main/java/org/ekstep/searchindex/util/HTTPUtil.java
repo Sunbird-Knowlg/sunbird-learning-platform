@@ -3,7 +3,6 @@ package org.ekstep.searchindex.util;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
-import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.codec.Charsets;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;

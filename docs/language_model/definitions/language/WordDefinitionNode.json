@@ -729,7 +729,7 @@
           "objectTypes": [
             "WordSet"
           ],
-          "title": "words",
+          "title": "wordsets",
           "description": "",
           "required": false,
           "renderingHints": "{ 'order': 27 }"

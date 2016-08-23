@@ -37,6 +37,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 			processMessage(message);
 		} catch (Exception e) {
 			e.printStackTrace();
+			LOGGER.error(e.getMessage(), e);
 		}
 	}
 
@@ -60,12 +61,14 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 				case CompositeSearchConstants.OPERATION_CREATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, false);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+					LOGGER.info("CREATE Operation | adding index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
 				case CompositeSearchConstants.OPERATION_UPDATE: {
 					Map<String, Object> indexDocument = getIndexDocument(message, definitionNode, relationMap, true);
 					String jsonIndexDocument = mapper.writeValueAsString(indexDocument);
+					LOGGER.info("CREATE Operation | updating index document");
 					addOrUpdateIndex(uniqueId, jsonIndexDocument);
 					break;
 				}
@@ -111,10 +114,12 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX,
 					CompositeSearchConstants.COMPOSITE_SEARCH_INDEX_TYPE, uniqueId);
 			if (documentJson != null && !documentJson.isEmpty()) {
+				LOGGER.info("Document exists for " + uniqueId);
 				indexDocument = mapper.readValue(documentJson, new TypeReference<Map<String, Object>>() {
 				});
 			}
 		}
+		LOGGER.info("Index Document for " + uniqueId + " | document: " + indexDocument.size());
 		Map transactionData = (Map) message.get("transactionData");
 		if (transactionData != null) {
 			Map<String, Object> addedProperties = (Map<String, Object>) transactionData.get("properties");
@@ -203,6 +208,7 @@ public class CompositeSearchMessageProcessor implements IMessageProcessor {
 		indexDocument.put("identifier", (String) message.get("nodeUniqueId"));
 		indexDocument.put("objectType", (String) message.get("objectType"));
 		indexDocument.put("nodeType", (String) message.get("nodeType"));
+		LOGGER.info("Updated Index Document for " + uniqueId + " | document: " + indexDocument.size());
 		return indexDocument;
 	}
 
