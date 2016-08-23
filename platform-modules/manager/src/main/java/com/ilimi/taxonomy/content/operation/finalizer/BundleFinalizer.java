@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +46,8 @@ public class BundleFinalizer extends BaseFinalizer {
 		Response response = new Response();
 		Map<String, Object> bundleMap = (Map<String, Object>) parameterMap
 				.get(ContentWorkflowPipelineParams.bundleMap.name());
+		List<Map<String, Object>> contents = (List<Map<String, Object>>)(parameterMap.get(ContentWorkflowPipelineParams.Contents.name()));
+		List<String> childrenIds = (List<String>)(parameterMap.get(ContentWorkflowPipelineParams.children.name()));
 		String bundleFileName = (String) parameterMap.get(ContentWorkflowPipelineParams.bundleFileName.name());
 		String manifestVersion = (String) parameterMap.get(ContentWorkflowPipelineParams.manifestVersion.name());
 		if (null == bundleMap || bundleMap.isEmpty())
@@ -63,16 +64,17 @@ public class BundleFinalizer extends BaseFinalizer {
 		List<Node> nodes = new ArrayList<Node>();
 		List<File> zipPackages = new ArrayList<File>();
 		LOGGER.info("Fetching the Parameters From BundleFinalizer.");
-		for (Entry<String, Object> entry : bundleMap.entrySet()) {
-			LOGGER.info("Processing Content Id: " + entry.getKey());
-			Map<String, Object> nodeMap = (Map<String, Object>) entry.getValue();
+		for (Map<String, Object> contentMap : contents) {
+			String contentId = (String) contentMap.get(ContentWorkflowPipelineParams.identifier.name());
+			LOGGER.info("Processing Content Id: " + contentId);
+			Map<String, Object> nodeMap = (Map<String, Object>) bundleMap.get(contentId);
 			if (null == nodeMap)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
 						ContentErrorMessageConstants.INVALID_CWP_OP_FINALIZE_PARAM
 								+ " | [All the Content for Bundling should be Valid, Invalid or null Content Cannnot be Bundled (Content Id - "
-								+ entry.getKey() + ").]");
+								+ contentId + ").]");
 
-			LOGGER.info("Fetching the Parameters For Content Id: " + entry.getKey());
+			LOGGER.info("Fetching the Parameters For Content Id: " + contentId);
 			Plugin ecrf = (Plugin) nodeMap.get(ContentWorkflowPipelineParams.ecrf.name());
 			Node node = (Node) nodeMap.get(ContentWorkflowPipelineParams.node.name());
 			boolean isCompressionApplied = (boolean) nodeMap
@@ -130,8 +132,10 @@ public class BundleFinalizer extends BaseFinalizer {
 						String artifactUrl = urlArray[IDX_S3_URL];
 						
 						// Set artifact file For Node
-						if (StringUtils.isNotBlank(artifactUrl))
+						if (StringUtils.isNotBlank(artifactUrl)) {
 							node.getMetadata().put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
+							contentMap.put(ContentWorkflowPipelineParams.artifactUrl.name(), artifactUrl);
+						}
 					}
 				}
 				
@@ -148,12 +152,6 @@ public class BundleFinalizer extends BaseFinalizer {
 			}
 			nodes.add(node);
 		}
-		
-		// Populate the Content Hierarchical Data (Include Children Content also)
-		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
-		List<String> childrenIds = new ArrayList<String>();
-		LOGGER.info("Populating the Recursive (Children) Contents.");
-		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 		
 		// Get Content Bundle Expiry Date
 		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);

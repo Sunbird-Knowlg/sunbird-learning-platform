@@ -161,6 +161,10 @@ public class ContentValidator {
 							|| StringUtils.isNotBlank(
 									(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())))
 						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [Either 'body' or 'artifactUrl' are required for processing of ECML content]");
 					break;
 
 				case "application/vnd.ekstep.html-archive":
@@ -168,10 +172,20 @@ public class ContentValidator {
 					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [HTML archive should be uploaded for further processing of HTML content]");
 					break;
 
 				case "application/vnd.android.package-archive":
-					isValid = true;
+					if (StringUtils.isNotBlank(
+							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
+						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [APK file should be uploaded for further processing of APK content]");
 					break;
 
 				case "application/vnd.ekstep.content-collection":
