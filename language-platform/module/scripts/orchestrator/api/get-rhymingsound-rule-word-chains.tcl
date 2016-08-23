@@ -13,7 +13,6 @@
 # 1. Word Chains - List<Map<String, Object>>
 # ex: [
 #       {
-#			"title": "A T",
 #			"list": ["en_1", "en_2"],
 #			"score": 2.0,
 #			"relation": "RhymingSound"
@@ -46,7 +45,6 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 		set chainLength 0
 		# wordChains is list
     set wordChains [java::new ArrayList]
-		set title ""
 		# getSetMembers of given RhymingSound set
 		set setResponse [getSetMembers $graphId [$rhymingSoundSetId toString]]
 		# check whether getSetMembers response is success or error
@@ -98,7 +96,6 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 		  # add wordchain into existing wordChains and return wordChains
 			set averageScore [expr $totalScore/$chainLength]
 			set wordChainRecord [java::new HashMap]
-			#$wordChainRecord put "title" $title
 			$wordChainRecord put "list" $wordChain
 			$wordChainRecord put "score" $averageScore
 			$wordChainRecord put "relation" $ruleName
