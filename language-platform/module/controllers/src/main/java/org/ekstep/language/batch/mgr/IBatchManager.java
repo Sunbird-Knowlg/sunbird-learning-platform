@@ -6,7 +6,9 @@ public interface IBatchManager {
     
 	Response correctWordnetData(String languageId);
 	
-    Response updatePictures(String languageId);
+	Response updateWordChain(String languageId, Integer start, Integer total);
+	
+	Response updatePictures(String languageId);
     
     Response updatePosList(String languageId);
 

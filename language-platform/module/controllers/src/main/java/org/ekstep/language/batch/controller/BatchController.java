@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.ilimi.common.dto.Response;
@@ -58,6 +59,21 @@ public class BatchController extends BaseLanguageController {
         String apiId = "language.cleanupWordNetData";
         try {
             Response response = batchManager.cleanupWordNetData(languageId);
+            return getResponseEntity(response, apiId, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return getExceptionResponseEntity(e, apiId, null);
+        }
+    }
+    
+    @RequestMapping(value = "/{languageId}/updateWordChain", method = RequestMethod.POST)
+    @ResponseBody
+    public ResponseEntity<Response> updateWordChain(@PathVariable(value = "languageId") String languageId,
+			@RequestParam(name = "start", required = false) Integer start,
+			@RequestParam(name = "total", required = false) Integer total) {
+        String apiId = "language.updateWordChain";
+        try {
+            Response response = batchManager.updateWordChain(languageId, start, total);
             return getResponseEntity(response, apiId, null);
         } catch (Exception e) {
             e.printStackTrace();
