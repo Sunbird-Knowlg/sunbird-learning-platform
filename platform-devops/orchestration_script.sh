@@ -20,7 +20,7 @@ do
 		done
 	fi
 done
-
+cd
 cd platform-tools/scripts/orchestrator/qe
 for tcl_file in *.tcl
  do
