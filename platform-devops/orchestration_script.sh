@@ -20,8 +20,7 @@ do
 		done
 	fi
 done
-cd
-cd platform-tools/scripts/orchestrator/qe
+cd /home/jenkins/workspace/Run_Orchestration/platform-tools/scripts/orchestrator/qe
 for tcl_file in *.tcl
  do
  	tcl_str=`echo $tcl_file | rev | cut -c 5- | rev`
