@@ -6,7 +6,7 @@ package org.ekstep.platform.domain;
 import static com.jayway.restassured.RestAssured.baseURI;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import static com.jayway.restassured.RestAssured.basePath;
+//import static com.jayway.restassured.RestAssured.basePath;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 
@@ -35,14 +35,9 @@ public class BaseTest
 		//TO-DO: This will be read from config file, soon.
 		//baseURI = "http://localhost:8080/taxonomy-service";
 		//baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service"; 
-		baseURI ="https://dev.ekstep.in/api/"; 
+		baseURI ="https://qa.ekstep.in/api/"; 
 	}
-	
-	public void cleanupURI() {
-		baseURI = "http://dev.ekstep.in/api/learning";
 		
-	}
-	
 	/**
 	 * adds the given content_type and user_id to the header of RequestSpecBuilder
 	 * 

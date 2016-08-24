@@ -1987,18 +1987,127 @@ public class ContentPublishWorkflowTests extends BaseTest{
 		Assert.assertFalse((isValidJSON(body) || isValidXML(body)));
 	}
 	
-	// Content clean up
-	public void contentCleanUp(){
-		cleanupURI();
+	// Create and bundle content
+
+	// Create content
+	@Test
+	public void createAndBundleECMLContentExpectSuccess200(){
+		setURI();
+		Response R = 
+		given().
+		spec(getRequestSpec(contentType, validuserId)).
+		body(jsonCreateValidContent).
+		with().
+			contentType(JSON).
+		when().
+			post("/learning/v2/content").
+		then().
+			log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response();
+		
+		// Get node_id
+		JsonPath jP = R.jsonPath();
+		String nodeId = jP.get("result.node_id");
+		
+		// Upload content
+		setURI();
+		given().
+		spec(getRequestSpec(uploadContentType, validuserId)).
+		multiPart(new File(path+"/haircut_story.zip")).
+		when().
+			post("/learning/v2/content/upload/"+nodeId).
+		then().
+			//log().all().
+			spec(get200ResponseSpec());
+		
+		// Bundle created content
+		setURI();
+		Response R2 = 
 		given().
 			spec(getRequestSpec(contentType, validuserId)).
+			body("{\"request\": {\"content_identifiers\": [\""+nodeId+"\"],\"file_name\": \"Testqa_bundle\"}}").
+		when().
+			post("learning/v2/content/bundle").
+		then().
+			//log().all().
+			spec(get200ResponseSpec()).
+		extract().
+			response();
+		
+		JsonPath jP2 = R2.jsonPath();
+		String ecarUrl = jP2.get("result.ECAR_URL");
+		System.out.println(ecarUrl);
+	}
+	
+	// Bundle APK collection
+	@Test
+	public void createAndBundleAPKContentExpectSuccess200() {
+	contentCleanUp();
+	setURI();
+	JSONObject js = new JSONObject(jsonCreateValidContent);
+	js.getJSONObject("request").getJSONObject("content").put("mimeType", "application/vnd.android.package-archive");
+	String jsonCreateValidContentAPK = js.toString();
+	Response R =
+	given().
+		spec(getRequestSpec(contentType, validuserId)).
+		body(jsonCreateValidContentAPK).
+	with().
+		contentType(JSON).
+	when().
+		post("/learning/v2/content").
+	then().
+		//log().all().
+		spec(get200ResponseSpec()).
+	extract().
+		response();
+	
+	// Extracting the JSON path
+	JsonPath jp = R.jsonPath();
+	String nodeId = jp.get("result.node_id");
+	
+	// Upload content
+	setURI();
+	given().
+	spec(getRequestSpec(uploadContentType, validuserId)).
+	multiPart(new File(path+"/haircut_story.zip")).
+	when().
+		post("/learning/v2/content/upload/"+nodeId).
+	then().
+		//log().all().
+		spec(get200ResponseSpec());
+	
+	// Bundle created content
+	setURI();
+	Response R2 = 
+	given().
+		spec(getRequestSpec(contentType, validuserId)).
+		body("{\"request\": {\"content_identifiers\": [\""+nodeId+"\"],\"file_name\": \"Testqa_bundle\"}}").
+	when().
+		post("learning/v2/content/bundle").
+	then().
+		//log().all().
+		spec(get200ResponseSpec()).
+	extract().
+		response();
+	
+	JsonPath jP2 = R2.jsonPath();
+	String ecarUrl = jP2.get("result.ECAR_URL");
+	System.out.println(ecarUrl);
+	
+	}
+	// Content clean up
+	
+	public void contentCleanUp(){
+		setURI();
+		given().
 			body(jsonContentClean).
 		with().
 			contentType(JSON).
 		when().
-			post("/v1/exec/content_qe_deleteContentBySearchStringInField");
+			post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
 	}
-	
 	
 	// Private Members
 	private boolean isValidXML(String body) {
