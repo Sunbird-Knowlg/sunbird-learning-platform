@@ -232,6 +232,63 @@ public class BatchManagerImpl extends BaseLanguageManager implements IBatchManag
         return OK("status", "OK");
     }
 
+    @Override
+    @SuppressWarnings("unchecked")
+	public Response updateWordChain(String languageId, Integer startPosition, Integer total) {
+        int start = 0;
+        if (null != startPosition && startPosition.intValue() > 0)
+        	start = startPosition.intValue();
+        int batch = BATCH;
+        if (null != total && total < batch)
+        	batch = total;
+        int fetchCount = 0;
+        boolean found = true;
+        while (found) {
+        	List<Node> nodes = getAllWords(languageId, start, batch);
+        	fetchCount += batch;
+            if (null != nodes && !nodes.isEmpty()) {
+            	List<String> words = new ArrayList<String>();
+                Map<String, Node> nodeMap = new HashMap<String, Node>();
+                controllerUtil.getNodeMap(nodes, nodeMap, words);
+                Request langReq = getLanguageRequest(languageId, LanguageActorNames.LEXILE_MEASURES_ACTOR.name(),
+                        LanguageOperations.getWordFeatures.name());
+                langReq.put(LanguageParams.words.name(), words);
+                Response langRes = getLanguageResponse(langReq, LOGGER);
+                Map<String, WordComplexity> featureMap = new HashMap<String, WordComplexity>();
+                if (!checkError(langRes)) {
+                	featureMap = (Map<String, WordComplexity>) langRes.get(LanguageParams.word_features.name());
+                	if (null != featureMap)
+                		System.out.println("Word features returned for " + featureMap.size() + " words");
+                }
+            	for (Node node : nodes) {
+                    if (null != featureMap && !featureMap.isEmpty()) {
+                    	String lemma = (String) node.getMetadata().get(ATTRIB_LEMMA);
+                    	WordComplexity wc = null;
+                    	if (StringUtils.isNotBlank(lemma))
+                    		wc = featureMap.get(lemma);
+                    	if (null != wc) {
+    						try {
+    							wordChainUtil.updateWordSet(languageId, node, wc);
+    						} catch (Exception e) {
+    							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+    						}
+                        }
+                    }
+            	}
+                start += batch;
+                if (null != total && fetchCount >= total) {
+                	found = false;
+                	break;
+                }
+
+            } else {
+                found = false;
+                break;
+            }
+        }
+        return OK("status", "OK");
+    }
+    
     @SuppressWarnings("rawtypes")
     private boolean checkSourceMetadata(Node node) {
         Map<String, Object> metadata = node.getMetadata();
