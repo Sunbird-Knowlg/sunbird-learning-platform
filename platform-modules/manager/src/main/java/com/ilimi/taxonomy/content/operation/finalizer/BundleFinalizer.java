@@ -80,7 +80,8 @@ public class BundleFinalizer extends BaseFinalizer {
 			boolean isCompressionApplied = (boolean) nodeMap
 					.get(ContentWorkflowPipelineParams.isCompressionApplied.name());
 			String path = (String) nodeMap.get(ContentWorkflowPipelineParams.basePath.name());
-			String ecmlType = (String) nodeMap.get(ContentWorkflowPipelineParams.ecmlType.name());
+			// Output only ECML format
+			String ecmlType = ContentWorkflowPipelineParams.ecml.name();
 
 			if (null == ecrf)
 				throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
