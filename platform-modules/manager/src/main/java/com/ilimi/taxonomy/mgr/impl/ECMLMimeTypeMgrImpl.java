@@ -713,9 +713,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 
 	@Override
 	public Node tuneInputForBundling(Node node) {
-		if (null == node.getMetadata().get(ContentAPIParams.artifactUrl.name())
-				|| StringUtils.isBlank(node.getMetadata().get(ContentAPIParams.artifactUrl.name()).toString()))
-			node = (Node) Ncompress(node, true).get(ContentAPIParams.updated_node.name());
 		return node;
 	}
 
@@ -726,21 +723,6 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		parameterMap.put(ContentAPIParams.file.name(), uploadedFile);
 		parameterMap.put(ContentAPIParams.node.name(), node);
 		return pipeline.init(ContentAPIParams.upload.name(), parameterMap);
-		
-//		Response response = uploadContent(node, uploadedFile, folder);
-//		if (checkError(response))
-//			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-//					"Content not found with node id: " + node.getIdentifier());
-//		response = extract(node);
-//		if (null != response.get("ecmlBody") && StringUtils.isNotBlank(response.get("ecmlBody").toString())) {
-//			node.getMetadata().put(ContentAPIParams.body.name(), response.get("ecmlBody"));
-//			node.getMetadata().put(ContentAPIParams.editorState.name(), null);
-//			node.setInRelations(null);
-//			node.setOutRelations(null);
-//			return updateNode(node);
-//		} else {
-//			return response;
-//		}
 	}
 
 }

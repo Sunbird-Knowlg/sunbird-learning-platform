@@ -1,17 +1,13 @@
 package com.ilimi.taxonomy.content.operation.initializer;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.ekstep.common.slugs.Slug;
-import org.ekstep.common.util.HttpDownloadUtility;
 
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.exception.ClientException;
@@ -25,6 +21,7 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.pipeline.finalizer.FinalizePipeline;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
+import com.ilimi.taxonomy.content.validator.ContentValidator;
 
 public class BundleInitializer extends BaseInitializer {
 
@@ -69,107 +66,75 @@ public class BundleInitializer extends BaseInitializer {
 			manifestVersion = ContentConfigurationConstants.DEFAULT_CONTENT_MANIFEST_VERSION;
 
 		LOGGER.info("Total Input Content Ids: " + contentIdList.size());
-
-		LOGGER.info("Populating the Recursive (Children) Contents.");
-
-		// Populate the Content Hierarchical Data (Include Children Content
-		// also)
-		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
-		List<String> childrenIds = new ArrayList<String>();
-		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
-
+		
 		// Validate the availability of all the Requested Contents
-		if (contents.size() < contentIdList.size())
+		if (nodes.size() < contentIdList.size())
 			throw new ResourceNotFoundException(ContentErrorCodeConstants.MISSING_CONTENT.name(),
 					ContentErrorMessageConstants.MISSING_BUNDLE_CONTENT);
 		
-		// Get Content Bundle Expiry Date
-		String expiresOn = getDateAfter(ContentConfigurationConstants.DEFAULT_CONTENT_BUNDLE_EXPIRES_IN_DAYS);
-		LOGGER.info("Bundle Will Expire On: " + expiresOn);
-		
-		// Preparing the List of URL Fields
-		List<String> urlFields = new ArrayList<String>();
-        urlFields.add(ContentWorkflowPipelineParams.appIcon.name());
-        urlFields.add(ContentWorkflowPipelineParams.grayScaleAppIcon.name());
-        urlFields.add(ContentWorkflowPipelineParams.posterImage.name());
-        urlFields.add(ContentWorkflowPipelineParams.artifactUrl.name());
-
-		// Marking Content Visibility as Parent
-		for (Map<String, Object> content : contents) {
-			String identifier = (String) content.get(ContentWorkflowPipelineParams.identifier.name());
-			content.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
-			if (childrenIds.contains(identifier))
-				content.put(ContentWorkflowPipelineParams.visibility.name(),
-						ContentWorkflowPipelineParams.Parent.name());
-			for (Map.Entry<String, Object> entry : content.entrySet()) {
-                if (urlFields.contains(entry.getKey()) && null != entry.getValue() && HttpDownloadUtility.isValidUrl(entry.getValue())) {
-                	String file = FilenameUtils.getName(entry.getValue().toString());
-                    if (file.endsWith(ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR + ContentConfigurationConstants.DEFAULT_ECAR_EXTENSION)) {
-                        entry.setValue(identifier.trim() + File.separator + identifier.trim() + ".zip");
-                    } else {
-                        entry.setValue(identifier.trim() + File.separator + Slug.makeSlug(file, true));
-                    }
-                }
-			}
-			String status = (String) content.get(ContentWorkflowPipelineParams.status.name());
-			if (!StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Live.name(), status))
-				content.put(ContentWorkflowPipelineParams.pkgVersion.name(), 0);
-			content.put(ContentWorkflowPipelineParams.downloadUrl.name(), content.get(ContentWorkflowPipelineParams.artifactUrl.name()));
-			Object objectType = content.get("objectType");
-            if(null!= objectType && StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.Library.name(), objectType.toString()))
-            	content.put("visibility", null);
-		}
+		// Populate the Content Hierarchical Data (Include Children Content also)
+		List<Map<String, Object>> contents = new ArrayList<Map<String, Object>>();
+		List<String> childrenIds = new ArrayList<String>();
+		LOGGER.info("Populating the Recursive (Children) Contents.");
+		getContentBundleData(ContentConfigurationConstants.GRAPH_ID, nodes, contents, childrenIds, false);
 
 		LOGGER.info("Total Content To Bundle: " + nodes.size());
-
+		ContentValidator validator = new ContentValidator();
 		Map<String, Object> bundleMap = new HashMap<String, Object>();
 		for (Node node : nodes) {
-			Map<String, Object> nodeMap = new HashMap<String, Object>();
+			// Validating the Content Node
+			if (validator.isValidContentNode(node)) {
+				Map<String, Object> nodeMap = new HashMap<String, Object>();
 
-			Boolean ecmlContent = StringUtils.equalsIgnoreCase(ECML_MIME_TYPE,
-					(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
-			ecmlContent = (null == ecmlContent) ? false : ecmlContent;
+				Boolean ecmlContent = StringUtils.equalsIgnoreCase(ECML_MIME_TYPE,
+						(String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name()));
+				ecmlContent = (null == ecmlContent) ? false : ecmlContent;
 
-			LOGGER.info("Is ECML Mime-Type? " + ecmlContent);
+				LOGGER.info("Is ECML Mime-Type? " + ecmlContent);
+				LOGGER.info("Processing Content Id: " + node.getIdentifier());
 
-			LOGGER.info("Processing Content Id: " + node.getIdentifier());
+				// Setting Attribute Value
+				this.basePath = getBasePath(node.getIdentifier());
+				this.contentId = node.getIdentifier();
+				LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
 
-			// Setting Attribute Value
-			this.basePath = getBasePath(node.getIdentifier());
-			this.contentId = node.getIdentifier();
-			LOGGER.info("Base Path For Content Id '" + this.contentId + "' is " + this.basePath);
+				// Check if Compression Required
+				boolean isCompressRequired = ecmlContent && isCompressRequired(node);
 
-			// Check if Compression Required
-			boolean isCompressRequired = ecmlContent && isCompressRequired(node);
+				// Get ECRF Object
+				Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
 
-			// Get ECRF Object
-			Plugin ecrf = getECRFObject((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()));
+				if (isCompressRequired) {
+					// Get Pipeline Object
+					AbstractProcessor pipeline = PipelineRequestorClient
+							.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
 
-			if (isCompressRequired) {
-				// Get Pipeline Object
-				AbstractProcessor pipeline = PipelineRequestorClient
-						.getPipeline(ContentWorkflowPipelineParams.compress.name(), basePath, contentId);
-
-				// Start Pipeline Operation
-				ecrf = pipeline.execute(ecrf);
+					// Start Pipeline Operation
+					ecrf = pipeline.execute(ecrf);
+				}
+				nodeMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
+				nodeMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
+				nodeMap.put(ContentWorkflowPipelineParams.basePath.name(), basePath);
+				nodeMap.put(ContentWorkflowPipelineParams.node.name(), node);
+				nodeMap.put(ContentWorkflowPipelineParams.ecmlType.name(),
+						getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
+				bundleMap.put(contentId, nodeMap);
+			} else {
+				throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+						ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS + " | [Content of Mime-Type '"
+								+ node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name())
+								+ "' require few mandatory fields for further processing.]");
 			}
-			nodeMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
-			nodeMap.put(ContentWorkflowPipelineParams.isCompressionApplied.name(), isCompressRequired);
-			nodeMap.put(ContentWorkflowPipelineParams.basePath.name(), basePath);
-			nodeMap.put(ContentWorkflowPipelineParams.node.name(), node);
-			nodeMap.put(ContentWorkflowPipelineParams.ecmlType.name(),
-					getECMLType((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name())));
-			bundleMap.put(contentId, nodeMap);
 		}
 
 		// Call Finalizer
 		FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 		Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
-		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleMap.name(), bundleMap);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.Contents.name(), contents);
+		finalizeParamMap.put(ContentWorkflowPipelineParams.children.name(), childrenIds);
+		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleMap.name(), bundleMap);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.bundleFileName.name(), bundleFileName);
 		finalizeParamMap.put(ContentWorkflowPipelineParams.manifestVersion.name(), manifestVersion);
-		finalizeParamMap.put(ContentWorkflowPipelineParams.expires.name(), expiresOn);
 		response = finalize.finalyze(ContentWorkflowPipelineParams.bundle.name(), finalizeParamMap);
 		return response;
 	}

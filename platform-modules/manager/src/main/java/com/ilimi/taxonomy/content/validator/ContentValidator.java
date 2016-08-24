@@ -150,6 +150,7 @@ public class ContentValidator {
 	private boolean isAllRequiredFieldsAvailable(Node node) {
 		boolean isValid = false;
 		if (null != node) {
+			String name = (String) node.getMetadata().get(ContentWorkflowPipelineParams.name.name());
 			String mimeType = (String) node.getMetadata().get(ContentWorkflowPipelineParams.mimeType.name());
 			if (StringUtils.isNotBlank(mimeType)) {
 				LOGGER.info("Checking Required Fields For: " + mimeType);
@@ -161,6 +162,10 @@ public class ContentValidator {
 							|| StringUtils.isNotBlank(
 									(String) node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name())))
 						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [Either 'body' or 'artifactUrl' are required for processing of ECML content '" + name + "']");
 					break;
 
 				case "application/vnd.ekstep.html-archive":
@@ -168,6 +173,10 @@ public class ContentValidator {
 					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [HTML archive should be uploaded for further processing of HTML content '" + name + "']");
 					break;
 
 				case "application/vnd.android.package-archive":
@@ -175,6 +184,10 @@ public class ContentValidator {
 					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
+					else
+						throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
+								ContentErrorMessageConstants.MISSING_REQUIRED_FIELDS
+										+ " | [APK file should be uploaded for further processing of APK content '" + name + "']");
 					break;
 
 				case "application/vnd.ekstep.content-collection":

@@ -14,7 +14,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,7 +22,6 @@ import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.ekstep.common.util.AWSUploader;
 import org.ekstep.common.util.HttpDownloadUtility;
-import org.ekstep.common.util.ZipUtility;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
@@ -32,7 +30,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import com.ilimi.common.dto.NodeDTO;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
-import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ServerException;
 import com.ilimi.common.mgr.BaseManager;
 import com.ilimi.graph.dac.enums.GraphDACParams;
@@ -49,7 +46,6 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.ContentBundle;
-import com.ilimi.taxonomy.util.CustomParser;
 
 public class BaseMimeTypeManager extends BaseManager {
 
@@ -178,97 +174,6 @@ public class BaseMimeTypeManager extends BaseManager {
     	return node;
     }
     
-    private String cleanJsonString(String jsonString) {
-    	LOGGER.debug("Clean JSON:: Input JSON String " + jsonString);
-    	String cleanedJson = "";
-    	if (StringUtils.isNotBlank(jsonString)) {
-    		cleanedJson = jsonString.replace("\"[{", "[{").replace("}]\"", "}]").replace("\\\\\"", "\\\"");
-    	}
-    	LOGGER.debug("Clean JSON:: Output JSON String " + cleanedJson);
-    	return cleanedJson;
-    }
-    
-    protected Response compress(Node node) {
-    	node = setNodeStatus(node, ContentAPIParams.Live.name());
-        String tempFolder = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-        String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
-        Map<String, Object> metadata = new HashMap<String, Object>();
-        metadata = node.getMetadata();
-        String contentBody = cleanJsonString((String) metadata.get(ContentAPIParams.body.name()));
-        String contentType = checkBodyContentType(contentBody);
-        if (StringUtils.isBlank(contentType))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
-                    "Content of Body Either Invalid or Null");
-        try {
-
-            File file = null;
-            if (StringUtils.equalsIgnoreCase("ecml", contentType)) {
-                file = new File(tempFolder + File.separator + "index.ecml");
-            } else if (StringUtils.equalsIgnoreCase("json", contentType)) {
-                file = new File(tempFolder + File.separator + "index.json");
-            }
-            if (null != file) {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                    if (!file.exists()) {
-                        file.createNewFile();
-                    }
-                }
-                FileUtils.writeStringToFile(file, contentBody);
-            }
-            downloadAppIcon(node, tempFolder);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-        }
-        String filePath = tempFolder;
-        String taxonomyId = node.getGraphId();
-        String contentId = node.getIdentifier();
-        File file = new File(filePath);
-        String fileLocation = filePath + File.separator + "index.ecml";
-        String sourceFolder = file.getParent() + File.separator;
-        Response response = new Response();
-        try {
-            if (contentType.equalsIgnoreCase("json")) {
-                CustomParser.readJsonFileDownload(filePath);
-            } else if (contentType.equalsIgnoreCase("ecml")) {
-            	CustomParser customParser = new CustomParser();
-            	customParser.init(new File(fileLocation));
-                customParser.updateEcml(filePath);
-            }
-            String zipFilePathName = sourceFolder + fileName + ".zip";
-            List<String> fileList = new ArrayList<String>();
-            ZipUtility appZip = new ZipUtility(fileList, zipFilePathName, filePath);
-            appZip.generateFileList(new File(filePath));
-            appZip.zipIt(zipFilePathName);
-            File olderName = new File(zipFilePathName);
-            if (olderName.exists() && olderName.isFile()) {
-                File newName = new File(sourceFolder + File.separator + olderName.getName());
-                olderName.renameTo(newName);
-                String[] urlArray = AWSUploader.uploadFile(bucketName, folderName, newName);
-                if (!StringUtils.isBlank(urlArray[1]))
-                    node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-                Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-                        GraphDACParams.node_id.name(), contentId);
-                request.put(GraphDACParams.get_tags.name(), true);
-                Response getNodeRes = getResponse(request, LOGGER);
-                if (checkError(getNodeRes)) {
-                    return getNodeRes;
-                }
-                Node nodePublish = (Node) getNodeRes.get(GraphDACParams.node.name());
-                node.getMetadata().put(ContentAPIParams.downloadUrl.name(), nodePublish);
-                response = addDataToContentNode(node);
-            }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-        } finally {
-            deleteTemp(sourceFolder);
-        }
-        return response;
-    }
-
     private void downloadAppIcon(Node node, String tempFolder) {
         String appIcon = (String) node.getMetadata().get("appIcon");
         if (StringUtils.isNotBlank(appIcon)) {
@@ -341,7 +246,8 @@ public class BaseMimeTypeManager extends BaseManager {
         List<String> childrenIds = new ArrayList<String>();
         getContentBundleData(node.getGraphId(), nodes, ctnts, childrenIds);
         String bundleFileName = node.getIdentifier() + "_" + System.currentTimeMillis() + ".ecar";
-        String[] urlArray = contentBundle.createContentBundle(ctnts, childrenIds, bundleFileName, "1.1");
+        Map<Object, List<String>> downloadUrls = contentBundle.createContentManifestData(ctnts, childrenIds, null);
+        String[] urlArray = contentBundle.createContentBundle(ctnts, bundleFileName, "1.1", downloadUrls);
         node.getMetadata().put(ContentAPIParams.s3Key.name(), urlArray[0]);
         node.getMetadata().put("downloadUrl", urlArray[1]);
         node.getMetadata().put("status", "Live");
@@ -524,17 +430,6 @@ public class BaseMimeTypeManager extends BaseManager {
         return response;
     }
 
-    private String checkBodyContentType(String contentBody) {
-        if (StringUtils.isNotEmpty(contentBody)) {
-            if (isECMLValid(contentBody)) {
-                return ContentAPIParams.ECML.name();
-            } else if (isJSONValid(contentBody)) {
-                return ContentAPIParams.JSON.name();
-            }
-        }
-        return null;
-    }
-    
     public String[] uploadToAWS(File uploadedFile, String folder) {
         String[] urlArray = new String[] {};
         try {
@@ -581,86 +476,4 @@ public class BaseMimeTypeManager extends BaseManager {
     	return path;
     }
 
-    /*******************************************************************************
-     * REFACTORED CODE
-     *******************************************************************************/
-
-    protected Response Ncompress(Node node, boolean skipPublish) {
-        final String tempFolderLocation = tempFileLocation + File.separator + System.currentTimeMillis() + "_temp";
-        String fileName = System.currentTimeMillis() + "_" + node.getIdentifier();
-        String contentBody = (String) node.getMetadata().get("body");
-        String contentType = checkBodyContentType(contentBody);
-        if (StringUtils.isBlank(contentType))
-            throw new ClientException(ContentErrorCodes.ERR_CONTENT_BODY_INVALID.name(),
-                    "Content of Body Either Invalid or Null");
-        try {
-
-            File file = null;
-            if (StringUtils.equalsIgnoreCase(ContentAPIParams.ECML.name(), contentType)) {
-                file = new File(tempFolderLocation + File.separator + "index.ecml");
-            } else if (StringUtils.equalsIgnoreCase(ContentAPIParams.JSON.name(), contentType)) {
-                file = new File(tempFolderLocation + File.separator + "index.json");
-            }
-            if (null != file) {
-                if (!file.getParentFile().exists()) {
-                    file.getParentFile().mkdirs();
-                    if (!file.exists()) {
-                        file.createNewFile();
-                    }
-                }
-                FileUtils.writeStringToFile(file, contentBody);
-            }
-            downloadAppIcon(node, tempFolderLocation);
-        } catch (IOException e) {
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), e.getMessage());
-        }
-        File file = new File(tempFolderLocation);
-        String fileLocation = tempFolderLocation + File.separator + "index.ecml";
-        String sourceFolder = file.getParent() + File.separator;
-        Response response = new Response();
-        try {
-            if (contentType.equalsIgnoreCase("json")) {
-                CustomParser.readJsonFileDownload(tempFolderLocation);
-            } else if (contentType.equalsIgnoreCase("ecml")) {
-            	CustomParser customParser = new CustomParser();
-            	customParser.init(new File(fileLocation));
-                customParser.updateEcml(tempFolderLocation);
-            }
-            String zipFile = sourceFolder + fileName + ".zip";
-            List<String> fileList = new ArrayList<String>();
-            ZipUtility appZip = new ZipUtility(fileList, zipFile, tempFolderLocation);
-            appZip.generateFileList(new File(tempFolderLocation));
-            appZip.zipIt(zipFile);
-            File olderName = new File(zipFile);
-            if (olderName.exists() && olderName.isFile()) {
-                File newName = new File(sourceFolder + File.separator + olderName.getName());
-                olderName.renameTo(newName);
-                String[] urlArray = AWSUploader.uploadFile(bucketName, folderName, newName);
-                if (!StringUtils.isBlank(urlArray[1]))
-                    node.getMetadata().put(ContentAPIParams.artifactUrl.name(), urlArray[1]);
-                String taxonomyId = node.getGraphId();
-                String contentId = node.getIdentifier();
-                Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
-                        GraphDACParams.node_id.name(), contentId);
-                request.put(GraphDACParams.get_tags.name(), true);
-                Response getNodeRes = getResponse(request, LOGGER);
-                if (checkError(getNodeRes)) {
-                    return getNodeRes;
-                }
-                Node nodePublish = (Node) getNodeRes.get(GraphDACParams.node.name());
-                node.getMetadata().put(ContentAPIParams.downloadUrl.name(), nodePublish);
-                if (skipPublish == true) {
-                    response.put(ContentAPIParams.updated_node.name(), node);
-                } else {
-                    response = addDataToContentNode(node);
-                }
-            }
-
-        } catch (Exception e) {
-            throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
-        } finally {
-            deleteTemp(sourceFolder);
-        }
-        return response;
-    }
 }

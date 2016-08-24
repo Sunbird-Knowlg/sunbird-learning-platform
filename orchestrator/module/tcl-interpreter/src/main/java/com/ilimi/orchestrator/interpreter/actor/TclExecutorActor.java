@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -37,6 +39,7 @@ public class TclExecutorActor extends UntypedActor {
 
 	private Interp interpreter;
 	private ObjectMapper mapper = new ObjectMapper();
+	private static Logger LOGGER = LogManager.getLogger(TclExecutorActor.class.getName());
 
 	public TclExecutorActor(List<OrchestratorScript> commands) {
 		init(commands);
@@ -102,8 +105,7 @@ public class TclExecutorActor extends UntypedActor {
 						} catch (MiddlewareException e) {
 							throw e;
 						} catch (Exception e) {
-							throw new MiddlewareException(ExecutionErrorCodes.ERR_INIT_INVALID_COMMAND.name(),
-									e.getMessage(), e);
+							LOGGER.error("Error initialising command: " + script.getName(), e);
 						}
 					} else {
 						interpreter.createCommand(script.getName(), new AkkaCommand(script));
@@ -274,5 +276,4 @@ public class TclExecutorActor extends UntypedActor {
 		params.setErrmsg("Operation successful");
 		return params;
 	}
-
 }
