@@ -26,10 +26,6 @@
   shell: sh {{ user_home }}/neo4j_script.sh
 
 
-- name: start tomcat
-  become: yes
-  service: name=tomcat state=started
-  
 - name: Replace Working directory line
   lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^dbms.allow_format_migration=true' line='#dbms.allow_format_migration=true' state=present
 
