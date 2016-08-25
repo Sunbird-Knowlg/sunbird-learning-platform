@@ -41,6 +41,13 @@ public abstract class BaseController {
         return new ResponseEntity<Response>(response, status);
     }
 
+    protected ResponseEntity<Response> getResponseEntity(Response response, String apiId, String msgId, String resMsgId) {
+        int statusCode = response.getResponseCode().code();
+        HttpStatus status = getStatus(statusCode);
+        setResponseEnvelope(response, apiId, msgId, resMsgId);
+        return new ResponseEntity<Response>(response, status);
+    }
+
     protected Response getErrorResponse(Exception e) {
         Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
@@ -170,6 +177,28 @@ public abstract class BaseController {
             if (StringUtils.isNotBlank(msgId))
                 params.setMsgid(msgId);
             params.setResmsgid(getUUID());
+            if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
+                params.setErr(null);
+                params.setErrmsg(null);
+            }
+            response.setParams(params);
+        }
+    }
+    
+    private void setResponseEnvelope(Response response, String apiId, String msgId, String resMsgId) {
+        if (null != response) {
+            response.setId(API_ID_PREFIX + "." + apiId);
+            response.setVer(getAPIVersion());
+            response.setTs(getResponseTimestamp());
+            ResponseParams params = response.getParams();
+            if (null == params)
+                params = new ResponseParams();
+            if (StringUtils.isNotBlank(msgId))
+                params.setMsgid(msgId);
+            if (StringUtils.isNotBlank(resMsgId))
+            	params.setResmsgid(resMsgId);
+            else
+            	params.setResmsgid(getUUID());
             if (StringUtils.equalsIgnoreCase(ResponseParams.StatusType.successful.name(), params.getStatus())) {
                 params.setErr(null);
                 params.setErrmsg(null);
