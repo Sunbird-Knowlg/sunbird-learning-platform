@@ -12,8 +12,8 @@
 - name: Backup
   file: path={{ user_home }}/backups mode=755 owner=ec2-user group=ec2-user state=directory
 
-- name: Backup
-  command: cp -r /data/graphDB/ {{ user_home }}/backups/
+#- name: Backup
+#  command: cp -r /data/graphDB/ {{ user_home }}/backups/
 
 - name: Replace Working directory line
   lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^#dbms.allow_format_migration=true' line='dbms.allow_format_migration=true' state=present
@@ -26,8 +26,6 @@
   shell: sh {{ user_home }}/neo4j_script.sh
 
 
-- name: Replace Working directory line
-  lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^dbms.allow_format_migration=true' line='#dbms.allow_format_migration=true' state=present
 
 
 
