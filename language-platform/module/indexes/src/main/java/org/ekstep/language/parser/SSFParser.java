@@ -184,6 +184,7 @@ public class SSFParser {
 		return indexes;
 	}
 	
+	@SuppressWarnings("unused")
 	private static boolean expectedLanguage(String token, String languageId) {
 		Boolean c = TokenValidation.getUnicode(token, languageId);
 		return c;
@@ -219,7 +220,6 @@ public class SSFParser {
 		return false;
 	}
 
-	@SuppressWarnings("unused")
 	private static boolean isTagName(String token) {
 		if (ArrayUtils.contains(tagNames, token)) {
 			return true;

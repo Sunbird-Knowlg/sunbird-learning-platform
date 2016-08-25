@@ -9,9 +9,11 @@ public class MetaLoader {
 
     public static void loadVectors(String filePath, Map<String, Integer[]> vectorMap, Map<String, Integer> incrMap)
             throws Exception {
+    	InputStream is = null;
+        BufferedReader br = null;
         try {
-            InputStream is = MetaLoader.class.getResourceAsStream(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        	is = MetaLoader.class.getResourceAsStream(filePath);
+        	br = new BufferedReader(new InputStreamReader(is));
             br.readLine();
             String s = null;
             while ((s = br.readLine()) != null) {
@@ -31,13 +33,20 @@ public class MetaLoader {
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
-        }
+        }  finally {
+        	if (null != br)
+           	 br.close();
+           	if (null != is)
+           		is.close();
+           }
     }
 
     public static void loadWeightage(String filePath, Double[] weightage) throws Exception {
+    	InputStream is = null;
+        BufferedReader br = null;
         try {
-            InputStream is = MetaLoader.class.getResourceAsStream(filePath);
-            BufferedReader br = new BufferedReader(new InputStreamReader(is));
+        	is = MetaLoader.class.getResourceAsStream(filePath);
+        	br = new BufferedReader(new InputStreamReader(is));
             br.readLine();
             String s = null;
             int index = 0;
@@ -49,10 +58,14 @@ public class MetaLoader {
                     index += 1;
                 }
             }
-            br.close();
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
+        } finally {
+        	if (null != br)
+        	 br.close();
+        	if (null != is)
+        		is.close();
         }
     }
 }

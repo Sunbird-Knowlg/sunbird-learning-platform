@@ -165,22 +165,22 @@ public class TclExecutorActor extends UntypedActor {
 				List<TclObject> tclParamsList = new ArrayList<TclObject>();
 				TclObject commandName = ReflectObject.newInstance(interpreter, String.class, script.getName());
 				tclParamsList.add(commandName);
-				
-				TclObject[] tclParamsArray = new TclObject[script.getParameters().size()+1];
+
+				TclObject[] tclParamsArray = new TclObject[script.getParameters().size() + 1];
 				tclParamsArray[0] = commandName;
-				
+
 				List<ScriptParams> scriptParams = script.getParameters();
-				for(ScriptParams scriptParam: scriptParams){
+				for (ScriptParams scriptParam : scriptParams) {
 					Object paramObj = params.get(scriptParam.getName());
 					if (StringUtils.isNotBlank(scriptParam.getDatatype())) {
 						TclObject tclObj = getTclObject(scriptParam.getDatatype(), paramObj);
-						tclParamsArray[scriptParam.getIndex()+1] = tclObj;
+						tclParamsArray[scriptParam.getIndex() + 1] = tclObj;
 					} else {
 						TclObject tclObj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
-						tclParamsArray[scriptParam.getIndex()+1] = tclObj;
+						tclParamsArray[scriptParam.getIndex() + 1] = tclObj;
 					}
 				}
-				cmd.cmdProc(interpreter,tclParamsArray);
+				cmd.cmdProc(interpreter, tclParamsArray);
 			}
 			TclObject tclObject = interpreter.getResult();
 			if (null != tclObject.getInternalRep() && tclObject.getInternalRep() instanceof ReflectObject)
@@ -210,7 +210,7 @@ public class TclExecutorActor extends UntypedActor {
 			throw new MiddlewareException(ExecutionErrorCodes.ERR_SYSTEM_ERROR.name(), e.getMessage(), e);
 		}
 	}
-	
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TclObject getTclObject(String datatype, Object paramObj) throws Exception {
 		TclObject obj = null;
@@ -227,13 +227,14 @@ public class TclExecutorActor extends UntypedActor {
 			} else if (checkDataType(cls, InputStream.class.getName())) {
 				if (paramObj instanceof MultipartFile) {
 					MultipartFile mpf = (MultipartFile) paramObj;
-					InputStream is = mpf.getInputStream();
-					obj = ReflectObject.newInstance(interpreter, is.getClass(), is);
+					try (InputStream is = mpf.getInputStream()) {
+						obj = ReflectObject.newInstance(interpreter, is.getClass(), is);
+					}
 				} else {
-					obj = ReflectObject.newInstance(interpreter, Object.class,paramObj);
+					obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
 				}
 			} else {
-				obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);				
+				obj = ReflectObject.newInstance(interpreter, Object.class, paramObj);
 			}
 		}
 		return obj;

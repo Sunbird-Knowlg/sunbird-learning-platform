@@ -9,12 +9,18 @@ import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 /**
  * @author Rajiv Ranjan
  * 
  *         Zip source folder as story
- * **/
+ **/
 public class ZipUtility {
+
+	private static Logger LOGGER = LogManager.getLogger(ZipUtility.class.getName());
+
 	List<String> fileList;
 	private String outPutZipFile = null;
 	private String sourceFolder = null;
@@ -22,7 +28,7 @@ public class ZipUtility {
 	public ZipUtility() {
 		fileList = new ArrayList<String>();
 	}
-	
+
 	public ZipUtility(String sourcePath, String zipFileName) {
 		fileList = new ArrayList<String>();
 		this.sourceFolder = sourcePath;
@@ -58,25 +64,20 @@ public class ZipUtility {
 	 */
 	public void zipIt(String zipFile) {
 		byte[] buffer = new byte[1024];
-		try {
-			FileOutputStream fos = new FileOutputStream(zipFile);
-			ZipOutputStream zos = new ZipOutputStream(fos);
-			System.out.println("Output to Zip : " + zipFile);
+		try (FileOutputStream fos = new FileOutputStream(zipFile); ZipOutputStream zos = new ZipOutputStream(fos)) {
+			LOGGER.info("Creating Zip File: " + zipFile);
 			for (String file : this.fileList) {
 				ZipEntry ze = new ZipEntry(file);
 				zos.putNextEntry(ze);
-				FileInputStream in = new FileInputStream(sourceFolder + File.separator + file);
-				int len;
-				while ((len = in.read(buffer)) > 0) {
-					zos.write(buffer, 0, len);
+				try (FileInputStream in = new FileInputStream(sourceFolder + File.separator + file)) {
+					int len;
+					while ((len = in.read(buffer)) > 0)
+						zos.write(buffer, 0, len);
 				}
-				in.close();
+				zos.closeEntry();
 			}
-			zos.closeEntry();
-			zos.close();
-			System.out.println("Done");
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			LOGGER.error("Error! Something Went Wrong While Creating the ZIP File.", ex);
 		}
 	}
 

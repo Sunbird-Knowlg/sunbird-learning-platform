@@ -35,13 +35,13 @@ import com.ilimi.taxonomy.content.util.ECRFToJSONConvertor;
 import com.ilimi.taxonomy.content.util.ECRFToXMLConvertor;
 
 public class BaseFinalizer extends BasePipeline {
-	
+
 	private static Logger LOGGER = LogManager.getLogger(BaseFinalizer.class.getName());
-	
+
 	private ObjectMapper mapper = new ObjectMapper();
-	
+
 	private static final int IDX_S3_URL = 1;
-	
+
 	protected void createThumbnail(String basePath, Node node) {
 		try {
 			if (null != node) {
@@ -88,7 +88,7 @@ public class BaseFinalizer extends BasePipeline {
 					e);
 		}
 	}
-	
+
 	protected void writeECMLFile(String basePath, String ecml, String ecmlType) {
 		try {
 			if (StringUtils.isBlank(ecml))
@@ -109,7 +109,7 @@ public class BaseFinalizer extends BasePipeline {
 					ContentErrorMessageConstants.ECML_FILE_WRITE_ERROR + " | [Unable to Write ECML File.]");
 		}
 	}
-	
+
 	protected String getECMLString(Plugin ecrf, String ecmlType) {
 		String ecml = "";
 		if (null != ecrf) {
@@ -124,7 +124,7 @@ public class BaseFinalizer extends BasePipeline {
 		}
 		return ecml;
 	}
-	
+
 	protected void createManifestFile(File manifestFileName, String manifestVersion, String expiresOn,
 			List<Map<String, Object>> contents) {
 		try {
@@ -139,7 +139,8 @@ public class BaseFinalizer extends BasePipeline {
 
 			String header = "{ \"id\": \"ekstep.content.archive\", \"ver\": \"" + manifestVersion + "\", \"ts\": \""
 					+ getResponseTimestamp() + "\", \"params\": { \"resmsgid\": \"" + getUUID()
-					+ "\"}, \"archive\": { \"count\": " + contents.size() + ", \"expires\": \"" + expiresOn + "\", \"ttl\": 24, \"items\": ";
+					+ "\"}, \"archive\": { \"count\": " + contents.size() + ", \"expires\": \"" + expiresOn
+					+ "\", \"ttl\": 24, \"items\": ";
 
 			LOGGER.info("Content Items in Manifest JSON: " + contents.size());
 
@@ -153,7 +154,7 @@ public class BaseFinalizer extends BasePipeline {
 					ContentErrorMessageConstants.MANIFEST_FILE_WRITE_ERROR + " | [Unable to Write Manifest File.]", e);
 		}
 	}
-	
+
 	protected void createZipPackage(String basePath, String zipFileName) {
 		if (!StringUtils.isBlank(zipFileName)) {
 			LOGGER.info("Creating Zip File: " + zipFileName);
@@ -166,39 +167,40 @@ public class BaseFinalizer extends BasePipeline {
 	protected byte[] createECAR(List<File> files) throws IOException {
 		// creating byteArray stream, make it bufferable and passing this buffer
 		// to ZipOutputStream
-		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-		BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
-		ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream);
-		// packing files
-		for (File file : files) {
-			if (null != file) {
-				String fileName = null;
-				if (file.getName().toLowerCase().endsWith("manifest.json")) {
-					fileName = file.getName();
-				} else {
-					fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
-							+ File.separator + file.getName();
+		try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+				BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(byteArrayOutputStream);
+				ZipOutputStream zipOutputStream = new ZipOutputStream(bufferedOutputStream)) {
+			// packing files
+			for (File file : files) {
+				if (null != file) {
+					String fileName = null;
+					if (file.getName().toLowerCase().endsWith("manifest.json")) {
+						fileName = file.getName();
+					} else {
+						fileName = file.getParent().substring(file.getParent().lastIndexOf(File.separator) + 1)
+								+ File.separator + file.getName();
+					}
+					// new zip entry and copying inputstream with file to
+					// zipOutputStream, after all closing streams
+					zipOutputStream.putNextEntry(new ZipEntry(fileName));
+					FileInputStream fileInputStream = new FileInputStream(file);
+
+					IOUtils.copy(fileInputStream, zipOutputStream);
+
+					fileInputStream.close();
+					zipOutputStream.closeEntry();
 				}
-				// new zip entry and copying inputstream with file to
-				// zipOutputStream, after all closing streams
-				zipOutputStream.putNextEntry(new ZipEntry(fileName));
-				FileInputStream fileInputStream = new FileInputStream(file);
-
-				IOUtils.copy(fileInputStream, zipOutputStream);
-
-				fileInputStream.close();
-				zipOutputStream.closeEntry();
 			}
-		}
 
-		if (zipOutputStream != null) {
-			zipOutputStream.finish();
-			zipOutputStream.flush();
-			IOUtils.closeQuietly(zipOutputStream);
+			if (zipOutputStream != null) {
+				zipOutputStream.finish();
+				zipOutputStream.flush();
+				IOUtils.closeQuietly(zipOutputStream);
+			}
+			IOUtils.closeQuietly(bufferedOutputStream);
+			IOUtils.closeQuietly(byteArrayOutputStream);
+			return byteArrayOutputStream.toByteArray();
 		}
-		IOUtils.closeQuietly(bufferedOutputStream);
-		IOUtils.closeQuietly(byteArrayOutputStream);
-		return byteArrayOutputStream.toByteArray();
 	}
 
 	protected File createBundle(List<File> files, String bundleFileName) {
@@ -210,9 +212,9 @@ public class BaseFinalizer extends BasePipeline {
 			if (StringUtils.isBlank(bundleFileName))
 				throw new ClientException(ContentErrorCodeConstants.BUNDLE_FILE_WRITE.name(),
 						ContentErrorMessageConstants.INVALID_BUNDLE_FILE_NAME + " | [Bundle File Name is Required.]");
-			FileOutputStream stream = new FileOutputStream(bundleFileName);
-			stream.write(createECAR(files));
-			stream.close();
+			try (FileOutputStream stream = new FileOutputStream(bundleFileName)) {
+				stream.write(createECAR(files));
+			}
 		} catch (Throwable e) {
 			throw new ServerException(ContentErrorCodeConstants.BUNDLE_FILE_WRITE.name(),
 					ContentErrorMessageConstants.BUNDLE_FILE_WRITE_ERROR + " | [Unable to Bundle File.]", e);

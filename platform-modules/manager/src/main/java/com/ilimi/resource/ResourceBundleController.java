@@ -16,22 +16,20 @@ import com.ilimi.common.controller.BaseController;
 @RequestMapping("/v1/resourcebundle")
 public class ResourceBundleController extends BaseController {
 
-	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET, headers="Accept=application/json")
-    @ResponseBody
-	public void find(@PathVariable(value = "id") String id) throws Exception{
-     String  ApiUrl = UrlMapper(id);        
-     readFromJson(ApiUrl);
-    }
+	@RequestMapping(value = "/{id:.+}", method = RequestMethod.GET, headers = "Accept=application/json")
+	@ResponseBody
+	public void find(@PathVariable(value = "id") String id) throws Exception {
+		String ApiUrl = UrlMapper(id);
+		readFromJson(ApiUrl);
+	}
 
 	public void readFromJson(String url) throws Exception {
-
 		URL oracle = new URL(url);
-		BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()));
-
-		String inputLine;
-		while ((inputLine = in.readLine()) != null)
-			System.out.println(inputLine);
-		in.close();
+		try (BufferedReader in = new BufferedReader(new InputStreamReader(oracle.openStream()))) {
+			String inputLine;
+			while ((inputLine = in.readLine()) != null)
+				System.out.println(inputLine);
+		}
 	}
 
 	private String UrlMapper(String id) {

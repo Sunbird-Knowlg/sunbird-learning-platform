@@ -6,16 +6,18 @@ import java.util.Properties;
 import org.apache.commons.lang3.StringUtils;
 
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.common.exception.GraphEngineErrorCodes;
 import com.ilimi.graph.common.mgr.Configuration;
 
 public class Identifier {
+	
+	private static LogHelper LOGGER = LogHelper.getInstance(Identifier.class.getName());
 
 	private static long environmentId = 10000000;
 
 	static {
-		try {
-			InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties");
+		try (InputStream inputStream = Configuration.class.getClassLoader().getResourceAsStream("graph.properties")) {
 			if (null != inputStream) {
 				Properties props = new Properties();
 				props.load(inputStream);
@@ -25,6 +27,7 @@ public class Identifier {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error("Error! While Loading Graph Properties.", e);
 		}
 	}
 	
