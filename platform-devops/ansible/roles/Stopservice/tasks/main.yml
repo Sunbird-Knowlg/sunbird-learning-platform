@@ -1,5 +1,6 @@
 ---
 - name: stop elasticsearch
+  become: yes
   service: name=elasticsearch state=stopped
 
 - name: mongodb start

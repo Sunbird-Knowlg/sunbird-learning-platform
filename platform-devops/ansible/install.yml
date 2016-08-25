@@ -1,6 +1,7 @@
 - hosts: env
   become: yes
   roles:
+        - java
         - aws-login
         - tomcat
         - elasticsearch
