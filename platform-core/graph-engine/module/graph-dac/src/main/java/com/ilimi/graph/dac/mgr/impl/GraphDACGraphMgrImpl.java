@@ -124,11 +124,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 					"Graph '" + graphId + "' not found to delete.");
 		} else {
 			try {
-				GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
-				if (null != graphDb) {
-					Neo4jGraphFactory.shutdownGraph(graphId);
-				}
-				Neo4jGraphFactory.deleteGraph(graphId);
+				service.deleteGraph(graphId, request);
 				OK(GraphDACParams.graph_id.name(), graphId, getSender());
 			} catch (Exception e) {
 				ERROR(e, getSender());
