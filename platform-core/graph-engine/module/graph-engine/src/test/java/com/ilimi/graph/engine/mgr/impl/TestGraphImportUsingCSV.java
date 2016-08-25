@@ -1,22 +1,19 @@
+
 package com.ilimi.graph.engine.mgr.impl;
-
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertFalse;
-import static junit.framework.Assert.assertTrue;
-
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.concurrent.TimeUnit;
-
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.helpers.collection.IteratorUtil;
-import org.neo4j.tooling.GlobalGraphOperations;
+import org.neo4j.helpers.collection.Iterators;
 
 import com.ilimi.common.dto.Property;
 import com.ilimi.common.dto.Request;
@@ -178,9 +175,8 @@ public class TestGraphImportUsingCSV {
 
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
-        GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
-        int nodesCount = IteratorUtil.count(globalOps.getAllNodes().iterator());
-        int relationsCount = IteratorUtil.count(globalOps.getAllRelationships().iterator());
+        long nodesCount = Iterators.count(graphDb.getAllNodes().iterator());
+        long relationsCount = Iterators.count(graphDb.getAllRelationships().iterator());
         assertEquals(3, nodesCount); // root node + importedObjects.
         assertEquals(1, relationsCount); // only isParentOf relation.
         tx.success();
@@ -202,9 +198,8 @@ public class TestGraphImportUsingCSV {
         Thread.sleep(15000);
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
-        GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
         int tagsCount = 0;
-        ResourceIterator<Node> nodes = globalOps.getAllNodes().iterator();
+        ResourceIterator<Node> nodes = graphDb.getAllNodes().iterator();
         while (nodes.hasNext()) {
             Node node = nodes.next();
             if (SystemNodeTypes.TAG.name().equals(node.getProperty(SystemProperties.IL_SYS_NODE_TYPE.name()))) {
@@ -263,8 +258,7 @@ public class TestGraphImportUsingCSV {
 
         GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId);
         Transaction tx = graphDb.beginTx();
-        GlobalGraphOperations globalOps = GlobalGraphOperations.at(graphDb);
-        Iterator<Relationship> relations = globalOps.getAllRelationships().iterator();
+        Iterator<Relationship> relations = graphDb.getAllRelationships().iterator();
         Relationship expRelation = null;
         while (relations.hasNext()) {
             Relationship relation = relations.next();

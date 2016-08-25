@@ -15,7 +15,7 @@ public class TransactionTest {
 
 	private CustomTransactionEventHandler transEventHandler = new CustomTransactionEventHandler();
 	
-	@SuppressWarnings("deprecation")
+	@SuppressWarnings("unused")
 	@Test
 	public void TransactionTestTest() {
 		GraphDatabaseService hiGraphDb = Neo4jGraphFactory.getGraphDb("test");
@@ -38,7 +38,7 @@ public class TransactionTest {
 			neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), "synset");*/
 			tx.success();
 		} finally {
-			tx.finish();
+			tx.success();
 		}
 
 		/*Transaction kaTx = kaGraphDb.beginTx();
