@@ -61,7 +61,7 @@ public interface IGraphDatabaseService {
 
 	public void deleteCollection(String graphId, String collectionId, Request request);
 
-	public void importGraph(String graphId, String taskId, ImportData input, Map<String, List<String>> messages, Request request);
+	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request);
 
 	// Node Management APIs
 
@@ -85,39 +85,39 @@ public interface IGraphDatabaseService {
 
 	// Search Management APIs
 
-	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Node node, Request request);
+	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request);
 
-	public void getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Node node, Request request);
+	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request);
 
-	public void getNodesByProperty(String graphId, Property property, Boolean getTags, List<Node> nodeList, Request request);
+	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request);
 
-	public void getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, List<Node> nodes, Request request);
+	public List<Node> getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request);
 
-	public void getNodeProperty(String graphId, String nodeId, String key, Property property, Request request);
+	public Property getNodeProperty(String graphId, String nodeId, String key, Request request);
 
-	public void getAllNodes(String graphId, List<Node> nodes, Request request);
+	public List<Node> getAllNodes(String graphId, Request request);
 
-	public void getAllRelations(String graphId, List<Relation> relations, Request request);
+	public List<Relation> getAllRelations(String graphId, Request request);
 
-	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			String key, Property property, Request request);
+	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+			String key, Request request);
 
-	public void getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
-			Relation relation, Request request);
+	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request);
 
-	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
-			Map<String, Object> voMap, Request request);
+	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request);
 
-	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, List<Map<String, Object>> resultList, Request request);
+	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap, Request request);
 
-	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request);
+	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request);
 
-	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Long count, Request request);
+	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request);
 
-	public void traverse(String graphId, Traverser traverser, SubGraph subGraph, Request request);
+	public SubGraph traverse(String graphId, Traverser traverser, Request request);
 
-	public void traverseSubGraph(String graphId, Traverser traverser, Graph subGraph, Request request);
+	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request);
 
-	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Graph subGraph, Request request);
+	public Graph getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request);
 
 }

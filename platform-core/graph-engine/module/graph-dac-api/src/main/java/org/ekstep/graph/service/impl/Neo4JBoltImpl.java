@@ -37,7 +37,7 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void createIndex(String graphid, List<String> indexProperties, Request request) {
+	public void createIndex(String graphId, List<String> indexProperties, Request request) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -105,7 +105,7 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void createCollection(String graphId, String conllectionId, Node collection, String relationType,
+	public void createCollection(String graphId, String collectionId, Node collection, String relationType,
 			List<String> members, String indexProperty, Request request) {
 		// TODO Auto-generated method stub
 		
@@ -118,9 +118,9 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void importGraph(String graphId, String taskId, ImportData importData, Map<String, List<String>> messages, Request request) {
+	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
@@ -178,104 +178,103 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Node node, Request request) {
+	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Node node, Request request) {
+	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getNodesByProperty(String graphId, Property property, Boolean getTags, List<Node> nodeList, Request request) {
+	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, List<Node> nodes, Request request) {
+	public List<Node> getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getNodeProperty(String graphId, String nodeId, String key, Property property, Request request) {
+	public Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getAllNodes(String graphId, List<Node> nodes, Request request) {
+	public List<Node> getAllNodes(String graphId, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getAllRelations(String graphId, List<Relation> relations, Request request) {
+	public List<Relation> getAllRelations(String graphId, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			String key, Property property, Request request) {
+	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+			String key, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
-			Relation relation, Request request) {
+	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
-			Map<String, Object> vomap, Request request) {
+	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
+			String endNodeId, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, List<Map<String, Object>> resultList, Request request) {
+	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
+			Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request) {
+	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Long count, Request request) {
+	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void traverse(String graphId, Traverser traverser, SubGraph subGraph, Request request) {
+	public SubGraph traverse(String graphId, Traverser traverser, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void traverseSubGraph(String graphId, Traverser traverser, Graph subGraph, Request request) {
+	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Graph subGraph, Request request) {
+	public Graph getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
-
-
 
 }

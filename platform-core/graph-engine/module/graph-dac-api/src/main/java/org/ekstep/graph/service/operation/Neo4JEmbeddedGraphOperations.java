@@ -292,14 +292,15 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 		}
 	}
 
-	public void importGraph(String graphId, String taskId, ImportData input, Map<String, List<String>> messages,
-			Request request) throws Exception {
+	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request)
+			throws Exception {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Map<String, Node> existingNodes = new HashMap<String, Node>();
 			Map<String, Map<String, List<Relationship>>> existingRelations = new HashMap<String, Map<String, List<Relationship>>>();
 			List<com.ilimi.graph.dac.model.Node> importedNodes = new ArrayList<com.ilimi.graph.dac.model.Node>(
 					input.getDataNodes());
+			Map<String, List<String>> messages = new HashMap<String, List<String>>();
 			int nodesCount = createNodes(request, graphDb, existingNodes, existingRelations, importedNodes);
 			int relationsCount = createRelations(request, graphDb, existingRelations, existingNodes, importedNodes,
 					messages);
@@ -308,6 +309,7 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			if (taskId != null) {
 				updateTaskStatus(graphDb, taskId, "Completed");
 			}
+			return messages;
 		}
 	}
 

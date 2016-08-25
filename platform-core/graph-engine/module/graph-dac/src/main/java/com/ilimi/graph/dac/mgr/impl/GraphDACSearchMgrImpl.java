@@ -73,8 +73,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
         if (!validateRequired(nodeId))
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         try {
-            Node node = null;
-            service.getNodeById(graphId, nodeId, getTags, node, request);
+            Node node = service.getNodeById(graphId, nodeId, getTags, request);
             OK(GraphDACParams.node.name(), node, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
@@ -90,8 +89,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Node node = new Node();
-                service.getNodeByUniqueId(graphId, nodeId, getTags, node, request);
+                Node node = service.getNodeByUniqueId(graphId, nodeId, getTags, request);
                 OK(GraphDACParams.node.name(), node, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -108,8 +106,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_LIST_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Node> nodeList = new ArrayList<Node>();;
-                service.getNodesByProperty(graphId, property, getTags, nodeList, request);
+            	List<Node> nodeList = service.getNodesByProperty(graphId, property, getTags, request);
                 OK(GraphDACParams.node_list.name(), nodeList, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -131,8 +128,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
 			searchCriteria.addMetadata(mc);
 			searchCriteria.setCountQuery(false);
             try {
-                List<Node> nodes = new ArrayList<Node>();
-                service.getNodesByUniqueIds(graphId, searchCriteria, nodes, request);
+                List<Node> nodes = service.getNodesByUniqueIds(graphId, searchCriteria, request);
                 OK(GraphDACParams.node_list.name(), nodes, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -149,8 +145,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_NODE_PROPERTY_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Property property = new Property();
-                service.getNodeProperty(graphId, nodeId, key, property, request);
+                Property property = service.getNodeProperty(graphId, nodeId, key, request);
                 OK(GraphDACParams.property.name(), property, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -162,8 +157,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
     public void getAllNodes(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	List<Node> nodes = new ArrayList<Node>();
-        	service.getAllNodes(graphId, nodes, request);
+        	List<Node> nodes = service.getAllNodes(graphId, request);
             OK(GraphDACParams.node_list.name(), nodes, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
@@ -174,8 +168,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
     public void getAllRelations(Request request) {
         String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
         try {
-        	List<Relation> relations = new ArrayList<Relation>();
-        	service.getAllRelations(graphId, relations, request);
+        	List<Relation> relations = service.getAllRelations(graphId, request);
             OK(GraphDACParams.relations.name(), relations, getSender());
         } catch (Exception e) {
             ERROR(e, getSender());
@@ -193,8 +186,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Property property = new Property();
-                service.getRelation(graphId, startNodeId, relationType, endNodeId, null, request);
+                Property property = service.getRelationProperty(graphId, startNodeId, relationType, endNodeId, key, request);
                 OK(GraphDACParams.property.name(), property, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -212,8 +204,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_GET_RELATIONS_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Relation relation = new Relation();
-                service.getRelation(graphId, startNodeId, relationType, endNodeId, relation, request);
+                Relation relation = service.getRelation(graphId, startNodeId, relationType, endNodeId, request);
                 OK(GraphDACParams.relation.name(), relation, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -231,8 +222,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_CHECK_LOOP_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	Map<String, Object> voMap = new HashMap<String, Object>();
-            	service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, voMap, request);                OK(voMap, getSender());
+            	Map<String, Object> voMap = service.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);                OK(voMap, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
             }
@@ -249,8 +239,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Map<String, Object>> resultList = new ArrayList<Map<String, Object>>();
-                service.executeQuery(graphId, query, paramMap, resultList, request);
+            	List<Map<String, Object>> resultList = service.executeQuery(graphId, query, paramMap, request);
                 OK(GraphDACParams.results.name(), resultList, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -267,8 +256,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	List<Node> nodes = new ArrayList<Node>();
-                service.searchNodes(graphId, searchCriteria, getTags, nodes, request);
+            	List<Node> nodes = service.searchNodes(graphId, searchCriteria, getTags, request);
                 OK(GraphDACParams.node_list.name(), nodes, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -284,8 +272,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_SEARCH_NODES_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Long count = (long) 0;
-                service.getNodesCount(graphId, searchCriteria, count, request);
+                Long count = service.getNodesCount(graphId, searchCriteria, request);
                 OK(GraphDACParams.count.name(), count, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -301,8 +288,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	SubGraph subGraph = new SubGraph();
-                service.traverse(graphId, traverser, subGraph, request);
+            	SubGraph subGraph = service.traverse(graphId, traverser, request);
                 OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -318,8 +304,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-            	Graph subGraph = new Graph();
-                service.traverseSubGraph(graphId, traverser, subGraph, request);
+            	Graph subGraph = service.traverseSubGraph(graphId, traverser, request);
                 OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
@@ -337,8 +322,7 @@ public class GraphDACSearchMgrImpl extends BaseGraphManager implements IGraphDAC
             throw new ClientException(GraphDACErrorCodes.ERR_TRAVERSAL_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
         } else {
             try {
-                Graph subGraph = new Graph();
-                service.getSubGraph(graphId, startNodeId, relationType, depth, subGraph, request);
+                Graph subGraph = service.getSubGraph(graphId, startNodeId, relationType, depth, request);
                 OK(GraphDACParams.sub_graph.name(), subGraph, getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());

@@ -347,8 +347,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 			throw new ClientException(GraphEngineErrorCodes.ERR_INVALID_GRAPH_ID.name(), "Graph Id cannot be blank");
 		} else {
 			try {
-				Map<String, List<String>> messages = new HashMap<String, List<String>>();
-				service.importGraph(graphId, taskId, input, messages, request);
+				Map<String, List<String>> messages = service.importGraph(graphId, taskId, input, request);
 				OK(GraphDACParams.messages.name(), messages, getSender());
 			} catch (Exception e) {
 				ERROR(e, getSender());

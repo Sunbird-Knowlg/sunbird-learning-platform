@@ -1,5 +1,6 @@
 package org.ekstep.graph.service.impl;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,7 +24,7 @@ import com.ilimi.graph.importer.ImportData;
 public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedImpl.class.getName());
-	
+
 	Neo4JEmbeddedGraphOperations graphOperations = new Neo4JEmbeddedGraphOperations();
 	Neo4JEmbeddedNodeOperations nodeOperations = new Neo4JEmbeddedNodeOperations();
 	Neo4JEmbeddedSearchOperations searchOperations = new Neo4JEmbeddedSearchOperations();
@@ -32,28 +33,24 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 	public void createGraph(String graphId, Request request) {
 		LOGGER.info("Calling 'createGraph' Operation.");
 		graphOperations.createGraph(graphId, request);
-		LOGGER.info("Call to 'createGraph' Operation Finished.");		
 	}
 
 	@Override
 	public void createGraphUniqueContraint(String graphId, List<String> indexProperties, Request request) {
 		LOGGER.info("Calling 'createGraphUniqueContraint' Operation.");
 		graphOperations.createGraphUniqueContraint(graphId, indexProperties, request);
-		LOGGER.info("Call to 'createGraphUniqueContraint' Operation Finished.");		
 	}
 
 	@Override
 	public void createIndex(String graphId, List<String> indexProperties, Request request) {
 		LOGGER.info("Calling 'createIndex' Operation.");
 		graphOperations.createIndex(graphId, indexProperties, request);
-		LOGGER.info("Call to 'createIndex' Operation Finished.");		
 	}
 
 	@Override
 	public void deleteGraph(String graphId, Request request) {
 		LOGGER.info("Calling 'deleteGraph' Operation.");
 		graphOperations.deleteGraph(graphId, request);
-		LOGGER.info("Call to 'deleteGraph' Operation Finished.");		
 	}
 
 	@Override
@@ -61,7 +58,6 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			Request request) {
 		LOGGER.info("Calling 'createRelation' Operation.");
 		graphOperations.createRelation(graphId, startNodeId, endNodeId, relationType, request);
-		LOGGER.info("Call to 'createRelation' Operation Finished.");		
 	}
 
 	@Override
@@ -69,7 +65,6 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			Request request) {
 		LOGGER.info("Calling 'updateRelation' Operation.");
 		graphOperations.updateRelation(graphId, startNodeId, endNodeId, relationType, request);
-		LOGGER.info("Call to 'updateRelation' Operation Finished.");		
 	}
 
 	@Override
@@ -77,7 +72,6 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			Request request) {
 		LOGGER.info("Calling 'deleteRelation' Operation.");
 		graphOperations.deleteRelation(graphId, startNodeId, endNodeId, relationType, request);
-		LOGGER.info("Call to 'deleteRelation' Operation Finished.");		
 	}
 
 	@Override
@@ -85,7 +79,6 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			String relationType, Request request) {
 		LOGGER.info("Calling 'createIncomingRelations' Operation.");
 		graphOperations.createIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
-		LOGGER.info("Call to 'createIncomingRelations' Operation Finished.");		
 	}
 
 	@Override
@@ -93,7 +86,6 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			String relationType, Request request) {
 		LOGGER.info("Calling 'createOutgoingRelations' Operation.");
 		graphOperations.createOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
-		LOGGER.info("Call to 'createOutgoingRelations' Operation Finished.");		
 	}
 
 	@Override
@@ -101,14 +93,13 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			String relationType, Request request) {
 		LOGGER.info("Calling 'deleteIncomingRelations' Operation.");
 		graphOperations.deleteIncomingRelations(graphId, startNodeIds, endNodeId, relationType, request);
-		LOGGER.info("Call to 'deleteIncomingRelations' Operation Finished.");		
 	}
 
 	@Override
 	public void deleteOutgoingRelations(String graphId, String startNodeId, List<String> endNodeIds,
 			String relationType, Request request) {
 		LOGGER.info("Calling 'deleteOutgoingRelations' Operation.");
-		LOGGER.info("Call to 'deleteOutgoingRelations' Operation Finished.");		
+		graphOperations.deleteOutgoingRelations(graphId, startNodeId, endNodeIds, relationType, request);
 	}
 
 	@Override
@@ -116,211 +107,186 @@ public class Neo4JEmbeddedImpl implements IGraphDatabaseService {
 			String key, Request request) {
 		LOGGER.info("Calling 'removeRelationMetadataByKey' Operation.");
 		graphOperations.removeRelationMetadataByKey(graphId, startNodeId, endNodeId, relationType, key, request);
-		LOGGER.info("Call to 'removeRelationMetadataByKey' Operation Finished.");		
 	}
 
 	@Override
 	public void createCollection(String graphId, String collectionId, Node collection, String relationType,
 			List<String> members, String indexProperty, Request request) {
 		LOGGER.info("Calling 'createCollection' Operation.");
-		graphOperations.createCollection(graphId, collectionId, collection, relationType, members, indexProperty, request);
-		LOGGER.info("Call to 'createCollection' Operation Finished.");		
+		graphOperations.createCollection(graphId, collectionId, collection, relationType, members, indexProperty,
+				request);
 	}
 
 	@Override
 	public void deleteCollection(String graphId, String collectionId, Request request) {
 		LOGGER.info("Calling 'deleteCollection' Operation.");
 		graphOperations.deleteCollection(graphId, collectionId, request);
-		LOGGER.info("Call to 'deleteCollection' Operation Finished.");		
 	}
 
 	@Override
-	public void importGraph(String graphId, String taskId, ImportData input, Map<String, List<String>> messages, Request request) {
+	public Map<String, List<String>> importGraph(String graphId, String taskId, ImportData input, Request request) {
 		LOGGER.info("Calling 'importGraph' Operation.");
+		Map<String, List<String>> messages = new HashMap<String, List<String>>();
 		try {
-			graphOperations.importGraph(graphId, taskId, input, messages, request);
+			messages = graphOperations.importGraph(graphId, taskId, input, request);
 		} catch (Exception e) {
 			LOGGER.error("Error: Something went wrong while Importing the Graph.", e);
 		}
-		LOGGER.info("Call to 'importGraph' Operation Finished.");		
+		return messages;
 	}
 
 	@Override
 	public void upsertNode(String graphId, Node node, Request request) {
 		LOGGER.info("Calling 'upsertNode' Operation.");
 		nodeOperations.upsertNode(graphId, node, request);
-		LOGGER.info("Call to 'upsertNode' Operation Finished.");		
 	}
 
 	@Override
 	public void addNode(String graphId, Node node, Request request) {
 		LOGGER.info("Calling 'addNode' Operation.");
 		nodeOperations.addNode(graphId, node, request);
-		LOGGER.info("Call to 'addNode' Operation Finished.");		
 	}
 
 	@Override
 	public void updateNode(String graphId, Node node, Request request) {
 		LOGGER.info("Calling 'updateNode' Operation.");
 		nodeOperations.updateNode(graphId, node, request);
-		LOGGER.info("Call to 'updateNode' Operation Finished.");		
 	}
 
 	@Override
 	public void importNodes(String graphId, List<Node> nodes, Request request) {
 		LOGGER.info("Calling 'importNodes' Operation.");
 		nodeOperations.importNodes(graphId, nodes, request);
-		LOGGER.info("Call to 'importNodes' Operation Finished.");		
 	}
 
 	@Override
 	public void updatePropertyValue(String graphId, String nodeId, Property property, Request request) {
 		LOGGER.info("Calling 'updatePropertyValue' Operation.");
 		nodeOperations.updatePropertyValue(graphId, nodeId, property, request);
-		LOGGER.info("Call to 'updatePropertyValue' Operation Finished.");		
 	}
 
 	@Override
 	public void updatePropertyValues(String graphId, String nodeId, Map<String, Object> metadata, Request request) {
 		LOGGER.info("Calling 'updatePropertyValues' Operation.");
 		nodeOperations.updatePropertyValues(graphId, nodeId, metadata, request);
-		LOGGER.info("Call to 'updatePropertyValues' Operation Finished.");
 	}
 
 	@Override
 	public void removePropertyValue(String graphId, String nodeId, String key, Request request) {
 		LOGGER.info("Calling 'removePropertyValue' Operation.");
 		nodeOperations.removePropertyValue(graphId, nodeId, key, request);
-		LOGGER.info("Call to 'removePropertyValue' Operation Finished.");		
 	}
 
 	@Override
 	public void removePropertyValues(String graphId, String nodeId, List<String> keys, Request request) {
 		LOGGER.info("Calling 'removePropertyValues' Operation.");
 		nodeOperations.removePropertyValues(graphId, nodeId, keys, request);
-		LOGGER.info("Call to 'removePropertyValues' Operation Finished.");		
 	}
 
 	@Override
 	public void deleteNode(String graphId, String nodeId, Request request) {
 		LOGGER.info("Calling 'deleteNode' Operation.");
 		nodeOperations.deleteNode(graphId, nodeId, request);
-		LOGGER.info("Call to 'deleteNode' Operation Finished.");		
 	}
 
 	@Override
-	public void getNodeById(String graphId, Long nodeId, Boolean getTags, Node node, Request request) {
+	public Node getNodeById(String graphId, Long nodeId, Boolean getTags, Request request) {
 		LOGGER.info("Calling 'getNodeById' Operation.");
-		searchOperations.getNodeById(graphId, nodeId, getTags, node, request);
-		LOGGER.info("Call to 'getNodeById' Operation Finished.");		
+		return searchOperations.getNodeById(graphId, nodeId, getTags, request);
 	}
 
 	@Override
-	public void getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Node node, Request request) {
+	public Node getNodeByUniqueId(String graphId, String nodeId, Boolean getTags, Request request) {
 		LOGGER.info("Calling 'getNodeByUniqueId' Operation.");
-		searchOperations.getNodeByUniqueId(graphId, nodeId, getTags, node, request);
-		LOGGER.info("Call to 'getNodeByUniqueId' Operation Finished.");		
+		return searchOperations.getNodeByUniqueId(graphId, nodeId, getTags, request);
 	}
 
 	@Override
-	public void getNodesByProperty(String graphId, Property property, Boolean getTags, List<Node> nodeList, Request request) {
+	public List<Node> getNodesByProperty(String graphId, Property property, Boolean getTags, Request request) {
 		LOGGER.info("Calling 'getNodesByProperty' Operation.");
-		searchOperations.getNodesByProperty(graphId, property, getTags, nodeList, request);
-		LOGGER.info("Call to 'getNodesByProperty' Operation Finished.");		
+		return searchOperations.getNodesByProperty(graphId, property, getTags, request);
 	}
 
 	@Override
-	public void getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, List<Node> nodes, Request request) {
+	public List<Node> getNodesByUniqueIds(String graphId, SearchCriteria searchCriteria, Request request) {
 		LOGGER.info("Calling 'getNodesByUniqueIds' Operation.");
-		searchOperations.getNodeByUniqueIds(graphId, searchCriteria, nodes, request);
-		LOGGER.info("Call to 'getNodesByUniqueIds' Operation Finished.");		
+		return searchOperations.getNodeByUniqueIds(graphId, searchCriteria, request);
 	}
 
 	@Override
-	public void getNodeProperty(String graphId, String nodeId, String key, Property property, Request request) {
+	public Property getNodeProperty(String graphId, String nodeId, String key, Request request) {
 		LOGGER.info("Calling 'getNodeProperty' Operation.");
-		searchOperations.getNodeProperty(graphId, nodeId, key, property, request);
-		LOGGER.info("Call to 'getNodeProperty' Operation Finished.");
+		return searchOperations.getNodeProperty(graphId, nodeId, key, request);
 	}
 
 	@Override
-	public void getAllNodes(String graphId, List<Node> nodes, Request request) {
+	public List<Node> getAllNodes(String graphId, Request request) {
 		LOGGER.info("Calling 'getAllNodes' Operation.");
-		searchOperations.getAllNodes(graphId, nodes, request);
-		LOGGER.info("Call to 'getAllNodes' Operation Finished.");		
+		return searchOperations.getAllNodes(graphId, request);
 	}
 
 	@Override
-	public void getAllRelations(String graphId, List<Relation> relations, Request request) {
+	public List<Relation> getAllRelations(String graphId, Request request) {
 		LOGGER.info("Calling 'getAllRelations' Operation.");
-		searchOperations.getAllRelations(graphId, relations, request);
-		LOGGER.info("Call to 'getAllRelations' Operation Finished.");		
+		return searchOperations.getAllRelations(graphId, request);
 	}
 
 	@Override
-	public void getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
-			String key, Property property, Request request) {
+	public Property getRelationProperty(String graphId, String startNodeId, String relationType, String endNodeId,
+			String key, Request request) {
 		LOGGER.info("Calling 'getRelationProperty' Operation.");
-		searchOperations.getRelationProperty(graphId, startNodeId, relationType, endNodeId, key, property, request);
-		LOGGER.info("Call to 'getRelationProperty' Operation Finished.");		
+		return searchOperations.getRelationProperty(graphId, startNodeId, relationType, endNodeId, key, request);
 	}
 
 	@Override
-	public void getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
-			Relation relation, Request request) {
+	public Relation getRelation(String graphId, String startNodeId, String relationType, String endNodeId,
+			Request request) {
 		LOGGER.info("Calling 'getRelation' Operation.");
-		searchOperations.getRelation(graphId, startNodeId, relationType, endNodeId, relation, request);
-		LOGGER.info("Call to 'getRelation' Operation Finished.");		
+		return searchOperations.getRelation(graphId, startNodeId, relationType, endNodeId, request);
 	}
 
 	@Override
-	public void checkCyclicLoop(String graphId, String startNodeId, String relationType, String endNodeId,
-			Map<String, Object> vomap, Request request) {
+	public Map<String, Object> checkCyclicLoop(String graphId, String startNodeId, String relationType,
+			String endNodeId, Request request) {
 		LOGGER.info("Calling 'checkCyclicLoop' Operation.");
-		searchOperations.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);
-		LOGGER.info("Call to 'checkCyclicLoop' Operation Finished.");		
+		return searchOperations.checkCyclicLoop(graphId, startNodeId, relationType, endNodeId, request);
 	}
 
 	@Override
-	public void executeQuery(String graphId, String query, Map<String, Object> paramMap, List<Map<String, Object>> resultList, Request request) {
+	public List<Map<String, Object>> executeQuery(String graphId, String query, Map<String, Object> paramMap,
+			Request request) {
 		LOGGER.info("Calling 'executeQuery' Operation.");
-		searchOperations.executeQuery(graphId, query, paramMap, resultList, request);
-		LOGGER.info("Call to 'executeQuery' Operation Finished.");		
+		return searchOperations.executeQuery(graphId, query, paramMap, request);
 	}
 
 	@Override
-	public void searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, List<Node> nodes, Request request) {
+	public List<Node> searchNodes(String graphId, SearchCriteria searchCriteria, Boolean getTags, Request request) {
 		LOGGER.info("Calling 'searchNodes' Operation.");
-		searchOperations.searchNodes(graphId, searchCriteria, getTags, nodes, request);
-		LOGGER.info("Call to 'searchNodes' Operation Finished.");		
+		return searchOperations.searchNodes(graphId, searchCriteria, getTags, request);
 	}
 
 	@Override
-	public void getNodesCount(String graphId, SearchCriteria searchCriteria, Long count, Request request) {
+	public Long getNodesCount(String graphId, SearchCriteria searchCriteria, Request request) {
 		LOGGER.info("Calling 'getNodesCount' Operation.");
-		searchOperations.getNodesCount(graphId, searchCriteria, count, request);
-		LOGGER.info("Call to 'getNodesCount' Operation Finished.");		
+		return searchOperations.getNodesCount(graphId, searchCriteria, request);
 	}
 
 	@Override
-	public void traverse(String graphId, Traverser traverser, SubGraph subGraph, Request request) {
+	public SubGraph traverse(String graphId, Traverser traverser, Request request) {
 		LOGGER.info("Calling 'traverse' Operation.");
-		searchOperations.traverse(graphId, traverser, subGraph, request);
-		LOGGER.info("Call to 'traverse' Operation Finished.");		
+		return searchOperations.traverse(graphId, traverser, request);
 	}
 
 	@Override
-	public void traverseSubGraph(String graphId, Traverser traverser, Graph subGraph, Request request) {
+	public Graph traverseSubGraph(String graphId, Traverser traverser, Request request) {
 		LOGGER.info("Calling 'traverseSubGraph' Operation.");
-		searchOperations.traverseSubGraph(graphId, traverser, subGraph, request);
-		LOGGER.info("Call to 'traverseSubGraph' Operation Finished.");		
+		return searchOperations.traverseSubGraph(graphId, traverser, request);
 	}
 
 	@Override
-	public void getSubGraph(String graphId, String startNodeId, String relationType, int depth, Graph subGraph, Request request) {
+	public Graph getSubGraph(String graphId, String startNodeId, String relationType, int depth, Request request) {
 		LOGGER.info("Calling 'getSubGraph' Operation.");
-		searchOperations.getSubGraph(graphId, startNodeId, relationType, depth, subGraph, request);
-		LOGGER.info("Call to 'getSubGraph' Operation Finished.");		
+		return searchOperations.getSubGraph(graphId, startNodeId, relationType, depth, request);
 	}
 
 }

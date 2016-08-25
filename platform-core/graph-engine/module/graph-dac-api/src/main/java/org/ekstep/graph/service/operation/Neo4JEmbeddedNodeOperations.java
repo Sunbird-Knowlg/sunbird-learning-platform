@@ -37,21 +37,21 @@ public class Neo4JEmbeddedNodeOperations {
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
 			Node neo4jNode = null;
-            try {
-                neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
-                validateNodeUpdate(neo4jNode, node);
-            } catch (ResourceNotFoundException e) {
-                neo4jNode = graphDb.createNode(NODE_LABEL);
-                if (StringUtils.isBlank(node.getIdentifier()))
-                	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
-                neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
-                neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
-                neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
-                if (StringUtils.isNotBlank(node.getObjectType()))
-                    neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
-            }
-            setNodeData(graphDb, node, neo4jNode);
-            neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+			try {
+				neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+				validateNodeUpdate(neo4jNode, node);
+			} catch (ResourceNotFoundException e) {
+				neo4jNode = graphDb.createNode(NODE_LABEL);
+				if (StringUtils.isBlank(node.getIdentifier()))
+					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
+				neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+				if (StringUtils.isNotBlank(node.getObjectType()))
+					neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+			}
+			setNodeData(graphDb, node, neo4jNode);
+			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			tx.success();
 		}
 	}
@@ -61,15 +61,15 @@ public class Neo4JEmbeddedNodeOperations {
 		try (Transaction tx = graphDb.beginTx()) {
 			String date = DateUtils.formatCurrentDate();
 			Node neo4jNode = graphDb.createNode(NODE_LABEL);
-            if (StringUtils.isBlank(node.getIdentifier()))
-            	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
-            neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
-            neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
-            if (StringUtils.isNotBlank(node.getObjectType()))
-                neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
-            setNodeData(graphDb, node, neo4jNode);
-            neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
-            neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+			if (StringUtils.isBlank(node.getIdentifier()))
+				node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+			neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+			neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
+			if (StringUtils.isNotBlank(node.getObjectType()))
+				neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+			setNodeData(graphDb, node, neo4jNode);
+			neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			tx.success();
 		}
 	}
@@ -78,9 +78,9 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
-            validateNodeUpdate(neo4jNode, node);
-            setNodeData(graphDb, node, neo4jNode);
-            neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+			validateNodeUpdate(neo4jNode, node);
+			setNodeData(graphDb, node, neo4jNode);
+			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
 		}
 	}
@@ -90,22 +90,22 @@ public class Neo4JEmbeddedNodeOperations {
 		try (Transaction tx = graphDb.beginTx()) {
 			String date = DateUtils.formatCurrentDate();
 			for (com.ilimi.graph.dac.model.Node node : nodes) {
-                Node neo4jNode = null;
-                try {
-                    neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
-                } catch (ResourceNotFoundException e) {
-                    neo4jNode = graphDb.createNode(NODE_LABEL);
-                    neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
-                }
-                if (StringUtils.isBlank(node.getIdentifier()))
-                	node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
-                neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
-                neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
-                if (StringUtils.isNotBlank(node.getObjectType()))
-                    neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
-                setNodeData(graphDb, node, neo4jNode);
-                neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
-            }
+				Node neo4jNode = null;
+				try {
+					neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+				} catch (ResourceNotFoundException e) {
+					neo4jNode = graphDb.createNode(NODE_LABEL);
+					neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
+				}
+				if (StringUtils.isBlank(node.getIdentifier()))
+					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
+				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
+				if (StringUtils.isNotBlank(node.getObjectType()))
+					neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+				setNodeData(graphDb, node, neo4jNode);
+				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
+			}
 			tx.success();
 		}
 	}
@@ -114,11 +114,11 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Node node = getNodeByUniqueId(graphDb, nodeId);
-            if (null == property.getPropertyValue())
-                node.removeProperty(property.getPropertyName());
-            else
-                node.setProperty(property.getPropertyName(), property.getPropertyValue());
-            node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+			if (null == property.getPropertyValue())
+				node.removeProperty(property.getPropertyName());
+			else
+				node.setProperty(property.getPropertyName(), property.getPropertyValue());
+			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
 		}
 	}
@@ -127,15 +127,15 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			if (null != metadata && metadata.size() > 0) {
-                Node node = getNodeByUniqueId(graphDb, nodeId);
-                for (Entry<String, Object> entry : metadata.entrySet()) {
-                    if (null == entry.getValue())
-                        node.removeProperty(entry.getKey());
-                    else
-                        node.setProperty(entry.getKey(), entry.getValue());
-                }
-                node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
-            }
+				Node node = getNodeByUniqueId(graphDb, nodeId);
+				for (Entry<String, Object> entry : metadata.entrySet()) {
+					if (null == entry.getValue())
+						node.removeProperty(entry.getKey());
+					else
+						node.setProperty(entry.getKey(), entry.getValue());
+				}
+				node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+			}
 			tx.success();
 		}
 	}
@@ -144,8 +144,8 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Node node = getNodeByUniqueId(graphDb, nodeId);
-            node.removeProperty(key);
-            node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+			node.removeProperty(key);
+			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
 		}
 	}
@@ -154,10 +154,10 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Node node = getNodeByUniqueId(graphDb, nodeId);
-            for (String key : keys) {
-                node.removeProperty(key);
-            }
-            node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
+			for (String key : keys) {
+				node.removeProperty(key);
+			}
+			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
 		}
 	}
@@ -166,13 +166,13 @@ public class Neo4JEmbeddedNodeOperations {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
 			Node node = getNodeByUniqueId(graphDb, nodeId);
-            Iterable<Relationship> rels = node.getRelationships();
-            if (null != rels) {
-                for (Relationship rel : rels) {
-                    rel.delete();
-                }
-            }
-            node.delete();
+			Iterable<Relationship> rels = node.getRelationships();
+			if (null != rels) {
+				for (Relationship rel : rels) {
+					rel.delete();
+				}
+			}
+			node.delete();
 			tx.success();
 		}
 	}
