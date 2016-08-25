@@ -31,140 +31,182 @@ public class Neo4JEmbeddedNodeOperations {
 
 	private static Logger LOGGER = LogManager.getLogger(Neo4JEmbeddedNodeOperations.class.getName());
 
-	public void upsertNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	public com.ilimi.graph.dac.model.Node upsertNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'upsertNode' Operation. | [Node ID: '" + node.getIdentifier() + "']");
 			String date = DateUtils.formatCurrentDate();
 			LOGGER.info("Date: " + date);
 			Node neo4jNode = null;
 			try {
 				neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
 				validateNodeUpdate(neo4jNode, node);
+				LOGGER.info("Node Update Validated: " + node.getIdentifier());
 			} catch (ResourceNotFoundException e) {
+				LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode = graphDb.createNode(NODE_LABEL);
 				if (StringUtils.isBlank(node.getIdentifier()))
 					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
 				neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 				if (StringUtils.isNotBlank(node.getObjectType()))
 					neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
 			}
+			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			tx.success();
+			LOGGER.info("Transaction For Operation 'upsertNode' Completed Successfully. | [Node ID: '" + node.getIdentifier() + "']");
+			return node;
 		}
 	}
 
-	public void addNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
+	public com.ilimi.graph.dac.model.Node addNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'addNode' Operation. | [Node ID: '" + node.getIdentifier() + "']");
 			String date = DateUtils.formatCurrentDate();
+			LOGGER.info("Date: " + date);
 			Node neo4jNode = graphDb.createNode(NODE_LABEL);
 			if (StringUtils.isBlank(node.getIdentifier()))
 				node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+			LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 			neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 			neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
 			if (StringUtils.isNotBlank(node.getObjectType()))
 				neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			tx.success();
+			LOGGER.info("Transaction For Operation 'addNode' Completed Successfully. | [Node ID: '" + node.getIdentifier() + "']");
+			return node;
 		}
 	}
 
 	public void updateNode(String graphId, com.ilimi.graph.dac.model.Node node, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'updateNode' Operation. | [Node ID: '" + node.getIdentifier() + "']");
 			Node neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
 			validateNodeUpdate(neo4jNode, node);
+			LOGGER.info("Node Update Validated: " + node.getIdentifier());
+			LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 			setNodeData(graphDb, node, neo4jNode);
 			neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
+			LOGGER.info("Transaction For Operation 'updateNode' Completed Successfully. | [Node ID: '" + node.getIdentifier() + "']");
 		}
 	}
 
 	public void importNodes(String graphId, List<com.ilimi.graph.dac.model.Node> nodes, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'importNodes' Operation.");
 			String date = DateUtils.formatCurrentDate();
+			LOGGER.info("Date: " + date);
 			for (com.ilimi.graph.dac.model.Node node : nodes) {
+				LOGGER.info("Iterating For Node ID: " + node.getIdentifier());
 				Node neo4jNode = null;
 				try {
 					neo4jNode = Neo4jGraphUtil.getNodeByUniqueId(graphDb, node.getIdentifier());
+					LOGGER.info("Fetched Neo4J Node: " + neo4jNode.getId());
 				} catch (ResourceNotFoundException e) {
+					LOGGER.info("Node Doesn't Exist, Creating a New Node. | [Node ID: '" + node.getIdentifier() + "']");
 					neo4jNode = graphDb.createNode(NODE_LABEL);
 					neo4jNode.setProperty(AuditProperties.createdOn.name(), date);
 				}
 				if (StringUtils.isBlank(node.getIdentifier()))
 					node.setIdentifier(Identifier.getIdentifier(graphId, neo4jNode.getId()));
+				LOGGER.info("Setting System Properties For Node. | [Node ID: '" + node.getIdentifier() + "']");
 				neo4jNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), node.getIdentifier());
 				neo4jNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), node.getNodeType());
 				if (StringUtils.isNotBlank(node.getObjectType()))
 					neo4jNode.setProperty(SystemProperties.IL_FUNC_OBJECT_TYPE.name(), node.getObjectType());
+				LOGGER.info("Setting Node Data. | [Node ID: '" + node.getIdentifier() + "']");
 				setNodeData(graphDb, node, neo4jNode);
 				neo4jNode.setProperty(AuditProperties.lastUpdatedOn.name(), date);
 			}
 			tx.success();
+			LOGGER.info("Transaction For Operation 'importNodes' Completed Successfully.");
 		}
 	}
 
 	public void updatePropertyValue(String graphId, String nodeId, Property property, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'updatePropertyValue' Operation. | [Node ID: '" + nodeId + "']");
 			Node node = getNodeByUniqueId(graphDb, nodeId);
-			if (null == property.getPropertyValue())
+			if (null == property.getPropertyValue()) {
 				node.removeProperty(property.getPropertyName());
-			else
+				LOGGER.info("Property '" + property.getPropertyName() + "' Removed For Node ID: " + nodeId);
+			} else {
 				node.setProperty(property.getPropertyName(), property.getPropertyValue());
+				LOGGER.info("Property '" + property.getPropertyName() + "' Added For Node ID: " + nodeId);
+			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
+			LOGGER.info("Transaction For Operation 'updatePropertyValue' Completed Successfully. | [Node ID: '" + nodeId + "']");
 		}
 	}
 
 	public void updatePropertyValues(String graphId, String nodeId, Map<String, Object> metadata, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'updatePropertyValues' Operation. | [Node ID: '" + nodeId + "']");
 			if (null != metadata && metadata.size() > 0) {
 				Node node = getNodeByUniqueId(graphDb, nodeId);
 				for (Entry<String, Object> entry : metadata.entrySet()) {
-					if (null == entry.getValue())
+					if (null == entry.getValue()) {
 						node.removeProperty(entry.getKey());
-					else
+						LOGGER.info("Property '" + entry.getKey() + "' Removed For Node ID: " + nodeId);
+					} else {
 						node.setProperty(entry.getKey(), entry.getValue());
+						LOGGER.info("Property '" + entry.getKey() + "' Added For Node ID: " + nodeId);
+					}
 				}
 				node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			}
 			tx.success();
+			LOGGER.info("Transaction For Operation 'updatePropertyValues' Completed Successfully. | [Node ID: '" + nodeId + "']");
 		}
 	}
 
 	public void removePropertyValue(String graphId, String nodeId, String key, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'removePropertyValue' Operation. | [Node ID: '" + nodeId + "']");
 			Node node = getNodeByUniqueId(graphDb, nodeId);
 			node.removeProperty(key);
+			LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
+			LOGGER.info("Transaction For Operation 'removePropertyValue' Completed Successfully. | [Node ID: '" + nodeId + "']");
 		}
 	}
 
 	public void removePropertyValues(String graphId, String nodeId, List<String> keys, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'removePropertyValues' Operation. | [Node ID: '" + nodeId + "']");
 			Node node = getNodeByUniqueId(graphDb, nodeId);
 			for (String key : keys) {
 				node.removeProperty(key);
+				LOGGER.info("Property '" + key + "' Removed For Node ID: " + nodeId);
 			}
 			node.setProperty(AuditProperties.lastUpdatedOn.name(), DateUtils.formatCurrentDate());
 			tx.success();
+			LOGGER.info("Transaction For Operation 'removePropertyValues' Completed Successfully. | [Node ID: '" + nodeId + "']");
 		}
 	}
 
 	public void deleteNode(String graphId, String nodeId, Request request) {
 		GraphDatabaseService graphDb = Neo4jGraphFactory.getGraphDb(graphId, request);
 		try (Transaction tx = graphDb.beginTx()) {
+			LOGGER.info("Transaction Started For 'deleteNode' Operation. | [Node ID: '" + nodeId + "']");
 			Node node = getNodeByUniqueId(graphDb, nodeId);
 			Iterable<Relationship> rels = node.getRelationships();
 			if (null != rels) {
@@ -174,6 +216,7 @@ public class Neo4JEmbeddedNodeOperations {
 			}
 			node.delete();
 			tx.success();
+			LOGGER.info("Transaction For Operation 'deleteNode' Completed Successfully. | [Node ID: '" + nodeId + "']");
 		}
 	}
 

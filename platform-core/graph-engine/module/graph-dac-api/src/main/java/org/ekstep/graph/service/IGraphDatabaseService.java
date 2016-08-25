@@ -65,9 +65,9 @@ public interface IGraphDatabaseService {
 
 	// Node Management APIs
 
-	public void upsertNode(String graphId, Node node, Request request);
+	public Node upsertNode(String graphId, Node node, Request request);
 
-	public void addNode(String graphId, Node node, Request request);
+	public Node addNode(String graphId, Node node, Request request);
 
 	public void updateNode(String graphId, Node node, Request request);
 

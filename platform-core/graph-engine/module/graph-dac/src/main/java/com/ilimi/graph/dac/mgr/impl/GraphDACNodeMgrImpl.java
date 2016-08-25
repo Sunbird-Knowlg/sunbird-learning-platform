@@ -61,8 +61,8 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_UPDATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
         else {
             try {
-                service.upsertNode(graphId, node, request);
-                OK(GraphDACParams.node_id.name(), node.getIdentifier(), getSender());
+            	com.ilimi.graph.dac.model.Node upsertedNode = service.upsertNode(graphId, node, request);
+                OK(GraphDACParams.node_id.name(), upsertedNode.getIdentifier(), getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
             }
@@ -77,8 +77,8 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
             throw new ClientException(GraphDACErrorCodes.ERR_CREATE_NODE_MISSING_REQ_PARAMS.name(), "Invalid input node");
         else {
             try {
-                service.addNode(graphId, node, request);
-                OK(GraphDACParams.node_id.name(), node.getIdentifier(), getSender());
+            	com.ilimi.graph.dac.model.Node addedNode = service.addNode(graphId, node, request);
+                OK(GraphDACParams.node_id.name(), addedNode.getIdentifier(), getSender());
             } catch (Exception e) {
                 ERROR(e, getSender());
             }

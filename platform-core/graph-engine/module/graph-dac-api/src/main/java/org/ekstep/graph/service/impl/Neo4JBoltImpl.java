@@ -124,15 +124,15 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 	}
 
 	@Override
-	public void upsertNode(String graphId, Node node, Request request) {
+	public Node upsertNode(String graphId, Node node, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
-	public void addNode(String graphId, Node node, Request request) {
+	public Node addNode(String graphId, Node node, Request request) {
 		// TODO Auto-generated method stub
-		
+		return null;
 	}
 
 	@Override
@@ -276,5 +276,5 @@ public class Neo4JBoltImpl implements IGraphDatabaseService {
 		// TODO Auto-generated method stub
 		return null;
 	}
-
+	
 }
