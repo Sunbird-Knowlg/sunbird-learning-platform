@@ -35,4 +35,22 @@ public class LogTelemetryEventUtil {
 		return jsonMessage;
 	}
 
+	public static String logContentSearchEvent(String query, Object filters, Object sort, String correlationId, int size) {
+		TelemetryBEEvent te = new TelemetryBEEvent();
+		long unixTime = System.currentTimeMillis() / 1000L;
+		te.setEid("BE_CONTENT_SEARCH");
+		te.setEts(unixTime);
+		te.setVer("2.0");
+		te.setPdata("org.ekstep.search.platform", "", "1.0", "");
+		te.setEdata(query, filters, sort, correlationId, size);
+		String jsonMessage = null;
+		try {
+			jsonMessage = mapper.writeValueAsString(te);
+			if (StringUtils.isNotBlank(jsonMessage))
+				telemetryEventLogger.info(jsonMessage);
+		} catch (Exception e) {
+			LOGGER.error("Error logging BE_CONTENT_LIFECYCLE event", e);
+		}
+		return jsonMessage;
+	}
 }

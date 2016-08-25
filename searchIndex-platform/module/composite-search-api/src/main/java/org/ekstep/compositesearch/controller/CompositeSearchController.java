@@ -1,9 +1,11 @@
 package org.ekstep.compositesearch.controller;
 
 import java.util.Map;
+import java.util.UUID;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.ekstep.compositesearch.enums.CompositeSearchParams;
 import org.ekstep.search.mgr.CompositeSearchManager;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 import com.ilimi.common.logger.LogHelper;
+import com.ilimi.common.util.LogTelemetryEventUtil;
 
 @Controller
 @RequestMapping("v2/search")
@@ -33,9 +36,16 @@ public class CompositeSearchController extends BaseCompositeSearchController {
 		LOGGER.info(apiId + " | Request : " + map);
 		try {
 			Request request = getRequest(map);
+			Map<String, Object> requestMap = (Map<String, Object>) map.get("request"); 
+			String queryString = (String) requestMap.get(CompositeSearchParams.query.name());
+			Object filters = requestMap.get(CompositeSearchParams.filters.name());
+			Object sort = requestMap.get(CompositeSearchParams.sort_by.name());
 			Response searchResponse = compositeSearchManager.search(request);
 			Response  response = compositeSearchManager.getSearchResponse(searchResponse);
-			return getResponseEntity(response, apiId, null);
+			String correlationId = UUID.randomUUID().toString();
+			int count = (int) response.getResult().get("count");
+			LogTelemetryEventUtil.logContentSearchEvent(queryString, filters, sort, correlationId, count);
+			return getResponseEntity(response, apiId, null, correlationId);
 		} catch (Exception e) {
 			LOGGER.error("Error: " + apiId, e);
 			return getExceptionResponseEntity(e, apiId, null);

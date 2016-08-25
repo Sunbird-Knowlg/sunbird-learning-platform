@@ -18,8 +18,6 @@ import org.neo4j.graphdb.Result;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
-import org.neo4j.tooling.GlobalGraphOperations;
-
 import com.ilimi.graph.common.Identifier;
 import com.ilimi.graph.dac.enums.SystemProperties;
 import com.ilimi.graph.dac.util.RelationType;
@@ -177,9 +175,10 @@ public class WordChainsRelationsTest {
 	
 	public static synchronized GraphDatabaseService getGraphDb(String graphId) {
 		GraphDatabaseService graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder("/data/graphDB" + File.separator + graphId)
+				.newEmbeddedDatabaseBuilder(new File("/data/graphDB" + File.separator + graphId))
 				.setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-				.setConfig(GraphDatabaseSettings.cache_type, "weak").newGraphDatabase();
+//				.setConfig(GraphDatabaseSettings.cache_type, "weak")
+				.newGraphDatabase();
 		registerShutdownHook(graphDb);
 		return graphDb;
 	}
@@ -198,8 +197,7 @@ public class WordChainsRelationsTest {
 		Transaction tx = null;
 		try {
 			tx = graphDb.beginTx();
-			GlobalGraphOperations graphOps = GlobalGraphOperations.at(graphDb);
-			Iterable<org.neo4j.graphdb.Node> dbNodes = graphOps.getAllNodes();
+			Iterable<org.neo4j.graphdb.Node> dbNodes = graphDb.getAllNodes();
 			List<Node> nodes = new ArrayList<Node>();
 			if (null != dbNodes && null != dbNodes.iterator()) {
 				for (org.neo4j.graphdb.Node dbNode : dbNodes) {

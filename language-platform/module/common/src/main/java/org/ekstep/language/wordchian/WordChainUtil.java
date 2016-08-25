@@ -27,16 +27,16 @@ public class WordChainUtil {
 	
 		
 	public void updateWordSet(String languageId, Node node, WordComplexity wc) throws Exception{
-		String status = (String) node.getMetadata().get(LanguageParams.status.name());
+		/*String status = (String) node.getMetadata().get(LanguageParams.status.name());
 		if(status == null)
 			return;
-		if("Live".equalsIgnoreCase(status)){
-			List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
-			new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
-			new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();
-			Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
-			node.setInRelations(updatedNode.getInRelations());			
-		}else{
+		if("Live".equalsIgnoreCase(status)){*/
+		List<Relation> existingWordSetRelatios = getExistingWordSetRelations(node);
+		new RhymingSoundSet(languageId, node, wc, existingWordSetRelatios).create();
+		new PhoneticBoundarySet(languageId, node, wc, existingWordSetRelatios).create();
+		Node updatedNode = wordUtil.getDataNode(languageId, node.getIdentifier());
+		node.setInRelations(updatedNode.getInRelations());			
+/*		}else{
 			List<Relation> inRelation = node.getInRelations();
 			if(inRelation != null){
 				Iterator<Relation> irItr =inRelation.iterator();
@@ -57,7 +57,7 @@ public class WordChainUtil {
 							getErrorMessage(wordResponse));
 				}
 			}
-		}
+		}*/
 
 	}
 	

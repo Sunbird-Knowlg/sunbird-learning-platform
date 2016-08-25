@@ -5,17 +5,19 @@
 #DESCRIPTION:Script for lp-neo4j-update.
 #DATE:22-08-16
 #************************************************
+NEO4J_HOME={{ neo4j_home }}
 cd /data/graphDB                 #move inside th folder
 
 #*****************************************************
 for file in *                        
 do
+	rm -rf $NEO4J_HOME/data/databases/$file
 	a="dbms.active_database=.*"
 	b="dbms.active_database=$file"
-	`sed -i '' "s/$a/$b/" /home/ec2-user/neo4j-community-3.0.4/conf/neo4j.conf`
-	cd /home/ec2-user/neo4j-community-3.0.4/bin
+	`sed -i '' "s/$a/$b/" $NEO4J_HOME/conf/neo4j.conf`
+	cd $NEO4J_HOME/bin
     `./neo4j-admin import --mode=database --database=$file --from=/data/graphDB/$file`
 done
 
-cp -r /home/ec2-user/neo4j-community-3.0.4/data/databases/*  /data/graphDB
+cp -r $NEO4J_HOME/data/databases/ /data/graphDB
 

@@ -3,6 +3,7 @@ package com.ilimi.graph.dac.util;
 import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public class Neo4jGraphFactory {
                     }
                     graphDbPath = graphDir;
                 }
-            }
+            }       
         } catch (Exception e) {
 			LOGGER.error("Error! While Closing the Input Stream.", e);
         }
@@ -94,9 +95,9 @@ public class Neo4jGraphFactory {
                 if (null != graphDb) {
                     graphDbMap.remove(graphId);
                 }
-                graphDb = new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(graphDbPath + File.separator + graphId)
+                graphDb = (new GraphDatabaseFactory().newEmbeddedDatabaseBuilder(new File(graphDbPath + File.separator + graphId)))
                         .setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-                        .setConfig(GraphDatabaseSettings.cache_type, "weak")
+//                      .setConfig(GraphDatabaseSettings.cache_type, "weak")
                         .newGraphDatabase();
                 registerShutdownHook(graphDb);
                 if (!restrictedGraphList.contains(graphId) && StringUtils.isNotEmpty(requestId))
@@ -129,11 +130,12 @@ public class Neo4jGraphFactory {
         }
     }
 
-    public static void createGraph(String graphId) {
+    public static String createGraph(String graphId) {
         File f = new File(graphDbPath + File.separator + graphId);
         if (!f.exists()) {
             f.mkdirs();
         }
+        return f.getName();
     }
 
     public static void deleteGraph(String graphId) {
@@ -166,8 +168,8 @@ public class Neo4jGraphFactory {
         }
     }
 
-    public static BatchInserter getBatchInserter(String graphId) {
-        BatchInserter inserter = BatchInserters.inserter(graphDbPath + File.separator + graphId);
+    public static BatchInserter getBatchInserter(String graphId) throws IOException {
+        BatchInserter inserter = BatchInserters.inserter(new File(graphDbPath + File.separator + graphId));
         return inserter;
     }
 

@@ -5,9 +5,11 @@ import static com.ilimi.graph.dac.util.Neo4jGraphUtil.NODE_LABEL;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.junit.Test;
 import org.neo4j.graphdb.Direction;
@@ -48,6 +50,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 	private int TRAVERSAL_DEPTH = 9;
 	static GraphDatabaseService graphDb = getGraphDb(graphId);
 	List<String> lemmaList = new ArrayList<String>();
+	Set<String> wordsSet = new HashSet<String>();
 
 	// @Test
 	public void traverse() throws Exception {
@@ -205,10 +208,11 @@ public class WordChainsTraversalsTest extends BaseManager {
 		Direction[] directions = { Direction.INCOMING, Direction.OUTGOING, Direction.OUTGOING };
 
 		TraversalDescription td = graphDb.traversalDescription().depthFirst()
-				.expand(new ArrayExpander(directions, orderedRelTypes)).uniqueness(Uniqueness.NODE_GLOBAL)
+				.expand(new ArrayExpander(directions, orderedRelTypes))
+				.uniqueness(Uniqueness.NODE_GLOBAL)
 				.uniqueness(Uniqueness.RELATIONSHIP_GLOBAL)
 				// .evaluator(Evaluators.excludeStartPosition())
-				.evaluator(Evaluators.fromDepth(6)).evaluator(Evaluators.toDepth(9));
+				.evaluator(Evaluators.fromDepth(6)).evaluator(Evaluators.toDepth(20));
 		return td.traverse(nodes);
 	}
 
@@ -249,7 +253,7 @@ public class WordChainsTraversalsTest extends BaseManager {
 			// System.out.println("Final
 			// paths:**************************************");
 			for (Path finalPath : finalPaths) {
-				render(finalPath);
+					render(finalPath);
 			}
 		} catch (Exception e) {
 			if (null != tx)
@@ -287,14 +291,18 @@ public class WordChainsTraversalsTest extends BaseManager {
 			else
 				sb.append(toString((Relationship) pc));
 		}
-		System.out.println(sb.toString());
+		if(!wordsSet.contains(sb.toString())){
+			System.out.println(sb.toString());
+			wordsSet.add(sb.toString());
+		}
 	}
 
 	public static synchronized GraphDatabaseService getGraphDb(String graphId) {
 		GraphDatabaseService graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder("/data/graphDB" + File.separator + graphId)
+				.newEmbeddedDatabaseBuilder(new File("/data/graphDB" + File.separator + graphId))
 				.setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-				.setConfig(GraphDatabaseSettings.cache_type, "weak").newGraphDatabase();
+//				.setConfig(GraphDatabaseSettings.cache_type, "weak")
+				.newGraphDatabase();
 		registerShutdownHook(graphDb);
 		return graphDb;
 	}

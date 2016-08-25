@@ -1,0 +1,21 @@
+- name: Install Java8
+  become: yes
+  yum: name=java-1.8.0 state=latest
+  ignore_errors: yes 
+
+- name: Remove Java7
+  become: yes
+  yum: name=java-1.7.0-openjdk state=absent
+
+- name: Update bashrc for JAVA_HOME
+  become: yes
+  lineinfile: dest=.bash_profile line='JAVA_HOME=/usr/lib/jvm/jre'  state=present insertafter=EOF create=yes
+
+
+- name: Export JAVA_HOME
+  become: yes
+  lineinfile: dest=.bash_profile  line='export JAVA_HOME'  state=present insertafter=EOF create=yes
+
+- name: Add JAVA_HOME to the PATH
+  become: yes  
+  lineinfile: dest=.bash_profile line='PATH=$PATH:$JAVA_HOME/bin' state=present insertafter=EOF create=yes

@@ -44,8 +44,7 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
  		# chainLength holds current word chain length
 		set chainLength 0
 		# wordChains is list
-    	set wordChains [java::new ArrayList]
-
+    set wordChains [java::new ArrayList]
 		# getSetMembers of given RhymingSound set
 		set setResponse [getSetMembers $graphId [$rhymingSoundSetId toString]]
 		# check whether getSetMembers response is success or error
@@ -199,7 +198,7 @@ set count 0
 while { ($topWordCount > $count) && ($listSize > $count) } {
 		# get id from master search result(ValidWordIds)
 		set id [$validWordIds get $count]
-		
+
 		# get word Object from wordIdMap and cast it to Node type
 		set wordObj [$wordIdMap get $id]
 		set wordNode [java::cast Node $wordObj]

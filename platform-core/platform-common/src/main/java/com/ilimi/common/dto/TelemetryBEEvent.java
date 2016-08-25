@@ -60,4 +60,14 @@ public class TelemetryBEEvent {
 		
 		edata.put("eks", eks);
 	}
+	public void setEdata(String query, Object filters, Object sort, String correlationId, int size) {
+		this.edata = new HashMap<String, Object>();
+		Map<String, Object> eks = new HashMap<String, Object>();
+		eks.put("query", query);
+		eks.put("filters", filters);
+		eks.put("sort", sort);
+		eks.put("correlationid", correlationId);
+		eks.put("size", size);
+		edata.put("eks", eks);
+	}
 }
