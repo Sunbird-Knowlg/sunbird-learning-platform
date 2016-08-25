@@ -13,7 +13,8 @@
   file: path={{ user_home }}/backups mode=755 owner=ec2-user group=ec2-user state=directory
 
 - name: Backup
-  copy: src=/data/graphDB dest={{ user_home }}/backups/ backup=yes
+  become: yes
+  command: cp -r /data/graphDB/ {{ user_home }}/backups/
 
 - name: Replace Working directory line
   lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^#dbms.allow_format_migration=true' line='dbms.allow_format_migration=true' state=present
@@ -23,15 +24,10 @@
   template: src=neo4j_script.j2 dest={{ user_home }}/neo4j_script.sh
 
 - name: run script
+  become: yes
   shell: sh {{ user_home }}/neo4j_script.sh
 
 
-- name: start tomcat
-  become: yes
-  service: name=tomcat state=started
-  
-- name: Replace Working directory line
-  lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^dbms.allow_format_migration=true' line='#dbms.allow_format_migration=true' state=present
 
 
 

@@ -299,9 +299,10 @@ public class WordChainsTraversalsTest extends BaseManager {
 
 	public static synchronized GraphDatabaseService getGraphDb(String graphId) {
 		GraphDatabaseService graphDb = new GraphDatabaseFactory()
-				.newEmbeddedDatabaseBuilder("/data/graphDB" + File.separator + graphId)
+				.newEmbeddedDatabaseBuilder(new File("/data/graphDB" + File.separator + graphId))
 				.setConfig(GraphDatabaseSettings.allow_store_upgrade, "true")
-				.setConfig(GraphDatabaseSettings.cache_type, "weak").newGraphDatabase();
+//				.setConfig(GraphDatabaseSettings.cache_type, "weak")
+				.newGraphDatabase();
 		registerShutdownHook(graphDb);
 		return graphDb;
 	}
