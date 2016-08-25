@@ -4,6 +4,8 @@
   service: name=elasticsearch state=stopped
 
 - name: mongodb start
+  become_user: mongod
+  become: yes
   service: name=mongod state=stopped
 
 - name: Check if redis is running
