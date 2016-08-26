@@ -12,7 +12,7 @@ cd /data/graphDB                 #move inside th folder
 for file in *                        
 do
 	rm -rf $NEO4J_HOME/data/databases/$file
-	a="dbms.active_database=.*"
+	a="#dbms.active_database=.*"
 	b="dbms.active_database=$file"
 	`sed -i '' "s/$a/$b/" $NEO4J_HOME/conf/neo4j.conf`
 	cd $NEO4J_HOME/bin

@@ -1,0 +1,10 @@
+
+#!/bin/sh
+#****************************************************
+#AUTHOR:MANOJ V V
+#DESCRIPTION:Script for lp-stop-service.
+#DATE:25-08-16
+#************************************************
+kill -9 `pgrep -f redis`
+kill -9 `pgrep -f language-graph-events.conf`
+kill -9 `pgrep -f logstash-graph-events.conf`
