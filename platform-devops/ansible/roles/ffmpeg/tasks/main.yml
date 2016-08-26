@@ -4,15 +4,15 @@
   get_url: url=http://johnvansickle.com/ffmpeg/releases/ffmpeg-release-64bit-static.tar.xz dest=/home/ec2-user timeout=1000 force=no owner=ec2-user
 
 - name: unzip 
-  unarchive: src=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ ffmpeg_home }}
+  unarchive: src=/home/ec2-user/ffmpeg-release-64bit-static.tar.xz  dest=/home/ec2-user copy=no group=ec2-user owner=ec2-user creates={{ user_home }}/ffmpeg-3.1.2-64bit-static
 
 - name: Change ownership of ffmpeg installation
   become: yes
-  file: path={{ ffmpeg_home }} owner=ec2-user group=ec2-user mode=755 state=directory recurse=yes  
+  file: path={{ user_home }}/ffmpeg-3.1.2-64bit-static owner=ec2-user group=ec2-user mode=755 state=directory recurse=yes  
 
 - name: move files
   become: yes
-  command: cp {{ ffmpeg_home }}/{{ item }} /usr/local/bin
+  command: cp {{ user_home }}/ffmpeg-3.1.2-64bit-static/{{ item }} /usr/local/bin
   with_items:
              - ffmpeg
              - ffprobe

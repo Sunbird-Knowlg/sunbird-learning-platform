@@ -1,4 +1,3 @@
 - name: mongodb start
-  become_user: mongod
   become: yes
   service: name=mongod state=started
