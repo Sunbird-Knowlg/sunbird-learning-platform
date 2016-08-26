@@ -1,10 +1,9 @@
 ---
-- name: stop elasticsearch
+- name: start elasticsearch
   become: yes
   service: name=elasticsearch state=started
 
 - name: mongodb start
-  become_user: mongod
   become: yes
   service: name=mongod state=started
 
@@ -17,7 +16,7 @@
 
 - name: start redis
   become_user: ec2-user
-  shell: nohup {{ redis_home }}/src/redis-server &
+  shell: nohup {{ user_home }}/redis-stable/src/redis-server &
   async: 60
   poll: 60
   when: "redis_process.stdout == '0'"
@@ -51,6 +50,6 @@
   poll: 30
   when: "language_process.stdout == '0'"
 
-- name: stop tomcat
+- name: start tomcat
   become: yes
-  service: name=tomcat state=stopped
+  service: name=tomcat state=started

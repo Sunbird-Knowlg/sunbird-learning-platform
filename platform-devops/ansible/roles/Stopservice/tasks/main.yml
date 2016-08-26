@@ -1,9 +1,9 @@
----
+  ---
 - name: stop elasticsearch
   become: yes
   service: name=elasticsearch state=stopped
 
-- name: mongodb start
+- name: mongodb stop
   become_user: mongod
   become: yes
   service: name=mongod state=stopped
@@ -14,39 +14,6 @@
 - name: run script
   become: yes
   shell: sh {{ user_home }}/stop_script.sh
-
-# - name: Check if redis is running
-#   shell: ps -ef | grep redis | grep -v grep | wc -l
-#   register: redis_process
-#   changed_when: false
-#   ignore_errors: true
- 
-# - name: kill process
-#   shell: "kill -9 `pgrep -f redis`"
-#   when: "redis_process.stdout >= '1'"
-
-
-# - name: Check if logstash graph events is running
-#   become_user: ec2-user
-#   shell: ps -ef | grep logstash | grep logstash-graph-events.conf | grep -v grep | wc -l
-#   register: logstash_process
-
-
-# - name: Check if logstash language graph events is running
-#   become_user: ec2-user
-#   shell: ps -ef | grep logstash | grep language-graph-events.conf | grep -v grep | wc -l
-#   register: language_process
-
-
-# - name: kill process language_process
-#   shell: kill -9 `pgrep -f language-graph-events.conf`
-#   when: "language_process.stdout >= '1'"
-
-
-# - name: kill process logstash
-#   shell: kill -9 `pgrep -f logstash-graph-events.conf`
-#   when: "logstash_process.stdout >= '1'"
-
 
 - name: stop tomcat
   become: yes
