@@ -1298,6 +1298,18 @@
           "indexed": false
         },
         {
+          "propertyName": "origin",
+          "title": "Origin",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "String",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 24}",
+          "indexed": true
+        },
+        {
           "propertyName": "versionCreatedBy",
           "title": "Version Created By",
           "description": "",
