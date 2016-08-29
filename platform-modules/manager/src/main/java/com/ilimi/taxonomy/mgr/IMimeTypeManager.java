@@ -9,8 +9,9 @@ import com.ilimi.common.dto.Response;
 import com.ilimi.graph.dac.model.Node;
 
 /**
- * @author ilimi
+ * The Interface IMimeTypeManager.
  *
+ * @author Azhar
  */
 public interface IMimeTypeManager {
 

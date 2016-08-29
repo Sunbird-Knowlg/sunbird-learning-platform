@@ -56,17 +56,26 @@ import com.ilimi.taxonomy.mgr.IContentManager;
 import com.ilimi.taxonomy.mgr.IMimeTypeManager;
 import com.ilimi.taxonomy.util.Content2VecUtil;
 
+/**
+ * The Class ContentManagerImpl.
+ */
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
+	/** The content factory. */
 	@Autowired
 	private ContentMimeTypeFactory contentFactory;
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IContentManager.class.getName());
 
+	/** The Constant DEFAULT_FIELDS. */
 	private static final List<String> DEFAULT_FIELDS = new ArrayList<String>();
+	
+	/** The Constant DEFAULT_STATUS. */
 	private static final List<String> DEFAULT_STATUS = new ArrayList<String>();
 
+	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
 	static {
@@ -78,12 +87,21 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		DEFAULT_STATUS.add("Live");
 	}
 
+	/** The Constant bucketName. */
 	private static final String bucketName = "ekstep-public";
+	
+	/** The Constant folderName. */
 	private static final String folderName = "content";
+	
+	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
+	/** The Constant URL_FIELD. */
 	protected static final String URL_FIELD = "URL";
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#create(java.lang.String, java.lang.String, com.ilimi.common.dto.Request)
+	 */
 	@Override
 	public Response create(String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
@@ -108,6 +126,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#findAll(java.lang.String, java.lang.String, java.lang.Integer, java.lang.Integer, java.lang.String[])
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response findAll(String taxonomyId, String objectType, Integer offset, Integer limit, String[] gfields) {
@@ -154,6 +175,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#find(java.lang.String, java.lang.String, java.lang.String[])
+	 */
 	@Override
 	public Response find(String id, String taxonomyId, String[] fields) {
 		if (StringUtils.isBlank(id))
@@ -179,6 +203,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/**
+	 * Gets the data node.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param id the id
+	 * @return the data node
+	 */
 	private Response getDataNode(String taxonomyId, String id) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getDataNode",
 				GraphDACParams.node_id.name(), id);
@@ -187,6 +218,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return getNodeRes;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#update(java.lang.String, java.lang.String, java.lang.String, com.ilimi.common.dto.Request)
+	 */
 	@Override
 	public Response update(String id, String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
@@ -216,6 +250,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#delete(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public Response delete(String id, String taxonomyId) {
 		if (StringUtils.isBlank(taxonomyId))
@@ -228,6 +265,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return getResponse(request, LOGGER);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#upload(java.lang.String, java.lang.String, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response upload(String id, String taxonomyId, File uploadedFile, String folder) {
 		if (StringUtils.isBlank(taxonomyId))
@@ -263,6 +303,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return res;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#listContents(java.lang.String, java.lang.String, com.ilimi.common.dto.Request)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response listContents(String taxonomyId, String objectType, Request request) {
@@ -328,6 +371,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#bundle(com.ilimi.common.dto.Request, java.lang.String, java.lang.String)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response bundle(Request request, String taxonomyId, String version) {
@@ -368,6 +414,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	/**
+	 * Search nodes.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param contentIds the content ids
+	 * @return the response
+	 */
 	private Response searchNodes(String taxonomyId, List<String> contentIds) {
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
 		List<Filter> filters = new ArrayList<Filter>();
@@ -395,6 +448,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#search(java.lang.String, java.lang.String, com.ilimi.common.dto.Request)
+	 */
 	@SuppressWarnings("unchecked")
 	public Response search(String taxonomyId, String objectType, Request request) {
 		if (StringUtils.isBlank(taxonomyId))
@@ -446,6 +502,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		}
 	}
 
+	/**
+	 * Gets the definition.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param objectType the object type
+	 * @return the definition
+	 */
 	private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
 		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
 				GraphDACParams.object_type.name(), objectType);
@@ -457,6 +520,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	/**
+	 * Gets the contents list request.
+	 *
+	 * @param request the request
+	 * @param taxonomyId the taxonomy id
+	 * @param objectType the object type
+	 * @param definition the definition
+	 * @return the contents list request
+	 */
 	@SuppressWarnings("unchecked")
 	private Request getContentsListRequest(Request request, String taxonomyId, String objectType,
 			DefinitionDTO definition) {
@@ -536,6 +608,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return req;
 	}
 
+	/**
+	 * Sets the limit.
+	 *
+	 * @param request the request
+	 * @param sc the sc
+	 * @param definition the definition
+	 */
 	private void setLimit(Request request, SearchCriteria sc, DefinitionDTO definition) {
 		Integer defaultLimit = null;
 		if (null != definition && null != definition.getMetadata())
@@ -556,6 +635,14 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		sc.setResultSize(limit);
 	}
 
+	/**
+	 * Gets the list.
+	 *
+	 * @param mapper the mapper
+	 * @param object the object
+	 * @param returnList the return list
+	 * @return the list
+	 */
 	@SuppressWarnings("rawtypes")
 	private List getList(ObjectMapper mapper, Object object, boolean returnList) {
 		if (null != object) {
@@ -574,6 +661,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#optimize(java.lang.String, java.lang.String)
+	 */
 	public Response optimize(String taxonomyId, String contentId) {
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
@@ -619,6 +709,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/**
+	 * Gets the folder name.
+	 *
+	 * @param url the url
+	 * @return the folder name
+	 */
 	private String getFolderName(String url) {
 		try {
 			String s = url.substring(0, url.lastIndexOf('/'));
@@ -628,6 +724,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return "";
 	}
 
+	/**
+	 * Update node.
+	 *
+	 * @param node the node
+	 * @return the response
+	 */
 	protected Response updateNode(Node node) {
 		Request updateReq = getRequest(node.getGraphId(), GraphEngineManagers.NODE_MANAGER, "updateDataNode");
 		updateReq.put(GraphDACParams.node.name(), node);
@@ -636,6 +738,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return updateRes;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#publish(java.lang.String, java.lang.String)
+	 */
 	public Response publish(String taxonomyId, String contentId) {
 		Response response = new Response();
 		if (StringUtils.isBlank(taxonomyId))
@@ -671,6 +776,9 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IContentManager#extract(java.lang.String, java.lang.String)
+	 */
 	public Response extract(String taxonomyId, String contentId) {
 		Response updateRes = null;
 		if (StringUtils.isBlank(taxonomyId))
@@ -721,6 +829,13 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return updateRes;
 	}
 
+	/**
+	 * Upload file.
+	 *
+	 * @param folder the folder
+	 * @param filename the filename
+	 * @return the string
+	 */
 	private String uploadFile(String folder, String filename) {
 		File olderName = new File(folder + filename);
 		try {
@@ -738,6 +853,15 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return null;
 	}
 
+	/**
+	 * Adds the relation.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param objectId1 the object id 1
+	 * @param relation the relation
+	 * @param objectId2 the object id 2
+	 * @return the response
+	 */
 	public Response addRelation(String taxonomyId, String objectId1, String relation, String objectId2) {
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid taxonomy Id");
@@ -753,6 +877,12 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 		return response;
 	}
 
+	/**
+	 * Gets the request.
+	 *
+	 * @param requestMap the request map
+	 * @return the request
+	 */
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap) {
 		Request request = new Request();

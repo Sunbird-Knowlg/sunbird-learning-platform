@@ -22,92 +22,152 @@ import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 import com.ilimi.taxonomy.mgr.IContentManager;
 
+/**
+ * The Class ContentV2Controller, is the main entry point for the High Level
+ * Content Operations, mostly it holds the API Method related to Content Workflow
+ * Management such as 'Upload', 'Publish' 'Optimize', 'Extract' and 'Bundle'.
+ * Other that these operation the Content can have other basic CRUD Operations.
+ * 
+ * @author Azhar
+ */
 @Controller
 @RequestMapping("/v2/content")
 public class ContentV2Controller extends BaseController {
 
-    private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
+	/** The logger. */
+	private static LogHelper LOGGER = LogHelper.getInstance(ContentV2Controller.class.getName());
 
-    @Autowired
-    private ContentController contentController;
+	/** The content controller. */
+	@Autowired
+	private ContentController contentController;
 
-    @Autowired
-    private IContentManager contentManager;
+	/** The content manager. */
+	@Autowired
+	private IContentManager contentManager;
 
-    private String graphId = "domain";
+	/** The graph id. */
+	private String graphId = "domain";
 
-    @RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> upload(@PathVariable(value = "id") String id,
-            @RequestParam(value = "file", required = true) MultipartFile file,
-            @RequestHeader(value = "user-id") String userId) {
-        return contentController.upload(id, file, "domain", userId, null);
-    }
+	/**
+	 * The Upload operations starts the 
+	 * 		
+	 *
+	 * @param id
+	 *            The Content Id for which the Content Package needs to be Uploaded. 
+	 * @param file
+	 *            The Content Package File
+	 * @param userId
+	 *            Unique id of the user mainly for authentication purpose, It can impersonation details as well.
+	 * @return The Response entity with Content Id in its result Set.
+	 */
+	@RequestMapping(value = "/upload/{id:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> upload(@PathVariable(value = "id") String id,
+			@RequestParam(value = "file", required = true) MultipartFile file,
+			@RequestHeader(value = "user-id") String userId) {
+		return contentController.upload(id, file, "domain", userId, null);
+	}
 
-    @RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
-            @RequestHeader(value = "user-id") String userId) {
-        String apiId = "content.publish";
-        LOGGER.info("Publish content | Content Id : " + contentId);
-        try {
-            Response response = contentManager.publish(graphId, contentId);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Publish | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-    
-    @RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
-            @RequestHeader(value = "user-id") String userId) {
-        String apiId = "content.optimize";
-        LOGGER.info("Optimize content | Content Id : " + contentId);
-        try {
-            Response response = contentManager.optimize(graphId, contentId);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Optimize | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
+	/**
+	 * Publish.
+	 *
+	 * @param contentId
+	 *            the content id
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/publish/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> publish(@PathVariable(value = "id") String contentId,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.publish";
+		LOGGER.info("Publish content | Content Id : " + contentId);
+		try {
+			Response response = contentManager.publish(graphId, contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Publish | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
-    @RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> extract(@PathVariable(value = "id") String contentId,
-            @RequestHeader(value = "user-id") String userId) {
-        String apiId = "content.extract";
-        LOGGER.info("Extract content | Content Id : " + contentId);
-        try {
-            Response response = contentManager.extract(graphId, contentId);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Extract | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
+	/**
+	 * Optimize.
+	 *
+	 * @param contentId
+	 *            the content id
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/optimize/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> optimize(@PathVariable(value = "id") String contentId,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.optimize";
+		LOGGER.info("Optimize content | Content Id : " + contentId);
+		try {
+			Response response = contentManager.optimize(graphId, contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Optimize | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
-    @RequestMapping(value = "/bundle", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
-            @RequestHeader(value = "user-id") String userId) {
-        String apiId = "content.archive";
-        LOGGER.info("Create Content Bundle | user-id: " + userId);
-        try {
-            Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
-            request.put(ContentAPIParams.version.name(), "v2");
-            Response response = contentManager.bundle(request, graphId, "1.1");
-            LOGGER.info("Archive | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Archive | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-    
-    protected String getAPIVersion() {
-        return API_VERSION_2;
-    }
+	/**
+	 * Extract.
+	 *
+	 * @param contentId
+	 *            the content id
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> extract(@PathVariable(value = "id") String contentId,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.extract";
+		LOGGER.info("Extract content | Content Id : " + contentId);
+		try {
+			Response response = contentManager.extract(graphId, contentId);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Extract | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Bundle.
+	 *
+	 * @param map
+	 *            the map
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/bundle", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> bundle(@RequestBody Map<String, Object> map,
+			@RequestHeader(value = "user-id") String userId) {
+		String apiId = "content.archive";
+		LOGGER.info("Create Content Bundle | user-id: " + userId);
+		try {
+			Request request = getBundleRequest(map, ContentErrorCodes.ERR_CONTENT_INVALID_BUNDLE_CRITERIA.name());
+			request.put(ContentAPIParams.version.name(), "v2");
+			Response response = contentManager.bundle(request, graphId, "1.1");
+			LOGGER.info("Archive | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Archive | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	protected String getAPIVersion() {
+		return API_VERSION_2;
+	}
 }

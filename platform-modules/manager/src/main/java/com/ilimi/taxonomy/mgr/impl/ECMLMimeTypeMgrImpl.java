@@ -61,21 +61,34 @@ import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
+/**
+ * The Class ECMLMimeTypeMgrImpl.
+ */
 @Component
 public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTypeManager {
 
+	/** The assessment mgr. */
 	@Autowired
 	private IAssessmentManager assessmentMgr;
 
+	/** The Constant bucketName. */
 	private static final String bucketName = "ekstep-public";
+	
+	/** The Constant folderName. */
 	private static final String folderName = "content";
 
+	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
 
+	/** The mapper. */
 	private ObjectMapper mapper = new ObjectMapper();
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IMimeTypeManager.class.getName());
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#extract(com.ilimi.graph.dac.model.Node)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response extract(Node node) {
@@ -264,6 +277,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return response;
 	}
 	
+	/**
+	 * Creates the concept relations.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param contentId the content id
+	 * @param conceptItemMap the concept item map
+	 */
 	@SuppressWarnings("unchecked")
 	private void createConceptRelations(String taxonomyId, String contentId, Map<String, List<String>> conceptItemMap) {
 		if (null != conceptItemMap && !conceptItemMap.isEmpty()) {
@@ -300,6 +320,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 	}
 
+	/**
+	 * Creates the node.
+	 *
+	 * @param item the item
+	 * @param url the url
+	 * @param mediaId the media id
+	 * @param olderName the older name
+	 * @return the node
+	 */
 	private Node createNode(Node item, String url, String mediaId, File olderName) {
 		item.setIdentifier(mediaId);
 		item.setObjectType("Content");
@@ -330,11 +359,23 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return item;
 	}
 
+	/**
+	 * Gets the mime type.
+	 *
+	 * @param file the file
+	 * @return the mime type
+	 */
 	private Object getMimeType(File file) {
 		MimetypesFileTypeMap mimeType = new MimetypesFileTypeMap();
 		return mimeType.getContentType(file);
 	}
 
+	/**
+	 * Gets the media type.
+	 *
+	 * @param fileName the file name
+	 * @return the media type
+	 */
 	private String getMediaType(String fileName) {
 		String mediaType = "image";
 		if (StringUtils.isNotBlank(fileName)) {
@@ -352,6 +393,17 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return mediaType;
 	}
 
+	/**
+	 * Creates the assessment item from content.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param contentExtractedPath the content extracted path
+	 * @param contentId the content id
+	 * @param conceptItemMap the concept item map
+	 * @param itemSetIds the item set ids
+	 * @param isJSONIndex the is JSON index
+	 * @return the map
+	 */
 	@SuppressWarnings({ "unchecked" })
 	private Map<String, Object> createAssessmentItemFromContent(String taxonomyId, String contentExtractedPath,
 			String contentId, Map<String, List<String>> conceptItemMap, List<String> itemSetIds, boolean isJSONIndex) {
@@ -439,6 +491,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return null;
 	}
 
+	/**
+	 * Creates the relation.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param mapRelation the map relation
+	 * @param conceptItemMap the concept item map
+	 */
 	@SuppressWarnings("unchecked")
 	private void createRelation(String taxonomyId, Map<String, Object> mapRelation,
 			Map<String, List<String>> conceptItemMap) {
@@ -461,6 +520,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 	}
 
+	/**
+	 * Gets the controller file list.
+	 *
+	 * @param contentExtractedPath the content extracted path
+	 * @param isJSONIndex the is JSON index
+	 * @return the controller file list
+	 */
 	@SuppressWarnings("unchecked")
 	private List<File> getControllerFileList(String contentExtractedPath, boolean isJSONIndex) {
 		List<File> lstControllerFile = new ArrayList<File>();
@@ -507,6 +573,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return lstControllerFile;
 	}
 
+	/**
+	 * Creates the item set.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param contentId the content id
+	 * @param lstAssessmentItemId the lst assessment item id
+	 * @param fileJSON the file JSON
+	 * @return the response
+	 */
 	private Response createItemSet(String taxonomyId, String contentId, List<String> lstAssessmentItemId,
 			Map<String, Object> fileJSON) {
 		if (null != lstAssessmentItemId && lstAssessmentItemId.size() > 0 && StringUtils.isNotBlank(taxonomyId)) {
@@ -541,9 +616,21 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return null;
 	}
 	
+	/** The qlevels. */
 	private String[] qlevels = new String[] { "EASY", "MEDIUM", "DIFFICULT", "RARE" };
+	
+	/** The qlevel list. */
 	private List<String> qlevelList = Arrays.asList(qlevels);
 
+	/**
+	 * Gets the assessment item request object.
+	 *
+	 * @param map the map
+	 * @param objectType the object type
+	 * @param contentId the content id
+	 * @param param the param
+	 * @return the assessment item request object
+	 */
 	private Request getAssessmentItemRequestObject(Map<String, Object> map, String objectType, String contentId,
 			String param) {
 		if (null != objectType && null != map) {
@@ -590,6 +677,13 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return null;
 	}
 
+	/**
+	 * Gets the request object for assessment mgr.
+	 *
+	 * @param requestMap the request map
+	 * @param param the param
+	 * @return the request object for assessment mgr
+	 */
 	private Request getRequestObjectForAssessmentMgr(Map<String, Object> requestMap, String param) {
 		Request request = getRequest(requestMap);
 		Map<String, Object> map = request.getRequest();
@@ -608,6 +702,15 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return request;
 	}
 
+	/**
+	 * Adds the relation.
+	 *
+	 * @param taxonomyId the taxonomy id
+	 * @param objectId1 the object id 1
+	 * @param relation the relation
+	 * @param objectId2 the object id 2
+	 * @return the response
+	 */
 	public Response addRelation(String taxonomyId, String objectId1, String relation, String objectId2) {
 		if (StringUtils.isBlank(taxonomyId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid taxonomy Id");
@@ -624,6 +727,12 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return response;
 	}
 
+	/**
+	 * Gets the request.
+	 *
+	 * @param requestMap the request map
+	 * @return the request
+	 */
 	@SuppressWarnings("unchecked")
 	protected Request getRequest(Map<String, Object> requestMap) {
 		Request request = new Request();
@@ -656,6 +765,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return request;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.common.mgr.BaseManager#getResponse(java.util.List, org.apache.logging.log4j.Logger, java.lang.String, java.lang.String)
+	 */
 	protected Response getResponse(List<Request> requests, Logger logger, String paramName, String returnParam) {
 		if (null != requests && !requests.isEmpty()) {
 			ActorRef router = RequestRouterPool.getRequestRouter();
@@ -702,6 +814,9 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#publish(com.ilimi.graph.dac.model.Node)
+	 */
 	@Override
 	public Response publish(Node node) {
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
@@ -711,11 +826,17 @@ public class ECMLMimeTypeMgrImpl extends BaseMimeTypeManager implements IMimeTyp
 		return pipeline.init(ContentAPIParams.publish.name(), parameterMap);
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#tuneInputForBundling(com.ilimi.graph.dac.model.Node)
+	 */
 	@Override
 	public Node tuneInputForBundling(Node node) {
 		return node;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.mgr.IMimeTypeManager#upload(com.ilimi.graph.dac.model.Node, java.io.File, java.lang.String)
+	 */
 	@Override
 	public Response upload(Node node, File uploadedFile, String folder) {
 		InitializePipeline pipeline = new InitializePipeline(getBasePath(node.getIdentifier()), node.getIdentifier());
