@@ -281,8 +281,10 @@ public class Neo4JEmbeddedGraphOperations extends BaseOperations {
 			Node startNode = null;
 			try {
 				startNode = getNodeByUniqueId(graphDb, collectionId);
+				LOGGER.info("Got an Existing Collection Node with ID: " + collectionId + " | [Graph ID: '" + graphId + "']");
 			} catch (ResourceNotFoundException e) {
 				if (null != collection && StringUtils.isNotBlank(collection.getIdentifier())) {
+					LOGGER.info("Creating a New Colection Node with ID: " + collectionId);
 					startNode = graphDb.createNode(NODE_LABEL);
 					startNode.setProperty(SystemProperties.IL_UNIQUE_ID.name(), collection.getIdentifier());
 					startNode.setProperty(SystemProperties.IL_SYS_NODE_TYPE.name(), collection.getNodeType());
