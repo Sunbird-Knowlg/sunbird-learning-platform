@@ -45,6 +45,14 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.upload(file);
 	}
 
+	/**
+	 * Creates word by processing primary meaning and related words
+	 * @param languageId Graph Id
+	 * @param forceUpdate Indicates if the update should be forced
+	 * @param map Request map
+	 * @param userId User making the request
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
     @RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
@@ -78,6 +86,15 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Updates word by processing primary meaning and related words
+	 * @param languageId Graph Id
+	 * @param objectId Id of the object that needs to be updated
+	 * @param map Request map
+	 * @param forceUpdate  Indicates if the update should be forced
+	 * @param userId User making the request
+	 * @return
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
 	@ResponseBody
@@ -112,6 +129,11 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 	
+	/**
+	 * Makes an Async call to Enrich actor to enrich the words
+	 * @param nodeIds List of word Ids that has to be enriched
+	 * @param languageId Graph Id
+	 */
 	private void asyncUpdate(List<String> nodeIds, String languageId) {
 	    Map<String, Object> map = new HashMap<String, Object>();
         map = new HashMap<String, Object>();
@@ -124,6 +146,14 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
         makeAsyncRequest(request, LOGGER);
 	}
 
+	/**
+	 * Searches for a given word using the object Id with its primary meaning and related words
+	 * @param languageId Graph Id
+	 * @param objectId Id of the word that needs to be searched
+	 * @param fields List of fields that should be part of the result
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> find(@PathVariable(value = "languageId") String languageId,
@@ -142,6 +172,14 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 
+	/**
+	 * Get all words with their primary meanings and related words
+	 * @param languageId Graph Id
+	 * @param fields List of fields that should be part of the result
+	 * @param limit Limit of results
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> findAll(@PathVariable(value = "languageId") String languageId,
@@ -159,6 +197,14 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		}
 	}
 	
+	/**
+	 * Retrive words from the lemma in the CSV
+	 * @param languageId Graph Id
+	 * @param file Input CSV with list of lemmas
+	 * @param userId User making the request
+	 * @param response 
+	 * @return
+	 */
 	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
     @ResponseBody
     public ResponseEntity<Response> findWordsCSV(@PathVariable(value = "languageId") String languageId,
@@ -167,6 +213,15 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	    return wordController.findWordsCSV(languageId, file, userId, response);
     }
 
+	/**
+	 * Delete a given relation
+	 * @param languageId Graph Id
+	 * @param objectId1 Start object
+	 * @param relation Relation name
+	 * @param objectId2 End object
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
 	public ResponseEntity<Response> deleteRelation(@PathVariable(value = "languageId") String languageId,
@@ -175,6 +230,15 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.deleteRelation(languageId, objectId1, relation, objectId2, userId);
 	}
 
+	/**
+	 * Creates a relation between two objects
+	 * @param languageId Graph Id
+	 * @param objectId1 Start object
+	 * @param relation Relation name
+	 * @param objectId2 End object
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> addRelation(@PathVariable(value = "languageId") String languageId,
@@ -183,6 +247,16 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.addRelation(languageId, objectId1, relation, objectId2, userId);
 	}
 
+	/**
+	 * Gets the synonyms of a given word
+	 * @param languageId Graph Id
+	 * @param objectId word Id
+	 * @param relation relation of the word
+	 * @param fields List of fields in the response
+	 * @param relations 
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getSynonyms(@PathVariable(value = "languageId") String languageId,
@@ -193,6 +267,14 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	    return wordController.getSynonyms(languageId, objectId, relation, fields, relations, userId);
 	}
 
+	/**
+	 * Get translations of the given words in other languages
+	 * @param languageId Graph Id
+	 * @param words List of lemmas
+	 * @param languages List of languages
+	 * @param userId User making the request
+	 * @return
+	 */
 	@RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getTranslations(@PathVariable(value = "languageId") String languageId,
