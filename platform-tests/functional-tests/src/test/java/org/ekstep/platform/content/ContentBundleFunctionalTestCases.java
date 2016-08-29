@@ -1307,13 +1307,13 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				File[] listofFiles = fileName.listFiles();
 
 				for(File file : listofFiles){
-					System.out.println(file.getName());
+					//System.out.println(file.getName());
 					if (file.isDirectory()){
 						File[] listofsubFiles = file.listFiles();
 						for(File newfile : listofsubFiles){
-							String fName = newfile.getName();
+							//String fName = newfile.getName();
 							if (fName.endsWith(".zip")|| fName.endsWith(".rar")){
-								System.out.println(fName);
+								//System.out.println(fName);
 							}
 						}
 					}
@@ -1322,11 +1322,11 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				File manifest = new File(bundleExtractPath+"/manifest.json");
 				Gson gson = new Gson();
 				JsonParser parser = new JsonParser();
-	            JsonElement jsonElement = parser.parse(new FileReader(manifest));
+	            		JsonElement jsonElement = parser.parse(new FileReader(manifest));
 				JsonObject obj = jsonElement.getAsJsonObject();
 				JsonElement manifestVersionElement = obj.get("ver"); 
 				Double manifestVersion = manifestVersionElement.getAsDouble();
-				System.out.println(manifestVersion);
+				//System.out.println(manifestVersion);
 				Assert.assertTrue(manifestVersion.equals(manifestVesionActual));
 				
 				// Validating expiry and items
