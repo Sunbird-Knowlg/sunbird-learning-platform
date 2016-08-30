@@ -6,34 +6,19 @@ import static com.jayway.restassured.http.ContentType.JSON;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.ekstep.platform.domain.BaseTest;
-import org.json.JSONException;
 //import org.hamcrest.CoreMatchers;
 import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.json.simple.parser.JSONParser;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -907,7 +892,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				setURI();
 				given().
 				spec(getRequestSpec(uploadContentType, validuserId)).
-				multiPart(new File(path+"/Verbs_test.zip")).
+				multiPart(new File(path+"/the_moon_and_the_cap.zip")).
 				when().
 				post("/learning/v2/content/upload/"+node2).
 				then().
@@ -922,7 +907,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				setURI();
 				given().
 				spec(getRequestSpec(uploadContentType, validuserId)).
-				multiPart(new File(path+"/the_moon_and_the_cap.zip")).
+				multiPart(new File(path+"/Verbs_test.zip")).
 				when().
 				post("/learning/v2/content/upload/"+node3).
 				then().
@@ -1302,73 +1287,81 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 				// Unzip the file
 				ZipFile bundleZip = new ZipFile(bundlePath);
 				bundleZip.extractAll(bundleExtractPath);
-
+				
 				File fileName = new File(bundleExtractPath);
 				File[] listofFiles = fileName.listFiles();
 
+				// Validating the folders having zip file or not
 				for(File file : listofFiles){
-					System.out.println(file.getName());
-					if (file.isDirectory()){
-						File[] listofsubFiles = file.listFiles();
-						for(File newfile : listofsubFiles){
-							String fName = newfile.getName();
-							if (fName.endsWith(".zip")|| fName.endsWith(".rar")){
-								System.out.println(fName);
-							}
-						}
-					}
-				}				
-				// Reading the manifest		
-				File manifest = new File(bundleExtractPath+"/manifest.json");
-				Gson gson = new Gson();
-				JsonParser parser = new JsonParser();
-	            JsonElement jsonElement = parser.parse(new FileReader(manifest));
-				JsonObject obj = jsonElement.getAsJsonObject();
-				JsonElement manifestVersionElement = obj.get("ver"); 
-				Double manifestVersion = manifestVersionElement.getAsDouble();
-				System.out.println(manifestVersion);
-				Assert.assertTrue(manifestVersion.equals(manifestVesionActual));
-				
-				// Validating expiry and items
-				JsonObject arc = obj.getAsJsonObject("archive");
-				if (arc.has("expires") && arc.has("items")){
-					JsonArray items = arc.getAsJsonArray("items");
-					
-			        @SuppressWarnings("rawtypes")
-					Iterator i = items.iterator();
-			        while(i.hasNext()) {
-						try {
+					//System.out.println(file.getName());
+					if (file.isFile() && file.getName().endsWith("json")){
+						// Reading the manifest		
+						File manifest = new File(file.getPath());
+						//Gson gson = new Gson();
+						JsonParser parser = new JsonParser();
+			            JsonElement jsonElement = parser.parse(new FileReader(manifest));
+						JsonObject obj = jsonElement.getAsJsonObject();
+						JsonElement manifestVersionElement = obj.get("ver"); 
+						Double manifestVersion = manifestVersionElement.getAsDouble();
+						//System.out.println(manifestVersion);
+						Assert.assertTrue(manifestVersion.equals(manifestVesionActual));
+						
+						// Validating expiry and items
+						JsonObject arc = obj.getAsJsonObject("archive");
+						if (arc.has("expires") && arc.has("items")){
+							JsonArray items = arc.getAsJsonArray("items");
 							
-							// Validating download url, status and package version
-							JsonObject item = (JsonObject) i.next();
-							String downloadUrl = getStringValue(item, "downloadUrl");
-							String status = getStringValue(item, "status");
-							JsonElement pkgVersionElement = item.get("pkgVersion");
-							Float pkgVersion = pkgVersionElement.getAsFloat();
-							if (status.equals("draft")||status.equals("review")){
-								Assert.assertTrue(pkgVersion.equals("0"));
-							}
-							if(contentType.equals("Collection")){
-										Assert.assertThat(downloadUrl, null);
+					        @SuppressWarnings("rawtypes")
+							Iterator i = items.iterator();
+					        while(i.hasNext()) {
+								try {
+									
+									// Validating download url, status and package version
+									JsonObject item = (JsonObject) i.next();
+									JsonElement downloadUrlElement = item.get("downloadUrl");
+									String contentTypeElement = getStringValue(item, "contentType");
+									if(contentTypeElement.equals("Collection")){
+										downloadUrlElement = downloadUrlElement.getAsJsonNull();
+										Assert.assertTrue(downloadUrlElement.isJsonNull());
 									}
-									Assert.assertTrue(downloadUrl!=null);
-							}			
-							 catch (Exception classCastException){
-						        	classCastException.printStackTrace();
-									 return false;
-						        }
+									else {
+										Assert.assertTrue(downloadUrlElement!=null);
+										String downloadUrl = downloadUrlElement.getAsString();
+									}
+									JsonElement statusElement = item.get("status");
+									String status = statusElement.getAsString();
+									JsonElement pkgVersionElement = item.get("pkgVersion");
+									Float pkgVersion = pkgVersionElement.getAsFloat();
+									if (status.equals("draft")||status.equals("review")){
+										Assert.assertTrue(pkgVersion.equals("0"));
+									}
+									}			
+									 catch (Exception classCastException){
+								        	classCastException.printStackTrace();
+											 return false;
+								        }
+									}
+								}
 							}
-						}
+							else if (file.isDirectory()){
+								File[] listofsubFiles = file.listFiles();
+								for(File newfile : listofsubFiles){
+									String fName = newfile.getName();
+									if (fName.endsWith(".zip")|| fName.endsWith(".rar")){
+										//System.out.println(fName);
+									}
+								}
+							}
+						}				
 					}
-		
 					catch(Exception zipExtract) {
 					zipExtract.printStackTrace();
 					 return false;
-			}
-		}
-		catch (Exception e){
-			e.printStackTrace();
-		}        
+					}
+				}
+				catch (Exception e){
+				e.printStackTrace();
+				}        
 		return true;
 		}
 	
