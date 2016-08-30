@@ -1311,7 +1311,7 @@ public class ContentBundleFunctionalTestCases extends BaseTest{
 					if (file.isDirectory()){
 						File[] listofsubFiles = file.listFiles();
 						for(File newfile : listofsubFiles){
-							//String fName = newfile.getName();
+							String fName = newfile.getName();
 							if (fName.endsWith(".zip")|| fName.endsWith(".rar")){
 								//System.out.println(fName);
 							}
