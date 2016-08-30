@@ -21,129 +21,213 @@ import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
-public class IndicWordUtil extends BaseManager{
+// TODO: Auto-generated Javadoc
+/**
+ * The Class IndicWordUtil, utility class provides functionality to find out
+ * FirstAkshara, LastAkasharas and RhymingSound text for all indian language
+ *
+ * @author karthik
+ */
+public class IndicWordUtil extends BaseManager {
 
-	private static Logger LOGGER =  LogManager.getLogger(IndicWordUtil.class.getName());
-	private String languageId ;
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(IndicWordUtil.class.getName());
+
+	/** The language id. */
+	private String languageId;
+
+	/** The wc. */
 	private WordComplexity wc;
-	
-	public IndicWordUtil(String languageId, WordComplexity wc){
+
+	/**
+	 * Instantiates a new indic word util.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wc
+	 *            the wc
+	 */
+	public IndicWordUtil(String languageId, WordComplexity wc) {
 		this.languageId = languageId;
 		this.wc = wc;
 	}
-	
+
+	/**
+	 * Gets the first akshara of given lemma.
+	 *
+	 * @return the first akshara
+	 */
 	public String getFirstAkshara() {
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
-		
+
 		String firstSyllable = syllables[0];
 		String[] firstSyllableUnicodes = parseUnicodes(firstSyllable);
 		String firstCharUnicode = firstSyllableUnicodes[0];
-		
-		if(unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE) || unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)){
+
+		if (unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)
+				|| unicodeTypeMap.get(firstCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_CODE)) {
 			String text = getTextValue(firstCharUnicode);
 			return text;
 		}
 		return null;
 	}
 
+	/**
+	 * Gets the last aksharas. when last character represents vowel_sign, return
+	 * its corresponding vowel and consonant character(second last character).
+	 * when last character represents default_vowel or close_vowel, return the
+	 * consonant character(second last character). when last character
+	 * represents consonant, return it
+	 * 
+	 * @return the last akshara
+	 */
+	public List<String> getLastAksharas() {
 
-	public List<String> getLastAkshara() {
-		
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
 		String syllables[] = StringUtils.split(unicodeNotation);
 		List<String> result = new ArrayList<String>();
-		String lastSyllable = syllables[syllables.length-1];				
-		String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);			
-		String lastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-1];
+		String lastSyllable = syllables[syllables.length - 1];
+		String[] lastSyllableUnicodes = parseUnicodes(lastSyllable);
+		String lastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length - 1];
 		String secondLastCharUnicode = "";
-		
-		if(lastSyllableUnicodes.length > 1){
-			secondLastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length-2];
+
+		if (lastSyllableUnicodes.length > 1) {
+			secondLastCharUnicode = lastSyllableUnicodes[lastSyllableUnicodes.length - 2];
 		}
-		
-		if(isDefualtVowel(lastCharUnicode, unicodeTypeMap)){
-			if(StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+
+		if (isDefualtVowel(lastCharUnicode, unicodeTypeMap)) {
+			if (StringUtils.isNotEmpty(secondLastCharUnicode)
+					&& unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)) {
 				String text = getTextValue(secondLastCharUnicode);
 				result.add(text);
 			}
-			
-		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+
+		} else if (unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)) {
 			String text = getTextValue(secondLastCharUnicode);
 			result.add(text);
-		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){ 
-			//get vowel associated with this vowel_sign
+		} else if (unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE)
+				&& StringUtils.isNotEmpty(secondLastCharUnicode)
+				&& unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)) {
+			// get vowel associated with this vowel_sign
 			String vowelUnicode = getVowelUnicode(languageId, lastCharUnicode);
 			String text = getTextValue(vowelUnicode);
 			result.add(text);
 			text = getTextValue(secondLastCharUnicode);
 			result.add(text);
-			
-		}else if(unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE) && StringUtils.isNotEmpty(secondLastCharUnicode) && unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+
+		} else if (unicodeTypeMap.get(lastCharUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE)
+				&& StringUtils.isNotEmpty(secondLastCharUnicode)
+				&& unicodeTypeMap.get(secondLastCharUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)) {
 			String text = getTextValue(secondLastCharUnicode);
 			result.add(text);
 		}
 		return result;
 	}
 
-	public String getRymingSound() {
+	/**
+	 * Gets the rhyming sound.
+	 *
+	 * @return the rhyming sound
+	 */
+	public String getRhymingSound() {
 
 		String unicodeNotation = wc.getUnicode().toUpperCase();
 		Map<String, String> unicodeTypeMap = wc.getUnicodeTypeMap();
-		String syllables[] = StringUtils.split(unicodeNotation);		
-		String lastSyllable = syllables[syllables.length-1];			
-		
-		if(syllables.length>1){
-			String secondLastSyllable = syllables[syllables.length-2];
+		String syllables[] = StringUtils.split(unicodeNotation);
+		String lastSyllable = syllables[syllables.length - 1];
+
+		if (syllables.length > 1) {
+			String secondLastSyllable = syllables[syllables.length - 2];
 			String[] secondLastSyllableUnicodes = parseUnicodes(secondLastSyllable);
-			String secondLastSyllablelastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length-1];
+			String secondLastSyllablelastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length - 1];
 			String rhymingSoundText = "";
-			if(!isDefualtVowel(secondLastSyllablelastUnicode, unicodeTypeMap) && (unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE) || unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE))){
-				String secondLastSyllableSecondlastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length-2];
-				if(unicodeTypeMap.get(secondLastSyllableSecondlastUnicode).equalsIgnoreCase(SyllableMap.CONSONANT_CODE)){
+			// add second last syllable into rhymingSoundText when its ends
+			// either vowel_sign or close_vowel
+			if (!isDefualtVowel(secondLastSyllablelastUnicode, unicodeTypeMap)
+					&& (unicodeTypeMap.get(secondLastSyllablelastUnicode).equalsIgnoreCase(SyllableMap.VOWEL_SIGN_CODE)
+							|| unicodeTypeMap.get(secondLastSyllablelastUnicode)
+									.equalsIgnoreCase(SyllableMap.CLOSE_VOWEL_CODE))) {
+				String secondLastSyllableSecondlastUnicode = secondLastSyllableUnicodes[secondLastSyllableUnicodes.length
+						- 2];
+				if (unicodeTypeMap.get(secondLastSyllableSecondlastUnicode)
+						.equalsIgnoreCase(SyllableMap.CONSONANT_CODE)) {
 					rhymingSoundText = secondLastSyllableSecondlastUnicode;
 				}
 			}
+			// append last syllable into rhymingSoundText
 			rhymingSoundText += lastSyllable;
 			rhymingSoundText = rhymingSoundText.replace("\\", " ");
 			return rhymingSoundText;
 		}
 		return null;
 	}
-	
-	private String[] parseUnicodes(String syllable){
-		
+
+	/**
+	 * Parses the unicodes from syllable string
+	 *
+	 * @param syllable
+	 *            the syllable
+	 * @return the string[]
+	 */
+	private String[] parseUnicodes(String syllable) {
+
 		String[] syllableUnicodes = syllable.split("\\\\");
 		List<String> list = new ArrayList<String>();
 
-		//trim modifier unicode
-		for(String s: syllableUnicodes){
-			if(StringUtils.isNotEmpty(s)){
-				if(s.endsWith("M"))
-					s=s.substring(0, 4);
+		// trim modifier unicode
+		for (String s : syllableUnicodes) {
+			if (StringUtils.isNotEmpty(s)) {
+				if (s.endsWith("M"))
+					s = s.substring(0, 4);
 				list.add(s);
 			}
 		}
 		return list.toArray(new String[list.size()]);
 	}
-	
-	private String getTextValue(String unicode){
+
+	/**
+	 * Gets the text value from unicode
+	 *
+	 * @param unicode
+	 *            the unicode
+	 * @return the text value
+	 */
+	private String getTextValue(String unicode) {
 		int hexVal = Integer.parseInt(unicode, 16);
-		return ""+(char)hexVal;
+		return "" + (char) hexVal;
 	}
-	
-	private boolean isDefualtVowel(String unicode, Map<String, String> unicodeTypeMap){
-		if(unicodeTypeMap.get(unicode) == null && unicode.length()==5 && unicode.endsWith("A")){//default vowel
+
+	/**
+	 * Checks if is defualt vowel.
+	 *
+	 * @param unicode
+	 *            the unicode
+	 * @param unicodeTypeMap
+	 *            the unicode type map
+	 * @return true, if is defualt vowel
+	 */
+	private boolean isDefualtVowel(String unicode, Map<String, String> unicodeTypeMap) {
+		if (unicodeTypeMap.get(unicode) == null && unicode.length() == 5 && unicode.endsWith("A")) {// default
+																									// vowel
 			return true;
 		}
 		return false;
 	}
-	
-	//Get Vowel Unicode associated with given VowelSign unicode
+
+	/**
+	 * Gets the vowel unicode associated with given VowelSign unicode
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param vowelSignUnicode
+	 *            the vowel sign unicode
+	 * @return the vowel unicode
+	 */
 	@SuppressWarnings("unchecked")
-	public String getVowelUnicode(String languageId, String vowelSignUnicode){
+	public String getVowelUnicode(String languageId, String vowelSignUnicode) {
 		Property vowelSignProp = new Property(GraphDACParams.unicode.name(), vowelSignUnicode);
 		Response varnaRes = getDataNodeByProperty(languageId, vowelSignProp);
 		Node varnaNode = null;
@@ -162,13 +246,22 @@ public class IndicWordUtil extends BaseManager{
 				}
 			}
 			return vowelUnicode;
-		}else
-			 throw new ServerException(LanguageErrorCodes.ERROR_PHONETIC_BOUNTARY_LOOKUP.name(),
+		} else
+			throw new ServerException(LanguageErrorCodes.ERROR_PHONETIC_BOUNTARY_LOOKUP.name(),
 					getErrorMessage(varnaRes));
-		
+
 	}
-	
-	protected Response getDataNodeByProperty(String languageId, Property property){
+
+	/**
+	 * Gets the data node by property.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param property
+	 *            the property
+	 * @return the data node by property
+	 */
+	protected Response getDataNodeByProperty(String languageId, Property property) {
 		Request request = getRequest(languageId, GraphEngineManagers.SEARCH_MANAGER, "getNodesByProperty");
 		request.put(GraphDACParams.metadata.name(), property);
 		request.put(GraphDACParams.get_tags.name(), true);

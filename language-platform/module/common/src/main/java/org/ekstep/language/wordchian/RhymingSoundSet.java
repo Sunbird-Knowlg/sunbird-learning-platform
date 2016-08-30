@@ -11,39 +11,84 @@ import org.ekstep.language.measures.entity.WordComplexity;
 import com.ilimi.graph.dac.model.Node;
 import com.ilimi.graph.dac.model.Relation;
 
+/**
+ * The Class RhymingSoundSet, provides functionality to add word into its
+ * corresponding RhymingSound WordSet
+ *
+ * @author karthik
+ */
 public class RhymingSoundSet extends BaseWordSet {
 
-	private static Logger LOGGER =  LogManager.getLogger(RhymingSoundSet.class.getName());
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(RhymingSoundSet.class.getName());
+
+	/** The rhyming sound. */
 	private String rhymingSound;
+
+	/** The Constant RHYMING_SOUND. */
 	private static final String RHYMING_SOUND = "rhymingSound";
-	
-	public RhymingSoundSet(String languageId, Node wordNode, WordComplexity wc, List<Relation> existingWordSetRelatios) {
+
+	/**
+	 * Instantiates a new rhyming sound set.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param wordNode
+	 *            the word node
+	 * @param wc
+	 *            the wc
+	 * @param existingWordSetRelatios
+	 *            the existing word set relatios
+	 */
+	public RhymingSoundSet(String languageId, Node wordNode, WordComplexity wc,
+			List<Relation> existingWordSetRelatios) {
 		super(languageId, wordNode, wc, existingWordSetRelatios, LOGGER);
 		init();
 	}
 
-	private void init(){
-		if(languageId.equalsIgnoreCase("en")){
+	/**
+	 * Inits rhymingSound based on its language.
+	 */
+	private void init() {
+		if (languageId.equalsIgnoreCase("en")) {
 			rhymingSound = new EnglishWordUtil(wordNode).getRhymingSound();
-		}else{
-			rhymingSound = new IndicWordUtil(languageId, wc).getRymingSound();
+		} else {
+			rhymingSound = new IndicWordUtil(languageId, wc).getRhymingSound();
 		}
 	}
-	
-	public void create(){
+
+	/**
+	 * Creates the RhymingSoundSet if rhymingSound is not found in existing
+	 * relations
+	 */
+	public void create() {
 		String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 
-		if(StringUtils.isNotBlank(rhymingSoundLemma)){
-			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
+		if (StringUtils.isNotBlank(rhymingSoundLemma)) {
+			if (!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
 		}
 	}
-	
-	private void createRhymingSoundSet(String rhymingSound){
+
+	/**
+	 * Creates the rhyming sound set if it is not already existed and add word
+	 * into member of RhymingSound set
+	 *
+	 * @param rhymingSound
+	 *            the rhyming sound
+	 */
+	private void createRhymingSoundSet(String rhymingSound) {
+		LOGGER.info("create RhymingSound " + rhymingSound + "for the word"
+				+ (String) wordNode.getMetadata().get(LanguageParams.lemma.name()));
+
 		String setId = getWordSet(rhymingSound, LanguageParams.RhymingSound.name());
-		if(StringUtils.isBlank(setId)){
+
+		if (StringUtils.isBlank(setId)) {
+			// create RhymingSound set and add word as member if RhymingSound is
+			// not existed
 			createWordSetCollection(rhymingSound, LanguageParams.RhymingSound.name());
-		}else{
+		} else {
+			// add word as member of RhymingSound
 			addMemberToSet(setId);
 		}
 	}
