@@ -19,12 +19,25 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
+/**
+ * The Class ContentValidator, mainly used for validating ContentNode and ContentPackage.
+ */
 public class ContentValidator {
-
+	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(ContentValidator.class.getName());
 
+	/** The Constant DEF_CONTENT_PACKAGE_MIME_TYPE. */
 	private static final String DEF_CONTENT_PACKAGE_MIME_TYPE = "application/zip";
 
+	/**
+	 * validates the Uploaded ContentPackage File.
+	 *
+	 * @param File the file
+	 * @checks MimeType(application/zip), FolderStructure(assets, data & widgets), FileSize
+	 * @return true if uploaded package meets all @checks else
+	 * return false
+	 */
 	public boolean isValidContentPackage(File file) {
 		boolean isValidContentPackage = false;
 		try {
@@ -33,15 +46,15 @@ public class ContentValidator {
 				if (!isValidContentMimeType(file))
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_FILE_MIME_TYPE_ERROR
-									+ " | [The uploaded package is invalid.]");
+									+ " | [The uploaded package is invalid]");
 				if (!isValidContentPackageStructure(file))
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_STRUCTURE_ERROR
-									+ " | ['index' file and other other folders (assets, data & widgets) should be at root location.]");
+									+ " | ['index' file and other folders (assets, data & widgets) should be at root location]");
 				if (!isValidContentSize(file))
 					throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 							ContentErrorMessageConstants.INVALID_CONTENT_PACKAGE_SIZE_ERROR
-									+ " | [Too large Content Package file size.]");
+									+ " | [Content Package file size is too large]");
 
 				isValidContentPackage = true;
 			}
@@ -58,10 +71,17 @@ public class ContentValidator {
 							+ " | [Something went wrong while validating the Package file.]",
 					e);
 		}
-		LOGGER.info("Is Valid Content Package File ? : " + isValidContentPackage);
+		LOGGER.info("Is it a valid Content Package File ? : " + isValidContentPackage);
 		return isValidContentPackage;
 	}
-
+	/**
+	 * validates the contentNode
+	 *
+	 * @param Node the node
+	 * @checks metadata, MimeType, artifact url and Content body
+	 * @return true if ContentNode meets all @checks else
+	 * return false
+	 */
 	public boolean isValidContentNode(Node node) {
 		boolean isValidContentNode = false;
 		try {
@@ -85,13 +105,21 @@ public class ContentValidator {
 		} catch (Exception e) {
 			throw new ClientException(ContentErrorCodeConstants.VALIDATOR_ERROR.name(),
 					ContentErrorMessageConstants.CONTENT_NODE_VALIDATION_ERROR
-							+ " | [Something went wrong while Content Object validation Check.",
+							+ " | [Something went wrong while validating Content Node.",
 					e);
 		}
-		LOGGER.info("Is Valid Content Node ? : " + isValidContentNode);
+		LOGGER.info("Is it a valid Content Node ? : " + isValidContentNode);
 		return isValidContentNode;
 	}
-
+	
+	/**
+	 * validates the Uploaded ContentPackage's MimeType
+	 *
+	 * @param File the file
+	 * @return true if Uploaded file's MimeType is valid('application/zip') else
+	 * return false
+	 * throws IOException if erroe occurs during file processing
+	 */ 
 	private boolean isValidContentMimeType(File file) throws IOException {
 		boolean isValidMimeType = false;
 		if (file.exists()) {
@@ -102,7 +130,14 @@ public class ContentValidator {
 		}
 		return isValidMimeType;
 	}
-
+	
+	/**
+	 * validates the Uploaded ContentPackage's file size
+	 *
+	 * @param File the file
+	 * @return true if Uploaded file's size is valid(within ContentPackageFileSizeLimit) else
+	 * return false
+	 */
 	private boolean isValidContentSize(File file) {
 		boolean isValidSize = false;
 		if (file.exists()) {
@@ -113,6 +148,10 @@ public class ContentValidator {
 		return isValidSize;
 	}
 
+	/**
+	 * gets the ContentPackageFileSizeLimit
+	 * @return FileSizeLimit(configurable)
+	 */
 	private double getContentPackageFileSizeLimit() {
 		double size = 52428800; // In Bytes, Default is 50MB
 		String limit = PropertiesUtil
@@ -126,7 +165,13 @@ public class ContentValidator {
 		return size;
 	}
 
-	@SuppressWarnings("resource")
+	/**
+	 * validates the Uploaded ContentPackage's folderStructure
+	 *
+	 * @param File the file
+	 * @return true if Uploaded file's folderStructure contains ('index.json'/index.ecml') else
+	 * return false
+	 */
 	private boolean isValidContentPackageStructure(File file) throws IOException {
 		final String JSON_ECML_FILE_NAME = "index.json";
 		final String XML_ECML_FILE_NAME = "index.ecml";
@@ -147,6 +192,14 @@ public class ContentValidator {
 		return isValidPackage;
 	}
 
+	/**
+	 * validates the Uploaded ContentNode has all required fields and properties
+	 *
+	 * @param Node the node
+	 * @checks ContentBody and artifact-url
+	 * @return true if the ContentNode meets all @checks else
+	 * return false
+	 */
 	private boolean isAllRequiredFieldsAvailable(Node node) {
 		boolean isValid = false;
 		if (null != node) {
@@ -156,7 +209,7 @@ public class ContentValidator {
 				LOGGER.info("Checking Required Fields For: " + mimeType);
 				switch (mimeType) {
 				case "application/vnd.ekstep.ecml-archive":
-					// Either 'body' or 'artifactUrl' is needed
+					/**  Either 'body' or 'artifactUrl' is needed */
 					if (StringUtils
 							.isNotBlank((String) node.getMetadata().get(ContentWorkflowPipelineParams.body.name()))
 							|| StringUtils.isNotBlank(
@@ -169,7 +222,7 @@ public class ContentValidator {
 					break;
 
 				case "application/vnd.ekstep.html-archive":
-					// 'artifactUrl is needed'
+					/** 'artifactUrl is needed'  */
 					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
@@ -180,7 +233,7 @@ public class ContentValidator {
 					break;
 
 				case "application/vnd.android.package-archive":
-					// 'artifactUrl is needed'
+					/** 'artifactUrl is needed' */
 					if (StringUtils.isNotBlank(
 							(String) (node.getMetadata().get(ContentWorkflowPipelineParams.artifactUrl.name()))))
 						isValid = true;
@@ -206,5 +259,4 @@ public class ContentValidator {
 		}
 		return isValid;
 	}
-
 }
