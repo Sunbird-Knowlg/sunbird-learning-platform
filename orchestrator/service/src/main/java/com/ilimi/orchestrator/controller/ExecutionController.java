@@ -1,6 +1,5 @@
 package com.ilimi.orchestrator.controller;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -97,13 +96,6 @@ public class ExecutionController extends BaseOrchestratorController {
 			} catch (Exception e) {
 				LOGGER.error("Error executing script: " + script.getName(), e);
 				return getExceptionResponseEntity(e, script);
-			} finally {
-				try {
-					if (null != response.getOutputStream())
-						response.getOutputStream().close();
-				} catch (IOException e) {
-					LOGGER.error("Error! While Closing the Response Output Stream.", e);
-				}
 			}
 		}
 	}

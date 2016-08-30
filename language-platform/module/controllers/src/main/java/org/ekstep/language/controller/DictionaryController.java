@@ -180,14 +180,6 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getResponseEntity(resp, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
-		} finally {
-			try {
-				if (null != response.getOutputStream())
-					response.getOutputStream().close();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		}
 	}
 
