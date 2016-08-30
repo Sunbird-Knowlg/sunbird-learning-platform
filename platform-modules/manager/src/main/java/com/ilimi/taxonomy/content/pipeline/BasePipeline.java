@@ -51,15 +51,31 @@ import com.ilimi.taxonomy.dto.ContentSearchCriteria;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.mgr.impl.TaxonomyManagerImpl;
 
+/**
+ * The Class BasePipeline is a PipeLineClass between initializers and finalizers 
+ * mainly holds Common Methods and operations of a ContentNode .
+ */
 public class BasePipeline extends BaseManager {
-
+	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(BasePipeline.class.getName());
-
+	
+	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
-
+	
+	/** The Constants DEF_AWS_BUCKET_NAME */
 	private static final String DEF_AWS_BUCKET_NAME = "ekstep-public";
+	
+	/** The Constants DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
 
+	/**
+	 * Updates the ContentNode.
+	 *
+	 * @param Node the node
+	 * @param Url the url
+	 * @return the response of UpdateContentNode with node_id
+	 */
 	protected Response updateContentNode(Node node, String url) {
 		Response response = new Response();
 		if (null != node) {
@@ -69,7 +85,13 @@ public class BasePipeline extends BaseManager {
 		}
 		return response;
 	}
-
+	
+	/**
+	 * Updates the given Node.
+	 * 
+	 * @param Node the node
+	 * @return the response of UpdateContentNode with node_id
+	 */
 	protected Response updateNode(Node node) {
 		Response response = new Response();
 		if (null != node) {
@@ -80,7 +102,14 @@ public class BasePipeline extends BaseManager {
 		}
 		return response;
 	}
-
+	
+	/**
+	 * validates BasePath
+	 * 
+	 * @param path the Path
+	 * checks if the path exists else
+	 * return false
+	 */
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
@@ -91,7 +120,15 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-
+	
+	/**
+	 * validates Path
+	 * 
+	 * @param Path the path
+	 * checks if the path exists, if not null then creates a Path for it
+	 * @return true if its a validBasePath 
+	 * return false
+	 */
 	protected boolean isPathExist(Path path) {
 		boolean exist = true;
 		try {
@@ -108,7 +145,13 @@ public class BasePipeline extends BaseManager {
 		}
 		return exist;
 	}
-
+	
+	/**
+	 * gets the AwsUploadFolder Name
+	 * from the PropertiesUtil class by loading from propertiesFile
+	 * 
+	 * @return AWS Upload FolderName
+	 */
 	protected String getUploadFolderName() {
 		String folderName = DEF_AWS_FOLDER_NAME;
 		String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
@@ -119,7 +162,13 @@ public class BasePipeline extends BaseManager {
 		}
 		return folderName;
 	}
-
+	
+	/**
+	 * gets the AwsUploadBucket Name
+	 * from the PropertiesUtil class by loading from propertiesFile
+	 * 
+	 * @return AWS Upload BucketName
+	 */
 	protected String getUploadBucketName() {
 		String folderName = DEF_AWS_BUCKET_NAME;
 		String env = PropertiesUtil.getProperty(ContentWorkflowPipelineParams.OPERATION_MODE.name());
@@ -130,20 +179,34 @@ public class BasePipeline extends BaseManager {
 		}
 		return folderName;
 	}
-
-	protected String[] uploadToAWS(File uploadedFile, String folder) {
+	
+	/**
+	 * uploads the file to AWS
+	 * 
+	 * @param uploadFile is the file to to uploaded
+	 * @param folder is the AWS folder
+	 * calls the AWSUploader to upload the file the AWS
+	 * @return String[] of the uploaded URL
+	 */
+	protected String[] uploadToAWS(File uploadFile, String folder) {
 		String[] urlArray = new String[] {};
 		try {
 			if (StringUtils.isBlank(folder))
 				folder = DEF_AWS_FOLDER_NAME;
-			urlArray = AWSUploader.uploadFile(DEF_AWS_BUCKET_NAME, folder, uploadedFile);
+			urlArray = AWSUploader.uploadFile(DEF_AWS_BUCKET_NAME, folder, uploadFile);
 		} catch (Exception e) {
 			throw new ServerException(ContentErrorCodeConstants.UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.FILE_UPLOAD_ERROR, e);
 		}
 		return urlArray;
 	}
-
+	
+	/**
+	 * gets the NumericValue of the object
+	 * 
+	 * @param object
+	 * @return Number
+	 */
 	protected Number getNumericValue(Object obj) {
 		try {
 			return (Number) obj;
@@ -152,13 +215,25 @@ public class BasePipeline extends BaseManager {
 		}
 	}
 
+	/**
+	 * gets the DoubleValue of the object
+	 * 
+	 * @param object
+	 * @return NumberDoubleVale
+	 */
 	protected Double getDoubleValue(Object obj) {
 		Number n = getNumericValue(obj);
 		if (null == n)
 			return 0.0;
 		return n.doubleValue();
 	}
-
+	
+	/**
+	 * gets the S3FilesSize
+	 * 
+	 * @param key
+	 * @return fileSize(double)
+	 */
 	protected Double getS3FileSize(String key) {
 		Double bytes = null;
 		if (StringUtils.isNotBlank(key)) {
@@ -174,7 +249,13 @@ public class BasePipeline extends BaseManager {
 	protected static String formatCurrentDate() {
 		return format(new Date());
 	}
-
+	
+	/**
+	 * formats Any given Date
+	 * 
+	 * @param date
+	 * @return NumberDoubleVale
+	 */
 	protected static String format(Date date) {
 		if (null != date) {
 			try {
@@ -186,12 +267,24 @@ public class BasePipeline extends BaseManager {
 		return null;
 	}
 	
+	/**
+	 * gets the date after the given Days
+	 * 
+	 * @param number of Days
+	 * @return date
+	 */
 	protected static String getDateAfter(int days) {
 		Calendar c = Calendar.getInstance();
 		c.add(Calendar.DATE, days);
 		return sdf.format(c.getTime());
 	}
 
+	/**
+	 * validates the XML from the ContentBody
+	 * 
+	 * @param ContentBody
+	 * @return true if validation is successful else false
+	 */
 	protected boolean isValidXML(String contentBody) {
 		boolean isValid = true;
 		if (!StringUtils.isBlank(contentBody)) {
@@ -205,7 +298,13 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-
+	
+	/**
+	 * validates the JSON from ContentBody
+	 * 
+	 * @param ContentBody
+	 * @return true if validation is successful else false
+	 */
 	protected boolean isValidJSON(String contentBody) {
 		boolean isValid = true;
 		if (!StringUtils.isBlank(contentBody)) {
@@ -219,7 +318,13 @@ public class BasePipeline extends BaseManager {
 		}
 		return isValid;
 	}
-
+	
+	/**
+	 * gets the basePath from the ContentId
+	 * 
+	 * @param ContentId
+	 * @return BasePath
+	 */
 	protected String getBasePath(String contentId) {
 		String path = "";
 		if (!StringUtils.isBlank(contentId))
@@ -227,17 +332,32 @@ public class BasePipeline extends BaseManager {
 					+ ContentAPIParams._temp.name() + File.separator + contentId;
 		return path;
 	}
-
+	
+	/**
+	 * gets the ResponseTimestamp
+	 * 
+	 * @return TimeStamp
+	 */
 	protected String getResponseTimestamp() {
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'XXX");
 		return sdf.format(new Date());
 	}
-
+	
+	/**
+	 * gets the UUID(unique Identifier)
+	 * @return UUID(random generator)
+	 */
 	protected String getUUID() {
 		UUID uid = UUID.randomUUID();
 		return uid.toString();
 	}
 	
+	/**
+	 * gets the ContentBundleData form all Collections
+	 * 
+	 * @param graphId, listOfNodes to be bundled, contents, childrenIds and Status(live)
+	 * call getContentBundleData() to Bundle all data with status as LIVE
+	 */
 	protected void getContentBundleData(String graphId, List<Node> nodes, List<Map<String, Object>> ctnts,
 			List<String> childrenIds) {
 		getContentBundleData(graphId, nodes, ctnts, childrenIds, true);
@@ -324,7 +444,13 @@ public class BasePipeline extends BaseManager {
 			}
 		}
 	}
-
+	
+	/**
+	 * search Nodes and return SearchResponse
+	 * 
+	 * @param taxonomyId and ContentId
+	 * @return Response of the search
+	 */
 	protected Response searchNodes(String taxonomyId, List<String> contentIds) {
 		LOGGER.info("Searching Nodes For Bundling...");
 		ContentSearchCriteria criteria = new ContentSearchCriteria();
