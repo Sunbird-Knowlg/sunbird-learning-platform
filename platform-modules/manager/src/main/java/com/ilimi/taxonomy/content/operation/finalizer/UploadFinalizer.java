@@ -15,15 +15,37 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
+/**
+ * The Class UploadFinalizer, extends BaseFinalizer which
+ * mainly holds common methods and operations of a ContentBody.
+ * UploadFinalizer holds methods which perform ContentuploadPipeline operations
+ */
 public class UploadFinalizer extends BaseFinalizer {
 	
-	private static Logger LOGGER = LogManager.getLogger(UploadFinalizer.class.getName());
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(PublishFinalizer.class.getName());
 	
+	/** The Constant IDX_S3_KEY. */
 	private static final int IDX_S3_KEY = 0;
+	
+	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 	
+	/** The BasePath. */
 	protected String basePath;
+	
+	/** The ContentId. */
 	protected String contentId;
+
+	/**
+	 * PublishFinalizer()
+	 * sets the basePath and ContentId
+	 *
+	 * @param BasePath the basePath
+	 * @param contentId the contentId
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
+	 */
 
 	public UploadFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -36,6 +58,19 @@ public class UploadFinalizer extends BaseFinalizer {
 		this.contentId = contentId;
 	}
 	
+	/**
+	 * finalize()
+	 *
+	 * @param Map the parameterMap
+	 * 
+	 * checks if file,node,ecrfType,ecmlType
+	 * exists in the parameterMap else throws ClientException
+	 * Get Content String
+	 * Upload Package
+	 * Update Body, Reset Editor State and Update Content Node
+	 * Update Node 
+	 * @return the response
+	 */	
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		

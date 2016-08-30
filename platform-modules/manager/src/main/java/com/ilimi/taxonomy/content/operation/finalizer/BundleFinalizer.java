@@ -21,15 +21,34 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.util.ContentBundle;
 
+/**
+ * The Class BundleFinalizer, extends BaseFinalizer which
+ * mainly holds common methods and operations of a ContentBody.
+ * BundleFinalizer holds methods which perform ContentBundlePipeline operations
+ */
 public class BundleFinalizer extends BaseFinalizer {
 
-	private static Logger LOGGER = LogManager.getLogger(BundleFinalizer.class.getName());
-
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(BaseFinalizer.class.getName());
+	
+	/** The Constant IDX_S3_URL. */
 	private static final int IDX_S3_URL = 1;
 
+	/** The BasePath. */
 	protected String basePath;
+	
+	/** The ContentId. */
 	protected String contentId;
 
+	/**
+	 * BundleFinalizer()
+	 * sets the basePath and ContentId
+	 *
+	 * @param BasePath the basePath
+	 * @param contentId the contentId
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
+	 */
 	public BundleFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -41,7 +60,34 @@ public class BundleFinalizer extends BaseFinalizer {
 		this.contentId = contentId;
 	}
 
-	@SuppressWarnings({ "unchecked" })
+	/**
+	 * finalize()
+	 *
+	 * @param Map the parameterMap
+	 * 
+	 * checks if BundleMap, BundleFileName, manifestVersion 
+	 * exists in the parameterMap else throws ClientException
+	 * 
+	 * fetch parameters from bundleFinalizer
+	 * Output only ECML format
+	 * Setting Attribute Value
+	 * Download 'appIcon'
+	 * Download 'posterImage'
+	 * Get Content String
+	 * Write ECML File
+	 * Create 'ZIP' Package
+	 * Upload Package
+	 * Upload to S3
+	 * Set artifact file For Node
+	 * Update ContentNode
+	 * Download from 'artifactUrl'
+	 * Get Content Bundle Expiry Date
+	 * Update Content data with relative paths
+	 * Create Manifest JSON File
+	 * Create ECAR File
+	 * Upload ECAR to S3
+	 * @return the response
+	 */	
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		Map<String, Object> bundleMap = (Map<String, Object>) parameterMap

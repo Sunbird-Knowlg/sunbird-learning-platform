@@ -95,20 +95,20 @@ public class UploadInitializer extends BaseInitializer {
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidContentPackage(file)) {
-			/**  Extract the ZIP File */
+			//  Extract the ZIP File 
 			extractContentPackage(file);
 
-			/**  Get ECRF Object */
+			//  Get ECRF Object 
 			Plugin ecrf = getECRFObject();
 
-			/**  Get Pipeline Object */
+			// Get Pipeline Object 
 			AbstractProcessor pipeline = PipelineRequestorClient
 					.getPipeline(ContentWorkflowPipelineParams.extract.name(), basePath, contentId);
 
-			/**  Start Pipeline Operation */
+			//  Start Pipeline Operation 
 			ecrf = pipeline.execute(ecrf);
 
-			/**  Call Finalyzer */
+			//  Call Finalyzer 
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
