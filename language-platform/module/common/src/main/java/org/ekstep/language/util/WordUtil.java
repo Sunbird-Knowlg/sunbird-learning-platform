@@ -1,7 +1,3 @@
-/*
-* Provides utility methods required by the Dictionary controller to search, 
-* create/update words and interact with Graph actors. 
-*/
 
 package org.ekstep.language.util;
 
@@ -68,6 +64,14 @@ import com.ilimi.graph.model.node.RelationDefinition;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
+
+/**
+* Provides utility methods required by the Dictionary controller to search, 
+* create/update words and interact with Graph actors. 
+* 
+* @author Amarnath, Karthik, Rayulu
+*/
+
 @Component
 public class WordUtil extends BaseManager implements IWordnetConstants {
 
@@ -75,10 +79,11 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	private static Logger LOGGER = LogManager.getLogger(WordUtil.class.getName());
 	private static final String LEMMA_PROPERTY = "lemma";
 
-	/*
+	/**
 	 * Returns akka request for a given request map
 	 * 
-	 * @param requestMap request body
+	 * @param requestMap
+	 *            request body
 	 * 
 	 * @return Request object
 	 */
@@ -109,7 +114,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return request;
 	}
 
-	/*
+	/**
 	 * Sets the limit in a search criteria
 	 * 
 	 * @param Request
@@ -130,14 +135,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		sc.setResultSize(limit);
 	}
 
-	/*
+	/**
 	 * Given an object, returns the list of objects
 	 * 
-	 * @param mapper to convert between json and map
+	 * @param mapper
+	 *            to convert between json and map
 	 * 
-	 * @param object object to be converted to list
+	 * @param object
+	 *            object to be converted to list
 	 * 
-	 * @param propName not used.
+	 * @param propName
+	 *            not used.
 	 * 
 	 * @return list of objects
 	 */
@@ -157,12 +165,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
-	/*
+	/**
 	 * Retrieves the identifier of a word using the lemma from Graph DB
 	 * 
 	 * @param languageId
 	 * 
-	 * @param word Lemma of the word
+	 * @param word
+	 *            Lemma of the word
 	 * 
 	 * @return Word ID
 	 */
@@ -183,12 +192,13 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
-	/*
+	/**
 	 * Retrieves the identifier of a word using the lemma from Elasticsearch
 	 * 
 	 * @param languageId
 	 * 
-	 * @param word Lemma of the word
+	 * @param word
+	 *            Lemma of the word
 	 * 
 	 * @return Word ID
 	 */
@@ -214,7 +224,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
-	/*
+	/**
 	 * Returns the formatted string of a date time
 	 * 
 	 * @param dateTime
@@ -234,12 +244,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return dateTimeString;
 	}
 
-	/*
+	/**
 	 * Adds indexes to Elasticsearch
 	 * 
-	 * @param indexes Map of type of indexes to List of indexes
+	 * @param indexes
+	 *            Map of type of indexes to List of indexes
 	 * 
-	 * @param language graph Id of the language
+	 * @param language
+	 *            graph Id of the language
 	 * 
 	 * @return void
 	 */
@@ -329,14 +341,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 
-	/*
+	/**
 	 * Creates word info index with predefined settings and mappings
 	 * 
-	 * @param indexName name of the index
+	 * @param indexName
+	 *            name of the index
 	 * 
-	 * @param indexType index type name
+	 * @param indexType
+	 *            index type name
 	 * 
-	 * @param elasticSearchUtil Elastic search utility
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
 	 * 
 	 * @return void
 	 */
@@ -366,14 +381,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
-	/*
+	/**
 	 * Creates word index with predefined settings and mappings
 	 * 
-	 * @param indexName name of the index
+	 * @param indexName
+	 *            name of the index
 	 * 
-	 * @param indexType index type name
+	 * @param indexType
+	 *            index type name
 	 * 
-	 * @param elasticSearchUtil Elastic search utility
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
 	 * 
 	 * @return void
 	 */
@@ -399,14 +417,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
-	/*
+	/**
 	 * Creates citation index with predefined settings and mappings
 	 * 
-	 * @param indexName name of the index
+	 * @param indexName
+	 *            name of the index
 	 * 
-	 * @param indexType index type name
+	 * @param indexType
+	 *            index type name
 	 * 
-	 * @param elasticSearchUtil Elastic search utility
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
 	 * 
 	 * @return void
 	 */
@@ -437,14 +458,17 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		elasticSearchUtil.addIndex(indexName, indexType, settingBuilder.toString(), mappingBuilder.toString());
 	}
 
-	/*
+	/**
 	 * Gets root words from Elasticsearch for a given word and language Id
 	 * 
-	 * @param word word for which the root word needs to be found
+	 * @param word
+	 *            word for which the root word needs to be found
 	 * 
-	 * @param languageId index type name
+	 * @param languageId
+	 *            index type name
 	 * 
-	 * @param elasticSearchUtil Elastic search utility
+	 * @param elasticSearchUtil
+	 *            Elastic search utility
 	 * 
 	 * @return void
 	 */
@@ -471,16 +495,20 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return null;
 	}
 
-	/*
+	/**
 	 * Returns the word index DTO for a given word
 	 * 
-	 * @param word lemma of the word
+	 * @param word
+	 *            lemma of the word
 	 * 
-	 * @param rootWord lemma of the root word
+	 * @param rootWord
+	 *            lemma of the root word
 	 * 
-	 * @param wordIdentifier ID of the word in the graph
+	 * @param wordIdentifier
+	 *            ID of the word in the graph
 	 * 
-	 * @param mapper objectMapper for JSON operations
+	 * @param mapper
+	 *            objectMapper for JSON operations
 	 * 
 	 * @return void
 	 */
