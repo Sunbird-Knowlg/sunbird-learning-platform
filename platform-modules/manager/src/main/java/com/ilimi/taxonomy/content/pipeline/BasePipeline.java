@@ -63,10 +63,10 @@ public class BasePipeline extends BaseManager {
 	/** The SimpleDateformatter. */
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ");
 	
-	/** The Constants DEF_AWS_BUCKET_NAME */
+	/** The Constant DEF_AWS_BUCKET_NAME */
 	private static final String DEF_AWS_BUCKET_NAME = "ekstep-public";
 	
-	/** The Constants DEF_AWS_FOLDER_NAME */
+	/** The Constant DEF_AWS_FOLDER_NAME */
 	private static final String DEF_AWS_FOLDER_NAME = "content";
 
 	/**

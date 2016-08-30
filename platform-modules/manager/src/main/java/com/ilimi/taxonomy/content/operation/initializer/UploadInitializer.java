@@ -26,16 +26,37 @@ import com.ilimi.taxonomy.content.util.JSONContentParser;
 import com.ilimi.taxonomy.content.util.XMLContentParser;
 import com.ilimi.taxonomy.content.validator.ContentValidator;
 
+/**
+ * The Class UploadInitializer, extends BaseInitializer which
+ * mainly holds methods to get ECML and ECRFtype from the ContentBody.
+ * UploadInitializer holds methods which perform ContentUploadPipeline operations
+ */
 public class UploadInitializer extends BaseInitializer {
 	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(UploadInitializer.class.getName());
 	
+	/** The Constant JSON_ECML_FILE_NAME. */
 	private static final String JSON_ECML_FILE_NAME = "index.json";
+	
+	/** The Constant XML_ECML_FILE_NAME. */
 	private static final String XML_ECML_FILE_NAME = "index.ecml";
 	
+	/** The BasePath. */
 	protected String basePath;
+	
+	/** The ContentId. */
 	protected String contentId;
 
+	/**
+	 * UploadInitializer()
+	 * sets the basePath and ContentId
+	 *
+	 * @param BasePath the basePath
+	 * @param contentId the contentId
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
+	 */
 	public UploadInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -47,6 +68,21 @@ public class UploadInitializer extends BaseInitializer {
 		this.contentId = contentId;
 	}
 	
+	/**
+	 * initialize()
+	 *
+	 * @param Map the parameterMap
+	 * 
+	 * checks if UploadFile and Node exists in the parameterMap else throws ClientException
+	 * validates the ContentPackage
+	 * extracts the ZIP file
+	 * gets ECRF object
+	 * Gets Pipeline Object
+	 * Starts Pipeline Operation
+	 * Calls Finalizer
+	 * 
+	 * @return the response
+	 */
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		File file = (File) parameterMap.get(ContentWorkflowPipelineParams.file.name());
@@ -59,20 +95,20 @@ public class UploadInitializer extends BaseInitializer {
 					ContentErrorMessageConstants.INVALID_CWP_INIT_PARAM + " | [Invalid or null Node.]");
 		ContentValidator validator = new ContentValidator();
 		if (validator.isValidContentPackage(file)) {
-			// Extract the ZIP File
+			/**  Extract the ZIP File */
 			extractContentPackage(file);
 
-			// Get ECRF Object
+			/**  Get ECRF Object */
 			Plugin ecrf = getECRFObject();
 
-			// Get Pipeline Object
+			/**  Get Pipeline Object */
 			AbstractProcessor pipeline = PipelineRequestorClient
 					.getPipeline(ContentWorkflowPipelineParams.extract.name(), basePath, contentId);
 
-			// Start Pipeline Operation
+			/**  Start Pipeline Operation */
 			ecrf = pipeline.execute(ecrf);
 
-			// Call Finalyzer
+			/**  Call Finalyzer */
 			FinalizePipeline finalize = new FinalizePipeline(basePath, contentId);
 			Map<String, Object> finalizeParamMap = new HashMap<String, Object>();
 			finalizeParamMap.put(ContentWorkflowPipelineParams.ecrf.name(), ecrf);
@@ -84,6 +120,12 @@ public class UploadInitializer extends BaseInitializer {
 		return response;
 	}
 	
+	/** gets the ECRFObject(Ekstep Common Representation Format).
+	 * 
+	 *  gets the EcmlType, if type is JSON calls JSONContentParser
+	 *  else XMLContentParser
+	 *  return ECRFObject 
+	 *  */
 	private Plugin getECRFObject() {
 		Plugin plugin = new Plugin();
 		String ecml = getFileString();
@@ -98,6 +140,12 @@ public class UploadInitializer extends BaseInitializer {
 		return plugin;
 	}
 	
+	/**
+	 * extractContentPackage() 
+	 * extracts the ContentPackageZip file
+	 * 
+	 * @param file the ContentPackageFile
+	 */
 	private void extractContentPackage(File file) {
 		try {
 			UnzipUtility util = new UnzipUtility();
@@ -108,6 +156,15 @@ public class UploadInitializer extends BaseInitializer {
 		}
 	}
 
+	/**
+	 * getFileString() 
+	 * extracts the ContentPackageZip file
+	 * 
+	 * checks if the package contains index.js or index.emcl
+	 * if it contains both throws ClientException
+	 * else read the index.js or index.ecml and
+	 * @returns the fileString
+	 */
 	private String getFileString() {
 		String fileString = "";
 		File jsonECMLFile = new File(basePath + File.separator + JSON_ECML_FILE_NAME);
@@ -130,6 +187,11 @@ public class UploadInitializer extends BaseInitializer {
 		return fileString;
 	}
 	
+	/** gets the ECMLtype.
+	 * 
+	 *  checks if JsonFile or EcmlFile exists and
+	 *  return EcmlType
+	 *  */
 	private String getECMLType() {
 		String type = "";
 		if (new File(basePath + File.separator + JSON_ECML_FILE_NAME).exists())
@@ -139,5 +201,4 @@ public class UploadInitializer extends BaseInitializer {
 		LOGGER.info("ECML Type: " + type);
 		return type;
 	}
-
 }

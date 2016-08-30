@@ -36,8 +36,8 @@ public class InitializePipeline extends BasePipeline {
 	 *
 	 * @param BasePath the basePath
 	 * @param contentId the contentId
-	 * @checks if the basePath is valid else throws ClientException
-	 * @checks if the ContentId is not null else throws ClientException
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
 	 */
 	public InitializePipeline(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -55,7 +55,7 @@ public class InitializePipeline extends BasePipeline {
 	 *
 	 * @param operation the Operation
 	 * @param Map the parameterMap
-	 * @checks if operation or parameterMap is empty throws ClientException
+	 * checks if operation or parameterMap is empty, throws ClientException
 	 * else based on the OPERATION(upload, publish or bundle) initializes 
 	 * respective ContentOperationInitializers
 	 * @return the response

@@ -19,7 +19,7 @@ import com.ilimi.taxonomy.content.pipeline.BasePipeline;
 /**
  * The Class FinalizePipeline is a PipelineClass, extends the BasePipeline which holds all 
  * commmon methods for a ContentNode and its operations
- * Based on the ContentOperation specfied initiates the respective OperationFinalizers
+ * Based on the ContentOperation specified initiates the respective OperationFinalizers
  */
 public class FinalizePipeline extends BasePipeline {
 
@@ -38,8 +38,8 @@ public class FinalizePipeline extends BasePipeline {
 	 *  
 	 * @param BasePath the basePath
 	 * @param contentId the contentId
-	 * @checks if the basePath is valid else throws ClientException
-	 * @checks if the ContentId is not null else throws ClientException
+	 * checks if the basePath is valid else throws ClientException
+	 * checks if the ContentId is not null else throws ClientException
 	 */
 	public FinalizePipeline(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -57,7 +57,7 @@ public class FinalizePipeline extends BasePipeline {
 	 *
 	 * @param operation the Operation
 	 * @param Map the parameterMap
-	 * @checks if operation or parameterMap is empty throws ClientException
+	 * checks if operation or parameterMap is empty throws ClientException
 	 * else based on the OPERATION(upload, publish or bundle) calls the  
 	 * respective ContentOperationFinalizers
 	 * @return the response
