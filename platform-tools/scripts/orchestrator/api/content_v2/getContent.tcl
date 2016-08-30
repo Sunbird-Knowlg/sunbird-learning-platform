@@ -50,6 +50,12 @@ proc proc_updateLanguageCode {resp_object graph_node} {
 			$language_map put "telugu" "te"
 			$language_map put "hindi" "hi"
 			$language_map put "kannada" "ka"
+			$language_map put "tamil" "ta"
+			$language_map put "marathi" "mr"
+			$language_map put "bengali" "bn"
+			$language_map put "gujarati" "gu"
+			$language_map put "odia" "or"
+			$language_map put "assamese" "as"
 			set lang_lc [[java::new String $languageVal] toLowerCase]
 			set langCode [$language_map get $lang_lc]
 			set langCodeNotNull [proc_isNotNull $langCode]
