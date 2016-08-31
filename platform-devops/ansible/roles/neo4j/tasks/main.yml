@@ -10,7 +10,7 @@
   get_url: url=http://dist.neo4j.org/neo4j-community-2.2.0-unix.tar.gz dest={{ user_home }}/neo4j/neo4j-community-2.2.0-unix.tar.gz timeout=1000 force=no owner=ec2-user
 
 - name: Unarchive neo4j 2.2.0
-  command: chdir=/home/ec2-user/neo4j tar -zxvf {{ user_home }}/neo4j/neo4j-community-2.2.0-unix.tar.gz -d {{ user_home }}/neo4j/neo4j-community-2.2.0
+  command: tar -zxvf {{ user_home }}/neo4j/neo4j-community-2.2.0-unix.tar.gz -C /home/ec2-user/neo4j/
 
 - name: install neo4j 3.0.4
   get_url: url=http://dist.neo4j.org/neo4j-community-3.0.4-unix.tar.gz dest={{ user_home }}/neo4j/neo4j-community-3.0.4-unix.tar.gz timeout=1000 force=no owner=ec2-user
