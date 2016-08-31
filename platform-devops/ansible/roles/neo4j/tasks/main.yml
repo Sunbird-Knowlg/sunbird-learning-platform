@@ -1,4 +1,8 @@
 ---
+- name: Stop tomcat
+  become: yes
+  service: name=tomcat state=stopped
+
 - name: neo4j folder
   file: path={{ user_home }}/neo4j mode=755 owner=ec2-user group=ec2-user state=directory
 
@@ -26,7 +30,7 @@
 - name: Unarchive neo4j shell-tools_3.0.1
   unarchive: src={{ user_home }}/neo4j/neo4j-shell-tools_3.0.1.zip dest={{ user_home }}/neo4j/neo4j-community-3.0.4/lib copy=no owner=ec2-user group=ec2-user 
 
-- name: Backup
+- name: Create Backup
   file: path={{ user_home }}/neo4j/backups mode=755 owner=ec2-user group=ec2-user state=directory
 
 

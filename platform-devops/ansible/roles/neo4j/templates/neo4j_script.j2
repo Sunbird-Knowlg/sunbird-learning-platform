@@ -1,6 +1,6 @@
 NEO4J_HOME1=/home/ec2-user/neo4j/neo4j-community-2.2.0
 NEO4J_HOME2=/home/ec2-user/neo4j/neo4j-community-3.0.4
-cp -r /data/graphDB/* /home/ec2-user/neo4j/backups/
+cp -p -r /data/graphDB /home/ec2-user/neo4j/backups/graphDB.`date +%Y.%m.%d.%H`
 
 cd /data/graphDB                 #move inside th folder
 #*****************************************************
@@ -25,4 +25,3 @@ do
       ./neo4j stop
 
  done
-
