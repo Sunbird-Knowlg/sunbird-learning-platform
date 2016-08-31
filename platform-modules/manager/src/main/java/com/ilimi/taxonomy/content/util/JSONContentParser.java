@@ -26,8 +26,21 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
+/**
+ * The Class JSONContentParser is a utility 
+ * used to parse Content to JSON
+ * holds Util Methods to get ContentMetadata and Properties
+ */
 public class JSONContentParser {
 	
+	/**
+	 * parse the Content(JSON)
+	 *
+	 * @param json the Json
+	 * reads the Json and converts it to JsonObject
+	 * and process the ContentJsonObject
+	 * @return content
+	 */
 	public Plugin parseContent(String json) {
 		Plugin content = new Plugin();
 		try {
@@ -41,6 +54,13 @@ public class JSONContentParser {
 		return content;
 	}
 	
+	/**
+	 * process the ContentDocument
+	 *
+	 * @param jsonObject the JsonObject
+	 * if JsonObject is not null sets all pluginMetadata
+	 * @return plugin
+	 */
 	private Plugin processContentDocument(JsonObject root) {
 		Plugin plugin = new Plugin();
 		if (null != root) {
@@ -59,6 +79,13 @@ public class JSONContentParser {
 		return plugin;
 	}
 	
+	/**
+	 * gets the ContentManifest
+	 *
+	 * @param jsonObject the JsonObject
+	 * if JsonObject is not null sets all ManifestMetadata
+	 * @return Manifest
+	 */
 	private Manifest getContentManifest(JsonObject object) {
 		Manifest manifest = new Manifest();
 		if (null != object) {
@@ -83,6 +110,13 @@ public class JSONContentParser {
 		return manifest;
 	}
 	
+	/**
+	 * gets the MediaFromObject
+	 *
+	 * @param jsonObject the JsonObject
+	 * if JsonObject is not null sets all MediaMetadata
+	 * @return ListOfMedias
+	 */
 	private List<Media> getMediaFromObject(JsonElement object) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != object) {
@@ -101,6 +135,14 @@ public class JSONContentParser {
 		return medias;
 	}
 	
+	/**
+	 * gets the ContentMedia
+	 * 
+	 * @param jsonObject the mediaObj
+	 * if mediaObject is not null sets all MediaMetadata
+	 * else throw ClientException
+	 * @return media
+	 */
 	private Media getContentMedia(JsonObject mediaObj) {
 		Media media = new Media();
 		try {
@@ -132,6 +174,13 @@ public class JSONContentParser {
 		return media;
 	}
 	
+	/**
+	 * gets the List of Controllers
+	 *
+	 * @param jsonObject the JsonObject
+	 * if JsonObject is not null sets all controllerMetadata
+	 * @return ControllersList
+	 */
 	private List<Controller> getControllers(JsonObject object) {
 		List<Controller> controllers = new ArrayList<Controller>();
 		if (null !=  object) {
@@ -168,6 +217,13 @@ public class JSONContentParser {
 		return controllers;
 	}
 	
+	/**
+	 * validate Controller
+	 *
+	 * @param jsonObject the controllerObj
+	 * gets the id and type from the controllerObj
+	 * if its null throws ClientException
+	 */
 	private void validateController(JsonObject controllerObj) {
 		JsonElement id = controllerObj.get(ContentWorkflowPipelineParams.id.name());
 		JsonElement type = controllerObj.get(ContentWorkflowPipelineParams.type.name());
@@ -184,6 +240,14 @@ public class JSONContentParser {
 					"Error! Invalid Controller ('type' should be either 'items' or 'data')");
 	}
 	
+	/**
+	 * gets the plugin
+	 *
+	 * @param jsonObject the JsonObject
+	 * @param key the key
+	 * if JsonObject is not null sets all pluginMetadata
+	 * @return plugin
+	 */
 	private Plugin getPlugin(JsonObject object, String key) {
 		Plugin plugin = new Plugin();
 		if (null != object) {
@@ -199,6 +263,12 @@ public class JSONContentParser {
 		return plugin;
 	}
 	
+	/**
+	 * gets the list of ChildrenPlugins
+	 *
+	 * @param jsonObject the JsonObject
+	 * @return childrenPluginList
+	 */
 	private List<Plugin> getChildrenPlugins(JsonObject object) {
 		List<Plugin> childrenPlugins = new LinkedList<Plugin>();
 		if (null != object) {
@@ -224,6 +294,12 @@ public class JSONContentParser {
 		return childrenPlugins;
 	}
 	
+	/**
+	 * gets the Events
+	 *
+	 * @param jsonObject the JsonObject
+	 * @return EventList
+	 */
 	private List<Event> getEvents(JsonObject object) {
 		List<Event> events = new ArrayList<Event>();
 		if (null != object) {
@@ -248,6 +324,12 @@ public class JSONContentParser {
 		return events;
 	}
 	
+	/**
+	 * gets the EventFromObject
+	 *
+	 * @param jsonObject the JsonObject
+	 * @return Events
+	 */
 	private List<Event> getEventFromObject(JsonElement object) {
 		List<Event> events = new ArrayList<Event>();
 		if (null != object) {
@@ -259,6 +341,12 @@ public class JSONContentParser {
 		return events;
 	}
 	
+	/**
+	 * gets the EventList
+	 *
+	 * @param jsonArray the array
+	 * @return EventsList
+	 */
 	private List<Event> getEventList(JsonArray array) {
 		List<Event> events = new ArrayList<Event>();
 		for(int i = 0; i < array.size(); i++) {
@@ -269,6 +357,12 @@ public class JSONContentParser {
 		return events;
 	}
 	
+	/**
+	 * gets the Event
+	 *
+	 * @param jsonObject the object
+	 * @return Event
+	 */
 	private Event getEvent(JsonObject object) {
 		Event event = new Event();
 		event.setId(getId(object));
@@ -279,6 +373,12 @@ public class JSONContentParser {
 		return event;
 	}
 	
+	/**
+	 * gets the InnerText
+	 *
+	 * @param jsonObject the object
+	 * @return InnerText
+	 */
 	private String getInnerText(JsonObject object) {
 		String elementName = ContentWorkflowPipelineParams.__text.name();
 		String innerText = "";
@@ -292,6 +392,12 @@ public class JSONContentParser {
 		return innerText;
 	}
 	
+	/**
+	 * gets the Id(identifier)as String 
+	 *
+	 * @param jsonObject the object
+	 * @return Id
+	 */
 	private String getId(JsonObject object) {
 		String attribute = ContentWorkflowPipelineParams.id.name();
 		String value = "";
@@ -305,6 +411,14 @@ public class JSONContentParser {
 		return value;
 	}
 	
+	/**
+	 * gets the data
+	 *
+	 * @param jsonObject the object
+	 * @param elementName the elementName
+	 * gets DataMap from JsonObject
+	 * @return dataMap
+	 */
 	private Map<String, Object> getData(JsonObject object, String elementName) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != object && !StringUtils.isBlank(elementName)) {
@@ -314,6 +428,13 @@ public class JSONContentParser {
 		return map;
 	}
 	
+	/**
+	 * gets the Cdata
+	 *
+	 * @param jsonObject the object
+	 * @param elementName the elementName
+	 * @return CData
+	 */
 	private String getCData(JsonObject object, String elementName) {
 		String cData = "";
 		if (null != object && !StringUtils.isBlank(elementName)){
@@ -330,6 +451,12 @@ public class JSONContentParser {
 		return cData;
 	}
 	
+	/**
+	 * gets Map from JsonObject
+	 *
+	 * @param jsonObject the object
+	 * @return JsonMap
+	 */
 	private Map<String, Object> getMapFromJsonObj(JsonObject object) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != object) {

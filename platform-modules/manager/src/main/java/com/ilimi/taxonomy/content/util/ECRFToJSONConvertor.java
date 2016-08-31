@@ -18,8 +18,19 @@ import com.ilimi.taxonomy.content.entity.Manifest;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 
+/**
+ * The Class ECRFToJSONConvertor is a utility 
+ * used to convert ECRF to JSON
+ * holds Util Methodsto get ContentMetadata and Properties
+ */
 public class ECRFToJSONConvertor {
 	
+	/**
+	 * gets the ContentJSON from the ContentECRF
+	 * 
+	 * @param ecrf the ContentECRF
+	 * @return ContentJSON
+	 */
 	public String getContentJsonString(Plugin ecrf) {
 		String content = "";
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -39,6 +50,12 @@ public class ECRFToJSONConvertor {
 		return content;
 	}
 	
+	/**
+	 * gets the ContentManifestJsonMap
+	 * 
+	 * @param manifest the ManifestJson
+	 * @return map the ManifestJsonMap
+	 */
 	private Map<String, Object> getManifestMap(Manifest manifest) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != manifest && null != manifest.getMedias() && !manifest.getMedias().isEmpty()) {
@@ -52,6 +69,12 @@ public class ECRFToJSONConvertor {
 		return map;
 	}
 	
+	/**
+	 * gets the ContentMediasMap
+	 * 
+	 * @param medias the Medias
+	 * @return map the MediasJsonMap
+	 */
 	private Map<String, Object> getMediasMap(List<Media> medias) {
 		Map<String, Object> mediasMap = new HashMap<String, Object>();
 		if (null != medias) {
@@ -63,6 +86,12 @@ public class ECRFToJSONConvertor {
 		return mediasMap;
 	}
 	
+	/**
+	 * gets the MediaMap
+	 * 
+	 * @param media the Media
+	 * @return map the MediaJsonMap
+	 */
 	private Map<String, Object> getMediaMap(Media media) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != media) {
@@ -74,6 +103,12 @@ public class ECRFToJSONConvertor {
 		return map;
 	}
 	
+	/**
+	 * gets the ControllersMap
+	 * 
+	 * @param controllers the Controllers
+	 * @return map the ControllersJsonMap
+	 */
 	private Map<String, Object> getControllersMap(List<Controller> controllers) {
 		Map<String, Object> controllersMap = new HashMap<String, Object>();
 		if (null != controllers) {
@@ -85,6 +120,12 @@ public class ECRFToJSONConvertor {
 		return controllersMap;
 	}
 	
+	/**
+	 * gets the ControllerMap
+	 * 
+	 * @param controller the Controller
+	 * @return map the ControllerJsonMap
+	 */
 	private Map<String, Object> getControllerMap(Controller controller) {
 		Map<String, Object> controllerMap = new HashMap<String, Object>();
 		if (null != controller) {
@@ -95,6 +136,12 @@ public class ECRFToJSONConvertor {
 		return controllerMap;
 	}
 	
+	/**
+	 * gets the PluginsMap
+	 * 
+	 * @param plugins the Plugins
+	 * @return map the pluginsJsonMap
+	 */
 	private Map<String, Object> getPluginMaps(List<Plugin> plugins) {
 		Map<String, List<Map<String, Object>>> map = new LinkedHashMap<String, List<Map<String, Object>>>();
 		if (null != plugins) {
@@ -114,6 +161,12 @@ public class ECRFToJSONConvertor {
 		return groupPlugins(map);
 	}
 	
+	/**
+	 * gets the PluginMap
+	 * 
+	 * @param plugins the Plugin
+	 * @return map the pluginJsonMap
+	 */
 	private Map<String, Object> getPluginMap(Plugin plugin) {
 		Map<String, Object> pluginMap = new HashMap<String, Object>();
 		if (null != plugin) {
@@ -128,6 +181,12 @@ public class ECRFToJSONConvertor {
 		return pluginMap;
 	}
 	
+	/**
+	 * gets the InnerTextMap
+	 * 
+	 * @param innerText the innerText
+	 * @return map the innerText
+	 */
 	private Map<String, Object> getInnerTextMap(String innerText) {
 		Map<String, Object> innerTextMap = new HashMap<String, Object>();
 		if (StringUtils.isNotBlank(innerText))
@@ -135,13 +194,25 @@ public class ECRFToJSONConvertor {
 		return innerTextMap;
 	}
 	
+	/**
+	 * gets the CDataMap
+	 * 
+	 * @param CDataText the CDataText
+	 * @return map the CDataMap
+	 */
 	private Map<String, Object> getCDataMap(String cDataText) {
-		Map<String, Object> innerTextMap = new HashMap<String, Object>();
+		Map<String, Object> CDataMap = new HashMap<String, Object>();
 		if (StringUtils.isNotBlank(cDataText))
-			innerTextMap.put(ContentWorkflowPipelineParams.__cdata.name(), cDataText);
-		return innerTextMap;
+			CDataMap.put(ContentWorkflowPipelineParams.__cdata.name(), cDataText);
+		return CDataMap;
 	}
 	
+	/**
+	 * gets the ChildrenPluginMap
+	 * 
+	 * @param ChildrenPlugins the ChildrenPlugins
+	 * @return map the ChildrenPluginJsonMap
+	 */
 	private Map<String, Object> getChildrenPluginMap(List<Plugin> childrenPlugins) {
 		Map<String, List<Map<String, Object>>> map = new LinkedHashMap<String, List<Map<String, Object>>>();
 		if (null != childrenPlugins) {
@@ -161,6 +232,12 @@ public class ECRFToJSONConvertor {
 		return groupPlugins(map);
 	}
 	
+	/**
+	 * gets the EventsMap
+	 * 
+	 * @param Events the Events
+	 * @return map the EventsJsonMap
+	 */
 	private Map<String, Object> getEventsMap(List<Event> events) {
 		Map<String, Object> eventsMap = new HashMap<String, Object>();
 		if (null != events) {
@@ -184,6 +261,12 @@ public class ECRFToJSONConvertor {
 		return eventsMap;
 	}
 	
+	/**
+	 * filters List for SingleItem
+	 * 
+	 * @param objects the ObjectsList
+	 * @return singleItem from the objectList
+	 */
 	private Object filterListForSingleItem(List<Object> objects) {
 		Object object = new Object();
 		if (null != objects) {
@@ -194,6 +277,13 @@ public class ECRFToJSONConvertor {
 		}
 		return object;
 	}
+	
+	/**
+	 * gets the ElementMap
+	 * 
+	 * @param data the DataList
+	 * @return map the ElementJsonMap
+	 */
 	private Map<String, Object> getElementMap(Map<String, Object> data) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != data) {
@@ -205,6 +295,12 @@ public class ECRFToJSONConvertor {
 		return map;
 	}
 	
+	/**
+	 * groups the Plugins
+	 * 
+	 * @param map the pluginsMap
+	 * @return map the groupedJsonMap
+	 */
 	private Map<String, Object> groupPlugins(Map<String, List<Map<String, Object>>> map) {
 		Map<String, Object> groupedMap = new HashMap<String, Object>();
 		if (null != map && !map.isEmpty()) {

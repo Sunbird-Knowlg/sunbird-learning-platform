@@ -2,8 +2,18 @@ package com.ilimi.taxonomy.content.util;
 
 import com.ilimi.taxonomy.content.entity.Plugin;
 
+/**
+ * The Class ECRFConversionUtility  is a utility 
+ * used to convert Content(XML/JSON) to ECRF
+ */
 public class ECRFConversionUtility {
 	
+	/**
+	 * gets the ECRF object from Content
+	 * 
+	 * @param content the Content(xml)
+	 * @return ECRF
+	 */
 	public Plugin getECRF(String strContent) {
 		Plugin content = new Plugin();
 		XMLContentParser parser = new XMLContentParser();
@@ -11,6 +21,12 @@ public class ECRFConversionUtility {
 		return content;
 	}
 	
+	/**
+	 * gets the ECRF object from Content
+	 * 
+	 * @param content the Content(Json)
+	 * @return ERCF
+	 */
 	public Plugin getEcrfFromJson(String strContent) {
 		Plugin content = new Plugin();
 		JSONContentParser parser = new JSONContentParser();
