@@ -153,34 +153,6 @@ public interface IContentManager {
 	Response upload(String id, String taxonomyId, File uploadedFile, String folder);
 
 	/**
-	 * Extract is High level Content Operation mainly deals with extraction of
-	 * content package, The task includes extraction of <code>zip</code>
-	 * package, creation of <code>asset items/<code> into <code>graph</code>,
-	 * creation of <code>assessment item</code> into <code>graph</code>,
-	 * uploading of <code>assets</code> and other vital images to storage space.
-	 * After uploading all the assets update the relative path to absolute one
-	 * in <code>index</code> file (if applicable), set the <code>body</code> of
-	 * content. This operation needs <code>artifactUrl</code> for processing.
-	 * This operation generally happens in conjunction with upload operation.
-	 * 
-	 * <p>
-	 * It is a <code>Pipelined Operation</code> which is accomplished by several
-	 * <code>Processors</code> meant for atomic tasks.
-	 * 
-	 * <p>
-	 * A subclass must provide an implementation of this method.
-	 *
-	 * @param taxonomyId
-	 *            the <code>graph id</code> of the content.
-	 * 
-	 * @param contentId
-	 *            the content <code>identifier</code> which needs to be publish.
-	 * @return the response contains the node id as <code>node_id</code> which
-	 *         is ectracted.
-	 */
-	Response extract(String taxonomyId, String contentId);
-
-	/**
 	 * Optimize is High level Content Operation mainly deals with optimizing the
 	 * Content and its <code>artifact<code> such as <code>assets<code> and
 	 * <code>icon or banner<code> images e.g. compress the images, audio and

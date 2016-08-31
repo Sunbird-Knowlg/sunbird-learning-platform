@@ -136,36 +136,6 @@ public class ContentV2Controller extends BaseController {
 	}
 
 	/**
-	 * This method carries all the tasks related to 'Extract' operation of
-	 * content work-flow. This includes Uploading of Asset Items to the Global
-	 * Storage (S3), Creation of Asset Objects in Graph, Creation of Assessment
-	 * Item into the Graph and Update the body of Content (In Case of ECML Type
-	 * Content).
-	 *
-	 * @param contentId
-	 *            Content Id which needs to be extracted.
-	 * @param userId
-	 *            Unique 'id' of the user mainly for authentication purpose, It
-	 *            can impersonation details as well.
-	 * @return The Response entity with Content Id in its Result Set.
-	 */
-	@RequestMapping(value = "/extract/{id:.+}", method = RequestMethod.GET)
-	@ResponseBody
-	public ResponseEntity<Response> extract(@PathVariable(value = "id") String contentId,
-			@RequestHeader(value = "user-id") String userId) {
-		String apiId = "content.extract";
-		LOGGER.info("Extract content | Content Id : " + contentId);
-		try {
-			LOGGER.info("Calling the Manager for 'Extract' Operation | [Content Id " + contentId + "]");
-			Response response = contentManager.extract(graphId, contentId);
-
-			return getResponseEntity(response, apiId, null);
-		} catch (Exception e) {
-			return getExceptionResponseEntity(e, apiId, null);
-		}
-	}
-
-	/**
 	 * This method carries all the tasks related of bundling the contents into
 	 * one package, It includes all the operations valid for the Publish
 	 * operation but without making the status of content as 'Live'. i.e. It

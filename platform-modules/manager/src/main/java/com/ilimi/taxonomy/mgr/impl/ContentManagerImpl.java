@@ -38,7 +38,6 @@ import com.ilimi.graph.dac.exception.GraphDACErrorCodes;
 import com.ilimi.graph.dac.model.Filter;
 import com.ilimi.graph.dac.model.MetadataCriterion;
 import com.ilimi.graph.dac.model.Node;
-import com.ilimi.graph.dac.model.Relation;
 import com.ilimi.graph.dac.model.SearchConditions;
 import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.dac.model.Sort;
@@ -62,7 +61,6 @@ import com.ilimi.taxonomy.util.Content2VecUtil;
 @Component
 public class ContentManagerImpl extends BaseManager implements IContentManager {
 
-	/** The content factory. */
 	@Autowired
 	private ContentMimeTypeFactory contentFactory;
 
@@ -89,9 +87,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 
 	/** The Constant bucketName. */
 	private static final String bucketName = "ekstep-public";
-	
-	/** The Constant folderName. */
-	private static final String folderName = "content";
 	
 	/** The Constant tempFileLocation. */
 	private static final String tempFileLocation = "/data/contentBundle/";
@@ -774,83 +769,6 @@ public class ContentManagerImpl extends BaseManager implements IContentManager {
 			throw new ServerException(ContentErrorCodes.ERR_CONTENT_PUBLISH.name(), e.getMessage());
 		}
 		return response;
-	}
-
-	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.mgr.IContentManager#extract(java.lang.String, java.lang.String)
-	 */
-	public Response extract(String taxonomyId, String contentId) {
-		Response updateRes = null;
-		if (StringUtils.isBlank(taxonomyId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
-		if (StringUtils.isBlank(contentId))
-			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_ID.name(), "Content Id is blank");
-		Response responseNode = getDataNode(taxonomyId, contentId);
-		if (checkError(responseNode))
-			throw new ResourceNotFoundException(ContentErrorCodes.ERR_CONTENT_NOT_FOUND.name(),
-					"Content not found with id: " + contentId);
-		Node node = (Node) responseNode.get(GraphDACParams.node.name());
-		if (node != null) {
-			String mimeType = (String) node.getMetadata().get(ContentAPIParams.mimeType.name());
-			if (StringUtils.isBlank(mimeType)) {
-				mimeType = "assets";
-			}
-			IMimeTypeManager mimeTypeManager = contentFactory.getImplForService(mimeType);
-			Response response = mimeTypeManager.extract(node);
-			if (checkError(response)) {
-				return response;
-			}
-			Map<String, Object> metadata = new HashMap<String, Object>();
-			metadata = node.getMetadata();
-			metadata.put(ContentAPIParams.body.name(), response.get("ecmlBody"));
-			metadata.put(ContentAPIParams.editorState.name(), null);
-			String appIconUrl = (String) node.getMetadata().get("appIcon");
-			if (StringUtils.isBlank(appIconUrl)) {
-				String newUrl = uploadFile(tempFileLocation, "logo.png");
-				if (StringUtils.isNotBlank(newUrl))
-					metadata.put("appIcon", newUrl);
-			}
-			node.setMetadata(metadata);
-			node.setOutRelations(new ArrayList<Relation>());
-			Request validateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "validateNode");
-			validateReq.put(GraphDACParams.node.name(), node);
-			Response validateRes = getResponse(validateReq, LOGGER);
-			if (checkError(validateRes)) {
-				return validateRes;
-			} else {
-				node.setInRelations(null);
-				node.setOutRelations(null);
-				Request updateReq = getRequest(taxonomyId, GraphEngineManagers.NODE_MANAGER, "updateDataNode");
-				updateReq.put(GraphDACParams.node.name(), node);
-				updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-				updateRes = getResponse(updateReq, LOGGER);
-			}
-		}
-		return updateRes;
-	}
-
-	/**
-	 * Upload file.
-	 *
-	 * @param folder the folder
-	 * @param filename the filename
-	 * @return the string
-	 */
-	private String uploadFile(String folder, String filename) {
-		File olderName = new File(folder + filename);
-		try {
-			if (null != olderName && olderName.exists() && olderName.isFile()) {
-				String parentFolderName = olderName.getParent();
-				File newName = new File(
-						parentFolderName + File.separator + System.currentTimeMillis() + "_" + olderName.getName());
-				olderName.renameTo(newName);
-				String[] url = AWSUploader.uploadFile(bucketName, folderName, newName);
-				return url[1];
-			}
-		} catch (Exception ex) {
-			throw new ServerException(ContentErrorCodes.ERR_CONTENT_EXTRACT.name(), ex.getMessage());
-		}
-		return null;
 	}
 
 	/**
