@@ -1,12 +1,12 @@
 NEO4J_HOME1=/home/ec2-user/neo4j/neo4j-community-2.2.0
 NEO4J_HOME2=/home/ec2-user/neo4j/neo4j-community-3.0.4
-
+cp -r /data/graphDB/* /home/ec2-user/neo4j/backups/
 
 cd /data/graphDB                 #move inside th folder
 #*****************************************************
 for file in *                        
 do
-	  cp -r /data/graphDB/$file $NEO4J_HOME1/data/$file
+	  cp -r /data/graphDB/$file $NEO4J_HOME1/data/
     mv $NEO4J_HOME1/data/$file $NEO4J_HOME1/data/graph.db
 	  cd $NEO4J_HOME1/bin
      ./neo4j start 
