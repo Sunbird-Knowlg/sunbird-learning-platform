@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.content.common;
 
+/** ContentConfigurationConstants Class holds all the ConfigurationConstants
+ *  used in the ContentModel
+ */
 public class ContentConfigurationConstants {
 	
 	public static final String CONTENT_BASE_PATH = "/data/contentBundle/";

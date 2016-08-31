@@ -82,6 +82,7 @@ public class BundleInitializer extends BaseInitializer {
 	 * 
 	 * @return the response
 	 */
+	@SuppressWarnings("unchecked")
 	public Response initialize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		LOGGER.info("Fetching the Parameters From BundleInitializer.");

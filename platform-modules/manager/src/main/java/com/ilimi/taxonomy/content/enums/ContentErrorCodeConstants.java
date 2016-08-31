@@ -1,5 +1,8 @@
 package com.ilimi.taxonomy.content.enums;
 
+/** ContentErrorCodeConstants Enum holds all the ErrorCodeConstants
+ *  used in the ContentModel
+ */
 public enum ContentErrorCodeConstants {
 
 	MULTIPLE_MANIFEST(0, "More than one Manifest Section."), 

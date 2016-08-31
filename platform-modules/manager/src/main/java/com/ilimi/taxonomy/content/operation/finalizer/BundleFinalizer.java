@@ -88,6 +88,7 @@ public class BundleFinalizer extends BaseFinalizer {
 	 * Upload ECAR to S3
 	 * @return the response
 	 */	
+	@SuppressWarnings("unchecked")
 	public Response finalize(Map<String, Object> parameterMap) {
 		Response response = new Response();
 		Map<String, Object> bundleMap = (Map<String, Object>) parameterMap

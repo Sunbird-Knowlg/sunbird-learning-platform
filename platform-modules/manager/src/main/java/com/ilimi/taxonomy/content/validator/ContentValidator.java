@@ -172,6 +172,7 @@ public class ContentValidator {
 	 * @return true if Uploaded file's folderStructure contains ('index.json'/index.ecml') else
 	 * return false
 	 */
+	@SuppressWarnings("resource")
 	private boolean isValidContentPackageStructure(File file) throws IOException {
 		final String JSON_ECML_FILE_NAME = "index.json";
 		final String XML_ECML_FILE_NAME = "index.ecml";
