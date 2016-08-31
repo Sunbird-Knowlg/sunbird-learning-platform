@@ -18,7 +18,7 @@ do
      cd $NEO4J_HOME2/bin
      ./neo4j start 
      sleep 10
-      ./neo4j-shell -c "import-graphml -i /home/ec2-user/neo4j/graphmls/$file.graphml -t -c"  
+      ./neo4j-shell -c "import-graphml -i /home/ec2-user/neo4j/graphmls/$file.graphml -b 1000 -t -c"  
        mv $NEO4J_HOME2/data/databases/graph.db $NEO4J_HOME2/data/databases/$file
      rm -rf /data/graphDB/$file
        mv $NEO4J_HOME2/data/databases/$file /data/graphDB/
