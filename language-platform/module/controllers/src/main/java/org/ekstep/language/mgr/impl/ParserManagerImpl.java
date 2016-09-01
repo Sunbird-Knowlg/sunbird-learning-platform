@@ -36,7 +36,8 @@ import com.ilimi.graph.dac.model.SearchCriteria;
 import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 /**
- * The Class ParserManagerImpl.
+ * The Class ParserManagerImpl, provides functinality of parsing the content and
+ * return the equivalent meaning of the words found in graph
  *
  * @author rayulu
  */
