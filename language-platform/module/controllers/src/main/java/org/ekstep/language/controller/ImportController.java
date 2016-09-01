@@ -35,69 +35,118 @@ import org.springframework.web.multipart.MultipartFile;
 import com.ilimi.common.dto.Request;
 import com.ilimi.common.dto.Response;
 
-
+/**
+ * The Class ImportController.Entry point for all import related API
+ *
+ * @author rayulu, amarnath and karthik
+ */
 @Controller
 @RequestMapping("v1/language")
 public class ImportController extends BaseLanguageController {
-	
-	@Autowired
-    private IImportManager importManager;
-	private ControllerUtil controllerUtil = new ControllerUtil();
-	
-    private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
 
+	/** The import manager. */
+	@Autowired
+	private IImportManager importManager;
+
+	/** The controller util. */
+	private ControllerUtil controllerUtil = new ControllerUtil();
+
+	/** The logger. */
+	private static Logger LOGGER = LogManager.getLogger(ImportController.class.getName());
+
+	/**
+	 * Import wordnet data from JSON.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param zipFile
+	 *            the zip file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/importJSON", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importJSON(@PathVariable(value = "languageId") String languageId,
 			@RequestParam("zipFile") MultipartFile zipFile, @RequestHeader(value = "user-id") String userId,
 			HttpServletResponse resp) {
 		String apiId = "language.fixAssociation";
-		LOGGER.info("Import | Language Id: " + languageId +" Synset File: " + zipFile + "| user-id: " + userId);
+		LOGGER.info("Import | Language Id: " + languageId + " Synset File: " + zipFile + "| user-id: " + userId);
 		try {
 			InputStream synsetsStreamInZIP = null;
 			if (null != zipFile || null != zipFile) {
 				synsetsStreamInZIP = zipFile.getInputStream();
 			}
-			Response response =importManager.importJSON(languageId, synsetsStreamInZIP);
+			Response response = importManager.importJSON(languageId, synsetsStreamInZIP);
 			LOGGER.info("Import | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
-    @RequestMapping(value = "/{languageId:.+}/transform/{sourceId:.+}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> transformData(@PathVariable(value = "languageId") String languageId,
-    		@PathVariable(value = "sourceId") String sourceId,
-            @RequestParam("file") MultipartFile file, @RequestHeader(value = "user-id") String userId,
-            HttpServletResponse resp) {
-        String apiId = "language.transform";
-        LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file + " | user-id: " + userId);
-        try {
-            InputStream stream = null;
-            if (null != file)
-                stream = file.getInputStream();
-            Response response = importManager.transformData(languageId, sourceId, stream);
-            LOGGER.info("Import | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Import | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-    
+
+	/**
+	 * Transform data.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param sourceId
+	 *            the source id
+	 * @param file
+	 *            the file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/{languageId:.+}/transform/{sourceId:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> transformData(@PathVariable(value = "languageId") String languageId,
+			@PathVariable(value = "sourceId") String sourceId, @RequestParam("file") MultipartFile file,
+			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
+		String apiId = "language.transform";
+		LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file
+				+ " | user-id: " + userId);
+		try {
+			InputStream stream = null;
+			if (null != file)
+				stream = file.getInputStream();
+			Response response = importManager.transformData(languageId, sourceId, stream);
+			LOGGER.info("Import | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Import | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Import synset File and word file data.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param synsetFile
+	 *            the synset file
+	 * @param wordFile
+	 *            the word file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/importData", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> importData(@PathVariable(value = "languageId") String languageId,
-			@RequestParam("synsetFile") MultipartFile synsetFile,
-			@RequestParam("wordFile") MultipartFile wordFile, @RequestHeader(value = "user-id") String userId,
-			HttpServletResponse resp) {
+			@RequestParam("synsetFile") MultipartFile synsetFile, @RequestParam("wordFile") MultipartFile wordFile,
+			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "language.fixAssociation";
-		LOGGER.info("Import | Language Id: " + " | Synset File: " + synsetFile
-				+ " Synset File: " + wordFile + "| user-id: " + userId);
+		LOGGER.info("Import | Language Id: " + " | Synset File: " + synsetFile + " Synset File: " + wordFile
+				+ "| user-id: " + userId);
 		try {
 			InputStream synsetStream = null;
 			InputStream wordStream = null;
@@ -117,61 +166,86 @@ public class ImportController extends BaseLanguageController {
 			}
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
-	@RequestMapping(value = "/importwordnet/{languageId:.+}", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> importwordnet(@PathVariable(value = "languageId") String languageId,
-            @RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "wordnet.import";
-        Request request = getRequestObject(map);
 
-        request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());
-        request.setOperation(LanguageOperations.importIndowordnet.name());
-        request.getContext().put(LanguageParams.language_id.name(), languageId);
-        LOGGER.info("List | Request: " + request);
-        try {
-        	controllerUtil.makeAsyncLanguageRequest(request, LOGGER);
-            Response response = new Response();
-            LOGGER.info("List | Response: " + response);
-            return getResponseEntity(response, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        } catch (Exception e) {
-            LOGGER.error("List | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId,
-                    (null != request.getParams()) ? request.getParams().getMsgid() : null);
-        }
-    }
-	
+	/**
+	 * Import wordnet data
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param map
+	 *            the map
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/importwordnet/{languageId:.+}", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importwordnet(@PathVariable(value = "languageId") String languageId,
+			@RequestBody Map<String, Object> map, @RequestHeader(value = "user-id") String userId) {
+		String apiId = "wordnet.import";
+		Request request = getRequestObject(map);
+
+		request.setManagerName(LanguageActorNames.INDOWORDNET_ACTOR.name());
+		request.setOperation(LanguageOperations.importIndowordnet.name());
+		request.getContext().put(LanguageParams.language_id.name(), languageId);
+		LOGGER.info("List | Request: " + request);
+		try {
+			controllerUtil.makeAsyncLanguageRequest(request, LOGGER);
+			Response response = new Response();
+			LOGGER.info("List | Response: " + response);
+			return getResponseEntity(response, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		} catch (Exception e) {
+			LOGGER.error("List | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId,
+					(null != request.getParams()) ? request.getParams().getMsgid() : null);
+		}
+	}
+
+	/**
+	 * Enrich words by updating posList, wordComplexity, lexileMeasures and
+	 * frequencyCount
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param sourceId
+	 *            the source id
+	 * @param wordListFile
+	 *            the word list file
+	 * @param userId
+	 *            the user id
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/{languageId:.+}/enrich/{sourceId:.+}", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> enrich(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "sourceId") String sourceId, @RequestParam("wordListFile") MultipartFile wordListFile,
-			@RequestHeader(value = "user-id") String userId,
-			HttpServletResponse resp) {
+			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "language.enrich";
 		try {
 			InputStream wordListStream = null;
 			if (null != wordListFile) {
 				wordListStream = wordListFile.getInputStream();
 			}
-			
+
 			Reader reader = null;
-		    BufferedReader br = null; 
-		    String line;
-		    String[] objectDetails;
+			BufferedReader br = null;
+			String line;
+			String[] objectDetails;
 			reader = new InputStreamReader(wordListStream, "UTF8");
-	        br = new BufferedReader(reader);
-	        ArrayList<Map<String,String>> wordInfoList = new ArrayList<Map<String,String>>();
-	        ArrayList<String> node_ids = new ArrayList<String>();
-	        boolean firstLine = true;
-	        while ((line = br.readLine()) != null) {
+			br = new BufferedReader(reader);
+			ArrayList<Map<String, String>> wordInfoList = new ArrayList<Map<String, String>>();
+			ArrayList<String> node_ids = new ArrayList<String>();
+			boolean firstLine = true;
+			while ((line = br.readLine()) != null) {
 				try {
-					if(firstLine){
+					if (firstLine) {
 						firstLine = false;
 						continue;
 					}
@@ -181,88 +255,133 @@ public class ImportController extends BaseLanguageController {
 					wordInfo.put("word", objectDetails[Constants.WL_INDEX_LEMMA]);
 					node_ids.add(wordInfo.get("id"));
 					wordInfoList.add(wordInfo);
-				} catch(ArrayIndexOutOfBoundsException e) {
+				} catch (ArrayIndexOutOfBoundsException e) {
 					continue;
-				}	
+				}
 			}
-	        
-	        addWordIndex(wordInfoList, languageId);   
-	        enrichWords(node_ids, languageId);
-	        
+
+			addWordIndex(wordInfoList, languageId);
+			enrichWords(node_ids, languageId);
+
 			Response response = new Response();
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
-			e.printStackTrace();
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
-	
-	@RequestMapping(value = "/{id:.+}/importCSV", method = RequestMethod.POST)
-    @ResponseBody
-	public ResponseEntity<Response> importCSV(@PathVariable(value = "id") String id,
-            @RequestParam("file") MultipartFile file, HttpServletResponse resp) {
-        String apiId = "language.importCSV";
-        LOGGER.info("Create | Id: " + id + " | File: " + file);
-        try {
-            InputStream stream = null;
-            if (null != file)
-                stream = file.getInputStream();
-            Response response = importManager.importCSV(id, stream);
-            LOGGER.info("Create | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Create | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-	
-	@RequestMapping(value = "/{id:.+}/importDefinition", method = RequestMethod.POST)
-    @ResponseBody
-    public ResponseEntity<Response> importDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
-        String apiId = "definition.import";
-        LOGGER.info("Import Definition | Id: " + id );
-        try {
-            Response response = importManager.updateDefinition(id, json);
-            LOGGER.info("Import Definition | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
-            e.printStackTrace();
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
-	
-	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
-        String apiId = "definition.list";
-        LOGGER.info("Find All Definitions | Id: " + id);
-        try {
-            Response response = importManager.findAllDefinitions(id);
-            LOGGER.info("Find All Definitions | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Find All Definitions | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
 
-    @RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
-    @ResponseBody
-    public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
-            @PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
-        String apiId = "definition.find";
-        LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
-        try {
-            Response response = importManager.findDefinition(id, objectType);
-            LOGGER.info("Find Definitions | Response: " + response);
-            return getResponseEntity(response, apiId, null);
-        } catch (Exception e) {
-            LOGGER.error("Find Definitions | Exception: " + e.getMessage(), e);
-            return getExceptionResponseEntity(e, apiId, null);
-        }
-    }
+	/**
+	 * Import CSV.
+	 *
+	 * @param id
+	 *            the id
+	 * @param file
+	 *            the file
+	 * @param resp
+	 *            the resp
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/{id:.+}/importCSV", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importCSV(@PathVariable(value = "id") String id,
+			@RequestParam("file") MultipartFile file, HttpServletResponse resp) {
+		String apiId = "language.importCSV";
+		LOGGER.info("Create | Id: " + id + " | File: " + file);
+		try {
+			InputStream stream = null;
+			if (null != file)
+				stream = file.getInputStream();
+			Response response = importManager.importCSV(id, stream);
+			LOGGER.info("Create | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Import definition.
+	 *
+	 * @param id
+	 *            the id
+	 * @param json
+	 *            the json
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/{id:.+}/importDefinition", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> importDefinition(@PathVariable(value = "id") String id, @RequestBody String json) {
+		String apiId = "definition.import";
+		LOGGER.info("Import Definition | Id: " + id);
+		try {
+			Response response = importManager.updateDefinition(id, json);
+			LOGGER.info("Import Definition | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Create Definition | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Find all definitions.
+	 *
+	 * @param id
+	 *            the id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/{id:.+}/definition", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> findAllDefinitions(@PathVariable(value = "id") String id) {
+		String apiId = "definition.list";
+		LOGGER.info("Find All Definitions | Id: " + id);
+		try {
+			Response response = importManager.findAllDefinitions(id);
+			LOGGER.info("Find All Definitions | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Find All Definitions | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * get the definition of given id
+	 *
+	 * @param id
+	 *            the id
+	 * @param objectType
+	 *            the object type
+	 * @param userId
+	 *            the user id
+	 * @return the response entity
+	 */
+	@RequestMapping(value = "/{id:.+}/definition/{defId:.+}", method = RequestMethod.GET)
+	@ResponseBody
+	public ResponseEntity<Response> findDefinition(@PathVariable(value = "id") String id,
+			@PathVariable(value = "defId") String objectType, @RequestHeader(value = "user-id") String userId) {
+		String apiId = "definition.find";
+		LOGGER.info("Find Definition | Id: " + id + " | Object Type: " + objectType + " | user-id: " + userId);
+		try {
+			Response response = importManager.findDefinition(id, objectType);
+			LOGGER.info("Find Definitions | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			LOGGER.error("Find Definitions | Exception: " + e.getMessage(), e);
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Enrich words.
+	 *
+	 * @param node_ids
+	 *            the node ids
+	 * @param languageId
+	 *            the language id
+	 */
 	private void enrichWords(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
 		map = new HashMap<String, Object>();
@@ -275,14 +394,22 @@ public class ImportController extends BaseLanguageController {
 		makeAsyncRequest(request, LOGGER);
 	}
 
+	/**
+	 * Adds the word index.
+	 *
+	 * @param wordInfoList
+	 *            the word info list
+	 * @param languageId
+	 *            the language id
+	 */
 	private void addWordIndex(ArrayList<Map<String, String>> wordInfoList, String languageId) {
-			Map<String, Object> map = new HashMap<String, Object>();
-	        map.put(LanguageParams.words.name(), wordInfoList);
-	        Request addWordIndexRequest = new Request();
-	        addWordIndexRequest.setRequest(map);
-	        addWordIndexRequest.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
-	        addWordIndexRequest.setOperation(LanguageOperations.addWordIndex.name());
-	        addWordIndexRequest.getContext().put(LanguageParams.language_id.name(), languageId);
-	        makeAsyncRequest(addWordIndexRequest, LOGGER);
+		Map<String, Object> map = new HashMap<String, Object>();
+		map.put(LanguageParams.words.name(), wordInfoList);
+		Request addWordIndexRequest = new Request();
+		addWordIndexRequest.setRequest(map);
+		addWordIndexRequest.setManagerName(LanguageActorNames.INDEXES_ACTOR.name());
+		addWordIndexRequest.setOperation(LanguageOperations.addWordIndex.name());
+		addWordIndexRequest.getContext().put(LanguageParams.language_id.name(), languageId);
+		makeAsyncRequest(addWordIndexRequest, LOGGER);
 	}
 }

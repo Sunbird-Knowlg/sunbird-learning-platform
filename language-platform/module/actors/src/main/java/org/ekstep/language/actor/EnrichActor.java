@@ -34,15 +34,36 @@ import com.ilimi.graph.engine.router.GraphEngineManagers;
 
 import akka.actor.ActorRef;
 
+/**
+ * The Class EnrichActor is an AKKA actor that processes all requests to provide
+ * operations on update posList, update lexileMeasures, update wordComplexity ,
+ * update SyllablesList and enrich word
+ *
+ * @author rayulu, amarnath and karthik
+ */
 public class EnrichActor extends LanguageBaseActor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(EnrichActor.class.getName());
+
+	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
+
+	/** The batch size. */
 	private final int BATCH_SIZE = 10000;
-	
+
+	/** The word util. */
 	private WordUtil wordUtil = new WordUtil();
+
+	/** The word chain util. */
 	private WordChainUtil wordChainUtil = new WordChainUtil();
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#onReceive(java.lang.Object)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void onReceive(Object msg) throws Exception {
@@ -60,10 +81,10 @@ public class EnrichActor extends LanguageBaseActor {
 				updateFrequencyCount(languageId, nodeList);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.updatePosList.name(), operation)) {
-                List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
-                updatePosList(languageId, nodeList);
-                OK(getSender());
-            } else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
+				List<Node> nodeList = (List<Node>) request.get(LanguageParams.node_list.name());
+				updatePosList(languageId, nodeList);
+				OK(getSender());
+			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.enrichWords.name(), operation)) {
 				List<String> nodeIds = (List<String>) request.get(LanguageParams.node_ids.name());
 				enrichWords(nodeIds, languageId);
 				OK(getSender());
@@ -85,41 +106,57 @@ public class EnrichActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
-		    System.out.println("Error: " + e.getMessage());
-		    LOGGER.error("Error in enrich actor", e);
+			LOGGER.error("Error in enrich actor", e);
 			handleException(e, getSender());
 		}
 	}
 
+	/**
+	 * Enrich words.
+	 *
+	 * @param node_ids
+	 *            the node ids
+	 * @param languageId
+	 *            the language id
+	 */
 	private void enrichWords(List<String> node_ids, String languageId) {
 		if (null != node_ids && !node_ids.isEmpty()) {
-		    Set<String> nodeIds = new HashSet<String>();
-		    nodeIds.addAll(node_ids);
-		    ArrayList<String> batch_node_ids = new ArrayList<String>();
-	        int count = 0;
-		    for (String nodeId : nodeIds) {
-	            count++;
-	            batch_node_ids.add(nodeId);
-	            if (batch_node_ids.size() % BATCH_SIZE == 0 || (nodeIds.size() % BATCH_SIZE == batch_node_ids.size() && (nodeIds.size() - count) < BATCH_SIZE)) {
-	                long startTime = System.currentTimeMillis();
-	                List<Node> nodeList = getNodesList(batch_node_ids, languageId);
-	                if(languageId.equalsIgnoreCase("en")){
-	                    updateSyllablesList(nodeList);
-	                }
-	                updateLexileMeasures(languageId, nodeList);
-	                updateFrequencyCount(languageId, nodeList);
-	                updatePosList(languageId, nodeList);
-	                updateWordComplexity(languageId, nodeList);
+			Set<String> nodeIds = new HashSet<String>();
+			nodeIds.addAll(node_ids);
+			ArrayList<String> batch_node_ids = new ArrayList<String>();
+			int count = 0;
+			for (String nodeId : nodeIds) {
+				count++;
+				batch_node_ids.add(nodeId);
+				if (batch_node_ids.size() % BATCH_SIZE == 0 || (nodeIds.size() % BATCH_SIZE == batch_node_ids.size()
+						&& (nodeIds.size() - count) < BATCH_SIZE)) {
+					long startTime = System.currentTimeMillis();
+					List<Node> nodeList = getNodesList(batch_node_ids, languageId);
+					if (languageId.equalsIgnoreCase("en")) {
+						updateSyllablesList(nodeList);
+					}
+					updateLexileMeasures(languageId, nodeList);
+					updateFrequencyCount(languageId, nodeList);
+					updatePosList(languageId, nodeList);
+					updateWordComplexity(languageId, nodeList);
 
-	                //updateWordChainRelations();
-	                batch_node_ids = new ArrayList<String>();
-	                long diff = System.currentTimeMillis() - startTime;
-	                System.out.println("Time taken for enriching " + BATCH_SIZE + " words: " + diff/1000 + "s");
-	            }
-	        }
+					batch_node_ids = new ArrayList<String>();
+					long diff = System.currentTimeMillis() - startTime;
+					LOGGER.info("Time taken for enriching " + BATCH_SIZE + " words: " + diff / 1000 + "s");
+				}
+			}
 		}
 	}
 
+	/**
+	 * Gets the nodes list.
+	 *
+	 * @param node_ids
+	 *            the node ids
+	 * @param languageId
+	 *            the language id
+	 * @return the nodes list
+	 */
 	@SuppressWarnings("unchecked")
 	private List<Node> getNodesList(ArrayList<String> node_ids, String languageId) {
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -131,15 +168,23 @@ public class EnrichActor extends LanguageBaseActor {
 		getDataNodesRequest.getContext().put(GraphHeaderParams.graph_id.name(), languageId);
 		long startTime = System.currentTimeMillis();
 		Response response = controllerUtil.getResponse(getDataNodesRequest, LOGGER);
-		if(checkError(response)){
+		if (checkError(response)) {
 			throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(), response.getParams().getErrmsg());
 		}
 		List<Node> nodeList = (List<Node>) response.get("node_list");
 		long diff = System.currentTimeMillis() - startTime;
-		System.out.println("Time taken for getting " + BATCH_SIZE + " nodes: " + diff/1000 + "s");
+		LOGGER.info("Time taken for getting " + BATCH_SIZE + " nodes: " + diff / 1000 + "s");
 		return nodeList;
 	}
 
+	/**
+	 * Update frequency count.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodes
+	 *            the nodes
+	 */
 	@SuppressWarnings("unchecked")
 	private void updateFrequencyCount(String languageId, List<Node> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
@@ -148,14 +193,14 @@ public class EnrichActor extends LanguageBaseActor {
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			controllerUtil.getNodeMap(nodes, nodeMap, words);
 			if (null != words && !words.isEmpty()) {
-				System.out.println("updateFrequencyCount | Total words: " + nodes.size());
+				LOGGER.info("updateFrequencyCount | Total words: " + nodes.size());
 				Map<String, Object> indexesMap = new HashMap<String, Object>();
 				Map<String, Object> wordInfoMap = new HashMap<String, Object>();
 				List<String> groupList = Arrays.asList(groupBy);
 				controllerUtil.getIndexInfo(languageId, indexesMap, words, groupList);
-				System.out.println("indexesMap size: " + indexesMap.size());
+				LOGGER.info("indexesMap size: " + indexesMap.size());
 				controllerUtil.getWordInfo(languageId, wordInfoMap, words);
-				System.out.println("wordInfoMap size: " + wordInfoMap.size());
+				LOGGER.info("wordInfoMap size: " + wordInfoMap.size());
 				if (null != nodeMap && !nodeMap.isEmpty()) {
 					for (Entry<String, Node> entry : nodeMap.entrySet()) {
 						Node node = entry.getValue();
@@ -201,14 +246,12 @@ public class EnrichActor extends LanguageBaseActor {
 							try {
 								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
 								if (checkError(updateResponse)) {
-								    System.out.println(updateResponse.getParams().getErr());
-								    System.out.println(updateResponse.getResult());
 									throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
 											updateResponse.getParams().getErrmsg());
 								}
-								//System.out.println("update complete for: " + node.getIdentifier());
 							} catch (Exception e) {
-								System.out.println("Update Frequency Counts error : " + node.getIdentifier() + " : " + e.getMessage());
+								LOGGER.error("Update Frequency Counts error : " + node.getIdentifier() + " : "
+										+ e.getMessage(), e);
 							}
 						}
 					}
@@ -216,72 +259,97 @@ public class EnrichActor extends LanguageBaseActor {
 			}
 		}
 	}
-	
-	private void updateSyllablesList(List<Node> nodes){
-		 if (null != nodes && !nodes.isEmpty()) {
-            System.out.println("updateSyllablesList | Total words: " + nodes.size());
-            for (Node node : nodes) {
-                try {
-                    WordnetUtil.updateSyllables(node);
-                    Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
-                            "updateDataNode");
-                    updateReq.put(GraphDACParams.node.name(), node);
-                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                    Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
-                    if (checkError(updateResponse)) {
-                        System.out.println(updateResponse.getParams().getErr());
-                        System.out.println(updateResponse.getResult());
-                        throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-                                updateResponse.getParams().getErrmsg());
-                    }
-                } catch (Exception e) {
-                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
-                    LOGGER.error("Error updating syllable list for " + node.getIdentifier(), e);
-                }
-            }
-		 }
-	}
-	
-	private void updatePosList(String languageId, List<Node> nodes) {
-	    if (null != nodes && !nodes.isEmpty()) {
-            System.out.println("updatePosList | Total words: " + nodes.size());
-            for (Node node : nodes) {
-                try {
-                    WordnetUtil.updatePOS(node);
-                    Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-                            "updateDataNode");
-                    updateReq.put(GraphDACParams.node.name(), node);
-                    updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-                    Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
-                    if (checkError(updateResponse)) {
-                        System.out.println(updateResponse.getParams().getErr());
-                        System.out.println(updateResponse.getResult());
-                        throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
-                                updateResponse.getParams().getErrmsg());
-                    }
-                } catch (Exception e) {
-                    System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
-                }
-            }
-	    }
-	}
-	
-	private void updateWordComplexity(String languageId, List<Node> nodes) {
-	    if (null != nodes && !nodes.isEmpty()) {
-	        for (Node node : nodes) {
-	            try {
-                    wordUtil.getWordComplexity(node, languageId);
-                } catch (Exception e) {
-                    LOGGER.error("Error updating word complexity for " + node.getIdentifier(), e);
-                }
-	        }
-	    }
+
+	/**
+	 * Update syllables list.
+	 *
+	 * @param nodes
+	 *            the nodes
+	 */
+	private void updateSyllablesList(List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			LOGGER.info("updateSyllablesList | Total words: " + nodes.size());
+			for (Node node : nodes) {
+				try {
+					WordnetUtil.updateSyllables(node);
+					Request updateReq = controllerUtil.getRequest("en", GraphEngineManagers.NODE_MANAGER,
+							"updateDataNode");
+					updateReq.put(GraphDACParams.node.name(), node);
+					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+					Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+					if (checkError(updateResponse)) {
+						throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+								updateResponse.getParams().getErrmsg());
+					}
+				} catch (Exception e) {
+					LOGGER.error("Error updating syllable list for " + node.getIdentifier(), e);
+				}
+			}
+		}
 	}
 
+	/**
+	 * Update pos list.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodes
+	 *            the nodes
+	 */
+	private void updatePosList(String languageId, List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			LOGGER.info("updatePosList | Total words: " + nodes.size());
+			for (Node node : nodes) {
+				try {
+					WordnetUtil.updatePOS(node);
+					Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
+							"updateDataNode");
+					updateReq.put(GraphDACParams.node.name(), node);
+					updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
+					Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
+					if (checkError(updateResponse)) {
+						throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
+								updateResponse.getParams().getErrmsg());
+					}
+				} catch (Exception e) {
+					LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update word complexity.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodes
+	 *            the nodes
+	 */
+	private void updateWordComplexity(String languageId, List<Node> nodes) {
+		if (null != nodes && !nodes.isEmpty()) {
+			for (Node node : nodes) {
+				try {
+					wordUtil.getWordComplexity(node, languageId);
+				} catch (Exception e) {
+					LOGGER.error("Error updating word complexity for " + node.getIdentifier(), e);
+				}
+			}
+		}
+	}
+
+	/**
+	 * Update lexile measures.
+	 *
+	 * @param languageId
+	 *            the language id
+	 * @param nodes
+	 *            the nodes
+	 */
 	@SuppressWarnings("unchecked")
 	private void updateLexileMeasures(String languageId, List<Node> nodes) {
 		if (null != nodes && !nodes.isEmpty()) {
-			System.out.println("updateLexileMeasures | Total words: " + nodes.size());
+			LOGGER.info("updateLexileMeasures | Total words: " + nodes.size());
 			List<String> words = new ArrayList<String>();
 			Map<String, Node> nodeMap = new HashMap<String, Node>();
 			controllerUtil.getNodeMap(nodes, nodeMap, words);
@@ -295,7 +363,7 @@ public class EnrichActor extends LanguageBaseActor {
 				Map<String, WordComplexity> featureMap = (Map<String, WordComplexity>) langRes
 						.get(LanguageParams.word_features.name());
 				if (null != featureMap && !featureMap.isEmpty()) {
-					System.out.println("Word features returned for " + featureMap.size() + " words");
+					LOGGER.info("Word features returned for " + featureMap.size() + " words");
 					for (Entry<String, WordComplexity> entry : featureMap.entrySet()) {
 						Node node = nodeMap.get(entry.getKey());
 						WordComplexity wc = entry.getValue();
@@ -306,34 +374,37 @@ public class EnrichActor extends LanguageBaseActor {
 							node.getMetadata().put("orthographic_complexity", wc.getOrthoComplexity());
 							node.getMetadata().put("phonologic_complexity", wc.getPhonicComplexity());
 							try {
-							    Request updateReq = controllerUtil.getRequest(languageId, GraphEngineManagers.NODE_MANAGER,
-	                                    "updateDataNode");
-	                            updateReq.put(GraphDACParams.node.name(), node);
-	                            updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
-								//System.out.println("Sending update req for : " + node.getIdentifier());
+								Request updateReq = controllerUtil.getRequest(languageId,
+										GraphEngineManagers.NODE_MANAGER, "updateDataNode");
+								updateReq.put(GraphDACParams.node.name(), node);
+								updateReq.put(GraphDACParams.node_id.name(), node.getIdentifier());
 								Response updateResponse = controllerUtil.getResponse(updateReq, LOGGER);
 								if (checkError(updateResponse)) {
-								    System.out.println(updateResponse.getParams().getErr());
-                                    System.out.println(updateResponse.getResult());
 									throw new ClientException(LanguageErrorCodes.SYSTEM_ERROR.name(),
 											updateResponse.getParams().getErrmsg());
 								}
-								//System.out.println("Update complete for : " + node.getIdentifier());
 							} catch (Exception e) {
-								System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+								LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
 							}
 						}
 						try {
 							wordChainUtil.updateWordSet(languageId, node, wc);
 						} catch (Exception e) {
-							System.out.println("Update error : " + node.getIdentifier() + " : " + e.getMessage());
+							LOGGER.error("Update error : " + node.getIdentifier() + " : " + e.getMessage(), e);
 						}
 					}
 				}
 			}
 		}
 	}
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.graph.common.mgr.BaseGraphManager#invokeMethod(com.ilimi.common
+	 * .dto.Request, akka.actor.ActorRef)
+	 */
 	@Override
 	protected void invokeMethod(Request request, ActorRef parent) {
 	}
