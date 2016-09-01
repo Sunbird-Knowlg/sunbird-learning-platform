@@ -588,7 +588,7 @@ public abstract class DictionaryController extends BaseLanguageController {
 	}
 
 	/**
-	 * Gets the object type.
+	 * Gets the object type of the extending object.
 	 *
 	 * @return the object type
 	 */

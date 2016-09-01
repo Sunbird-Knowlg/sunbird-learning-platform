@@ -32,20 +32,30 @@ import com.ilimi.graph.dac.enums.GraphDACParams;
 
 /**
  * End points for v2 word CRUD operations and relation CRUD operations. V2
- * Handles primary meaning and related words
+ * implementation Handles primary meaning and related words
  * 
  * @author Amarnath
  */
 public abstract class DictionaryControllerV2 extends BaseLanguageController {
 
+	/** The dictionary manager. */
 	@Autowired
 	private IDictionaryManager dictionaryManager;
 
+	/** The word controller. */
 	@Autowired
 	private WordController wordController;
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(DictionaryControllerV2.class.getName());
 
+	/**
+	 * Upload.
+	 *
+	 * @param file
+	 *            the file
+	 * @return the response entity
+	 */
 	@RequestMapping(value = "/media/upload", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> upload(@RequestParam(value = "file", required = true) MultipartFile file) {
@@ -53,8 +63,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Creates word by processing primary meaning and related words
-	 * 
+	 * Creates word by processing primary meaning and related words.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param forceUpdate
@@ -63,7 +73,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            Request map
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}", method = RequestMethod.POST)
@@ -99,8 +109,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Updates word by processing primary meaning and related words
-	 * 
+	 * Updates word by processing primary meaning and related words.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param objectId
@@ -111,7 +121,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            Indicates if the update should be forced
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.PATCH)
@@ -148,8 +158,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Makes an Async call to Enrich actor to enrich the words
-	 * 
+	 * Makes an Async call to Enrich actor to enrich the words.
+	 *
 	 * @param nodeIds
 	 *            List of word Ids that has to be enriched
 	 * @param languageId
@@ -169,8 +179,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 
 	/**
 	 * Searches for a given word using the object Id with its primary meaning
-	 * and related words
-	 * 
+	 * and related words.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param objectId
@@ -179,7 +189,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            List of fields that should be part of the result
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@RequestMapping(value = "/{languageId}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -200,8 +210,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Get all words with their primary meanings and related words
-	 * 
+	 * Get all words with their primary meanings and related words.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param fields
@@ -210,7 +220,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            Limit of results
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@RequestMapping(value = "/{languageId}", method = RequestMethod.GET)
 	@ResponseBody
@@ -230,8 +240,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Retrieve words from the lemma in the CSV
-	 * 
+	 * Retrieve words from the lemma in the CSV.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param file
@@ -239,7 +249,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 * @param userId
 	 *            User making the request
 	 * @param response
-	 * @return
+	 *            the response
+	 * @return the response entity
 	 */
 	@RequestMapping(value = "/findByCSV/{languageId}", method = RequestMethod.POST)
 	@ResponseBody
@@ -250,8 +261,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Delete a given relation
-	 * 
+	 * Delete a given relation.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param objectId1
@@ -262,7 +273,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            End object
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.DELETE)
 	@ResponseBody
@@ -273,8 +284,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Creates a relation between two objects
-	 * 
+	 * Creates a relation between two objects.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param objectId1
@@ -285,7 +296,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            End object
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the response entity
 	 */
 	@RequestMapping(value = "/{languageId}/{objectId1:.+}/{relation}/{objectId2:.+}", method = RequestMethod.POST)
 	@ResponseBody
@@ -296,8 +307,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Gets the synonyms of a given word
-	 * 
+	 * Gets the synonyms of a given word.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param objectId
@@ -307,9 +318,10 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 * @param fields
 	 *            List of fields in the response
 	 * @param relations
+	 *            the relations
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the synonyms
 	 */
 	@RequestMapping(value = "/{languageId}/{relation}/{objectId:.+}", method = RequestMethod.GET)
 	@ResponseBody
@@ -322,8 +334,8 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	}
 
 	/**
-	 * Get translations of the given words in other languages
-	 * 
+	 * Get translations of the given words in other languages.
+	 *
 	 * @param languageId
 	 *            Graph Id
 	 * @param words
@@ -332,7 +344,7 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 	 *            List of languages
 	 * @param userId
 	 *            User making the request
-	 * @return
+	 * @return the translations
 	 */
 	@RequestMapping(value = "/{languageId}/translation", method = RequestMethod.GET)
 	@ResponseBody
@@ -343,10 +355,20 @@ public abstract class DictionaryControllerV2 extends BaseLanguageController {
 		return wordController.getTranslations(languageId, words, languages, userId);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.ilimi.common.controller.BaseController#getAPIVersion()
+	 */
 	protected String getAPIVersion() {
 		return API_VERSION_2;
 	}
 
+	/**
+	 * Gets the object type of the extending object.
+	 *
+	 * @return the object type
+	 */
 	protected abstract String getObjectType();
 
 }
