@@ -3,14 +3,15 @@ package org.ekstep.language.batch.mgr;
 import com.ilimi.common.dto.Response;
 
 /**
- * The Interface IWordnetCSVManager.
+ * Interface IWordnetCSVManager defines tasks to be implemented to import words and Synsets data into the Graph.
+ * Also, adds Citation and WordInfo indexes into ES
  *
  * @author rayulu, amarnath
  */
 public interface IWordnetCSVManager {
 
 	/**
-	 * Creates the wordnet citations.
+	 * Creates the citations indexes from the words CSV and add them into ES.
 	 *
 	 * @param languageId
 	 *            the language id
@@ -21,7 +22,7 @@ public interface IWordnetCSVManager {
 	Response createWordnetCitations(String languageId, String wordsCSV);
 
 	/**
-	 * Adds the wordnet indexes.
+	 * Creates the wordnet indexes from the words CSV and add them into ES.
 	 *
 	 * @param languageId
 	 *            the language id
@@ -32,7 +33,7 @@ public interface IWordnetCSVManager {
 	Response addWordnetIndexes(String languageId, String wordsCSV);
 
 	/**
-	 * Replace wordnet ids.
+	 * Replace wordnet ids with word Ids from platform in the words and SynsetsCSV.
 	 *
 	 * @param languageId
 	 *            the language id
