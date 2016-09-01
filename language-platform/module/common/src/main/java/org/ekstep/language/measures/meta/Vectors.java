@@ -1,6 +1,5 @@
 package org.ekstep.language.measures.meta;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
