@@ -33,11 +33,11 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.gson.internal.LinkedTreeMap;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Class ElasticSearchUtil acts as a tool and a wrapper to work with an
  * ElasticSearch database. Supported operations include everything from creating
- * a new index to performing complex searches. This tool uses the JEST client to interface with ES over HTTP
+ * a new index to performing complex searches. This tool uses the JEST client to
+ * interface with ES over HTTP
  * 
  * @author Amarnath
  */
@@ -68,8 +68,9 @@ public class ElasticSearchUtil {
 	private static Logger LOGGER = LogManager.getLogger(ElasticSearchUtil.class.getName());
 
 	/**
-	 * Instantiates a new elastic search util by connecting to the ES cluster or server based on the host name and port properties.
-	 * Sets the default result limit across the util
+	 * Instantiates a new elastic search util by connecting to the ES cluster or
+	 * server based on the host name and port properties. Sets the default
+	 * result limit across the util
 	 *
 	 * @param resultSize
 	 *            the result size
@@ -90,7 +91,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Instantiates a new elastic search util by connecting to the ES cluster or server based on the host name and port properties.
+	 * Instantiates a new elastic search util by connecting to the ES cluster or
+	 * server based on the host name and port properties.
 	 *
 	 * @throws UnknownHostException
 	 *             the unknown host exception
@@ -302,7 +304,7 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Performs a Text search.
+	 * Performs a Text search on ES.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -324,7 +326,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Gets the documents from search result by casting the results to the objectClass provided.
+	 * Gets the documents from search result by casting the results to the
+	 * objectClass provided.
 	 *
 	 * @param result
 	 *            the result
@@ -355,7 +358,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Performs a Wild card search.
+	 * Performs a Wild card search and returns list of objects casted to the
+	 * objectClass.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -379,7 +383,7 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Wild card search.
+	 * Performs a Wild card search and returns the SearchResult object.
 	 *
 	 * @param textKeyWord
 	 *            the field to search for
@@ -400,7 +404,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Text filters search.
+	 * Performs a Text filters search and returns list of objects casted to the
+	 * objectClass.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -424,7 +429,7 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Text filters group by search.
+	 * Performs a Text filters search and groups together the results.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -459,8 +464,10 @@ public class ElasticSearchUtil {
 		return response;
 	}
 
+	// TODO: Remove, duplicate method
 	/**
-	 * Text search.
+	 * Performs a Text filters search and returns list of objects casted to the
+	 * objectClass.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -483,8 +490,9 @@ public class ElasticSearchUtil {
 		return getDocumentsFromSearchResult(result, objectClass);
 	}
 
+	// TODO: Remove, duplicate method
 	/**
-	 * Text search.
+	 * Performs a Text filters search and groups together the results.
 	 *
 	 * @param objectClass
 	 *            the object class
@@ -511,10 +519,11 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Search.
+	 * Performs a Search on ES with the given filters, text searches and group
+	 * by criteria.
 	 *
 	 * @param matchCriterias
-	 *            the match criterias
+	 *            the match criteria
 	 * @param textFiltersMap
 	 *            the text filters map
 	 * @param IndexName
@@ -536,7 +545,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Search.
+	 * Performs a Search on ES using the JSON query generated and returns the
+	 * Search Result.
 	 *
 	 * @param IndexName
 	 *            the index name
@@ -563,10 +573,10 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Gets the count from aggregation.
+	 * Gets the grouped by count from aggregated results.
 	 *
 	 * @param aggregations
-	 *            the aggregations
+	 *            the aggregated results
 	 * @param groupByList
 	 *            the group by list
 	 * @return the count from aggregation
@@ -576,6 +586,9 @@ public class ElasticSearchUtil {
 			List<Map<String, Object>> groupByList) {
 		Map<String, Object> countMap = new HashMap<String, Object>();
 		if (aggregations != null) {
+
+			// Iterate the results and form the response based on the request
+			// group by criteria
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
 				String groupByParent = (String) aggregationsMap.get("groupByParent");
@@ -613,12 +626,12 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Gets the count of search.
+	 * Gets the search result count.
 	 *
 	 * @param objectClass
 	 *            the object class
 	 * @param matchCriterias
-	 *            the match criterias
+	 *            the match criteria
 	 * @param IndexName
 	 *            the index name
 	 * @param IndexType
@@ -638,7 +651,7 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Gets the distinct count of search.
+	 * Gets the distinct search result count.
 	 *
 	 * @param matchCriterias
 	 *            the match criterias
@@ -659,6 +672,8 @@ public class ElasticSearchUtil {
 		SearchResult result = search(matchCriterias, null, IndexName, IndexType, groupByList, true);
 		LinkedTreeMap<String, Object> aggregations = (LinkedTreeMap<String, Object>) result.getValue("aggregations");
 		if (aggregations != null) {
+			// Iterate the results and form the response based on the request
+			// group by criteria
 			for (Map<String, Object> aggregationsMap : groupByList) {
 				Map<String, Object> parentCountMap = new HashMap<String, Object>();
 				String groupByParent = (String) aggregationsMap.get("groupBy");
@@ -682,7 +697,8 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Builds the json for query.
+	 * Builds the JSON query that can be interpreted by ES from the filters,
+	 * group by and text filters.
 	 *
 	 * @param matchCriterias
 	 *            the match criterias
@@ -708,6 +724,7 @@ public class ElasticSearchUtil {
 		JSONBuilder builder = new JSONStringer();
 		builder.object().key("query").object().key("filtered").object();
 
+		// forms at least one match query for all partial matches
 		if (matchCriterias != null) {
 			builder.key("query").object().key("bool").object().key("should").array();
 			for (Map.Entry<String, Object> entry : matchCriterias.entrySet()) {
@@ -721,6 +738,7 @@ public class ElasticSearchUtil {
 			builder.endArray().endObject().endObject();
 		}
 
+		// forms at least one match query for all exact matches
 		if (textFiltersMap != null && !textFiltersMap.isEmpty()) {
 			builder.key("filter").object().key("bool").object().key("must").array();
 			for (Map.Entry<String, Object> entry : textFiltersMap.entrySet()) {
@@ -736,7 +754,10 @@ public class ElasticSearchUtil {
 
 		builder.endObject().endObject();
 
+		// adds the group by criteria
 		if (groupByList != null && !groupByList.isEmpty()) {
+
+			// if not a distinct count aggregation
 			if (!isDistinct) {
 				for (Map<String, Object> groupByMap : groupByList) {
 					String groupByParent = (String) groupByMap.get("groupByParent");
@@ -753,7 +774,9 @@ public class ElasticSearchUtil {
 					}
 					builder.endObject().endObject();
 				}
-			} else {
+			}
+			// if it is a distinct count aggregation
+			else {
 				builder.key("aggs").object();
 				for (Map<String, Object> groupByMap : groupByList) {
 					String groupBy = (String) groupByMap.get("groupBy");
@@ -773,7 +796,7 @@ public class ElasticSearchUtil {
 	}
 
 	/**
-	 * Builds the json for wild card query.
+	 * Builds the json query for a wild card search.
 	 *
 	 * @param textKeyWord
 	 *            the text key word
