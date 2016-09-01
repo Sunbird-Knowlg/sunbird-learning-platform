@@ -4,14 +4,16 @@ import com.ilimi.common.dto.Response;
 
 // TODO: Auto-generated Javadoc
 /**
- * The Interface IParserManager.
+ * The Interface IParserManager, provides parser function
  *
  * @author rayulu
  */
 public interface IParserManager {
 
 	/**
-	 * Parses the content.
+	 * Parses the content and provides equivalent meaning for the words found in
+	 * graph. it will provide other features like providing translation in
+	 * future.
 	 *
 	 * @param languageId
 	 *            the language id
