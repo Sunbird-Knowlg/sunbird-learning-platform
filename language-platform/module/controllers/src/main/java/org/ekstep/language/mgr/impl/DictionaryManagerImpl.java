@@ -3504,7 +3504,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		resStatus.setStatus(StatusType.successful.name());
 		response.setParams(resStatus);
 		response.setResponseCode(ResponseCode.OK);
-		response.getResult().put("Syllables", syllables);
+		response.getResult().put(LanguageParams.syllables.name(), syllables);
 
 		return response;
 	}
@@ -3525,7 +3525,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		resStatus.setStatus(StatusType.successful.name());
 		response.setParams(resStatus);
 		response.setResponseCode(ResponseCode.OK);
-		response.getResult().put("Arpabets", arpabets);
+		response.getResult().put(LanguageParams.arpabets.name(), arpabets);
 
 		return response;
 	}
@@ -3545,7 +3545,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		resStatus.setStatus(StatusType.successful.name());
 		response.setParams(resStatus);
 		response.setResponseCode(ResponseCode.OK);
-		response.getResult().put("PhoneticSpelling", phoneticSpellingOfWord);
+		response.getResult().put(LanguageParams.phonetic_spelling.name(), phoneticSpellingOfWord);
 
 		return response;
 	}
@@ -3565,7 +3565,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		resStatus.setStatus(StatusType.successful.name());
 		response.setParams(resStatus);
 		response.setResponseCode(ResponseCode.OK);
-		response.getResult().put("SimilarSoundWords", similarSoundWords);
+		response.getResult().put(LanguageParams.similar_sound_words.name(), similarSoundWords);
 
 		return response;
 	}
