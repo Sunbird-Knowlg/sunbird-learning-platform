@@ -365,6 +365,21 @@ public abstract class DictionaryController extends BaseLanguageController {
 			return getExceptionResponseEntity(e, apiId, null);
 		}
 	}
+	
+	@RequestMapping(value = "/{languageId}/transliterate", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> transliterate(@PathVariable(value = "languageId") String languageId,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "text.transliterate";
+		try {
+			Request request = getRequest(map);
+			Response response = dictionaryManager.transliterate(languageId, request);
+			LOGGER.info("Transliterate | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
 
 	@RequestMapping(value = "/{languageId}/similarSound/{word:.+}", method = RequestMethod.GET)
 	@ResponseBody

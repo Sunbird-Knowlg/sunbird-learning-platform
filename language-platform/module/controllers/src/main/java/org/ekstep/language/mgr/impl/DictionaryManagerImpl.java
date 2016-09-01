@@ -2768,4 +2768,17 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 		return response;
 	}
 	
+	@Override
+	public Response transliterate(String languageId, Request request) {
+		String text = (String) request.get("text");
+		String translatedText = wordUtil.transliterateText(languageId, text);
+		Response response = new Response();
+        ResponseParams resStatus = new ResponseParams();
+        resStatus.setStatus(StatusType.successful.name());
+        response.setParams(resStatus);
+        response.setResponseCode(ResponseCode.OK);
+        response.getResult().put("output", translatedText);
+		return response;
+	}
+	
 }
