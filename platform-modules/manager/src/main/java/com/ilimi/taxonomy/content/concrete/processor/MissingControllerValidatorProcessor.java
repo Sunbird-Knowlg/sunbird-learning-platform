@@ -17,10 +17,31 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
+/**
+ * The Class MissingControllerValidatorProcessor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see EmbedControllerProcessor
+ * @see GlobalizeAssetProcessor
+ * @see LocalizeAssetProcessor
+ * @see MissingAssetValidatorProcessor
+ */
 public class MissingControllerValidatorProcessor extends AbstractProcessor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(MissingControllerValidatorProcessor.class.getName());
 
+	/**
+	 * Instantiates a new missing controller validator processor.
+	 *
+	 * @param basePath the base path
+	 * @param contentId the content id
+	 */
 	public MissingControllerValidatorProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -32,6 +53,9 @@ public class MissingControllerValidatorProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
@@ -46,6 +70,11 @@ public class MissingControllerValidatorProcessor extends AbstractProcessor {
 		return plugin;
 	}
 	
+	/**
+	 * Validate missing controllers.
+	 *
+	 * @param plugin the plugin
+	 */
 	private void validateMissingControllers(Plugin plugin) {
 		if (null != plugin) {
 			List<Controller> controllers = plugin.getControllers();

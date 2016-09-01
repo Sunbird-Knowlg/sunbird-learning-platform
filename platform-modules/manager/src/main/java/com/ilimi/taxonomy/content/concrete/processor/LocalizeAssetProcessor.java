@@ -28,10 +28,32 @@ import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
+/**
+ * The Class LocalizeAssetProcessor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see EmbedControllerProcessor
+ * @see GlobalizeAssetProcessor
+ * @see MissingAssetValidatorProcessor
+ * @see MissingControllerValidatorProcessor
+ * 
+ */
 public class LocalizeAssetProcessor extends AbstractProcessor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(LocalizeAssetProcessor.class.getName());
 
+	/**
+	 * Instantiates a new localize asset processor.
+	 *
+	 * @param basePath the base path
+	 * @param contentId the content id
+	 */
 	public LocalizeAssetProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -43,6 +65,9 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
@@ -65,6 +90,12 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		return plugin;
 	}
 
+	/**
+	 * Process assets download.
+	 *
+	 * @param medias the medias
+	 * @return the map
+	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, String> processAssetsDownload(List<Media> medias) {
 		Map<String, String> map = new HashMap<String, String>();
@@ -104,6 +135,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		return map;
 	}
 
+	/**
+	 * Download assets.
+	 *
+	 * @param medias the medias
+	 * @return the map
+	 * @throws InterruptedException the interrupted exception
+	 * @throws ExecutionException the execution exception
+	 */
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {

@@ -28,13 +28,39 @@ import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.entity.Controller;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
+import com.ilimi.taxonomy.content.processor.ContentPipelineProcessor;
 import com.ilimi.taxonomy.enums.ContentAPIParams;
 import com.ilimi.taxonomy.enums.ContentErrorCodes;
 
+/**
+ * The Class BaseConcreteProcessor provides the common utility methods for all
+ * the Concrete Processor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see EmbedControllerProcessor
+ * @see GlobalizeAssetProcessor
+ * @see LocalizeAssetProcessor
+ * @see MissingAssetValidatorProcessor
+ * @see MissingControllerValidatorProcessor
+ * @see ContentPipelineProcessor
+ */
 public class BaseConcreteProcessor extends BaseManager {
-	
+
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(BaseConcreteProcessor.class.getName());
-	
+
+	/**
+	 * Gets the media.
+	 *
+	 * @param content
+	 *            the content is the ECRF Object.
+	 * @return the media from the given ECRF Object.
+	 */
 	protected List<Media> getMedia(Plugin content) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != content && null != content.getManifest()) {
@@ -42,19 +68,25 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return medias;
 	}
-	
+
+	/**
+	 * Gets the non-asset object media 'src' map.
+	 *
+	 * @param medias
+	 *            the medias is the set of media from ECRF.
+	 * @return the map of non-asset 'id' and 'type'
+	 */
 	protected Map<String, String> getNonAssetObjMediaSrcMap(List<Media> medias) {
 		Map<String, String> srcMap = new HashMap<String, String>();
 		if (null != medias) {
-			for (Media media: medias) {
+			for (Media media : medias) {
 				Map<String, Object> data = media.getData();
 				if (null != data && data.containsKey(ContentWorkflowPipelineParams.assetId.name())) {
 					Object obj = data.get(ContentWorkflowPipelineParams.assetId.name());
 					if (null == obj || StringUtils.isBlank(obj.toString())) {
 						String src = String.valueOf(data.get(ContentWorkflowPipelineParams.src.name()));
 						String type = String.valueOf(data.get(ContentWorkflowPipelineParams.type.name()));
-						if (!StringUtils.isBlank(src) &&
-								!StringUtils.isBlank(type))
+						if (!StringUtils.isBlank(src) && !StringUtils.isBlank(type))
 							srcMap.put(src, type);
 					}
 				}
@@ -62,11 +94,20 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return srcMap;
 	}
-	
+
+	/**
+	 * Gets the updated media with url.
+	 *
+	 * @param urlMap
+	 *            the url map
+	 * @param mediaList
+	 *            the media list
+	 * @return the updated media with url
+	 */
 	protected List<Media> getUpdatedMediaWithUrl(Map<String, String> urlMap, List<Media> mediaList) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != urlMap && null != mediaList) {
-			for (Media media: mediaList) {
+			for (Media media : mediaList) {
 				if (null != media.getData()) {
 					String uUrl = urlMap.get(media.getId());
 					if (!StringUtils.isBlank(uUrl)) {
@@ -79,11 +120,20 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return medias;
 	}
-	
+
+	/**
+	 * Gets the updated media with asset id.
+	 *
+	 * @param assetIdMap
+	 *            the asset id map
+	 * @param mediaList
+	 *            the media list
+	 * @return the updated media with asset id
+	 */
 	protected List<Media> getUpdatedMediaWithAssetId(Map<String, String> assetIdMap, List<Media> mediaList) {
 		List<Media> medias = new ArrayList<Media>();
 		if (null != assetIdMap && null != mediaList) {
-			for (Media media: mediaList) {
+			for (Media media : mediaList) {
 				if (null != media.getData()) {
 					String assetId = assetIdMap.get(media.getData().get(ContentWorkflowPipelineParams.src.name()));
 					if (!StringUtils.isBlank(assetId))
@@ -94,27 +144,46 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return medias;
 	}
-	
+
+	/**
+	 * Gets the controllers file list.
+	 *
+	 * @param controllers
+	 *            the controllers
+	 * @param type
+	 *            the type
+	 * @param basePath
+	 *            the base path
+	 * @return the controllers file list
+	 */
 	protected List<File> getControllersFileList(List<Controller> controllers, String type, String basePath) {
 		List<File> controllerFileList = new ArrayList<File>();
 		if (null != controllers && !StringUtils.isBlank(type) && !StringUtils.isBlank(basePath)) {
-			for (Controller controller: controllers) {
+			for (Controller controller : controllers) {
 				if (null != controller.getData()) {
 					Object objType = controller.getData().get(ContentWorkflowPipelineParams.type.name());
 					String ctrlType = ((null == objType) ? "" : objType.toString());
 					if (StringUtils.equalsIgnoreCase(ContentWorkflowPipelineParams.items.name(), ctrlType)) {
-						String controllerId = String.valueOf(controller.getData().get(ContentWorkflowPipelineParams.id.name()));
+						String controllerId = String
+								.valueOf(controller.getData().get(ContentWorkflowPipelineParams.id.name()));
 						if (!StringUtils.isBlank(controllerId))
-							controllerFileList.add(new File(basePath + File.separator + 
-									ContentWorkflowPipelineParams.items.name() + File.separator + controllerId + 
-									ContentConfigurationConstants.ITEM_CONTROLLER_FILE_EXTENSION));
+							controllerFileList.add(new File(basePath + File.separator
+									+ ContentWorkflowPipelineParams.items.name() + File.separator + controllerId
+									+ ContentConfigurationConstants.ITEM_CONTROLLER_FILE_EXTENSION));
 					}
 				}
 			}
 		}
 		return controllerFileList;
 	}
-	
+
+	/**
+	 * Creates the content node.
+	 *
+	 * @param map
+	 *            the map
+	 * @return the response
+	 */
 	protected Response createContentNode(Map<String, Object> map) {
 		Response response = new Response();
 		if (null != map) {
@@ -134,7 +203,16 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return response;
 	}
-	
+
+	/**
+	 * Update content node.
+	 *
+	 * @param node
+	 *            the node
+	 * @param map
+	 *            the map
+	 * @return the response
+	 */
 	protected Response updateContentNode(Node node, Map<String, Object> map) {
 		Response response = new Response();
 		if (null != map && null != node) {
@@ -144,7 +222,7 @@ public class BaseConcreteProcessor extends BaseManager {
 			validateReq.put(GraphDACParams.node.name(), node);
 			Response validateRes = getResponse(validateReq, LOGGER);
 			if (checkError(validateRes)) {
-				response =  validateRes;
+				response = validateRes;
 			} else {
 				Request updateReq = getRequest(ContentConfigurationConstants.GRAPH_ID, GraphEngineManagers.NODE_MANAGER,
 						ContentWorkflowPipelineParams.updateDataNode.name());
@@ -155,28 +233,55 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return response;
 	}
-	
+
+	/**
+	 * Update data node.
+	 *
+	 * @param node
+	 *            the node
+	 * @param map
+	 *            the map
+	 * @return the node
+	 */
 	protected Node updateDataNode(Node node, Map<String, Object> map) {
 		if (null != map && null != node) {
-			for (Entry<String, Object> entry: map.entrySet())
+			for (Entry<String, Object> entry : map.entrySet())
 				node.getMetadata().put(entry.getKey(), entry.getValue());
 		}
 		return node;
 	}
-	
+
+	/**
+	 * Gets the data node.
+	 *
+	 * @param map
+	 *            the map
+	 * @return the data node
+	 */
 	protected Node getDataNode(Map<String, Object> map) {
 		Node node = new Node();
 		if (null != map) {
 			Map<String, Object> metadata = new HashMap<String, Object>();
 			node.setIdentifier((String) map.get(ContentWorkflowPipelineParams.identifier.name()));
 			node.setObjectType(ContentWorkflowPipelineParams.Content.name());
-			for (Entry<String, Object> entry: map.entrySet())
+			for (Entry<String, Object> entry : map.entrySet())
 				metadata.put(entry.getKey(), entry.getValue());
 			node.setMetadata(metadata);
 		}
 		return node;
 	}
-	
+
+	/**
+	 * Creates the relation.
+	 *
+	 * @param graphId
+	 *            the graph id
+	 * @param mapRelation
+	 *            the map relation
+	 * @param outRelations
+	 *            the out relations
+	 * @return the list
+	 */
 	@SuppressWarnings("unchecked")
 	protected List<String> createRelation(String graphId, Map<String, Object> mapRelation,
 			List<Relation> outRelations) {
@@ -199,7 +304,20 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return null;
 	}
-	
+
+	/**
+	 * Adds the relation.
+	 *
+	 * @param graphId
+	 *            the graph id
+	 * @param objectId1
+	 *            the object id 1
+	 * @param relation
+	 *            the relation
+	 * @param objectId2
+	 *            the object id 2
+	 * @return the response
+	 */
 	protected Response addRelation(String graphId, String objectId1, String relation, String objectId2) {
 		if (StringUtils.isBlank(graphId))
 			throw new ClientException(ContentErrorCodes.ERR_CONTENT_BLANK_TAXONOMY_ID.name(), "Invalid graph Id");
@@ -214,31 +332,58 @@ public class BaseConcreteProcessor extends BaseManager {
 		Response response = getResponse(request, LOGGER);
 		return response;
 	}
-	
+
+	/**
+	 * Checks if is widget type asset.
+	 *
+	 * @param assetType
+	 *            the asset type
+	 * @return true, if is widget type asset
+	 */
 	protected boolean isWidgetTypeAsset(String assetType) {
-		return StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.js.name()) ||
-				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.css.name()) ||
-				StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.plugin.name());
+		return StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.js.name())
+				|| StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.css.name())
+				|| StringUtils.equalsIgnoreCase(assetType, ContentWorkflowPipelineParams.plugin.name());
 	}
-	
+
+	/**
+	 * Creates the directory if needed.
+	 *
+	 * @param directoryName
+	 *            the directory name
+	 */
 	protected void createDirectoryIfNeeded(String directoryName) {
-        File theDir = new File(directoryName);
-        if (!theDir.exists()) {
-            theDir.mkdir();
-        }
-    }
-	
+		File theDir = new File(directoryName);
+		if (!theDir.exists()) {
+			theDir.mkdir();
+		}
+	}
+
+	/**
+	 * Checks if is valid base path.
+	 *
+	 * @param path
+	 *            the path
+	 * @return true, if is valid base path
+	 */
 	protected boolean isValidBasePath(String path) {
 		boolean isValid = true;
 		try {
 			LOGGER.info("Validating the Base Path: " + path);
 			isValid = isPathExist(Paths.get(path));
-		} catch (InvalidPathException |  NullPointerException e) {
-            isValid = false;
-        }
+		} catch (InvalidPathException | NullPointerException e) {
+			isValid = false;
+		}
 		return isValid;
 	}
-	
+
+	/**
+	 * Checks if is path exist.
+	 *
+	 * @param path
+	 *            the path
+	 * @return true, if is path exist
+	 */
 	protected boolean isPathExist(Path path) {
 		boolean exist = true;
 		try {
@@ -255,5 +400,5 @@ public class BaseConcreteProcessor extends BaseManager {
 		}
 		return exist;
 	}
-	
+
 }

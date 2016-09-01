@@ -19,10 +19,31 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
+/**
+ * The Class EmbedControllerProcessor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see GlobalizeAssetProcessor
+ * @see LocalizeAssetProcessor
+ * @see MissingAssetValidatorProcessor
+ * @see MissingControllerValidatorProcessor
+ */
 public class EmbedControllerProcessor extends AbstractProcessor {
 
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(EmbedControllerProcessor.class.getName());
 
+	/**
+	 * Instantiates a new embed controller processor.
+	 *
+	 * @param basePath the base path
+	 * @param contentId the content id
+	 */
 	public EmbedControllerProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -34,6 +55,9 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
@@ -46,6 +70,12 @@ public class EmbedControllerProcessor extends AbstractProcessor {
 		return plugin;
 	}
 
+	/**
+	 * Embed controller.
+	 *
+	 * @param plugin the plugin
+	 * @return the plugin
+	 */
 	private Plugin embedController(Plugin plugin) {
 		try {
 			if (null != plugin) {
