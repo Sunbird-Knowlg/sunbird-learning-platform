@@ -64,13 +64,12 @@ import com.ilimi.graph.model.node.RelationDefinition;
 import net.sf.json.util.JSONBuilder;
 import net.sf.json.util.JSONStringer;
 
-
 /**
-* Provides utility methods required by the Dictionary controller to search, 
-* create/update words and interact with Graph actors. 
-* 
-* @author Amarnath, Karthik, Rayulu
-*/
+ * Provides utility methods required by the Dictionary controller to search,
+ * create/update words and interact with Graph actors.
+ * 
+ * @author Amarnath, Karthik, Rayulu
+ */
 
 @Component
 public class WordUtil extends BaseManager implements IWordnetConstants {
@@ -157,6 +156,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				List list = mapper.readValue(strObject.toString(), List.class);
 				return list;
 			} catch (Exception e) {
+				LOGGER.error(e.getMessage(), e);
 				List<String> list = new ArrayList<String>();
 				list.add(object.toString());
 				return list;
@@ -193,7 +193,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	}
 
 	/**
-	 * Retrieves the identifier of a word using the lemma from Elasticsearch
+	 * Retrieves the identifier of a word using the lemma, from Elasticsearch
 	 * 
 	 * @param languageId
 	 * 
@@ -209,15 +209,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		String textKeyWord = "word";
 		Map<String, Object> searchCriteria = new HashMap<String, Object>();
 		searchCriteria.put(textKeyWord, getList(mapper, word, null));
+
+		// perform a text search on ES
 		List<Object> wordIndexes = util.textSearch(WordIndexBean.class, searchCriteria, indexName,
 				Constants.WORD_INDEX_TYPE);
 		Map<String, Object> wordIdsMap = new HashMap<String, Object>();
+
+		// form a map of word Ids to word
 		for (Object wordIndexTemp : wordIndexes) {
 			WordIndexBean wordIndex = (WordIndexBean) wordIndexTemp;
 			Map<String, Object> wordMap = new HashMap<String, Object>();
 			wordMap.put("wordId", wordIndex.getWordIdentifier());
 			wordIdsMap.put(wordIndex.getWord(), wordMap);
 		}
+
+		// get word Id from the map
 		if (wordIdsMap.get(word) != null) {
 			return (String) ((Map<String, Object>) wordIdsMap.get(word)).get("wordId");
 		}
@@ -239,13 +245,14 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			cal.setTimeInMillis(dateTime);
 			dateTimeString = formatter.format(cal.getTime());
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			dateTimeString = "";
 		}
 		return dateTimeString;
 	}
 
 	/**
-	 * Adds indexes to Elasticsearch
+	 * Adds citation, word index and Word info indexes to Elasticsearch
 	 * 
 	 * @param indexes
 	 *            Map of type of indexes to List of indexes
@@ -1259,6 +1266,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			errorMessages.add(e.getMessage());
 		}
 	}
@@ -1563,6 +1571,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						if (null != tags && !tags.isEmpty())
 							node.setTags(tags);
 					} catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 						e.printStackTrace();
 					}
 				} else if (StringUtils.equalsIgnoreCase("synonyms", entry.getKey())) {
@@ -1927,6 +1936,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				}
 			}
 		} catch (Exception e) {
+			LOGGER.error(e.getMessage(), e);
 			e.printStackTrace();
 			errorMessages.add(e.getMessage());
 		}
@@ -2276,6 +2286,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 						Double complexity = getWordComplexity(node, languageId);
 						map.put(lemma, complexity);
 					} catch (Exception e) {
+						LOGGER.error(e.getMessage(), e);
 						map.put(lemma, null);
 					}
 				} else {
