@@ -29,10 +29,31 @@ import com.ilimi.taxonomy.content.enums.ContentErrorCodeConstants;
 import com.ilimi.taxonomy.content.enums.ContentWorkflowPipelineParams;
 import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 
+/**
+ * The Class GlobalizeAssetProcessor.
+ * 
+ * @author Mohammad Azharuddin
+ * 
+ * @see AssessmentItemCreatorProcessor
+ * @see AssetCreatorProcessor
+ * @see AssetsValidatorProcessor
+ * @see BaseConcreteProcessor
+ * @see EmbedControllerProcessor
+ * @see LocalizeAssetProcessor
+ * @see MissingAssetValidatorProcessor
+ * @see MissingControllerValidatorProcessor
+ */
 public class GlobalizeAssetProcessor extends AbstractProcessor {
 	
+	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(GlobalizeAssetProcessor.class.getName());
 	
+	/**
+	 * Instantiates a new globalize asset processor.
+	 *
+	 * @param basePath the base path
+	 * @param contentId the content id
+	 */
 	public GlobalizeAssetProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
 			throw new ClientException(ContentErrorCodeConstants.INVALID_PARAMETER.name(),
@@ -44,6 +65,9 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
@@ -67,6 +91,12 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		return plugin;
 	}
 	
+	/**
+	 * Gets the folder path.
+	 *
+	 * @param src the src
+	 * @return the folder path
+	 */
 	private String getFolderPath(String src) {
 		if (StringUtils.isNotBlank(src)) {
 			return FilenameUtils.getPathNoEndSeparator(src);
@@ -74,6 +104,14 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		return null;
 	}
 	
+	/**
+	 * Upload assets.
+	 *
+	 * @param medias the medias
+	 * @return the map
+	 * @throws InterruptedException the interrupted exception
+	 * @throws ExecutionException the execution exception
+	 */
 	private Map<String, String> uploadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, String> map = new HashMap<String, String>();
 		if (null != medias && StringUtils.isNotBlank(basePath)){
