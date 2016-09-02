@@ -12,7 +12,7 @@ import com.ilimi.graph.dac.util.Neo4jGraphFactory;
 
 public class TransactionTest {
 
-	private Neo4JTransactionEventHandler transEventHandler;
+	private Neo4JTransactionEventHandler transEventHandler = null;
 	
 	@SuppressWarnings("unused")
 	@Test
