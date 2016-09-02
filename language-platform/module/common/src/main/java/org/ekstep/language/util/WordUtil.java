@@ -373,7 +373,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	@SuppressWarnings("unchecked")
 	public Response list(String languageId, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		SearchCriteria sc = new SearchCriteria();
 		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -609,7 +609,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public Response create(String languageId, String objectType, Request request)
 			throws JsonGenerationException, JsonMappingException, IOException {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");

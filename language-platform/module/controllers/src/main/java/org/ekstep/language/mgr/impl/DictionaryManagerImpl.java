@@ -112,7 +112,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     @SuppressWarnings({ "unchecked", "rawtypes" })
     @Override
 	public Response create(String languageId, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
@@ -194,7 +194,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public Response update(String languageId, String id, String objectType, Request request) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
@@ -237,6 +237,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
 	public boolean isValidWord(String word, String language){
         boolean result = false;
+        if (StringUtils.isBlank(language))
+        	return true;
         switch(language){
         case "HINDI":{
             language = Character.UnicodeBlock.DEVANAGARI.toString();
@@ -260,7 +262,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	
     @Override
     public Response find(String languageId, String id, String[] fields) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(id))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
@@ -282,7 +284,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     @SuppressWarnings("unchecked")
     @Override
     public Response findAll(String languageId, String objectType, String[] fields, Integer limit) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");
@@ -536,7 +538,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     @Override
     public Response deleteRelation(String languageId, String objectType, String objectId1, String relation,
             String objectId2) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
@@ -554,7 +556,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     @Override
     public Response addRelation(String languageId, String objectType, String objectId1, String relation,
             String objectId2) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
@@ -573,7 +575,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     @Override
     public Response relatedObjects(String languageId, String objectType, String objectId, String relation,
             String[] fields, String[] relations) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (StringUtils.isBlank(objectType))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
@@ -663,7 +665,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     @Override
     public Response translation(String languageId, String[] words, String[] languages) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         if (null == words || words.length <= 0)
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Word list is empty");
@@ -690,7 +692,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Response list(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -767,7 +769,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
     
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public Response listV2(String languageId, String objectType, Request request) {
-        if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+        if (StringUtils.isBlank(languageId))
             throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
         SearchCriteria sc = new SearchCriteria();
         sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
@@ -1526,7 +1528,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public Response createWordV2(String languageId, String objectType, Request request, boolean forceUpdate) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "ObjectType is blank");
@@ -2044,7 +2046,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@SuppressWarnings({ "unchecked" })
 	@Override
 	public Response updateWordV2(String languageId, String id, String objectType, Request request, boolean forceUpdate) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
@@ -2126,7 +2128,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 
 	@Override
 	public Response findV2(String languageId, String id, String[] fields) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(id))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECT_ID.name(), "Object Id is blank");
@@ -2323,7 +2325,7 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	@SuppressWarnings("unchecked")
 	@Override
 	public Response findAllV2(String languageId, String objectType, String[] fields, Integer limit) {
-		if (StringUtils.isBlank(languageId) || !LanguageMap.containsLanguage(languageId))
+		if (StringUtils.isBlank(languageId))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid Language Id");
 		if (StringUtils.isBlank(objectType))
 			throw new ClientException(LanguageErrorCodes.ERR_INVALID_OBJECTTYPE.name(), "Object Type is blank");

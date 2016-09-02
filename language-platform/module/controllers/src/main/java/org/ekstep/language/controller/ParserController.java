@@ -42,8 +42,6 @@ public class ParserController extends BaseController {
             String languageId = (String) request.get(LanguageParams.language_id.name());
             if (StringUtils.isBlank(languageId))
                 throw new ClientException(LanguageErrorCodes.ERR_INVALID_LANGUAGE_ID.name(), "Invalid language id");
-            if (!LanguageMap.containsLanguage(languageId))
-                throw new ClientException(LanguageErrorCodes.ERR_UNSUPPORTED_LANGUAGE.name(), "Unsupported language");
             String content = (String) request.get(LanguageParams.content.name());
             if (StringUtils.isBlank(content))
                 throw new ClientException(LanguageErrorCodes.ERR_INVALID_CONTENT.name(), "Cannot parse empty content");
