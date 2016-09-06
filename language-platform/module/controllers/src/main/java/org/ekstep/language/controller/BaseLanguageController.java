@@ -23,8 +23,20 @@ import akka.pattern.Patterns;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
+/**
+ * The Class BaseLanguageController provides operations to create message requests and receive responses for the Akka actor routers.
+ * 
+ * @author Rayulu
+ * 
+ */
 public abstract class BaseLanguageController extends BaseController {
     
+    /**
+     * Creates and returns the request object.
+     *
+     * @param requestMap the request map
+     * @return the request object
+     */
     protected Request getRequestObject(Map<String, Object> requestMap) {
         Request request = getRequest(requestMap);
         Map<String, Object> map = request.getRequest();
@@ -43,6 +55,13 @@ public abstract class BaseLanguageController extends BaseController {
         return request;
     }
     
+    /**
+     * Gets the response from the Language akka actors.
+     *
+     * @param request the request
+     * @param logger the logger
+     * @return the response
+     */
     protected Response getResponse(Request request, Logger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
@@ -59,6 +78,13 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
+    /**
+     * Gets the response from the non language akka actors.
+     *
+     * @param request the request
+     * @param logger the logger
+     * @return the non language response
+     */
     protected Response getNonLanguageResponse(Request request, Logger logger) {
         ActorRef router = RequestRouterPool.getRequestRouter();
         try {
@@ -75,6 +101,12 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
+    /**
+     * Makes a async request to the router.
+     *
+     * @param request the request
+     * @param logger the logger
+     */
     public void makeAsyncRequest(Request request, Logger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
@@ -85,6 +117,13 @@ public abstract class BaseLanguageController extends BaseController {
         }
     }
     
+    /**
+     * Gets the response from a bulk operation request.
+     *
+     * @param request the request
+     * @param logger the logger
+     * @return the bulk operation response
+     */
     protected Response getBulkOperationResponse(Request request, Logger logger) {
         ActorRef router = LanguageRequestRouterPool.getRequestRouter();
         try {
@@ -102,6 +141,14 @@ public abstract class BaseLanguageController extends BaseController {
         }   
     }
     
+    /**
+     * Returns an Error response.
+     *
+     * @param errorCode the error code
+     * @param errorMessage the error message
+     * @param responseCode the response code
+     * @return the response
+     */
     protected Response ERROR(String errorCode, String errorMessage, ResponseCode responseCode) {
         Response response = new Response();
         response.setParams(getErrorStatus(errorCode, errorMessage));
@@ -109,6 +156,13 @@ public abstract class BaseLanguageController extends BaseController {
         return response;
     }
     
+    /**
+     * Gets the error status.
+     *
+     * @param errorCode the error code
+     * @param errorMessage the error message
+     * @return the error status
+     */
     private ResponseParams getErrorStatus(String errorCode, String errorMessage) {
         ResponseParams params = new ResponseParams();
         params.setErr(errorCode);
