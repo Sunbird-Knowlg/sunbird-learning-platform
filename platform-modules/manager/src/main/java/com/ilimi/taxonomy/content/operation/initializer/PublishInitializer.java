@@ -36,13 +36,10 @@ public class PublishInitializer extends BaseInitializer {
 	protected String contentId;
 
 	/**
-	 * PublishInitializer()
-	 * sets the basePath and ContentId
+	 * Instantiates a new PublishInitializer.
 	 *
-	 * @param BasePath the basePath
-	 * @param contentId the contentId
-	 * checks if the basePath is valid else throws ClientException
-	 * checks if the ContentId is not null else throws ClientException
+	 * @param basePath the base path
+	 * @param contentId the content id
 	 */
 	public PublishInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))

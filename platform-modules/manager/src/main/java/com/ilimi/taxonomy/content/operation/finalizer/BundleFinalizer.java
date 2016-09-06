@@ -41,13 +41,10 @@ public class BundleFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	/**
-	 * BundleFinalizer()
-	 * sets the basePath and ContentId
+	 * Instantiates a new BundleFinalizer.
 	 *
-	 * @param BasePath the basePath
-	 * @param contentId the contentId
-	 * checks if the basePath is valid else throws ClientException
-	 * checks if the ContentId is not null else throws ClientException
+	 * @param basePath the base path
+	 * @param contentId the content id
 	 */
 	public BundleFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))

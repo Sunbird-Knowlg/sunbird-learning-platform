@@ -49,13 +49,10 @@ public class UploadInitializer extends BaseInitializer {
 	protected String contentId;
 
 	/**
-	 * UploadInitializer()
-	 * sets the basePath and ContentId
+	 * Instantiates a UploadInitializer.
 	 *
-	 * @param BasePath the basePath
-	 * @param contentId the contentId
-	 * checks if the basePath is valid else throws ClientException
-	 * checks if the ContentId is not null else throws ClientException
+	 * @param basePath the base path
+	 * @param contentId the content id
 	 */
 	public UploadInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))

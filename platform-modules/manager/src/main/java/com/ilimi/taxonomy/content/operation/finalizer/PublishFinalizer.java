@@ -43,13 +43,10 @@ public class PublishFinalizer extends BaseFinalizer {
 	protected String contentId;
 
 	/**
-	 * PublishFinalizer()
-	 * sets the basePath and ContentId
+	 * Instantiates a new PublishFinalizer.
 	 *
-	 * @param BasePath the basePath
-	 * @param contentId the contentId
-	 * checks if the basePath is valid else throws ClientException
-	 * checks if the ContentId is not null else throws ClientException
+	 * @param basePath the base path
+	 * @param contentId the content id
 	 */
 	public PublishFinalizer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
