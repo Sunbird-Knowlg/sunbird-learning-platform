@@ -108,9 +108,9 @@
   fail: msg="Health check failed for language-service"
   when: "language_process.stdout >='1'"
 
-- name: failed search-service health check
-  fail: msg="Health check failed for search-service"
-  when: "search_process.stdout >= '1'"
+# - name: failed search-service health check
+#   fail: msg="Health check failed for search-service"
+#   when: "search_process.stdout >= '1'"
 
 - name: failed learning-service health check
   fail: msg="Health check failed for learning-service"
