@@ -1,0 +1,8 @@
+{
+    "framerate": 30,
+    "images": ["fixture-stories/verbs/assets/run.png"],
+    "frames": {"regX": 0, "height": 474, "count": 8, "regY": 0, "width": 542},
+    "animations": {
+        "run": [0, 7, "run", 0.5]
+    }
+}

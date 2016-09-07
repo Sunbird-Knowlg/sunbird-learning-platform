@@ -1,0 +1,8 @@
+{
+    "framerate": 30,
+    "images": ["fixture-stories/verbs/assets/walk.png"],
+    "frames": {"regX": 0, "height": 484, "count": 10, "regY": 0, "width": 562},
+    "animations": {
+        "walk": [0, 9, "walk", 0.5]
+    }
+}

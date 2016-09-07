@@ -43,10 +43,13 @@ public class BundleInitializer extends BaseInitializer {
 	private static final String ECML_MIME_TYPE = "application/vnd.ekstep.ecml-archive";
 
 	/**
-	 * Instantiates a new BundleInitializer.
+	 * Instantiates a new BundleInitializer and sets the base
+	 * path and current content id for further processing.
 	 *
-	 * @param basePath the base path
-	 * @param contentId the content id
+	 * @param basePath
+	 *            the base path is the location for content package file handling and all manipulations. 
+	 * @param contentId
+	 *            the content id is the identifier of content for which the Processor is being processed currently.
 	 */
 	public BundleInitializer(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))

@@ -1,0 +1,73 @@
+{
+    "identifier": "haircut_story_1",
+    "title": "Haircut Story Assessment",
+    "total_items": 3,
+    "shuffle": true,
+    "max_score": 4,
+    "showImmediateFeedback": false,
+    "subject": "LIT",
+    "item_sets": [{
+        "id": "set_1",
+        "count": 3
+    }],
+    "items": {
+        "set_1": [{
+            "identifier": "q1",
+            "type": "mcq",
+            "template": "desert_mcq",
+            "qlevel": "MEDIUM",
+            "title": "5 + 4 = ?",
+            "options": [{
+                "value": { "type": "mixed", "text": "5"},
+                "answer": false
+            }, {
+                "value": { "type": "mixed", "text": "4"},
+                "answer": false
+            }, {
+                "value": { "type": "mixed", "text": "9"},
+                "answer": true
+            }],
+            "max_score": 1,
+            "partial_scoring": true,
+            "feedback": ""
+        },{
+            "identifier": "q2",
+            "type": "mcq",
+            "template": "desert_mcq",
+            "qlevel": "MEDIUM",
+            "title": "7 + 2 = ?",
+            "options": [{
+                "value": { "type": "mixed", "text": "9"},
+                "answer": true
+            }, {
+                "value": { "type": "mixed", "text": "3"},
+                "answer": false
+            }, {
+                "value": { "type": "mixed", "text": "8"},
+                "answer": false
+            }],
+            "max_score": 1,
+            "partial_scoring": true,
+            "feedback": ""
+        },{
+            "identifier": "q3",
+            "type": "mcq",
+            "template": "desert_mcq",
+            "qlevel": "MEDIUM",
+            "title": "2 + 6 = ?",
+            "options": [{
+                "value": { "type": "mixed", "text": "8"},
+                "answer": true
+            }, {
+                "value": { "type": "mixed", "text": "3"},
+                "answer": false
+            }, {
+                "value": { "type": "mixed", "text": "4"},
+                "answer": false
+            }],
+            "max_score": 1,
+            "partial_scoring": true,
+            "feedback": ""
+        }]
+    }
+}

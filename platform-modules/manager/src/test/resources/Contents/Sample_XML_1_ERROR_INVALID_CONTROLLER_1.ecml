@@ -190,7 +190,7 @@
         </media>
         <media id="mic" src="mic.png" type="image" />
     </manifest>
-    <controller name="storyData" type="data" id=""/>
+    <controller name="storyData" type="data" id="assessment"/>
     <controller name="assessment" type="items" id="assessment"/>
     <stage id="baseStage" preload="true">
         <image asset="carpenter_img"/>
