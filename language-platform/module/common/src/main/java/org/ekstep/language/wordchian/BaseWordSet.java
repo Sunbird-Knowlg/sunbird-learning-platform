@@ -153,6 +153,13 @@ public abstract class BaseWordSet extends BaseManager{
 		}
 		return false;
 	}
+	
+	protected void removeSetRelation(String type){
+		for(Relation relation : existingWordSetRelatios) {
+			if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name())))
+				removeWordFromWordSet(relation.getStartNodeId());
+		}
+	}
 
 	protected boolean isExist(String type, List<String> newLemmas){
 		
@@ -184,8 +191,8 @@ public abstract class BaseWordSet extends BaseManager{
 	}
 	
 	protected void removeWordFromWordSet(String setId){
+		LOGGER.info("Deleting relation : " + setId + " --> " + wordNode.getIdentifier());
         Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
-
         setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
         setReq.put(GraphDACParams.collection_id.name(), setId);
         setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());

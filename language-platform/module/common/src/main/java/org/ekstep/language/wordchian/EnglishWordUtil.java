@@ -20,7 +20,7 @@ public class EnglishWordUtil {
 	public String getRhymingSound(){
 		String lemma = (String) wordNode.getMetadata().get(LanguageParams.lemma.name());
 		String arpabets = WordCacheUtil.getArpabets(lemma);
-		if (!StringUtils.isEmpty(arpabets)){
+		if (StringUtils.isNotBlank(arpabets)){
 			String arpabetArr[] = arpabets.split("\\s");
 			int arpabetLength = arpabetArr.length;
 			if(arpabetLength > 1){

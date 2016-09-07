@@ -192,12 +192,12 @@ public class WordCacheUtil {
 		String arpabetsOfWord=null;
 		try{
 			arpabetsOfWord=jedis.get(wordKey);
-			if(StringUtils.isEmpty(arpabetsOfWord)){
+			if(StringUtils.isBlank(arpabetsOfWord)){
 				if(hasSplitChar(word)){
 					word=buildCompoundWord(word);
 					wordKey=getWordKey(word);
 					arpabetsOfWord=jedis.get(wordKey);
-					if(StringUtils.isEmpty(arpabetsOfWord)){
+					if(StringUtils.isBlank(arpabetsOfWord)){
 						word=word.replaceAll("-", "");
 						wordKey=getWordKey(word);
 						arpabetsOfWord=jedis.get(wordKey);

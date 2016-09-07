@@ -31,12 +31,15 @@ public class RhymingSoundSet extends BaseWordSet {
 	}
 	
 	public void create(){
+		LOGGER.info("Rhyming sound is " + rhymingSound);
 		if(StringUtils.isNotBlank(rhymingSound)){
 			String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
-		} else
-			isExist(LanguageParams.RhymingSound.name(), "");
+		} else {
+			LOGGER.info("Deleting existing rhyming sound relation");
+			removeSetRelation(LanguageParams.RhymingSound.name());
+		}
 	}
 	
 	private void createRhymingSoundSet(String rhymingSound){
