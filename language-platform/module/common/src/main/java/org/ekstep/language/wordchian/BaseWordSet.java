@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -141,13 +142,12 @@ public abstract class BaseWordSet extends BaseManager{
 		for(Relation relation : existingWordSetRelatios) {
 			if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name()))){
 				//same type of WordSet is already associated with
-				if(lemma.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.lemma.name()))){
-					//same lemma 
-					return true;
-				}else{
+				if (StringUtils.isBlank(lemma) || !lemma.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.lemma.name()))) {
 					//different lemma - remove set membership
 					removeWordFromWordSet(relation.getStartNodeId());
 					return false;
+				} else {
+					return true;
 				}
 			}
 		}
