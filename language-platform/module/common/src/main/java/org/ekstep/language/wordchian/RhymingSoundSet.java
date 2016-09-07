@@ -31,9 +31,8 @@ public class RhymingSoundSet extends BaseWordSet {
 	}
 	
 	public void create(){
-		String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
-
-		if(StringUtils.isNotBlank(rhymingSoundLemma)){
+		if(StringUtils.isNotBlank(rhymingSound)){
+			String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
 			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
 		}
