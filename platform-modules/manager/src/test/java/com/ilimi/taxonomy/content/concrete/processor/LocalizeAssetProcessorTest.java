@@ -52,11 +52,12 @@ public class LocalizeAssetProcessorTest {
 		for (final File fileEntry : folder.listFiles()) {
 			expected.add(fileEntry.getName());
 		}
+		
 		assertEquals(true, new File(local, "index.ecml").exists());
 		assertEquals(false, result.getManifest().getMedias().isEmpty());
 	    assertEquals(expected.size(),result.getManifest().getMedias().size());
-		assertEquals(expected.listIterator().next(), result.getManifest().getMedias().iterator().next().getSrc());
-
+		assertEquals(plugin.getManifest().getMedias().iterator().next().getSrc(), result.getManifest().getMedias().iterator().next().getSrc());
+        assertEquals(plugin.getManifest().getMedias().iterator().next().getType(), result.getManifest().getMedias().iterator().next().getType());
 	}
 
 	private String getFileString(String fileName) {

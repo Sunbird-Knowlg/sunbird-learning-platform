@@ -8,8 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.io.FileUtils;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.ilimi.taxonomy.content.entity.Media;
@@ -18,11 +16,6 @@ import com.ilimi.taxonomy.content.util.ECRFConversionUtility;
 
 public class GlobalizeAssetProcessorTest {
 final static File folder = new File("src/test/resources/Contents/testglobal_01/assets");
-	
-	@BeforeClass
-	public static void init(){
-		System.out.println("initinlizing globalAssetProcessor");
-	}
 	
 	@Test
 	public void globalizeAssetProcessor() {
@@ -41,7 +34,8 @@ final static File folder = new File("src/test/resources/Contents/testglobal_01/a
 		assertEquals(true, new File(global, "index.ecml").exists());
 		assertEquals(false, result.getManifest().getMedias().isEmpty());
 	    assertEquals(expected.size(),result.getManifest().getMedias().size());
-		assertEquals(expected.listIterator().next(), result.getManifest().getMedias().iterator().next().getSrc());
+		assertEquals(plugin.getManifest().getMedias().iterator().next().getSrc(), result.getManifest().getMedias().iterator().next().getSrc());
+		assertEquals(plugin.getManifest().getMedias().iterator().next().getType(), result.getManifest().getMedias().iterator().next().getType());
 		}
 
 	private String getFileString(String fileName) {
@@ -53,10 +47,5 @@ final static File folder = new File("src/test/resources/Contents/testglobal_01/a
 			e.printStackTrace();
 		}
 		return fileString;
-	}
-	
-	@AfterClass
-	public static void delete(){
-		System.out.println("terminating globalAssetProcessor");
 	}
 }
