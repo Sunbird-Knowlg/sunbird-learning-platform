@@ -15,7 +15,7 @@
 					modulate="true" />
 			</Policies>
 		</RollingFile>
-		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/telemetry_event.log"
+		<RollingRandomAccessFile name="TelemetryEventAppender" fileName="/data/logs/search_event.log"
 			filePattern="/data/logs/search_event-%d{MM-dd-yyyy-hh-mm}-%i.log">
 			<PatternLayout>
 				<Pattern>%d %msg%n</Pattern>
