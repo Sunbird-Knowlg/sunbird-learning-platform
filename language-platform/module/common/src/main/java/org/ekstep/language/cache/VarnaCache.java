@@ -66,6 +66,17 @@ public class VarnaCache extends BaseManager {
 		return null;
 	}
 	
+	public Node getVarna(String languageId, String varna) {
+		if (!varnaMap.containsKey(languageId))
+			loadVarnas(languageId);
+		if (isoSymbolMap.containsKey(languageId) && isoSymbolMap.get(languageId).containsKey(varna)) {
+			String isoSymbol = isoSymbolMap.get(languageId).get(varna);
+			if (isoVarnaMap.containsKey(languageId) && isoVarnaMap.get(languageId).containsKey(isoSymbol))
+				return isoVarnaMap.get(languageId).get(isoSymbol);
+		}
+		return null;
+	}
+	
 	public Node getVarnaNode(String languageId, String isoSymbol) {
 		if (!varnaMap.containsKey(languageId))
 			loadVarnas(languageId);
