@@ -1302,7 +1302,7 @@
           "title": "Origin",
           "description": "",
           "category": "Lifecycle",
-          "dataType": "String",
+          "dataType": "Text",
           "required": false,
           "displayProperty": "Readonly",
           "defaultValue": "",
