@@ -131,6 +131,22 @@
           "renderingHints": "{ 'order': 9 }"
         },
         {
+          "propertyName": "domain",
+          "title": "Domain",
+          "description": "",
+          "category": "General",
+          "dataType": "Multi-Select",
+          "range": [
+            "numeracy",
+            "literacy"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
           "propertyName": "chapterNumber",
           "title": "Chapter Number",
           "description": "",
