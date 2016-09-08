@@ -730,13 +730,15 @@ public class Set extends AbstractCollection {
     }
 
     private Future<Object> addMemberToSet(Request req, String setId, String memberId) {
+    	List<Future<Object>> futures = new ArrayList<Future<Object>>();
         ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
         Request request = new Request(req);
         request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
         request.setOperation("addSetMember");
         request.put(GraphDACParams.set_id.name(), setId);
         request.put(GraphDACParams.member_id.name(), memberId);
-        cacheRouter.tell(request, manager.getSelf());
+        Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
+        futures.add(response);
 
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request dacRequest = new Request(req);
@@ -745,12 +747,14 @@ public class Set extends AbstractCollection {
         dacRequest.put(GraphDACParams.start_node_id.name(), setId);
         dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
         dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-        Future<Object> response = Patterns.ask(dacRouter, dacRequest, timeout);
-        
-        return response;
+        Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+        futures.add(dacResponse);
+
+        return mergeFutures(futures);
     }
 
     private Future<Object> addMembersToSet(Request req, String setId, List<String> memberIds) {
+    	List<Future<Object>> futures = new ArrayList<Future<Object>>();
         ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
         Request request = new Request(req);
         request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
@@ -758,6 +762,7 @@ public class Set extends AbstractCollection {
         request.put(GraphDACParams.set_id.name(), setId);
         request.put(GraphDACParams.members.name(), memberIds);
         Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
+        futures.add(response);
 
         ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         for (String memberId : memberIds) {
@@ -767,21 +772,16 @@ public class Set extends AbstractCollection {
             dacRequest.put(GraphDACParams.start_node_id.name(), setId);
             dacRequest.put(GraphDACParams.relation_type.name(), RelationTypes.SET_MEMBERSHIP.relationName());
             dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-            dacRouter.tell(dacRequest, manager.getSelf());
+            Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+            futures.add(dacResponse);
         }
-        return response;
+        return mergeFutures(futures);
     }
     
     private Future<Object> removeMemberFromSet(Request req, String setId, String memberId) {
-        ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
-        Request request = new Request(req);
-        request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
-        request.setOperation("removeSetMember");
-        request.put(GraphDACParams.set_id.name(), setId);
-        request.put(GraphDACParams.member_id.name(), memberId);
-        Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
-
-        ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
+    	List<Future<Object>> futures = new ArrayList<Future<Object>>();
+    	
+    	ActorRef dacRouter = GraphDACActorPoolMgr.getDacRouter();
         Request dacRequest = new Request(req);
         dacRequest.setManagerName(GraphDACManagers.DAC_GRAPH_MANAGER);
         dacRequest.setOperation("deleteRelation");
@@ -789,8 +789,37 @@ public class Set extends AbstractCollection {
         dacRequest.put(GraphDACParams.relation_type.name(),
                 new String(RelationTypes.SET_MEMBERSHIP.relationName()));
         dacRequest.put(GraphDACParams.end_node_id.name(), memberId);
-        dacRouter.tell(dacRequest, manager.getSelf());
-        return response;
+        Future<Object> dacResponse = Patterns.ask(dacRouter, dacRequest, timeout);
+        futures.add(dacResponse);
+    	
+        ActorRef cacheRouter = GraphCacheActorPoolMgr.getCacheRouter();
+        Request request = new Request(req);
+        request.setManagerName(GraphCacheManagers.GRAPH_CACHE_MANAGER);
+        request.setOperation("removeSetMember");
+        request.put(GraphDACParams.set_id.name(), setId);
+        request.put(GraphDACParams.member_id.name(), memberId);
+        Future<Object> response = Patterns.ask(cacheRouter, request, timeout);
+        futures.add(response);
+        
+        return mergeFutures(futures);
+    }
+    
+    private Future<Object> mergeFutures(List<Future<Object>> futures) {
+    	ExecutionContext ec = manager.getContext().dispatcher();
+        Future<Iterable<Object>> composite = Futures.sequence(futures, ec);
+        Future<Object> result = composite.map(new Mapper<Iterable<Object>, Object>() {
+        	@Override
+        	public Object apply(Iterable<Object> parameter) {
+        		Object res = null;
+        		if (null != parameter) {
+        			for (Object obj : parameter) {
+        				res = obj;
+        			}
+        		}
+        		return res;
+        	}
+		}, ec);
+        return result;
     }
 
     private void updateIndex(Request req, SearchCriteria sc) {
