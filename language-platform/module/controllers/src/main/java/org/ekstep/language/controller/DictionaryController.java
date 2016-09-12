@@ -354,11 +354,12 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@ResponseBody
 	public ResponseEntity<Response> getPhoneticSpelling(@PathVariable(value = "languageId") String languageId,
 			@PathVariable(value = "word") String word,
+			@RequestParam(name="addClosingVirama", defaultValue="false") boolean addEndVirama,
 			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
 		try {
-			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word);
+			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
 			LOGGER.info("Get PhoneticSpelling | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
@@ -369,11 +370,12 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@RequestMapping(value = "/{languageId}/transliterate", method = RequestMethod.POST)
 	@ResponseBody
 	public ResponseEntity<Response> transliterate(@PathVariable(value = "languageId") String languageId,
+			@RequestParam(name="addClosingVirama", defaultValue="false") boolean addEndVirama,
 			@RequestBody Map<String, Object> map) {
 		String apiId = "text.transliterate";
 		try {
 			Request request = getRequest(map);
-			Response response = dictionaryManager.transliterate(languageId, request);
+			Response response = dictionaryManager.transliterate(languageId, request, addEndVirama);
 			LOGGER.info("Transliterate | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {

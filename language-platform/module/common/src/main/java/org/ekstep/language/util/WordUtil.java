@@ -1530,7 +1530,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		}
 	}
 	
-	public String transliterateText(String languageId, String text) {
+	public String transliterateText(String languageId, String text, boolean addEndVirama) {
 		if (StringUtils.isNotBlank(text)) {
 			Map<String, String> tokenMap = new HashMap<String, String>();
 			StringBuilder result = new StringBuilder();
@@ -1546,7 +1546,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
                 		List<Node> varnas = new ArrayList<Node>();
                 		boolean found = getVarnasForWord(languageId, arpabets, varnas);
                 		if (found) {
-                			List<String> unicodes = getUnicodes(languageId, varnas);
+                			List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
                 			String output = getTextFromUnicode(unicodes);
                 			tokenMap.put(token, output);
                 			result.append(output).append(" ");
@@ -1563,13 +1563,15 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		return text;
 	}
 	
-	private List<String> getUnicodes(String languageId, List<Node> varnas) {
+	private List<String> getUnicodes(String languageId, List<Node> varnas, boolean addEndVirama) {
 		VarnaCache cache = VarnaCache.getInstance();
 		List<String> unicodes = new ArrayList<String>();
 		boolean start_of_syllable = true;
+		String lastVarna = null;
 		String viramaUnicode = cache.getViramaUnicode(languageId);
 		for (Node varna : varnas) {
 			String varnaType = (String) varna.getMetadata().get(GraphDACParams.type.name());
+			lastVarna = varnaType;
 			String varnaUnicode = (String) varna.getMetadata().get(GraphDACParams.unicode.name());
 			if (varnaType.equalsIgnoreCase("Consonant")) {
 				if (start_of_syllable) {
@@ -1595,6 +1597,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				start_of_syllable = true;
 			}
 		}
+		if (addEndVirama && StringUtils.equalsIgnoreCase("Consonant", lastVarna) && StringUtils.isNotBlank(viramaUnicode))
+			unicodes.add(viramaUnicode);
 		return unicodes;
 	}
 	
@@ -1604,43 +1608,50 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		boolean found = true;
 		for (String arpabet : arpabetArr) {
 			String isoSymbol = cache.getISOSymbol("en", arpabet);
-			Node varna = cache.getVarnaNode(languageId, isoSymbol);
-			if (null == varna) {
-				String alsISOSymbol = cache.getAltISOSymbol("en", arpabet);
-				if(alsISOSymbol.contains("+")){
-					String isoSymbols[] = alsISOSymbol.split("\\+");
-					for(String iso : isoSymbols) {
-						Node node = cache.getVarnaNode(languageId, iso);
-						if (null != node)
-							varnas.add(node);	
-						else {
-							found = false;
-							break;
-						}
-					}
-				} else{
-					Node node = cache.getVarnaNode(languageId, alsISOSymbol);
-					if (null != node)
-						varnas.add(node);
-					else {
-						found = false;
-						break;
-					}
-				}
-			} else {
-				varnas.add(varna);
+			found = getVarnas(isoSymbol, languageId, cache, varnas);
+			if (!found) {
+				String altISOSymbol = cache.getAltISOSymbol("en", arpabet);
+				found = getVarnas(altISOSymbol, languageId, cache, varnas);
 			}
 		}
 		return found;
 	}
 	
-	public String getPhoneticSpellingByLanguage(String languageId, String word) {
+	private boolean getVarnas(String isoSymbol, String languageId, VarnaCache cache, List<Node> varnas) {
+		boolean found = true;
+		if (StringUtils.isNotBlank(isoSymbol)) {
+			if(isoSymbol.contains("+")){
+				String isoSymbols[] = isoSymbol.split("\\+");
+				for(String iso : isoSymbols) {
+					Node node = cache.getVarnaNode(languageId, iso);
+					if (null != node)
+						varnas.add(node);	
+					else {
+						found = false;
+						break;
+					}
+				}
+			} else{
+				Node node = cache.getVarnaNode(languageId, isoSymbol);
+				if (null != node)
+					varnas.add(node);
+				else {
+					found = false;
+				}
+			}
+		} else {
+			found = false;
+		}
+		return found;
+	}
+	
+	public String getPhoneticSpellingByLanguage(String languageId, String word, boolean addEndVirama) {
 		String arpabets = WordCacheUtil.getArpabets(word);		
     	if (StringUtils.isNotBlank(arpabets)) {
     		List<Node> varnas = new ArrayList<Node>();
     		boolean found = getVarnasForWord(languageId, arpabets, varnas);
     		if (found) {
-    			List<String> unicodes = getUnicodes(languageId, varnas);
+    			List<String> unicodes = getUnicodes(languageId, varnas, addEndVirama);
     			return getTextFromUnicode(unicodes);
     		}
     	}

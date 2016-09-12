@@ -2745,8 +2745,8 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	}
 
 	@Override
-	public Response getPhoneticSpellingByLanguage(String languageId, String word){
-		String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word);
+	public Response getPhoneticSpellingByLanguage(String languageId, String word, boolean addEndVirama){
+		String phoneticSpellingOfWord=wordUtil.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
 		Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setStatus(StatusType.successful.name());
@@ -2771,9 +2771,9 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	}
 	
 	@Override
-	public Response transliterate(String languageId, Request request) {
+	public Response transliterate(String languageId, Request request, boolean addEndVirama) {
 		String text = (String) request.get("text");
-		String translatedText = wordUtil.transliterateText(languageId, text);
+		String translatedText = wordUtil.transliterateText(languageId, text, addEndVirama);
 		Response response = new Response();
         ResponseParams resStatus = new ResponseParams();
         resStatus.setStatus(StatusType.successful.name());

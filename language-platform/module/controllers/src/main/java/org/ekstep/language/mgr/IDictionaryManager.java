@@ -50,9 +50,9 @@ public interface IDictionaryManager {
     
     Response getArpabets(String languageID, String word);
     
-    Response getPhoneticSpellingByLanguage(String languageID, String word);
+    Response getPhoneticSpellingByLanguage(String languageID, String word, boolean addEndVirama);
     
     Response getSimilarSoundWords(String languageId, String word);
     
-    Response transliterate(String languageId, Request request);
+    Response transliterate(String languageId, Request request, boolean addEndVirama);
 }
