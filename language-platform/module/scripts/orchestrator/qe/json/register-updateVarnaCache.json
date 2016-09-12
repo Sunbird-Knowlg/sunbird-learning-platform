@@ -1,0 +1,9 @@
+{
+    "name": "lang_qe_update_varna_cache",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "body": ""
+}
