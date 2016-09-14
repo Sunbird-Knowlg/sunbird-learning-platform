@@ -2,9 +2,13 @@ package com.ilimi.taxonomy.content.util;
 
 import static org.junit.Assert.*;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import com.ilimi.common.exception.ClientException;
 import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Plugin;
 
 public class JSONContentParserTest extends BaseTest {
@@ -18,6 +22,9 @@ public class JSONContentParserTest extends BaseTest {
 	private static final int WELL_FORMED_JSON_FILE_MEDIA_COUNT = 15;
 	private static final int WELL_FORMED_JSON_FILE_TOP_LEVEL_PLUGIN_COUNT = 10;
 	
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+	 
 	@Test
 	public void parseContent_Test01() {
 		JSONContentParser fixture = new JSONContentParser();
@@ -29,4 +36,14 @@ public class JSONContentParserTest extends BaseTest {
 		assertEquals(WELL_FORMED_JSON_FILE_TOP_LEVEL_PLUGIN_COUNT, ecrf.getChildrenPlugin().size());
 	}
 
+	@SuppressWarnings("unused")
+	@Test
+	public void parseContent_Test02(){
+		exception.expect(ClientException.class);
+		exception.expectMessage(ContentErrorMessageConstants.XML_PARSE_CONFIG_ERROR);
+		JSONContentParser fixture = new JSONContentParser();
+		String json = getFileString(INVALID_JSON_FILE_NAME);
+		Plugin ecrf = fixture.parseContent(json);
+		
+	}
 }

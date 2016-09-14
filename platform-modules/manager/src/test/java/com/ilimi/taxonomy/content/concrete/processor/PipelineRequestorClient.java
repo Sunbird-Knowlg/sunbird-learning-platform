@@ -12,11 +12,10 @@ public class PipelineRequestorClient {
 		AbstractProcessor embedControllerProcessor = new EmbedControllerProcessor(basePath, contentId);
 		AbstractProcessor missingAssetValidatorProcessor = new MissingAssetValidatorProcessor(basePath, contentId);
 		AbstractProcessor missingCtrlValidatorProcessor = new MissingControllerValidatorProcessor(basePath, contentId);
-		AbstractProcessor assetsValidatorProcessor = new AssetsValidatorProcessor(basePath, contentId);
 		AbstractProcessor globalizeAssetProcessor = new GlobalizeAssetProcessor(basePath, contentId);
 
 		switch (operation) {
-		
+			
 		case "globalizeAssetProcessor":
 			contentPipeline.registerProcessor(globalizeAssetProcessor);
 			break;
@@ -36,11 +35,7 @@ public class PipelineRequestorClient {
 		case "missingCtrlValidatorProcessor":
 			contentPipeline.registerProcessor(missingCtrlValidatorProcessor);
 			break;
-
-		case "assetsValidatorProcessor":
-			contentPipeline.registerProcessor(assetsValidatorProcessor);
-			break;	
-
+			
 		default:
 			break;
 		}

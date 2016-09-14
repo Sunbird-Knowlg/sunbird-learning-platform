@@ -3,49 +3,77 @@ package com.ilimi.taxonomy.content.concrete.processor;
 import static org.junit.Assert.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.collections.CollectionUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 
+import com.ilimi.common.exception.ClientException;
+import com.ilimi.taxonomy.content.common.BaseTest;
+import com.ilimi.taxonomy.content.common.ContentErrorMessageConstants;
 import com.ilimi.taxonomy.content.entity.Media;
 import com.ilimi.taxonomy.content.entity.Plugin;
 import com.ilimi.taxonomy.content.util.ECRFConversionUtility;
 
-public class GlobalizeAssetProcessorTest {
-final static File folder = new File("src/test/resources/Contents/testglobal_01/assets");
-	
+public class GlobalizeAssetProcessorTest extends BaseTest {
+
+	final static File folder = new File("src/test/resources/Contents/testglobal_01");
+	final static String AWS = "https://ekstep-public.s3-ap-southeast-1.amazonaws.com/content/test_11";
+
+	@Rule
+	public ExpectedException exception = ExpectedException.none();
+
 	@Test
-	public void globalizeAssetProcessor() {
+	public void globalizeAssetProcessor_01() {
+
 		ECRFConversionUtility fixture = new ECRFConversionUtility();
-		String strContent = getFileString("index.ecml");
+		String strContent = getFileString("testglobal_01/index.ecml");
 		Plugin plugin = fixture.getECRF(strContent);
-		Plugin result = PipelineRequestorClient
-				.getPipeline("globalizeAssetProcessor", "/data/ContentBundleTest/global", "test_11").execute(plugin);
-		File global = new File("src/test/resources/Contents/testglobal_01");
+		Plugin result = PipelineRequestorClient.getPipeline("globalizeAssetProcessor", folder.getPath(), "test_11")
+				.execute(plugin);
+
 		List<String> expected = new ArrayList<String>();
-		for (final File fileEntry : folder.listFiles()) {
-			expected.add(fileEntry.getName());
-		}
-	    List<Media> media = new ArrayList<Media>();
-	    media.add((Media) result.getManifest().getMedias().iterator().next());
-		assertEquals(true, new File(global, "index.ecml").exists());
-		assertEquals(false, result.getManifest().getMedias().isEmpty());
-	    assertEquals(expected.size(),result.getManifest().getMedias().size());
-		assertEquals(plugin.getManifest().getMedias().iterator().next().getSrc(), result.getManifest().getMedias().iterator().next().getSrc());
-		assertEquals(plugin.getManifest().getMedias().iterator().next().getType(), result.getManifest().getMedias().iterator().next().getType());
+		File assetFolder = new File(folder + "/assets");
+		for (final File fileEntry : assetFolder.listFiles()) {
+			expected.add(AWS + "/" + fileEntry.getName());
 		}
 
-	private String getFileString(String fileName) {
-		String fileString = "";
-		File file = new File(getClass().getResource("/Contents/testglobal_01/" + fileName).getFile());
-		try {
-			fileString = FileUtils.readFileToString(file);
-		} catch (IOException e) {
-			e.printStackTrace();
+		List<Media> medias = new ArrayList<Media>();
+		medias = result.getManifest().getMedias();
+
+		List<String> actual = new ArrayList<String>();
+		for (Media md : medias) {
+			actual.add(md.getSrc());
 		}
-		return fileString;
+
+		assertEquals(true, new File(folder, "index.ecml").exists());
+		assertEquals(false, result.getManifest().getMedias().isEmpty());
+		assertEquals(true, CollectionUtils.isEqualCollection(expected, actual));
+
+	}
+
+	@Test
+	public void globalizeAssetProcessor_02() {
+
+		exception.expect(ClientException.class);
+		exception.expectMessage(ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM);
+		ECRFConversionUtility fixture = new ECRFConversionUtility();
+		String strContent = getFileString("testglobal_01/index.ecml");
+		Plugin plugin = fixture.getECRF(strContent);
+		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", folder.getPath(), "").execute(plugin);
+	}
+
+	@Test
+	public void globalizeAssetProcessor_03() {
+
+		exception.expect(ClientException.class);
+		exception.expectMessage(ContentErrorMessageConstants.INVALID_CWP_CONST_PARAM);
+		ECRFConversionUtility fixture = new ECRFConversionUtility();
+		String strContent = getFileString("testglobal_01/index.ecml");
+		Plugin plugin = fixture.getECRF(strContent);
+		PipelineRequestorClient.getPipeline("globalizeAssetProcessor", "", "").execute(plugin);
 	}
 }
