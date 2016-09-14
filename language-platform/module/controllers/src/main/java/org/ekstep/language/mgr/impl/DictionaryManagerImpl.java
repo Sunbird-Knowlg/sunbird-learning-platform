@@ -236,27 +236,32 @@ public class DictionaryManagerImpl extends BaseManager implements IDictionaryMan
 	}
 	
 	public boolean isValidWord(String word, String language){
-        boolean result = false;
-        if (StringUtils.isBlank(language))
-        	return true;
-        switch(language){
-        case "HINDI":{
-            language = Character.UnicodeBlock.DEVANAGARI.toString();
-            break;
-        }
-        case "ENGLISH":{
-            language = Character.UnicodeBlock.BASIC_LATIN.toString();
-            break;
-        }
-        }
-        UnicodeBlock wordBlock = UnicodeBlock.forName(language);
-        for(int i=0; i<word.length(); i++){
-            UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
-            if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
-                result = true;
-                break;
-            }
-        }
+		boolean result = false;
+		try {
+	        if (StringUtils.isBlank(language))
+	        	return true;
+	        switch(language){
+	        case "HINDI":{
+	            language = Character.UnicodeBlock.DEVANAGARI.toString();
+	            break;
+	        }
+	        case "ENGLISH":{
+	            language = Character.UnicodeBlock.BASIC_LATIN.toString();
+	            break;
+	        }
+	        }
+	        UnicodeBlock wordBlock = UnicodeBlock.forName(language);
+	        for(int i=0; i<word.length(); i++){
+	            UnicodeBlock charBlock = UnicodeBlock.of(word.charAt(i));
+	            if(wordBlock.equals(charBlock) || (language.equalsIgnoreCase("Hindi") && charBlock.equals(Character.UnicodeBlock.DEVANAGARI_EXTENDED))){
+	                result = true;
+	                break;
+	            }
+	        }
+		} catch (Exception e) {
+			// return true... if UnicodeBlock is not identified...
+			result = true;
+		}
         return result;
     }
 	
