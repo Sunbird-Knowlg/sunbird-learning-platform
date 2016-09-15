@@ -1,0 +1,9 @@
+{
+    "name": "lang_qe_get_live_words",
+    "parameters": [{
+    	"name":"language_id",
+    	"index": 0,
+    	"routingParam": true
+    }],
+    "body": ""
+}
