@@ -1,7 +1,12 @@
 package com.ilimi.taxonomy.content.enums;
 
-/** ContentErrorCodeConstants Enum holds all the ErrorCodeConstants
+/** 
+ *  ContentErrorCodeConstants Enum holds all the ErrorCodeConstants
  *  used in the ContentModel
+ *  
+ *  @author Mohammad Azharuddin
+ *  
+ *  @see ContentErrorMessageConstants
  */
 public enum ContentErrorCodeConstants {
 

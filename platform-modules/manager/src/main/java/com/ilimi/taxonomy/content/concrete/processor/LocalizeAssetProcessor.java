@@ -29,7 +29,12 @@ import com.ilimi.taxonomy.content.processor.AbstractProcessor;
 import com.ilimi.taxonomy.content.util.PropertiesUtil;
 
 /**
- * The Class LocalizeAssetProcessor.
+ * The Class LocalizeAssetProcessor is a Content Workflow pipeline Processor
+ * Which is responsible for downloading of Asset Items for the Storage Space to
+ * the local storage.
+ * 
+ * It also has the capability of retry download in case of failure for the
+ * particular amount of retry count.
  * 
  * @author Mohammad Azharuddin
  * 
@@ -49,10 +54,15 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	private static Logger LOGGER = LogManager.getLogger(LocalizeAssetProcessor.class.getName());
 
 	/**
-	 * Instantiates a new localize asset processor.
+	 * Instantiates a new localize asset processor and sets the base path and
+	 * current content id for further processing.
 	 *
-	 * @param basePath the base path
-	 * @param contentId the content id
+	 * @param basePath
+	 *            the base path is the location for content package file
+	 *            handling and all manipulations.
+	 * @param contentId
+	 *            the content id is the identifier of content for which the
+	 *            Processor is being processed currently.
 	 */
 	public LocalizeAssetProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -65,8 +75,12 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.
+	 * taxonomy.content.entity.Plugin)
 	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
@@ -91,31 +105,47 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	}
 
 	/**
-	 * Process assets download.
+	 * <code>processAssetsDownload</code> is the method responsible for start
+	 * the Asset Download, It also handles the retry mechanism of download where
+	 * the retry count is coming from the configuration.
 	 *
-	 * @param medias the medias
-	 * @return the map
+	 * @param medias
+	 *            the medias is <code>list</code> of <code>medias</code> from
+	 *            <code>ECRF Object</code>.
+	 * @return the map of <code>asset Id</code> and asset <code>file name</code>
+	 *         .
 	 */
 	@SuppressWarnings("unchecked")
 	private Map<String, String> processAssetsDownload(List<Media> medias) {
+		LOGGER.debug("Medias to Download: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
 		try {
+			LOGGER.info("Total Medias to Download: " + medias != null ? medias.size()
+					: "0" + " | [Content Id '" + contentId + "']");
+
 			Map<String, Object> downloadResultMap = downloadAssets(medias);
+			LOGGER.info("Downloaded Result Map After the Firts Try: ",
+					downloadResultMap + " | [Content Id '" + contentId + "']");
+
 			Map<String, String> successMap = (Map<String, String>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.success.name());
+			LOGGER.info("Successful Media Downloads: " + successMap + " | [Content Id '" + contentId + "']");
 			if (null != successMap && !successMap.isEmpty())
 				map.putAll(successMap);
+
 			List<Media> skippedMedia = (List<Media>) downloadResultMap
 					.get(ContentWorkflowPipelineParams.skipped.name());
+			LOGGER.info("Skipped Media Downloads: " + skippedMedia + " | [Content Id '" + contentId + "']");
 			if (null != skippedMedia && !skippedMedia.isEmpty()) {
-				LOGGER.info("Fetching the Retry Count From Configuration.");
+				LOGGER.info("Fetching the Retry Count From Configuration. | [Content Id '" + contentId + "']");
 				String retryCount = PropertiesUtil
 						.getProperty(ContentWorkflowPipelineParams.RETRY_ASSET_DOWNLOAD_COUNT.name());
 				if (!StringUtils.isBlank(retryCount)) {
 					int retryCnt = NumberUtils.createInteger(retryCount);
-					LOGGER.info("Starting the Retry For Count: " + retryCnt);
+					LOGGER.info("Starting the Retry For Count: " + retryCnt + " | [Content Id '" + contentId + "']");
 					for (int i = 0; i < retryCnt; i++) {
-						LOGGER.info("Retrying Asset Download For " + i + 1 + " times");
+						LOGGER.info("Retrying Asset Download For " + i + 1 + " times" + " | [Content Id '" + contentId
+								+ "']");
 						if (null != skippedMedia && !skippedMedia.isEmpty()) {
 							Map<String, Object> result = downloadAssets(skippedMedia);
 							Map<String, String> successfulDownloads = (Map<String, String>) result
@@ -136,17 +166,24 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 	}
 
 	/**
-	 * Download assets.
+	 * <code>downloadAssets</code> is the Utility method which tries to download
+	 * the given <code>medias</code>.
 	 *
-	 * @param medias the medias
-	 * @return the map
-	 * @throws InterruptedException the interrupted exception
-	 * @throws ExecutionException the execution exception
+	 * @param medias
+	 *            the medias is a <code>list</code> of <code>Medias</code> from
+	 *            <code>ECRF Object</code>.
+	 * @return the map of downloaded and skipped medias map.
+	 * @throws InterruptedException
+	 *             the interrupted exception is thrown when the concurrent
+	 *             execution is interrupted.
+	 * @throws ExecutionException
+	 *             the execution exception is thrown when there is an issue in
+	 *             running the Current Future Task.
 	 */
 	private Map<String, Object> downloadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
 		Map<String, Object> map = new HashMap<String, Object>();
 		if (null != medias && !StringUtils.isBlank(basePath)) {
-			LOGGER.info("Starting Asset Download Fanout.");
+			LOGGER.info("Starting Asset Download Fanout. | [Content Id '" + contentId + "']");
 			final List<Media> skippedMediaDownloads = new ArrayList<Media>();
 			final Map<String, String> successfulMediaDownloads = new HashMap<String, String>();
 			ExecutorService pool = Executors.newFixedThreadPool(10);
@@ -163,7 +200,8 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 								downloadPath += File.separator + ContentWorkflowPipelineParams.assets.name();
 							createDirectoryIfNeeded(downloadPath);
 							File downloadedFile = HttpDownloadUtility.downloadFile(media.getSrc(), downloadPath);
-							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile);
+							LOGGER.info("Downloaded file : " + media.getSrc() + " - " + downloadedFile
+									+ " | [Content Id '" + contentId + "']");
 							if (null == downloadedFile)
 								skippedMediaDownloads.add(media);
 							else
@@ -180,9 +218,14 @@ public class LocalizeAssetProcessor extends AbstractProcessor {
 					successfulMediaDownloads.putAll(m);
 			}
 			pool.shutdown();
+			LOGGER.info("Successful Media Download Count: " + successfulMediaDownloads.size() + " | [Content Id '"
+					+ contentId + "']");
+			LOGGER.info("Skipped Media Download Count: " + skippedMediaDownloads.size() + " | [Content Id '" + contentId
+					+ "']");
 			map.put(ContentWorkflowPipelineParams.success.name(), successfulMediaDownloads);
 			map.put(ContentWorkflowPipelineParams.skipped.name(), skippedMediaDownloads);
 		}
+		LOGGER.info("Returning the Map of Successful and Skipped Media. | [Content Id '" + contentId + "']");
 		return map;
 	}
 

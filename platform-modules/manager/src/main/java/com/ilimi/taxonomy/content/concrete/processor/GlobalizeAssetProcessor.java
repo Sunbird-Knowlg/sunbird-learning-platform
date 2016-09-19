@@ -44,15 +44,20 @@ import com.ilimi.taxonomy.content.processor.AbstractProcessor;
  * @see MissingControllerValidatorProcessor
  */
 public class GlobalizeAssetProcessor extends AbstractProcessor {
-	
+
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(GlobalizeAssetProcessor.class.getName());
-	
+
 	/**
-	 * Instantiates a new globalize asset processor.
+	 * Instantiates a new <code>GlobalizeAssetProcessor</code> and sets the base
+	 * path and current content id for further processing.
 	 *
-	 * @param basePath the base path
-	 * @param contentId the content id
+	 * @param basePath
+	 *            the base path is the location for content package file
+	 *            handling and all manipulations.
+	 * @param contentId
+	 *            the content id is the identifier of content for which the
+	 *            Processor is being processed currently.
 	 */
 	public GlobalizeAssetProcessor(String basePath, String contentId) {
 		if (!isValidBasePath(basePath))
@@ -65,93 +70,122 @@ public class GlobalizeAssetProcessor extends AbstractProcessor {
 		this.contentId = contentId;
 	}
 
-	/* (non-Javadoc)
-	 * @see com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.taxonomy.content.entity.Plugin)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.ilimi.taxonomy.content.processor.AbstractProcessor#process(com.ilimi.
+	 * taxonomy.content.entity.Plugin)
 	 */
 	@Override
 	protected Plugin process(Plugin plugin) {
 		try {
+			LOGGER.debug("ECRF Object (Plugin): ", plugin);
 			if (null != plugin) {
+				LOGGER.info("Starting the Process. | [Content Id '" + contentId + "']");
 				List<Media> medias = getMedia(plugin);
+				LOGGER.info("Total Medias: " + medias.size() + " | [Content Id '" + contentId + "']");
 				Map<String, String> uploadedAssetsMap = uploadAssets(medias);
 				Manifest manifest = plugin.getManifest();
+				LOGGER.info("Setting the Medias in Manifest. | [Content Id '" + contentId + "']");
 				if (null != manifest)
 					manifest.setMedias(getUpdatedMediaWithUrl(uploadedAssetsMap, medias));
 			}
-		} catch(InterruptedException | ExecutionException e) {
-			LOGGER.error("Globalize Asset Processor Error: failed to upload assets", e);
-			throw new ServerException(ContentErrorCodeConstants.ASSET_UPLOAD_ERROR.name(), 
+		} catch (InterruptedException | ExecutionException e) {
+			throw new ServerException(ContentErrorCodeConstants.ASSET_UPLOAD_ERROR.name(),
 					ContentErrorMessageConstants.ASSET_UPLOAD_ERROR + " | [GlobalizeAssetProcessor]", e);
 		} catch (Exception e) {
-			LOGGER.error("Globalize Asset Processor Error: server error", e);
-			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(), 
+			throw new ServerException(ContentErrorCodeConstants.PROCESSOR_ERROR.name(),
 					ContentErrorMessageConstants.PROCESSOR_ERROR + " | [GlobalizeAssetProcessor]", e);
 		}
-		
+
 		return plugin;
 	}
-	
+
 	/**
-	 * Gets the folder path.
+	 * Gets the folder path of <code>src</code>.
 	 *
-	 * @param src the src
-	 * @return the folder path
+	 * @param <code>src<code>
+	 *            the <code>src<code> attribute.
+	 * @return the folder path.
 	 */
 	private String getFolderPath(String src) {
+		String path = "";
 		if (StringUtils.isNotBlank(src)) {
-			return FilenameUtils.getPathNoEndSeparator(src);
+			path = FilenameUtils.getPathNoEndSeparator(src);
 		}
-		return null;
+		return path;
 	}
-	
+
 	/**
-	 * Upload assets.
+	 * <code>uploadAssets</code> is a method which uploads all the
+	 * <code>assets</code> to the storage space in concurrent way.
 	 *
-	 * @param medias the medias
-	 * @return the map
-	 * @throws InterruptedException the interrupted exception
-	 * @throws ExecutionException the execution exception
+	 * @param medias
+	 *            the medias is a <code>list</code> of <code>ECRF Media</code>
+	 *            Section.
+	 * @return the <code>map</code> of uploaded medias and updated
+	 *         <code>src</code> attributes
+	 * @throws <code>InterruptedException</code>
+	 *             when the Concurrent Upload Process is stopped.
+	 * @throws <code>ExecutionException</code>
+	 *             thrown by erroneous condition while executing the threads.
 	 */
 	private Map<String, String> uploadAssets(List<Media> medias) throws InterruptedException, ExecutionException {
+		LOGGER.debug("Medias: ", medias);
 		Map<String, String> map = new HashMap<String, String>();
-		if (null != medias && StringUtils.isNotBlank(basePath)){
+		if (null != medias && StringUtils.isNotBlank(basePath)) {
+			LOGGER.info("Starting the Fan-out for Upload. | [Content Id '" + contentId + "']");
 			ExecutorService pool = Executors.newFixedThreadPool(10);
-	        List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(medias.size());
-	        for (final Media media : medias) {
-	        	tasks.add(new Callable<Map<String, String>>() {
-	            	public Map<String, String> call() throws Exception {
-	                	Map<String, String> uploadMap = new HashMap<String, String>();
-	                    if (StringUtils.isNotBlank(media.getId()) && StringUtils.isNotBlank(media.getSrc()) && StringUtils.isNotBlank(media.getType())) {
-		                	File uploadFile;
-		                    if (isWidgetTypeAsset(media.getType())) 
-		                    	uploadFile = new File(basePath + File.separator + 
-		                    		ContentWorkflowPipelineParams.widgets.name() + File.separator + media.getSrc());
-		                    else
-		                    	uploadFile = new File(basePath + File.separator + 
-		                    		ContentWorkflowPipelineParams.assets.name() + File.separator + media.getSrc());
-		                    String[] uploadedFileUrl;
-		                    if (uploadFile.exists()) {
-		                    	String folderName = ContentConfigurationConstants.FOLDER_NAME + "/" + Slug.makeSlug(contentId, true);
-		                    	String path = getFolderPath(media.getSrc());
-		                    	if (StringUtils.isNotBlank(path))
-		                    		folderName = folderName + "/" + path;
-			                	uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME, folderName, uploadFile);
-			                	if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
-			                        uploadMap.put(media.getId(), uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
-		                    }
-	                    }
-	                    return uploadMap;
-	            	}
-	        	});
-	        }
-	        List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
-	        for (Future<Map<String, String>> uMap : results) {
-	        	Map<String, String> m = uMap.get();
-	            if (null != m)
-	            	map.putAll(m);
-	        }
-	        pool.shutdown();
+			List<Callable<Map<String, String>>> tasks = new ArrayList<Callable<Map<String, String>>>(medias.size());
+			for (final Media media : medias) {
+				LOGGER.info("Adding All Medias as Task fro Upload. | [Content Id '" + contentId + "']");
+				tasks.add(new Callable<Map<String, String>>() {
+					public Map<String, String> call() throws Exception {
+						Map<String, String> uploadMap = new HashMap<String, String>();
+						if (StringUtils.isNotBlank(media.getId()) && StringUtils.isNotBlank(media.getSrc())
+								&& StringUtils.isNotBlank(media.getType())) {
+							File uploadFile;
+							if (isWidgetTypeAsset(media.getType()))
+								uploadFile = new File(
+										basePath + File.separator + ContentWorkflowPipelineParams.widgets.name()
+												+ File.separator + media.getSrc());
+							else
+								uploadFile = new File(
+										basePath + File.separator + ContentWorkflowPipelineParams.assets.name()
+												+ File.separator + media.getSrc());
+							LOGGER.info("Upload File: | [Content Id '" + contentId + "']");
+							String[] uploadedFileUrl;
+							if (uploadFile.exists()) {
+								String folderName = ContentConfigurationConstants.FOLDER_NAME + "/"
+										+ Slug.makeSlug(contentId, true);
+								String path = getFolderPath(media.getSrc());
+								LOGGER.info("Folder to Upload: " + folderName + "| [Content Id '" + contentId + "']");
+								LOGGER.info("Path to Upload: " + path + "| [Content Id '" + contentId + "']");
+								if (StringUtils.isNotBlank(path))
+									folderName = folderName + "/" + path;
+								uploadedFileUrl = AWSUploader.uploadFile(ContentConfigurationConstants.BUCKET_NAME,
+										folderName, uploadFile);
+								if (null != uploadedFileUrl && uploadedFileUrl.length > 1)
+									uploadMap.put(media.getId(),
+											uploadedFileUrl[ContentConfigurationConstants.AWS_UPLOAD_RESULT_URL_INDEX]);
+							}
+						}
+						LOGGER.info("Download Finished for Media Id: " + media.getId() + " | [Content Id '" + contentId
+								+ "']");
+						return uploadMap;
+					}
+				});
+			}
+			List<Future<Map<String, String>>> results = pool.invokeAll(tasks);
+			for (Future<Map<String, String>> uMap : results) {
+				Map<String, String> m = uMap.get();
+				if (null != m)
+					map.putAll(m);
+			}
+			pool.shutdown();
 		}
+		LOGGER.info("Returning the Map of Uploaded Assets. | [Content Id '" + contentId + "']");
 		return map;
 	}
 }
