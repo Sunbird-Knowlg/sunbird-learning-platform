@@ -141,10 +141,15 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
         if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
             Map<String, Object> propertyMap = new HashMap<String, Object>();
             for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-                Map<String, Object> valueMap=new HashMap<String, Object>();
-                valueMap.put("ov", null); // old value
-                valueMap.put("nv", entry.getValue()); // new value
-                propertyMap.put((String) entry.getKey(), valueMap);
+            	String key = entry.getKey();
+            	if (StringUtils.isNotBlank(key)) {
+            		Map<String, Object> valueMap=new HashMap<String, Object>();
+                    valueMap.put("ov", null); // old value
+                    valueMap.put("nv", entry.getValue()); // new value
+                    // temporary check to not sync body and editorState
+                    if (!StringUtils.equalsIgnoreCase("body", key) && !StringUtils.equalsIgnoreCase("editorState", key))
+                    	propertyMap.put(entry.getKey(), valueMap);
+            	}
             }
             transactionData.put(CompositeSearchParams.properties.name(), propertyMap);
         } else

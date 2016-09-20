@@ -1,0 +1,15 @@
+{
+    "name": "getLibrary",
+    "parameters": [{
+    	"name":"library_id",
+    	"index": 1,
+    	"routingParam": false,
+		"datatype":"java.lang.String"
+    }],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/library/*",
+        "pathParams": ["library_id"]
+    },
+    "body": ""
+}

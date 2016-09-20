@@ -56,7 +56,7 @@ public class BaseFinalizer extends BasePipeline {
 									thumbFile.delete();
 									LOGGER.info("Deleted local Thumbnail file");
 								} catch (Exception e) {
-									LOGGER.info("Error! While deleting the Thumbnail File.", e);
+									LOGGER.error("Error! While deleting the Thumbnail File.", e);
 								}
 							}
 						}
@@ -64,7 +64,7 @@ public class BaseFinalizer extends BasePipeline {
 							appIconFile.delete();
 							LOGGER.info("Deleted local AppIcon file");
 						} catch (Exception e) {
-							LOGGER.info("Error! While deleting the App Icon File.", e);
+							LOGGER.error("Error! While deleting the App Icon File.", e);
 						}
 					}
 				}

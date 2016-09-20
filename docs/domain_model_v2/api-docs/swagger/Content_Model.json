@@ -1,0 +1,800 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2.0.0",
+    "title": "Content Model API",
+    "description": "The Content Model API deals with all the operations related to the Content in EkStep Platform, including the basic CRUD (Create, Update, Read and Delete) operations and also the high level operations as well such as upload, publish the Content in EkStep Platform.",
+    "license": {
+      "name": "-",
+      "url": "http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT"
+    }
+  },
+  "host": "api.ekstep.in",
+  "basePath": "/v2",
+  "schemes": [
+    "https"
+  ],
+  "securityDefinitions": {},
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/content": {
+      "post": {
+        "summary": "Creates a Content",
+        "description": "The _content_ endpoint is used to create the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _content_ endpoint returns the node id as _node_id_ i.e. the identifier of created content.",
+        "operationId": "content.create",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Body",
+            "in": "body",
+            "required": true,
+            "x-is-map": false,
+            "schema": {
+              "$ref": "#/parameters/ContentRequestObject"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Content Created Successfully",
+            "schema": {
+                "$ref": "#/responses/ContentCreateResponse"
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "parameters": {
+    "ContentRequestObject": {
+      "title": "Content Request Object",
+      "type": "object",
+      "properties": {
+        "request": {
+          "$ref": "#/parameters/ContentObject"
+        }
+      },
+      "required": [
+        "request"
+      ]
+    },
+    "ContentObject": {
+      "title": "Content Object",
+      "type": "object",
+      "properties": {
+        "content": {
+          "$ref": "#/definitions/Content"
+        }
+      },
+      "required": [
+        "content"
+      ]
+    }
+  },
+  "responses": {
+    "ContentCreateResponse": {
+      "title": "Create Content Response",
+      "type": "object",
+      "properties": {
+        "allOf": [{
+          "$ref": "#/definitions/SuccessResponseHeader"
+        },
+        {
+            "$ref": "#/definitions/ResultWithNodeId"
+        }]
+      }
+    },
+    "ContentUpdateResponse": {
+
+    },
+    "ContentDeleteResponse": {
+
+    },
+    "ContentGetResponse": {
+
+    },
+    "ContentListResponse": {
+
+    },
+    "ContentSearchResponse": {
+
+    },
+    "ContentUploadResponse": {
+
+    },
+    "ContentPublishResponse": {
+
+    },
+    "ContentCreateErrorResponse": {
+
+    },
+    "ContentUpdateErrorResponse": {
+
+    },
+    "ContentDeleteErrorResponse": {
+
+    },
+    "ContentGetErrorResponse": {
+
+    },
+    "ContentListErrorResponse": {
+
+    },
+    "ContentSearchErrorResponse": {
+
+    },
+    "ContentUploadErrorResponse": {
+
+    },
+    "ContentPublishErrorResponse": {
+
+    }
+  },
+  "definitions": {
+    "Content": {
+      "title": "Content Metadata",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the content"
+        },
+        "code": {
+          "type": "string",
+          "description": "Unique code for the content"
+        },
+        "os": {
+          "type": "string",
+          "description": "Supported Operating Systems"
+        },
+        "minOsVersion": {
+          "type": "string",
+          "description": "E.g. 4.4"
+        },
+        "minGenieVersion": {
+          "type": "string",
+          "description": "E.g. 5.0"
+        },
+        "minSupportedVersion": {
+          "type": "string",
+          "description": "Minimum Supported Version of this content"
+        },
+        "filter": {
+          "type": "string",
+          "description": "Example - 'Delhi Curriculum'"
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Visibility (set as 'Parent' to hide this from any other list view)"
+        },
+        "posterImage": {
+          "type": "string",
+          "description": ""
+        },
+        "mimeType": {
+          "type": "string",
+          "description": ""
+        },
+        "mediaType": {
+          "type": "string",
+          "description": ""
+        },
+        "appIcon": {
+          "type": "string",
+          "description": ""
+        },
+        "grayScaleAppIcon": {
+          "type": "string",
+          "description": ""
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": ""
+        },
+        "format": {
+          "type": "string",
+          "description": ""
+        },
+        "duration": {
+          "type": "string",
+          "description": ""
+        },
+        "size": {
+          "type": "double",
+          "description": ""
+        },
+        "idealScreenSize": {
+          "type": "string",
+          "description": ""
+        },
+        "idealScreenDensity": {
+          "type": "string",
+          "description": ""
+        },
+        "releaseNotes": {
+          "type": "string",
+          "description": ""
+        },
+        "pkgVersion": {
+          "type": "double",
+          "description": "Version number of the package file"
+        },
+        "resources": {
+          "type": "string",
+          "description": ""
+        },
+        "downloadUrl": {
+          "type": "string",
+          "description": "URL to download the content"
+        },
+        "artifactUrl": {
+          "type": "string",
+          "description": "URL to download the content"
+        },
+        "objects": {
+          "type": "string",
+          "description": ""
+        },
+        "developer": {
+          "type": "string",
+          "description": "Content Developer"
+        },
+        "source": {
+          "type": "string",
+          "description": "Source of the content (e.g. MangoSense)"
+        },
+        "publisher": {
+          "type": "string",
+          "description": "Publisher of the content (e.g. Pratham Books)"
+        },
+        "owner": {
+          "type": "string",
+          "description": "Content Owner"
+        },
+        "portalOwner": {
+          "type": "string",
+          "description": "Portal Owner"
+        },
+        "attributions": {
+          "type": "string",
+          "description": "Attributions/Credits"
+        },
+        "collaborators": {
+          "type": "string",
+          "description": "Collaborators"
+        },
+        "voiceCredits": {
+          "type": "string",
+          "description": "Voice Credits"
+        },
+        "soundCredits": {
+          "type": "string",
+          "description": "Audio and background scores by"
+        },
+        "imageCredits": {
+          "type": "string",
+          "description": "Images created by"
+        },
+        "copyright": {
+          "type": "string",
+          "description": ""
+        },
+        "license": {
+          "type": "string",
+          "description": ""
+        },
+        "language": {
+          "type": "string",
+          "description": ""
+        },
+        "words": {
+          "type": "string",
+          "description": "Dictionary words in this content"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text of the story"
+        },
+        "forkable": {
+          "type": "boolean",
+          "description": "Forkable"
+        },
+        "translatable": {
+          "type": "boolean",
+          "description": "Translatable"
+        },
+        "ageGroup": {
+          "type": "string",
+          "description": "Suggested Age Group"
+        },
+        "gradeLevel": {
+          "type": "string",
+          "description": ""
+        },
+        "interactivityLevel": {
+          "type": "string",
+          "description": ""
+        },
+        "curriculum": {
+          "type": "string",
+          "description": ""
+        },
+        "contentType": {
+          "type": "string",
+          "description": ""
+        },
+        "templateType": {
+          "type": "string",
+          "description": ""
+        },
+        "genre": {
+          "type": "string",
+          "description": ""
+        },
+        "theme": {
+          "type": "string",
+          "description": ""
+        },
+        "rating": {
+          "type": "double",
+          "description": ""
+        },
+        "rating_a": {
+          "type": "double",
+          "description": ""
+        },
+        "quality": {
+          "type": "double",
+          "description": ""
+        },
+        "popularity": {
+          "type": "double",
+          "description": ""
+        },
+        "downloads": {
+          "type": "double",
+          "description": ""
+        },
+        "launchUrl": {
+          "type": "string",
+          "description": "URL to launch the game"
+        },
+        "osId": {
+          "type": "string",
+          "description": "Operating System specific Id"
+        },
+        "activity_class": {
+          "type": "string",
+          "description": ""
+        },
+        "scaffolding": {
+          "type": "string",
+          "description": ""
+        },
+        "feedback": {
+          "type": "string",
+          "description": ""
+        },
+        "feedbackType": {
+          "type": "string",
+          "description": ""
+        },
+        "teachingMode": {
+          "type": "string",
+          "description": ""
+        },
+        "skills": {
+          "type": "string",
+          "description": ""
+        },
+        "keywords": {
+          "type": "string",
+          "description": ""
+        },
+        "domain": {
+          "type": "string",
+          "description": ""
+        },
+        "status": {
+          "type": "string",
+          "description": ""
+        },
+        "optStatus": {
+          "type": "string",
+          "description": ""
+        },
+        "description": {
+          "type": "string",
+          "description": ""
+        },
+        "body": {
+          "type": "string",
+          "description": ""
+        },
+        "editorState": {
+          "type": "string",
+          "description": ""
+        },
+        "data": {
+          "type": "string",
+          "description": ""
+        },
+        "loadingMessage": {
+          "type": "string",
+          "description": "Loading Message"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "Checksum value of the story package file"
+        },
+        "learningObjective": {
+          "type": "string",
+          "description": ""
+        },
+        "createdBy": {
+          "type": "string",
+          "description": ""
+        },
+        "createdOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "lastUpdatedBy": {
+          "type": "string",
+          "description": ""
+        },
+        "lastUpdatedOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "lastSubmittedBy": {
+          "type": "string",
+          "description": ""
+        },
+        "lastSubmittedOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "lastPublishedBy": {
+          "type": "string",
+          "description": ""
+        },
+        "lastPublishedOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "version": {
+          "type": "double",
+          "description": ""
+        },
+        "versionDate": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "origin": {
+          "type": "String",
+          "description": ""
+        },
+        "versionCreatedBy": {
+          "type": "string",
+          "description": ""
+        }
+      },
+      "required": [
+        "name",
+        "code",
+        "mediaType",
+        "mimeType"
+      ]
+    },
+    "ContentResponse": {
+      "title": "Content Response Metadata",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the content"
+        },
+        "code": {
+          "type": "string",
+          "description": "Unique code for the content"
+        },
+        "keywords": {
+          "type": "string",
+          "description": ""
+        },
+        "appIcon": {
+          "type": "string",
+          "description": ""
+        },
+        "grayScaleAppIcon": {
+          "type": "string",
+          "description": ""
+        },
+        "size": {
+          "type": "double",
+          "description": ""
+        },
+        "downloadUrl": {
+          "type": "string",
+          "description": "URL to download the content"
+        },
+        "artifactUrl": {
+          "type": "string",
+          "description": "URL to download the content"
+        },
+        "pkgVersion": {
+          "type": "double",
+          "description": "Version number of the package file"
+        },
+        "loadingMessage": {
+          "type": "string",
+          "description": "Loading Message"
+        },
+        "launchUrl": {
+          "type": "string",
+          "description": "URL to launch the game"
+        },
+        "osId": {
+          "type": "string",
+          "description": "Operating System specific Id"
+        },
+        "posterImage": {
+          "type": "string",
+          "description": ""
+        },
+        "activity_class": {
+          "type": "string",
+          "description": ""
+        },
+        "filter": {
+          "type": "string",
+          "description": "Example - 'Delhi Curriculum'"
+        },
+        "mimeType": {
+          "type": "string",
+          "description": ""
+        },
+        "minSupportedVersion": {
+          "type": "string",
+          "description": "Minimum Supported Version of this content"
+        },
+        "checksum": {
+          "type": "string",
+          "description": "Checksum value of the story package file"
+        },
+        "lastUpdatedOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "createdOn": {
+          "type": "dateTime",
+          "description": ""
+        },
+        "status": {
+          "type": "string",
+          "description": ""
+        },
+        "contentType": {
+          "type": "string",
+          "description": ""
+        },
+        "visibility": {
+          "type": "string",
+          "description": "Visibility (set as 'Parent' to hide this from any other list view)"
+        },
+        "thumbnail": {
+          "type": "string",
+          "description": ""
+        },
+        "language": {
+          "type": "string",
+          "description": ""
+        },
+        "owner": {
+          "type": "string",
+          "description": "Content Owner"
+        },
+        "collaborators": {
+          "type": "string",
+          "description": "Collaborators"
+        },
+        "voiceCredits": {
+          "type": "string",
+          "description": "Voice Credits"
+        },
+        "soundCredits": {
+          "type": "string",
+          "description": "Audio and background scores by"
+        },
+        "imageCredits": {
+          "type": "string",
+          "description": "Images created by"
+        },
+        "portalOwner": {
+          "type": "string",
+          "description": "Portal Owner"
+        },
+        "developer": {
+          "type": "string",
+          "description": "Content Developer"
+        },
+        "attributions": {
+          "type": "string",
+          "description": "Attributions/Credits"
+        },
+        "forkable": {
+          "type": "boolean",
+          "description": "Forkable"
+        },
+        "translatable": {
+          "type": "boolean",
+          "description": "Translatable"
+        },
+        "mediaType": {
+          "type": "string",
+          "description": ""
+        },
+        "optStatus": {
+          "type": "string",
+          "description": ""
+        },
+        "domain": {
+          "type": "string",
+          "description": ""
+        },
+        "lastPublishedOn": {
+          "type": "dateTime",
+          "description": ""
+        }
+      }
+    },
+    "SuccessResponseHeader": {
+        "title": "SuccessResponseHeader",
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "API Identifier"
+            },
+            "ver": {
+                "type": "string",
+                "description": "API version information"
+            },
+            "ts": {
+                "type": "string",
+                "description": "API execution timespan"
+            },
+            "params": {
+                "type": "object",
+                "description": "API response parameters",
+                "$ref": "#/definitions/SuccessResponseParams"
+            },
+            "responseCode": {
+                "type": "object",
+                "description": "API response code "
+            }
+        }
+    },
+    "SuccessResponseParams": {
+        "title": "Success Response Parameter",
+        "type": "object",
+        "properties": {
+            "resmsgid": {
+                "type": "string",
+                "description": "Response Message Id"
+            },
+            "msgid": {
+                "type": "string",
+                "description": "Message Id"
+            },
+            "err": {
+                "type": "string",
+                "description": "Error Code"
+            },
+            "status": {
+                "type": "string",
+                "description": "Response Status"
+            },
+            "errmsg": {
+                "type": "string",
+                "description": "Error Message"
+            }
+        }
+    },
+    "FailedResponseHeader": {
+        "title": "Failed Opretaion Response Header",
+        "type": "object",
+        "properties": {
+            "id": {
+                "type": "string",
+                "description": "API Identifier"
+            },
+            "ver": {
+                "type": "string",
+                "description": "API version information"
+            },
+            "ts": {
+                "type": "string",
+                "description": "API execution timespan"
+            },
+            "params": {
+                "type": "string",
+                "description": "API response parameters"
+            },
+            "responseCode": {
+                "type": "object",
+                "description": "API response code "
+            }
+        }
+    },
+    "FailedResponseParams": {
+        "title": "Failed Operation Response Params",
+        "type": "object",
+        "properties": {
+            "resmsgid": {
+                "type": "string",
+                "description": "Response Message Id"
+            },
+            "msgid": {
+                "type": "string",
+                "description": "Message Id"
+            },
+            "err": {
+                "type": "string",
+                "description": "Error Code"
+            },
+            "status": {
+                "type": "string",
+                "description": "Response Status"
+            },
+            "errmsg": {
+                "type": "string",
+                "description": "Error Message"
+            }
+        }
+    },
+    "EmptyResult": {
+        "title": "Empty Result",
+        "type": "object",
+        "properties": {}
+    },
+    "NodeId": {
+        "title": "NodeId",
+        "type": "object",
+        "properties": {
+            "node_id": {
+                "type": "string",
+                "description": "Node Identifier"
+            }
+        }
+    },
+    "EcarUrl": {
+        "title": "EcarUrl",
+        "type": "object",
+        "properties": {
+            "ecar_url": {
+                "type": "string",
+                "description": "Url to download created ECAR"
+            }
+        }
+    },
+    "ResultWithNodeId": {
+      "title": "Result Containing Node Id",
+      "type": "object",
+      "properties": {
+        "result": {
+          "$ref": "#/definitions/NodeId"
+        }
+      }
+    }
+  }
+}

@@ -6,9 +6,11 @@ identifier,objectType,varna,unicode,type,isoSymbol,image,status
 उ,Varna,उ,0909,Vowel,u,,Live
 ऊ,Varna,ऊ,090A,Vowel,ū,,Live
 ऋ,Varna,ऋ,090B,Vowel,ṛ,,Live
+ऍ,Varna,ऍ,090D,Vowel,ê,,Live
 ऎ,Varna,ऎ,090E,Vowel,e,,Live
 ए,Varna,ए,090F,Vowel,E,,Live
 ऐ,Varna,ऐ,0910,Vowel,ai,,Live
+ऑ,Varna,ऑ,0911,Vowel,ô,,Live
 ऒ,Varna,ऒ,0912,Vowel,o,,Live
 ओ,Varna,ओ,0913,Vowel,O,,Live
 औ,Varna,औ,0914,Vowel,au,,Live
@@ -49,3 +51,5 @@ identifier,objectType,varna,unicode,type,isoSymbol,image,status
 ष,Varna,ष,0937,Consonant,ṣ,,Live
 स,Varna,स,0938,Consonant,s,,Live
 ह,Varna,ह,0939,Consonant,h,,Live
+ज़,Varna,ज़,095B,Consonant,z,,Live
+फ़,Varna,फ़,095E,Consonant,f,,Live

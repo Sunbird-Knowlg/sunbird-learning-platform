@@ -48,8 +48,11 @@ public class NodeDTO implements Serializable {
         this.objectType = objectType;
         this.relation = relation;
         if (null != metadata && !metadata.isEmpty()) {
-            if (metadata.containsKey(SystemProperties.IL_SEQUENCE_INDEX.name())) {
-                this.index = (Integer) metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name());
+            if (metadata.containsKey(SystemProperties.IL_SEQUENCE_INDEX.name()) && null != metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name())) {
+        		try {
+					this.index = Integer.parseInt(metadata.get(SystemProperties.IL_SEQUENCE_INDEX.name()).toString());
+				} catch (Exception e) {
+				}
             }
         }
     }

@@ -1,0 +1,4 @@
+- hosts: env
+  become: yes
+  roles:
+        - java

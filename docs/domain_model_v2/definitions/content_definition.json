@@ -1298,6 +1298,18 @@
           "indexed": false
         },
         {
+          "propertyName": "origin",
+          "title": "Origin",
+          "description": "",
+          "category": "Lifecycle",
+          "dataType": "Text",
+          "required": false,
+          "displayProperty": "Readonly",
+          "defaultValue": "",
+          "renderingHints": "{'order': 24}",
+          "indexed": true
+        },
+        {
           "propertyName": "versionCreatedBy",
           "title": "Version Created By",
           "description": "",
@@ -1369,6 +1381,16 @@
           ],
           "title": "children",
           "description": "Child content items (in sorted order) in case of collections like Textbooks",
+          "required": false,
+          "renderingHints": "{ 'order': 26 }"
+        },
+        {
+          "relationName": "pre-requisite",
+          "objectTypes": [
+            "Library"
+          ],
+          "title": "libraries",
+          "description": "Pre-requisite libraries for this content",
           "required": false,
           "renderingHints": "{ 'order': 26 }"
         }

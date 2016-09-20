@@ -1,0 +1,20 @@
+---
+- name: stop elasticsearch
+  become: yes
+  service: name=elasticsearch state=stopped
+
+- name: mongodb stop
+  become_user: mongod
+  become: yes
+  service: name=mongod state=stopped
+
+- name: copy template
+  template: src=stop_script.j2 dest={{ user_home }}/stop_script.sh
+
+- name: run script
+  become: yes
+  shell: sh {{ user_home }}/stop_script.sh
+
+- name: stop tomcat
+  become: yes
+  service: name=tomcat state=stopped

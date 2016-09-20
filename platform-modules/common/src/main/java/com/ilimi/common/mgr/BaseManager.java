@@ -62,7 +62,9 @@ public abstract class BaseManager {
             Future<Object> future = Patterns.ask(router, request, RequestRouterPool.REQ_TIMEOUT);
             Object obj = Await.result(future, RequestRouterPool.WAIT_TIMEOUT.duration());
             if (obj instanceof Response) {
-                return (Response) obj;
+            	Response response = (Response) obj;
+            	logger.info("Response Params: " + response.getParams() + " | Code: " + response.getResponseCode() + " | Result: " + response.getResult().keySet());
+                return response;
             } else {
                 return ERROR(TaxonomyErrorCodes.SYSTEM_ERROR.name(), "System Error", ResponseCode.SERVER_ERROR);
             }

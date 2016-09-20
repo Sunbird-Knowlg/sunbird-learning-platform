@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public class LanguageUtil {
 
-    private static String[] punctuations = new String[] { ".", ",", ";", "|", "।", "?", "!", "*" };
+    private static String[] punctuations = new String[] { ".", ",", ";", "|", "।", "?", "!", "*", "'", "\"", "(", ")", "’", "`", "!", ":" };
 
     public static String replacePunctuations(String text) {
         if (StringUtils.isNotBlank(text)) {

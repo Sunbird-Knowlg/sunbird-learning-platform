@@ -1,0 +1,9 @@
+{
+    "name": "getAllLibraries",
+    "parameters": [],
+    "requestPath": {
+        "type": "GET",
+        "url": "/v2/library"
+    },
+    "body": ""
+}

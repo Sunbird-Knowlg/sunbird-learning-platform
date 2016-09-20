@@ -117,8 +117,6 @@ if {$wordsSize > $startWordsSizeString} {
 	set topWords $searchResult
 }
 
-set topWordsList [java::cast List $topWords]
-
 set ids [java::new ArrayList]
 set wordScore [java::new HashMap]
 set wordIdMap [java::new HashMap]
@@ -194,7 +192,7 @@ java::for {Map topWord} $topWords {
 		set resp_traverse [traversePaths $graphId $traverser]
 		set check_error [check_response_error $resp_traverse]
 		if {$check_error} {
-			return $resp_traverse;
+			return [java::new ArrayList];
 		} 
 		
 		#get paths from traversals

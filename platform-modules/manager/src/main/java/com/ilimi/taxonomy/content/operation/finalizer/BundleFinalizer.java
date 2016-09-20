@@ -9,6 +9,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.ekstep.common.slugs.Slug;
 import org.ekstep.common.util.HttpDownloadUtility;
 
 import com.ilimi.common.dto.Response;
@@ -118,9 +119,10 @@ public class BundleFinalizer extends BaseFinalizer {
 				writeECMLFile(basePath, ecml, ecmlType);
 
 				// Create 'ZIP' Package
-				String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + contentId
+				String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 						+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 						+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
+				LOGGER.info("Zip File Name: " + zipFileName);
 				createZipPackage(basePath, zipFileName);
 				zipPackages.add(new File(zipFileName));
 

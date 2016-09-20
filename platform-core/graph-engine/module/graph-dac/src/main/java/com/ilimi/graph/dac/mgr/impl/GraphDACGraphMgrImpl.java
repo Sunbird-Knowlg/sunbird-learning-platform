@@ -88,7 +88,7 @@ public class GraphDACGraphMgrImpl extends BaseGraphManager implements IGraphDACG
 					"Required Parameters are missing");
 		} else {
 			try {
-				service.createGraphUniqueContraint(graphId, null, request);
+				service.createGraphUniqueContraint(graphId, indexProperties, request);
 				OK(GraphDACParams.graph_id.name(), graphId, getSender());
 			} catch (Exception e) {
 				ERROR(e, getSender());

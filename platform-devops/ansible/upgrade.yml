@@ -1,4 +1,0 @@
-- hosts: env
-  roles:
-        - Stopservice
-        - java

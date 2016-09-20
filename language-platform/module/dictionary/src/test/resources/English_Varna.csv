@@ -1,8 +1,8 @@
 identifier,objectType,varna,unicode,type,isoSymbol,image,status,altIsoSymbol
 AA,Varna,AA,,Vowel,ā,,Live,ã
-AE,Varna,AE,,Vowel,e,,Live,
+AE,Varna,AE,,Vowel,ê,,Live,e
 AH,Varna,AH,,Vowel,a,,Live,
-AO,Varna,AO,,Vowel,ō,,Live,
+AO,Varna,AO,,Vowel,ô,,Live,o
 AW,Varna,AW,,Vowel,au,,Live,
 AY,Varna,AY,,Vowel,ai,,Live,
 B,Varna,B,,Consonant,b,,Live,
@@ -10,8 +10,8 @@ CH,Varna,CH,,Consonant,ch,,Live,
 D,Varna,D,,Consonant,ḍ,,Live,
 DH,Varna,DH,,Consonant,d,,Live,
 EH,Varna,EH,,Vowel,e,,Live,
-ER,Varna,ER,,Consonant,er,,Live,e+r
-EY,Varna,EY,,Consonant,ey,,Live,e
+ER,Varna,ER,,Consonant,er,,Live,a+r
+EY,Varna,EY,,Vowel,ey,,Live,e
 F,Varna,F,,Consonant,f,,Live,ph
 G,Varna,G,,Consonant,g,,Live,
 HH,Varna,HH,,Consonant,h,,Live,
@@ -24,7 +24,7 @@ M,Varna,M,,Consonant,m,,Live,
 N,Varna,N,,Consonant,n,,Live,
 NG,Varna,NG,,Consonant,ṁg,,Live,ṃ+g
 OW,Varna,OW,,Vowel,ō,,Live,o
-OY,Varna,OY,,Consonant,ōy,,Live,ai
+OY,Varna,OY,,Consonant,ô+y,,Live,o+y
 P,Varna,P,,Consonant,p,,Live,
 R,Varna,R,,Consonant,r,,Live,
 S,Varna,S,,Consonant,s,,Live,
@@ -32,9 +32,9 @@ SH,Varna,SH,,Consonant,ṣ,,Live,
 T,Varna,T,,Consonant,ṭ,,Live,
 TH,Varna,TH,,Consonant,th,,Live,
 UH,Varna,UH,,Vowel,u,,Live,
-UW,Varna,UW,,Consonant,ū,,Live,
+UW,Varna,UW,,Vowel,ū,,Live,
 V,Varna,V,,Consonant,v,,Live,
 W,Varna,W,,Consonant,v,,Live,
 Y,Varna,Y,,Consonant,y,,Live,
-Z,Varna,Z,,Consonant,j,,Live,
+Z,Varna,Z,,Consonant,z,,Live,j
 ZH,Varna,ZH,,Consonant,ś,,Live,

@@ -81,9 +81,10 @@ public class OrchestratorManagerImpl implements IOrchestratorManager {
     @Override
     public void updateScript(String name, OrchestratorScript script) {
         OrchestratorScript dbScript = daoService.getScript(name);
-        if (null == dbScript)
-            throw new ResourceNotFoundException(OrchestratorErrorCodes.ERR_SCRIPT_NOT_FOUND.name(),
-                    "Script not found for name: " + name);
+        if (null == dbScript) {
+        	dbScript = new OrchestratorScript();
+        	dbScript.setType(ScriptTypes.SCRIPT.name());
+        }
         if (StringUtils.equalsIgnoreCase(ScriptTypes.SCRIPT.name(), dbScript.getType())) {
             validateScript(script);
             List<OrchestratorScript> scripts = daoService.getScriptsByRequestPath(script.getRequestPath().getUrl(),
