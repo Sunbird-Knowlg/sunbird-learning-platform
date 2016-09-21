@@ -38,13 +38,11 @@ proc isNotEmpty {list} {
 }
 
 #function to get wordChains based on RhymingSound set and min/max chainLength
-proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore minChainLength maxChainLength ruleName} {
+proc getRhymingsoundWordChain {rhymingSoundSetId graphId validWordIds wordScore minChainLength maxChainLength ruleName} {
 		set totalScore 0
 		set averageScore 0.0
  		# chainLength holds current word chain length
 		set chainLength 0
-		# wordChains is list
-    set wordChains [java::new ArrayList]
 		# getSetMembers of given RhymingSound set
 		set setResponse [getSetMembers $graphId [$rhymingSoundSetId toString]]
 		# check whether getSetMembers response is success or error
@@ -59,8 +57,12 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 			# loop through for each member of RhymingSound set
 			java::for {String memberID} $rhymingSoundMembers {
 				# check whether the member of rhymingSound set is exist in search result(validWordIds)
+				# and add it if ma
 				set validMember [$validWordIds contains $memberID]
 				if {$validMember == 1} {
+					set removed [$validWordIds remove $memberID]
+				}
+				if {($validMember == 1) && ($chainLength < $maxChainLength)} {
 						# add rhymingSound member into wordChain list
 						$wordChain add $memberID
 						# compute totalScore by adding the new member score
@@ -70,41 +72,20 @@ proc getRhymingsoundWordChains {rhymingSoundSetId graphId validWordIds wordScore
 						# increment chainLength by 1
 						set chainLength [expr $chainLength + 1]
 				}
-				# freeze wordChain and add it into list(wordChains) if its length crossed max_chain_length
-        if {$chainLength >= $maxChainLength} {
-						# compute average score
-						set averageScore [expr $totalScore/$chainLength]
-						set wordChainRecord [java::new HashMap]
-						$wordChainRecord put "list" $wordChain
-						$wordChainRecord put "score" $averageScore
-						$wordChainRecord put "relation" $ruleName
-						# add current wordChain into wordChains list
-						$wordChains add $wordChainRecord
 
-						# remove the member from ValidWordIDS as to avoid processing them again in main function
-						set removed [$validWordIds removeAll $wordChain]
-
-						# reset wordChain, length and score variables
-						set wordChain [java::new ArrayList]
-						set chainLength 0
-						set totalScore 0
-        }
 				# end of the loop
 			}
-		  # current chain length is less than min_chain_length ignore them, return existing wordChains
+		  	# current chain length is less than min_chain_length ignore them, return null
 			if {$chainLength < $minChainLength} {
-				return $wordChains
+				return [java::null]
 			}
-		  # add wordchain into existing wordChains and return wordChains
+		  	# add wordchain ids into wordChain record with average score and relation_name
 			set averageScore [expr $totalScore/$chainLength]
 			set wordChainRecord [java::new HashMap]
 			$wordChainRecord put "list" $wordChain
 			$wordChainRecord put "score" $averageScore
 			$wordChainRecord put "relation" $ruleName
-			$wordChains add $wordChainRecord
-			# remove the member from ValidWordIDS as to avoid processing them again in main function
-			set removed [$validWordIds removeAll $wordChain]
-			return $wordChains
+			return $wordChainRecord
 		}
 }
 
@@ -209,13 +190,12 @@ while { ($topWordCount > $count) && ($listSize > $count) } {
 		set isRhymingSoundSetIdNull [java::isnull $rhymingSoundSetId]
 		# 0 is false and 1 is true in the above statement
 		if {$isRhymingSoundSetIdNull == 0} {
-
-			# get wordChains of rhymingSound
-			set wordChains [getRhymingsoundWordChains $rhymingSoundSetId $graphId $validWordIds $wordScore $minChainLength $maxChainLength $ruleName]
-			set hasWordChain [isNotEmpty $wordChains]
-			if { $hasWordChain } {
+			# get wordChain of rhymingSound
+			set wordChain [getRhymingsoundWordChain $rhymingSoundSetId $graphId $validWordIds $wordScore $minChainLength $maxChainLength $ruleName]
+			set isWordChainNull [java::isnull $wordChain]
+			if { $isWordChainNull == 0 } {
 				# add all wordChains into wordChainCollection
-				$wordChainCollection addAll $wordChains
+				$wordChainCollection add $wordChain
 			}
 		}
 		#increment count by 1

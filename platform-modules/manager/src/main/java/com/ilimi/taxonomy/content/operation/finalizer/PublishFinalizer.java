@@ -107,9 +107,10 @@ public class PublishFinalizer extends BaseFinalizer {
 			// Write ECML File
 			writeECMLFile(basePath, ecml, ecmlType);
 			// Create 'ZIP' Package
-			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + contentId
+			String zipFileName = basePath + File.separator + System.currentTimeMillis() + "_" + Slug.makeSlug(contentId)
 					+ ContentConfigurationConstants.FILENAME_EXTENSION_SEPERATOR
 					+ ContentConfigurationConstants.DEFAULT_ZIP_EXTENSION;
+			LOGGER.info("Zip File Name: " + zipFileName);
 			createZipPackage(basePath, zipFileName);
 			// Upload Package
 			File packageFile = new File(zipFileName);

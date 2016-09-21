@@ -1,31 +1,47 @@
 ---
-- name: stop tomcat
+- name: Stop tomcat
   become: yes
   service: name=tomcat state=stopped
 
-- name: install neo4j
-  get_url: url=http://dist.neo4j.org/neo4j-community-3.0.4-unix.tar.gz dest={{ user_home }}/neo4j-community-3.0.4-unix.tar.gz timeout=1000 force=no owner=ec2-user
+- name: neo4j folder
+  file: path={{ user_home }}/neo4j mode=755 owner=ec2-user group=ec2-user state=directory
 
-- name: Unarchive neo4j
-  unarchive: src={{ user_home }}/neo4j-community-3.0.4-unix.tar.gz dest={{ user_home }} copy=no   owner=ec2-user group=ec2-user creates={{ neo4j_home }}
+- name: install neo4j 2.2.0
+  get_url: url=http://dist.neo4j.org/neo4j-community-2.2.0-unix.tar.gz dest={{ user_home }}/neo4j/neo4j-community-2.2.0-unix.tar.gz timeout=1000 force=no owner=ec2-user
 
-- name: Backup
-  file: path={{ user_home }}/backups mode=755 owner=ec2-user group=ec2-user state=directory
+- name: Unarchive neo4j 2.2.0
+  command: tar -zxvf {{ user_home }}/neo4j/neo4j-community-2.2.0-unix.tar.gz -C /home/ec2-user/neo4j/
 
-- name: Backup
-  become: yes
-  command: cp -r /data/graphDB/ {{ user_home }}/backups/
+- name: install neo4j 3.0.4
+  get_url: url=http://dist.neo4j.org/neo4j-community-3.0.4-unix.tar.gz dest={{ user_home }}/neo4j/neo4j-community-3.0.4-unix.tar.gz timeout=1000 force=no owner=ec2-user
 
-- name: Replace Working directory line
-  lineinfile: dest={{ neo4j_home }}/conf/neo4j.conf regexp='dbms.allow_format_migration=true' insertafter='^#dbms.allow_format_migration=true' line='dbms.allow_format_migration=true' state=present
+- name: Unarchive neo4j 3.0.4
+  unarchive: src={{ user_home }}/neo4j/neo4j-community-3.0.4-unix.tar.gz dest={{ user_home }}/neo4j/ copy=no   owner=ec2-user group=ec2-user creates={{ user_home }}/neo4j/neo4j-community-3.0.4
 
+- name: install neo4j shell-tools_2.3.2
+  get_url: url=http://dist.neo4j.org/jexp/shell/neo4j-shell-tools_2.3.2.zip dest={{ user_home }}/neo4j/neo4j-shell-tools_2.3.2.zip timeout=1000 force=no owner=ec2-user
+
+- name: Unarchive neo4j shell-tools_2.3.2
+  unarchive: src={{ user_home }}/neo4j/neo4j-shell-tools_2.3.2.zip dest={{ user_home }}/neo4j/neo4j-community-2.2.0/lib/ copy=no owner=ec2-user group=ec2-user 
+
+- name: install neo4j shell-tools_3.0.1
+  get_url: url=http://dist.neo4j.org/jexp/shell/neo4j-shell-tools_3.0.1.zip dest={{ user_home }}/neo4j/neo4j-shell-tools_3.0.1.zip timeout=1000 force=no owner=ec2-user
+
+- name: Unarchive neo4j shell-tools_3.0.1
+  unarchive: src={{ user_home }}/neo4j/neo4j-shell-tools_3.0.1.zip dest={{ user_home }}/neo4j/neo4j-community-3.0.4/lib copy=no owner=ec2-user group=ec2-user 
+
+- name: Create Backup
+  file: path={{ user_home }}/neo4j/backups mode=755 owner=ec2-user group=ec2-user state=directory
+
+
+- name: Backup graphmls
+  file: path={{ user_home }}/neo4j/graphmls mode=755 owner=ec2-user group=ec2-user state=directory
 
 - name: copy template
-  template: src=neo4j_script.j2 dest={{ user_home }}/neo4j_script.sh
+  template: src=neo4j_script.j2 dest={{ user_home }}/neo4j/neo4j_script.sh
 
 - name: run script
-  become: yes
-  shell: sh {{ user_home }}/neo4j_script.sh
+  shell: sh {{ user_home }}/neo4j/neo4j_script.sh
 
 
 

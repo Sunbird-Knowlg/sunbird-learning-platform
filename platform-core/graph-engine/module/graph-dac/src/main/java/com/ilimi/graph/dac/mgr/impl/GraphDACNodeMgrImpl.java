@@ -208,18 +208,14 @@ public class GraphDACNodeMgrImpl extends BaseGraphManager implements IGraphDACNo
         }
     }
     
+    @Override
 	public void upsertRootNode(Request request) {
 		String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
-        String nodeId = (String) request.get(GraphDACParams.node_id.name());
-        if (!validateRequired(nodeId)) {
-            throw new ClientException(GraphDACErrorCodes.ERR_DELETE_NODE_MISSING_REQ_PARAMS.name(), "Required parameters are missing");
-        } else {
-            try {
-                service.upsertRootNode(graphId, request);
-                OK(getSender());
-            } catch (Exception e) {
-                ERROR(e, getSender());
-            }
+		try {
+            service.upsertRootNode(graphId, request);
+            OK(getSender());
+        } catch (Exception e) {
+            ERROR(e, getSender());
         }
 	}
 

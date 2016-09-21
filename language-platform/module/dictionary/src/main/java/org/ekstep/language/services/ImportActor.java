@@ -17,37 +17,38 @@ import akka.actor.ActorRef;
 
 public class ImportActor extends LanguageBaseActor {
 
-    private static Logger LOGGER = LogManager.getLogger(ImportActor.class.getName());
+	private static Logger LOGGER = LogManager.getLogger(ImportActor.class.getName());
 
-    @Override
-    public void onReceive(Object msg) throws Exception {
-        LOGGER.info("Received Command: " + msg);
-        if (msg instanceof Request) {
-            Request request = (Request) msg;
-            String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
-            String operation = request.getOperation();
-            try {
-                if (StringUtils.equalsIgnoreCase(LanguageOperations.transformWordNetData.name(), operation)) {
-                    InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name());
-                    ImportDictionary id = new ImportDictionary();
-                    String sourceType = (String) request.get(LanguageParams.source_type.name());
-                    DictionaryObject dictionaryObject = id.transformData(languageId, sourceType, stream);
-                    OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
-                }else {
-                    LOGGER.info("Unsupported operation: " + operation);
-                    unhandled(msg);
-                }
-            } catch(Exception e) {
-                handleException(e, getSender());
-            }
-        } else {
-            LOGGER.info("Unsupported operation!");
-            unhandled(msg);
-        }
-        
-    }
-    
-    @Override
-    protected void invokeMethod(Request request, ActorRef parent) {
-    }
+	@Override
+	public void onReceive(Object msg) throws Exception {
+		LOGGER.info("Received Command: " + msg);
+		if (msg instanceof Request) {
+			Request request = (Request) msg;
+			String languageId = (String) request.getContext().get(LanguageParams.language_id.name());
+			String operation = request.getOperation();
+			try {
+				if (StringUtils.equalsIgnoreCase(LanguageOperations.transformWordNetData.name(), operation)) {
+					try (InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name())) {
+						ImportDictionary id = new ImportDictionary();
+						String sourceType = (String) request.get(LanguageParams.source_type.name());
+						DictionaryObject dictionaryObject = id.transformData(languageId, sourceType, stream);
+						OK(LanguageParams.dictionary.name(), dictionaryObject, getSender());
+					}
+				} else {
+					LOGGER.info("Unsupported operation: " + operation);
+					unhandled(msg);
+				}
+			} catch (Exception e) {
+				handleException(e, getSender());
+			}
+		} else {
+			LOGGER.info("Unsupported operation!");
+			unhandled(msg);
+		}
+
+	}
+
+	@Override
+	protected void invokeMethod(Request request, ActorRef parent) {
+	}
 }

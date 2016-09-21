@@ -302,7 +302,7 @@ public interface IDictionaryManager {
 	 *            the word
 	 * @return the phonetic spelling by language
 	 */
-	Response getPhoneticSpellingByLanguage(String languageID, String word);
+	Response getPhoneticSpellingByLanguage(String languageID, String word, boolean addEndVirama);
 
 	/**
 	 * Gets the similar sound words.
@@ -314,4 +314,19 @@ public interface IDictionaryManager {
 	 * @return the similar sound words
 	 */
 	Response getSimilarSoundWords(String languageId, String word);
+
+	/**
+	 * Transliterates an english text into a given language
+	 * 
+	 * @param languageId
+	 *            code of the language into which the text should be
+	 *            transliterated
+	 * @param addEndVirama
+	 *            if virama should be added at end of the words that end with a
+	 *            consonant
+	 * @param map
+	 *            request body containing the text to be transliterated
+	 * @return the transliterated text
+	 */
+	Response transliterate(String languageId, Request request, boolean addEndVirama);
 }

@@ -15,7 +15,7 @@ import org.apache.commons.lang3.StringUtils;
 public class LanguageUtil {
 
     /** The special characters. */
-    private static String[] punctuations = new String[] { ".", ",", ";", "|", "।", "?", "!", "*" };
+    private static String[] punctuations = new String[] { ".", ",", ";", "|", "।", "?", "!", "*", "'", "\"", "(", ")", "’", "`", "!", ":" };
 
     /**
      * Replaces the special characters from a given text.

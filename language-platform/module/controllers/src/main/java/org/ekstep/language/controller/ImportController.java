@@ -1,6 +1,7 @@
 package org.ekstep.language.controller;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -47,7 +48,7 @@ public class ImportController extends BaseLanguageController {
 	/** The import manager. */
 	@Autowired
 	private IImportManager importManager;
-
+	
 	/** The controller util. */
 	private ControllerUtil controllerUtil = new ControllerUtil();
 
@@ -74,8 +75,8 @@ public class ImportController extends BaseLanguageController {
 			HttpServletResponse resp) {
 		String apiId = "language.fixAssociation";
 		LOGGER.info("Import | Language Id: " + languageId + " Synset File: " + zipFile + "| user-id: " + userId);
+		InputStream synsetsStreamInZIP = null;
 		try {
-			InputStream synsetsStreamInZIP = null;
 			if (null != zipFile || null != zipFile) {
 				synsetsStreamInZIP = zipFile.getInputStream();
 			}
@@ -85,6 +86,13 @@ public class ImportController extends BaseLanguageController {
 		} catch (Exception e) {
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != synsetsStreamInZIP)
+					synsetsStreamInZIP.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 
@@ -111,8 +119,8 @@ public class ImportController extends BaseLanguageController {
 		String apiId = "language.transform";
 		LOGGER.info("Import | Language Id: " + languageId + " Source Id: " + sourceId + " | File: " + file
 				+ " | user-id: " + userId);
+		InputStream stream = null;
 		try {
-			InputStream stream = null;
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = importManager.transformData(languageId, sourceId, stream);
@@ -121,6 +129,13 @@ public class ImportController extends BaseLanguageController {
 		} catch (Exception e) {
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != stream)
+					stream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 
@@ -147,9 +162,9 @@ public class ImportController extends BaseLanguageController {
 		String apiId = "language.fixAssociation";
 		LOGGER.info("Import | Language Id: " + " | Synset File: " + synsetFile + " Synset File: " + wordFile
 				+ "| user-id: " + userId);
+		InputStream synsetStream = null;
+		InputStream wordStream = null;
 		try {
-			InputStream synsetStream = null;
-			InputStream wordStream = null;
 			if (null != synsetFile || null != wordFile) {
 				synsetStream = synsetFile.getInputStream();
 				wordStream = wordFile.getInputStream();
@@ -168,6 +183,15 @@ public class ImportController extends BaseLanguageController {
 		} catch (Exception e) {
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != synsetStream)
+					synsetStream.close();
+				if (null != wordStream)
+					wordStream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 
@@ -228,8 +252,8 @@ public class ImportController extends BaseLanguageController {
 			@PathVariable(value = "sourceId") String sourceId, @RequestParam("wordListFile") MultipartFile wordListFile,
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String apiId = "language.enrich";
+		InputStream wordListStream = null;
 		try {
-			InputStream wordListStream = null;
 			if (null != wordListFile) {
 				wordListStream = wordListFile.getInputStream();
 			}
@@ -268,6 +292,13 @@ public class ImportController extends BaseLanguageController {
 		} catch (Exception e) {
 			LOGGER.error("Import | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != wordListStream)
+					wordListStream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 
@@ -288,8 +319,8 @@ public class ImportController extends BaseLanguageController {
 			@RequestParam("file") MultipartFile file, HttpServletResponse resp) {
 		String apiId = "language.importCSV";
 		LOGGER.info("Create | Id: " + id + " | File: " + file);
+		InputStream stream = null;
 		try {
-			InputStream stream = null;
 			if (null != file)
 				stream = file.getInputStream();
 			Response response = importManager.importCSV(id, stream);
@@ -298,6 +329,13 @@ public class ImportController extends BaseLanguageController {
 		} catch (Exception e) {
 			LOGGER.error("Create | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			try {
+				if (null != stream)
+					stream.close();
+			} catch (IOException e) {
+				LOGGER.error("Error! While Closing the Input Stream.", e);
+			}
 		}
 	}
 

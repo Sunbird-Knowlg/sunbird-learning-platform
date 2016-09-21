@@ -119,8 +119,7 @@ public class SyllableMap {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void loadSyllables(String language) {
 		language = language.toLowerCase().trim();
-		try {
-			InputStream is = SyllableMap.class.getResourceAsStream("/" + language + "/" + "Syllables.json");
+		try (InputStream is = SyllableMap.class.getResourceAsStream("/" + language + "/" + "Syllables.json")) {
 			Map map = mapper.readValue(is, Map.class);
 			defaultVowelMap.put(language, (String) map.get("default_vowel"));
 

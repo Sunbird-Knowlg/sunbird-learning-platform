@@ -37,6 +37,7 @@ public class ApplicationContextUtils implements ApplicationContextAware {
 		
 	private Properties appProperties;
 	
+	@SuppressWarnings("unused")
 	private static Properties loadProperties(final String propertiesFile)
 			 {
 		// Properties object we are going to fill up.

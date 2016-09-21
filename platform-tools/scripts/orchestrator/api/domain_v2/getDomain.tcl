@@ -1,5 +1,6 @@
 package require java
 java::import -package java.util HashMap Map
+java::import -package java.util ArrayList
 
 
 proc getCount {graph_id object_type domain_id} {
@@ -9,6 +10,36 @@ proc getCount {graph_id object_type domain_id} {
 	$map put "objectType" $object_type
 	$map put "subject" $domain_id
 	$map put "status" "Live"
+	set search_criteria [create_search_criteria $map]
+	set search_response [getNodesCount $graph_id $search_criteria]
+	set check_error [check_response_error $search_response]
+	if {$check_error} {
+		return 0
+	} else {
+		set count [get_resp_value $search_response "count"]
+		return $count
+	}
+}
+
+proc getContentCount {graph_id domain_id} {
+
+	set map [java::new HashMap]
+	$map put "nodeType" "DATA_NODE"
+	$map put "objectType" "Content"
+
+	set domains [java::new ArrayList]
+	$domains add $domain_id
+
+	$map put "domain" $domains
+	$map put "status" "Live"
+
+	set contentTypes [java::new ArrayList]
+	$contentTypes add "Story"
+	$contentTypes add "Worksheet"
+	$contentTypes add "Game"
+	$contentTypes add "Collection"
+	$map put "contentType" $contentTypes
+
 	set search_criteria [create_search_criteria $map]
 	set search_response [getNodesCount $graph_id $search_criteria]
 	set check_error [check_response_error $search_response]
@@ -46,7 +77,7 @@ if {$check_error} {
 		set concept_count [getCount $graph_id "Concept" $domain_id]
 		set misconception_count [getCount $graph_id "Misconception" $domain_id]
 		set method_count [getCount $graph_id "Method" $domain_id]
-		set content_count [getCount $graph_id "Content" $domain_id]
+		set content_count [getContentCount $graph_id $domain_id]
 
 		$resp_object put "dimension_count" $dimension_count
 		$resp_object put "concept_count" $concept_count

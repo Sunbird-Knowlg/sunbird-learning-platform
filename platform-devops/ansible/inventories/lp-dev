@@ -11,7 +11,6 @@ service_url = 172.31.31.183:8080
 
 
 [env:vars]
-neo4j_home = /home/ec2-user/neo4j-community-3.0.4
 user_home = /home/ec2-user
 service_url = 172.31.31.183:8080
 zookeeper_url = 172.31.1.92:2181
@@ -22,10 +21,10 @@ mysql_db_schema = lpdevdb
 mysql_db_username = lpsandboxdb
 mysql_db_password = lp5andb0x
 mysql_db_schema = lpdevdb
-search_index_host = localhost
+search_index_host = 172.31.8.5
 search_index_port = 9200
 environment_id = 10000000
-language_index_host = localhost
+language_index_host = 172.31.8.5
 language_index_port = 9200
 mongo_host = 127.0.0.1
 mongo_port = 27017

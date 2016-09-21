@@ -119,6 +119,8 @@ public class ContentErrorMessageConstants {
 	
 	public static final String MISSING_REQUIRED_FIELDS = "Error! Missing One or More Required Fields in Content Object.";
 	
+	public static final String STRING_WRITER_AUTO_CLOSE_ERROR = "Error! While closing the StringWriter.";
+	
 	private ContentErrorMessageConstants(){
 	  throw new AssertionError();
 	}

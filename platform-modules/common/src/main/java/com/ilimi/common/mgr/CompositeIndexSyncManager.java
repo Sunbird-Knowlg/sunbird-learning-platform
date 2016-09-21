@@ -233,60 +233,65 @@ public abstract class CompositeIndexSyncManager extends BaseManager {
 	 * @return the kafka message
 	 */
 	private Map<String, Object> getKafkaMessage(Node node) {
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> transactionData = new HashMap<String, Object>();
-		if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
-			Map<String, Object> propertyMap = new HashMap<String, Object>();
-			for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
-				Map<String, Object> valueMap = new HashMap<String, Object>();
-				valueMap.put("ov", null); // old value
-				valueMap.put("nv", entry.getValue()); // new value
-				propertyMap.put((String) entry.getKey(), valueMap);
-			}
-			transactionData.put(CompositeSearchParams.properties.name(), propertyMap);
-		} else
-			transactionData.put(CompositeSearchParams.properties.name(), new HashMap<String, Object>());
-		// add node tags
-		transactionData.put(CompositeSearchParams.addedTags.name(),
-				null == node.getTags() ? new ArrayList<String>() : node.getTags());
-		transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
-		List<Map<String, Object>> relations = new ArrayList<Map<String, Object>>();
-
-		// add IN relations
-		if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
-			for (Relation rel : node.getInRelations()) {
-				Map<String, Object> relMap = new HashMap<>();
-				relMap.put("rel", rel.getRelationType());
-				relMap.put("id", rel.getStartNodeId());
-				relMap.put("dir", "IN");
-				relMap.put("type", rel.getStartNodeObjectType());
-				relMap.put("label", getLabel(rel.getStartNodeMetadata()));
-				relations.add(relMap);
-			}
-		}
-
-		// add OUT relations
-		if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
-			for (Relation rel : node.getOutRelations()) {
-				Map<String, Object> relMap = new HashMap<>();
-				relMap.put("rel", rel.getRelationType());
-				relMap.put("id", rel.getEndNodeId());
-				relMap.put("dir", "OUT");
-				relMap.put("type", rel.getEndNodeObjectType());
-				relMap.put("label", getLabel(rel.getEndNodeMetadata()));
-				relations.add(relMap);
-			}
-		}
-		transactionData.put(CompositeSearchParams.addedRelations.name(), relations);
-		map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
-		map.put(CompositeSearchParams.graphId.name(), node.getGraphId());
-		map.put(CompositeSearchParams.nodeGraphId.name(), node.getId());
-		map.put(CompositeSearchParams.nodeUniqueId.name(), node.getIdentifier());
-		map.put(CompositeSearchParams.objectType.name(), node.getObjectType());
-		map.put(CompositeSearchParams.nodeType.name(), SystemNodeTypes.DATA_NODE.name());
-		map.put(CompositeSearchParams.transactionData.name(), transactionData);
-		map.put(CompositeSearchParams.syncMessage.name(), true);
-		return map;
+	    Map<String, Object> map = new HashMap<String, Object>();
+        Map<String, Object> transactionData = new HashMap<String, Object>();
+        if (null != node.getMetadata() && !node.getMetadata().isEmpty()) {
+            Map<String, Object> propertyMap = new HashMap<String, Object>();
+            for (Entry<String, Object> entry : node.getMetadata().entrySet()) {
+            	String key = entry.getKey();
+            	if (StringUtils.isNotBlank(key)) {
+            		Map<String, Object> valueMap=new HashMap<String, Object>();
+                    valueMap.put("ov", null); // old value
+                    valueMap.put("nv", entry.getValue()); // new value
+                    // temporary check to not sync body and editorState
+                    if (!StringUtils.equalsIgnoreCase("body", key) && !StringUtils.equalsIgnoreCase("editorState", key))
+                    	propertyMap.put(entry.getKey(), valueMap);
+            	}
+            }
+            transactionData.put(CompositeSearchParams.properties.name(), propertyMap);
+        } else
+            transactionData.put(CompositeSearchParams.properties.name(), new HashMap<String, Object>());
+        
+        // add node tags
+        transactionData.put(CompositeSearchParams.addedTags.name(), null == node.getTags() ? new ArrayList<String>() : node.getTags());
+        transactionData.put(CompositeSearchParams.removedTags.name(), new ArrayList<String>());
+        
+        // add IN relations
+        List<Map<String, Object>> relations = new ArrayList<Map<String, Object>>();
+        if (null != node.getInRelations() && !node.getInRelations().isEmpty()) {
+            for (Relation rel : node.getInRelations()) {
+                Map<String, Object> relMap = new HashMap<>();
+                relMap.put("rel", rel.getRelationType());
+                relMap.put("id", rel.getStartNodeId());
+                relMap.put("dir", "IN");
+                relMap.put("type", rel.getStartNodeObjectType());
+                relMap.put("label", getLabel(rel.getStartNodeMetadata()));
+                relations.add(relMap);
+            }
+        }
+        
+        // add OUT relations
+        if (null != node.getOutRelations() && !node.getOutRelations().isEmpty()) {
+            for (Relation rel : node.getOutRelations()) {
+                Map<String, Object> relMap = new HashMap<>();
+                relMap.put("rel", rel.getRelationType());
+                relMap.put("id", rel.getEndNodeId());
+                relMap.put("dir", "OUT");
+                relMap.put("type", rel.getEndNodeObjectType());
+                relMap.put("label", getLabel(rel.getEndNodeMetadata()));
+                relations.add(relMap);
+            }
+        }
+        transactionData.put(CompositeSearchParams.addedRelations.name(), relations);
+        map.put(CompositeSearchParams.operationType.name(), GraphDACParams.UPDATE.name());
+        map.put(CompositeSearchParams.graphId.name(), node.getGraphId());
+        map.put(CompositeSearchParams.nodeGraphId.name(), node.getId());
+        map.put(CompositeSearchParams.nodeUniqueId.name(), node.getIdentifier());
+        map.put(CompositeSearchParams.objectType.name(), node.getObjectType());
+        map.put(CompositeSearchParams.nodeType.name(), SystemNodeTypes.DATA_NODE.name());
+        map.put(CompositeSearchParams.transactionData.name(), transactionData);
+        map.put(CompositeSearchParams.syncMessage.name(), true);
+        return map;
 	}
 
 	/**

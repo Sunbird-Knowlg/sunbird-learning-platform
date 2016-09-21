@@ -1,6 +1,7 @@
 package org.ekstep.language.util;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -137,27 +138,26 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	 */
 	public void importNodesFromStreamAsync(String wordContent, String languageId, String taskId) {
 		LOGGER.info("importNodesFromStreamAsync | wordContent =" + wordContent + " | languageId =" + languageId
-				+ " | taskId =" + taskId);
-
-		InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
-		Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
-		request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
-		request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(in));
-		if (taskId != null) {
-			request.put(GraphEngineParams.task_id.name(), taskId);
+			+ " | taskId =" + taskId);
+		try (InputStream in = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8))) {
+			Request request = getRequest(languageId, GraphEngineManagers.GRAPH_MANAGER, "importGraph");
+			request.put(GraphEngineParams.format.name(), ImportType.CSV.name());
+			request.put(GraphEngineParams.input_stream.name(), new InputStreamValue(in));
+			if (taskId != null) {
+				request.put(GraphEngineParams.task_id.name(), taskId);
+			}
+			LOGGER.info("making async request to GRAPH_MANAGER | operation = importGraph");
+			makeAsyncRequest(request, LOGGER);
+		} catch (IOException e) {
+			LOGGER.error("Error! While Closing the Input Stream.", e);
 		}
-
-		LOGGER.info("making async request to GRAPH_MANAGER | operation = importGraph");
-		makeAsyncRequest(request, LOGGER);
 	}
 
 	/**
-	 * Make language async request.
-	 *
-	 * @param request
-	 *            the request
-	 * @param logger
-	 *            the logger
+	 * Make an async tell request to language service actors
+	 * 
+	 * @param request the request message to the language service actor
+	 * @param logger log4j logger object
 	 */
 	public void makeLanguageAsyncRequest(Request request, Logger logger) {
 		ActorRef router = LanguageRequestRouterPool.getRequestRouter();
@@ -567,16 +567,18 @@ public class ControllerUtil extends BaseLanguageManager implements IWordnetConst
 	public void importWordsAndSynsets(String wordContent, String synsetContent, String languageId) {
 		LOGGER.info("importWordsAndSynsets | wordContent = " + wordContent + " | synsetContent = " + synsetContent
 				+ " | languageId =" + languageId);
-
-		InputStream wordsInputStream = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
-		InputStream synsetsInputStream = new ByteArrayInputStream(synsetContent.getBytes(StandardCharsets.UTF_8));
-		Request request = getRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(),
-				LanguageOperations.importWordsAndSynsets.name());
-		request.put(LanguageParams.words_input_stream.name(), new InputStreamValue(wordsInputStream));
-		request.put(LanguageParams.synset_input_stream.name(), new InputStreamValue(synsetsInputStream));
-
-		LOGGER.info("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
-		makeAsyncRequest(request, LOGGER);
+		try (InputStream wordsInputStream = new ByteArrayInputStream(wordContent.getBytes(StandardCharsets.UTF_8));
+				InputStream synsetsInputStream = new ByteArrayInputStream(
+						synsetContent.getBytes(StandardCharsets.UTF_8))) {
+			Request request = getRequest(languageId, LanguageActorNames.IMPORT_ACTOR.name(),
+					LanguageOperations.importWordsAndSynsets.name());
+			request.put(LanguageParams.words_input_stream.name(), new InputStreamValue(wordsInputStream));
+			request.put(LanguageParams.synset_input_stream.name(), new InputStreamValue(synsetsInputStream));
+			LOGGER.info("making async request to IMPORT_ACTOR operation importWordsAndSynsets");
+			makeAsyncRequest(request, LOGGER);
+		} catch (IOException e) {
+			LOGGER.error("Error! While Closing the Input Stream.", e);
+		}
 	}
 
 	/**

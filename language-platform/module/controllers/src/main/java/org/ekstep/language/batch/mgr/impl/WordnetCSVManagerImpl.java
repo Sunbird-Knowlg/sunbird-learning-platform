@@ -40,7 +40,7 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 
 	/** The Constant NEW_LINE_SEPARATOR. */
 	private static final String NEW_LINE_SEPARATOR = "\n";
-
+	
 	/** The logger. */
 	private static Logger LOGGER = LogManager.getLogger(IWordnetCSVManager.class.getName());
 
@@ -59,8 +59,9 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			try {
 				Map<String, String> wordnetIdMap = getWordNetIdMap(wordRecords);
 				addCitationIndexes(languageId, wordnetIdMap);
-				LOGGER.info("Citations created for " + wordnetIdMap.size() + " words");
+				System.out.println("Citations created for " + wordnetIdMap.size() + " words");
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_ADDING_WORDNET_CITATIONS", e.getMessage(), e);
 			}
 		}
@@ -88,10 +89,11 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 					if (StringUtils.isNotBlank(id) && StringUtils.isNotBlank(lemma))
 						wordnetIdMap.put(id, lemma);
 				}
-				LOGGER.info("New indexes to be added: " + wordnetIdMap.size());
+				System.out.println("New indexes to be added: " + wordnetIdMap.size());
 				addWordIndexes(languageId, wordnetIdMap);
-				LOGGER.info("Indexes created for " + wordnetIdMap.size() + " words");
+				System.out.println("Indexes created for " + wordnetIdMap.size() + " words");
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_ADDING_WORDNET_CITATIONS", e.getMessage(), e);
 			}
 		}
@@ -119,12 +121,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				Map<String, String> newWordnetIds = new HashMap<String, String>();
 				getIndexInfo(languageId, wordnetIdMap, wordIdMap, rootWordMap, newWordnetIds);
 				writeNewWordNetIds(newWordnetIds, outputDir);
-				LOGGER.info("New Words CSV wrting completed");
+				System.out.println("New Words CSV wrting completed");
 				writeUpdatedWordsCSV(wordRecords, wordIdMap, rootWordMap, outputDir);
-				LOGGER.info("Updated Words CSV wrting completed");
+				System.out.println("Updated Words CSV wrting completed");
 				writeUpdatedSynsetsCSV(synsetRecords, wordIdMap, outputDir);
-				LOGGER.info("Updated Synsets CSV wrting completed");
+				System.out.println("Updated Synsets CSV wrting completed");
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_ADDING_WORDNET_CITATIONS", e.getMessage(), e);
 			}
 		}
@@ -141,16 +144,15 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	 * @return the list
 	 */
 	private List<CSVRecord> readCSV(CSVFormat format, String path) {
-		try {
-			File f = new File(path);
-			FileInputStream fis = new FileInputStream(f);
-			InputStreamReader isReader = new InputStreamReader(fis);
+		File f = new File(path);
+		try (FileInputStream fis = new FileInputStream(f); InputStreamReader isReader = new InputStreamReader(fis)) {
 			CSVParser csvReader = new CSVParser(isReader, format);
 			List<CSVRecord> recordsList = csvReader.getRecords();
 			isReader.close();
 			csvReader.close();
 			return recordsList;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ServerException("ERROR_READING_CSV", e.getMessage(), e);
 		}
 	}
@@ -193,8 +195,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			int batch = 100;
 			if (batch > words.size())
 				batch = words.size();
-			
-			//form citation index maps
 			while (start < words.size()) {
 				List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
 				for (int i = start; i < batch; i++) {
@@ -204,8 +204,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 					map.put("source", "IndoWordnet");
 					list.add(map);
 				}
-				
-				//make a request to Indexes actor
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addCitationIndex.name());
 				langReq.put(LanguageParams.citations.name(), list);
@@ -234,8 +232,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			int batch = 100;
 			if (batch > words.size())
 				batch = words.size();
-			
-			//form the Word index maps
 			while (start < words.size()) {
 				List<Map<String, String>> list = new ArrayList<Map<String, String>>();
 				for (int i = start; i < batch; i++) {
@@ -248,8 +244,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 						list.add(map);
 					}
 				}
-				
-				//make request to Indexes Actor
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.addWordIndex.name());
 				langReq.put(LanguageParams.words.name(), list);
@@ -289,16 +283,11 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			int batch = 100;
 			if (batch > words.size())
 				batch = words.size();
-
-			// process batches of words to get index info
 			while (start < words.size()) {
-				// form a batch of words
 				List<String> list = new ArrayList<String>();
 				for (int i = start; i < batch; i++) {
 					list.add(words.get(i));
 				}
-
-				// get index info from ES
 				Request langReq = getLanguageRequest(languageId, LanguageActorNames.INDEXES_ACTOR.name(),
 						LanguageOperations.getIndexInfo.name());
 				langReq.put(LanguageParams.words.name(), list);
@@ -313,9 +302,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				if (batch > words.size())
 					batch = words.size();
 			}
-
-			// for each word, form a cache of root words and word Ids by
-			// wordnetId
 			for (Entry<String, String> entry : wordnetIdMap.entrySet()) {
 				String lemma = entry.getKey();
 				String wordnetId = entry.getValue();
@@ -344,7 +330,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 	private void writeNewWordNetIds(Map<String, String> newWordnetIds, String outputDir) {
 		if (null != newWordnetIds && newWordnetIds.size() > 0) {
 			try {
-				// define CSV header
 				String[] headerRows = new String[] { "identifier", "lemma" };
 				List<String[]> rows = new ArrayList<String[]>();
 				rows.add(headerRows);
@@ -356,14 +341,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 						rows.add(row);
 					}
 				}
-
-				// write data into CSV
 				CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 				FileWriter fw = new FileWriter(new File(outputDir + File.separator + "new_words.csv"));
 				CSVPrinter writer = new CSVPrinter(fw, csvFileFormat);
 				writer.printRecords(rows);
 				writer.close();
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_WRITING_WORDS_CSV", e.getMessage(), e);
 			}
 		}
@@ -385,23 +369,17 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			Map<String, String> rootWordMap, String outputDir) {
 		if (null != wordRecords && wordRecords.size() > 0) {
 			try {
-
-				// define CSV header
 				String[] headerRows = new String[] { "identifier", "objectType", "lemma", "sources", "sourceTypes" };
 				List<String[]> rows = new ArrayList<String[]>();
 				rows.add(headerRows);
 				CSVRecord headerRecord = wordRecords.get(0);
 				int headersize = headerRecord.size();
-
-				// process word records
 				for (int i = 1; i < wordRecords.size(); i++) {
 					CSVRecord record = wordRecords.get(i);
 					if (record.size() == headersize) {
 						String[] row = new String[5];
 						String wordnetId = record.get(0);
 						String lemma = record.get(2);
-
-						// replace word Id from cache
 						String wordId = wordIdMap.get(wordnetId);
 						if (StringUtils.isNotBlank(wordId))
 							row[0] = wordId;
@@ -418,14 +396,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 						rows.add(row);
 					}
 				}
-
-				// write into CSV
 				CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 				FileWriter fw = new FileWriter(new File(outputDir + File.separator + "words.csv"));
 				CSVPrinter writer = new CSVPrinter(fw, csvFileFormat);
 				writer.printRecords(rows);
 				writer.close();
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_WRITING_WORDS_CSV", e.getMessage(), e);
 			}
 		}
@@ -445,9 +422,6 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 			String outputDir) {
 		if (null != synsetRecords && synsetRecords.size() > 0) {
 			try {
-
-				// define CSV header
-				// TODO: make it configurable
 				String[] headerRows = new String[] { "identifier", "objectType", "rel:synonym", "rel:hasAntonym",
 						"rel:hasHyponym", "rel:hasMeronym", "rel:hasHolonym", "rel:hasHypernym", "gloss",
 						"exampleSentences", "pos" };
@@ -459,23 +433,17 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 				for (int i = 0; i < headerRecord.size(); i++) {
 					headerMap.put(headerRecord.get(i), i);
 				}
-
-				// process synset records
 				for (int i = 1; i < synsetRecords.size(); i++) {
 					CSVRecord record = synsetRecords.get(i);
 					if (record.size() == headersize) {
 						String[] row = new String[11];
 						for (int j = 0; j < headerRows.length; j++) {
 							String header = headerRows[j];
-
-							// process synset relation words
 							if (header.startsWith("rel:")) {
 								String prevValue = record.get(headerMap.get(header));
 								String newValue = "";
 								if (StringUtils.isNotBlank(prevValue)) {
 									String[] arr = prevValue.split(",");
-
-									// replace old wordNetIds with new word Ids
 									for (String id : arr) {
 										String wordId = wordIdMap.get(id);
 										if (StringUtils.isNotBlank(wordId))
@@ -493,14 +461,13 @@ public class WordnetCSVManagerImpl extends BaseLanguageManager implements IWordn
 						rows.add(row);
 					}
 				}
-
-				// write into CSV
 				CSVFormat csvFileFormat = CSVFormat.DEFAULT.withRecordSeparator(NEW_LINE_SEPARATOR);
 				FileWriter fw = new FileWriter(new File(outputDir + File.separator + "synsets.csv"));
 				CSVPrinter writer = new CSVPrinter(fw, csvFileFormat);
 				writer.printRecords(rows);
 				writer.close();
 			} catch (Exception e) {
+				e.printStackTrace();
 				throw new ServerException("ERROR_WRITING_SYNSET_CSV", e.getMessage(), e);
 			}
 		}

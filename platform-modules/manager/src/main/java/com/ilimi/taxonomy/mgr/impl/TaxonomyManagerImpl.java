@@ -1,6 +1,7 @@
 package com.ilimi.taxonomy.mgr.impl;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -146,9 +147,12 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 			Response response = copyResponse(createRes);
 			OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.output_stream.name());
 			if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
-				ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
-				String csv = new String(bos.toByteArray());
-				response.put(TaxonomyAPIParams.taxonomy.name(), csv);
+				try (ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream()) {
+					String csv = new String(bos.toByteArray());
+					response.put(TaxonomyAPIParams.taxonomy.name(), csv);
+				} catch (IOException e) {
+					LOGGER.error("Error! While Closing the ByteArrayOutputStream [operation : create]", e);
+				}
 			}
 			return response;
 		}
@@ -157,8 +161,7 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 	@Override
 	public Response export(String id, Request req) {
 		if (StringUtils.isBlank(id))
-			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(),
-					"Taxonomy Id is blank");
+			throw new ClientException(TaxonomyErrorCodes.ERR_TAXONOMY_BLANK_TAXONOMY_ID.name(), "Taxonomy Id is blank");
 		String format = (String) req.get(GraphEngineParams.format.name());
 		LOGGER.info("Export Taxonomy : " + id + " | Format: " + format);
 		Request request = new Request(req);
@@ -277,65 +280,65 @@ public class TaxonomyManagerImpl extends BaseManager implements ITaxonomyManager
 		Response response = getResponse(request, LOGGER);
 		return response;
 	}
-    
-    @Override
-    public Response compositeSearch() {
-        String graphId = "domain";
-        Response res = new Response();
-        getObjectList(graphId, res, "Domain", "domains");
-        getObjectList(graphId, res, "Dimension", "dimensions");
-        getObjectList(graphId, res, "Content", "content");
-        return res;
-    }
-    
-    private void getObjectList(String graphId, Response res, String objectType, String key) {
-        DefinitionDTO domainDef = getDefinition(graphId, objectType);
-        if (null != domainDef) {
-            List<Map<String, Object>> domains = searchObjectType(graphId, objectType, domainDef);
-            if (null != domains && !domains.isEmpty()) {
-                res.put(key, domains);
-            }
-        }
-    }
-    
-    @SuppressWarnings("unchecked")
-    private List<Map<String, Object>> searchObjectType(String graphId, String objectType, DefinitionDTO definition) {
-        SearchCriteria sc = new SearchCriteria();
-        sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
-        sc.setObjectType(objectType);
-        sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
-        sc.setResultSize(2);
-        
-        List<String> statusList = new ArrayList<String>();
-        statusList.add("Live");
-        MetadataCriterion mc = MetadataCriterion
-                .create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
-        sc.addMetadata(mc);
-        List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
-        Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
-                GraphDACParams.search_criteria.name(), sc);
-        Response res = getResponse(req, LOGGER);
-        if (!checkError(res)) {
-            List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
-            if (null != nodes && !nodes.isEmpty()) {
-                for (Node node : nodes) {
-                    Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
-                    maps.add(map);
-                }
-            }
-        }
-        return maps;
-    }
-    
-    private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
-        Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
-                GraphDACParams.object_type.name(), objectType);
-        Response response = getResponse(request, LOGGER);
-        if (!checkError(response)) {
-            DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
-            return definition;
-        }
-        return null;
-    }
+
+	@Override
+	public Response compositeSearch() {
+		String graphId = "domain";
+		Response res = new Response();
+		getObjectList(graphId, res, "Domain", "domains");
+		getObjectList(graphId, res, "Dimension", "dimensions");
+		getObjectList(graphId, res, "Content", "content");
+		return res;
+	}
+
+	private void getObjectList(String graphId, Response res, String objectType, String key) {
+		DefinitionDTO domainDef = getDefinition(graphId, objectType);
+		if (null != domainDef) {
+			List<Map<String, Object>> domains = searchObjectType(graphId, objectType, domainDef);
+			if (null != domains && !domains.isEmpty()) {
+				res.put(key, domains);
+			}
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	private List<Map<String, Object>> searchObjectType(String graphId, String objectType, DefinitionDTO definition) {
+		SearchCriteria sc = new SearchCriteria();
+		sc.setNodeType(SystemNodeTypes.DATA_NODE.name());
+		sc.setObjectType(objectType);
+		sc.sort(new Sort(SystemProperties.IL_UNIQUE_ID.name(), Sort.SORT_ASC));
+		sc.setResultSize(2);
+
+		List<String> statusList = new ArrayList<String>();
+		statusList.add("Live");
+		MetadataCriterion mc = MetadataCriterion
+				.create(Arrays.asList(new Filter(PARAM_STATUS, SearchConditions.OP_IN, statusList)));
+		sc.addMetadata(mc);
+		List<Map<String, Object>> maps = new ArrayList<Map<String, Object>>();
+		Request req = getRequest(graphId, GraphEngineManagers.SEARCH_MANAGER, "searchNodes",
+				GraphDACParams.search_criteria.name(), sc);
+		Response res = getResponse(req, LOGGER);
+		if (!checkError(res)) {
+			List<Node> nodes = (List<Node>) res.get(GraphDACParams.node_list.name());
+			if (null != nodes && !nodes.isEmpty()) {
+				for (Node node : nodes) {
+					Map<String, Object> map = ConvertGraphNode.convertGraphNode(node, graphId, definition, null);
+					maps.add(map);
+				}
+			}
+		}
+		return maps;
+	}
+
+	private DefinitionDTO getDefinition(String taxonomyId, String objectType) {
+		Request request = getRequest(taxonomyId, GraphEngineManagers.SEARCH_MANAGER, "getNodeDefinition",
+				GraphDACParams.object_type.name(), objectType);
+		Response response = getResponse(request, LOGGER);
+		if (!checkError(response)) {
+			DefinitionDTO definition = (DefinitionDTO) response.get(GraphDACParams.definition_node.name());
+			return definition;
+		}
+		return null;
+	}
 
 }

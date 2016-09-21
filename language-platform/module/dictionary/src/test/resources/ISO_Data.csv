@@ -6,9 +6,11 @@ i,Varna_ISO,I,i,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/aksh
 u,Varna_ISO,U,u,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/U.mp3,Live
 ū,Varna_ISO,UU,ū,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/UU.mp3,Live
 ṛ,Varna_ISO,R,ṛ,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/R.mp3,Live
+ê,Varna_ISO,ae,ê,Vowel,,Live
 e,Varna_ISO,E,e,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/E.mp3,Live
 E,Varna_ISO,EE,E,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/EE.mp3,Live
 ai,Varna_ISO,AI,ai,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/AI.mp3,Live
+ô,Varna_ISO,aO,ô,Vowel,,Live
 o,Varna_ISO,O,o,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/O.mp3,Live
 O,Varna_ISO,OO,O,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/OO.mp3,Live
 au,Varna_ISO,AU,au,Vowel,https://s3-ap-southeast-1.amazonaws.com/ekstep-public/akshara_assets/ipa_sounds/AU.mp3,Live

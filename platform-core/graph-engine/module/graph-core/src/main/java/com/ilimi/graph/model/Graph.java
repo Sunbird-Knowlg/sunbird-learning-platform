@@ -2,6 +2,7 @@ package com.ilimi.graph.model;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -23,6 +24,7 @@ import com.ilimi.common.dto.ResponseParams.StatusType;
 import com.ilimi.common.exception.ClientException;
 import com.ilimi.common.exception.ResponseCode;
 import com.ilimi.common.exception.ServerException;
+import com.ilimi.common.logger.LogHelper;
 import com.ilimi.graph.cache.actor.GraphCacheActorPoolMgr;
 import com.ilimi.graph.cache.actor.GraphCacheManagers;
 import com.ilimi.graph.common.enums.GraphEngineParams;
@@ -71,6 +73,8 @@ import scala.concurrent.Promise;
 import scala.concurrent.duration.Duration;
 
 public class Graph extends AbstractDomainObject {
+	
+	private static LogHelper LOGGER = LogHelper.getInstance(Graph.class.getName());
 
     public static final String ERROR_MESSAGES = "ERROR_MESSAGES";
     public static Timeout WAIT_TIMEOUT = new Timeout(Duration.create(30, TimeUnit.SECONDS));
@@ -400,7 +404,7 @@ public class Graph extends AbstractDomainObject {
                         "Import stream is missing");
             } else {
                 // Get byte array.
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
                 IOUtils.copy(inputStream.getInputStream(), baos);
                 byte[] bytes = baos.toByteArray();
                 inputStream.setInputStream(new ByteArrayInputStream(bytes));
@@ -558,7 +562,7 @@ public class Graph extends AbstractDomainObject {
                         }
                     }
                 }, ec);
-
+                }
             }
         } catch (Exception e) {
             throw new ServerException(GraphEngineErrorCodes.ERR_GRAPH_IMPORT_UNKNOWN_ERROR.name(), e.getMessage(), e);
@@ -1042,7 +1046,13 @@ public class Graph extends AbstractDomainObject {
                             try {
                                 outputStream = GraphWriterFactory.getData(format, nodes, relations);
                             } catch (Exception e) {
-                                e.printStackTrace();
+									try {
+										if (null != outputStream)
+											outputStream.close();
+									} catch (IOException e1) {
+										LOGGER.error("Error! While Closing the Input Stream.", e);
+									}
+                				LOGGER.error("Error! While Reading the Data.", e);
                             }
                             Response response = new Response();
                             ResponseParams params = new ResponseParams();
@@ -1051,6 +1061,12 @@ public class Graph extends AbstractDomainObject {
                             params.setErrmsg("Operation successful");
                             response.setParams(params);
                             response.put(GraphEngineParams.output_stream.name(), new OutputStreamValue(outputStream));
+								try {
+									if (null != outputStream)
+										outputStream.close();
+								} catch (IOException e) {
+									LOGGER.error("Error! While Closing the Input Stream.", e);
+								}
                             return response;
                         }
 
@@ -1238,8 +1254,9 @@ public class Graph extends AbstractDomainObject {
                                 "Failed to export node", ResponseCode.RESOURCE_NOT_FOUND, getParent());
                     } else {
                         RDFGraphWriter rdfWriter = new RDFGraphWriter();
-                        InputStream is = rdfWriter.getRDF(node);
+                        try (InputStream is = rdfWriter.getRDF(node)) {
                         manager.OK(GraphEngineParams.input_stream.name(), new InputStreamValue(is), getParent());
+                        }
                     }
                 }
             }

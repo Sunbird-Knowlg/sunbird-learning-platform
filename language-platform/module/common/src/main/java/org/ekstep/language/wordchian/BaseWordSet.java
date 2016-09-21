@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.Logger;
 import org.ekstep.language.common.enums.LanguageErrorCodes;
 import org.ekstep.language.common.enums.LanguageObjectTypes;
@@ -190,7 +191,7 @@ public abstract class BaseWordSet extends BaseManager {
 		}
 
 	}
-
+	
 	/**
 	 * Checks if set with given lemma and type is found in existing relations of
 	 * word
@@ -203,20 +204,26 @@ public abstract class BaseWordSet extends BaseManager {
 	 */
 	protected boolean isExist(String type, String lemma) {
 
-		for (Relation relation : existingWordSetRelatios) {
-			if (type.equalsIgnoreCase((String) relation.getStartNodeMetadata().get(LanguageParams.type.name()))) {
-				// same type of WordSet is already associated with
-				if (lemma.equalsIgnoreCase((String) relation.getStartNodeMetadata().get(LanguageParams.lemma.name()))) {
-					// same lemma
-					return true;
-				} else {
-					// different lemma - remove set membership
+		for(Relation relation : existingWordSetRelatios) {
+			if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name()))){
+				//same type of WordSet is already associated with
+				if (StringUtils.isBlank(lemma) || !lemma.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.lemma.name()))) {
+					//different lemma - remove set membership
 					removeWordFromWordSet(relation.getStartNodeId());
 					return false;
+				} else {
+					return true;
 				}
 			}
 		}
 		return false;
+	}
+	
+	protected void removeSetRelation(String type){
+		for(Relation relation : existingWordSetRelatios) {
+			if(type.equalsIgnoreCase((String)relation.getStartNodeMetadata().get(LanguageParams.type.name())))
+				removeWordFromWordSet(relation.getStartNodeId());
+		}
 	}
 
 	/**
@@ -268,16 +275,13 @@ public abstract class BaseWordSet extends BaseManager {
 	 * @param setId
 	 *            the set id
 	 */
-	protected void removeWordFromWordSet(String setId) {
-
-		LOGGER.info("removeWordFromWordSet setID " + setId + " and word id" + wordNode.getIdentifier());
-
-		Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
-
-		setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
-		setReq.put(GraphDACParams.collection_id.name(), setId);
-		setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
-		Response res = getResponse(setReq, LOGGER);
+	protected void removeWordFromWordSet(String setId){
+		LOGGER.info("Deleting relation : " + setId + " --> " + wordNode.getIdentifier());
+        Request setReq = getRequest(languageId, GraphEngineManagers.COLLECTION_MANAGER, "removeMember");
+        setReq.put(GraphDACParams.member_id.name(), wordNode.getIdentifier());
+        setReq.put(GraphDACParams.collection_id.name(), setId);
+        setReq.put(GraphDACParams.collection_type.name(), CollectionTypes.SET.name());
+        Response res = getResponse(setReq, LOGGER);
 		if (checkError(res))
 			throw new ServerException(LanguageErrorCodes.ERROR_ADD_WORD_SET.name(), getErrorMessage(res));
 	}

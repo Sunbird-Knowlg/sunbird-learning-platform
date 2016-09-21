@@ -442,6 +442,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			Map<String, String> nodeIDcache, StringBuilder errorMessages) {
 		String nodeId;
 		WordUtil wordUtil = new WordUtil();
+
 		// check if word is in the execution cache
 		if (nodeIDcache.get(sWord) == null) {
 			// check if word is in the graph
@@ -576,14 +577,17 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	 *            the task id
 	 */
 	public void importDataAsync(String source, String languageId, String taskId) {
-		InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8));
-		Request request = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
-				LanguageOperations.importDataAsync.name());
-		request.put(LanguageParams.input_stream.name(), in);
-		if (taskId != null) {
-			request.put(LanguageParams.prev_task_id.name(), taskId);
+		try (InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8))) {
+			Request request = getLanguageRequest(languageId, LanguageActorNames.ENRICH_ACTOR.name(),
+					LanguageOperations.importDataAsync.name());
+			request.put(LanguageParams.input_stream.name(), in);
+			if (taskId != null) {
+				request.put(LanguageParams.prev_task_id.name(), taskId);
+			}
+			controllerUtil.makeLanguageAsyncRequest(request, LOGGER);
+		} catch (IOException e) {
+			LOGGER.error("Error! While Closing the Input Stream.", e);
 		}
-		controllerUtil.makeLanguageAsyncRequest(request, LOGGER);
 	}
 
 	/**
@@ -596,16 +600,14 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 	 *             Signals that an I/O exception has occurred.
 	 */
 	public static byte[] toByteArrayUsingJava(InputStream is) throws IOException {
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		int reads = is.read();
-
-		while (reads != -1) {
-			baos.write(reads);
-			reads = is.read();
+		try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+			int reads = is.read();
+			while (reads != -1) {
+				baos.write(reads);
+				reads = is.read();
+			}
+			return baos.toByteArray();
 		}
-
-		return baos.toByteArray();
-
 	}
 
 	/*
@@ -712,6 +714,7 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			String wordIdList = "";
 			String wordContent = "";
 			String synsetContent = "";
+
 			// replace words with word ids from ElasticSearch index and import
 			// the streams.
 			if (lstWord.size() > 0) {
@@ -997,9 +1000,12 @@ public class ImportManagerImpl extends BaseLanguageManager implements IImportMan
 			Response response = copyResponse(createRes);
 			OutputStreamValue os = (OutputStreamValue) createRes.get(GraphEngineParams.output_stream.name());
 			if (null != os && null != os.getOutputStream() && null != os.getOutputStream().toString()) {
-				ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream();
-				String csv = new String(bos.toByteArray());
-				response.put(LanguageParams.response.name(), csv);
+				try (ByteArrayOutputStream bos = (ByteArrayOutputStream) os.getOutputStream()) {
+					String csv = new String(bos.toByteArray());
+					response.put(LanguageParams.response.name(), csv);
+				} catch (IOException e) {
+					LOGGER.error("Error! While Closing the Input Stream.", e);
+				}
 			}
 			return response;
 		}

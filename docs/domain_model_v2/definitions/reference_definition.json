@@ -53,9 +53,9 @@
                 "textbook"
             ],
             "required": true,
-			"indexed": true,
+			      "indexed": true,
             "displayProperty": "Editable",
-            "defaultValue": "Other",
+            "defaultValue": "textbook",
             "renderingHints": "{'inputType': 'select', 'order': 4}"
         },
         {
@@ -73,7 +73,7 @@
             ],
 
             "required": false,
-			"indexed": true,
+			      "indexed": true,
             "displayProperty": "Editable",
             "defaultValue": "Draft",
             "renderingHints": "{'inputType': 'select', 'order': 5}"
@@ -131,13 +131,29 @@
           "renderingHints": "{ 'order': 9 }"
         },
         {
+          "propertyName": "domain",
+          "title": "Domain",
+          "description": "",
+          "category": "General",
+          "dataType": "Multi-Select",
+          "range": [
+            "numeracy",
+            "literacy"
+          ],
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "",
+          "indexed": true
+        },
+        {
           "propertyName": "chapterNumber",
           "title": "Chapter Number",
           "description": "",
           "category": "curriculum",
           "dataType": "Number",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -150,7 +166,7 @@
           "category": "curriculum",
           "dataType": "Text",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",
@@ -163,7 +179,7 @@
           "category": "curriculum",
           "dataType": "Number",
           "range": [],
-          "required": true,
+          "required": false,
           "indexed": true,
           "displayProperty": "Editable",
           "defaultValue": "",

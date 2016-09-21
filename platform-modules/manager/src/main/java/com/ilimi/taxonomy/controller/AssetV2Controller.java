@@ -23,44 +23,44 @@ import com.ilimi.common.controller.BaseController;
 @Controller
 @RequestMapping("/v2/asset")
 public class AssetV2Controller extends BaseController {
-	
+
 	private Optimizr ekstepOptimizr = new Optimizr();
 	private static final String tempFileLocation = "/data/contentBundle/";
-	
-    @RequestMapping(value = "/optimize/", method = RequestMethod.POST)
-    @ResponseBody
-    public void optimize(@RequestParam("inputFile") MultipartFile inputFile,
-    		HttpServletResponse resp) {
-        //String apiId = "asset.optimize";
-               
-        try {
-    		String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
-    		File convInputFile = new File(tempFileDwn, inputFile.getOriginalFilename());
 
-    		// Create the file using the touch method of the FileUtils class.
-    		FileUtils.touch(convInputFile);
+	@RequestMapping(value = "/optimize/", method = RequestMethod.POST)
+	@ResponseBody
+	public void optimize(@RequestParam("inputFile") MultipartFile inputFile, HttpServletResponse resp) {
+		// String apiId = "asset.optimize";
 
-    		// Write bytes from the multipart file to disk.
-    		FileUtils.writeByteArrayToFile(convInputFile, inputFile.getBytes());
+		try {
+			String tempFileDwn = tempFileLocation + System.currentTimeMillis() + "_temp";
+			File convInputFile = new File(tempFileDwn, inputFile.getOriginalFilename());
 
-            File optimizedFile = ekstepOptimizr.optimizeFile(convInputFile);
-            if(optimizedFile != null){
-                InputStream optimizedFileStream = new BufferedInputStream(new FileInputStream(optimizedFile));
+			// Create the file using the touch method of the FileUtils class.
+			FileUtils.touch(convInputFile);
 
-                String mimeType= URLConnection.guessContentTypeFromName(optimizedFile.getName());
-                if(mimeType==null){
-                    mimeType = "application/octet-stream";
-                }
-    			resp.setContentType(mimeType);
-    			resp.setHeader("Content-Disposition", "attachment; filename="+inputFile.getOriginalFilename());
-    			resp.setContentLength((int)optimizedFile.length());
-    			//send file response
-    			FileCopyUtils.copy(optimizedFileStream, resp.getOutputStream());
-    			//delete the temp directory
-    			org.apache.commons.io.FileUtils.deleteDirectory(optimizedFile.getParentFile());            	
-            }
-        } catch (Exception e) {
-        	e.printStackTrace();
-        }
-    }
+			// Write bytes from the multipart file to disk.
+			FileUtils.writeByteArrayToFile(convInputFile, inputFile.getBytes());
+
+			File optimizedFile = ekstepOptimizr.optimizeFile(convInputFile);
+			if (optimizedFile != null) {
+				try (InputStream optimizedFileStream = new BufferedInputStream(new FileInputStream(optimizedFile))) {
+
+					String mimeType = URLConnection.guessContentTypeFromName(optimizedFile.getName());
+					if (mimeType == null) {
+						mimeType = "application/octet-stream";
+					}
+					resp.setContentType(mimeType);
+					resp.setHeader("Content-Disposition", "attachment; filename=" + inputFile.getOriginalFilename());
+					resp.setContentLength((int) optimizedFile.length());
+					// send file response
+					FileCopyUtils.copy(optimizedFileStream, resp.getOutputStream());
+					// delete the temp directory
+					org.apache.commons.io.FileUtils.deleteDirectory(optimizedFile.getParentFile());
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

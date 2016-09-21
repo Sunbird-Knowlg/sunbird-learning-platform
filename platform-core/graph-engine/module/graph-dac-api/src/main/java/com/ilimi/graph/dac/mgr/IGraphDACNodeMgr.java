@@ -21,4 +21,6 @@ public interface IGraphDACNodeMgr {
     void removePropertyValues(Request request);
 
     void deleteNode(Request request);
+    
+    void upsertRootNode(Request request);
 }

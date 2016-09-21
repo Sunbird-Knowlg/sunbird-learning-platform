@@ -61,12 +61,15 @@ public class RhymingSoundSet extends BaseWordSet {
 	 * Creates the RhymingSoundSet if rhymingSound is not found in existing
 	 * relations
 	 */
-	public void create() {
-		String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
-
-		if (StringUtils.isNotBlank(rhymingSoundLemma)) {
-			if (!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
+	public void create(){
+		LOGGER.info("Rhyming sound is " + rhymingSound);
+		if(StringUtils.isNotBlank(rhymingSound)){
+			String rhymingSoundLemma = RHYMING_SOUND + "_" + rhymingSound;
+			if(!isExist(LanguageParams.RhymingSound.name(), rhymingSoundLemma))
 				createRhymingSoundSet(rhymingSoundLemma);
+		} else {
+			LOGGER.info("Deleting existing rhyming sound relation");
+			removeSetRelation(LanguageParams.RhymingSound.name());
 		}
 	}
 

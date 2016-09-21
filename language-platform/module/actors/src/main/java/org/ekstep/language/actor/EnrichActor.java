@@ -89,15 +89,16 @@ public class EnrichActor extends LanguageBaseActor {
 				enrichWords(nodeIds, languageId);
 				OK(getSender());
 			} else if (StringUtils.equalsIgnoreCase(LanguageOperations.importDataAsync.name(), operation)) {
-				InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name());
-				String prevTaskId = (request.get(LanguageParams.prev_task_id.name()) == null) ? null
-						: (String) request.get(LanguageParams.prev_task_id.name());
-				if (prevTaskId != null) {
-					if (controllerUtil.taskCompleted(prevTaskId, languageId)) {
+				try (InputStream stream = (InputStream) request.get(LanguageParams.input_stream.name())) {
+					String prevTaskId = (request.get(LanguageParams.prev_task_id.name()) == null) ? null
+							: (String) request.get(LanguageParams.prev_task_id.name());
+					if (prevTaskId != null) {
+						if (controllerUtil.taskCompleted(prevTaskId, languageId)) {
+							controllerUtil.importNodesFromStreamAsync(stream, languageId);
+						}
+					} else {
 						controllerUtil.importNodesFromStreamAsync(stream, languageId);
 					}
-				} else {
-					controllerUtil.importNodesFromStreamAsync(stream, languageId);
 				}
 				OK(getSender());
 			} else {
@@ -106,6 +107,7 @@ public class EnrichActor extends LanguageBaseActor {
 						"Unsupported operation: " + operation);
 			}
 		} catch (Exception e) {
+			System.out.println("Error: " + e.getMessage());
 			LOGGER.error("Error in enrich actor", e);
 			handleException(e, getSender());
 		}
@@ -139,7 +141,6 @@ public class EnrichActor extends LanguageBaseActor {
 					updateFrequencyCount(languageId, nodeList);
 					updatePosList(languageId, nodeList);
 					updateWordComplexity(languageId, nodeList);
-
 					batch_node_ids = new ArrayList<String>();
 					long diff = System.currentTimeMillis() - startTime;
 					LOGGER.info("Time taken for enriching " + BATCH_SIZE + " words: " + diff / 1000 + "s");

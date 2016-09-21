@@ -295,13 +295,13 @@ public class WordCacheUtil {
 		String arpabetsOfWord = null;
 		try {
 			arpabetsOfWord = jedis.get(wordKey);
-			if (StringUtils.isEmpty(arpabetsOfWord)) {
+			if (StringUtils.isBlank(arpabetsOfWord)) {
 				// check word has any split character to represent compound-word
 				if (hasSplitChar(word)) {
 					word = buildCompoundWord(word);
 					wordKey = getWordKey(word);
 					arpabetsOfWord = jedis.get(wordKey);
-					if (StringUtils.isEmpty(arpabetsOfWord)) {
+					if (StringUtils.isBlank(arpabetsOfWord)) {
 						// check for least possibility of compound word like
 						// "subway" instead of "sub-way"
 						word = word.replaceAll("-", "");

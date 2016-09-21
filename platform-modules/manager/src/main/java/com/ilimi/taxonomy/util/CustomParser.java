@@ -203,7 +203,7 @@ public class CustomParser {
 	 * */
 	public static String readFile(File file) {
 		String text = "";
-		try (FileInputStream fis = new FileInputStream(file);) {
+		try (FileInputStream fis = new FileInputStream(file)) {
 			text = IOUtils.toString(fis, StandardCharsets.UTF_8.name());
 		} catch (IOException io) {
 			io.printStackTrace();

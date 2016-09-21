@@ -459,8 +459,8 @@ public abstract class DictionaryController extends BaseLanguageController {
 			@RequestHeader(value = "user-id") String userId, HttpServletResponse resp) {
 		String objectType = getObjectType();
 		String apiId = objectType + ".loadWordsArpabetsMap";
+		InputStream wordsArpabetsStream = null;
 		try {
-			InputStream wordsArpabetsStream = null;
 			if (null != wordsArpabetsFile)
 				wordsArpabetsStream = wordsArpabetsFile.getInputStream();
 			Response response = dictionaryManager.loadEnglishWordsArpabetsMap(wordsArpabetsStream);
@@ -470,6 +470,13 @@ public abstract class DictionaryController extends BaseLanguageController {
 			e.printStackTrace();
 			LOGGER.error("loadWordsArpabetsMap | Exception: " + e.getMessage(), e);
 			return getExceptionResponseEntity(e, apiId, null);
+		} finally {
+			if (null != wordsArpabetsStream)
+				try {
+					wordsArpabetsStream.close();
+				} catch (IOException e) {
+					LOGGER.error("Error! While Closing the Input Stream.", e);
+				}
 		}
 	}
 
@@ -491,7 +498,6 @@ public abstract class DictionaryController extends BaseLanguageController {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".Syllable";
 		try {
-			// String arpabets=getArpabets(word);
 			Response response = dictionaryManager.getSyllables(languageId, word);
 			LOGGER.info("Get Syllables | Response: " + response);
 			return getResponseEntity(response, apiId, null);
@@ -533,6 +539,9 @@ public abstract class DictionaryController extends BaseLanguageController {
 	 *            the language id
 	 * @param word
 	 *            the word
+	 * @param addEndVirama
+	 *            if virama should be added at end of the words that end with a
+	 *            consonant
 	 * @param userId
 	 *            the user id
 	 * @return the phonetic spelling
@@ -540,12 +549,43 @@ public abstract class DictionaryController extends BaseLanguageController {
 	@RequestMapping(value = "/{languageId}/phoneticSpelling/{word:.+}", method = RequestMethod.GET)
 	@ResponseBody
 	public ResponseEntity<Response> getPhoneticSpelling(@PathVariable(value = "languageId") String languageId,
-			@PathVariable(value = "word") String word, @RequestHeader(value = "user-id") String userId) {
+			@PathVariable(value = "word") String word,
+			@RequestParam(name = "addClosingVirama", defaultValue = "false") boolean addEndVirama,
+			@RequestHeader(value = "user-id") String userId) {
 		String objectType = getObjectType();
 		String apiId = objectType.toLowerCase() + ".PhoneticSpelling";
 		try {
-			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word);
+			Response response = dictionaryManager.getPhoneticSpellingByLanguage(languageId, word, addEndVirama);
 			LOGGER.info("Get PhoneticSpelling | Response: " + response);
+			return getResponseEntity(response, apiId, null);
+		} catch (Exception e) {
+			return getExceptionResponseEntity(e, apiId, null);
+		}
+	}
+
+	/**
+	 * Transliterates an english text into a given language
+	 * 
+	 * @param languageId
+	 *            code of the language into which the text should be
+	 *            transliterated
+	 * @param addEndVirama
+	 *            if virama should be added at end of the words that end with a
+	 *            consonant
+	 * @param map
+	 *            request body containing the text to be transliterated
+	 * @return the transliterated text
+	 */
+	@RequestMapping(value = "/{languageId}/transliterate", method = RequestMethod.POST)
+	@ResponseBody
+	public ResponseEntity<Response> transliterate(@PathVariable(value = "languageId") String languageId,
+			@RequestParam(name = "addClosingVirama", defaultValue = "false") boolean addEndVirama,
+			@RequestBody Map<String, Object> map) {
+		String apiId = "text.transliterate";
+		try {
+			Request request = getRequest(map);
+			Response response = dictionaryManager.transliterate(languageId, request, addEndVirama);
+			LOGGER.info("Transliterate | Response: " + response);
 			return getResponseEntity(response, apiId, null);
 		} catch (Exception e) {
 			return getExceptionResponseEntity(e, apiId, null);
