@@ -23,9 +23,30 @@
     "produces": [
         "application/json"
     ],
+    "tags": [
+        {
+          "name": "Core",
+          "description": "Everything related to the CRUD operations"
+        },
+        {
+          "name": "Search",
+          "description": "Everything related to Search and List operations"
+        },
+        {
+          "name": "Workflow",
+          "description": "Everything related to Content Workflow Operations"
+        },
+        {
+          "name": "Bundle",
+          "description": "Everything related to bundling the content into single package"
+        }
+    ],
     "paths": {
         "/content": {
             "post": {
+                "tags": [
+                  "Core"
+                ],
                 "summary": "Creates a Content",
                 "description": "The _content_ endpoint is used to create the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _content_ endpoint returns the node id as _node_id_ i.e. the identifier of created content.",
                 "operationId": "content.create",
@@ -43,6 +64,18 @@
                         "schema": {
                             "$ref": "#/definitions/ContentCreateResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Error While Content Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentCreateErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentCreateErrorResponse"
+                        }
                     }
                 },
                 "security": []
@@ -50,6 +83,9 @@
         },
         "/content/{contentId}": {
           "patch": {
+            "tags": [
+              "Core"
+            ],
             "summary": "Updates the Content",
             "description": "The _content/{contentId}_ endpoint is used to update the content into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to have the content into the platfrom i.e. the mandatory fields cannot be null or empty, The _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the identifier of updated content.",
             "operationId": "content.update",
@@ -70,11 +106,26 @@
                     "schema": {
                         "$ref": "#/definitions/ContentUpdateResponse"
                     }
+                },
+                "400": {
+                    "description": "Error While Content Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                    "schema": {
+                        "$ref": "#/definitions/ContentUpdateErrorResponse"
+                    }
+                },
+                "500": {
+                    "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                    "schema": {
+                        "$ref": "#/definitions/ContentUpdateErrorResponse"
+                    }
                 }
             },
             "security": []
           },
           "get": {
+            "tags": [
+              "Core"
+            ],
             "summary": "Get Content Object",
             "description": "The _content/{contentId}_ endpoint with 'GET' method is used to fetch the content from the _EkStep Platform_. This endpoint returns the entire Content Object with default fields. The Consumer can get the non-default fields by passing the comma separated list of fields in a query parameter _fields_ For Example: _/content/{contentId}?fields?body,soundCredits_",
             "operationId": "content.find",
@@ -92,6 +143,18 @@
                     "schema": {
                         "$ref": "#/definitions/ContentGetResponse"
                     }
+                },
+                "400": {
+                    "description": "Error While Content Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                    "schema": {
+                        "$ref": "#/definitions/ContentGetErrorResponse"
+                    }
+                },
+                "500": {
+                    "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                    "schema": {
+                        "$ref": "#/definitions/ContentGetErrorResponse"
+                    }
                 }
             },
             "security": []
@@ -99,6 +162,9 @@
         },
         "/content/list": {
             "post": {
+                "tags": [
+                  "Search"
+                ],
                 "summary": "List all Contents",
                 "description": "The _content/list_ endpoint is used to list all the content from the _EkStep Platform_. By deafult it returns only 'Live' content But Content belongs to other status can also be queried by explicitly providing the metadata information in the Request body. Apart from this the Request body can have the sorting field informatin, order of sorting and a particular set of fields you want in output. The only difference between 'search' and 'list' operation is, the 'list' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the 'search' operation will return all the objects of type content.",
                 "operationId": "content.list",
@@ -116,6 +182,18 @@
                         "schema": {
                             "$ref": "#/definitions/ContentListResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Error While Listing Content ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentListErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Listing Content ! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentListErrorResponse"
+                        }
                     }
                 },
                 "security": []
@@ -123,6 +201,9 @@
         },
         "/content/search": {
             "post": {
+                "tags": [
+                  "Search"
+                ],
                 "summary": "Search the Content",
                 "description": "The _content/search_ endpoint is used to list all the content from the _EkStep Platform_. By deafult it returns only 'Live' content But Content belongs to other status can also be queried by explicitly providing the metadata information in the Request body.  Apart from this the Request body can have the sorting field informatin, order of sorting and a particular set of fields you want in output.  The only difference between 'search' and 'list' operation is, the 'list' operation only return the Content of type story, worksheet and games i.e. the content playable on Genie App while the 'search' operation will return all the objects of type content.",
                 "operationId": "content.search",
@@ -140,6 +221,18 @@
                         "schema": {
                             "$ref": "#/definitions/ContentListResponse"
                         }
+                    },
+                    "400": {
+                        "description": "Error While Content Search! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentSearchErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content Search! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/ContentSearchErrorResponse"
+                        }
                     }
                 },
                 "security": []
@@ -147,6 +240,9 @@
         },
         "/content/upload/{contentId}": {
           "post": {
+              "tags": [
+                "Workflow"
+              ],
               "summary": "Uploads a Content Package",
               "description": "The '/content/upload/{contentId}' endpoint uploads the Content package for the given 'contentId'. This endpoint is responsible for the Content 'Upload' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter and content package file as file type body parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content is being uploaded and the Content node identifier as 'node_id' for which the upload operation is being performed.",
               "operationId": "content.upload",
@@ -167,6 +263,18 @@
                       "schema": {
                           "$ref": "#/definitions/ContentUploadResponse"
                       }
+                  },
+                  "400": {
+                      "description": "Error While Content Upload! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentUploadErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While Content Upload! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentUploadErrorResponse"
+                      }
                   }
               },
               "security": []
@@ -174,6 +282,9 @@
         },
         "/content/publish/{contentId}": {
           "post": {
+              "tags": [
+                "Workflow"
+              ],
               "summary": "Publishes a Content",
               "description": "The '/content/publish/{contentId}' endpoint publishes a Content whose Content identifier is given as 'contentId'. This endpoint is responsible for the Content 'Publish' operation which is considered to be one of the high-level operation. It takes content identifier as path parameter. In response it returns the Content Url as 'content_url' which is the address of storage space (S3) where the content ECAR is being uploaded and the Content node identifier as 'node_id' for which the publish operation is being performed.",
               "operationId": "content.publish",
@@ -191,6 +302,18 @@
                       "schema": {
                           "$ref": "#/definitions/ContentPublishResponse"
                       }
+                  },
+                  "400": {
+                      "description": "Error While Content Publish! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentPublishErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While Content Publish! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentPublishErrorResponse"
+                      }
                   }
               },
               "security": []
@@ -198,6 +321,9 @@
         },
         "/content/bundle": {
           "post": {
+              "tags": [
+                "Bundle"
+              ],
               "summary": "Bundle the Contents",
               "description": "The '/content/bundle' endpoint bundles the Contents whose identifiers are given. It consumes the list of Content identifiers as 'content_identifiers' and the bundle file name as 'file_name' which is the name of output bundle file. In response it returns the URL of Bundle Package file which is uploaded to storage space (S3). This endpoint performs the 'Bundle' operation for the given contents which is useful for offline access EkStep Content.",
               "operationId": "content.bundle",
@@ -215,11 +341,23 @@
                       "schema": {
                           "$ref": "#/definitions/ContentBundleResponse"
                       }
+                  },
+                  "400": {
+                      "description": "Error While Content Bundling! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentBundleErrorResponse"
+                      }
+                  },
+                  "500": {
+                      "description": "Error While Content Bundling! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
+                      "schema": {
+                          "$ref": "#/definitions/ContentBundleErrorResponse"
+                      }
                   }
               },
               "security": []
           }
-        },
+        }
     },
     "parameters": {
         "ContentRequestObject": {
@@ -1770,7 +1908,12 @@
         "EmptyResult": {
             "title": "Empty Result",
             "type": "object",
-            "properties": {}
+            "properties": {
+              "result": {
+                "type": "object",
+                "description": "Empty Result"
+              }
+            }
         },
         "NodeId": {
             "title": "Node Id",
@@ -1925,16 +2068,16 @@
           "title": "Content Bundle Object",
           "type": "object",
           "properties": {
+              "file_name": {
+                "type": "string",
+                "description": "Content Bundle File Name"
+              },
               "content_identifiers": {
                 "type": "array",
                 "description": "List of Content Identifiers to Bundle",
                 "items": {
                   "type": "string"
                 }
-              },
-              "file_name": {
-                "type": "string",
-                "description": "Content Bundle File Name"
               }
           },
           "required": [
@@ -2039,39 +2182,100 @@
           ]
         },
         "ContentCreateErrorResponse": {
-            "title": "",
+            "title": "Create Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentUpdateErrorResponse": {
-            "title": "",
+            "title": "Update Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentGetErrorResponse": {
             "title": "Get Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentListErrorResponse": {
             "title": "List Contents Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentSearchErrorResponse": {
             "title": "Search Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentUploadErrorResponse": {
             "title": "Upload Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         },
         "ContentPublishErrorResponse": {
             "title": "Publish Content Error Response",
             "type": "object",
-            "properties": {}
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
+        },
+        "ContentBundleErrorResponse": {
+            "title": "Bundle Content Error Response",
+            "type": "object",
+            "allOf": [
+                {
+                    "$ref": "#/definitions/EmptyResult"
+                },
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                }
+            ]
         }
     }
 }
