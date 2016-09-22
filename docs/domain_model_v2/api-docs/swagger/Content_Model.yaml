@@ -56,23 +56,14 @@ paths:
           description: >-
             Error While Content Creation! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
         '500':
           description: >-
             Error While Content Creation! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentCreateErrorResponse'
       security: []
@@ -82,13 +73,13 @@ paths:
         - Core
       summary: Updates the Content
       description: >-
-        The _content/{contentId}_ endpoint is used to update the content into
-        the _EkStep Platform_ with the metadata provided as part of request
-        body, there are certain fields marked as mandatory for which the value
-        has to be given in order to have the content into the platfrom i.e. the
-        mandatory fields cannot be null or empty, The _content/{contentId}_
-        endpoint returns the node id as _node_id_ i.e. the identifier of updated
-        content.
+        The _content/{contentId}_ endpoint with 'PATCH' method is used to update
+        the content into the _EkStep Platform_ with the metadata provided as
+        part of request body, there are certain fields marked as mandatory for
+        which the value has to be given in order to have the content into the
+        platfrom i.e. the mandatory fields cannot be null or empty, The
+        _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the
+        identifier of updated content.
       operationId: content.update
       produces:
         - application/json
@@ -102,25 +93,20 @@ paths:
             $ref: '#/definitions/ContentUpdateResponse'
         '400':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            Error While Content Update! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            $ref: '#/definitions/ContentUpdateErrorResponse'
+        '404':
+          description: Content Id does not exist.
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
         '500':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            Error While Content Update! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentUpdateErrorResponse'
       security: []
@@ -147,27 +133,60 @@ paths:
             $ref: '#/definitions/ContentGetResponse'
         '400':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            $ref: '#/definitions/ContentGetErrorResponse'
+        '404':
+          description: Content Id does not exist.
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
         '500':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentGetErrorResponse'
+      security: []
+    delete:
+      tags:
+        - Core
+      summary: Deletes Content Object
+      description: >-
+        The _content/{contentId}_ endpoint with 'DELETE' method is used to
+        delete (Retire) the content from the _EkStep Platform_. It consumes the
+        Content Identifier as 'contentId' on which the delete (Retire) operation
+        has to be performed.
+      operationId: content.delete
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/ContentId'
+      responses:
+        '200':
+          description: Content Retired Successfully
+          schema:
+            $ref: '#/definitions/ContentDeleteResponse'
+        '400':
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            $ref: '#/definitions/ContentDeleteErrorResponse'
+        '404':
+          description: Content Id does not exist.
+          schema:
+            $ref: '#/definitions/ContentDeleteErrorResponse'
+        '500':
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/ContentDeleteErrorResponse'
       security: []
   /content/list:
     post:
@@ -179,7 +198,7 @@ paths:
         _EkStep Platform_. By deafult it returns only 'Live' content But Content
         belongs to other status can also be queried by explicitly providing the
         metadata information in the Request body. Apart from this the Request
-        body can have the sorting field informatin, order of sorting and a
+        body can have the sorting field information, order of sorting and a
         particular set of fields you want in output. The only difference between
         'search' and 'list' operation is, the 'list' operation only return the
         Content of type story, worksheet and games i.e. the content playable on
@@ -197,25 +216,16 @@ paths:
             $ref: '#/definitions/ContentListResponse'
         '400':
           description: >-
-            Error While Listing Content ! | Error occurred while operation,
+            Error While Listing Contents! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
         '500':
           description: >-
-            Error While Listing Content ! | Error occurred while operation,
+            Error While Listing Contents! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentListErrorResponse'
       security: []
@@ -225,16 +235,15 @@ paths:
         - Search
       summary: Search the Content
       description: >-
-        The _content/search_ endpoint is used to list all the content from the
-        _EkStep Platform_. By deafult it returns only 'Live' content But Content
-        belongs to other status can also be queried by explicitly providing the
-        metadata information in the Request body.  Apart from this the Request
-        body can have the sorting field informatin, order of sorting and a
-        particular set of fields you want in output.  The only difference
-        between 'search' and 'list' operation is, the 'list' operation only
-        return the Content of type story, worksheet and games i.e. the content
-        playable on Genie App while the 'search' operation will return all the
-        objects of type content.
+        The 'content/search' endpoint is used to search the content in the
+        _EkStep Platform_. It makes the search based on the Search Criteria
+        provided in the Request Body. Apart from this the Request body can have
+        the sorting field information, order of sorting and a particular set of
+        fields you want in output.  The only difference between 'search' and
+        'list' operation is, the 'list' operation only return the Content of
+        type story, worksheet and games i.e. the content playable on Genie App
+        while the 'search' operation will return all the objects of type
+        content.
       operationId: content.search
       produces:
         - application/json
@@ -244,28 +253,19 @@ paths:
         '200':
           description: Contents Fetched Successfully
           schema:
-            $ref: '#/definitions/ContentListResponse'
+            $ref: '#/definitions/ContentSearchResponse'
         '400':
           description: >-
             Error While Content Search! | Error occurred while operation, mostly
             because of the input given by client, In general it is 'Client
-            Exception'. To investigate the root cause first read through the
-            'err' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Codes', after that read 'errmsg' field of
-            response 'params' and go through the Wiki-Doc with title 'Content
-            Model Error Messages' for the corresponding error messages.
+            Exception'.
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
         '500':
           description: >-
             Error While Content Search! | Error occurred while operation, mostly
             because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Messages' for the corresponding error
-            messages.
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentSearchErrorResponse'
       security: []
@@ -298,23 +298,18 @@ paths:
           description: >-
             Error While Content Upload! | Error occurred while operation, mostly
             because of the input given by client, In general it is 'Client
-            Exception'. To investigate the root cause first read through the
-            'err' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Codes', after that read 'errmsg' field of
-            response 'params' and go through the Wiki-Doc with title 'Content
-            Model Error Messages' for the corresponding error messages.
+            Exception'.
+          schema:
+            $ref: '#/definitions/ContentUploadErrorResponse'
+        '404':
+          description: Content Id does not exist.
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
         '500':
           description: >-
             Error While Content Upload! | Error occurred while operation, mostly
             because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Messages' for the corresponding error
-            messages.
+            Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentUploadErrorResponse'
       security: []
@@ -346,23 +341,18 @@ paths:
           description: >-
             Error While Content Publish! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/ContentPublishErrorResponse'
+        '404':
+          description: Content Id does not exist.
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
         '500':
           description: >-
             Error While Content Publish! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentPublishErrorResponse'
       security: []
@@ -378,7 +368,7 @@ paths:
         the name of output bundle file. In response it returns the URL of Bundle
         Package file which is uploaded to storage space (S3). This endpoint
         performs the 'Bundle' operation for the given contents which is useful
-        for offline access EkStep Content.
+        for offline access of EkStep Content.
       operationId: content.bundle
       produces:
         - application/json
@@ -393,23 +383,14 @@ paths:
           description: >-
             Error While Content Bundling! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
         '500':
           description: >-
             Error While Content Bundling! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/ContentBundleErrorResponse'
       security: []
@@ -628,6 +609,28 @@ responses:
         type: string
     schema:
       $ref: '#/definitions/ContentBundleResponse'
+  ContentDeleteResponse:
+    description: Delete (Retire) Content Response
+    headers:
+      id:
+        description: ''
+        type: string
+      ver:
+        description: ''
+        type: string
+      ts:
+        description: ''
+        type: string
+      params:
+        description: ''
+        type: array
+        items:
+          type: string
+      responseCode:
+        description: ''
+        type: string
+    schema:
+      $ref: '#/definitions/ContentDeleteResponse'
 definitions:
   Content:
     title: Content Metadata
@@ -1037,6 +1040,12 @@ definitions:
         type: array
         items:
           $ref: '#/definitions/ContentResponse'
+  ContentResponseArrayAndTTL:
+    title: Response Content Array with TTL
+    type: object
+    allOf:
+      - $ref: '#/definitions/TTL'
+      - $ref: '#/definitions/ContentResponseArray'
   ContentSearch:
     title: Content Search Metadata
     type: object
@@ -1566,6 +1575,14 @@ definitions:
       ECAR_URL:
         type: string
         description: Url to download created ECAR
+  TTL:
+    title: TTL
+    type: object
+    properties:
+      ttl:
+        type: number
+        format: double
+        description: TTL (Time)
   ResultWithNodeId:
     title: Result Containing Node Id
     type: object
@@ -1588,12 +1605,8 @@ definitions:
     title: Result Containing Content Object
     type: object
     properties:
-      ttl:
-        title: TTL
-        type: number
-        format: double
       result:
-        $ref: '#/definitions/ContentResponseArray'
+        $ref: '#/definitions/ContentResponseArrayAndTTL'
   ResultWithContentUrlAndNodeId:
     title: Result Containing Content URL and Node Id
     type: object
@@ -1709,6 +1722,12 @@ definitions:
     allOf:
       - $ref: '#/definitions/ResultWithECARUrl'
       - $ref: '#/definitions/ResponseHeader'
+  ContentDeleteResponse:
+    title: Delete Content Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/EmptyResult'
+      - $ref: '#/definitions/ResponseHeader'
   ContentCreateErrorResponse:
     title: Create Content Error Response
     type: object
@@ -1753,6 +1772,12 @@ definitions:
       - $ref: '#/definitions/ResponseHeader'
   ContentBundleErrorResponse:
     title: Bundle Content Error Response
+    type: object
+    allOf:
+      - $ref: '#/definitions/EmptyResult'
+      - $ref: '#/definitions/ResponseHeader'
+  ContentDeleteErrorResponse:
+    title: Delete (Retire) Content Error Response
     type: object
     allOf:
       - $ref: '#/definitions/EmptyResult'

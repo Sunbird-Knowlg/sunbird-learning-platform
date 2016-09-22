@@ -390,11 +390,7 @@ paths:
           description: >-
             Error While Content Creation! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             title: Create Content Error Response
             type: object
@@ -444,12 +440,7 @@ paths:
           description: >-
             Error While Content Creation! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             title: Create Content Error Response
             type: object
@@ -502,13 +493,13 @@ paths:
         - Core
       summary: Updates the Content
       description: >-
-        The _content/{contentId}_ endpoint is used to update the content into
-        the _EkStep Platform_ with the metadata provided as part of request
-        body, there are certain fields marked as mandatory for which the value
-        has to be given in order to have the content into the platfrom i.e. the
-        mandatory fields cannot be null or empty, The _content/{contentId}_
-        endpoint returns the node id as _node_id_ i.e. the identifier of updated
-        content.
+        The _content/{contentId}_ endpoint with 'PATCH' method is used to update
+        the content into the _EkStep Platform_ with the metadata provided as
+        part of request body, there are certain fields marked as mandatory for
+        which the value has to be given in order to have the content into the
+        platfrom i.e. the mandatory fields cannot be null or empty, The
+        _content/{contentId}_ endpoint returns the node id as _node_id_ i.e. the
+        identifier of updated content.
       operationId: content.update
       produces:
         - application/json
@@ -860,13 +851,56 @@ paths:
                     description: 'API response code '
         '400':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            Error While Content Update! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            title: Update Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '404':
+          description: Content Id does not exist.
           schema:
             title: Update Content Error Response
             type: object
@@ -914,14 +948,9 @@ paths:
                     description: 'API response code '
         '500':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            Error While Content Update! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             title: Update Content Error Response
             type: object
@@ -1165,13 +1194,56 @@ paths:
                     description: 'API response code '
         '400':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            title: Get Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '404':
+          description: Content Id does not exist.
           schema:
             title: Get Content Error Response
             type: object
@@ -1219,16 +1291,225 @@ paths:
                     description: 'API response code '
         '500':
           description: >-
-            Error While Content Creation! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            Error While Content Fetch! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
           schema:
             title: Get Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+      security: []
+    delete:
+      tags:
+        - Core
+      summary: Deletes Content Object
+      description: >-
+        The _content/{contentId}_ endpoint with 'DELETE' method is used to
+        delete (Retire) the content from the _EkStep Platform_. It consumes the
+        Content Identifier as 'contentId' on which the delete (Retire) operation
+        has to be performed.
+      operationId: content.delete
+      produces:
+        - application/json
+      parameters:
+        - name: contentId
+          in: path
+          type: string
+          description: The given Content identifier to perform operation
+          required: true
+      responses:
+        '200':
+          description: Content Retired Successfully
+          schema:
+            title: Delete Content Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '400':
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'.
+          schema:
+            title: Delete (Retire) Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '404':
+          description: Content Id does not exist.
+          schema:
+            title: Delete (Retire) Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '500':
+          description: >-
+            Error While Content Retire! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'.
+          schema:
+            title: Delete (Retire) Content Error Response
             type: object
             allOf:
               - title: Empty Result
@@ -1283,7 +1564,7 @@ paths:
         _EkStep Platform_. By deafult it returns only 'Live' content But Content
         belongs to other status can also be queried by explicitly providing the
         metadata information in the Request body. Apart from this the Request
-        body can have the sorting field informatin, order of sorting and a
+        body can have the sorting field information, order of sorting and a
         particular set of fields you want in output. The only difference between
         'search' and 'list' operation is, the 'list' operation only return the
         Content of type story, worksheet and games i.e. the content playable on
@@ -1779,142 +2060,148 @@ paths:
               - title: Result Containing Content Object
                 type: object
                 properties:
-                  ttl:
-                    title: TTL
-                    type: number
-                    format: double
                   result:
-                    title: Response Content Array
+                    title: Response Content Array with TTL
                     type: object
-                    properties:
-                      content:
-                        type: array
-                        items:
-                          title: Content Response Metadata
-                          type: object
-                          properties:
-                            identifier:
-                              type: string
-                              description: Identifier of the content
-                            name:
-                              type: string
-                              description: Name of the content
-                            code:
-                              type: string
-                              description: Unique code for the content
-                            keywords:
-                              type: string
-                              description: ''
-                            appIcon:
-                              type: string
-                              description: ''
-                            grayScaleAppIcon:
-                              type: string
-                              description: ''
-                            size:
-                              type: number
-                              description: ''
-                            downloadUrl:
-                              type: string
-                              description: URL to download the content
-                            artifactUrl:
-                              type: string
-                              description: URL to download the content
-                            pkgVersion:
-                              type: number
-                              description: Version number of the package file
-                            loadingMessage:
-                              type: string
-                              description: Loading Message
-                            launchUrl:
-                              type: string
-                              description: URL to launch the game
-                            osId:
-                              type: string
-                              description: Operating System specific Id
-                            posterImage:
-                              type: string
-                              description: ''
-                            activity_class:
-                              type: string
-                              description: ''
-                            filter:
-                              type: string
-                              description: Example - 'Delhi Curriculum'
-                            mimeType:
-                              type: string
-                              description: ''
-                            minSupportedVersion:
-                              type: string
-                              description: Minimum Supported Version of this content
-                            checksum:
-                              type: string
-                              description: Checksum value of the story package file
-                            lastUpdatedOn:
-                              type: string
-                              description: ''
-                            createdOn:
-                              type: string
-                              description: ''
-                            status:
-                              type: string
-                              description: ''
-                            contentType:
-                              type: string
-                              description: ''
-                            visibility:
-                              type: string
-                              description: >-
-                                Visibility (set as 'Parent' to hide this from
-                                any other list view)
-                            thumbnail:
-                              type: string
-                              description: ''
-                            language:
-                              type: string
-                              description: ''
-                            owner:
-                              type: string
-                              description: Content Owner
-                            collaborators:
-                              type: string
-                              description: Collaborators
-                            voiceCredits:
-                              type: string
-                              description: Voice Credits
-                            soundCredits:
-                              type: string
-                              description: Audio and background scores by
-                            imageCredits:
-                              type: string
-                              description: Images created by
-                            portalOwner:
-                              type: string
-                              description: Portal Owner
-                            developer:
-                              type: string
-                              description: Content Developer
-                            attributions:
-                              type: string
-                              description: Attributions/Credits
-                            forkable:
-                              type: boolean
-                              description: Forkable
-                            translatable:
-                              type: boolean
-                              description: Translatable
-                            mediaType:
-                              type: string
-                              description: ''
-                            optStatus:
-                              type: string
-                              description: ''
-                            domain:
-                              type: string
-                              description: ''
-                            lastPublishedOn:
-                              type: string
-                              description: ''
+                    allOf:
+                      - title: TTL
+                        type: object
+                        properties:
+                          ttl:
+                            type: number
+                            format: double
+                            description: TTL (Time)
+                      - title: Response Content Array
+                        type: object
+                        properties:
+                          content:
+                            type: array
+                            items:
+                              title: Content Response Metadata
+                              type: object
+                              properties:
+                                identifier:
+                                  type: string
+                                  description: Identifier of the content
+                                name:
+                                  type: string
+                                  description: Name of the content
+                                code:
+                                  type: string
+                                  description: Unique code for the content
+                                keywords:
+                                  type: string
+                                  description: ''
+                                appIcon:
+                                  type: string
+                                  description: ''
+                                grayScaleAppIcon:
+                                  type: string
+                                  description: ''
+                                size:
+                                  type: number
+                                  description: ''
+                                downloadUrl:
+                                  type: string
+                                  description: URL to download the content
+                                artifactUrl:
+                                  type: string
+                                  description: URL to download the content
+                                pkgVersion:
+                                  type: number
+                                  description: Version number of the package file
+                                loadingMessage:
+                                  type: string
+                                  description: Loading Message
+                                launchUrl:
+                                  type: string
+                                  description: URL to launch the game
+                                osId:
+                                  type: string
+                                  description: Operating System specific Id
+                                posterImage:
+                                  type: string
+                                  description: ''
+                                activity_class:
+                                  type: string
+                                  description: ''
+                                filter:
+                                  type: string
+                                  description: Example - 'Delhi Curriculum'
+                                mimeType:
+                                  type: string
+                                  description: ''
+                                minSupportedVersion:
+                                  type: string
+                                  description: Minimum Supported Version of this content
+                                checksum:
+                                  type: string
+                                  description: Checksum value of the story package file
+                                lastUpdatedOn:
+                                  type: string
+                                  description: ''
+                                createdOn:
+                                  type: string
+                                  description: ''
+                                status:
+                                  type: string
+                                  description: ''
+                                contentType:
+                                  type: string
+                                  description: ''
+                                visibility:
+                                  type: string
+                                  description: >-
+                                    Visibility (set as 'Parent' to hide this
+                                    from any other list view)
+                                thumbnail:
+                                  type: string
+                                  description: ''
+                                language:
+                                  type: string
+                                  description: ''
+                                owner:
+                                  type: string
+                                  description: Content Owner
+                                collaborators:
+                                  type: string
+                                  description: Collaborators
+                                voiceCredits:
+                                  type: string
+                                  description: Voice Credits
+                                soundCredits:
+                                  type: string
+                                  description: Audio and background scores by
+                                imageCredits:
+                                  type: string
+                                  description: Images created by
+                                portalOwner:
+                                  type: string
+                                  description: Portal Owner
+                                developer:
+                                  type: string
+                                  description: Content Developer
+                                attributions:
+                                  type: string
+                                  description: Attributions/Credits
+                                forkable:
+                                  type: boolean
+                                  description: Forkable
+                                translatable:
+                                  type: boolean
+                                  description: Translatable
+                                mediaType:
+                                  type: string
+                                  description: ''
+                                optStatus:
+                                  type: string
+                                  description: ''
+                                domain:
+                                  type: string
+                                  description: ''
+                                lastPublishedOn:
+                                  type: string
+                                  description: ''
               - title: ResponseHeader
                 type: object
                 properties:
@@ -1952,13 +2239,9 @@ paths:
                     description: 'API response code '
         '400':
           description: >-
-            Error While Listing Content ! | Error occurred while operation,
+            Error While Listing Contents! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             title: List Contents Error Response
             type: object
@@ -2006,14 +2289,9 @@ paths:
                     description: 'API response code '
         '500':
           description: >-
-            Error While Listing Content ! | Error occurred while operation,
+            Error While Listing Contents! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             title: List Contents Error Response
             type: object
@@ -2066,16 +2344,15 @@ paths:
         - Search
       summary: Search the Content
       description: >-
-        The _content/search_ endpoint is used to list all the content from the
-        _EkStep Platform_. By deafult it returns only 'Live' content But Content
-        belongs to other status can also be queried by explicitly providing the
-        metadata information in the Request body.  Apart from this the Request
-        body can have the sorting field informatin, order of sorting and a
-        particular set of fields you want in output.  The only difference
-        between 'search' and 'list' operation is, the 'list' operation only
-        return the Content of type story, worksheet and games i.e. the content
-        playable on Genie App while the 'search' operation will return all the
-        objects of type content.
+        The 'content/search' endpoint is used to search the content in the
+        _EkStep Platform_. It makes the search based on the Search Criteria
+        provided in the Request Body. Apart from this the Request body can have
+        the sorting field information, order of sorting and a particular set of
+        fields you want in output.  The only difference between 'search' and
+        'list' operation is, the 'list' operation only return the Content of
+        type story, worksheet and games i.e. the content playable on Genie App
+        while the 'search' operation will return all the objects of type
+        content.
       operationId: content.search
       produces:
         - application/json
@@ -2560,16 +2837,12 @@ paths:
         '200':
           description: Contents Fetched Successfully
           schema:
-            title: List Content Response
+            title: Search Content Response
             type: object
             allOf:
-              - title: Result Containing Content Object
+              - title: Result Containing Content Object Array
                 type: object
                 properties:
-                  ttl:
-                    title: TTL
-                    type: number
-                    format: double
                   result:
                     title: Response Content Array
                     type: object
@@ -2741,11 +3014,7 @@ paths:
           description: >-
             Error While Content Search! | Error occurred while operation, mostly
             because of the input given by client, In general it is 'Client
-            Exception'. To investigate the root cause first read through the
-            'err' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Codes', after that read 'errmsg' field of
-            response 'params' and go through the Wiki-Doc with title 'Content
-            Model Error Messages' for the corresponding error messages.
+            Exception'.
           schema:
             title: Search Content Error Response
             type: object
@@ -2795,12 +3064,7 @@ paths:
           description: >-
             Error While Content Search! | Error occurred while operation, mostly
             because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Messages' for the corresponding error
-            messages.
+            Exception' or 'Exception'.
           schema:
             title: Search Content Error Response
             type: object
@@ -2944,11 +3208,54 @@ paths:
           description: >-
             Error While Content Upload! | Error occurred while operation, mostly
             because of the input given by client, In general it is 'Client
-            Exception'. To investigate the root cause first read through the
-            'err' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Codes', after that read 'errmsg' field of
-            response 'params' and go through the Wiki-Doc with title 'Content
-            Model Error Messages' for the corresponding error messages.
+            Exception'.
+          schema:
+            title: Upload Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '404':
+          description: Content Id does not exist.
           schema:
             title: Upload Content Error Response
             type: object
@@ -2998,12 +3305,7 @@ paths:
           description: >-
             Error While Content Upload! | Error occurred while operation, mostly
             because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'Content Model Error Messages' for the corresponding error
-            messages.
+            Exception' or 'Exception'.
           schema:
             title: Upload Content Error Response
             type: object
@@ -3138,11 +3440,54 @@ paths:
           description: >-
             Error While Content Publish! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
+          schema:
+            title: Publish Content Error Response
+            type: object
+            allOf:
+              - title: Empty Result
+                type: object
+                properties:
+                  result:
+                    type: object
+                    description: Empty Result
+              - title: ResponseHeader
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: API Identifier
+                  ver:
+                    type: string
+                    description: API version information
+                  ts:
+                    type: string
+                    description: API execution timespan
+                  params:
+                    type: object
+                    description: API response parameters
+                    title: Response Parameter
+                    properties:
+                      resmsgid:
+                        type: string
+                        description: Response Message Id
+                      msgid:
+                        type: string
+                        description: Message Id
+                      err:
+                        type: string
+                        description: Error Code
+                      status:
+                        type: string
+                        description: Response Status
+                      errmsg:
+                        type: string
+                        description: Error Message
+                  responseCode:
+                    type: object
+                    description: 'API response code '
+        '404':
+          description: Content Id does not exist.
           schema:
             title: Publish Content Error Response
             type: object
@@ -3192,12 +3537,7 @@ paths:
           description: >-
             Error While Content Publish! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             title: Publish Content Error Response
             type: object
@@ -3256,7 +3596,7 @@ paths:
         the name of output bundle file. In response it returns the URL of Bundle
         Package file which is uploaded to storage space (S3). This endpoint
         performs the 'Bundle' operation for the given contents which is useful
-        for offline access EkStep Content.
+        for offline access of EkStep Content.
       operationId: content.bundle
       produces:
         - application/json
@@ -3344,11 +3684,7 @@ paths:
           description: >-
             Error While Content Bundling! | Error occurred while operation,
             mostly because of the input given by client, In general it is
-            'Client Exception'. To investigate the root cause first read through
-            the 'err' field of response 'params' and go through the Wiki-Doc
-            with title 'Content Model Error Codes', after that read 'errmsg'
-            field of response 'params' and go through the Wiki-Doc with title
-            'Content Model Error Messages' for the corresponding error messages.
+            'Client Exception'.
           schema:
             title: Bundle Content Error Response
             type: object
@@ -3398,12 +3734,7 @@ paths:
           description: >-
             Error While Content Bundling! | Error occurred while operation,
             mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'. To investigate the root cause
-            first read through the 'err' field of response 'params' and go
-            through the Wiki-Doc with title 'Content Model Error Codes', after
-            that read 'errmsg' field of response 'params' and go through the
-            Wiki-Doc with title 'Content Model Error Messages' for the
-            corresponding error messages.
+            'Server Exception' or 'Exception'.
           schema:
             title: Bundle Content Error Response
             type: object
@@ -4615,142 +4946,148 @@ responses:
         - title: Result Containing Content Object
           type: object
           properties:
-            ttl:
-              title: TTL
-              type: number
-              format: double
             result:
-              title: Response Content Array
+              title: Response Content Array with TTL
               type: object
-              properties:
-                content:
-                  type: array
-                  items:
-                    title: Content Response Metadata
-                    type: object
-                    properties:
-                      identifier:
-                        type: string
-                        description: Identifier of the content
-                      name:
-                        type: string
-                        description: Name of the content
-                      code:
-                        type: string
-                        description: Unique code for the content
-                      keywords:
-                        type: string
-                        description: ''
-                      appIcon:
-                        type: string
-                        description: ''
-                      grayScaleAppIcon:
-                        type: string
-                        description: ''
-                      size:
-                        type: number
-                        description: ''
-                      downloadUrl:
-                        type: string
-                        description: URL to download the content
-                      artifactUrl:
-                        type: string
-                        description: URL to download the content
-                      pkgVersion:
-                        type: number
-                        description: Version number of the package file
-                      loadingMessage:
-                        type: string
-                        description: Loading Message
-                      launchUrl:
-                        type: string
-                        description: URL to launch the game
-                      osId:
-                        type: string
-                        description: Operating System specific Id
-                      posterImage:
-                        type: string
-                        description: ''
-                      activity_class:
-                        type: string
-                        description: ''
-                      filter:
-                        type: string
-                        description: Example - 'Delhi Curriculum'
-                      mimeType:
-                        type: string
-                        description: ''
-                      minSupportedVersion:
-                        type: string
-                        description: Minimum Supported Version of this content
-                      checksum:
-                        type: string
-                        description: Checksum value of the story package file
-                      lastUpdatedOn:
-                        type: string
-                        description: ''
-                      createdOn:
-                        type: string
-                        description: ''
-                      status:
-                        type: string
-                        description: ''
-                      contentType:
-                        type: string
-                        description: ''
-                      visibility:
-                        type: string
-                        description: >-
-                          Visibility (set as 'Parent' to hide this from any
-                          other list view)
-                      thumbnail:
-                        type: string
-                        description: ''
-                      language:
-                        type: string
-                        description: ''
-                      owner:
-                        type: string
-                        description: Content Owner
-                      collaborators:
-                        type: string
-                        description: Collaborators
-                      voiceCredits:
-                        type: string
-                        description: Voice Credits
-                      soundCredits:
-                        type: string
-                        description: Audio and background scores by
-                      imageCredits:
-                        type: string
-                        description: Images created by
-                      portalOwner:
-                        type: string
-                        description: Portal Owner
-                      developer:
-                        type: string
-                        description: Content Developer
-                      attributions:
-                        type: string
-                        description: Attributions/Credits
-                      forkable:
-                        type: boolean
-                        description: Forkable
-                      translatable:
-                        type: boolean
-                        description: Translatable
-                      mediaType:
-                        type: string
-                        description: ''
-                      optStatus:
-                        type: string
-                        description: ''
-                      domain:
-                        type: string
-                        description: ''
-                      lastPublishedOn:
-                        type: string
-                        description: ''
+              allOf:
+                - title: TTL
+                  type: object
+                  properties:
+                    ttl:
+                      type: number
+                      format: double
+                      description: TTL (Time)
+                - title: Response Content Array
+                  type: object
+                  properties:
+                    content:
+                      type: array
+                      items:
+                        title: Content Response Metadata
+                        type: object
+                        properties:
+                          identifier:
+                            type: string
+                            description: Identifier of the content
+                          name:
+                            type: string
+                            description: Name of the content
+                          code:
+                            type: string
+                            description: Unique code for the content
+                          keywords:
+                            type: string
+                            description: ''
+                          appIcon:
+                            type: string
+                            description: ''
+                          grayScaleAppIcon:
+                            type: string
+                            description: ''
+                          size:
+                            type: number
+                            description: ''
+                          downloadUrl:
+                            type: string
+                            description: URL to download the content
+                          artifactUrl:
+                            type: string
+                            description: URL to download the content
+                          pkgVersion:
+                            type: number
+                            description: Version number of the package file
+                          loadingMessage:
+                            type: string
+                            description: Loading Message
+                          launchUrl:
+                            type: string
+                            description: URL to launch the game
+                          osId:
+                            type: string
+                            description: Operating System specific Id
+                          posterImage:
+                            type: string
+                            description: ''
+                          activity_class:
+                            type: string
+                            description: ''
+                          filter:
+                            type: string
+                            description: Example - 'Delhi Curriculum'
+                          mimeType:
+                            type: string
+                            description: ''
+                          minSupportedVersion:
+                            type: string
+                            description: Minimum Supported Version of this content
+                          checksum:
+                            type: string
+                            description: Checksum value of the story package file
+                          lastUpdatedOn:
+                            type: string
+                            description: ''
+                          createdOn:
+                            type: string
+                            description: ''
+                          status:
+                            type: string
+                            description: ''
+                          contentType:
+                            type: string
+                            description: ''
+                          visibility:
+                            type: string
+                            description: >-
+                              Visibility (set as 'Parent' to hide this from any
+                              other list view)
+                          thumbnail:
+                            type: string
+                            description: ''
+                          language:
+                            type: string
+                            description: ''
+                          owner:
+                            type: string
+                            description: Content Owner
+                          collaborators:
+                            type: string
+                            description: Collaborators
+                          voiceCredits:
+                            type: string
+                            description: Voice Credits
+                          soundCredits:
+                            type: string
+                            description: Audio and background scores by
+                          imageCredits:
+                            type: string
+                            description: Images created by
+                          portalOwner:
+                            type: string
+                            description: Portal Owner
+                          developer:
+                            type: string
+                            description: Content Developer
+                          attributions:
+                            type: string
+                            description: Attributions/Credits
+                          forkable:
+                            type: boolean
+                            description: Forkable
+                          translatable:
+                            type: boolean
+                            description: Translatable
+                          mediaType:
+                            type: string
+                            description: ''
+                          optStatus:
+                            type: string
+                            description: ''
+                          domain:
+                            type: string
+                            description: ''
+                          lastPublishedOn:
+                            type: string
+                            description: ''
         - title: ResponseHeader
           type: object
           properties:
@@ -5170,6 +5507,71 @@ responses:
                 ECAR_URL:
                   type: string
                   description: Url to download created ECAR
+        - title: ResponseHeader
+          type: object
+          properties:
+            id:
+              type: string
+              description: API Identifier
+            ver:
+              type: string
+              description: API version information
+            ts:
+              type: string
+              description: API execution timespan
+            params:
+              type: object
+              description: API response parameters
+              title: Response Parameter
+              properties:
+                resmsgid:
+                  type: string
+                  description: Response Message Id
+                msgid:
+                  type: string
+                  description: Message Id
+                err:
+                  type: string
+                  description: Error Code
+                status:
+                  type: string
+                  description: Response Status
+                errmsg:
+                  type: string
+                  description: Error Message
+            responseCode:
+              type: object
+              description: 'API response code '
+  ContentDeleteResponse:
+    description: Delete (Retire) Content Response
+    headers:
+      id:
+        description: ''
+        type: string
+      ver:
+        description: ''
+        type: string
+      ts:
+        description: ''
+        type: string
+      params:
+        description: ''
+        type: array
+        items:
+          type: string
+      responseCode:
+        description: ''
+        type: string
+    schema:
+      title: Delete Content Response
+      type: object
+      allOf:
+        - title: Empty Result
+          type: object
+          properties:
+            result:
+              type: object
+              description: Empty Result
         - title: ResponseHeader
           type: object
           properties:
@@ -5860,6 +6262,148 @@ definitions:
             lastPublishedOn:
               type: string
               description: ''
+  ContentResponseArrayAndTTL:
+    title: Response Content Array with TTL
+    type: object
+    allOf:
+      - title: TTL
+        type: object
+        properties:
+          ttl:
+            type: number
+            format: double
+            description: TTL (Time)
+      - title: Response Content Array
+        type: object
+        properties:
+          content:
+            type: array
+            items:
+              title: Content Response Metadata
+              type: object
+              properties:
+                identifier:
+                  type: string
+                  description: Identifier of the content
+                name:
+                  type: string
+                  description: Name of the content
+                code:
+                  type: string
+                  description: Unique code for the content
+                keywords:
+                  type: string
+                  description: ''
+                appIcon:
+                  type: string
+                  description: ''
+                grayScaleAppIcon:
+                  type: string
+                  description: ''
+                size:
+                  type: number
+                  description: ''
+                downloadUrl:
+                  type: string
+                  description: URL to download the content
+                artifactUrl:
+                  type: string
+                  description: URL to download the content
+                pkgVersion:
+                  type: number
+                  description: Version number of the package file
+                loadingMessage:
+                  type: string
+                  description: Loading Message
+                launchUrl:
+                  type: string
+                  description: URL to launch the game
+                osId:
+                  type: string
+                  description: Operating System specific Id
+                posterImage:
+                  type: string
+                  description: ''
+                activity_class:
+                  type: string
+                  description: ''
+                filter:
+                  type: string
+                  description: Example - 'Delhi Curriculum'
+                mimeType:
+                  type: string
+                  description: ''
+                minSupportedVersion:
+                  type: string
+                  description: Minimum Supported Version of this content
+                checksum:
+                  type: string
+                  description: Checksum value of the story package file
+                lastUpdatedOn:
+                  type: string
+                  description: ''
+                createdOn:
+                  type: string
+                  description: ''
+                status:
+                  type: string
+                  description: ''
+                contentType:
+                  type: string
+                  description: ''
+                visibility:
+                  type: string
+                  description: >-
+                    Visibility (set as 'Parent' to hide this from any other list
+                    view)
+                thumbnail:
+                  type: string
+                  description: ''
+                language:
+                  type: string
+                  description: ''
+                owner:
+                  type: string
+                  description: Content Owner
+                collaborators:
+                  type: string
+                  description: Collaborators
+                voiceCredits:
+                  type: string
+                  description: Voice Credits
+                soundCredits:
+                  type: string
+                  description: Audio and background scores by
+                imageCredits:
+                  type: string
+                  description: Images created by
+                portalOwner:
+                  type: string
+                  description: Portal Owner
+                developer:
+                  type: string
+                  description: Content Developer
+                attributions:
+                  type: string
+                  description: Attributions/Credits
+                forkable:
+                  type: boolean
+                  description: Forkable
+                translatable:
+                  type: boolean
+                  description: Translatable
+                mediaType:
+                  type: string
+                  description: ''
+                optStatus:
+                  type: string
+                  description: ''
+                domain:
+                  type: string
+                  description: ''
+                lastPublishedOn:
+                  type: string
+                  description: ''
   ContentSearch:
     title: Content Search Metadata
     type: object
@@ -6415,6 +6959,14 @@ definitions:
       ECAR_URL:
         type: string
         description: Url to download created ECAR
+  TTL:
+    title: TTL
+    type: object
+    properties:
+      ttl:
+        type: number
+        format: double
+        description: TTL (Time)
   ResultWithNodeId:
     title: Result Containing Node Id
     type: object
@@ -6700,142 +7252,148 @@ definitions:
     title: Result Containing Content Object
     type: object
     properties:
-      ttl:
-        title: TTL
-        type: number
-        format: double
       result:
-        title: Response Content Array
+        title: Response Content Array with TTL
         type: object
-        properties:
-          content:
-            type: array
-            items:
-              title: Content Response Metadata
-              type: object
-              properties:
-                identifier:
-                  type: string
-                  description: Identifier of the content
-                name:
-                  type: string
-                  description: Name of the content
-                code:
-                  type: string
-                  description: Unique code for the content
-                keywords:
-                  type: string
-                  description: ''
-                appIcon:
-                  type: string
-                  description: ''
-                grayScaleAppIcon:
-                  type: string
-                  description: ''
-                size:
-                  type: number
-                  description: ''
-                downloadUrl:
-                  type: string
-                  description: URL to download the content
-                artifactUrl:
-                  type: string
-                  description: URL to download the content
-                pkgVersion:
-                  type: number
-                  description: Version number of the package file
-                loadingMessage:
-                  type: string
-                  description: Loading Message
-                launchUrl:
-                  type: string
-                  description: URL to launch the game
-                osId:
-                  type: string
-                  description: Operating System specific Id
-                posterImage:
-                  type: string
-                  description: ''
-                activity_class:
-                  type: string
-                  description: ''
-                filter:
-                  type: string
-                  description: Example - 'Delhi Curriculum'
-                mimeType:
-                  type: string
-                  description: ''
-                minSupportedVersion:
-                  type: string
-                  description: Minimum Supported Version of this content
-                checksum:
-                  type: string
-                  description: Checksum value of the story package file
-                lastUpdatedOn:
-                  type: string
-                  description: ''
-                createdOn:
-                  type: string
-                  description: ''
-                status:
-                  type: string
-                  description: ''
-                contentType:
-                  type: string
-                  description: ''
-                visibility:
-                  type: string
-                  description: >-
-                    Visibility (set as 'Parent' to hide this from any other list
-                    view)
-                thumbnail:
-                  type: string
-                  description: ''
-                language:
-                  type: string
-                  description: ''
-                owner:
-                  type: string
-                  description: Content Owner
-                collaborators:
-                  type: string
-                  description: Collaborators
-                voiceCredits:
-                  type: string
-                  description: Voice Credits
-                soundCredits:
-                  type: string
-                  description: Audio and background scores by
-                imageCredits:
-                  type: string
-                  description: Images created by
-                portalOwner:
-                  type: string
-                  description: Portal Owner
-                developer:
-                  type: string
-                  description: Content Developer
-                attributions:
-                  type: string
-                  description: Attributions/Credits
-                forkable:
-                  type: boolean
-                  description: Forkable
-                translatable:
-                  type: boolean
-                  description: Translatable
-                mediaType:
-                  type: string
-                  description: ''
-                optStatus:
-                  type: string
-                  description: ''
-                domain:
-                  type: string
-                  description: ''
-                lastPublishedOn:
-                  type: string
-                  description: ''
+        allOf:
+          - title: TTL
+            type: object
+            properties:
+              ttl:
+                type: number
+                format: double
+                description: TTL (Time)
+          - title: Response Content Array
+            type: object
+            properties:
+              content:
+                type: array
+                items:
+                  title: Content Response Metadata
+                  type: object
+                  properties:
+                    identifier:
+                      type: string
+                      description: Identifier of the content
+                    name:
+                      type: string
+                      description: Name of the content
+                    code:
+                      type: string
+                      description: Unique code for the content
+                    keywords:
+                      type: string
+                      description: ''
+                    appIcon:
+                      type: string
+                      description: ''
+                    grayScaleAppIcon:
+                      type: string
+                      description: ''
+                    size:
+                      type: number
+                      description: ''
+                    downloadUrl:
+                      type: string
+                      description: URL to download the content
+                    artifactUrl:
+                      type: string
+                      description: URL to download the content
+                    pkgVersion:
+                      type: number
+                      description: Version number of the package file
+                    loadingMessage:
+                      type: string
+                      description: Loading Message
+                    launchUrl:
+                      type: string
+                      description: URL to launch the game
+                    osId:
+                      type: string
+                      description: Operating System specific Id
+                    posterImage:
+                      type: string
+                      description: ''
+                    activity_class:
+                      type: string
+                      description: ''
+                    filter:
+                      type: string
+                      description: Example - 'Delhi Curriculum'
+                    mimeType:
+                      type: string
+                      description: ''
+                    minSupportedVersion:
+                      type: string
+                      description: Minimum Supported Version of this content
+                    checksum:
+                      type: string
+                      description: Checksum value of the story package file
+                    lastUpdatedOn:
+                      type: string
+                      description: ''
+                    createdOn:
+                      type: string
+                      description: ''
+                    status:
+                      type: string
+                      description: ''
+                    contentType:
+                      type: string
+                      description: ''
+                    visibility:
+                      type: string
+                      description: >-
+                        Visibility (set as 'Parent' to hide this from any other
+                        list view)
+                    thumbnail:
+                      type: string
+                      description: ''
+                    language:
+                      type: string
+                      description: ''
+                    owner:
+                      type: string
+                      description: Content Owner
+                    collaborators:
+                      type: string
+                      description: Collaborators
+                    voiceCredits:
+                      type: string
+                      description: Voice Credits
+                    soundCredits:
+                      type: string
+                      description: Audio and background scores by
+                    imageCredits:
+                      type: string
+                      description: Images created by
+                    portalOwner:
+                      type: string
+                      description: Portal Owner
+                    developer:
+                      type: string
+                      description: Content Developer
+                    attributions:
+                      type: string
+                      description: Attributions/Credits
+                    forkable:
+                      type: boolean
+                      description: Forkable
+                    translatable:
+                      type: boolean
+                      description: Translatable
+                    mediaType:
+                      type: string
+                      description: ''
+                    optStatus:
+                      type: string
+                      description: ''
+                    domain:
+                      type: string
+                      description: ''
+                    lastPublishedOn:
+                      type: string
+                      description: ''
   ResultWithContentUrlAndNodeId:
     title: Result Containing Content URL and Node Id
     type: object
@@ -8672,142 +9230,148 @@ definitions:
       - title: Result Containing Content Object
         type: object
         properties:
-          ttl:
-            title: TTL
-            type: number
-            format: double
           result:
-            title: Response Content Array
+            title: Response Content Array with TTL
             type: object
-            properties:
-              content:
-                type: array
-                items:
-                  title: Content Response Metadata
-                  type: object
-                  properties:
-                    identifier:
-                      type: string
-                      description: Identifier of the content
-                    name:
-                      type: string
-                      description: Name of the content
-                    code:
-                      type: string
-                      description: Unique code for the content
-                    keywords:
-                      type: string
-                      description: ''
-                    appIcon:
-                      type: string
-                      description: ''
-                    grayScaleAppIcon:
-                      type: string
-                      description: ''
-                    size:
-                      type: number
-                      description: ''
-                    downloadUrl:
-                      type: string
-                      description: URL to download the content
-                    artifactUrl:
-                      type: string
-                      description: URL to download the content
-                    pkgVersion:
-                      type: number
-                      description: Version number of the package file
-                    loadingMessage:
-                      type: string
-                      description: Loading Message
-                    launchUrl:
-                      type: string
-                      description: URL to launch the game
-                    osId:
-                      type: string
-                      description: Operating System specific Id
-                    posterImage:
-                      type: string
-                      description: ''
-                    activity_class:
-                      type: string
-                      description: ''
-                    filter:
-                      type: string
-                      description: Example - 'Delhi Curriculum'
-                    mimeType:
-                      type: string
-                      description: ''
-                    minSupportedVersion:
-                      type: string
-                      description: Minimum Supported Version of this content
-                    checksum:
-                      type: string
-                      description: Checksum value of the story package file
-                    lastUpdatedOn:
-                      type: string
-                      description: ''
-                    createdOn:
-                      type: string
-                      description: ''
-                    status:
-                      type: string
-                      description: ''
-                    contentType:
-                      type: string
-                      description: ''
-                    visibility:
-                      type: string
-                      description: >-
-                        Visibility (set as 'Parent' to hide this from any other
-                        list view)
-                    thumbnail:
-                      type: string
-                      description: ''
-                    language:
-                      type: string
-                      description: ''
-                    owner:
-                      type: string
-                      description: Content Owner
-                    collaborators:
-                      type: string
-                      description: Collaborators
-                    voiceCredits:
-                      type: string
-                      description: Voice Credits
-                    soundCredits:
-                      type: string
-                      description: Audio and background scores by
-                    imageCredits:
-                      type: string
-                      description: Images created by
-                    portalOwner:
-                      type: string
-                      description: Portal Owner
-                    developer:
-                      type: string
-                      description: Content Developer
-                    attributions:
-                      type: string
-                      description: Attributions/Credits
-                    forkable:
-                      type: boolean
-                      description: Forkable
-                    translatable:
-                      type: boolean
-                      description: Translatable
-                    mediaType:
-                      type: string
-                      description: ''
-                    optStatus:
-                      type: string
-                      description: ''
-                    domain:
-                      type: string
-                      description: ''
-                    lastPublishedOn:
-                      type: string
-                      description: ''
+            allOf:
+              - title: TTL
+                type: object
+                properties:
+                  ttl:
+                    type: number
+                    format: double
+                    description: TTL (Time)
+              - title: Response Content Array
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      title: Content Response Metadata
+                      type: object
+                      properties:
+                        identifier:
+                          type: string
+                          description: Identifier of the content
+                        name:
+                          type: string
+                          description: Name of the content
+                        code:
+                          type: string
+                          description: Unique code for the content
+                        keywords:
+                          type: string
+                          description: ''
+                        appIcon:
+                          type: string
+                          description: ''
+                        grayScaleAppIcon:
+                          type: string
+                          description: ''
+                        size:
+                          type: number
+                          description: ''
+                        downloadUrl:
+                          type: string
+                          description: URL to download the content
+                        artifactUrl:
+                          type: string
+                          description: URL to download the content
+                        pkgVersion:
+                          type: number
+                          description: Version number of the package file
+                        loadingMessage:
+                          type: string
+                          description: Loading Message
+                        launchUrl:
+                          type: string
+                          description: URL to launch the game
+                        osId:
+                          type: string
+                          description: Operating System specific Id
+                        posterImage:
+                          type: string
+                          description: ''
+                        activity_class:
+                          type: string
+                          description: ''
+                        filter:
+                          type: string
+                          description: Example - 'Delhi Curriculum'
+                        mimeType:
+                          type: string
+                          description: ''
+                        minSupportedVersion:
+                          type: string
+                          description: Minimum Supported Version of this content
+                        checksum:
+                          type: string
+                          description: Checksum value of the story package file
+                        lastUpdatedOn:
+                          type: string
+                          description: ''
+                        createdOn:
+                          type: string
+                          description: ''
+                        status:
+                          type: string
+                          description: ''
+                        contentType:
+                          type: string
+                          description: ''
+                        visibility:
+                          type: string
+                          description: >-
+                            Visibility (set as 'Parent' to hide this from any
+                            other list view)
+                        thumbnail:
+                          type: string
+                          description: ''
+                        language:
+                          type: string
+                          description: ''
+                        owner:
+                          type: string
+                          description: Content Owner
+                        collaborators:
+                          type: string
+                          description: Collaborators
+                        voiceCredits:
+                          type: string
+                          description: Voice Credits
+                        soundCredits:
+                          type: string
+                          description: Audio and background scores by
+                        imageCredits:
+                          type: string
+                          description: Images created by
+                        portalOwner:
+                          type: string
+                          description: Portal Owner
+                        developer:
+                          type: string
+                          description: Content Developer
+                        attributions:
+                          type: string
+                          description: Attributions/Credits
+                        forkable:
+                          type: boolean
+                          description: Forkable
+                        translatable:
+                          type: boolean
+                          description: Translatable
+                        mediaType:
+                          type: string
+                          description: ''
+                        optStatus:
+                          type: string
+                          description: ''
+                        domain:
+                          type: string
+                          description: ''
+                        lastPublishedOn:
+                          type: string
+                          description: ''
       - title: ResponseHeader
         type: object
         properties:
@@ -9182,6 +9746,51 @@ definitions:
           responseCode:
             type: object
             description: 'API response code '
+  ContentDeleteResponse:
+    title: Delete Content Response
+    type: object
+    allOf:
+      - title: Empty Result
+        type: object
+        properties:
+          result:
+            type: object
+            description: Empty Result
+      - title: ResponseHeader
+        type: object
+        properties:
+          id:
+            type: string
+            description: API Identifier
+          ver:
+            type: string
+            description: API version information
+          ts:
+            type: string
+            description: API execution timespan
+          params:
+            type: object
+            description: API response parameters
+            title: Response Parameter
+            properties:
+              resmsgid:
+                type: string
+                description: Response Message Id
+              msgid:
+                type: string
+                description: Message Id
+              err:
+                type: string
+                description: Error Code
+              status:
+                type: string
+                description: Response Status
+              errmsg:
+                type: string
+                description: Error Message
+          responseCode:
+            type: object
+            description: 'API response code '
   ContentCreateErrorResponse:
     title: Create Content Error Response
     type: object
@@ -9499,6 +10108,51 @@ definitions:
             description: 'API response code '
   ContentBundleErrorResponse:
     title: Bundle Content Error Response
+    type: object
+    allOf:
+      - title: Empty Result
+        type: object
+        properties:
+          result:
+            type: object
+            description: Empty Result
+      - title: ResponseHeader
+        type: object
+        properties:
+          id:
+            type: string
+            description: API Identifier
+          ver:
+            type: string
+            description: API version information
+          ts:
+            type: string
+            description: API execution timespan
+          params:
+            type: object
+            description: API response parameters
+            title: Response Parameter
+            properties:
+              resmsgid:
+                type: string
+                description: Response Message Id
+              msgid:
+                type: string
+                description: Message Id
+              err:
+                type: string
+                description: Error Code
+              status:
+                type: string
+                description: Response Status
+              errmsg:
+                type: string
+                description: Error Message
+          responseCode:
+            type: object
+            description: 'API response code '
+  ContentDeleteErrorResponse:
+    title: Delete (Retire) Content Error Response
     type: object
     allOf:
       - title: Empty Result
