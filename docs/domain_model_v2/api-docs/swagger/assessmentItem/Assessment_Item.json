@@ -1,0 +1,656 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "version": "2.0.0",
+        "title": "Assessment - Service",
+        "description": "Assessment API of learning platform provides the resources to create, manage and search assessment items, items sets and questionnaires.Assessment Item API provides the resources to work with questions in the platform.",
+        "license": {
+            "name": "Ekstep Lisence"
+        }
+    },
+    "basePath": "/v1",
+    "securityDefinitions": {},
+    "consumes": [
+        "application/json"
+    ],
+    "produces": [
+        "application/json"
+    ],
+    "tags": [
+        {
+            "name": "AssessmentItem",
+            "description": "Everything related to the CRUD operations of the AssessmentItem"
+        }
+    ],
+    "paths": {
+        "/assessmentitem/search?taxonomyId=domain": {
+            "post": {
+                "summary": "Searches an AssessmentItem",
+                "description": "The _assessmentItem_ endpoint with 'post' method is used to fetch the assessmentItem based on the search criteria from the _EkStep Platform_. This endpoint returns the entire assessmentItem Object with default fields.searches and retrives an assessmentitem or question based on the filter and relation types specified in the request body",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "assessment_item.search",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/searchAssessmentRequest"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "assessmentItem searched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/getAssessmentItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/assessmentitem/?taxonomyId=domain": {
+            "post": {
+                "summary": "Creates a Question based on the type",
+                "description": "This AssessmentItem creates a question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) or MMCQ based on the request body",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "assessment_item.create",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "$ref": "#/parameters/createAssessmentRequest"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentCreateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While creating assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Content assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/assessmentitem/{assessmentId}/?taxonomyId=domain": {
+            "get": {
+                "summary": "Fetch an item from the repository",
+                "description": "The _assessmentItem/{assessmentItemId}_ endpoint with 'GET' method is used to fetch the assessmentItem from the _EkStep Platform_. This endpoint returns the entire assessmentItem Object with default fields. ",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "assessment_Item.find",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "description": "assessmentId",
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "AssessmentItem fetched Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/getAssessmentItemResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While fetching the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'AssessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While fetching the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            },
+            "delete": {
+                "summary": "deletes the particular Question or AssessmentItem",
+                "description": "The _assessmentItem_ endpoint with 'delete' method is used to delete assessmentItem based on the assessmentId provided from the _EkStep Platform_. This endpoint returns success message on deletion",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "assessment_item.delete",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "assessment deleted Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentDeleteResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While deleting the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While deleting the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            },
+            "patch": {
+                "summary": "Updates the given assessmentItem",
+                "description": "The _assessmentItem_ endpoint with 'patch' method is used to update assessmentItem based on the request body provided from the _EkStep Platform_. This endpoint returns success message on deletion",
+                "tags": [
+                    "AssessmentItem"
+                ],
+                "operationId": "assessment_item.patch",
+                "produces": [
+                    "application/json"
+                ],
+                "parameters": [
+                    {
+                        "name": "assessmentId",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    },
+                    {
+                        "$ref": "#/parameters/updateAssessmentRequest"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Content Created Successfully",
+                        "schema": {
+                            "$ref": "#/definitions/assessmentUpdateResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Error While Updating the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    },
+                    "500": {
+                        "description": "Error While Updating the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'assessmentItem Error Messages' for the corresponding error messages.",
+                        "schema": {
+                            "$ref": "#/definitions/FailedResponseHeader"
+                        }
+                    }
+                },
+                "security": []
+            }
+        }
+    },
+    "parameters": {
+        "createAssessmentRequest": {
+            "name": "Request",
+            "in": "body",
+            "description": "create request object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/createAssessmentObject"
+            }
+        },
+        "searchAssessmentRequest": {
+            "name": "Request",
+            "in": "body",
+            "description": "search request object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/searchObject"
+            }
+        },
+        "updateAssessmentRequest": {
+            "name": "Request",
+            "in": "body",
+            "description": "update request object",
+            "required": true,
+            "schema": {
+                "$ref": "#/definitions/createAssessmentObject"
+            }
+        }
+    },
+    "definitions": {
+        "createAssessmentObject": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/createMcqAssessmentRequest"
+                },
+                {
+                    "$ref": "#/definitions/createMmcqAssessmentRequest"
+                },
+                {
+                    "$ref": "#/definitions/createMtfAssessmentRequest"
+                },
+                {
+                    "$ref": "#/definitions/createFtbAssessmentRequest"
+                }
+            ]
+        },
+        "createMcqAssessmentRequest": {
+            "$ref": "#/definitions/createMcqObject"
+        },
+        "createMmcqAssessmentRequest": {
+            "$ref": "#/definitions/createMmcqObject"
+        },
+        "createFtbAssessmentRequest": {
+            "$ref": "#/definitions/createMmcqObject"
+        },
+        "createMtfAssessmentRequest": {
+            "$ref": "#/definitions/createMcqObject"
+        },
+        "createMmcqObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                },
+                "outRelations": {
+                    "$ref": "#/definitions/outRelations"
+                }
+            }
+        },
+        "createMcqObject": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "metadata": {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                }
+            }
+        },
+        "getAssessmentItemResponse": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "$ref": "#/definitions/assessmentItemMetadata"
+                }
+            ]
+        },
+        "assessmentDeleteResponse": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "$ref": "#/definitions/result"
+                }
+            ]
+        },
+        "assessmentUpdateResponse": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "$ref": "#/definitions/result"
+                }
+            ]
+        },
+        "assessmentCreateResponse": {
+            "allOf": [
+                {
+                    "$ref": "#/definitions/ResponseHeader"
+                },
+                {
+                    "$ref": "#/definitions/NodeId"
+                }
+            ]
+        },
+        "assessmentItemMetadata": {
+            "properties": {
+                "template": {
+                    "type": "string",
+                    "description": "type of template"
+                },
+                "owner": {
+                    "type": "string",
+                    "description": "ownerName"
+                },
+                "identifier": {
+                    "type": "string",
+                    "description": "assessmentId"
+                },
+                "code": {
+                    "type": "string",
+                    "description": "code of assessmentItem"
+                },
+                "subject": {
+                    "type": "string",
+                    "description": "subject of assessmentItem"
+                },
+                "qlevel": {
+                    "type": "string",
+                    "description": "qlevel of assessmentItem"
+                },
+                "usedIn": {
+                    "type": "string",
+                    "description": "where the assessment is used used"
+                },
+                "partial_scoring": {
+                    "type": "string",
+                    "description": "scores"
+                },
+                "type": {
+                    "type": "string",
+                    "description": "assessmentItem type"
+                },
+                "title": {
+                    "type": "string",
+                    "description": "title"
+                },
+                "qid": {
+                    "type": "string",
+                    "description": "qid"
+                },
+                "lhs_options": {
+                    "$ref": "#/definitions/Options"
+                },
+                "concepts": {
+                    "$ref": "#/definitions/concepts"
+                },
+                "max_score": {
+                    "type": "number",
+                    "description": "maximum score"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "name"
+                },
+                "lastUpdatedOn": {
+                    "type": "string",
+                    "description": "last updated date"
+                },
+                "rhs_options": {
+                    "$ref": "#/definitions/Options"
+                }
+            }
+        },
+        "Options": {
+            "$ref": "#/definitions/values"
+        },
+        "values": {
+            "properties": {
+                "type": {
+                    "type": "string",
+                    "description": ""
+                },
+                "asset": {
+                    "type": "string",
+                    "description": ""
+                },
+                "font": {
+                    "type": "string",
+                    "description": ""
+                },
+                "color": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "concepts": {
+            "properties": {
+                "identifier": {
+                    "type": "string",
+                    "description": "Identifier"
+                },
+                "name": {
+                    "type": "string",
+                    "description": "name"
+                },
+                "objectType": {
+                    "type": "string",
+                    "description": "objectType"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "description"
+                },
+                "relation": {
+                    "type": "string",
+                    "description": "relationType"
+                },
+                "index": {
+                    "type": "string",
+                    "description": "index"
+                }
+            }
+        },
+        "searchObject": {
+            "properties": {
+                "metadata": {
+                    "$ref": "#/definitions/filters"
+                },
+                "resultSize": {
+                    "type": "number",
+                    "description": ""
+                }
+            }
+        },
+        "filters": {
+            "properties": {
+                "property": {
+                    "type": "string",
+                    "description": ""
+                },
+                "operator": {
+                    "type": "string",
+                    "description": ""
+                },
+                "value": {
+                    "type": "string",
+                    "description": ""
+                },
+                "relations": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "ResponseHeader": {
+            "title": "ResponseHeader",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "type": "object",
+                    "description": "API response parameters",
+                    "$ref": "#/definitions/ResponseParams"
+                },
+                "responseCode": {
+                    "type": "object",
+                    "description": "API response code "
+                }
+            }
+        },
+        "ResponseParams": {
+            "title": "Response Parameter",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "FailedResponseHeader": {
+            "title": "FailureResponseHeader",
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string",
+                    "description": "API Identifier"
+                },
+                "ver": {
+                    "type": "string",
+                    "description": "API version information"
+                },
+                "ts": {
+                    "type": "string",
+                    "description": "API execution timespan"
+                },
+                "params": {
+                    "type": "string",
+                    "description": "API response parameters"
+                },
+                "responseCode": {
+                    "type": "object",
+                    "description": "API response code "
+                },
+                "result": {
+                    "title": "result",
+                    "type": "object",
+                    "properties": {}
+                }
+            }
+        },
+        "FailedResponseParams": {
+            "title": "Failed Operation Response Params",
+            "type": "object",
+            "properties": {
+                "resmsgid": {
+                    "type": "string",
+                    "description": "Response Message Id"
+                },
+                "msgid": {
+                    "type": "string",
+                    "description": "Message Id"
+                },
+                "err": {
+                    "type": "string",
+                    "description": "Error Code"
+                },
+                "status": {
+                    "type": "string",
+                    "description": "Response Status"
+                },
+                "errmsg": {
+                    "type": "string",
+                    "description": "Error Message"
+                }
+            }
+        },
+        "outRelations": {
+            "properties": {
+                "endNodeId": {
+                    "type": "string",
+                    "description": ""
+                },
+                "relationType": {
+                    "type": "string",
+                    "description": ""
+                }
+            }
+        },
+        "result": {
+            "title": "Result",
+            "type": "object",
+            "properties": {
+                "result": {
+                    "type": "object",
+                    "description": "Empty Result"
+                }
+            }
+        },
+        "NodeId": {
+            "title": "Node Id",
+            "type": "object",
+            "properties": {
+                "node_id": {
+                    "type": "string",
+                    "description": "Node Identifier"
+                }
+            }
+        }
+    }
+}
