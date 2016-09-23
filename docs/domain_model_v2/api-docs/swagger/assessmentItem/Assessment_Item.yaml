@@ -1,11 +1,11 @@
 swagger: '2.0'
 info:
-  version: 2.0.0
+  version: '2.0'
   title: Assessment - Service
   description: >-
     Assessment API of learning platform provides the resources to create, manage
-    and search assessment items, items sets and questionnaires.Assessment Item
-    API provides the resources to work with questions in the platform.
+    and search assessment items, items sets.Assessment Item API provides the
+    resources to work with questions in the platform.
   license:
     name: Ekstep Lisence
 basePath: /v1
@@ -17,16 +17,16 @@ produces:
 tags:
   - name: AssessmentItem
     description: Everything related to the CRUD operations of the AssessmentItem
+  - name: ItemSet
+    description: Eventhing related to CRUD operations of the ItemSet
 paths:
-  /assessmentitem/search?taxonomyId=domain:
+  /assessmentitem/search:
     post:
-      summary: Searches an AssessmentItem
+      summary: Search an AssessmentItem
       description: >-
-        The _assessmentItem_ endpoint with 'post' method is used to fetch the
-        assessmentItem based on the search criteria from the _EkStep Platform_.
-        This endpoint returns the entire assessmentItem Object with default
-        fields.searches and retrives an assessmentitem or question based on the
-        filter and relation types specified in the request body
+        This _assessmentItem_ endpoint searches and retrives an assessmentitem
+        or question based on the filter and relation types specified in the
+        request body
       tags:
         - AssessmentItem
       operationId: assessment_item.search
@@ -38,39 +38,29 @@ paths:
         '200':
           description: assessmentItem searched Successfully
           schema:
-            $ref: '#/definitions/getAssessmentItemResponse'
+            $ref: '#/definitions/searchAssessmentItemResponse'
         '400':
           description: >-
             Error While searching for an AssessmentItem! | Error occurred while
             operation, mostly because of the input given by client, In general
-            it is 'Client Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'AssessmentItem Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'AssessmentItem Error Messages' for the corresponding error
-            messages.
+            it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
             Error While searching for an AssessmentItem! | Error occurred while
             operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'. To investigate the
-            root cause first read through the 'err' field of response 'params'
-            and go through the Wiki-Doc with title 'AssessmentItem Error Codes',
-            after that read 'errmsg' field of response 'params' and go through
-            the Wiki-Doc with title 'AssessmentItem Error Messages' for the
-            corresponding error messages.
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  /assessmentitem/?taxonomyId=domain:
+  /assessmentitem:
     post:
-      summary: Creates a Question based on the type
+      summary: Creates a Question/AssessmentItem based on the type
       description: >-
-        This AssessmentItem creates a question of type MCQ(multiple choice
-        questions) or FTB(fill in the blanks) or MTF(match the following) or
-        MMCQ based on the request body
+        This _assessmentItem_ endpoint creates a assessmentItem/question of type
+        MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match
+        the following) based on the request body
       tags:
         - AssessmentItem
       operationId: assessment_item.create
@@ -80,41 +70,31 @@ paths:
         - $ref: '#/parameters/createAssessmentRequest'
       responses:
         '200':
-          description: Content Created Successfully
+          description: AssessmentItem Created Successfully
           schema:
             $ref: '#/definitions/assessmentCreateResponse'
         '400':
           description: >-
             Error While creating assessmentItem! | Error occurred while
             operation, mostly because of the input given by client, In general
-            it is 'Client Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'AssessmentItem Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'AssessmentItem Error Messages' for the corresponding error
-            messages.
+            it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
-            Error While Content assessmentItem! | Error occurred while
+            Error While Creating assessmentItem! | Error occurred while
             operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'. To investigate the
-            root cause first read through the 'err' field of response 'params'
-            and go through the Wiki-Doc with title 'AssessmentItem Error Codes',
-            after that read 'errmsg' field of response 'params' and go through
-            the Wiki-Doc with title 'AssessmentItem Error Messages' for the
-            corresponding error messages.
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
-  '/assessmentitem/{assessmentId}/?taxonomyId=domain':
+  '/assessmentitem/{assessmentId}':
     get:
       summary: Fetch an item from the repository
       description: >-
-        The _assessmentItem/{assessmentItemId}_ endpoint with 'GET' method is
-        used to fetch the assessmentItem from the _EkStep Platform_. This
-        endpoint returns the entire assessmentItem Object with default fields. 
+        This _assessmentItem/{assessmentItemId}_ endpoint is used to fetch the
+        assessmentItem from the _EkStep Platform_. This endpoint returns the
+        entire assessmentItem Object with default fields. 
       tags:
         - AssessmentItem
       operationId: assessment_Item.find
@@ -135,33 +115,23 @@ paths:
           description: >-
             Error While fetching the assessmentItem! | Error occurred while
             operation, mostly because of the input given by client, In general
-            it is 'Client Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'AssessmentItem Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'AssessmentItem Error Messages' for the corresponding error
-            messages.
+            it is 'Client Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
             Error While fetching the assessmentItem! | Error occurred while
             operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'. To investigate the
-            root cause first read through the 'err' field of response 'params'
-            and go through the Wiki-Doc with title 'assessmentItem Error Codes',
-            after that read 'errmsg' field of response 'params' and go through
-            the Wiki-Doc with title 'assessmentItem Error Messages' for the
-            corresponding error messages.
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
     delete:
-      summary: deletes the particular Question or AssessmentItem
+      summary: Deletes the particular Question or AssessmentItem
       description: >-
-        The _assessmentItem_ endpoint with 'delete' method is used to delete
-        assessmentItem based on the assessmentId provided from the _EkStep
-        Platform_. This endpoint returns success message on deletion
+        This _assessmentItem_ endpoint is used to delete assessmentItem based on
+        the assessmentId provided from the _EkStep Platform_. This endpoint
+        returns success message on deletion
       tags:
         - AssessmentItem
       operationId: assessment_item.delete
@@ -174,40 +144,30 @@ paths:
           type: string
       responses:
         '200':
-          description: assessment deleted Successfully
+          description: assessmentItem deleted Successfully
           schema:
             $ref: '#/definitions/assessmentDeleteResponse'
         '400':
           description: >-
             Error While deleting the assessmentItem! | Error occurred while
             operation, mostly because of the input given by client, In general
-            it is 'Client Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'assessmentItem Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'assessmentItem Error Messages' for the corresponding error
-            messages.
+            it is 'Client Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
             Error While deleting the assessmentItem! | Error occurred while
             operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'. To investigate the
-            root cause first read through the 'err' field of response 'params'
-            and go through the Wiki-Doc with title 'assessmentItem Error Codes',
-            after that read 'errmsg' field of response 'params' and go through
-            the Wiki-Doc with title 'assessmentItem Error Messages' for the
-            corresponding error messages.
+            general it is 'Server Exception' or 'Exception'.
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
     patch:
       summary: Updates the given assessmentItem
       description: >-
-        The _assessmentItem_ endpoint with 'patch' method is used to update
-        assessmentItem based on the request body provided from the _EkStep
-        Platform_. This endpoint returns success message on deletion
+        This _assessmentItem_ endpoint is used to update assessmentItem based on
+        the request body provided from the _EkStep Platform_. This endpoint
+        returns success message on updation
       tags:
         - AssessmentItem
       operationId: assessment_item.patch
@@ -221,35 +181,243 @@ paths:
         - $ref: '#/parameters/updateAssessmentRequest'
       responses:
         '200':
-          description: Content Created Successfully
+          description: AssessmentItem Updated Successfully
           schema:
             $ref: '#/definitions/assessmentUpdateResponse'
         '400':
           description: >-
             Error While Updating the assessmentItem! | Error occurred while
             operation, mostly because of the input given by client, In general
-            it is 'Client Exception'. To investigate the root cause first read
-            through the 'err' field of response 'params' and go through the
-            Wiki-Doc with title 'assessmentItem Error Codes', after that read
-            'errmsg' field of response 'params' and go through the Wiki-Doc with
-            title 'assessmentItem Error Messages' for the corresponding error
-            messages.
+            it is 'Client Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
         '500':
           description: >-
             Error While Updating the assessmentItem! | Error occurred while
             operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'. To investigate the
-            root cause first read through the 'err' field of response 'params'
-            and go through the Wiki-Doc with title 'assessmentItem Error Codes',
-            after that read 'errmsg' field of response 'params' and go through
-            the Wiki-Doc with title 'assessmentItem Error Messages' for the
-            corresponding error messages.
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /graph/domain/count:
+    post:
+      summary: Gives the count of nodes of given ObjectType in the Respository
+      description: >-
+        This _domainCount_ is used to return the count of nodes in the 
+        repository based on the request Body provided
+      tags:
+        - ItemSet
+      operationId: nodes.count
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/getNodesCountRequest'
+      responses:
+        '200':
+          description: Gives the Count of nodes of given ObjectType
+          schema:
+            $ref: '#/definitions/getNodesCountResponse'
+        '400':
+          description: >-
+            Error While returning the count of nodes! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While returning the count of nodes! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /assessmentitemset:
+    post:
+      summary: Creates a new item set in the item repository
+      description: >-
+        This _Itemset_ is used to create the Item into the _EkStep Platform_
+        based on the request Body provided. This endpoint returns the response
+        Object with SetId created
+      tags:
+        - ItemSet
+      operationId: ItemSet.create
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/creatItemSetRequest'
+      responses:
+        '200':
+          description: Item Created Successfully
+          schema:
+            $ref: '#/definitions/ItemSetCreateResponse'
+        '400':
+          description: >-
+            Error While creating Item! | Error occurred while operation, mostly
+            because of the input given by client, In general it is 'Client
+            Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While creating Item! | Error occurred while operation, mostly
+            because of erroneous condition on server, In general it is 'Server
+            Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  '/assessmentitemset/{ItemSetId}':
+    get:
+      summary: ' Fetch an item set from the repository'
+      description: >-
+        This _ItemSet/{ItemSetId}_ endpoint is used to fetch the ItemSet from
+        Item Repository of _EkStep Platform_. This endpoint returns the entire
+        ItemSet Object with default fields. 
+      tags:
+        - ItemSet
+      operationId: ItemSet.find
+      produces:
+        - application/json
+      parameters:
+        - name: ItemSetId
+          in: path
+          required: true
+          description: itemSetId
+          type: string
+      responses:
+        '200':
+          description: ItemSet fetched Successfully
+          schema:
+            $ref: '#/definitions/ItemSetgetResponse'
+        '400':
+          description: >-
+            Error While fetching the ItemSet! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While fetching the ItemSet! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+    delete:
+      summary: Deletes an item set from the repository
+      description: >-
+        This _ItemSet_ endpoint is used to delete Item set from the Tem
+        repository based on the ItemSet Id provided from the _EkStep Platform_.
+        This endpoint returns success message on deletion
+      tags:
+        - ItemSet
+      operationId: ItemSet.delete
+      produces:
+        - application/json
+      parameters:
+        - name: ItemSetId
+          in: path
+          required: true
+          type: string
+      responses:
+        '200':
+          description: ItemSet deleted Successfully
+          schema:
+            $ref: '#/definitions/ItemSetDeleteResponse'
+        '400':
+          description: >-
+            Error While deleting the ItemSet! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While deleting the ItemSet! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'.
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+    patch:
+      summary: Updates an existing item set in the repository
+      description: >-
+        This _ItemSet_ endpoint is used to update existing ItemSet in the
+        repository  based on the request body provided from the _EkStep
+        Platform_. This endpoint returns success message on updation
+      tags:
+        - ItemSet
+      operationId: ItemSet.patch
+      produces:
+        - application/json
+      parameters:
+        - name: ItemSetId
+          in: path
+          required: true
+          type: string
+        - $ref: '#/parameters/updateItemSetRequest'
+      responses:
+        '200':
+          description: Item set Updated Successfully
+          schema:
+            $ref: '#/definitions/ItemSetUpdateResponse'
+        '400':
+          description: >-
+            Error While Updating the Item Set! | Error occurred while operation,
+            mostly because of the input given by client, In general it is
+            'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While Updating the Item Set! | Error occurred while operation,
+            mostly because of erroneous condition on server, In general it is
+            'Server Exception' or 'Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+      security: []
+  /assessmentitemset/search:
+    post:
+      summary: Searches an ItemSet
+      description: >-
+        This _ItemSet_ endpoint searches and retrives all item setd from the
+        Item repository based on the given search creteria in the request body
+      tags:
+        - ItemSet
+      operationId: ItemSet.search
+      produces:
+        - application/json
+      parameters:
+        - $ref: '#/parameters/searchItemSetRequest'
+      responses:
+        '200':
+          description: ItemSets reterived Successfully
+          schema:
+            $ref: '#/definitions/ItemSetSearchResponse'
+        '400':
+          description: >-
+            Error While searching for an ItemSet! | Error occurred while
+            operation, mostly because of the input given by client, In general
+            it is 'Client Exception'
+          schema:
+            $ref: '#/definitions/FailedResponseHeader'
+        '500':
+          description: >-
+            Error While searching for an ItemSet! | Error occurred while
+            operation, mostly because of erroneous condition on server, In
+            general it is 'Server Exception' or 'Exception'
           schema:
             $ref: '#/definitions/FailedResponseHeader'
       security: []
 parameters:
+  getNodesCountRequest:
+    name: Request
+    in: body
+    description: get count request object
+    required: true
+    schema:
+      $ref: '#/definitions/searchCriteria'
   createAssessmentRequest:
     name: Request
     in: body
@@ -271,33 +439,36 @@ parameters:
     required: true
     schema:
       $ref: '#/definitions/createAssessmentObject'
+  creatItemSetRequest:
+    name: Request
+    in: body
+    description: create request object
+    required: true
+    schema:
+      $ref: '#/definitions/createItemWithMembersObject'
+  updateItemSetRequest:
+    name: Request
+    in: body
+    description: create request object
+    required: true
+    schema:
+      $ref: '#/definitions/updateItemSetWithMembers'
+  searchItemSetRequest:
+    name: Request
+    in: body
+    description: search request object
+    required: true
+    schema:
+      $ref: '#/definitions/searchItemSetObject'
 definitions:
   createAssessmentObject:
+    type: object
+    title: Create Assessment Request
     allOf:
-      - $ref: '#/definitions/createMcqAssessmentRequest'
-      - $ref: '#/definitions/createMmcqAssessmentRequest'
-      - $ref: '#/definitions/createMtfAssessmentRequest'
-      - $ref: '#/definitions/createFtbAssessmentRequest'
-  createMcqAssessmentRequest:
-    $ref: '#/definitions/createMcqObject'
-  createMmcqAssessmentRequest:
-    $ref: '#/definitions/createMmcqObject'
-  createFtbAssessmentRequest:
-    $ref: '#/definitions/createMmcqObject'
-  createMtfAssessmentRequest:
-    $ref: '#/definitions/createMcqObject'
-  createMmcqObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/assessmentItemMetadata'
-      outRelations:
-        $ref: '#/definitions/outRelations'
+      - description: select any one request body to create/update AssessmentItem
+      - $ref: '#/definitions/createMcqObject'
+      - $ref: '#/definitions/createMtfObject'
+      - $ref: '#/definitions/createFtbObject'
   createMcqObject:
     properties:
       identifier:
@@ -307,31 +478,185 @@ definitions:
         type: string
         description: objectType
       metadata:
-        $ref: '#/definitions/assessmentItemMetadata'
-  getAssessmentItemResponse:
-    allOf:
-      - $ref: '#/definitions/ResponseHeader'
-      - $ref: '#/definitions/assessmentItemMetadata'
-  assessmentDeleteResponse:
-    allOf:
-      - $ref: '#/definitions/ResponseHeader'
-      - $ref: '#/definitions/result'
-  assessmentUpdateResponse:
-    allOf:
-      - $ref: '#/definitions/ResponseHeader'
-      - $ref: '#/definitions/result'
-  assessmentCreateResponse:
-    allOf:
-      - $ref: '#/definitions/ResponseHeader'
-      - $ref: '#/definitions/NodeId'
-  assessmentItemMetadata:
+        $ref: '#/definitions/mcqMetadataObject'
+      outRelations:
+        $ref: '#/definitions/outRelations'
+  createFtbObject:
     properties:
-      template:
+      identifier:
         type: string
-        description: type of template
+        description: assessmentId
+      objectType:
+        type: string
+        description: objectType
+      metadata:
+        $ref: '#/definitions/ftbMetadataObject'
+      outRelations:
+        $ref: '#/definitions/outRelations'
+  createMtfObject:
+    properties:
+      identifier:
+        type: string
+        description: assessmentId
+      objectType:
+        type: string
+        description: objectType
+      metadata:
+        $ref: '#/definitions/mtfMetadataObject'
+  mcqMetadataObject:
+    allOf:
+      - $ref: '#/definitions/assessmentItemMetadata'
+      - $ref: '#/definitions/values'
+      - $ref: '#/definitions/response'
+      - $ref: '#/definitions/model'
+  ftbMetadataObject:
+    allOf:
+      - $ref: '#/definitions/assessmentItemMetadata'
+      - $ref: '#/definitions/answers'
+      - $ref: '#/definitions/model'
+  mtfMetadataObject:
+    allOf:
+      - $ref: '#/definitions/assessmentItemMetadata'
+      - $ref: '#/definitions/model'
+      - $ref: '#/definitions/lhs_options'
+      - $ref: '#/definitions/rhs_options'
+  getAssessmentItemResponse:
+    title: get Response
+    properties:
+      header:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/assessmentItemMetadata'
+  searchAssessmentItemResponse:
+    title: search Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/assessmentItemMetadata'
+  assessmentDeleteResponse:
+    title: Delete Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/result'
+  assessmentUpdateResponse:
+    title: Update Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/NodeId'
+  getNodesCountResponse:
+    title: Count Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/results'
+  assessmentCreateResponse:
+    title: Create Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/NodeId'
+  ItemSetDeleteResponse:
+    title: Delete Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/result'
+  ItemSetCreateResponse:
+    title: Create Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/SetId'
+  ItemSetUpdateResponse:
+    title: Update Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/SetId'
+  ItemSetgetResponse:
+    title: Get Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/assessment_item_set'
+  ItemSetSearchResponse:
+    title: Get Response
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        type: array
+        items:
+          $ref: '#/definitions/assessment_item_set'
+  createItemWithMembersObject:
+    properties:
+      identifier:
+        type: string
+        description: assessmentId
+      objectType:
+        type: string
+        description: objectType
+      metadata:
+        $ref: '#/definitions/createItemObject'
+  createItemObject:
+    type: object
+    title: creates ItemSet
+    allOf:
+      - $ref: '#/definitions/assessment_item_set'
+      - properties:
+          memberIds:
+            type: array
+            items:
+              $ref: '#/definitions/members'
+      - $ref: '#/definitions/outRelations'
+  updateItemSetWithMembers:
+    properties:
+      identifier:
+        type: string
+        description: assessmentId
+      objectType:
+        type: string
+        description: objectType
+      metadata:
+        $ref: '#/definitions/updateItemSetObject'
+  updateItemSetObject:
+    type: object
+    allOf:
+      - $ref: '#/definitions/assessment_item_set'
+      - $ref: '#/definitions/members'
+      - $ref: '#/definitions/outRelations'
+  members:
+    properties:
+      membersIds:
+        type: string
+        description: list of memberIds
+  searchItemSetObject:
+    properties:
+      metadata:
+        type: array
+        items:
+          $ref: '#/definitions/filters'
+  assessment_item_set:
+    properties:
       owner:
         type: string
         description: ownerName
+      difficulty_level:
+        type: string
+        description: defficulty_level
       identifier:
         type: string
         description: assessmentId
@@ -341,12 +666,69 @@ definitions:
       subject:
         type: string
         description: subject of assessmentItem
+      SET_OBJECT_TYPE_KEY:
+        type: string
+        description: set object type
+      description:
+        type: string
+        description: description
+      language:
+        type: object
+        description: languages
+      type:
+        type: string
+        description: assessmentItem type
+      title:
+        type: string
+        description: title
+      createdOn:
+        type: string
+        description: creation date
+      totalItems:
+        type: number
+        description: total number of items
+      gradeLevel:
+        type: object
+        description: gradelevel
+      maxScore:
+        type: object
+        description: maxScore
+      lastUpdatedOn:
+        type: string
+        description: last updated date
+      usedFor:
+        type: string
+        description: where the ItemSET is used For
+      SET_TYPE:
+        type: string
+        description: Item Set Type
+  assessmentItemMetadata:
+    title: assessmentItem
+    properties:
+      template:
+        type: string
+        description: type of template
+      code:
+        type: string
+        description: code of assessmentItem
+      keywords:
+        type: object
+        description: list of keywords
+      subject:
+        type: string
+        description: subject of assessmentItem
       qlevel:
         type: string
         description: qlevel of assessmentItem
-      usedIn:
+      portalOwner:
         type: string
-        description: where the assessment is used used
+        description: ownerName
+      identifier:
+        type: string
+        description: assessmentId
+      language:
+        type: object
+        description: languages
       partial_scoring:
         type: string
         description: scores
@@ -356,13 +738,43 @@ definitions:
       title:
         type: string
         description: title
-      qid:
+      usedIn:
+        type: string
+        description: where the assessment is used used
+      createdOn:
+        type: string
+        description: date of creation
+      gradeLevel:
+        type: object
+        description: gradelevel
+      conceptIds:
+        type: object
+        description: conceptId
+      question:
         type: string
         description: qid
-      lhs_options:
-        $ref: '#/definitions/Options'
+      options:
+        $ref: '#/definitions/values'
       concepts:
         $ref: '#/definitions/concepts'
+      rownum:
+        type: number
+        description: rownum
+      maxScore:
+        type: object
+        description: maxScore
+      domain:
+        type: string
+        description: domain
+      num_answers:
+        type: number
+        description: number of answers
+      template_Id:
+        type: string
+        description: template Id
+      usedFor:
+        type: string
+        description: where the ItemSET is used For
       max_score:
         type: number
         description: maximum score
@@ -372,10 +784,44 @@ definitions:
       lastUpdatedOn:
         type: string
         description: last updated date
-      rhs_options:
-        $ref: '#/definitions/Options'
-  Options:
-    $ref: '#/definitions/values'
+  response:
+    properties:
+      values:
+        type: object
+        description: values
+      score:
+        type: number
+        description: score
+  answers:
+    properties:
+      value:
+        type: string
+        description: values
+      score:
+        type: string
+        description: scores
+  model:
+    properties:
+      type:
+        type: string
+        description: type
+      asset:
+        type: string
+        description: asset
+  lhs_options:
+    properties:
+      index:
+        type: number
+        description: index
+      Options:
+        $ref: '#/definitions/values'
+  rhs_options:
+    allOf:
+      - properties:
+          index:
+            type: number
+            description: index
+      - $ref: '#/definitions/values'
   values:
     properties:
       type:
@@ -411,13 +857,24 @@ definitions:
         type: string
         description: index
   searchObject:
+    title: request
     properties:
       metadata:
+        $ref: '#/definitions/searchMetadata'
+  searchMetadata:
+    properties:
+      filter:
         $ref: '#/definitions/filters'
+      sortOrder:
+        $ref: '#/definitions/sortOrder'
       resultSize:
         type: number
-        description: ''
+        description: resultSize
+      startPosition:
+        type: number
+        description: startPosition
   filters:
+    title: filters
     properties:
       property:
         type: string
@@ -445,12 +902,10 @@ definitions:
         type: string
         description: API execution timespan
       params:
-        type: object
-        description: API response parameters
         $ref: '#/definitions/ResponseParams'
       responseCode:
-        type: object
-        description: 'API response code '
+        type: string
+        description: API response code
   ResponseParams:
     title: Response Parameter
     type: object
@@ -471,7 +926,7 @@ definitions:
         type: string
         description: Error Message
   FailedResponseHeader:
-    title: FailureResponseHeader
+    title: Failure Response
     type: object
     properties:
       id:
@@ -484,17 +939,17 @@ definitions:
         type: string
         description: API execution timespan
       params:
-        type: string
-        description: API response parameters
+        $ref: '#/definitions/FailedResponseParams'
       responseCode:
-        type: object
-        description: 'API response code '
+        type: string
+        description: responseCode
       result:
-        title: result
-        type: object
-        properties: {}
+        properties:
+          result:
+            type: string
+            description: result
   FailedResponseParams:
-    title: Failed Operation Response Params
+    title: Failed Response Parameter
     type: object
     properties:
       resmsgid:
@@ -521,12 +976,32 @@ definitions:
         type: string
         description: ''
   result:
-    title: Result
-    type: object
+    properties: {}
+  sortOrder:
+    title: sortOder
     properties:
-      result:
+      sortFields:
+        type: string
+        description: field to be sorted
+      sortOrder:
+        type: string
+        description: sort order
+  searchCriteria:
+    properties:
+      nodeType:
+        type: string
+        description: nodeType
+      objectType:
+        type: string
+        description: objectType
+      metadata:
         type: object
-        description: Empty Result
+        description: metadata
+  results:
+    properties:
+      count:
+        type: string
+        description: count
   NodeId:
     title: Node Id
     type: object
@@ -534,3 +1009,10 @@ definitions:
       node_id:
         type: string
         description: Node Identifier
+  SetId:
+    title: SEt Id
+    type: object
+    properties:
+      set_id:
+        type: string
+        description: Set Identifier

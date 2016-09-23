@@ -69,7 +69,7 @@
     "/assessmentitem": {
       "post": {
         "summary": "Creates a Question/AssessmentItem based on the type",
-        "description": "This _assessmentItem_ endpoint creates a assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) or MMCQ based on the request body",
+        "description": "This _assessmentItem_ endpoint creates a assessmentItem/question of type MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match the following) based on the request body",
         "tags": [
           "AssessmentItem"
         ],
@@ -273,7 +273,7 @@
     "/assessmentitemset":{
          "post":{
             "summary": "Creates a new item set in the item repository",
-            "description": "This _Itemset_ is used to create the Item into the EkStep Platform_ based on the request Body provided. This endpoint returns the response Object with NodeId created",
+            "description": "This _Itemset_ is used to create the Item into the _EkStep Platform_ based on the request Body provided. This endpoint returns the response Object with SetId created",
             "tags": [
               "ItemSet"
             ],
@@ -456,10 +456,7 @@
                     "200": {
                       "description": "ItemSets reterived Successfully",
                       "schema": {
-                        "type":"array",
-                        "items":{
                            "$ref": "#/definitions/ItemSetSearchResponse"
-                        }
                       }
                     },
                     "400": {
@@ -592,7 +589,7 @@
         "metadata": {
           "$ref": "#/definitions/ftbMetadataObject"
         },
-        "outRElations":{
+        "outRelations":{
            "$ref":"#/definitions/outRelations"
         }
       }
@@ -669,7 +666,10 @@
              "$ref": "#/definitions/ResponseHeader"
           },
          "result":{
-          "$ref": "#/definitions/assessmentItemMetadata"
+           "type":"array",
+           "items":{
+                "$ref": "#/definitions/assessmentItemMetadata"
+           }
         }
       }
     },
@@ -762,13 +762,35 @@
       }
     },
     "ItemSetSearchResponse":{
-       "type":"array",
-       "title":"searchResponse",
-       "items":{
-          "$ref":"#/definitions/ItemSetgetResponse"
-       }
+       "title":"Get Response",
+      "properties":{
+        "headers":{
+          "$ref": "#/definitions/ResponseHeader"
+        },
+        "result":{
+          "type":"array",
+          "items":{
+            "$ref": "#/definitions/assessment_item_set"
+          }
+        }
+      }
     },
     "createItemWithMembersObject":{
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "assessmentId"
+        },
+        "objectType": {
+          "type": "string",
+          "description": "objectType"
+        },
+        "metadata": {
+          "$ref": "#/definitions/createItemObject"
+        }
+       }
+    },
+    "createItemObject":{
       "type": "object",
       "title":"creates ItemSet",
        "allOf":[{
@@ -777,34 +799,54 @@
        {
          "properties":{
             "memberIds":{
-                "type":"object",
-                "description":"list of memberIds"
+                "type":"array",
+                "items":{
+                    "$ref":"#/definitions/members"
+                }
             }
          }
        },
        {
          "$ref":"#/definitions/outRelations"
-      }
-      ]
+      }]
     },
     "updateItemSetWithMembers":{
+       "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "assessmentId"
+        },
+        "objectType": {
+          "type": "string",
+          "description": "objectType"
+        },
+        "metadata": {
+          "$ref": "#/definitions/updateItemSetObject"
+        }
+       }
+    },
+    "updateItemSetObject":{
       "type": "object",
       "allOf":[{
           "$ref":"#/definitions/assessment_item_set"
         },
         {
-         "properties":{
-            "memberIds":{
-                "type":"object",
-                "description":"list of memberIds"
-            }
-         }
+          "$ref":"#/definitions/members"
+           
        },
        {
          "$ref":"#/definitions/outRelations"
       }
       ]
     },
+     "members":{
+       "properties":{
+         "membersIds":{
+                "type":"string",
+                "description":"list of memberIds"
+            }
+       }
+     },
     "searchItemSetObject":{
           "properties":{
              "metadata":{
@@ -1228,8 +1270,6 @@
            "description":"responseCode"
         },
         "result": {
-          "title": "result",
-          "type": "object",
           "properties": {
              "result":{
                "type":"string",
@@ -1278,13 +1318,7 @@
       }
     },
     "result": {
-      "title": "Result",
-      "type": "object",
       "properties": {
-        "result": {
-          "type": "object",
-          "description": "Empty Result"
-        }
       }
     },
     "sortOrder":{
