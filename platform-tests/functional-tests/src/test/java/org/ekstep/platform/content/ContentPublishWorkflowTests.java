@@ -2115,7 +2115,7 @@ public class ContentPublishWorkflowTests extends BaseTest{
 				when().
 				get("/learning/v2/content/"+nodeId).
 				then().
-				log().all().
+				//log().all().
 				spec(get200ResponseSpec()).
 				extract().
 				response();
@@ -2249,7 +2249,7 @@ public class ContentPublishWorkflowTests extends BaseTest{
 						Assert.assertEquals(descriptionActual, description);
 						String pkgVersion =  getStringValue(item, "pkgVersion");
 						Assert.assertNotSame(pkgVersionActual, pkgVersion);
-						Assert.assertTrue(artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&downloadUrl.contains(nodeId)&&statusActual.equals("Live"));
+						Assert.assertTrue(artifactUrl.endsWith(".zip")&&downloadUrl.endsWith(".ecar")&&statusActual.equals("Live"));
 					}
 					catch(JSONException jse){
 						accessURL = false;
