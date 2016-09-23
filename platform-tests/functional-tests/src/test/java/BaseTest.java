@@ -1,12 +1,13 @@
 
 
 import static com.jayway.restassured.RestAssured.baseURI;
-import static com.jayway.restassured.RestAssured.basePath;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
+
 import com.jayway.restassured.builder.RequestSpecBuilder;
 import com.jayway.restassured.builder.ResponseSpecBuilder;
 import com.jayway.restassured.specification.RequestSpecification;
 import com.jayway.restassured.specification.ResponseSpecification;
-import static org.hamcrest.CoreMatchers.*;
 
 public class BaseTest 
 {
@@ -18,7 +19,7 @@ public class BaseTest
 	 */
 	public void setURI()
 	{
-		baseURI ="http://lp-sandbox.ekstep.org:8080/taxonomy-service";
+		baseURI = "http://localhost:8080/";
 		//baseURI ="http://localhost:9090/taxonomy-service";
 		//basePath = "v2/";
 	}

@@ -1,23 +1,10 @@
 
 
-import static com.jayway.restassured.RestAssured.*;
+import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
-import org.junit.Test;
-import static org.hamcrest.CoreMatchers.*;
-
-
-//import com.jayway.restassured.itest.java.support.WithJetty;
+import static org.hamcrest.CoreMatchers.equalTo;
 
 import org.junit.Test;
-
-//import static com.jayway.restassured.RestAssured.*;
-import static com.jayway.restassured.http.ContentType.JSON;
-//import static com.jayway.restassured.http.ContentType.URLENC;
-//import static java.util.Arrays.asList;
-//import static org.apache.commons.lang3.ArrayUtils.toObject;
-//import static org.apache.commons.lang3.StringUtils.join;
-//import static org.hamcrest.Matchers.*;
-//import static org.junit.Assert.assertThat;
 
 public class GetDomainsTests extends BaseTest
 {
