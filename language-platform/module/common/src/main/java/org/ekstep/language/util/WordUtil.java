@@ -1458,9 +1458,9 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 					if(!StringUtils.equalsIgnoreCase(languageId, "en") || 
 							(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.draft.name()))){
 						createRes = updateWord(node, languageId, wordIdentifier);
-					}else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
+					}/*else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
 						createRes = updateWord(node, languageId, wordIdentifier);
-					}
+					}*/
 					
 				}
 				if (!checkError(createRes)) {
