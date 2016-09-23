@@ -3,10 +3,13 @@ package org.ekstep.platform.content;
 import static com.jayway.restassured.RestAssured.given;
 import static com.jayway.restassured.http.ContentType.JSON;
 
+import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.ekstep.platform.domain.BaseTest;
 import org.json.JSONObject;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.jayway.restassured.path.json.JsonPath;
@@ -17,39 +20,69 @@ public class CompositeSearchTests extends BaseTest {
 	
 	int rn = generateRandomInt(2000, 2500);
 
-	String jsonSimpleSearchQuery = "{\"request\": {\"query\": \"Test\",\"limit\": 10}}";
-	String jsonFilteredCompositeSearch = "{\"request\": {\"query\": \"Lion\",\"filters\": [{\"objectType\": [\"content\", \"concept\"]}],\"limit\": 10}}"; 
-	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"Test_QA_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"Test_QA_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"owner\": \"EkStep\"}}}";
+	String jsonSimpleSearchQuery = "{\"request\": {\"query\": \"add\",\"limit\": 10}}";
+	String jsonFilteredCompositeSearch = "{\"request\": {\"query\": \"add\",\"filters\": {\"objectType\": [\"content\", \"concept\"]},\"limit\": 10}}"; 
+	String jsonCreateValidContent = "{\"request\": {\"content\": {\"identifier\": \"LP_FT_"+rn+"\",\"osId\": \"org.ekstep.quiz.app\", \"mediaType\": \"content\",\"visibility\": \"Default\",\"description\": \"Test_QA\",\"name\": \"LP_FT_"+rn+"\",\"language\":[\"English\"],\"contentType\": \"Story\",\"code\": \"Test_QA\",\"mimeType\": \"application/vnd.ekstep.ecml-archive\",\"pkgVersion\": 3,\"tags\":[\"LP_functionalTest\"], \"owner\": \"EkStep\"}}}";
 	String invalidContentId = "TestQa_"+rn+"";
 	String jsonCreateValidWord = "{\"request\": {\"words\": [{\"lemma\": \"देखी\",\"phonologic_complexity\": 13.25,\"orthographic_complexity\": 0.7}]}}";
+	String jsonContentClean = "{\"request\": {\"searchProperty\": \"name\",\"searchOperator\": \"startsWith\",\"searchString\": \"LP_FT_\"}}";
 	
+	static ClassLoader classLoader = ContentPublishWorkflowTests.class.getClassLoader();
+	static File path = new File(classLoader.getResource("UploadFiles/").getFile());
+
 	// Create and search content
 	@Test
-	public void createAndSearchExpectSuccess200(){
+	public void createAndSearchExpectSuccess200() throws InterruptedException{
+		contentCleanUp();
 		setURI();
 		Response R =
-		given().
-			spec(getRequestSpec(contentType, validuserId)).
-			body(jsonCreateValidContent).
-		with().
-			contentType(JSON).
-		when().
-			post("/learning/v2/content").
-		then().
-			log().all().
-			spec(get200ResponseSpec()).
-		extract().
-			response();
-		
+				given().
+				spec(getRequestSpec(contentType, validuserId)).
+				body(jsonCreateValidContent).
+				with().
+				contentType(JSON).
+				when().
+				post("/learning/v2/content").
+				then().
+				//log().all().
+				spec(get200ResponseSpec()).
+				extract().
+				response();
+
 		// Extracting the JSON path
 		JsonPath jp = R.jsonPath();
-		String ecmlNode = jp.get("result.node_id");
+		String ecmlNode = jp.get("result.node_id");	
 		
+		// Upload Content
+		setURI();
+		given().
+		spec(getRequestSpec(uploadContentType, validuserId)).
+		multiPart(new File(path+"/ecml_with_json.zip")).
+		when().
+		post("/learning/v2/content/upload/"+ecmlNode).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+
+		
+		// Publish created content
+		setURI();
+		given().
+		spec(getRequestSpec(contentType, validuserId)).
+		when().
+		get("/learning/v2/content/publish/"+ecmlNode).
+		then().
+		//log().all().
+		spec(get200ResponseSpec());
+		
+		// Searching with query
+		Thread.sleep(2000);
+		setURI();
 		JSONObject js = new JSONObject(jsonFilteredCompositeSearch);
 		js.getJSONObject("request").put("query", ecmlNode);
 		String jsonSimpleQuery = js.toString();
 		System.out.println(jsonSimpleQuery);
-		setURI();
+		Response R2 =
 		given().
 	 		spec(getRequestSpec(contentType, validuserId)).
 	 		body(jsonSimpleQuery).
@@ -59,7 +92,14 @@ public class CompositeSearchTests extends BaseTest {
 		 	post("search/v2/search").
 		then().
 		 	log().all().
-		 	spec(get200ResponseSpec());
+		 	spec(get200ResponseSpec()).
+		 extract().
+		 	response();
+		
+		// Extracting the JSON path and validate the result
+		JsonPath jp2 = R2.jsonPath();
+		ArrayList<String> name = jp2.get("result.content.name");
+		Assert.assertTrue(name.contains(ecmlNode));
 		}
 		
 	@Test
@@ -97,11 +137,12 @@ public class CompositeSearchTests extends BaseTest {
 		then().
 		 	log().all().
 		 	spec(get200ResponseSpec());
+		
 		}
 	
 	// Blank space in query
 	@Test
-	public void blankSpaceSearchExpect400() {
+	public void blankSpaceSearchExpect200() {
 		setURI();
 		JSONObject js = new JSONObject(jsonSimpleSearchQuery);
 		js.getJSONObject("request").put("query", "   ");
@@ -115,7 +156,7 @@ public class CompositeSearchTests extends BaseTest {
 		 	post("search/v2/search"). 
 		then().
 		 	log().all().
-		 	spec(get400ResponseSpec());
+		 	spec(get200ResponseSpec());
 		}
 		
 	// Blank space before and after query
@@ -155,7 +196,7 @@ public class CompositeSearchTests extends BaseTest {
 		 	post("search/v2/search").
 		then().
 		 	log().all().
-		 	spec(get400ResponseSpec());
+		 	spec(get200ResponseSpec());
 		
 		// Space after query
 		setURI();
@@ -221,7 +262,7 @@ public class CompositeSearchTests extends BaseTest {
 		setURI();
 		given().
 	 		spec(getRequestSpec(contentType, validuserId)).
-	 		//body(jsonSimpleCompositeSearch).
+	 		body(jsonSimpleSearchQuery).
 		with().
 		 	contentType(JSON).
 		when().
@@ -247,4 +288,16 @@ public class CompositeSearchTests extends BaseTest {
 			log().all().
 			spec(get200ResponseSpec());
 	}	
+	// Content clean up	
+		public void contentCleanUp(){
+			setURI();
+			given().
+			body(jsonContentClean).
+			with().
+			contentType(JSON).
+			when().
+			post("learning/v1/exec/content_qe_deleteContentBySearchStringInField");
+		}
+
+
 }
