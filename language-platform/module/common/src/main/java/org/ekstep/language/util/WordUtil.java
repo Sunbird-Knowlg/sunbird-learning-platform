@@ -33,6 +33,7 @@ import org.ekstep.language.common.enums.LanguageParams;
 import org.ekstep.language.model.CitationBean;
 import org.ekstep.language.model.WordIndexBean;
 import org.ekstep.language.model.WordInfoBean;
+import org.ekstep.language.translation.BaseTranslationSet;
 import org.springframework.stereotype.Component;
 
 import com.ilimi.common.dto.NodeDTO;
@@ -1023,7 +1024,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			List<String> sources = new ArrayList<String>();
 			sources.add(ATTRIB_SOURCE_IWN);
 			word.put(ATTRIB_SOURCES, sources);
-			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition);
+			Node wordNode = convertToGraphNode(languageId, LanguageParams.Word.name(), word, definition,false);
 			wordNode.setObjectType(LanguageParams.Word.name());
 			if (identifier == null) {
 				wordResponse = createWord(wordNode, languageId);
@@ -1096,7 +1097,7 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private Node convertToGraphNode(String languageId, String objectType, Map<String, Object> map,
-			DefinitionDTO definition) {
+			DefinitionDTO definition,boolean updateRel) {
 		Node node = new Node();
 		if (null != map && !map.isEmpty()) {
 			Map<String, String> lemmaIdMap = new HashMap<String, String>();
@@ -1340,6 +1341,8 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 			synsetReq.put(GraphDACParams.node_id.name(), synsetNode.getIdentifier());
 		}
 		Response res = getResponse(synsetReq, LOGGER);
+		String primaryMeaningId = (String) res.get(GraphDACParams.node_id.name());
+		createProxyNode(primaryMeaningId,LanguageParams.translation.name());
 		return res;
 	}
 
@@ -1444,14 +1447,21 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 				 * wordMap.put(LanguageParams.identifier.name(),
 				 * wordIdentifier); createFlag = false; } }
 				 */
-				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition);
+				Node node = convertToGraphNode(languageId, LanguageParams.Word.name(), wordMap, wordDefinition,true);
 				// System.out.println("Time to convert word to node: " +
 				// (endTime-startTime));
 				node.setObjectType(LanguageParams.Word.name());
 				if (createFlag) {
 					createRes = createWord(node, languageId);
 				} else {
-					createRes = updateWord(node, languageId, wordIdentifier);
+					String status = (String) node.getMetadata().get(LanguageParams.status.name());
+					if(!StringUtils.equalsIgnoreCase(languageId, "en") || 
+							(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.draft.name()))){
+						createRes = updateWord(node, languageId, wordIdentifier);
+					}else if(StringUtils.equalsIgnoreCase(languageId, "en") && StringUtils.equalsIgnoreCase(status,LanguageParams.live.name())){
+						createRes = updateWord(node, languageId, wordIdentifier);
+					}
+					
 				}
 				if (!checkError(createRes)) {
 					String wordId = (String) createRes.get("node_id");
@@ -1959,5 +1969,36 @@ public class WordUtil extends BaseManager implements IWordnetConstants {
 		updateWord(word, languageId, word.getIdentifier());
 		return bd.doubleValue();
 	}
+	
+	private Response createProxyNode(String primaryMeaningId, String graphId)
+	{
+		Node node = new Node(primaryMeaningId,SystemNodeTypes.PROXY_NODE.name(),LanguageParams.Synset.name());
+		String operation = "createProxyNode";
+		Request proxyReq = getRequest(graphId, GraphEngineManagers.NODE_MANAGER, operation);
+		proxyReq.put(GraphDACParams.node.name(), node);
+		Response res = getResponse(proxyReq, LOGGER);
+		createOrAddTranslationSet(node, primaryMeaningId, graphId);
+		return res;
+	}
+	
+	private void createOrAddTranslationSet(Node node, String primaryMeaningId, String graphId)
+	{
+		String[] indoId = primaryMeaningId.split(":");
+		if(indoId.length>0 && indoId.length==3){
+			String indoWordId = indoId[2];
+			BaseTranslationSet tranlationSet = new BaseTranslationSet(graphId,node,LOGGER);
+			String nodeId = tranlationSet.getTranslationSet(indoWordId);
+			if(nodeId==null)
+			{			
+				tranlationSet.createTranslationSetCollection();
+				LOGGER.info("Translation set created:"+primaryMeaningId);
+			}else
+			{
+				tranlationSet.addMemberToSet(nodeId);
+				LOGGER.info("Translation set:"+nodeId + " updated with new member:"+primaryMeaningId);
+			}
+		}
+	}
+
 }
 

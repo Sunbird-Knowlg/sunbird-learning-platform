@@ -152,5 +152,7 @@ public interface ISearchManager {
     void traverseSubGraph(Request request);
     
     void searchRelations(Request request);
+    
+    void getProxyNode(Request request);
 
 }

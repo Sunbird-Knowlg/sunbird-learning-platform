@@ -1,0 +1,41 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "TranslationSet",
+      "properties": [
+        {
+          "required": false,
+          "dataType": "Text",
+          "propertyName": "indowordnetId",
+          "title": "wordnet id",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+          "indexed": false,
+          "draft": false
+        }
+      "inRelations": [],
+      "outRelations": [
+        {
+          "relationName": "hasMember",
+          "objectTypes": [
+            "Synset"
+          ],
+          "title": "synsets",
+          "description": "",
+          "required": false,
+          "renderingHints": "{ 'order': 3 }"
+        }
+      ],
+      "systemTags": [
+      ],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}

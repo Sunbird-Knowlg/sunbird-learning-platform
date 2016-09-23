@@ -441,4 +441,21 @@ public class SearchManagerImpl extends BaseGraphManager implements ISearchManage
 			}
 		}
 	}
+    
+    @Override
+    public void getProxyNode(Request request) {
+        String nodeId = (String) request.get(GraphDACParams.node_id.name());
+        if (!validateRequired(nodeId)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_SEARCH_MISSING_REQ_PARAMS.name(),
+                    "GetProxyNode: Required parameters are missing...");
+        } else {
+            String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+            try {
+                Graph graph = new Graph(this, graphId);
+                graph.getProxyNode(request);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
+    }
 }

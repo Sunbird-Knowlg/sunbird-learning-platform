@@ -99,4 +99,6 @@ public interface INodeManager {
     void exportNode(Request request);
 
     void  upsertRootNode(Request request);
+    
+    void createProxyNode(final Request request);
 }

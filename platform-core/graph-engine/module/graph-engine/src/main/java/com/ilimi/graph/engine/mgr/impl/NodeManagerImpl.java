@@ -27,6 +27,7 @@ import com.ilimi.graph.model.node.DataNode;
 import com.ilimi.graph.model.node.DefinitionDTO;
 import com.ilimi.graph.model.node.DefinitionNode;
 import com.ilimi.graph.model.node.MetadataDefinition;
+import com.ilimi.graph.model.node.ProxyNode;
 
 import akka.actor.ActorRef;
 import akka.dispatch.Futures;
@@ -519,5 +520,77 @@ public class NodeManagerImpl extends BaseGraphManager implements INodeManager {
             }
         }
 
+    }
+    
+    @Override
+    public void createProxyNode(final Request request) {
+        String graphId = (String) request.getContext().get(GraphHeaderParams.graph_id.name());
+        final ActorRef parent = getSender();
+        final Node node = (Node) request.get(GraphDACParams.node.name());
+        Boolean skipValidations = (Boolean) request.get(GraphDACParams.skip_validations.name());
+        if (!validateRequired(node)) {
+            throw new ClientException(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_MISSING_REQ_PARAMS.name(),
+                    "Required parameters are missing...");
+        } else {
+            try {
+            	if (null == skipValidations)
+            		skipValidations = false;
+                final ProxyNode proxyNode = new ProxyNode(this, graphId, node);
+                final ExecutionContext ec = getContext().dispatcher();
+                final List<String> messages = new ArrayList<String>();
+                // validate the node
+                Future<Map<String, List<String>>> nodeValidationFuture = null;
+                if (null != skipValidations && skipValidations)
+                	nodeValidationFuture = Futures.successful(null);
+                else 
+                	nodeValidationFuture = proxyNode.validateNode(request);
+                nodeValidationFuture.andThen(new OnComplete<Map<String, List<String>>>() {
+                    @Override
+                    public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
+                        if (null != arg0) {
+                            messages.add(arg0.getMessage());
+                        } else {
+                            if (null != arg1 && !arg1.isEmpty()) {
+                                for (List<String> list : arg1.values()) {
+                                    if (null != list && !list.isEmpty()) {
+                                        for (String msg : list) {
+                                            messages.add(msg);
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }, ec).andThen(new OnComplete<Map<String, List<String>>>() {
+                    @Override
+                    public void onComplete(Throwable arg0, Map<String, List<String>> arg1) throws Throwable {
+                        // if there are no validation messages
+                        if (messages.isEmpty()) {
+                            // create the node object
+                            Future<String> createFuture = proxyNode.createNode(request);
+                            createFuture.onComplete(new OnComplete<String>() {
+                                @Override
+                                public void onComplete(Throwable arg0, String arg1) throws Throwable {
+                                    if (null != arg0) {
+                                        ERROR(arg0, getSender());
+                                    } else {
+                                        if (StringUtils.isNotBlank(arg1)) {
+                                            messages.add(arg1);
+                                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_UNKNOWN_ERROR.name(), "Node Creation Error",
+                                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                                        }
+                                    }
+                                }
+                            }, ec);
+                        } else {
+                            ERROR(GraphEngineErrorCodes.ERR_GRAPH_ADD_NODE_VALIDATION_FAILED.name(), "Validation Errors",
+                                    ResponseCode.CLIENT_ERROR, GraphDACParams.messages.name(), messages, parent);
+                        }
+                    }
+                }, ec);
+            } catch (Exception e) {
+                handleException(e, getSender());
+            }
+        }
     }
 }

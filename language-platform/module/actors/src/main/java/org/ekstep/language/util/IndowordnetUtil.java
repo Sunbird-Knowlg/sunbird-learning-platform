@@ -194,7 +194,7 @@ public class IndowordnetUtil {
 		}
 
 		// translations
-		Map<String, Object> translationsMap = new HashMap<String, Object>();
+		/*Map<String, Object> translationsMap = new HashMap<String, Object>();
 		for (Map.Entry<String, List<SynsetDataLite>> entry : synsetData.getTranslations().entrySet()) {
 			String translatedLanguage = entry.getKey();
 			List<SynsetDataLite> translatedDataList = entry.getValue();
@@ -214,7 +214,7 @@ public class IndowordnetUtil {
 			translationsMap.put(translatedLanguageGraphId, finalTranslationWords);
 		}
 
-		primaryMeaningMap.put(LanguageParams.translations.name(), mapper.writeValueAsString(translationsMap));
+		primaryMeaningMap.put(LanguageParams.translations.name(), mapper.writeValueAsString(translationsMap));*/
 		wordMap.put(LanguageParams.primaryMeaning.name(), primaryMeaningMap);
 
 		return wordMap;
