@@ -2,598 +2,956 @@ swagger: '2.0'
 info:
   version: '2.0'
   title: Assessment - Service
-  description: >-
-    Assessment API of learning platform provides the resources to create, manage
-    and search assessment items, items sets.Assessment Item API provides the
-    resources to work with questions in the platform.
+  description: Assessment API of learning platform provides the resources to create, manage and search assessment items, items sets.Assessment Item API provides the resources to work with questions in the platform.
   license:
-    name: Ekstep Lisence
+    name: MIT
+    url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
+host: example.com
 basePath: /v1
 securityDefinitions: {}
+schemes:
+- http
 consumes:
-  - application/json
+- application/json
 produces:
-  - application/json
-tags:
-  - name: AssessmentItem
-    description: Everything related to the CRUD operations of the AssessmentItem
-  - name: ItemSet
-    description: Eventhing related to CRUD operations of the ItemSet
+- application/json
 paths:
   /assessmentitem/search:
     post:
-      summary: Search an AssessmentItem
-      description: >-
-        This _assessmentItem_ endpoint searches and retrives an assessmentitem
-        or question based on the filter and relation types specified in the
-        request body
+      description: Search an AssessmentItem
       tags:
-        - AssessmentItem
-      operationId: assessment_item.search
+      - AssessmentItem
+      operationId: Create_assessment_item.search_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - $ref: '#/parameters/searchAssessmentRequest'
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: search request object
+        schema:
+          $ref: '#/definitions/request'
       responses:
-        '200':
+        200:
           description: assessmentItem searched Successfully
           schema:
-            $ref: '#/definitions/searchAssessmentItemResponse'
-        '400':
-          description: >-
-            Error While searching for an AssessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While searching for an AssessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/searchResponse'
+        400:
+          description: Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While searching for an AssessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
   /assessmentitem:
     post:
-      summary: Creates a Question/AssessmentItem based on the type
-      description: >-
-        This _assessmentItem_ endpoint creates a assessmentItem/question of type
-        MCQ(multiple choice questions) or FTB(fill in the blanks) or MTF(match
-        the following) based on the request body
+      description: Creates a Question/AssessmentItem based on the type
       tags:
-        - AssessmentItem
-      operationId: assessment_item.create
+      - AssessmentItem
+      operationId: Create_assessment_item.create_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - $ref: '#/parameters/createAssessmentRequest'
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: create request object
+        schema:
+          $ref: '#/definitions/CreateAssessmentRequest'
       responses:
-        '200':
+        200:
           description: AssessmentItem Created Successfully
           schema:
-            $ref: '#/definitions/assessmentCreateResponse'
-        '400':
-          description: >-
-            Error While creating assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Creating assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/CreateResponse'
+        400:
+          description: Error While creating assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While Creating assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
-  '/assessmentitem/{assessmentId}':
+  /assessmentitem/{assessmentId}:
     get:
-      summary: Fetch an item from the repository
-      description: >-
-        This _assessmentItem/{assessmentItemId}_ endpoint is used to fetch the
-        assessmentItem from the _EkStep Platform_. This endpoint returns the
-        entire assessmentItem Object with default fields. 
+      description: Fetch an item from the repository
       tags:
-        - AssessmentItem
-      operationId: assessment_Item.find
+      - AssessmentItem
+      operationId: Get_assessment_Item.find_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          description: assessmentId
-          type: string
+      - name: assessmentId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: assessmentId
       responses:
-        '200':
+        200:
           description: AssessmentItem fetched Successfully
           schema:
-            $ref: '#/definitions/getAssessmentItemResponse'
-        '400':
-          description: >-
-            Error While fetching the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/getResponse'
+        400:
+          description: Error While fetching the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.
+        default:
+          description: Error While fetching the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.
       security: []
     delete:
-      summary: Deletes the particular Question or AssessmentItem
-      description: >-
-        This _assessmentItem_ endpoint is used to delete assessmentItem based on
-        the assessmentId provided from the _EkStep Platform_. This endpoint
-        returns success message on deletion
+      description: Deletes the particular Question or AssessmentItem
       tags:
-        - AssessmentItem
-      operationId: assessment_item.delete
+      - AssessmentItem
+      operationId: Delete_assessment_item.delete_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          type: string
+      - name: assessmentId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
       responses:
-        '200':
+        200:
           description: assessmentItem deleted Successfully
           schema:
-            $ref: '#/definitions/assessmentDeleteResponse'
-        '400':
-          description: >-
-            Error While deleting the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While deleting the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/DeleteResponse'
+        400:
+          description: Error While deleting the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.
+        default:
+          description: Error While deleting the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.
       security: []
     patch:
-      summary: Updates the given assessmentItem
-      description: >-
-        This _assessmentItem_ endpoint is used to update assessmentItem based on
-        the request body provided from the _EkStep Platform_. This endpoint
-        returns success message on updation
+      description: Updates the given assessmentItem
       tags:
-        - AssessmentItem
-      operationId: assessment_item.patch
+      - AssessmentItem
+      operationId: Update_assessment_item.patch_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: assessmentId
-          in: path
-          required: true
-          type: string
-        - $ref: '#/parameters/updateAssessmentRequest'
+      - name: assessmentId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: update request object
+        schema:
+          $ref: '#/definitions/CreateAssessmentRequest'
       responses:
-        '200':
+        200:
           description: AssessmentItem Updated Successfully
           schema:
-            $ref: '#/definitions/assessmentUpdateResponse'
-        '400':
-          description: >-
-            Error While Updating the assessmentItem! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Updating the assessmentItem! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/UpdateResponse'
+        400:
+          description: Error While Updating the assessmentItem! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While Updating the assessmentItem! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
   /graph/domain/count:
     post:
-      summary: Gives the count of nodes of given ObjectType in the Respository
-      description: >-
-        This _domainCount_ is used to return the count of nodes in the 
-        repository based on the request Body provided
+      description: Gives the count of nodes of given ObjectType in the Respository
       tags:
-        - ItemSet
-      operationId: nodes.count
+      - ItemSet
+      operationId: Create_nodes.count_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - $ref: '#/parameters/getNodesCountRequest'
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: get count request object
+        schema:
+          $ref: '#/definitions/searchCriteria'
       responses:
-        '200':
+        200:
           description: Gives the Count of nodes of given ObjectType
           schema:
-            $ref: '#/definitions/getNodesCountResponse'
-        '400':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While returning the count of nodes! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/CountResponse'
+        400:
+          description: Error While returning the count of nodes! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While returning the count of nodes! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
   /assessmentitemset:
     post:
-      summary: Creates a new item set in the item repository
-      description: >-
-        This _Itemset_ is used to create the Item into the _EkStep Platform_
-        based on the request Body provided. This endpoint returns the response
-        Object with SetId created
+      description: Creates a new item set in the item repository
       tags:
-        - ItemSet
-      operationId: ItemSet.create
+      - ItemSet
+      operationId: Create_ItemSet.create_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - $ref: '#/parameters/creatItemSetRequest'
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: create request object
+        schema:
+          $ref: '#/definitions/createItemWithMembersObject'
       responses:
-        '200':
+        200:
           description: Item Created Successfully
           schema:
-            $ref: '#/definitions/ItemSetCreateResponse'
-        '400':
-          description: >-
-            Error While creating Item! | Error occurred while operation, mostly
-            because of the input given by client, In general it is 'Client
-            Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While creating Item! | Error occurred while operation, mostly
-            because of erroneous condition on server, In general it is 'Server
-            Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/CreateResponse22'
+        400:
+          description: Error While creating Item! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While creating Item! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
-  '/assessmentitemset/{ItemSetId}':
+  /assessmentitemset/{ItemSetId}:
     get:
-      summary: ' Fetch an item set from the repository'
-      description: >-
-        This _ItemSet/{ItemSetId}_ endpoint is used to fetch the ItemSet from
-        Item Repository of _EkStep Platform_. This endpoint returns the entire
-        ItemSet Object with default fields. 
+      description: ' Fetch an item set from the repository'
       tags:
-        - ItemSet
-      operationId: ItemSet.find
+      - ItemSet
+      operationId: Get_ItemSet.find_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: ItemSetId
-          in: path
-          required: true
-          description: itemSetId
-          type: string
+      - name: ItemSetId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: itemSetId
       responses:
-        '200':
+        200:
           description: ItemSet fetched Successfully
           schema:
-            $ref: '#/definitions/ItemSetgetResponse'
-        '400':
-          description: >-
-            Error While fetching the ItemSet! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While fetching the ItemSet! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/GetResponse25'
+        400:
+          description: Error While fetching the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.
+        default:
+          description: Error While fetching the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.
       security: []
     delete:
-      summary: Deletes an item set from the repository
-      description: >-
-        This _ItemSet_ endpoint is used to delete Item set from the Tem
-        repository based on the ItemSet Id provided from the _EkStep Platform_.
-        This endpoint returns success message on deletion
+      description: Deletes an item set from the repository
       tags:
-        - ItemSet
-      operationId: ItemSet.delete
+      - ItemSet
+      operationId: Delete_ItemSet.delete_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: ItemSetId
-          in: path
-          required: true
-          type: string
+      - name: ItemSetId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
       responses:
-        '200':
+        200:
           description: ItemSet deleted Successfully
           schema:
-            $ref: '#/definitions/ItemSetDeleteResponse'
-        '400':
-          description: >-
-            Error While deleting the ItemSet! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While deleting the ItemSet! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'.
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/DeleteResponse'
+        400:
+          description: Error While deleting the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.
+        default:
+          description: Error While deleting the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.
       security: []
     patch:
-      summary: Updates an existing item set in the repository
-      description: >-
-        This _ItemSet_ endpoint is used to update existing ItemSet in the
-        repository  based on the request body provided from the _EkStep
-        Platform_. This endpoint returns success message on updation
+      description: Updates an existing item set in the repository
       tags:
-        - ItemSet
-      operationId: ItemSet.patch
+      - ItemSet
+      operationId: Update_ItemSet.patch_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - name: ItemSetId
-          in: path
-          required: true
-          type: string
-        - $ref: '#/parameters/updateItemSetRequest'
+      - name: ItemSetId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: create request object
+        schema:
+          $ref: '#/definitions/updateItemSetWithMembers'
       responses:
-        '200':
+        200:
           description: Item set Updated Successfully
           schema:
-            $ref: '#/definitions/ItemSetUpdateResponse'
-        '400':
-          description: >-
-            Error While Updating the Item Set! | Error occurred while operation,
-            mostly because of the input given by client, In general it is
-            'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While Updating the Item Set! | Error occurred while operation,
-            mostly because of erroneous condition on server, In general it is
-            'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/UpdateResponse24'
+        400:
+          description: Error While Updating the Item Set! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While Updating the Item Set! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
   /assessmentitemset/search:
     post:
-      summary: Searches an ItemSet
-      description: >-
-        This _ItemSet_ endpoint searches and retrives all item setd from the
-        Item repository based on the given search creteria in the request body
+      description: Searches an ItemSet
       tags:
-        - ItemSet
-      operationId: ItemSet.search
+      - ItemSet
+      operationId: Create_ItemSet.search_
       produces:
-        - application/json
+      - application/json
       parameters:
-        - $ref: '#/parameters/searchItemSetRequest'
+      - name: Request
+        in: body
+        required: true
+        x-is-map: false
+        description: search request object
+        schema:
+          $ref: '#/definitions/searchItemSetObject'
       responses:
-        '200':
+        200:
           description: ItemSets reterived Successfully
           schema:
-            $ref: '#/definitions/ItemSetSearchResponse'
-        '400':
-          description: >-
-            Error While searching for an ItemSet! | Error occurred while
-            operation, mostly because of the input given by client, In general
-            it is 'Client Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
-        '500':
-          description: >-
-            Error While searching for an ItemSet! | Error occurred while
-            operation, mostly because of erroneous condition on server, In
-            general it is 'Server Exception' or 'Exception'
-          schema:
-            $ref: '#/definitions/FailedResponseHeader'
+            $ref: '#/definitions/GetResponse27'
+        400:
+          description: Error While searching for an ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'
+        default:
+          description: Error While searching for an ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'
       security: []
-parameters:
-  getNodesCountRequest:
-    name: Request
-    in: body
-    description: get count request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchCriteria'
-  createAssessmentRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/createAssessmentObject'
-  searchAssessmentRequest:
-    name: Request
-    in: body
-    description: search request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchObject'
-  updateAssessmentRequest:
-    name: Request
-    in: body
-    description: update request object
-    required: true
-    schema:
-      $ref: '#/definitions/createAssessmentObject'
-  creatItemSetRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/createItemWithMembersObject'
-  updateItemSetRequest:
-    name: Request
-    in: body
-    description: create request object
-    required: true
-    schema:
-      $ref: '#/definitions/updateItemSetWithMembers'
-  searchItemSetRequest:
-    name: Request
-    in: body
-    description: search request object
-    required: true
-    schema:
-      $ref: '#/definitions/searchItemSetObject'
+  /assessmentitemset/generate/{ItemSetId}:
+    get:
+      description: ' Geneartes an ItemSet'
+      tags:
+      - ItemSet
+      operationId: Get_ItemSet.generate_
+      produces:
+      - application/json
+      parameters:
+      - name: ItemSetId
+        in: path
+        required: true
+        x-is-map: false
+        type: string
+        description: itemSetId
+      responses:
+        200:
+          description: ItemSet generated Successfully
+          schema:
+            $ref: '#/definitions/GenerateResponse'
+        400:
+          description: Error While generating the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.
+        default:
+          description: Error While generating the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.
+      security: []
 definitions:
-  createAssessmentObject:
-    type: object
+  CreateAssessmentRequest:
     title: Create Assessment Request
-    allOf:
-      - description: select any one request body to create/update AssessmentItem
-      - $ref: '#/definitions/createMcqObject'
-      - $ref: '#/definitions/createMtfObject'
-      - $ref: '#/definitions/createFtbObject'
-  createMcqObject:
+    type: object
     properties:
       identifier:
-        type: string
         description: assessmentId
-      objectType:
         type: string
+      objectType:
         description: objectType
+        type: string
+      metadata:
+        $ref: '#/definitions/mcqMetadataObject'
+      outRelations:
+        $ref: '#/definitions/outRelations'
+  mcqMetadataObject:
+    title: mcqMetadataObject
+    type: object
+    properties:
+      template:
+        description: type of template
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      keywords:
+        type: object
+      subject:
+        description: subject of assessmentItem
+        type: string
+      qlevel:
+        description: qlevel of assessmentItem
+        type: string
+      portalOwner:
+        description: ownerName
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      language:
+        type: object
+      partial_scoring:
+        description: scores
+        type: string
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      usedIn:
+        description: where the assessment is used used
+        type: string
+      createdOn:
+        description: date of creation
+        type: string
+      gradeLevel:
+        type: object
+      conceptIds:
+        type: object
+      question:
+        description: qid
+        type: string
+      options:
+        $ref: '#/definitions/values'
+      concepts:
+        $ref: '#/definitions/concepts'
+      rownum:
+        description: rownum
+        type: number
+        format: double
+      maxScore:
+        type: object
+      domain:
+        description: domain
+        type: string
+      num_answers:
+        description: number of answers
+        type: number
+        format: double
+      template_Id:
+        description: template Id
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      name:
+        description: name
+        type: string
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      asset:
+        type: string
+      font:
+        type: string
+      color:
+        type: string
+      values:
+        description: values
+        type: object
+      score:
+        description: score
+        type: number
+        format: double
+  values:
+    title: values
+    type: object
+    properties:
+      type:
+        type: string
+      asset:
+        type: string
+      font:
+        type: string
+      color:
+        type: string
+  concepts:
+    title: concepts
+    type: object
+    properties:
+      identifier:
+        description: Identifier
+        type: string
+      name:
+        description: name
+        type: string
+      objectType:
+        description: objectType
+        type: string
+      description:
+        description: description
+        type: string
+      relation:
+        description: relationType
+        type: string
+      index:
+        description: index
+        type: string
+  outRelations:
+    title: outRelations
+    type: object
+    properties:
+      endNodeId:
+        type: string
+      relationType:
+        type: string
+  createMcqObject:
+    title: createMcqObject
+    type: object
+    properties:
+      identifier:
+        description: assessmentId
+        type: string
+      objectType:
+        description: objectType
+        type: string
       metadata:
         $ref: '#/definitions/mcqMetadataObject'
       outRelations:
         $ref: '#/definitions/outRelations'
   createFtbObject:
+    title: createFtbObject
+    type: object
     properties:
       identifier:
-        type: string
         description: assessmentId
-      objectType:
         type: string
+      objectType:
         description: objectType
+        type: string
       metadata:
         $ref: '#/definitions/ftbMetadataObject'
       outRelations:
         $ref: '#/definitions/outRelations'
+  ftbMetadataObject:
+    title: ftbMetadataObject
+    type: object
+    properties:
+      template:
+        description: type of template
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      keywords:
+        type: object
+      subject:
+        description: subject of assessmentItem
+        type: string
+      qlevel:
+        description: qlevel of assessmentItem
+        type: string
+      portalOwner:
+        description: ownerName
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      language:
+        type: object
+      partial_scoring:
+        description: scores
+        type: string
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      usedIn:
+        description: where the assessment is used used
+        type: string
+      createdOn:
+        description: date of creation
+        type: string
+      gradeLevel:
+        type: object
+      conceptIds:
+        type: object
+      question:
+        description: qid
+        type: string
+      options:
+        $ref: '#/definitions/values'
+      concepts:
+        $ref: '#/definitions/concepts'
+      rownum:
+        description: rownum
+        type: number
+        format: double
+      maxScore:
+        type: object
+      domain:
+        description: domain
+        type: string
+      num_answers:
+        description: number of answers
+        type: number
+        format: double
+      template_Id:
+        description: template Id
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      name:
+        description: name
+        type: string
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      value:
+        description: values
+        type: string
+      score:
+        description: scores
+        type: string
+      asset:
+        description: asset
+        type: string
   createMtfObject:
+    title: createMtfObject
+    type: object
     properties:
       identifier:
-        type: string
         description: assessmentId
-      objectType:
         type: string
+      objectType:
         description: objectType
+        type: string
       metadata:
         $ref: '#/definitions/mtfMetadataObject'
-  mcqMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/values'
-      - $ref: '#/definitions/response'
-      - $ref: '#/definitions/model'
-  ftbMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/answers'
-      - $ref: '#/definitions/model'
   mtfMetadataObject:
-    allOf:
-      - $ref: '#/definitions/assessmentItemMetadata'
-      - $ref: '#/definitions/model'
-      - $ref: '#/definitions/lhs_options'
-      - $ref: '#/definitions/rhs_options'
-  getAssessmentItemResponse:
+    title: mtfMetadataObject
+    type: object
+    properties:
+      template:
+        description: type of template
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      keywords:
+        type: object
+      subject:
+        description: subject of assessmentItem
+        type: string
+      qlevel:
+        description: qlevel of assessmentItem
+        type: string
+      portalOwner:
+        description: ownerName
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      language:
+        type: object
+      partial_scoring:
+        description: scores
+        type: string
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      usedIn:
+        description: where the assessment is used used
+        type: string
+      createdOn:
+        description: date of creation
+        type: string
+      gradeLevel:
+        type: object
+      conceptIds:
+        type: object
+      question:
+        description: qid
+        type: string
+      options:
+        $ref: '#/definitions/values'
+      concepts:
+        $ref: '#/definitions/concepts'
+      rownum:
+        description: rownum
+        type: number
+        format: double
+      maxScore:
+        type: object
+      domain:
+        description: domain
+        type: string
+      num_answers:
+        description: number of answers
+        type: number
+        format: double
+      template_Id:
+        description: template Id
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      name:
+        description: name
+        type: string
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      asset:
+        description: asset
+        type: string
+      index:
+        description: index
+        type: number
+        format: double
+  getResponse:
     title: get Response
+    type: object
     properties:
       header:
         $ref: '#/definitions/ResponseHeader'
       result:
-        $ref: '#/definitions/assessmentItemMetadata'
-  searchAssessmentItemResponse:
+        $ref: '#/definitions/assessmentItem'
+  ResponseHeader:
+    title: ResponseHeader
+    type: object
+    properties:
+      id:
+        description: API Identifier
+        type: string
+      ver:
+        description: API version information
+        type: string
+      ts:
+        description: API execution timespan
+        type: string
+      params:
+        $ref: '#/definitions/ResponseParameter'
+      responseCode:
+        description: API response code
+        type: string
+  ResponseParameter:
+    title: Response Parameter
+    type: object
+    properties:
+      resmsgid:
+        description: Response Message Id
+        type: string
+      msgid:
+        description: Message Id
+        type: string
+      err:
+        description: Error Code
+        type: string
+      status:
+        description: Response Status
+        type: string
+      errmsg:
+        description: Error Message
+        type: string
+  assessmentItem:
+    title: assessmentItem
+    type: object
+    properties:
+      template:
+        description: type of template
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      keywords:
+        type: object
+      subject:
+        description: subject of assessmentItem
+        type: string
+      qlevel:
+        description: qlevel of assessmentItem
+        type: string
+      portalOwner:
+        description: ownerName
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      language:
+        type: object
+      partial_scoring:
+        description: scores
+        type: string
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      usedIn:
+        description: where the assessment is used used
+        type: string
+      createdOn:
+        description: date of creation
+        type: string
+      gradeLevel:
+        type: object
+      conceptIds:
+        type: object
+      question:
+        description: qid
+        type: string
+      options:
+        $ref: '#/definitions/values'
+      concepts:
+        $ref: '#/definitions/concepts'
+      rownum:
+        description: rownum
+        type: number
+        format: double
+      maxScore:
+        type: object
+      domain:
+        description: domain
+        type: string
+      num_answers:
+        description: number of answers
+        type: number
+        format: double
+      template_Id:
+        description: template Id
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      name:
+        description: name
+        type: string
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+  searchResponse:
     title: search Response
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
         type: array
         items:
-          $ref: '#/definitions/assessmentItemMetadata'
-  assessmentDeleteResponse:
+          $ref: '#/definitions/assessmentItem'
+  DeleteResponse:
     title: Delete Response
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
-        $ref: '#/definitions/result'
-  assessmentUpdateResponse:
+        type: object
+  UpdateResponse:
     title: Update Response
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
         $ref: '#/definitions/NodeId'
-  getNodesCountResponse:
+  NodeId:
+    title: Node Id
+    type: object
+    properties:
+      node_id:
+        description: Node Identifier
+        type: string
+  CountResponse:
     title: Count Response
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
         $ref: '#/definitions/results'
-  assessmentCreateResponse:
+  results:
+    title: results
+    type: object
+    properties:
+      count:
+        description: count
+        type: number
+  CreateResponse:
     title: Create Response
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
         $ref: '#/definitions/NodeId'
-  ItemSetDeleteResponse:
-    title: Delete Response
+  CreateResponse22:
+    title: Create Response22
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
-        $ref: '#/definitions/result'
-  ItemSetCreateResponse:
-    title: Create Response
+        $ref: '#/definitions/SEtId'
+  SEtId:
+    title: SEt Id
+    type: object
+    properties:
+      set_id:
+        description: Set Identifier
+        type: string
+  UpdateResponse24:
+    title: Update Response24
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
-        $ref: '#/definitions/SetId'
-  ItemSetUpdateResponse:
-    title: Update Response
-    properties:
-      headers:
-        $ref: '#/definitions/ResponseHeader'
-      result:
-        $ref: '#/definitions/SetId'
-  ItemSetgetResponse:
-    title: Get Response
+        $ref: '#/definitions/SEtId'
+  GetResponse25:
+    title: Get Response25
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
       result:
         $ref: '#/definitions/assessment_item_set'
-  ItemSetSearchResponse:
-    title: Get Response
+  assessment_item_set:
+    title: assessment_item_set
+    type: object
+    properties:
+      owner:
+        description: ownerName
+        type: string
+      difficulty_level:
+        description: defficulty_level
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      subject:
+        description: subject of assessmentItem
+        type: string
+      SET_OBJECT_TYPE_KEY:
+        description: set object type
+        type: string
+      description:
+        description: description
+        type: string
+      language:
+        description: languages
+        type: object
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      createdOn:
+        description: creation date
+        type: string
+      totalItems:
+        description: total number of items
+        type: number
+        format: double
+      gradeLevel:
+        description: gradelevel
+        type: object
+      maxScore:
+        description: maxScore
+        type: object
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      SET_TYPE:
+        description: Item Set Type
+        type: string
+  GetResponse27:
+    title: Get Response27
+    type: object
     properties:
       headers:
         $ref: '#/definitions/ResponseHeader'
@@ -602,417 +960,415 @@ definitions:
         items:
           $ref: '#/definitions/assessment_item_set'
   createItemWithMembersObject:
-    properties:
-      identifier:
-        type: string
-        description: assessmentId
-      objectType:
-        type: string
-        description: objectType
-      metadata:
-        $ref: '#/definitions/createItemObject'
-  createItemObject:
+    title: createItemWithMembersObject
     type: object
-    title: creates ItemSet
-    allOf:
-      - $ref: '#/definitions/assessment_item_set'
-      - properties:
-          memberIds:
-            type: array
-            items:
-              $ref: '#/definitions/members'
-      - $ref: '#/definitions/outRelations'
-  updateItemSetWithMembers:
     properties:
       identifier:
-        type: string
         description: assessmentId
-      objectType:
         type: string
+      objectType:
         description: objectType
+        type: string
+      metadata:
+        $ref: '#/definitions/createsItemSet'
+  createsItemSet:
+    title: creates ItemSet
+    type: object
+    properties:
+      owner:
+        description: ownerName
+        type: string
+      difficulty_level:
+        description: defficulty_level
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      subject:
+        description: subject of assessmentItem
+        type: string
+      SET_OBJECT_TYPE_KEY:
+        description: set object type
+        type: string
+      description:
+        description: description
+        type: string
+      language:
+        description: languages
+        type: object
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      createdOn:
+        description: creation date
+        type: string
+      totalItems:
+        description: total number of items
+        type: number
+        format: double
+      gradeLevel:
+        description: gradelevel
+        type: object
+      maxScore:
+        description: maxScore
+        type: object
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      SET_TYPE:
+        description: Item Set Type
+        type: string
+      memberIds:
+        type: array
+        items:
+          $ref: '#/definitions/members'
+      endNodeId:
+        type: string
+      relationType:
+        type: string
+  members:
+    title: members
+    type: object
+    properties:
+      membersIds:
+        description: list of memberIds
+        type: string
+  updateItemSetWithMembers:
+    title: updateItemSetWithMembers
+    type: object
+    properties:
+      identifier:
+        description: assessmentId
+        type: string
+      objectType:
+        description: objectType
+        type: string
       metadata:
         $ref: '#/definitions/updateItemSetObject'
   updateItemSetObject:
+    title: updateItemSetObject
     type: object
-    allOf:
-      - $ref: '#/definitions/assessment_item_set'
-      - $ref: '#/definitions/members'
-      - $ref: '#/definitions/outRelations'
-  members:
     properties:
-      membersIds:
+      owner:
+        description: ownerName
         type: string
+      difficulty_level:
+        description: defficulty_level
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      subject:
+        description: subject of assessmentItem
+        type: string
+      SET_OBJECT_TYPE_KEY:
+        description: set object type
+        type: string
+      description:
+        description: description
+        type: string
+      language:
+        description: languages
+        type: object
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      createdOn:
+        description: creation date
+        type: string
+      totalItems:
+        description: total number of items
+        type: number
+        format: double
+      gradeLevel:
+        description: gradelevel
+        type: object
+      maxScore:
+        description: maxScore
+        type: object
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      SET_TYPE:
+        description: Item Set Type
+        type: string
+      membersIds:
         description: list of memberIds
+        type: string
+      endNodeId:
+        type: string
+      relationType:
+        type: string
   searchItemSetObject:
+    title: searchItemSetObject
+    type: object
     properties:
       metadata:
         type: array
         items:
           $ref: '#/definitions/filters'
-  assessment_item_set:
+  filters:
+    title: filters
+    type: object
     properties:
-      owner:
+      property:
         type: string
-        description: ownerName
-      difficulty_level:
+      operator:
         type: string
-        description: defficulty_level
-      identifier:
-        type: string
-        description: assessmentId
-      code:
-        type: string
-        description: code of assessmentItem
-      subject:
-        type: string
-        description: subject of assessmentItem
-      SET_OBJECT_TYPE_KEY:
-        type: string
-        description: set object type
-      description:
-        type: string
-        description: description
-      language:
-        type: object
-        description: languages
-      type:
-        type: string
-        description: assessmentItem type
-      title:
-        type: string
-        description: title
-      createdOn:
-        type: string
-        description: creation date
-      totalItems:
-        type: number
-        description: total number of items
-      gradeLevel:
-        type: object
-        description: gradelevel
-      maxScore:
-        type: object
-        description: maxScore
-      lastUpdatedOn:
-        type: string
-        description: last updated date
-      usedFor:
-        type: string
-        description: where the ItemSET is used For
-      SET_TYPE:
-        type: string
-        description: Item Set Type
-  assessmentItemMetadata:
-    title: assessmentItem
-    properties:
-      template:
-        type: string
-        description: type of template
-      code:
-        type: string
-        description: code of assessmentItem
-      keywords:
-        type: object
-        description: list of keywords
-      subject:
-        type: string
-        description: subject of assessmentItem
-      qlevel:
-        type: string
-        description: qlevel of assessmentItem
-      portalOwner:
-        type: string
-        description: ownerName
-      identifier:
-        type: string
-        description: assessmentId
-      language:
-        type: object
-        description: languages
-      partial_scoring:
-        type: string
-        description: scores
-      type:
-        type: string
-        description: assessmentItem type
-      title:
-        type: string
-        description: title
-      usedIn:
-        type: string
-        description: where the assessment is used used
-      createdOn:
-        type: string
-        description: date of creation
-      gradeLevel:
-        type: object
-        description: gradelevel
-      conceptIds:
-        type: object
-        description: conceptId
-      question:
-        type: string
-        description: qid
-      options:
-        $ref: '#/definitions/values'
-      concepts:
-        $ref: '#/definitions/concepts'
-      rownum:
-        type: number
-        description: rownum
-      maxScore:
-        type: object
-        description: maxScore
-      domain:
-        type: string
-        description: domain
-      num_answers:
-        type: number
-        description: number of answers
-      template_Id:
-        type: string
-        description: template Id
-      usedFor:
-        type: string
-        description: where the ItemSET is used For
-      max_score:
-        type: number
-        description: maximum score
-      name:
-        type: string
-        description: name
-      lastUpdatedOn:
-        type: string
-        description: last updated date
-  response:
-    properties:
-      values:
-        type: object
-        description: values
-      score:
-        type: number
-        description: score
-  answers:
-    properties:
       value:
         type: string
-        description: values
-      score:
+      relations:
         type: string
+  GenerateResponse:
+    title: Generate Response
+    type: object
+    properties:
+      headers:
+        $ref: '#/definitions/ResponseHeader'
+      result:
+        $ref: '#/definitions/Result'
+  Result:
+    title: Result
+    type: object
+    properties:
+      owner:
+        description: ownerName
+        type: string
+      difficulty_level:
+        description: defficulty_level
+        type: string
+      identifier:
+        description: assessmentId
+        type: string
+      code:
+        description: code of assessmentItem
+        type: string
+      subject:
+        description: subject of assessmentItem
+        type: string
+      SET_OBJECT_TYPE_KEY:
+        description: set object type
+        type: string
+      description:
+        description: description
+        type: string
+      language:
+        description: languages
+        type: object
+      type:
+        description: assessmentItem type
+        type: string
+      title:
+        description: title
+        type: string
+      createdOn:
+        description: creation date
+        type: string
+      totalItems:
+        description: total number of items
+        type: number
+        format: double
+      gradeLevel:
+        description: gradelevel
+        type: object
+      maxScore:
+        description: maxScore
+        type: object
+      lastUpdatedOn:
+        description: last updated date
+        type: string
+      usedFor:
+        description: where the ItemSET is used For
+        type: string
+      SET_TYPE:
+        description: Item Set Type
+        type: string
+      item_sets:
+        type: array
+        items:
+          $ref: '#/definitions/item_set'
+      items:
+        description: items
+        type: object
+  item_set:
+    title: item_set
+    type: object
+    properties:
+      count:
+        description: count
+        type: number
+        format: double
+      id:
+        description: id
+        type: string
+  item_sets:
+    title: item_sets
+    type: object
+    properties:
+      item_sets:
+        type: array
+        items:
+          $ref: '#/definitions/item_set'
+      items:
+        description: items
+        type: object
+  response:
+    title: response
+    type: object
+    properties:
+      values:
+        description: values
+        type: object
+      score:
+        description: score
+        type: number
+        format: double
+  answers:
+    title: answers
+    type: object
+    properties:
+      value:
+        description: values
+        type: string
+      score:
         description: scores
+        type: string
   model:
+    title: model
+    type: object
     properties:
       type:
-        type: string
         description: type
-      asset:
         type: string
+      asset:
         description: asset
+        type: string
   lhs_options:
+    title: lhs_options
+    type: object
     properties:
       index:
-        type: number
         description: index
+        type: number
+        format: double
       Options:
         $ref: '#/definitions/values'
   rhs_options:
-    allOf:
-      - properties:
-          index:
-            type: number
-            description: index
-      - $ref: '#/definitions/values'
-  values:
+    title: rhs_options
+    type: object
     properties:
+      index:
+        description: index
+        type: number
+        format: double
       type:
         type: string
-        description: ''
       asset:
         type: string
-        description: ''
       font:
         type: string
-        description: ''
       color:
         type: string
-        description: ''
-  concepts:
-    properties:
-      identifier:
-        type: string
-        description: Identifier
-      name:
-        type: string
-        description: name
-      objectType:
-        type: string
-        description: objectType
-      description:
-        type: string
-        description: description
-      relation:
-        type: string
-        description: relationType
-      index:
-        type: string
-        description: index
-  searchObject:
+  request:
     title: request
+    type: object
     properties:
       metadata:
         $ref: '#/definitions/searchMetadata'
   searchMetadata:
+    title: searchMetadata
+    type: object
     properties:
       filter:
         $ref: '#/definitions/filters'
       sortOrder:
-        $ref: '#/definitions/sortOrder'
+        $ref: '#/definitions/sortOder'
       resultSize:
-        type: number
         description: resultSize
-      startPosition:
         type: number
+        format: double
+      startPosition:
         description: startPosition
-  filters:
-    title: filters
-    properties:
-      property:
-        type: string
-        description: ''
-      operator:
-        type: string
-        description: ''
-      value:
-        type: string
-        description: ''
-      relations:
-        type: string
-        description: ''
-  ResponseHeader:
-    title: ResponseHeader
+        type: number
+        format: double
+  sortOder:
+    title: sortOder
     type: object
     properties:
-      id:
+      sortFields:
+        description: field to be sorted
         type: string
-        description: API Identifier
-      ver:
+      sortOrder:
+        description: sort order
         type: string
-        description: API version information
-      ts:
-        type: string
-        description: API execution timespan
-      params:
-        $ref: '#/definitions/ResponseParams'
-      responseCode:
-        type: string
-        description: API response code
-  ResponseParams:
-    title: Response Parameter
-    type: object
-    properties:
-      resmsgid:
-        type: string
-        description: Response Message Id
-      msgid:
-        type: string
-        description: Message Id
-      err:
-        type: string
-        description: Error Code
-      status:
-        type: string
-        description: Response Status
-      errmsg:
-        type: string
-        description: Error Message
-  FailedResponseHeader:
+  FailureResponse:
     title: Failure Response
     type: object
     properties:
       id:
-        type: string
         description: API Identifier
+        type: string
       ver:
-        type: string
         description: API version information
+        type: string
       ts:
-        type: string
         description: API execution timespan
-      params:
-        $ref: '#/definitions/FailedResponseParams'
-      responseCode:
         type: string
+      params:
+        $ref: '#/definitions/FailedResponseParameter'
+      responseCode:
         description: responseCode
+        type: string
       result:
-        properties:
-          result:
-            type: string
-            description: result
-  FailedResponseParams:
+        description: result
+        type: string
+  FailedResponseParameter:
     title: Failed Response Parameter
     type: object
     properties:
       resmsgid:
-        type: string
         description: Response Message Id
+        type: string
       msgid:
-        type: string
         description: Message Id
+        type: string
       err:
-        type: string
         description: Error Code
+        type: string
       status:
-        type: string
         description: Response Status
+        type: string
       errmsg:
-        type: string
         description: Error Message
-  outRelations:
-    properties:
-      endNodeId:
         type: string
-        description: ''
-      relationType:
-        type: string
-        description: ''
-  result:
-    properties: {}
-  sortOrder:
-    title: sortOder
-    properties:
-      sortFields:
-        type: string
-        description: field to be sorted
-      sortOrder:
-        type: string
-        description: sort order
   searchCriteria:
+    title: searchCriteria
+    type: object
     properties:
       nodeType:
-        type: string
         description: nodeType
+        type: string
       objectType:
-        type: string
         description: objectType
+        type: string
       metadata:
-        type: object
         description: metadata
-  results:
-    properties:
-      count:
-        type: string
-        description: count
-  NodeId:
-    title: Node Id
-    type: object
-    properties:
-      node_id:
-        type: string
-        description: Node Identifier
-  SetId:
-    title: SEt Id
-    type: object
-    properties:
-      set_id:
-        type: string
-        description: Set Identifier
+        type: object

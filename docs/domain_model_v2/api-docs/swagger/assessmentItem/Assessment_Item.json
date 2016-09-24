@@ -474,6 +474,49 @@
                   },
                   "security": []
             }
+      },
+      "/assessmentitemset/generate/{ItemSetId}":{
+          "get": {
+            "summary": " Geneartes an ItemSet",
+            "description": "This _ItemSet/{ItemSetId}_ endpoint is used to generate the ItemSet from Item Repository of _EkStep Platform_. This endpoint returns the entire ItemSet Object with default fields. ",
+            "tags": [
+              "ItemSet"
+            ],
+            "operationId": "ItemSet.generate",
+            "produces": [
+              "application/json"
+            ],
+            "parameters": [
+              {
+                "name": "ItemSetId",
+                "in": "path",
+                "required": true,
+                "description": "itemSetId",
+                "type": "string"
+              }
+            ],
+            "responses": {
+              "200": {
+                "description": "ItemSet generated Successfully",
+                "schema": {
+                  "$ref": "#/definitions/generateItemSetResponse"
+                }
+              },
+              "400": {
+                "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
+                "schema": {
+                  "$ref": "#/definitions/FailedResponseHeader"
+                }
+              },
+              "500": {
+                "description": "Error While generating the ItemSet! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+                "schema": {
+                  "$ref": "#/definitions/FailedResponseHeader"
+                }
+              }
+            },
+            "security": []
+          },
       }
   },
   "parameters": {
@@ -857,6 +900,47 @@
              }
           }
     },
+    "generateItemSetResponse":{
+      "title":"Generate Response",
+      "properties":{
+        "headers":{
+          "$ref": "#/definitions/ResponseHeader"
+        },
+        "result":{
+            "allOf":[{
+              "$ref":"#/definitions/assessment_item_set"
+            },{
+              "$ref":"#/definitions/item_sets"
+            }]
+        }
+      }
+    },
+     "item_sets":{
+      "properties":{
+        "item_sets":{
+           "type":"array",
+           "items": {
+              "$ref":"#/definitions/item_set"
+           }
+        },
+        "items":{
+           "type":"object",
+           "description":"items"
+        }
+      }
+    },
+    "item_set":{
+       "properties":{
+          "count":{
+             "type":"number",
+             "description":"count"
+          },
+          "id":{
+             "type":"string",
+              "description":"id"
+          }
+       }
+    },
     "assessment_item_set":{
        "properties":{
             "owner": {
@@ -942,7 +1026,6 @@
         },
         "keywords":{
            "type":"object",
-           "description":"list of keywords"
         },
         "subject": {
           "type": "string",
@@ -961,8 +1044,7 @@
           "description": "assessmentId"
         },
         "language":{
-           "type": "object",
-           "description":"languages"
+           "type": "object"
         },
         "partial_scoring": {
           "type": "string",
@@ -985,12 +1067,10 @@
            "description":"date of creation"
         },
         "gradeLevel":{
-           "type":"object",
-           "description":"gradelevel"
+           "type":"object"
         },
         "conceptIds":{
            "type":"object",
-           "description":"conceptId"
         },
         "question": {
           "type": "string",
@@ -1007,8 +1087,7 @@
           "description":"rownum"
         },
         "maxScore":{
-          "type":"object",
-           "description":"maxScore"
+           "type":"object"
          },
          "domain":{
             "type":"string",
@@ -1270,12 +1349,8 @@
            "description":"responseCode"
         },
         "result": {
-          "properties": {
-             "result":{
                "type":"string",
                "description":"result"
-             }
-           }
         }
       }
     },
@@ -1353,7 +1428,7 @@
     "results": {
         "properties": {
              "count":{
-                "type":"string",
+                "type":"number",
                 "description":"count"
              }
           }
@@ -1369,7 +1444,7 @@
       }
     },
     "SetId": {
-      "title": "SEt Id",
+      "title": "Set Id",
       "type": "object",
       "properties": {
         "set_id": {
