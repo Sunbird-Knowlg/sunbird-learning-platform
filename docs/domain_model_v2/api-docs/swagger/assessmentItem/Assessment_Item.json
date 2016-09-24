@@ -1397,7 +1397,7 @@
       }
     },
     "sortOrder":{
-      "title":"sortOder",
+      "title":"sortOrder",
        "properties":{
           "sortFields":{
              "type":"string",

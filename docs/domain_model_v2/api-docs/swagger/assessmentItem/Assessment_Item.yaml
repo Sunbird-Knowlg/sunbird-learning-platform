@@ -1300,7 +1300,7 @@ definitions:
       filter:
         $ref: '#/definitions/filters'
       sortOrder:
-        $ref: '#/definitions/sortOder'
+        $ref: '#/definitions/sortOrder'
       resultSize:
         description: resultSize
         type: number
@@ -1309,8 +1309,8 @@ definitions:
         description: startPosition
         type: number
         format: double
-  sortOder:
-    title: sortOder
+  sortOrder:
+    title: sortOrder
     type: object
     properties:
       sortFields:
