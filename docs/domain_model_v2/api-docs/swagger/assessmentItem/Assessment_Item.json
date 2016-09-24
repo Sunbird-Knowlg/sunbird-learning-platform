@@ -5,7 +5,7 @@
     "title": "Assessment - Service",
     "description": "Assessment API of learning platform provides the resources to create, manage and search assessment items, items sets.Assessment Item API provides the resources to work with questions in the platform.",
     "license": {
-      "name": "Ekstep Lisence"
+      "name": "Ekstep License"
     }
   },
   "basePath": "/v1",
