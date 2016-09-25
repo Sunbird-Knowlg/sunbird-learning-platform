@@ -20,7 +20,7 @@ paths:
     get:
       summary: Gets All Definitions
       description: >-
-        This _definitions_ endpoint returns all the difinitions available in the
+        This _definitions_ endpoint returns all the definitions available in the
         Ekstep Platform fo different Object types
       tags:
         - Definitions
@@ -51,7 +51,7 @@ paths:
     get:
       summary: Gets specific Definition
       description: >-
-        This _definition_ endpoint returns of specific difinition from the
+        This _definition_ endpoint returns of specific definition from the
         Ekstep platform based on the specified object type from the user
       tags:
         - Definitions

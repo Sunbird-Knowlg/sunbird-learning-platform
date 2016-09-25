@@ -1,0 +1,1204 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "version": "2.0",
+    "title": "Language Platform - API",
+    "description": "Language Platform API provides the resources to manage & access dictionaries of multiple languages, and to use tools provided by the platform",
+    "license": {
+      "name": "Ekstep Lisence"
+    }
+  },
+  "securityDefinitions": {},
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "tags": [
+    {
+      "name": "Word",
+      "description": "APIs for CRUD and search of word objects"
+    },
+    {
+      "name": "Tools",
+      "description": "APIs to access language tools"
+    }
+  ],
+  "paths": {
+    "/v2/language/dictionary/word/{languageId}": {
+      "get": {
+        "summary": "Gets all words in the specified language",
+        "description": "This endpoint returns all the words available in the specified language. Each word object in the response contains the word metadata and details of all its meanings.",
+        "tags": [
+          "Word"
+        ],
+        "operationId": "words.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "languageId",
+            "in": "path",
+            "required": true,
+            "description": "Unique code of the language for which all words are returned",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All Words Returned Successfully",
+            "schema": {
+              "$ref": "#/definitions/getAllWordsResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all words! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all words! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Creates a Word in the specified language",
+        "description": "This endpoint creates a word using the data in the request body",
+        "tags": [
+          "Word"
+        ],
+        "operationId": "words.create",
+        "consumes" : [ "application/json" ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "languageId",
+            "in": "path",
+            "required": true,
+            "description": "Unique code of the language in which the word should be created",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/createWordRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Word Created Successfully",
+            "schema": {
+              "$ref": "#/definitions/createWordResponse"
+            }
+          },
+          "400": {
+            "description": "Error While creating Word! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating Word! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v2/language/dictionary/word/{languageId}/{wordId}": {
+      "get": {
+        "summary": "Gets the word object for the given word identifier in the specified language",
+        "description": "This endpoint returns a word object from the EkStep language platform.",
+        "tags": [
+          "Word"
+        ],
+        "operationId": "words.find",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "languageId",
+            "in": "path",
+            "required": true,
+            "description": "Unique code of the language in which the word is searched for",
+            "type": "string"
+          },
+          {
+            "name": "wordId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the word to be fetched",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Word object found and returned successfully",
+            "schema": {
+              "$ref": "#/definitions/getWordResponse"
+            }
+          },
+          "400": {
+            "description": "Error While fetching word for the specified word identifer! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching word for the specified word identifer! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching word for the specified word identifer! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Updates a Word in the specified language",
+        "description": "This endpoint updates a word using the data in the request body",
+        "tags": [
+          "Word"
+        ],
+        "operationId": "words.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "languageId",
+            "in": "path",
+            "required": true,
+            "description": "Unique code of the language in which the word exists",
+            "type": "string"
+          },
+          {
+            "name": "wordId",
+            "in": "path",
+            "required": true,
+            "description": "Identifier of the word to be updated",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/updateWordRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Word Updated Successfully",
+            "schema": {
+              "$ref": "#/definitions/createWordResponse"
+            }
+          },
+          "400": {
+            "description": "Error While updating Word! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "404": {
+            "description": "Error While fetching word for the specified word identifer! | Error occurred when word is not found in the specified language, In general it is 'Resource Not Found Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating Word! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v2/language/dictionary/search/{languageId}": {
+      "post": {
+        "summary": "Searches for Words in the specified language",
+        "description": "This endpoint searches a word in the specified language using the search criteria provided in the request body",
+        "tags": [
+          "Word"
+        ],
+        "operationId": "words.search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "languageId",
+            "in": "path",
+            "required": true,
+            "description": "Unique code of the language in which the search has to be performed",
+            "type": "string"
+          },
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/searchWordRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Word search successful",
+            "schema": {
+              "$ref": "#/definitions/getAllWordsResponse"
+            }
+          },
+          "400": {
+            "description": "Error While searching Words! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While searching Words! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/language/tools/complexityMeasures": {
+      "post": {
+        "summary": "Computes complexity measures for given list of words",
+        "description": "This endpoint takes a list of words as input and computes the orthographic and phonological complexity of those words.",
+        "tags": [
+          "Tools"
+        ],
+        "operationId": "tools.complexityMeasures",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/complexityMeasuresRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Complexity measures computed successfully",
+            "schema": {
+              "$ref": "#/definitions/complexityMeasuresResponse"
+            }
+          },
+          "400": {
+            "description": "Error While computing complexity measures! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While computing complexity measures! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/language/tools/complexityMeasures/text": {
+      "post": {
+        "summary": "Text analysis API",
+        "description": "This endpoint performs analysis of the input text in specified language id and returns the following information: counts of words and syllables, total and average complexities, and complexity measures of each word in the text",
+        "tags": [
+          "Tools"
+        ],
+        "operationId": "tools.textAnalysis",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/textAnalysisRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Text analysis completed successfully",
+            "schema": {
+              "$ref": "#/definitions/textAnalyisResponse"
+            }
+          },
+          "400": {
+            "description": "Error during text analysis! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error during text analysis! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/v1/language/parser": {
+      "post": {
+        "summary": "Parset API",
+        "description": "This endpoint parses a given text and returns available information in EkStep language platform about that word",
+        "tags": [
+          "Tools"
+        ],
+        "operationId": "tools.parser",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in" : "body",
+            "name" : "Body",
+            "required" : true,
+            "schema" : {
+              "$ref" : "#/definitions/parserRequestBody"
+            },
+            "x-is-map" : false
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Text parsing completed successfully",
+            "schema": {
+              "$ref": "#/definitions/parserResponse"
+            }
+          },
+          "400": {
+            "description": "Error during text parsing! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error during text parsing! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    }
+  },
+  "definitions": {
+    "createWordRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/createWordObject"
+        }
+      },
+      "title" : "Create Word Request Body"
+    },
+    "updateWordRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/updateWordObject"
+        }
+      },
+      "title" : "Update Word Request Body"
+    },
+    "searchWordRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/searchWordObject"
+        }
+      },
+      "title" : "Search Word Request Body"
+    },
+    "complexityMeasuresRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/complexityMeasuresReqObject"
+        }
+      },
+      "title" : "Complexity Measures Request Body"
+    },
+    "textAnalysisRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/textAnalysisReqObject"
+        }
+      },
+      "title" : "Text Analysis Request Body"
+    },
+    "parserRequestBody" : {
+      "type" : "object",
+      "required" : [ "id", "params", "request", "ts", "ver" ],
+      "properties" : {
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/RequestParams"
+        },
+        "request" : {
+          "$ref" : "#/definitions/parserReqObject"
+        }
+      },
+      "title" : "Text Analysis Request Body"
+    },
+    "getAllWordsResponse": {
+      "type": "object",
+      "title": "result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/wordsResponse"
+        }
+      }
+    },
+    "getWordResponse": {
+      "type": "object",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/wordResponse"
+        }
+      }
+    },
+    "createWordResponse": {
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/nodeIdsObject"
+        }
+      }
+    },
+    "complexityMeasuresResponse": {
+      "type": "object",
+      "title": "Complexity Measures API result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/complexityMeasuresObject"
+        }
+      }
+    },
+    "textAnalyisResponse": {
+      "type": "object",
+      "title": "Text Analysis API result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/textAnalysisObject"
+        }
+      }
+    },
+    "parserResponse": {
+      "type": "object",
+      "title": "Parser API result",
+      "properties":{
+        "id" : {
+          "type" : "string"
+        },
+        "ver" : {
+          "type" : "string"
+        },
+        "ts" : {
+          "type" : "string"
+        },
+        "params" : {
+          "$ref" : "#/definitions/ResponseParams"
+        },
+        "responseCode" : {
+          "type" : "string"
+        },
+        "result":{
+          "$ref": "#/definitions/parserObject"
+        }
+      }
+    },
+    "nodeIdsObject": {
+      "properties":{
+        "node_ids":{ 
+          "type": "array",
+          "description": "list of word identifiers",
+            "items": {
+                "type": "string"
+            }
+        }
+      }
+    },
+    "createWordObject": {
+      "properties":{
+        "words":{ 
+          "type": "array",
+            "items": {
+                "$ref": "#/definitions/wordObject"
+            }
+        }
+      }
+    },
+    "updateWordObject": {
+      "properties":{
+        "word":{ 
+          "$ref": "#/definitions/wordObject"
+        }
+      }
+    },
+    "searchWordObject": {
+      "properties":{
+        "filterProperty": {
+          "type": "string",
+          "description": "Search request can contain multiple filters. Each filter has a kay, which is one of the properties of word object and value can be an array (to do an IN search) or a single value (to do an exact match search)"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Maximum number of words to be returned"
+        }
+      }
+    },
+    "complexityMeasuresReqObject": {
+      "properties":{
+        "language_id": {
+          "type": "string",
+          "description": "Unique code of the language of the input words"
+        },
+        "words": {
+          "type": "array",
+          "description": "List of words whose complexity needs to be computed",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "textAnalysisReqObject": {
+      "properties":{
+        "language_id": {
+          "type": "string",
+          "description": "Unique code of the language of the input text"
+        },
+        "text": {
+          "type": "string",
+          "description": "Text to be analysed"
+        }
+      }
+    },
+    "parserReqObject": {
+      "properties":{
+        "language_id": {
+          "type": "string",
+          "description": "Unique code of the language of the input text"
+        },
+        "content": {
+          "type": "string",
+          "description": "Text to be parsed"
+        },
+        "equivalentWords": {
+          "type": "boolean",
+          "description": "if equivalent words, for each word in the input text, should be returned or not"
+        },
+        "limit": {
+          "type": "number",
+          "description": "Maximum number of equivalent words, per word in the input text, to be returned"
+        }
+      }
+    },
+    "wordResponse": {
+      "properties": {
+        "word": {
+          "$ref": "#/definitions/wordObject"
+        }
+      }
+    },
+    "wordsResponse": {
+      "properties":{
+        "words":{ 
+          "type": "array",
+            "items": {
+                "$ref": "#/definitions/wordObject"
+            }
+        }
+      }
+    },
+    "wordObject": {
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the word"
+        },
+        "lemma": {
+          "type": "string",
+          "description": "Lemma of the word"
+        },
+        "primaryMeaningId": {
+          "type": "string",
+          "description": "Identifier of the primary meaning of the word"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the word: Draft, Live or Retired"
+        },
+        "variants": {
+          "type": "array",
+          "description": "Variants of the word",
+          "items": {
+            "type": "string"
+          }
+        },
+        "pronunciations": {
+          "type": "array",
+          "description": "Pronunciations of the word",
+          "items": {
+            "type": "string"
+          }
+        },
+        "orthographic_complexity": {
+          "type": "number",
+          "format": "double",
+          "description": "Orthographic complexity of the word"
+        },
+        "phonologic_complexity": {
+          "type": "number",
+          "format": "double",
+          "description": "Phonological complexity of the word"
+        },
+        "word_complexity": {
+          "type": "number",
+          "format": "double",
+          "description": "Word complexity"
+        },
+        "primaryMeaning": {
+          "$ref": "#/definitions/meaningObject"
+        },
+        "otherMeanings": {
+          "type": "array",
+          "description": "List of other meanings of the word",
+          "items": {
+              "$ref": "#/definitions/meaningObject"
+          }
+        }
+      }
+    },
+    "meaningObject": {
+      "description": "Meaning object",
+      "properties": {
+        "identifier": {
+          "type": "string",
+          "description": "Unique identifier of the meaning"
+        },
+        "gloss": {
+          "type": "string",
+          "description": "Glossary of the meaning"
+        },
+        "pos": {
+          "type": "string",
+          "description": "Parts of speech of the meaning"
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the meaning"
+        },
+        "pictures": {
+          "type": "array",
+          "description": "Pictures of the meaning",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exampleSentences": {
+          "type": "array",
+          "description": "Example sentences of the word in context of this meaning object",
+          "items": {
+            "type": "string"
+          }
+        },
+        "tags": {
+          "type": "array",
+          "description": "Tags added to the meaning",
+          "items": {
+            "type": "string"
+          }
+        },
+        "synonyms": {
+          "type": "array",
+          "description": "List of synonyms",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "hypernyms": {
+          "type": "array",
+          "description": "List of hypernyms",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "hyponyms": {
+          "type": "array",
+          "description": "List of hyponyms",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "meronyms": {
+          "type": "array",
+          "description": "List of meronyms",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "holonyms": {
+          "type": "array",
+          "description": "List of holonyms",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "tools": {
+          "type": "array",
+          "description": "List of words that are tools used on objects represented by the current meaning",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "objects": {
+          "type": "array",
+          "description": "List of words that are objects of the tool represented by the current meaning",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "actions": {
+          "type": "array",
+          "description": "List of words that are possible actions on words represented by the current meaning",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        },
+        "workers": {
+          "type": "array",
+          "description": "List of words that are workers of the action represented by the current meaning",
+          "items": {
+              "$ref": "#/definitions/relatedWord"
+          }
+        }
+      }
+    },
+    "relatedWord": {
+      "properties" : {
+        "identifier": {
+            "type": "string",
+            "description": "Identifier of the related word"
+        },
+        "name": {
+            "type": "string",
+            "description": "Lemma of the related word"
+        }
+      }
+    },
+    "complexityMeasuresObject": {
+      "properties": {
+        "complexity_measures": {
+          "type": "object",
+          "description": "map of results with lemma of each input word as key and complexity measures as value",
+          "properties":{
+            "lemma" : {
+              "description": "actual lemma of the input word",
+              "type" : "object",
+              "properties": {
+                "orthographic_complexity": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "orthographic complexity of the word"
+                },
+                "phonologic_complexity": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "phonological complexity of the word"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "textAnalysisObject": {
+      "properties": {
+        "text_complexity": {
+          "type": "object",
+          "description": "Object containing the analysis information of the input text",
+          "properties":{
+            "text": {
+              "type": "string",
+              "description": "input text value"
+            },
+            "wordCount": {
+              "type": "number",
+              "description": "number of words in the input text"
+            },
+            "syllableCount": {
+              "type": "number",
+              "description": "number of syllables in the input text"
+            },
+            "meanOrthoComplexity": {
+              "type": "number",
+              "format": "double",
+              "description": "average orthographic complexity of the input text"
+            },
+            "totalOrthoComplexity": {
+              "type": "number",
+              "format": "double",
+              "description": "total orthographic complexity of the input text"
+            },
+            "meanPhonicComplexity": {
+              "type": "number",
+              "format": "double",
+              "description": "average phonological complexity of the input text"
+            },
+            "totalPhonicComplexity": {
+              "type": "number",
+              "format": "double",
+              "description": "total phonological complexity of the input text"
+            },
+            "wordMeasures" : {
+              "description": "map with lemma of each word in the text as key and complexity measures as value",
+              "type" : "object",
+              "properties": {
+                "lemma" : {
+                  "description": "lemma of the word in the input text",
+                  "type" : "object",
+                  "properties": {
+                    "orthographic_complexity": {
+                      "type": "number",
+                      "format": "double",
+                      "description": "orthographic complexity of the word"
+                    },
+                    "phonologic_complexity": {
+                      "type": "number",
+                      "format": "double",
+                      "description": "phonological complexity of the word"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "parserObject": {
+      "description": "map of results for each word in the input text",
+      "properties": {
+        "lemma" : {
+          "description": "lemma of the word in the input text",
+          "type" : "object",
+          "properties": {
+            "measures": {
+              "type": "object",
+              "description": "complexity measures of the word",
+              "properties": {
+                "orthographic_complexity": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "orthographic complexity of the word"
+                },
+                "phonologic_complexity": {
+                  "type": "number",
+                  "format": "double",
+                  "description": "phonological complexity of the word"
+                }
+              }
+            },
+            "equivalentWords": {
+              "type": "array",
+              "description": "list of words that are synonymous to the current word",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "RequestParams" : {
+      "type" : "object",
+      "required" : [ "msgid" ],
+      "properties" : {
+        "msgid" : {
+          "type" : "string"
+        }
+      },
+      "title" : "Params"
+    },
+    "ResponseParams": {
+      "title": "Response Parameter",
+      "type": "object",
+      "properties": {
+        "resmsgid": {
+          "type": "string",
+          "description": "Response Message Id"
+        },
+        "msgid": {
+          "type": "string",
+          "description": "Message Id"
+        },
+        "err": {
+          "type": "string",
+          "description": "Error Code"
+        },
+        "status": {
+          "type": "string",
+          "description": "Response Status"
+        },
+        "errmsg": {
+          "type": "string",
+          "description": "Error Message"
+        }
+      }
+    },
+    "FailedResponseHeader": {
+      "title": "Failure Response",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "API Identifier"
+        },
+        "ver": {
+          "type": "string",
+          "description": "API version information"
+        },
+        "ts": {
+          "type": "string",
+          "description": "API execution timespan"
+        },
+        "params": {
+          "$ref": "#/definitions/FailedResponseParams"
+        },
+        "responseCode": {
+          "type": "string",
+          "description": "responseCode"
+        },
+        "result": {
+          "properties": {
+            "result": {
+              "type": "string",
+              "description": "result"
+            }
+          }
+        }
+      }
+    },
+    "FailedResponseParams": {
+      "title": "Failed Response Parameter",
+      "type": "object",
+      "properties": {
+        "resmsgid": {
+          "type": "string",
+          "description": "Response Message Id"
+        },
+        "msgid": {
+          "type": "string",
+          "description": "Message Id"
+        },
+        "err": {
+          "type": "string",
+          "description": "Error Code"
+        },
+        "status": {
+          "type": "string",
+          "description": "Response Status"
+        },
+        "errmsg": {
+          "type": "string",
+          "description": "Error Message"
+        }
+      }
+    }
+  }
+}
