@@ -1,0 +1,41 @@
+{
+    "name": "updateGradeLevelComplexity",
+    "parameters": [
+	{
+        "name": "language_id",
+        "index": 0,
+		"datatype": "java.lang.String",
+        "routingParam": true
+    },
+    {
+        "name": "gradeLevel",
+        "index": 0,
+        "datatype": "java.lang.String",
+        "routingParam": false
+    },
+    {
+        "name": "languageLevel",
+        "index": 0,
+        "datatype": "java.lang.String",
+        "routingParam": false
+    },
+    {
+        "name": "source",
+        "index": 0,
+        "datatype": "java.lang.String",
+        "routingParam": false
+    },
+    {
+        "name": "text",
+        "index": 0,
+        "datatype": "java.lang.String",
+        "routingParam": false
+    }
+	],
+    "requestPath": {
+        "pathParams":["language_id"],
+        "type": "PATCH",
+        "url": "/v1/language/*/GradeLevelComplexity"
+    },
+    "body": ""
+}

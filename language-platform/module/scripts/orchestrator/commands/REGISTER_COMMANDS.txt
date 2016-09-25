@@ -63,3 +63,11 @@ node registerCommand.js commands/register-traverse.json register
 node registerCommand.js commands/register-get-traverser.json register
 
 node registerCommand.js commands/register-execute-commands-concurrently.json register
+
+node registerCommand.js commands/register-loadGradeLevelComplexityCache.json register
+
+node registerCommand.js commands/register-loadGradeLevelComplexity.json register
+
+node registerCommand.js commands/register-validateComplexityRange.json register
+
+node registerCommand.js commands/register-getGradeLevelComplexity.json register

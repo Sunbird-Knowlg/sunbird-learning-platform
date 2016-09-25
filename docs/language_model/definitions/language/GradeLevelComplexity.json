@@ -1,0 +1,95 @@
+{
+  "definitionNodes": [
+    {
+      "objectType": "GradeLevelComplexity",
+      "properties": [
+        {
+          "required": true,
+          "dataType": "Text",
+          "propertyName": "languageId",
+          "title": "Language Id",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [],
+          "defaultValue": "",
+          "renderingHints": "{ 'inputType': 'text', 'order': 1 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": true,
+          "dataType": "Select",
+          "propertyName": "gradeLevel",
+          "title": "Grade Level",
+          "description": "",
+          "category": "Pedagogy",
+          "displayProperty": "Editable",
+          "range": [
+            "Grade 1",
+            "Grade 2",
+            "Grade 3",
+            "Grade 4",
+            "Grade 5"
+          ],
+          "defaultValue": "Grade 1",
+          "renderingHints": "{ 'inputType': 'text',  'order': 2 }",
+          "indexed": true,
+          "draft": false
+        },
+        {
+          "required": false,
+          "dataType": "Select",
+          "propertyName": "languageLevel",
+          "title": "Language Level",
+          "description": "",
+          "category": "general",
+          "displayProperty": "Editable",
+          "range": [
+            "First",
+            "Second",
+            "Third"
+          ],
+          "defaultValue": "First",
+          "renderingHints": "{ 'inputType': 'text',  'order': 3 }",
+          "indexed": true,
+          "draft": false
+        },        
+        {
+          "propertyName": "sources",
+          "title": "Sources",
+          "description": "",
+          "category": "general",
+          "dataType": "List",
+          "required": false,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'table', 'order': 4 }",
+          "indexed": true
+        }, 
+        {
+          "propertyName": "averageComplexity",
+          "title": "Average Complexity",
+          "description": "Average Complexity",
+          "category": "general",
+          "dataType": "Number",
+          "required": true,
+          "displayProperty": "Editable",
+          "defaultValue": "",
+          "renderingHints": "{'inputType': 'number', 'order': 5}",
+          "indexed": true
+        }
+      ],
+      "inRelations": [
+      ],
+      "outRelations": [
+      ],
+      "systemTags": [
+      ],
+      "metadata": {
+        "limit": 50,
+        "ttl": 24
+      }
+    }
+  ]
+}

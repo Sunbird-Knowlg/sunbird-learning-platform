@@ -37,3 +37,5 @@ node registerScript.js api/get-akshara-rule-word-chains.tcl api/json/register-ge
 node registerScript.js api/get-rhymingsound-rule-word-chains.tcl api/json/get-rhymingsound-rule-word-chains.json update
 
 node registerScript.js api/getWordChainsByIndex.tcl api/json/groupBy.json update
+
+node registerScript.js api/update-GradeLevelComplexity.tcl api/json/register-update-GradeLevelComplexity.json update
