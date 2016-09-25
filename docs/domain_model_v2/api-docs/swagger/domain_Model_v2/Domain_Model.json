@@ -3,12 +3,12 @@
   "info": {
     "version": "2.0.0",
     "title": "Domain Model API",
-    "description": "Domain model encapsulates the WHAT TO TEACH (Dimensions and Concepts) and HOW TO TEACH (Methods) aspects of learning platform. Concepts represent the generalized data structure to store Broad-Concept, Sub-Concept and Micro-Concepts. It is a recursive structure that allows the concepts to be organized into a hierarchical domain along with cross-links. For a details about the model see Learning Platform Domain Model",
+    "description": "Domain model encapsulates the WHAT TO TEACH (Dimensions and Concepts) and HOW TO TEACH (Methods) aspects of Ekstep Learning Platform",
     "license": {
-      "name": "EkStep License"
+      "name": "Ekstep License"
     }
   },
-  "host": "api.ekstep.in",
+  "host": "dev.ekstep.in",
   "basePath": "/v2",
   "schemes": [
     "https"
@@ -27,14 +27,14 @@
         },
         {
           "name": "Domain Objects",
-          "description": "Everything related to all Domain Objects & operations"
+          "description": "Everything related to all Domain Objects & Operations"
         }
   ],
   "paths": {
     "/domains": {
       "get": {
-        "summary": "gets All live Domains",
-        "description": "The _domain_ endpoint is used to get the list of domains available in the  _EkStep Platform_.This endpoint returns all domains that are defined in the platform",
+        "summary": "Gets All Live Domains",
+        "description": "This _domains_ endpoint is used to get the list of all live domains available in the  _EkStep Learning Platform_",
         "operationId": "domain.list",
         "produces": [
           "application/json"
@@ -44,19 +44,19 @@
         ],
         "responses": {
           "200": {
-            "description": "gets All live Domains",
+            "description": "Gets All live Domains",
             "schema": {
               "$ref": "#/definitions/getAllDomains"
             }
           },
           "400": {
-            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Domain Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Domain Model Error Messages' for the corresponding error messages.",
+            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Domain  Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Domain Model Error Messages' for the corresponding error messages.",
+            "description": "Error While fetching all domains! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -67,8 +67,8 @@
     },
     "/domains/{domainId}": {
       "get": {
-        "summary": "Gets details of specific domain",
-        "description": "The _domain/{domainId}_ endpoint with 'GET' method is used to fetch the domains from the _EkStep Platform_. This endpoint returns the entire domain Object with default fields. ",
+        "summary": "Gets Specific Domain",
+        "description": "The _domain/{domainId}_ endpoint with 'GET' method is used to fetch the specific domain from the _EkStep Platform_. This endpoint returns the entire domain Object with default fields and relations ",
         "tags": [
           "Domains"
         ],
@@ -110,8 +110,8 @@
     },
     "/domains/{domainId}?depth={depthValue}*": {
       "get": {
-        "summary": "Gets details of a specific domains from graph",
-        "description": "This API gets details of specific domain. The functionality of the API is identical to Domain Search, but differs in the data structure. The returned data structure is nodes and edges.",
+        "summary": "Gets Specific Domain Graph",
+        "description": "This API gets details of specific domain. The functionality of the API is identical to Domain Search based on the field values",
         "tags": [
           "Domains"
         ],
@@ -137,22 +137,316 @@
         ],
         "responses": {
           "200": {
-            "description": "gets details about domainGraph",
-            "schema": {
-              "type": "array",
-              "items": {
+            "description": "Gets details about domain",
+            "schema":{
                 "$ref": "#/definitions/getDomainsGraph"
-              }
             }
           },
           "400": {
-            "description": "Error While fetching domain graph! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching the domain graph! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching domain graph! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While fetching the domain graph! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/dimensions": {
+      "get": {
+        "summary": "Gets All Live Dimensions",
+        "description": "This _dimension_ endpoint with 'GET' method is used to get all the live dimensions of given domainId from the domain graph of Ekstep Platform,This API Returns the details of all dimension, and optionally, the sub-graph within it",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain within which to return the dimensions",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "all dimension objects returned successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/getAllDimensions"
+              }
+            }
+          },
+          "400": {
+            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Creates New Dimension",
+        "description": "The _dimension_ endpoint is used to create the dimension into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the dimension into the platfrom, The _dimension_ endpoint returns the node id as _node_id_ i.e. the identifier of created dimension.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.object.create",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/createDimension"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "domainId - Domain ID within which the dimension is created successfully",
+            "schema": {
+              "$ref": "#/definitions/createDimension"
+            }
+          },
+          "400": {
+            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/dimensions/{dimensionId}": {
+      "get": {
+        "summary": "Gets Specific Dimension",
+        "description": "This _dimension_ endpoint with 'GET' method is used to get the dimension Object from the domain graph of Ekstep Platform,This API Returns the details of the given dimension, and optionally, the sub-graph within it.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId",
+            "in": "path",
+            "required": true,
+            "description": "Dimension to return (concepts are unique within a domain)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the details of the given dimension",
+            "schema": {
+              "$ref": "#/definitions/getSpecificDimension"
+            }
+          },
+          "400": {
+            "description": "Error While fetching specified dimension  | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching the specific dimension | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary":"Updates Specific Dimension",
+        "description": "This _dimension_  update API with 'PATCH' method is used to update the given dimension, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the dimension into the platfrom, The _dimension_ endpoint returns the node id as _node_id_ i.e. the identifier of updated dimension",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId",
+            "in": "path",
+            "required": true,
+            "description": "dimension ID to query the details",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/updateDimension"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "domainId - Domain ID within which the dimension is created successfully",
+            "schema": {
+              "$ref": "#/definitions/updateDimension"
+            }
+          },
+          "400": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/dimensions/search": {
+      "post": {
+        "summary": "Search Dimensions Based On Search Criteria",
+        "description": "This _dimension_  search API with 'POST' method is used run a search query on the domian graph for a given domainId to fetch the dimensions from the domain of the Ekstep platform.This API returns the dimensions based on the search criteria provided in the request body",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/searchDimension"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "domainId - Domain ID within which the dimension is searched successfully",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/searchDimension"
+              }
+            }
+          },
+          "400": {
+            "description": "Error While searching dimensions within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While searching for dimensions within the specified domain !| Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/dimensions/{dimensionId1}/merge?{dimensionId2}":{
+        "post": {
+           "summary": "Merge Given Dimension with Another Dimension",
+           "description": "This _dimension_  merge API with 'POST' method is used to merge the given dimension with the new dimensionId, This _dimension_ endpoint returns the node id as _node_id_ i.e. the identifier of mergerd dimension",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.dimension.merge",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId1",
+            "in": "path",
+            "required": true,
+            "description": "dimension ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "dimensionId2",
+            "in": "path",
+            "required": true,
+            "description": "dimension ID to query the details",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "domainId - Domain ID within which the dimension is created successfully",
+            "schema": {
+              "$ref": "#/definitions/mergeDimension"
+            }
+          },
+          "400": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -163,8 +457,8 @@
     },
     "/domains/{domainId}/concepts": {
       "get": {
-        "summary": "gets list of concepts",
-        "description": "The _concept_ endpoint is used to get the list of concepts available in the  _EkStep Platform_.This endpoint returns all concepts that are defined in the platform",
+        "summary": "Gets All Live Concepts",
+        "description": "The _concept_ endpoint is used to get the list of concepts  and their properties and relations as definied in the  _EkStep Platform_",
         "tags": [
           "Domain Objects"
         ],
@@ -192,7 +486,7 @@
             }
           },
           "400": {
-            "description": "Error While fetching all Concepts ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching all Concepts ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -207,7 +501,7 @@
         "security": []
       },
       "post": {
-        "summary": "Create or update a new concept",
+        "summary": "Creates New Concept",
         "description": "The _concept_ endpoint is used to create the concept into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the content into the platfrom, The _concept_ endpoint returns the node id as _node_id_ i.e. the identifier of created concept.",
         "tags": [
           "Domain Objects"
@@ -236,7 +530,7 @@
             }
           },
           "400": {
-            "description": "Error While Concept Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc ",
+            "description": "Error While Concept Creation! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -253,8 +547,8 @@
     },
     "/domains/{domainId}/concepts/{conceptId1}/{relationName}/{conceptId2}": {
       "delete": {
-        "summary": "Deletes relation between two existing concepts",
-        "description": "This API Deletes the given relation between two existing concepts",
+        "summary": "Deletes Relation Between Existing Concepts",
+        "description": "This API Deletes the given relation between two existing Concepts",
         "tags": [
           "Domain Objects"
         ],
@@ -294,19 +588,19 @@
         ],
         "responses": {
           "200": {
-            "description": "Deletes relation between two existing concepts",
+            "description": "Deletes relation between two existing Concepts",
             "schema": {
               "$ref": "#/definitions/deleteRelation"
             }
           },
           "400": {
-            "description": "Error While deleting the relation between two concept ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc ",
+            "description": "Error While deleting the relation between two Concepts ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While deleting the relation between two concept! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While deleting the relation between two Concepts! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -317,8 +611,8 @@
     },
     "/domains/{domainId}/concepts/{conceptId}/retire?newConceptId={newConceptId}": {
       "post": {
-        "summary": "Retires the concept.",
-        "description": "This API retires the concept. The concept is marked as deprecated and the concept data is still retained in the system. The concept is replaced by the given new concept. All relations of the current concept are moved to the new concept. Retired concepts are not returned by the APIs.",
+        "summary": "Retires Specific Concept.",
+        "description": "This API retires the Concept. The concept is marked as deprecated and the concept data is still retained in the system. The concept is replaced by the given new concept. All relations of the current concept are moved to the new concept. Retired concepts are not returned by the APIs.",
         "tags": [
           "Domain Objects"
         ],
@@ -357,7 +651,7 @@
             }
           },
           "400": {
-            "description": "Error While retiring the specified concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While retiring the specified concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -374,7 +668,7 @@
     },
     "/domains/{domainId}/concepts/{conceptId1}/parent?{parentId}={conceptId2}": {
       "post": {
-        "summary": "Moves concept under a new parent",
+        "summary": "Moves Specific Concept Under a New Parent",
         "description": "This API Moves the given concept under a new parent. The entire sub-tree of concepts is affected",
         "tags": [
           "Domain Objects"
@@ -421,7 +715,7 @@
             }
           },
           "400": {
-            "description": "Error While moving the concept ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain MOdel Wiki-Doc",
+            "description": "Error While moving the concept ! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -438,7 +732,7 @@
     },
     "/domains/{domainId}/concepts/{conceptId}": {
       "get": {
-        "summary": "gets specific concept object",
+        "summary": "Gets Specific Concept",
         "description": "The _concept/{conceptId}_ endpoint with 'GET' method is used to fetch the specific concept from the _EkStep Platform_. This endpoint returns the entire concept Object with default fields.",
         "tags": [
           "Domain Objects"
@@ -471,7 +765,7 @@
             }
           },
           "400": {
-            "description": "Error While fetching the specific concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching the specific concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -486,8 +780,8 @@
         "security": []
       },
       "patch": {
-        "summary": "Updates the concept",
-        "description": "This is a PATCH API - indicating that the platform supports partial data updates. Only the fields provided in the request object will be updated.",
+        "summary": "Updates Specific Concept",
+        "description": "This _concept_  update API with 'PATCH' method is used to update the given concept, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the concept into the platfrom, The _concept_ endpoint returns the node id as _node_id_ i.e. the identifier of updated concept.",
         "tags": [
           "Domain Objects"
         ],
@@ -522,7 +816,7 @@
             }
           },
           "400": {
-            "description": "Error While updating the concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc ",
+            "description": "Error While updating the concept! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -537,10 +831,10 @@
         "security": []
       }
     },
-    "/domains/{domainId}/concepts/{conceptId}/{relationName}?depth=NNN": {
+    "/domains/{domainId}/concepts/{conceptId}/{relationName}?depth={depthValue}": {
       "get": {
-        "summary": "gets hierarchy of concepts",
-        "description": "This API Returns the hierarchy of concepts in the domain,Gets graph of concepts connected to a concept with the given relation    ",
+        "summary": "Gets Hierarchy of Concepts",
+        "description": "This _concept_ endpoint with 'GET' method is used to get the hierarchy of concepts from the domain graph of Ekstep Platform. This returns  graph of concepts connected to a concept with the given relation",
         "tags": [
           "Domain Objects"
         ],
@@ -554,6 +848,13 @@
             "in": "path",
             "required": true,
             "description": "domain for which all concepts are required",
+            "type": "string"
+          },
+          {
+            "name": "depthValue",
+            "in": "path",
+            "required": true,
+            "description": "depthValue",
             "type": "string"
           },
           {
@@ -582,253 +883,13 @@
             }
           },
           "400": {
-            "description": "Error While fetching hierarchy of concepts in the domain | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching hierarchy of concepts in the domain | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'.",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Codes', after that read 'errmsg' field of response 'params' and go through the Wiki-Doc with title 'Content Model Error Messages' for the corresponding error messages.",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          }
-        },
-        "security": []
-      }
-    },
-    "/domains/{domainId}/dimensions": {
-      "get": {
-        "summary": "gets all dimensions",
-        "description": "This API returns list of all live dimensions in the given domain",
-        "tags": [
-          "Domain Objects"
-        ],
-        "operationId": "domain.dimension.list",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "Domain within which to return the dimensions",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "all dimension objects returned successfully",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/getAllDimensions"
-              }
-            }
-          },
-          "400": {
-            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          },
-          "500": {
-            "description": "Error While fetching all dimensions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          }
-        },
-        "security": []
-      },
-      "post": {
-        "summary": "domainId - Domain ID within which the dimension is created",
-        "description": "The _dimension_ endpoint is used to create the dimension into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the dimension into the platfrom, The _dimension_ endpoint returns the node id as _node_id_ i.e. the identifier of created dimension.",
-        "tags": [
-          "Domain Objects"
-        ],
-        "operationId": "domain.object.create",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "domain ID to query the details",
-            "type": "string"
-          },
-          {
-            "$ref": "#/parameters/createDimension"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "domainId - Domain ID within which the dimension is created successfully",
-            "schema": {
-              "$ref": "#/definitions/createDimension"
-            }
-          },
-          "400": {
-            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through theDomain Model  Wiki-Doc",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          },
-          "500": {
-            "description": "Error While creating dimension within domain | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          }
-        },
-        "security": []
-      }
-    },
-    "/domains/{domainId}/dimensions/{dimensionId}": {
-      "get": {
-        "summary": "gets specific dimension",
-        "description": "This API Returns the details of the given dimension, and optionally, the sub-graph within it.",
-        "tags": [
-          "Domain Objects"
-        ],
-        "operationId": "domain.dimension.info",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "Domain ID to query the details",
-            "type": "string"
-          },
-          {
-            "name": "dimensionId",
-            "in": "path",
-            "required": true,
-            "description": "Dimension to return (concepts are unique within a domain)",
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "Returns the details of the given dimension",
-            "schema": {
-              "$ref": "#/definitions/getSpecificDimension"
-            }
-          },
-          "400": {
-            "description": "Error While fetching specified dimension  | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          },
-          "500": {
-            "description": "Error While fetching the specific dimension | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          }
-        },
-        "security": []
-      },
-      "patch": {
-        "summary": "Updates the dimension",
-        "description": "Updates the dimension data. This is a PATCH API - indicating that the platform supports partial data updates. Only the fields provided in the request object will be updated.",
-        "tags": [
-          "Domain Objects"
-        ],
-        "operationId": "domain.dimension.update",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "domain ID to query the details",
-            "type": "string"
-          },
-          {
-            "name": "dimensionId",
-            "in": "path",
-            "required": true,
-            "description": "dimension ID to query the details",
-            "type": "string"
-          },
-          {
-            "$ref": "#/parameters/updateDimension"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "domainId - Domain ID within which the dimension is created successfully",
-            "schema": {
-              "$ref": "#/definitions/updateDimension"
-            }
-          },
-          "400": {
-            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          },
-          "500": {
-            "description": "Error While updating the dimension! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          }
-        },
-        "security": []
-      }
-    },
-    "/domains/{domainId}/dimensions/search": {
-      "post": {
-        "summary": "searches dimensions based on give criteria",
-        "description": "This API runs a search query and returns list of all live dimensions in the given domain matching the given criteria.",
-        "tags": [
-          "Domain Objects"
-        ],
-        "operationId": "domain.dimension.search",
-        "produces": [
-          "application/json"
-        ],
-        "parameters": [
-          {
-            "name": "domainId",
-            "in": "path",
-            "required": true,
-            "description": "domain ID to query the details",
-            "type": "string"
-          },
-          {
-            "$ref": "#/parameters/searchDimension"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "domainId - Domain ID within which the dimension is searched successfully",
-            "schema": {
-              "type": "array",
-              "items": {
-                "$ref": "#/definitions/searchDimension"
-              }
-            }
-          },
-          "400": {
-            "description": "Error While searching dimensions within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc ",
-            "schema": {
-              "$ref": "#/definitions/FailedResponseHeader"
-            }
-          },
-          "500": {
-            "description": "Error While searching for dimensions within the specified domain !| Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "description": "Error While Content Creation! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -839,8 +900,8 @@
     },
     "/domains/{domainId}/concepts/search": {
       "post": {
-        "summary": "searches concepts based on give criteria",
-        "description": "This API runs a search query and returns list of all live concepts in the given domain matching the given criteria.",
+        "summary": "Search Concepts Based On Search Criteria",
+        "description": "This _Concepts_  search API with 'POST' method is used run a search query on the domian graph for a given domainId to fetch the concepts from the domain of the Ekstep platform.This API returns the concepts based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],
@@ -871,7 +932,7 @@
             }
           },
           "400": {
-            "description": "Error While searching concepts within domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While searching concepts within domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -888,8 +949,8 @@
     },
     "/domains/{domainId}/methods": {
       "get": {
-        "summary": "gets all methods",
-        "description": "This API returns all methods in a domain",
+        "summary": "Gets All Live Methods",
+        "description": "This _methods_ endpoint with 'GET' method is used to get all the live methods of given domainId from the domain graph of Ekstep Platform,This API Returns the details of all methods",
         "tags": [
           "Domain Objects"
         ],
@@ -914,13 +975,13 @@
             }
           },
           "400": {
-            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
           },
           "500": {
-            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Wiki-Doc",
+            "description": "Error While fetching all methods within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -929,7 +990,7 @@
         "security": []
       },
       "post": {
-        "summary": "creates a method",
+        "summary": "Creates New Method",
         "description": "The _method_ endpoint is used to create the method into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the method into the platfrom, The _method_ endpoint returns the node id as _node_id_ i.e. the identifier of created method.",
         "tags": [
           "Domain Objects"
@@ -958,7 +1019,7 @@
             }
           },
           "400": {
-            "description": "Error While Creating method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc ",
+            "description": "Error While Creating method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -975,8 +1036,8 @@
     },
     "/domains/{domainId}/methods/{methodId}": {
       "get": {
-        "summary": "gets specific Method",
-        "description": "This API Returns the details of the given Method, and optionally, the sub-graph within it.",
+        "summary": "Gets Specific Method",
+        "description": "This _method_ endpoint with 'GET' method is used to get specific method object of given domainId from the domain graph of Ekstep Platform,This API Returns the details of specific method and its relations",
         "tags": [
           "Domain Objects"
         ],
@@ -1004,11 +1065,11 @@
           "200": {
             "description": "Returns the details of specific Method",
             "schema": {
-              "$ref": "#/definitions/getAllMethods"
+              "$ref": "#/definitions/getSpecificMethod"
             }
           },
           "400": {
-            "description": "Error While fetching all methods within specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While fetching all methods within specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -1023,8 +1084,8 @@
         "security": []
       },
       "patch": {
-        "summary": "Updates the method",
-        "description": "Updates the method data. This is a PATCH API - indicating that the platform supports partial data updates. Only the fields provided in the request object will be updated.",
+        "summary": "Updates Specific Method",
+        "description": "This _method_  update API with 'PATCH' method is used to update the given method, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the concept into the platfrom, The _method_ endpoint returns the node id as _node_id_ i.e. the identifier of updated method.",
         "tags": [
           "Domain Objects"
         ],
@@ -1059,7 +1120,7 @@
             }
           },
           "400": {
-            "description": "Error While updating the method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain MOdel Wiki-Doc",
+            "description": "Error While updating the method within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -1074,8 +1135,8 @@
         "security": []
       },
       "delete": {
-        "summary": "Deletes the method",
-        "description": "Deletes the method. Deletion is only marked as deprecated and the method data is still retained in the system. Deleted methods are not returned by the APIs.",
+        "summary": "Deletes Specific Method",
+        "description": "This _method_  update API with 'DELETE' method is used to delete the given method.Deletion is only marked as deprecated and the method data is still retained in the system. Deleted methods are not returned by the APIs.",
         "tags": [
           "Domain Objects"
         ],
@@ -1107,7 +1168,7 @@
             }
           },
           "400": {
-            "description": "Error while deleting the specified method within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error while deleting the specified method within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -1124,8 +1185,8 @@
     },
     "/domains/{domainId}/methods/search": {
       "post": {
-        "summary": "searches methods associated with domainId",
-        "description": "This API returns all methods which are of status live from given  domain",
+        "summary": "Search Methods Based On Search Criteria",
+        "description": "This _methods_ search API with 'POST' method is used run a search query on the domian graph for a given domainId to fetch the methods from the domain of the Ekstep platform.This API returns the methods based on the search criteria provided in the request body",
         "tags": [
           "Domain Objects"
         ],
@@ -1153,7 +1214,7 @@
             }
           },
           "400": {
-            "description": "Error While searching the methods within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'. To investigate the root cause first read through the 'err' field of response 'params' and go through the Domain Model Wiki-Doc",
+            "description": "Error While searching the methods within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
             "schema": {
               "$ref": "#/definitions/FailedResponseHeader"
             }
@@ -1167,27 +1228,291 @@
         },
         "security": []
       }
+    },
+    "/domains/{domainId}/misconceptions":{
+      "get": {
+        "summary": "Gets All Misconceptions",
+        "description": "This _misconceptions_ endpoint with 'GET' method is used to get all the live misconceptions of given domainId from the domain graph of Ekstep Platform,This API Returns the details of all misconceptions",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconceptions.list",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domainId for which all misconceptions are required",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns all misconceptions in a domain",
+            "schema": {
+                "$ref": "#/definitions/getAllMisconceptions"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all misconceptions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all misconceptions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "post": {
+        "summary": "Creates New Misconception",
+        "description": "The _misconception_ endpoint with 'POST' method is used to create misconception into the _EkStep Platform_ with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to create the misconceptions into the platfrom, The _misconceptions_ endpoint returns the node id as _node_id_ i.e. the identifier of created misconceptions.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconceptions.save",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain for the misconceptions",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/createMisconceptions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "node_id - Node ID created in the graph",
+            "schema": {
+              "$ref": "#/definitions/createMisconceptions"
+            }
+          },
+          "400": {
+            "description": "Error While Creating misconceptions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception' ",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While Creating misconceptions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/misconceptions/{misconceptionId}": {
+      "get": {
+        "summary": "Gets Specific Misconception",
+        "description": "This _misconceptions_ endpoint with 'GET' method is used to get specific misconceptions object of given domainId from the domain graph of Ekstep Platform,This API Returns the details of specific misconceptions and its relations",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconceptions.info",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "Domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "misconceptionId",
+            "in": "path",
+            "required": true,
+            "description": "(Path Parameter) misconceptions to return (misconceptions are unique within a domain)",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the details of specific misconceptions",
+            "schema": {
+              "$ref": "#/definitions/getSpecificMisconception"
+            }
+          },
+          "400": {
+            "description": "Error While fetching all misconceptions within specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While fetching all misconceptions within specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "patch": {
+        "summary": "Updates Specific Misconception",
+        "description": "This _misconceptions_  update API with 'PATCH' method is used to update the given misconceptions, with the metadata provided as part of request body, there are certain fields marked as mandatory for which the value has to be given in order to update the misconceptions into the platfrom, The _misconceptions_ endpoint returns the node id as _node_id_ i.e. the identifier of updated misconceptions.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconceptions.update",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "misconceptionId",
+            "in": "path",
+            "required": true,
+            "description": "misconception ID to query the details",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/updateMisconceptions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "misconceptions updated successfully",
+            "schema": {
+              "$ref": "#/definitions/updateMisconceptions"
+            }
+          },
+          "400": {
+            "description": "Error While updating the misconceptions within the specified domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While updating the misconceptions within the specified domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      },
+      "delete": {
+        "summary": "Deletes Specific Misconception",
+        "description": "This _misconceptions_  update API with 'DELETE' method is used to delete the given misconceptions.Deletion is only marked as deprecated and the misconceptions data is still retained in the system. Deleted misconceptions are not returned by the APIs.",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconception.delete",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "name": "misconceptionId",
+            "in": "path",
+            "required": true,
+            "description": "misconception to be deleted",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "specified misconceptions deleted successfully",
+            "schema": {
+              "$ref": "#/definitions/deleteMisconceptions"
+            }
+          },
+          "400": {
+            "description": "Error while deleting the specified misconceptions within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error while deleting the specified misconceptions within the domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'.",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
+    },
+    "/domains/{domainId}/misconceptions/search": {
+      "post": {
+        "summary": "Search Misconceptions Based On Search Criteria",
+        "description": "This _misconceptions_ search API with 'POST' method is used run a search query on the domian graph for a given domainId to fetch the misconceptions from the domain of the Ekstep platform.This API returns the misconceptions based on the search criteria provided in the request body",
+        "tags": [
+          "Domain Objects"
+        ],
+        "operationId": "domain.misconceptions.search",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "domainId",
+            "in": "path",
+            "required": true,
+            "description": "domain ID to query the details",
+            "type": "string"
+          },
+          {
+            "$ref": "#/parameters/searchMisconceptions"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "domain objects retreived successfully",
+            "schema": {
+                "$ref": "#/definitions/searchMisconceptions"
+            }
+          },
+          "400": {
+            "description": "Error While searching the misconceptions within the domain! | Error occurred while operation, mostly because of the input given by client, In general it is 'Client Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          },
+          "500": {
+            "description": "Error While searching the misconceptions within the domain! | Error occurred while operation, mostly because of erroneous condition on server, In general it is 'Server Exception' or 'Exception'",
+            "schema": {
+              "$ref": "#/definitions/FailedResponseHeader"
+            }
+          }
+        },
+        "security": []
+      }
     }
   },
   "parameters": {
-    "createConcept": {
-      "name": "Request",
-      "in": "body",
-      "description": "Concept Request Object which contains the concept object",
-      "required": true,
-      "schema":{
-         "$ref": "#/definitions/concepts"
-      }
-    },
-    "updateConceptData": {
-      "name": "Request",
-      "in": "body",
-      "description": "Concept Request Object which contains the concept object",
-      "required": true,
-      "schema":{
-         "$ref": "#/definitions/concepts"
-      }
-    },
     "createDimension": {
       "name": "Request",
       "in": "body",
@@ -1212,16 +1537,25 @@
       "description": "search Request Object",
       "required": true,
       "schema":{
-         "$ref": "#/definitions/searchRequest"
+         "$ref": "#/definitions/dimensions"
       }
     },
-    "searchMethods": {
+    "createConcept": {
       "name": "Request",
       "in": "body",
-      "description": "search Request Object",
+      "description": "Concept Request Object which contains the concept object",
       "required": true,
       "schema":{
-          "$ref": "#/definitions/searchRequest"
+         "$ref": "#/definitions/concept"
+      }
+    },
+    "updateConceptData": {
+      "name": "Request",
+      "in": "body",
+      "description": "Concept Request Object which contains the concept object",
+      "required": true,
+      "schema":{
+         "$ref": "#/definitions/concept"
       }
     },
     "searchConcepts": {
@@ -1230,7 +1564,7 @@
       "description": "search Request Object",
       "required": true,
       "schema":{
-         "$ref": "#/definitions/searchRequest"
+         "$ref": "#/definitions/concept"
       }
     },
     "createMethod": {
@@ -1250,39 +1584,74 @@
       "schema":{
          "$ref": "#/definitions/methods"
       }
+    },
+    "searchMethods": {
+      "name": "Request",
+      "in": "body",
+      "description": "search Request Object",
+      "required": true,
+      "schema":{
+          "$ref": "#/definitions/methods"
+      }
+    },
+    "createMisconceptions":{
+      "name": "Request",
+      "in": "body",
+      "description": "method Request Object",
+      "required": true,
+      "schema":{
+         "$ref": "#/definitions/misconceptions"
+      }
+    },
+     "updateMisconceptions":{
+      "name": "Request",
+      "in": "body",
+      "description": "method Request Object",
+      "required": true,
+      "schema":{
+         "$ref": "#/definitions/misconceptions"
+      }
+    },
+     "searchMisconceptions":{
+      "name": "Request",
+      "in": "body",
+      "description": "method Request Object",
+      "required": true,
+      "schema":{
+         "$ref": "#/definitions/misconceptions"
+      }
     }
   },
   "definitions": {
-    "searchRequest": {
-      "properties": {
-        "status": {
-          "type": "string",
-          "description": "status"
-        },
-        "limit": {
-          "type": "number",
-          "description": "limit"
-        }
-       }
-      },
-      "getAllDomains": {
+    "getAllDomains": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/domains"
+          "result": {
+            "$ref": "#/definitions/getAllDomainsObject"
           }
         }
+      },
+       "getAllDomainsObject":{
+        "title":"getAllDomains",
+         "properties":{
+            "domains":{
+               "type":"array",
+               "items":{
+                  "$ref":"#/definitions/allDomains"
+               }
+            }
+         }
       },
       "getSpecificDomain": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
+          "result": {
             "$ref": "#/definitions/domains"
           }
         }
@@ -1291,21 +1660,10 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
+          "result": {
             "$ref": "#/definitions/domains"
-          }
-        }
-      },
-      "getAllDimensions": {
-        "type": "object",
-        "properties": {
-          "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
-          },
-          "body": {
-            "$ref": "#/definitions/dimensions"
           }
         }
       },
@@ -1313,54 +1671,61 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/concepts"
+          "result": {
+             "type":"array",
+            "items":{
+               "$ref": "#/definitions/conceptObject"
+            }
           }
+        }
+      },
+      "conceptObject":{
+        "properties":{
+          "concept":{
+           "$ref":"#/definitions/conceptMetadata1"
+        },
+        "owner":{
+          "$ref":"#/definitions/conceptMetadata2"
+        },
+        "relation":{
+          "$ref":"#/definitions/conceptMetadata3"
+        },
+        "metadata":{
+          "$ref":"#/definitions/concept"
+        }
         }
       },
       "getSpecificConcept": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/concepts"
-          }
-        }
-      },
-      "getSpecificDimension": {
-        "type": "object",
-        "properties": {
-          "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
-          },
-          "body": {
-            "$ref": "#/definitions/dimensions"
+          "result": {
+            "$ref": "#/definitions/concept"
           }
         }
       },
       "createConcept": {
-        "description": "Create Content Response",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/ResultWithNodeId"
+       "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
           },
-          {
-            "$ref": "#/definitions/SuccessResponseHeader"
+          "result":{
+            "$ref": "#/definitions/NodeId"
           }
-        ]
+        }
       },
       "deleteRelation": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
+          "result": {
             "$ref": "#/definitions/result"
           }
         }
@@ -1369,7 +1734,7 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
           "body": {
             "$ref": "#/definitions/result"
@@ -1380,9 +1745,9 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
+          "result": {
             "$ref": "#/definitions/result"
           }
         }
@@ -1391,10 +1756,10 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/result"
+          "result": {
+            "$ref": "#/definitions/NodeId"
           }
         }
       },
@@ -1402,44 +1767,10 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/concepts"
-          }
-        }
-      },
-      "createDimension": {
-        "description": "Dimension created successfully",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/ResultWithNodeId"
-          },
-          {
-            "$ref": "#/definitions/SuccessResponseHeader"
-          }
-        ]
-      },
-      "updateDimension": {
-        "type": "object",
-        "properties": {
-          "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
-          },
-          "body": {
-            "$ref": "#/definitions/result"
-          }
-        }
-      },
-      "searchDimension": {
-        "type": "object",
-        "properties": {
-          "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
-          },
-          "body": {
-            "$ref": "#/definitions/dimensions"
+          "result": {
+            "$ref": "#/definitions/conceptObject"
           }
         }
       },
@@ -1447,10 +1778,157 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/concepts"
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/conceptObject"
+            }
+          }
+        }
+      },
+      "getAllDimensions": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/dimensions"
+            }
+          }
+        }
+      },
+      "getSpecificDimension": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/dimensions"
+          }
+        }
+      },
+      "createDimension": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/NodeId"
+          }
+        }
+      },
+      "updateDimension": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/NodeId"
+          }
+        }
+      },
+       "mergeDimension": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/NodeId"
+          }
+        }
+      },
+      "searchDimension": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+           "type":"array",
+            "items":{
+               "$ref": "#/definitions/dimensions"
+            }
+          }
+        }
+      },
+      "getAllMisconceptions": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/misconceptions"
+            }
+          }
+        }
+      },
+      "deleteMisconceptions": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/result"
+          }
+        }
+      },
+      "createMisconceptions": {
+       "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result":{
+            "$ref": "#/definitions/NodeId"
+          }
+        }
+      },
+      "updateMisconceptions": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "$ref": "#/definitions/NodeId"
+          }
+        }
+      },
+       "getSpecificMisconception":{
+           "type": "object",
+            "properties": {
+              "header": {
+                "$ref": "#/definitions/ResponseHeader"
+              },
+              "result": {
+                   "$ref": "#/definitions/misconceptions"
+               }
+         }
+      },
+      "searchMisconceptions": {
+        "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
+          },
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/misconceptions"
+            }
           }
         }
       },
@@ -1458,10 +1936,13 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/methods"
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/methods"
+            }
           }
         }
       },
@@ -1469,282 +1950,361 @@
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/methods"
+          "result": {
+            "type":"array",
+            "items":{
+               "$ref": "#/definitions/methods"
+            }
           }
         }
+      },
+      "getSpecificMethod":{
+           "type": "object",
+            "properties": {
+              "header": {
+                "$ref": "#/definitions/ResponseHeader"
+              },
+              "result": {
+                   "$ref": "#/definitions/methods"
+               }
+         }
       },
       "deleteMethod": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
+          "result": {
             "$ref": "#/definitions/result"
           }
         }
       },
       "createMethod": {
-        "description": "Method created successfully",
-        "type": "object",
-        "allOf": [
-          {
-            "$ref": "#/definitions/ResultWithNodeId"
+       "type": "object",
+        "properties": {
+          "header": {
+            "$ref": "#/definitions/ResponseHeader"
           },
-          {
-            "$ref": "#/definitions/SuccessResponseHeader"
+          "result":{
+            "$ref": "#/definitions/NodeId"
           }
-        ]
+        }
       },
       "updateMethod": {
         "type": "object",
         "properties": {
           "header": {
-            "$ref": "#/definitions/SuccessResponseHeader"
+            "$ref": "#/definitions/ResponseHeader"
           },
-          "body": {
-            "$ref": "#/definitions/result"
-          }
-        }
-      },
-      "SuccessResponseHeader": {
-        "title": "SuccessResponseHeader",
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "API Identifier"
-          },
-          "ver": {
-            "type": "string",
-            "description": "API version information"
-          },
-          "ts": {
-            "type": "string",
-            "description": "API execution timespan"
-          },
-          "params": {
-            "description": "API response parameters",
-            "$ref": "#/definitions/SuccessResponseParams"
-          },
-          "responseCode": {
-            "type": "object",
-            "description": "API response code "
-          }
-        }
-      },
-      "SuccessResponseParams": {
-        "title": "Response Params",
-        "type": "object",
-        "properties": {
-          "resmsgid": {
-            "type": "string",
-            "description": "Response Message Id"
-          },
-          "msgid": {
-            "type": "string",
-            "description": "Message Id"
-          },
-          "err": {
-            "type": "string",
-            "description": "Error Code"
-          },
-          "status": {
-            "type": "string",
-            "description": "Response Status"
-          },
-          "errmsg": {
-            "type": "string",
-            "description": "Error Message"
-          }
-        }
-      },
-      "FailedResponseHeader": {
-        "title": "FailureResponseHeader",
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "description": "API Identifier"
-          },
-          "ver": {
-            "type": "string",
-            "description": "API version information"
-          },
-          "ts": {
-            "type": "string",
-            "description": "API execution timespan"
-          },
-          "params": {
-            "type": "string",
-            "description": "API response parameters"
-          },
-          "responseCode": {
-            "type": "object",
-            "description": "API response code "
-          },
-         "result": {
-            "title": "result",
-            "type": "object",
-            "properties": {}
-         }
-        }
-      },
-      "FailedResponseParams": {
-        "title": "Failed Operation Response Params",
-        "type": "object",
-        "properties": {
-          "resmsgid": {
-            "type": "string",
-            "description": "Response Message Id"
-          },
-          "msgid": {
-            "type": "string",
-            "description": "Message Id"
-          },
-          "err": {
-            "type": "string",
-            "description": "Error Code"
-          },
-          "status": {
-            "type": "string",
-            "description": "Response Status"
-          },
-          "errmsg": {
-            "type": "string",
-            "description": "Error Message"
-          }
-        }
-      },
-      "ResultWithNodeId": {
-        "title": "Result Containing Node Id",
-        "type": "object",
-        "properties": {
           "result": {
             "$ref": "#/definitions/NodeId"
           }
         }
       },
+     
+      "misconceptions":{
+         "allOf":[{
+            "$ref":"#/definitions/index"
+         },{
+           "properties":{
+               "createdOn": {
+                  "type": "string",
+                  "description": "createdOn"
+               },
+                "lastUpdatedOn": {
+                    "type": "string",
+                    "description": ""
+                  }
+           }
+         }]
+      },
       "result": {
-        "title": "result",
         "type": "object",
         "properties": {}
       },
-      "concepts": {
-        "title": "details of all concepts",
-        "type": "object",
-        "properties": {
-          "name": {
-            "type": "string",
-            "description": ""
-          },
-          "code": {
-            "type": "string",
-            "description": ""
-          },
-          "keywords": {
-            "type": "string",
-            "description": ""
-          },
-          "status": {
-            "type": "string",
-            "description": ""
-          },
-          "gradeLevel": {
-            "type": "string",
-            "description": ""
-          },
-          "internalValidation": {
-            "type": "string",
-            "description": ""
-          },
-          "externalValidation": {
-            "type": "string",
-            "description": ""
-          },
-          "baseConceptId": {
-            "type": "string",
-            "description": ""
-          },
-          "expectedLearningTime": {
-            "type": "number",
-            "description": "Learning time in hours"
-          },
-          "applicability": {
-            "type": "string",
-            "description": "Application in real life"
-          },
-          "foundation": {
-            "type": "string",
-            "description": ""
-          },
-          "assessmentMethod": {
-            "type": "string",
-            "description": ""
-          },
-          "noOfGames": {
-            "type": "number",
-            "description": ""
-          },
-          "avgGamingTimeSpent": {
-            "type": "number",
-            "description": ""
-          },
-          "description": {
-            "type": "string",
-            "description": ""
-          },
-          "learningObjective": {
-            "type": "string",
-            "description": ""
-          },
-          "example": {
-            "type": "string",
-            "description": ""
-          },
-          "validators": {
-            "type": "string",
-            "description": ""
-          },
-          "references": {
-            "type": "string",
-            "description": "List of references"
-          },
-          "createdBy": {
-            "type": "string",
-            "description": ""
-          },
-          "createdOn": {
-            "type": "string",
-            "description": ""
-          },
-          "lastUpdatedBy": {
-            "type": "string",
-            "description": ""
-          },
-          "lastUpdatedOn": {
-            "type": "string",
-            "description": ""
-          },
-          "version": {
-            "type": "number",
-            "description": ""
-          },
-          "versionDate": {
-            "type": "string",
-            "description": ""
-          },
-          "versionCreatedBy": {
-            "type": "string",
-            "description": ""
+      "concept":{
+           "properties":{
+             "identifier": {
+                "type": "string",
+                "description": "Domain Identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "specific domain childName"
+              },
+              "subject": {
+                "type": "string",
+                "description": "domain subject"
+              },
+              "code": {
+                "type": "string",
+                "description": "code of the domain"
+              },
+              "description": {
+                "type": "string",
+                "description": "description about domain"
+              },
+              "status": {
+                "type": "string",
+                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+              },
+              "parent":{
+                 "$ref":"#/definitions/Children"
+              },
+              "externalValidation":{
+                 "$ref":"#/definitions/externalValidation"
+              },
+              "osId":{
+                 "type":"string",
+                 "description":"osId"
+              },
+              "mimeType":{
+                 "type":"string",
+                 "description": "mimeTYpe"
+              },
+              "tags":{
+                 "$ref":"#/definitions/tags"
+              },
+              "gradeLevel":{
+                 "$ref":"#/definitions/gradelevel"
+              }
+           }
+      },
+      "conceptMetadata1":{
+          "properties":{
+             "identifier": {
+                "type": "string",
+                "description": "Domain Identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "specific domain childName"
+              },
+              "subject": {
+                "type": "string",
+                "description": "domain subject"
+              },
+              "code": {
+                "type": "string",
+                "description": "code of the domain"
+              },
+              "description": {
+                "type": "string",
+                "description": "description about domain"
+              },
+              "status": {
+                "type": "string",
+                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+              },
+              "gradeLevel":{
+               "$ref":"#/definitions/gradelevel"
+             },
+             "lastUpdatedOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "createdOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "tags":{
+                "$ref":"#/definitions/tags"
+              }
           }
-        }
+      },
+      "conceptMetadata2":{
+        "properties":{
+            "identifier": {
+                "type": "string",
+                "description": "Domain Identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "specific domain childName"
+              },
+              "subject": {
+                "type": "string",
+                "description": "domain subject"
+              },
+              "code": {
+                "type": "string",
+                "description": "code of the domain"
+              },
+              "description": {
+                "type": "string",
+                "description": "description about domain"
+              },
+              "status": {
+                "type": "string",
+                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+              },
+             "parent":{
+                "$ref":"#/definitions/Children"
+              },
+              "thumbnail":{
+                 "type":"string",
+                 "description":"thumbnail"
+              },
+               "lastUpdatedOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "createdOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "tags":{
+                 "$ref":"#/definitions/tags"
+              },
+              "osId":{
+                 "type":"string",
+                 "description":"osId"
+              },
+              "mimeType":{
+                 "type":"string",
+                 "description": "mimeTYpe"
+              },
+              "gradeLevel":{
+                 "$ref":"#/definitions/gradelevel"
+              },
+              "learningObjective":{
+                 "$ref":"#/definitions/learningObjective"
+              },
+              "pre_requisite":{
+                 "$ref":"#/definitions/pre_requisite"
+              },
+              "co_occurrence":{
+                 "$ref":"#/definitions/pre_requisite"
+              }
+            }
+      },
+      "conceptMetadata3":{
+           "properties":{
+             "identifier": {
+                "type": "string",
+                "description": "Domain Identifier"
+              },
+              "name": {
+                "type": "string",
+                "description": "specific domain childName"
+              },
+              "subject": {
+                "type": "string",
+                "description": "domain subject"
+              },
+              "code": {
+                "type": "string",
+                "description": "code of the domain"
+              },
+              "description": {
+                "type": "string",
+                "description": "description about domain"
+              },
+              "status": {
+                "type": "string",
+                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+              },
+              "owner":{
+                 "type":"string",
+                 "description":"owner"
+              },
+               "lastUpdatedOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "createdOn": {
+                  "type": "string",
+                  "description": ""
+              },
+              "tags":{
+                 "$ref":"#/definitions/tags"
+              },
+              "osId":{
+                 "type":"string",
+                 "description":"osId"
+              },
+              "mimeType":{
+                 "type":"string",
+                 "description": "mimeTYpe"
+              },
+              "gradeLevel":{
+                 "$ref":"#/definitions/gradelevel"
+              },
+              "learningObjective":{
+                 "$ref":"#/definitions/learningObjective"
+              }
+           }
+      },
+      "pre_requisite":{
+         "properties":{
+            "identifier": {
+              "type": "string",
+              "description": "Domain Identifier"
+            },
+            "name": {
+              "type": "string",
+              "description": "specific domain childName"
+            },
+            "description":{
+               "type":"string",
+               "description":"description"
+            },
+            "relation":{
+               "type":"string",
+               "description":"relation"
+            },
+            "index":{
+               "type":"string",
+               "description":"index"
+            }
+         }
+      },
+      
+      "allDomains":{
+          "title": "domains",
+          "type": "object",
+          "properties": {
+              "identifier": {
+                "type": "string",
+                "description": "Domain Identifier"
+              },
+              "code": {
+                "type": "string",
+                "description": "code of the domain"
+              },
+              "children": {
+               "type":"array",
+               "items":{
+                   "$ref": "#/definitions/Children"
+               }
+              },
+              "subject": {
+                "type": "string",
+                "description": "domain subject"
+              },
+              "name": {
+                "type": "string",
+                "description": "domain name"
+              },
+              "description": {
+                "type": "string",
+                "description": "description about domain"
+              },
+              "status": {
+                "type": "string",
+                "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
+              },
+              "tags": {
+                "type": "object",
+                "description": "tags"
+              }
+           }
       },
       "domains": {
-        "title": "details of all domains",
+        "title": "domain",
         "type": "object",
         "properties": {
           "identifier": {
@@ -1756,8 +2316,10 @@
             "description": "code of the domain"
           },
           "children": {
-            "description": "domain and its relations/children",
-            "$ref": "#/definitions/Children"
+           "type":"array",
+           "items":{
+               "$ref": "#/definitions/Children"
+           }
           },
           "subject": {
             "type": "string",
@@ -1827,16 +2389,18 @@
             "type": "string",
             "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
           },
-          "children": {
-                "type": "object",
-                "description": "domain and its relations/children",
-                "$ref": "#/definitions/Children"
-           },
           "parent": {
-                "type": "object",
-                "description": "domain and its relations/children",
-                "$ref": "#/definitions/Children"
-          }
+               "type":"array",
+               "items":{
+                   "$ref": "#/definitions/Children"
+               }
+              },
+           "children": {
+               "type":"array",
+               "items":{
+                   "$ref": "#/definitions/Children"
+               }
+              }
             }
       },
       "Children": {
@@ -1887,11 +2451,40 @@
           }
         ]
       },
+      "complexity":{
+         "type":"object"
+      },
+       "skills":{
+         "type":"object"
+      },
+       "interactivity":{
+         "type":"object"
+      },
+      "cognitiveProcessing":{
+          "type":"object"
+      },
+      "material":{
+         "type":"object"
+      },
+      "gradelevel":{
+         "type":"object"
+      },
+      "tags":{
+         "type":"object"
+      },
+      "externalValidation":{
+        "type":"object"
+      },
+       "learningObjective":{
+           "type":"object"
+      },
       "methodMetaData": {
         "properties": {
           "complexity": {
-            "type": "string",
-            "description": "complexity"
+              "type":"array",
+            "items":{
+             "$ref":"#/definitions/complexity"
+            }
           },
           "learningStyle": {
             "type": "string",
@@ -1902,20 +2495,32 @@
             "description": "createdOn"
           },
           "skills": {
-            "type": "string",
-            "description": "skills"
+              "type":"array",
+            "items":{
+             "$ref":"#/definitions/skills"
+            }
+          },
+          "cognitiveProcessing":{
+              "type":"array",
+            "items":{
+             "$ref":"#/definitions/cognitiveProcessing"
+            }
           },
           "lastUpdatedOn": {
             "type": "number",
             "description": "latest Update"
           },
           "material": {
-            "type": "string",
-            "description": ""
+            "type":"array",
+            "items":{
+               "$ref":"#/definitions/material"
+            }
           },
           "interactivity": {
-            "type": "string",
-            "description": ""
+            "type":"array",
+            "items":{
+               "$ref":"#/definitions/interactivity"
+            }
           }
         }
       },
@@ -1945,6 +2550,85 @@
             "type": "string",
             "description": "status about the domain eg: LIVE, RETIRED, DRAFT"
           }
+        }
+      },
+       "ResponseHeader": {
+        "title": "ResponseHeader",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "API Identifier"
+          },
+          "ver": {
+            "type": "string",
+            "description": "API version information"
+          },
+          "ts": {
+            "type": "string",
+            "description": "API execution timespan"
+          },
+          "params": {
+            "$ref": "#/definitions/ResponseParams"
+          },
+          "responseCode": {
+            "type": "object",
+            "description": "API response code"
+          }
+        }
+      },
+      "ResponseParams": {
+        "title": "Response Params",
+        "type": "object",
+        "properties": {
+          "resmsgid": {
+            "type": "string",
+            "description": "Response Message Id"
+          },
+          "msgid": {
+            "type": "string",
+            "description": "Message Id"
+          },
+          "err": {
+            "type": "string",
+            "description": "Error Code"
+          },
+          "status": {
+            "type": "string",
+            "description": "Response Status"
+          },
+          "errmsg": {
+            "type": "string",
+            "description": "Error Message"
+          }
+        }
+      },
+      "FailedResponseHeader": {
+        "title": "FailureResponse",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "API Identifier"
+          },
+          "ver": {
+            "type": "string",
+            "description": "API version information"
+          },
+          "ts": {
+            "type": "string",
+            "description": "API execution timespan"
+          },
+          "params": {
+            "$ref":"#/definitions/ResponseParams"
+          },
+          "responseCode": {
+            "type": "object",
+            "description": "API response code "
+          },
+         "result": {
+            "type": "string"
+         }
         }
       }
   }
